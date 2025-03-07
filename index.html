@@ -21,6 +21,9 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
+    
+    <!-- Zapier Web Component Import -->
+    <script type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"></script>
 </head>
 <body>
     <div class="container">
@@ -28,18 +31,18 @@
         <p>Chat with our Naija AI with futuristic-style reasoning.</p>
         
         <!-- Placeholder for Chatbot -->
-        <div id="zapier-chatbot"></div>
+        <div id="chatbot-container"></div>
     </div>
 
-    <!-- Zapier JavaScript Embed -->
+    <!-- JavaScript to Load Zapier Chatbot -->
     <script>
-        (function(d, s, id) {
-            var js, zjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) return;
-            js = d.createElement(s); js.id = id;
-            js.src = "https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"; 
-            zjs.parentNode.insertBefore(js, zjs);
-        }(document, 'script', 'zapier-chatbot-script'));
+        document.addEventListener("DOMContentLoaded", function () {
+            let chatbot = document.createElement("zapier-chatbot");
+            chatbot.setAttribute("chatbot-id", "cm7s2oyu2000b3vmuwcwkj9kn");
+            chatbot.style.width = "100%";
+            chatbot.style.height = "500px";
+            document.getElementById("chatbot-container").appendChild(chatbot);
+        });
     </script>
 </body>
 </html>
