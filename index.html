@@ -1,48 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Àríyọ̀ AI</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-    
-    <!-- Zapier Web Component Import -->
-    <script type="module" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn"><iframe>
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome to Àríyọ̀ AI</h1>
-        <p>Chat with our Naija AI with futuristic-style reasoning.</p>
-        
-        <!-- Placeholder for Chatbot -->
-        <div id="chatbot-container"></div>
-    </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let chatbot = document.createElement("zapier-chatbot");
+        chatbot.setAttribute("chatbot-id", "cm7s2oyu2000b3vmuwcwkj9kn");
+        chatbot.style.width = "100%";
+        chatbot.style.height = "500px";
 
-    <!-- JavaScript to Load Zapier Chatbot -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let chatbot = document.createElement("zapier-chatbot");
-            chatbot.setAttribute("chatbot-id", "cm7s2oyu2000b3vmuwcwkj9kn");
-            chatbot.style.width = "100%";
-            chatbot.style.height = "500px";
-            document.getElementById("chatbot-container").appendChild(chatbot);
-        });
-    </script>
-</body>
-</html>
+        let container = document.getElementById("chatbot-container");
+        if (container) {
+            container.appendChild(chatbot);
+        } else {
+            console.error("Chatbot container not found!");
+        }
+    });
+</script>
