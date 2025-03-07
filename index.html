@@ -21,42 +21,20 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     </style>
-
-    <!-- Zapier Web Component Import -->
-    <script type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p>Chat with our Naija AI with futuristic-style reasoning.</p>
         
-        <!-- Option 1: JavaScript-Based Chatbot Embed -->
-        <div id="chatbot-container"></div>
-
-        <!-- Option 2: Iframe-Based Embed (Uncomment if JavaScript Fails) -->
-        <!-- <iframe 
-            src="https://ariyo-10af4c.zapier.app" 
-            width="100%" 
-            height="500px" 
-            style="border: none; border-radius: 10px;">
-        </iframe> -->
+        <!-- Updated Iframe-Based Chatbot Embed -->
+        <iframe 
+            src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
+            height='600px' 
+            width='400px' 
+            allow='clipboard-write *' 
+            style="border: none;">
+        </iframe>
     </div>
-
-    <!-- JavaScript to Load Zapier Chatbot -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let chatbot = document.createElement("zapier-chatbot");
-            chatbot.setAttribute("chatbot-id", "cm7s2oyu2000b3vmuwcwkj9kn");
-            chatbot.style.width = "100%";
-            chatbot.style.height = "500px";
-
-            let container = document.getElementById("chatbot-container");
-            if (container) {
-                container.appendChild(chatbot);
-            } else {
-                console.error("Chatbot container not found!");
-            }
-        });
-    </script>
 </body>
 </html>
