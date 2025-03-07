@@ -20,12 +20,6 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .chatbox {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 10px;
-        }
     </style>
 </head>
 <body>
@@ -33,8 +27,19 @@
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p>Chat with our Naija AI with futuristic-style reasoning.</p>
         
-        <!-- Corrected Chatbot Embed -->
-        <iframe class="chatbox" src="https://ariyo-10af4c.zapier.app" width="400" height="600" style="border:none;"></iframe>
+        <!-- Placeholder for Chatbot -->
+        <div id="zapier-chatbot"></div>
     </div>
+
+    <!-- Zapier JavaScript Embed -->
+    <script>
+        (function(d, s, id) {
+            var js, zjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"; 
+            zjs.parentNode.insertBefore(js, zjs);
+        }(document, 'script', 'zapier-chatbot-script'));
+    </script>
 </body>
 </html>
