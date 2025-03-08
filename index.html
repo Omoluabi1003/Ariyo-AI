@@ -22,10 +22,6 @@
             background: white;
             padding-top: 80px;
         }
-        .logo {
-            width: 150px;
-            margin-top: 10px;
-        }
         .volume-control {
             margin-top: 10px;
         }
@@ -33,15 +29,11 @@
             .container {
                 padding-top: 100px;
             }
-            .logo {
-                width: 120px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="logo.jpg" alt="Omoluabi Logo" class="logo">
         <h1>Welcome to Àríyọ̀ AI</h1>
         <iframe 
             src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
@@ -52,7 +44,7 @@
         </iframe>
     </div>
     
-    <audio id="background-music" autoplay loop>
+    <audio id="background-music" loop>
         <source src="music.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
@@ -68,12 +60,20 @@
             audio.volume = value;
         }
 
-        // Ensure music plays after user interaction
-        document.addEventListener("click", function() {
+        function forcePlayMusic() {
             var audio = document.getElementById("background-music");
-            if (audio.paused) {
-                audio.play().catch(error => console.log("Autoplay blocked: ", error));
-            }
+            audio.volume = 1.0; // Set to full volume
+            audio.play().catch(error => console.log("Autoplay blocked: ", error));
+        }
+
+        // Force music to play when the page loads
+        window.onload = function() {
+            setTimeout(forcePlayMusic, 1000); // Small delay to ensure loading
+        };
+
+        // Also play when user interacts (backup for stricter browsers)
+        document.addEventListener("click", function() {
+            forcePlayMusic();
         });
     </script>
 </body>
