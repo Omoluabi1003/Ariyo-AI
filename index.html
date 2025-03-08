@@ -30,8 +30,8 @@
         iframe {
             margin-top: 10px;
             width: 90%;
-            max-width: 600px; /* Bigger chatbot on desktop */
-            height: 700px; /* Increase height */
+            max-width: 600px;
+            height: 700px;
             border-radius: 10px;
         }
         .music-section {
@@ -58,8 +58,8 @@
                 padding: 40px 10px;
             }
             iframe {
-                width: 100%; /* Full width on mobile */
-                height: 650px; /* Bigger chatbot on small screens */
+                width: 100%;
+                height: 650px;
             }
         }
     </style>
@@ -67,7 +67,7 @@
 <body>
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI</h1>
-        <p class="description">Chat with our Naija AI with futuristic-style reasoning.</p>
+        <p class="description">Naija AI with futuristic reasoning.</p>
         <iframe 
             src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
             allow='clipboard-write *'>
@@ -98,13 +98,19 @@
         function playMusic() {
             var audio = document.getElementById("background-music");
             audio.volume = 1.0;
-            audio.play().catch(error => console.log("Manual play needed: ", error));
+            audio.play()
+                .then(() => console.log("Music is playing."))
+                .catch(error => {
+                    console.log("Manual play needed:", error);
+                    alert("Click anywhere on the page first, then try playing the music again.");
+                });
         }
 
         function forcePlayMusic() {
             var audio = document.getElementById("background-music");
             audio.volume = 1.0;
-            audio.play().catch(error => console.log("Autoplay blocked: ", error));
+            audio.play()
+                .catch(error => console.log("Autoplay blocked:", error));
         }
 
         window.onload = function() {
