@@ -77,6 +77,7 @@
         <div class="music-section">
             <p>🎵 Enjoy relaxing music while using this AI. 🎶</p>
             <button class="play-button" onclick="playMusic()">▶ Play Music</button>
+            <button class="play-button" onclick="pauseMusic()">⏸ Pause Music</button>
         </div>
     </div>
     
@@ -90,24 +91,28 @@
     </div>
     
     <script>
+        var audio = document.getElementById("background-music");
+
         function adjustVolume(value) {
-            var audio = document.getElementById("background-music");
             audio.volume = value;
         }
 
         function playMusic() {
-            var audio = document.getElementById("background-music");
             audio.volume = 1.0;
             audio.play()
                 .then(() => console.log("Music is playing."))
                 .catch(error => {
                     console.log("Manual play needed:", error);
-                    alert("Click anywhere on the page first, then try playing the music again.");
+                    alert("Click anywhere on the page first, then press Play.");
                 });
         }
 
+        function pauseMusic() {
+            audio.pause();
+            console.log("Music paused.");
+        }
+
         function forcePlayMusic() {
-            var audio = document.getElementById("background-music");
             audio.volume = 1.0;
             audio.play()
                 .catch(error => console.log("Autoplay blocked:", error));
