@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with Àríyọ̀ AI</title>
+    <title>Welcome to Àríyọ̀ AI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,39 +20,18 @@
             align-items: center;
             justify-content: center;
             background: white;
-            padding-top: 60px; /* Prevent overlap */
+            padding-top: 80px; /* Prevent overlap */
         }
         .logo {
             width: 150px;
-            margin-top: 20px;
-        }
-        .back-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            z-index: 1000; /* Ensure button stays above other elements */
-        }
-        .back-button:hover {
-            background-color: #0056b3;
+            margin-top: 10px;
         }
         .volume-control {
             margin-top: 10px;
         }
         @media (max-width: 600px) {
             .container {
-                padding-top: 80px; /* Increase spacing on smaller screens */
-            }
-            .back-button {
-                font-size: 14px;
-                padding: 8px 15px;
+                padding-top: 100px; /* Increase spacing on smaller screens */
             }
             .logo {
                 width: 120px;
@@ -61,10 +40,9 @@
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-button">⬅ Back to Home</a>
     <div class="container">
         <img src="logo.jpg" alt="Omoluabi Logo" class="logo">
-        <h1>Chat with Àríyọ̀ AI</h1>
+        <h1>Welcome to Àríyọ̀ AI</h1>
         <iframe 
             src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
             height='600px' 
@@ -75,7 +53,7 @@
     </div>
     
     <audio id="background-music" loop>
-        <source src="Kindness [music].mp3" type="audio/mpeg">
+        <source src="music.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     
@@ -90,11 +68,11 @@
             audio.volume = value;
         }
 
-        // Force music to play after user interaction
+        // Ensure music plays after user interaction
         document.addEventListener("click", function() {
             var audio = document.getElementById("background-music");
             if (audio.paused) {
-                audio.play();
+                audio.play().catch(error => console.log("Autoplay blocked: ", error));
             }
         });
     </script>
