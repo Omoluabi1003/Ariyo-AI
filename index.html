@@ -22,6 +22,11 @@
             background: white;
             padding-top: 80px;
         }
+        .description {
+            font-size: 18px;
+            margin: 10px 20px;
+            max-width: 500px;
+        }
         .volume-control {
             margin-top: 10px;
         }
@@ -35,6 +40,7 @@
 <body>
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI</h1>
+        <p class="description">Chat with our Naija AI with futuristic-style reasoning.</p>
         <iframe 
             src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
             height='600px' 
@@ -62,16 +68,14 @@
 
         function forcePlayMusic() {
             var audio = document.getElementById("background-music");
-            audio.volume = 1.0; // Set to full volume
+            audio.volume = 1.0;
             audio.play().catch(error => console.log("Autoplay blocked: ", error));
         }
 
-        // Force music to play when the page loads
         window.onload = function() {
-            setTimeout(forcePlayMusic, 1000); // Small delay to ensure loading
+            setTimeout(forcePlayMusic, 1000);
         };
 
-        // Also play when user interacts (backup for stricter browsers)
         document.addEventListener("click", function() {
             forcePlayMusic();
         });
