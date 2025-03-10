@@ -30,6 +30,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 20px;
         }
         .chat-button {
             position: fixed;
@@ -41,47 +42,47 @@
             font-size: 14px;
             border-radius: 50%;
             cursor: pointer;
-        }
-        .chat-popup {
-            display: none;
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 350px;
-            height: 500px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-        }
-        .chat-popup iframe {
-            width: 100%;
-            height: 100%;
+            animation: bounce 1s infinite alternate;
             border: none;
         }
-        .voice-button {
-            background: #28a745;
+        .chat-button:hover {
+            background: #0056b3;
+        }
+        .chat-button::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 50px;
+            right: -10px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            animation: jump 1s infinite alternate;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 5px;
+            visibility: hidden;
+            transition: visibility 0.3s;
         }
-        @keyframes jump {
+        .chat-button:hover::after {
+            visibility: visible;
+        }
+        @keyframes bounce {
             0% { transform: translateY(0); }
             100% { transform: translateY(-10px); }
         }
         .music-container {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 300px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 10px;
+            bottom: 10px;
+            left: 10px;
+            width: 320px;
+            background: #000;
             color: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            transition: bottom 0.3s ease-in-out;
+        }
+        .music-container:hover {
+            bottom: 20px;
         }
         .music-controls {
             display: flex;
@@ -92,9 +93,29 @@
             background: #007bff;
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 10px 14px;
             cursor: pointer;
             border-radius: 5px;
+        }
+        #song-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .start-music {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .start-music:hover {
+            background: #218838;
+        }
+        .chat-button svg {
+            width: 20px;
+            height: 20px;
         }
     </style>
 </head>
@@ -102,37 +123,61 @@
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p id="naija-proverb">Loading proverb...</p>
-        <button class="toggle-dark-mode">Toggle Dark Mode</button>
-        <button class="voice-button" onclick="startVoiceRecognition()">🎤 Talk to Àríyọ̀</button>
+        <button class="toggle-dark-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        <button class="start-music" onclick="startMusic()">Start Music</button>
     </div>
-    <div class="chat-popup" id="chatPopup">
-        <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
-    </div>
-    <button class="chat-button" onclick="toggleChat()">💬</button>
-    <div class="music-container">
+
+    <button class="chat-button" title="Chat with Àríyọ̀ AI" onclick="toggleChat()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    </button>
+
+    <div class="music-container" id="musicContainer">
         <p id="song-title">Now Playing: No song</p>
-        <audio id="audioPlayer"></audio>
+        <audio id="audioPlayer" preload="metadata" onended="nextSong()"></audio>
         <div class="music-controls">
             <button onclick="prevSong()">⏮</button>
-            <button onclick="toggleMusic()">▶</button>
+            <button id="playPause" onclick="toggleMusic()">▶</button>
             <button onclick="nextSong()">⏭</button>
         </div>
         <input type="range" id="volume" min="0" max="100" value="50" onchange="setVolume(this.value)">
+        <input type="range" id="progress" min="0" max="100" value="0" onchange="setProgress(this.value)">
     </div>
+
     <script>
         function toggleChat() {
-            var chatPopup = document.getElementById("chatPopup");
-            chatPopup.style.display = chatPopup.style.display === "block" ? "none" : "block";
+            window.location.href = "chat.html";
         }
-        function startVoiceRecognition() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = "en-NG";
-            recognition.start();
-            recognition.onresult = function(event) {
-                let voiceInput = event.results[0][0].transcript;
-                alert("You said: " + voiceInput);
-            };
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
         }
-    </script>
-</body>
-</html>
+
+        if (localStorage.getItem("darkMode") === "true") {
+            document.body.classList.add("dark-mode");
+        }
+
+        let proverbs = [
+            "No be who first call police dey win case.",
+            "If soup sweet, na money kill am.",
+            "Na who give up lose.",
+            "No matter how rain beat fowl, e no fit turn to goat.",
+            "If you wan chop frog, chop the one wey big well well.",
+            "Where man dey work, na there e dey chop.",
+            "Monkey no fine, but im mama like am.",
+            "Patience dey cook stone make e soft.",
+            "Wahala be like bicycle, e no get reverse.",
+            "Who no know go know."
+        ];
+        document.getElementById("naija-proverb").innerText = proverbs[Math.floor(Math.random() * proverbs.length)];
+
+        let songs = ["music1.mp3", "music2.mp3", "music3.mp3"];
+        let songNames = ["Afrobeats Groove", "Naija Chill Vibes", "Street Anthem"];
+        let songIndex = 0;
+        const audio = document.getElementById("audioPlayer");
+        const songTitle = document.getElementById("song-title");
+        const playPauseBtn = document.getElementById("playPause");
+        const progressBar = document.getElementById("progress");
+
+        function loadSong(index) {
+            audio.src = songs[index];
