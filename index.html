@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Àríyọ̀ AI</title>
+    <meta name="description" content="Àríyọ̀ AI - The Naija AI with futuristic reasoning.">
+    <meta name="keywords" content="Naija AI, AI chatbot, African AI, smart assistant">
+    <meta property="og:title" content="Àríyọ̀ AI - Smart Naija AI">
+    <meta property="og:description" content="Futuristic AI with Nigerian vibes.">
+    <meta property="og:image" content="logo.jpg">
+    <meta property="og:url" content="your-website-url">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            background-attachment: fixed;
+            color: white; /* Adjust text color for readability */
         }
         .container {
             width: 100%;
@@ -22,21 +31,69 @@
             background: white;
             padding: 20px;
         }
+        .logo {
+            width: 150px; /* Adjust as needed */
+            height: auto;
+            margin-bottom: 10px;
+        }
         .description {
             font-size: 18px;
             margin: 10px 20px;
             max-width: 600px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        /* Animation for the description */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         iframe {
             margin-top: 10px;
             width: 90%;
             max-width: 600px;
-            height: 700px;
+            height: 75vh;
             border-radius: 10px;
         }
+        /* Chatbot icon animation */
+        .chatbot-icon {
+            width: 80px;
+            height: auto;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .features {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            width: 200px;
+            text-align: center;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: scale(1.1);
+        }
+
+        /* Music Section */
         .music-section {
             margin-top: 20px;
         }
+
         .play-button {
             background-color: #007bff;
             color: white;
@@ -46,38 +103,87 @@
             cursor: pointer;
             border-radius: 5px;
             margin-top: 10px;
+            transition: background 0.3s;
         }
+
         .play-button:hover {
             background-color: #0056b3;
         }
+
         .volume-control {
             margin-top: 10px;
         }
+
+        /* Loading Spinner */
+        #loader {
+            border: 5px solid white;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 40px 10px;
             }
             iframe {
                 width: 100%;
-                height: 650px;
+                height: 70vh;
+            }
+            .logo {
+                width: 120px; /* Adjust for smaller screens */
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <img src="logo.jpg" alt="Àríyọ̀ AI Logo" class="logo">
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p class="description">Naija AI with futuristic reasoning.</p>
-        <iframe 
-            src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
-            allow='clipboard-write *'>
-        </iframe>
+
+        <!-- Chatbot Icon -->
+        <img src="chatbot.gif" alt="Chatbot Icon" class="chatbot-icon">
+        
+        <!-- Feature Cards Section -->
+        <div class="features">
+            <div class="feature-card">
+                <h3>🤖 Smart AI</h3>
+                <p>Get intelligent responses tailored for Nigerians.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎶 Music Companion</h3>
+                <p>Listen to relaxing music while you chat with Àríyọ̀.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔮 Futuristic Thinking</h3>
+                <p>Predict trends and analyze insights.</p>
+            </div>
+        </div>
+
+        <!-- Chatbot Iframe -->
+        <div id="chatbot-container">
+            <div id="loader"></div>
+            <iframe 
+                id="chatbot-iframe"
+                src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" 
+                allow="clipboard-write *"
+                onload="hideLoader()">
+            </iframe>
+        </div>
 
         <!-- Music Section -->
         <div class="music-section">
             <p>🎵 Enjoy relaxing music while using this AI. 🎶</p>
-            <button class="play-button" onclick="playMusic()">▶ Play Music</button>
-            <button class="play-button" onclick="pauseMusic()">⏸ Pause Music</button>
+            <button id="music-toggle" class="play-button">▶ Play Music</button>
         </div>
     </div>
     
@@ -88,35 +194,47 @@
     
     <div class="volume-control">
         <label for="volume">🔊 Volume:</label>
-        <input type="range" id="volume" min="0" max="1" step="0.1" value="1" onchange="adjustVolume(this.value)">
+        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
+        <span id="volume-label">100%</span>
     </div>
     
-    <script>
+    <script defer>
         var audio = document.getElementById("background-music");
+        var musicButton = document.getElementById("music-toggle");
+        var volumeSlider = document.getElementById("volume");
+        var volumeLabel = document.getElementById("volume-label");
+        var isPlaying = false;
 
-        function adjustVolume(value) {
-            audio.volume = value; // Set the volume based on slider value
+        function toggleMusic() {
+            if (isPlaying) {
+                audio.pause();
+                musicButton.textContent = "▶ Play Music";
+            } else {
+                audio.play()
+                    .then(() => {
+                        console.log("Music playing.");
+                        musicButton.textContent = "⏸ Pause Music";
+                    })
+                    .catch(error => {
+                        console.log("Manual play needed:", error);
+                        alert("Click anywhere on the page first, then press Play.");
+                    });
+            }
+            isPlaying = !isPlaying;
         }
 
-        function playMusic() {
-            audio.volume = 1.0; // Set volume to max when playing
-            audio.play()
-                .then(() => console.log("Music is playing."))
-                .catch(error => {
-                    console.log("Manual play needed:", error);
-                    alert("Click anywhere on the page first, then press Play.");
-                });
+        function adjustVolume() {
+            audio.volume = volumeSlider.value;
+            volumeLabel.textContent = Math.round(volumeSlider.value * 100) + "%";
         }
 
-        function pauseMusic() {
-            audio.pause();
-            console.log("Music paused.");
+        function hideLoader() {
+            document.getElementById("loader").style.display = "none";
         }
 
         function forcePlayMusic() {
-            audio.volume = 1.0; // Set volume to max when forcing play
-            audio.play()
-                .catch(error => console.log("Autoplay blocked:", error));
+            audio.volume = 1.0;
+            audio.play().catch(error => console.log("Autoplay blocked:", error));
         }
 
         window.onload = function() {
@@ -126,6 +244,9 @@
         document.addEventListener("click", function() {
             forcePlayMusic();
         });
+
+        musicButton.addEventListener("click", toggleMusic);
+        volumeSlider.addEventListener("input", adjustVolume);
     </script>
 </body>
 </html>
