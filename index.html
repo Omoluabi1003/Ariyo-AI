@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Àríyọ̀ AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -42,19 +41,25 @@
             margin: 20px auto;
             max-width: 400px;
         }
+        .chat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p class="description">Smart and engaging Naija AI with real-time news & music!</p>
-        
-        <!-- Google Sign-In -->
-        <div id="g_id_onload"
-             data-client_id="YOUR_GOOGLE_CLIENT_ID"
-             data-callback="onSignIn"></div>
-        <div class="g_id_signin" data-type="standard"></div>
-        <p id="user-greeting"></p>
         
         <!-- News Section -->
         <div class="news-container" id="news-section">
@@ -75,13 +80,10 @@
         <button onclick="shareChat()">Share Chat 🤳</button>
     </div>
     
+    <!-- Chat Button -->
+    <button class="chat-button" onclick="openChat()">💬</button>
+    
     <script>
-        // Google Sign-In Callback
-        function onSignIn(response) {
-            const userData = response.credential;
-            document.getElementById('user-greeting').innerText = `Welcome, ${userData}!`;
-        }
-        
         // Dark Mode Toggle
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
@@ -91,40 +93,55 @@
             document.body.classList.add("dark-mode");
         }
         
-        // Fetch Latest News (Dummy API for Example)
+        // Fetch Real-time News from Multiple Sources
         async function fetchNews() {
-            let response = await fetch('https://newsapi.org/v2/top-headlines?country=ng&apiKey=YOUR_NEWS_API_KEY');
-            let data = await response.json();
-            let newsHTML = "";
-            data.articles.slice(0, 5).forEach(article => {
-                newsHTML += `<div class='news-item'><strong>${article.title}</strong><p>${article.description}</p></div>`;
-            });
-            document.getElementById('news-list').innerHTML = newsHTML;
+            let sources = [
+                "https://www.pulse.ng/news",
+                "https://www.vanguardngr.com/category/national-news/",
+                "https://nairaland.com/news"
+            ];
+            let randomSource = sources[Math.floor(Math.random() * sources.length)];
+            
+            try {
+                let response = await fetch(randomSource);
+                let text = await response.text();
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(text, "text/html");
+                let headlines = doc.querySelectorAll("h2, h3");
+                
+                let newsHTML = "";
+                headlines = Array.from(headlines).slice(0, 5);
+                headlines.forEach(headline => {
+                    newsHTML += `<div class='news-item'><strong>${headline.innerText}</strong></div>`;
+                });
+                document.getElementById('news-list').innerHTML = newsHTML;
+            } catch (error) {
+                document.getElementById('news-list').innerHTML = "<p>Failed to load news. Try again later.</p>";
+            }
         }
         fetchNews();
         
-        // AI Music Recommendation
+        // AI Music Recommendation with Local Files
         function recommendMusic() {
-            let songs = [
-                "Unavailable - Davido",
-                "Rush - Ayra Starr",
-                "Who’s Your Guy - Spyro",
-                "Asake - Lonely at the Top",
-                "Burna Boy - City Boys"
-            ];
-            let randomSong = songs[Math.floor(Math.random() * songs.length)];
-            document.getElementById('music-output').innerText = `🎶 Try listening to: ${randomSong}`;
+            let songNumber = Math.floor(Math.random() * 4) + 1;
+            let songFile = `music/music${songNumber}.mp3`;
+            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>Music ${songNumber}</strong> <br><audio controls src="${songFile}"></audio>`;
         }
         
         // Share Chat
         function shareChat() {
-            let text = "Check out Àríyọ̀ AI - The Smart Naija AI!";
+            let text = "Check out Àríyọ̀ AI - The Smart Naija Chatbot!";
             let url = window.location.href;
             if (navigator.share) {
                 navigator.share({ text, url });
             } else {
                 alert("Copy this link: " + url);
             }
+        }
+        
+        // Open Chat Window
+        function openChat() {
+            window.location.href = "chat.html";
         }
     </script>
 </body>
