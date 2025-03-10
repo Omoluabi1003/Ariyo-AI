@@ -150,7 +150,7 @@
         // AI Music Recommendation with Local Files
         function recommendMusic() {
             let songNumber = Math.floor(Math.random() * 4) + 1;
-            let songFile = `music/music${songNumber}.mp3`;
+            let songFile = `music${songNumber}.mp3`;
             let audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = songFile;
             audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
