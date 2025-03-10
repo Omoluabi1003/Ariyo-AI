@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Naija AI with futuristic reasoning and music.">
-    <meta name="keywords" content="Naija AI, chatbot, music, interactive AI">
+    <meta name="description" content="Best AI chatbot for Naija vibes and smart interactive engagement">
+    <meta name="keywords" content="Naija AI, chatbot, music, interactive AI, Pidgin AI">
     <meta property="og:title" content="Welcome to Àríyọ̀ AI">
-    <meta property="og:description" content="Experience a smart and engaging Naija AI with music.">
+    <meta property="og:description" content="Experience a smart and engaging Naija AI with music and jokes.">
     <meta property="og:image" content="logo.jpg">
     <title>Welcome to Àríyọ̀ AI</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -24,45 +25,22 @@
             color: #fff;
         }
         .container {
-            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            min-height: 90vh;
+            min-height: 100vh;
         }
-        .header {
-            margin-bottom: 10px;
-        }
-        h1 {
-            font-weight: 600;
-            color: #007bff;
-            margin: 0;
-            font-size: 24px;
-        }
-        .description {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 10px;
-        }
-        /* Floating Chat Button */
         .chat-button {
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: #007bff;
             color: white;
-            border: none;
-            padding: 12px 18px;
+            padding: 12px;
             font-size: 14px;
-            border-radius: 50px;
+            border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out;
-        }
-        .chat-button:hover {
-            transform: scale(1.1);
         }
         .chat-popup {
             display: none;
@@ -81,70 +59,84 @@
             height: 100%;
             border: none;
         }
-        .chat-popup .close-chat {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: red;
+        .music-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 250px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
             color: white;
-            border: none;
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 50%;
+            display: none;
+        }
+        .toggle-dark-mode {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
             cursor: pointer;
-        }
-        /* Loading Animation */
-        .loading-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 65vh;
-        }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #007bff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Welcome to Àríyọ̀ AI</h1>
-            <p class="description">Experience a smart and engaging Naija AI.</p>
-        </div>
-        
-        <div class="loading-container" id="loading">
-            <div class="spinner"></div>
-        </div>
-        <div class="chat-popup" id="chatPopup">
-            <button class="close-chat" onclick="toggleChat()">×</button>
-            <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
-        </div>
-        <button class="chat-button" onclick="toggleChat()">💬 Chat with Àríyọ̀</button>
+        <h1>Welcome to Àríyọ̀ AI</h1>
+        <p id="naija-proverb">Loading proverb...</p>
+        <button class="toggle-dark-mode">Toggle Dark Mode</button>
     </div>
-
+    <div class="chat-popup" id="chatPopup">
+        <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
+    </div>
+    <button class="chat-button" onclick="toggleChat()">💬</button>
+    <div class="music-container" id="musicContainer">
+        <p id="song-title">Now Playing: No song</p>
+        <audio id="audioPlayer"></audio>
+        <button onclick="prevSong()">⏮</button>
+        <button onclick="toggleMusic()">▶</button>
+        <button onclick="nextSong()">⏭</button>
+        <input type="range" id="volume" min="0" max="100" value="50" onchange="setVolume(this.value)">
+    </div>
     <script>
+        const proverbs = ["No be who first call police dey win case.", "If soup sweet, na money kill am.", "Na who give up lose."];
+        document.getElementById("naija-proverb").innerText = proverbs[Math.floor(Math.random() * proverbs.length)];
         function toggleChat() {
             var chatPopup = document.getElementById("chatPopup");
-            if (chatPopup.style.display === "block") {
-                chatPopup.style.display = "none";
+            chatPopup.style.display = chatPopup.style.display === "block" ? "none" : "block";
+        }
+        const audio = document.getElementById("audioPlayer");
+        const songTitle = document.getElementById("song-title");
+        let songs = ["music1.mp3", "music2.mp3", "music3.mp3"];
+        let songNames = ["Afrobeats Groove", "Naija Chill Vibes", "Street Anthem"];
+        let songIndex = 0;
+        function loadSong(index) {
+            audio.src = songs[index];
+            songTitle.textContent = "Now Playing: " + songNames[index];
+        }
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play();
             } else {
-                chatPopup.style.display = "block";
+                audio.pause();
             }
         }
-        window.onload = function() {
-            setTimeout(function() {
-                document.getElementById("loading").style.display = "none";
-            }, 2000);
-        };
+        function nextSong() {
+            songIndex = (songIndex + 1) % songs.length;
+            loadSong(songIndex);
+            audio.play();
+        }
+        function prevSong() {
+            songIndex = (songIndex - 1 + songs.length) % songs.length;
+            loadSong(songIndex);
+            audio.play();
+        }
+        function setVolume(value) {
+            audio.volume = value / 100;
+        }
+        document.querySelector(".toggle-dark-mode").addEventListener("click", () => {
+            document.body.classList.toggle("dark-mode");
+        });
+        loadSong(songIndex);
     </script>
 </body>
 </html>
