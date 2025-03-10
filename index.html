@@ -10,7 +10,6 @@
     <meta property="og:image" content="logo.jpg">
     <title>Welcome to Àríyọ̀ AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -20,12 +19,10 @@
             background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
             transition: background-color 0.5s, color 0.5s;
         }
-
         .dark-mode {
             background: linear-gradient(135deg, #222, #111);
             color: #fff;
         }
-
         .container {
             width: 100%;
             display: flex;
@@ -35,152 +32,85 @@
             padding: 20px;
             min-height: 90vh;
         }
-
         .header {
             margin-bottom: 10px;
         }
-
         h1 {
             font-weight: 600;
             color: #007bff;
             margin: 0;
             font-size: 24px;
         }
-
         .description {
             font-size: 14px;
             color: #555;
             margin-bottom: 10px;
         }
-
-        .chat-container {
-            width: 100%;
-            max-width: 900px;
-            height: 65vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border-radius: 12px;
-            border: none;
-        }
-
-        .controls {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .toggle-dark-mode {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            transition: transform 0.2s;
-        }
-
-        .toggle-dark-mode:hover {
-            transform: scale(1.05);
-        }
-
-        .audio-dock {
+        /* Floating Chat Button */
+        .chat-button {
             position: fixed;
-            bottom: 10px;
-            right: 10px;
-            width: 220px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .audio-container {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            display: none;
-            text-align: center;
-        }
-
-        .toggle-audio {
+            bottom: 20px;
+            right: 20px;
             background: #007bff;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 50%;
+            padding: 12px 18px;
+            font-size: 14px;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out;
         }
-
-        .toggle-audio:hover {
+        .chat-button:hover {
             transform: scale(1.1);
         }
-
-        .audio-dock:hover .audio-container {
-            display: block;
+        .chat-popup {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
-
-        .audio-dock.active .audio-container {
-            display: block;
-        }
-
-        .play-button {
-            background: linear-gradient(135deg, #28a745, #1e7e34);
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
+        .chat-popup iframe {
+            width: 100%;
+            height: 100%;
             border: none;
-            transition: transform 0.2s;
         }
-
-        .play-button:hover {
-            transform: scale(1.05);
+        .chat-popup .close-chat {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 50%;
+            cursor: pointer;
         }
-
-        .volume-control {
+        /* Loading Animation */
+        .loading-container {
             display: flex;
             align-items: center;
-            gap: 10px;
             justify-content: center;
+            height: 65vh;
         }
-
-        input[type="range"] {
-            width: 100px;
-            height: 8px;
-            cursor: pointer;
-            accent-color: #007bff;
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #007bff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 20px;
-            }
-
-            .description {
-                font-size: 12px;
-            }
-
-            .chat-container {
-                height: 55vh;
-            }
-
-            .play-button, .toggle-dark-mode {
-                font-size: 12px;
-                padding: 8px 16px;
-            }
-
-            input[type="range"] {
-                width: 80px;
-            }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -190,78 +120,31 @@
             <h1>Welcome to Àríyọ̀ AI</h1>
             <p class="description">Experience a smart and engaging Naija AI.</p>
         </div>
-
-        <div class="chat-container">
+        
+        <div class="loading-container" id="loading">
+            <div class="spinner"></div>
+        </div>
+        <div class="chat-popup" id="chatPopup">
+            <button class="close-chat" onclick="toggleChat()">×</button>
             <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
         </div>
-
-        <button class="toggle-dark-mode">Toggle Dark Mode</button>
-    </div>
-
-    <!-- Audio Dock -->
-    <div class="audio-dock">
-        <div class="audio-container">
-            <audio id="audioPlayer" preload="auto"></audio>
-            <button class="play-button">Play</button>
-            <div class="volume-control">
-                <label for="volume">Vol:</label>
-                <input type="range" id="volume" min="0" max="100" value="50">
-                <span id="volume-value">50%</span>
-            </div>
-        </div>
-        <button class="toggle-audio">🎵</button>
+        <button class="chat-button" onclick="toggleChat()">💬 Chat with Àríyọ̀</button>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const audioContainer = document.querySelector(".audio-container");
-            const toggleAudioBtn = document.querySelector(".toggle-audio");
-            const audio = document.getElementById("audioPlayer");
-            const playButton = document.querySelector(".play-button");
-            const volumeControl = document.getElementById("volume");
-            const volumeValue = document.getElementById("volume-value");
-            const darkModeButton = document.querySelector(".toggle-dark-mode");
-            const body = document.body;
-
-            let musicFiles = ["music.mp3", "music1.mp3", "music2.mp3"];
-
-            function playMusic() {
-                let randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
-                audio.src = randomSong;
-                audio.play().then(() => {
-                    playButton.textContent = "Pause";
-                }).catch(error => console.warn("Playback failed: ", error));
+        function toggleChat() {
+            var chatPopup = document.getElementById("chatPopup");
+            if (chatPopup.style.display === "block") {
+                chatPopup.style.display = "none";
+            } else {
+                chatPopup.style.display = "block";
             }
-
-            function toggleMusic() {
-                if (audio.paused) {
-                    playMusic();
-                } else {
-                    audio.pause();
-                    playButton.textContent = "Play";
-                }
-            }
-
-            playButton.addEventListener("click", toggleMusic);
-
-            toggleAudioBtn.addEventListener("click", function () {
-                audioContainer.style.display = (audioContainer.style.display === "block") ? "none" : "block";
-            });
-
-            volumeControl.addEventListener("input", function () {
-                audio.volume = this.value / 100;
-                volumeValue.textContent = this.value + "%";
-            });
-
-            darkModeButton.addEventListener("click", function () {
-                body.classList.toggle("dark-mode");
-                localStorage.setItem("darkMode", body.classList.contains("dark-mode"));
-            });
-
-            if (localStorage.getItem("darkMode") === "true") {
-                body.classList.add("dark-mode");
-            }
-        });
+        }
+        window.onload = function() {
+            setTimeout(function() {
+                document.getElementById("loading").style.display = "none";
+            }, 2000);
+        };
     </script>
 </body>
 </html>
