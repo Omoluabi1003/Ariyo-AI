@@ -72,6 +72,7 @@
             <h2>Music for Your Mood 🎵</h2>
             <button onclick="recommendMusic()">Get a Song</button>
             <p id="music-output"></p>
+            <audio id="audioPlayer" controls></audio>
         </div>
         
         <button class="toggle-dark-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
@@ -125,7 +126,10 @@
         function recommendMusic() {
             let songNumber = Math.floor(Math.random() * 4) + 1;
             let songFile = `music/music${songNumber}.mp3`;
-            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>Music ${songNumber}</strong> <br><audio controls src="${songFile}"></audio>`;
+            let audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = songFile;
+            audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
+            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>Music ${songNumber}</strong>`;
         }
         
         // Share Chat
@@ -146,3 +150,4 @@
     </script>
 </body>
 </html>
+
