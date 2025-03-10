@@ -67,6 +67,34 @@
             border-radius: 8px;
             cursor: pointer;
             margin-top: 10px;
+            animation: jump 1s infinite alternate;
+        }
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        .music-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            color: white;
+        }
+        .music-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .music-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -81,6 +109,16 @@
         <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
     </div>
     <button class="chat-button" onclick="toggleChat()">💬</button>
+    <div class="music-container">
+        <p id="song-title">Now Playing: No song</p>
+        <audio id="audioPlayer"></audio>
+        <div class="music-controls">
+            <button onclick="prevSong()">⏮</button>
+            <button onclick="toggleMusic()">▶</button>
+            <button onclick="nextSong()">⏭</button>
+        </div>
+        <input type="range" id="volume" min="0" max="100" value="50" onchange="setVolume(this.value)">
+    </div>
     <script>
         function toggleChat() {
             var chatPopup = document.getElementById("chatPopup");
