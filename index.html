@@ -30,16 +30,22 @@
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .news-item {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .news-item:last-child {
-            border-bottom: none;
-        }
-        .music-recommendation {
+        .music-player {
             margin: 20px auto;
-            max-width: 400px;
+            max-width: 500px;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .music-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
         }
         .chat-button {
             position: fixed;
@@ -76,17 +82,23 @@
             <div id="news-list"></div>
         </div>
         
-        <!-- Music Recommendation -->
-        <div class="music-recommendation">
-            <h2>Music for Your Mood 🎵</h2>
-            <button onclick="recommendMusic()">Play Music</button>
-            <p id="music-output"></p>
+        <!-- Music Player -->
+        <div class="music-player">
+            <h2>Music Player 🎵</h2>
+            <div class="music-controls">
+                <button onclick="playPreviousSong()">⏮ Previous</button>
+                <button onclick="recommendMusic()">▶ Play</button>
+                <button onclick="playNextSong()">⏭ Next</button>
+                <button id="shuffle-btn" onclick="toggleShuffle()">🔀 Shuffle: OFF</button>
+            </div>
+            <br>
+            <label>Volume: </label>
+            <input type="range" min="0" max="1" step="0.1" value="1" onchange="adjustVolume(this.value)">
+            <p id="music-output">No song playing.</p>
             <audio id="audioPlayer" controls></audio>
         </div>
         
         <button class="toggle-dark-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
-        
-        <!-- Social Sharing -->
         <button onclick="shareChat()">Share Chat 🤳</button>
     </div>
     
@@ -103,80 +115,67 @@
             document.body.classList.add("dark-mode");
         }
 
-        // Fetch News Using RSS Feeds
-        async function fetchNews() {
-            let rssFeeds = [
-                "https://www.vanguardngr.com/feed/",
-                "https://punchng.com/feed/",
-                "https://guardian.ng/feed/"
-            ];
-
-            let randomFeed = rssFeeds[Math.floor(Math.random() * rssFeeds.length)];
-            let apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${randomFeed}`;
-
-            try {
-                let response = await fetch(apiUrl);
-                let data = await response.json();
-
-                if (data.status === "ok") {
-                    let newsHTML = "";
-                    data.items.slice(0, 5).forEach(item => {
-                        newsHTML += `<div class='news-item'>
-                                        <strong><a href="${item.link}" target="_blank">${item.title}</a></strong>
-                                        <p>${item.pubDate.split(" ")[0]}</p>
-                                    </div>`;
-                    });
-                    document.getElementById('news-list').innerHTML = newsHTML;
-                } else {
-                    document.getElementById('news-list').innerHTML = "<p>Failed to load news.</p>";
-                }
-            } catch (error) {
-                document.getElementById('news-list').innerHTML = "<p>Could not fetch news. Try again later.</p>";
-            }
-        }
-        fetchNews();
-
-        // AI Music Recommendation with Infinite Shuffle (Google Drive Links)
+        // Music Player Code
+        let repoBaseUrl = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/"; // Update with your repo
         let songs = [
-            { filename: "https://drive.google.com/uc?export=download&id=1EZ5-c4_VpUqi3CXc0s3GzQENoC8pV328", title: "Afrobeat Vibes" },
-            { filename: "https://drive.google.com/uc?export=download&id=1HoTBm_l5GEF38Mmsrej27J0in-IYnKvM", title: "Highlife Classic" },
-            { filename: "https://drive.google.com/uc?export=download&id=1vyfmgowfT2YX0lv0YoSaQ7xdTRdBv_x8", title: "Naija Groove" },
-            { filename: "https://drive.google.com/uc?export=download&id=1y7-TwipQamQOLfN3dAo0Pt5IPrQW2j40", title: "Afropop Hits" }
+            { filename: "song1.mp3", title: "Song 1" },
+            { filename: "song2.mp3", title: "Song 2" },
+            { filename: "song3.mp3", title: "Song 3" },
+            { filename: "song4.mp3", title: "Song 4" }
         ];
         let shuffledSongs = [];
         let currentSongIndex = 0;
+        let isShuffled = false;
 
         function shuffleSongs() {
-            shuffledSongs = songs.sort(() => Math.random() - 0.5);
+            shuffledSongs = [...songs].sort(() => Math.random() - 0.5);
             currentSongIndex = 0;
         }
 
-        function playNextSong() {
-            if (currentSongIndex >= shuffledSongs.length) {
-                shuffleSongs();
-            }
-            
-            let selectedSong = shuffledSongs[currentSongIndex];
+        function playSong(index) {
+            if (!isShuffled) shuffledSongs = [...songs];
+
+            let selectedSong = shuffledSongs[index];
             let audioPlayer = document.getElementById('audioPlayer');
 
-            audioPlayer.src = selectedSong.filename;
+            audioPlayer.src = repoBaseUrl + selectedSong.filename;
             audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
 
             document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${selectedSong.title}</strong>`;
+            currentSongIndex = index;
+        }
 
-            currentSongIndex++;
+        function playNextSong() {
+            currentSongIndex = (currentSongIndex + 1) % shuffledSongs.length;
+            playSong(currentSongIndex);
+        }
+
+        function playPreviousSong() {
+            currentSongIndex = (currentSongIndex - 1 + shuffledSongs.length) % shuffledSongs.length;
+            playSong(currentSongIndex);
         }
 
         function recommendMusic() {
-            if (shuffledSongs.length === 0) shuffleSongs();
+            if (shuffledSongs.length === 0 || !isShuffled) {
+                shuffleSongs();
+                isShuffled = true;
+            }
 
             let audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.onended = playNextSong;
-            
-            playNextSong();
+            playSong(currentSongIndex);
         }
 
-        // Share Chat
+        function adjustVolume(value) {
+            document.getElementById('audioPlayer').volume = value;
+        }
+
+        function toggleShuffle() {
+            isShuffled = !isShuffled;
+            document.getElementById('shuffle-btn').innerText = isShuffled ? "🔀 Shuffle: ON" : "🔀 Shuffle: OFF";
+            if (isShuffled) shuffleSongs();
+        }
+
         function shareChat() {
             let text = "Check out Àríyọ̀ AI - The Smart Naija Chatbot!";
             let url = window.location.href;
@@ -187,7 +186,6 @@
             }
         }
 
-        // Open Chat Window
         function openChat() {
             window.location.href = "chat.html";
         }
