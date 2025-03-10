@@ -20,6 +20,22 @@
             transition: background-color 0.5s, color 0.5s;
         }
 
+        .dark-mode {
+            background: linear-gradient(135deg, #222, #111);
+            color: #fff;
+        }
+
+        .dark-mode .container {
+            background: rgba(50, 50, 50, 0.9);
+        }
+
+        .dark-mode h1, 
+        .dark-mode .description, 
+        .dark-mode label, 
+        .dark-mode .gbedu-text {
+            color: white;
+        }
+
         .header {
             display: flex;
             align-items: center;
@@ -39,8 +55,8 @@
         .text-content {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
+            align-items: center; /* Center content */
+            text-align: center; /* Ensure text is centered */
             max-width: 600px;
         }
 
@@ -51,9 +67,10 @@
         }
 
         .description {
-            font-size: 10px; /* Smallest size requested */
+            font-size: 8px; /* Smallest size requested */
             color: #555;
-            margin-top: -8px; /* Keep it close to the heading */
+            margin-top: -5px; /* Keep it close to the heading */
+            text-align: center; /* Ensure it centers */
         }
 
         .container {
@@ -85,6 +102,24 @@
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             border: none;
+        }
+
+        .toggle-dark-mode {
+            background: linear-gradient(135deg, #444, #222);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 15px;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+        }
+
+        .toggle-dark-mode:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #222, #444);
         }
 
         @media (max-width: 600px) {
@@ -131,69 +166,25 @@
         <!-- Tiny Text Above Play Button -->
         <p class="gbedu-text">Enjoy Naija Gbedu as you dey use me!</p>
 
-        <!-- Music Player -->
-        <audio id="audioPlayer"></audio>
-        <button class="play-button">Play</button>
-
-        <!-- Volume Control -->
-        <div class="volume-control">
-            <label for="volume">Volume:</label>
-            <input type="range" id="volume" min="0" max="100" value="50">
-            <span id="volume-value">50%</span>
-        </div>
-
         <!-- Dark Mode Toggle -->
         <button class="toggle-dark-mode">Toggle Dark Mode</button>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const audio = document.getElementById("audioPlayer");
-            const playButton = document.querySelector(".play-button");
-            const volumeControl = document.getElementById("volume");
-            const volumeValue = document.getElementById("volume-value");
             const darkModeButton = document.querySelector(".toggle-dark-mode");
             const body = document.body;
 
-            let musicFiles = ["music.mp3", "music1.mp3", "music2.mp3", "music3.mp3"];
-            let shuffledPlaylist = [];
-
-            function shuffleMusic() {
-                shuffledPlaylist = [...musicFiles].sort(() => Math.random() - 0.5);
-            }
-
-            function playNextSong() {
-                if (shuffledPlaylist.length === 0) {
-                    shuffleMusic();
-                }
-                let nextSong = shuffledPlaylist.pop();
-                audio.src = nextSong;
-                audio.play();
-                playButton.textContent = "Pause";
-            }
-
-            playButton.addEventListener("click", function () {
-                if (audio.paused) {
-                    playNextSong();
-                } else {
-                    audio.pause();
-                    playButton.textContent = "Play";
-                }
-            });
-
-            audio.addEventListener("ended", playNextSong);
-
-            volumeControl.addEventListener("input", function () {
-                let volumeLevel = this.value;
-                audio.volume = volumeLevel / 100;
-                volumeValue.textContent = volumeLevel + "%";
-            });
-
+            // Dark Mode Toggle
             darkModeButton.addEventListener("click", function () {
                 body.classList.toggle("dark-mode");
-            });
 
-            audio.volume = volumeControl.value / 100;
+                if (body.classList.contains("dark-mode")) {
+                    darkModeButton.textContent = "Light Mode";
+                } else {
+                    darkModeButton.textContent = "Dark Mode";
+                }
+            });
         });
     </script>
 </body>
