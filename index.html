@@ -163,32 +163,41 @@
             const volumeValue = document.getElementById("volume-value");
             const darkModeButton = document.querySelector(".toggle-dark-mode");
             const body = document.body;
+            const chatIframe = document.querySelector("iframe");
 
             let musicFiles = ["music.mp3", "music1.mp3", "music2.mp3", "music3.mp3"];
 
             function playMusic() {
-                let randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
-                audio.src = randomSong;
+                if (audio.src === "") {
+                    let randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+                    audio.src = randomSong;
+                }
                 audio.play().then(() => {
                     playButton.textContent = "Pause";
-                }).catch(() => {
-                    console.warn("Autoplay blocked. User must interact first.");
+                }).catch(error => {
+                    console.warn("Playback failed: ", error);
                 });
             }
 
-            playButton.addEventListener("click", function () {
+            function toggleMusic() {
                 if (audio.paused) {
-                    audio.play();
-                    playButton.textContent = "Pause";
+                    playMusic();
                 } else {
                     audio.pause();
                     playButton.textContent = "Play";
                 }
+            }
+
+            playButton.addEventListener("click", toggleMusic);
+
+            // Play music when the chatbot response box is clicked
+            chatIframe.addEventListener("load", function () {
+                chatIframe.contentWindow.document.addEventListener("click", function () {
+                    playMusic();
+                });
             });
 
-            audio.addEventListener("ended", function () {
-                playMusic();
-            });
+            audio.addEventListener("ended", playMusic);
 
             volumeControl.addEventListener("input", function () {
                 audio.volume = this.value / 100;
@@ -203,12 +212,6 @@
             if (localStorage.getItem("darkMode") === "true") {
                 body.classList.add("dark-mode");
             }
-
-            document.body.addEventListener("click", function () {
-                if (audio.paused) {
-                    playMusic();
-                }
-            }, { once: true });
         });
     </script>
 </body>
