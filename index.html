@@ -3,90 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Best AI chatbot for Naija vibes and smart interactions.">
-    <meta name="og:title" content="Welcome to Àríyọ̀ AI">
-    <meta name="og:image" content="logo.jpg">
     <title>Welcome to Àríyọ̀ AI</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Poppins', sans-serif;
             text-align: center;
             margin: 0;
+            padding: 0;
             background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
-            color: #333;
             transition: background-color 0.5s, color 0.5s;
         }
         .dark-mode {
             background: linear-gradient(135deg, #222, #111);
             color: #fff;
         }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            border: none;
+        .container {
+            padding: 20px;
+            min-height: 90vh;
         }
-        .chat-button {
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 50%;
-            padding: 14px;
+        .news-container {
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 10px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .news-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        .music-recommendation {
+            margin: 20px auto;
+            max-width: 400px;
         }
     </style>
 </head>
 <body>
-
-    <img src="logo.jpg" alt="Àríyọ̀ AI Logo" style="width: 150px; margin-top: 40px;">
-    <h1>Welcome to Àríyọ̀ AI</h1>
-    <p id="proverb"></p>
-    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
-    <button onclick="startMusic()">Start Music</button>
-
-    <button class="chat-button" title="Chat with Àríyọ̀ AI" onclick="alert('Chat feature coming soon!')">💬</button>
-
-    <audio id="audioPlayer"></audio>
-
+    <div class="container">
+        <h1>Welcome to Àríyọ̀ AI</h1>
+        <p class="description">Smart and engaging Naija AI with real-time news & music!</p>
+        
+        <!-- Google Sign-In -->
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID"
+             data-callback="onSignIn"></div>
+        <div class="g_id_signin" data-type="standard"></div>
+        <p id="user-greeting"></p>
+        
+        <!-- News Section -->
+        <div class="news-container" id="news-section">
+            <h2>Latest Naija News 📰</h2>
+            <div id="news-list"></div>
+        </div>
+        
+        <!-- Music Recommendation -->
+        <div class="music-recommendation">
+            <h2>Music for Your Mood 🎵</h2>
+            <button onclick="recommendMusic()">Get a Song</button>
+            <p id="music-output"></p>
+        </div>
+        
+        <button class="toggle-dark-mode" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        
+        <!-- Social Sharing -->
+        <button onclick="shareChat()">Share Chat 🤳</button>
+    </div>
+    
     <script>
-        const proverbs = [
-            "Monkey no fine, but im mama like am.",
-            "Patience dey cook stone make e soft.",
-            "Wahala be like bicycle, e no get reverse.",
-            "Who no know go know."
-        ];
-        document.querySelector('h1').insertAdjacentHTML('afterend', `<p>${proverbs[Math.floor(Math.random() * proverbs.length)]}</p>`);
-
-        const songs = ["song1.mp3", "song2.mp3", "song3.mp3"];
-        let currentSong = 0;
-        const audio = document.getElementById('audioPlayer');
-
-        function toggleMusic() {
-            if (audio.paused) {
-                audio.play();
+        // Google Sign-In Callback
+        function onSignIn(response) {
+            const userData = response.credential;
+            document.getElementById('user-greeting').innerText = `Welcome, ${userData}!`;
+        }
+        
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+        }
+        if (localStorage.getItem("darkMode") === "true") {
+            document.body.classList.add("dark-mode");
+        }
+        
+        // Fetch Latest News (Dummy API for Example)
+        async function fetchNews() {
+            let response = await fetch('https://newsapi.org/v2/top-headlines?country=ng&apiKey=YOUR_NEWS_API_KEY');
+            let data = await response.json();
+            let newsHTML = "";
+            data.articles.slice(0, 5).forEach(article => {
+                newsHTML += `<div class='news-item'><strong>${article.title}</strong><p>${article.description}</p></div>`;
+            });
+            document.getElementById('news-list').innerHTML = newsHTML;
+        }
+        fetchNews();
+        
+        // AI Music Recommendation
+        function recommendMusic() {
+            let songs = [
+                "Unavailable - Davido",
+                "Rush - Ayra Starr",
+                "Who’s Your Guy - Spyro",
+                "Asake - Lonely at the Top",
+                "Burna Boy - City Boys"
+            ];
+            let randomSong = songs[Math.floor(Math.random() * songs.length)];
+            document.getElementById('music-output').innerText = `🎶 Try listening to: ${randomSong}`;
+        }
+        
+        // Share Chat
+        function shareChat() {
+            let text = "Check out Àríyọ̀ AI - The Smart Naija AI!";
+            let url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ text, url });
             } else {
-                audio.pause();
+                alert("Copy this link: " + url);
             }
         }
-
-        function startMusic() {
-            audio.src = songs[currentSong];
-            audio.play();
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        }
-
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
     </script>
-
 </body>
 </html>
