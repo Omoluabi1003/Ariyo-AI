@@ -63,22 +63,6 @@
                 transform: translateY(-10px);
             }
         }
-        .chat-button::after {
-            content: "Gist with me!";
-            position: absolute;
-            top: -30px;
-            right: -10px;
-            background: #ff4757;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            animation: fadeInOut 2s infinite;
-        }
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
     </style>
 </head>
 <body>
@@ -95,7 +79,7 @@
         <!-- Music Recommendation -->
         <div class="music-recommendation">
             <h2>Music for Your Mood 🎵</h2>
-            <button onclick="recommendMusic()">Get a Song</button>
+            <button onclick="recommendMusic()">Play Music</button>
             <p id="music-output"></p>
             <audio id="audioPlayer" controls></audio>
         </div>
@@ -118,45 +102,80 @@
         if (localStorage.getItem("darkMode") === "true") {
             document.body.classList.add("dark-mode");
         }
-        
-        // Fetch Real-time News from Multiple Sources
+
+        // Fetch News Using RSS Feeds
         async function fetchNews() {
-            let sources = [
-                "https://www.pulse.ng/news",
-                "https://www.vanguardngr.com/category/national-news/",
-                "https://nairaland.com/news"
+            let rssFeeds = [
+                "https://www.vanguardngr.com/feed/",
+                "https://punchng.com/feed/",
+                "https://guardian.ng/feed/"
             ];
-            let randomSource = sources[Math.floor(Math.random() * sources.length)];
-            
+
+            let randomFeed = rssFeeds[Math.floor(Math.random() * rssFeeds.length)];
+            let apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${randomFeed}`;
+
             try {
-                let response = await fetch(randomSource);
-                let text = await response.text();
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(text, "text/html");
-                let headlines = doc.querySelectorAll("h2, h3");
-                
-                let newsHTML = "";
-                headlines = Array.from(headlines).slice(0, 5);
-                headlines.forEach(headline => {
-                    newsHTML += `<div class='news-item'><strong>${headline.innerText}</strong></div>`;
-                });
-                document.getElementById('news-list').innerHTML = newsHTML;
+                let response = await fetch(apiUrl);
+                let data = await response.json();
+
+                if (data.status === "ok") {
+                    let newsHTML = "";
+                    data.items.slice(0, 5).forEach(item => {
+                        newsHTML += `<div class='news-item'>
+                                        <strong><a href="${item.link}" target="_blank">${item.title}</a></strong>
+                                        <p>${item.pubDate.split(" ")[0]}</p>
+                                    </div>`;
+                    });
+                    document.getElementById('news-list').innerHTML = newsHTML;
+                } else {
+                    document.getElementById('news-list').innerHTML = "<p>Failed to load news.</p>";
+                }
             } catch (error) {
-                document.getElementById('news-list').innerHTML = "<p>Failed to load news. Try again later.</p>";
+                document.getElementById('news-list').innerHTML = "<p>Could not fetch news. Try again later.</p>";
             }
         }
         fetchNews();
-        
-        // AI Music Recommendation with Local Files
-        function recommendMusic() {
-            let songNumber = Math.floor(Math.random() * 4) + 1;
-            let songFile = `music${songNumber}.mp3`;
-            let audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.src = songFile;
-            audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
-            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>Music ${songNumber}</strong>`;
+
+        // AI Music Recommendation with Infinite Shuffle
+        let songs = [
+            { filename: "afrobeat_vibes.mp3", title: "Afrobeat Vibes" },
+            { filename: "highlife_classic.mp3", title: "Highlife Classic" },
+            { filename: "naija_groove.mp3", title: "Naija Groove" },
+            { filename: "afropop_hits.mp3", title: "Afropop Hits" }
+        ];
+        let shuffledSongs = [];
+        let currentSongIndex = 0;
+
+        function shuffleSongs() {
+            shuffledSongs = songs.sort(() => Math.random() - 0.5);
+            currentSongIndex = 0;
         }
-        
+
+        function playNextSong() {
+            if (currentSongIndex >= shuffledSongs.length) {
+                shuffleSongs();
+            }
+            
+            let selectedSong = shuffledSongs[currentSongIndex];
+            let audioPlayer = document.getElementById('audioPlayer');
+
+            audioPlayer.src = selectedSong.filename;
+            audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
+
+            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${selectedSong.title}</strong>`;
+
+            currentSongIndex++;
+        }
+
+        function recommendMusic() {
+            if (shuffledSongs.length === 0) shuffleSongs();
+
+            let audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.onended = playNextSong;
+            
+            playNextSong();
+        }
+
         // Share Chat
         function shareChat() {
             let text = "Check out Àríyọ̀ AI - The Smart Naija Chatbot!";
@@ -167,7 +186,7 @@
                 alert("Copy this link: " + url);
             }
         }
-        
+
         // Open Chat Window
         function openChat() {
             window.location.href = "chat.html";
