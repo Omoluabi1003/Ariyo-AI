@@ -41,6 +41,20 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Fix for mobile screens */
+        @media screen and (max-width: 768px) {
+            .chat-container {
+                height: 100dvh; /* Ensures height adapts to mobile screens */
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            iframe {
+                height: 100dvh; /* Adjusts iframe height properly */
+            }
         }
     </style>
 </head>
