@@ -13,12 +13,12 @@
             margin: 0;
             padding: 0;
             background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
-            height: 100vh; /* Prevents infinite scrolling */
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Stops extra scrolling */
+            overflow: hidden;
         }
 
         .container {
@@ -47,7 +47,7 @@
         }
 
         .news-container {
-            max-height: 200px; /* Keeps the news section compact */
+            max-height: 200px;
             overflow-y: auto;
         }
 
@@ -105,10 +105,9 @@
     <button class="chat-bubble" onclick="openChat()">💬 Gist dey?</button>
 
     <script>
-        // ✅ GitHub Repository Base URL (Update with your actual repo URL)
+        // ✅ Fix for Audio Files from GitHub
         let repoBaseUrl = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/";
 
-        // ✅ List of songs (Use actual filenames from your repo)
         let songs = [
             { filename: "song1.mp3", title: "Song 1" },
             { filename: "song2.mp3", title: "Song 2" },
@@ -121,21 +120,22 @@
             let selectedSong = songs[currentSongIndex];
             let audioPlayer = document.getElementById('audioPlayer');
 
-            // Set audio source
+            // Ensuring proper GitHub audio link handling
             audioPlayer.src = repoBaseUrl + selectedSong.filename;
+            audioPlayer.load(); // Ensure the audio file is loaded before playing
             audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
 
             document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${selectedSong.title}</strong>`;
         }
 
-        // ✅ Open Chat Page
+        // ✅ Chat Page Open Fix
         function openChat() {
             window.location.href = "chat.html";
         }
 
-        // ✅ Fetch Latest Naija News (Fixed RSS Fetch)
+        // ✅ RSS News Fetch (Final Fix)
         async function fetchNews() {
-            let proxyUrl = "https://api.allorigins.win/get?url="; // CORS-friendly proxy
+            let proxyUrl = "https://api.allorigins.win/get?url=";
             let rssFeeds = [
                 "https://www.vanguardngr.com/feed/",
                 "https://punchng.com/feed/",
@@ -153,12 +153,17 @@
                 let newsHTML = "";
                 items.forEach((item, index) => {
                     if (index < 5) {
+                        let title = item.querySelector("title") ? item.querySelector("title").textContent : "No Title";
+                        let link = item.querySelector("link") ? item.querySelector("link").textContent : "#";
+                        let pubDate = item.querySelector("pubDate") ? item.querySelector("pubDate").textContent.split(" ")[0] : "Unknown Date";
+
                         newsHTML += `<div class='news-item'>
-                                        <strong><a href="${item.querySelector("link").textContent}" target="_blank">${item.querySelector("title").textContent}</a></strong>
-                                        <p>${item.querySelector("pubDate").textContent.split(" ")[0]}</p>
+                                        <strong><a href="${link}" target="_blank">${title}</a></strong>
+                                        <p>${pubDate}</p>
                                     </div>`;
                     }
                 });
+
                 document.getElementById('news-list').innerHTML = newsHTML;
             } catch (error) {
                 document.getElementById('news-list').innerHTML = "<p>Could not fetch news. Try again later.</p>";
