@@ -61,14 +61,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             animation: bounce 1.5s infinite;
         }
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
     </style>
 </head>
 <body>
@@ -79,7 +71,7 @@
         <!-- News Section -->
         <div class="news-container" id="news-section">
             <h2>Latest Naija News 📰</h2>
-            <div id="news-list"></div>
+            <div id="news-list">Loading news...</div>
         </div>
         
         <!-- Music Player -->
@@ -115,27 +107,55 @@
             document.body.classList.add("dark-mode");
         }
 
-        // Music Player Code
-        let repoBaseUrl = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/"; // Update with your repo
+        // ✅ FIXED: News RSS Fetching
+        async function fetchNews() {
+            let proxyUrl = "https://api.allorigins.win/get?url=";
+            let rssFeeds = [
+                "https://www.vanguardngr.com/feed/",
+                "https://punchng.com/feed/",
+                "https://guardian.ng/feed/"
+            ];
+            let randomFeed = rssFeeds[Math.floor(Math.random() * rssFeeds.length)];
+            
+            try {
+                let response = await fetch(proxyUrl + encodeURIComponent(randomFeed));
+                let data = await response.json();
+                let parser = new DOMParser();
+                let xml = parser.parseFromString(data.contents, "text/xml");
+                let items = xml.querySelectorAll("item");
+
+                let newsHTML = "";
+                items.forEach((item, index) => {
+                    if (index < 5) {
+                        newsHTML += `<div class='news-item'>
+                                        <strong><a href="${item.querySelector("link").textContent}" target="_blank">${item.querySelector("title").textContent}</a></strong>
+                                        <p>${item.querySelector("pubDate").textContent.split(" ")[0]}</p>
+                                    </div>`;
+                    }
+                });
+                document.getElementById('news-list').innerHTML = newsHTML;
+            } catch (error) {
+                document.getElementById('news-list').innerHTML = "<p>Could not fetch news. Try again later.</p>";
+            }
+        }
+        fetchNews();
+
+        // ✅ FIXED: Music Playback
+        let repoBaseUrl = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/";
         let songs = [
             { filename: "song1.mp3", title: "Song 1" },
             { filename: "song2.mp3", title: "Song 2" },
-            { filename: "song3.mp3", title: "Song 3" },
-            { filename: "song4.mp3", title: "Song 4" }
+            { filename: "song3.mp3", title: "Song 3" }
         ];
-        let shuffledSongs = [];
         let currentSongIndex = 0;
         let isShuffled = false;
 
         function shuffleSongs() {
-            shuffledSongs = [...songs].sort(() => Math.random() - 0.5);
-            currentSongIndex = 0;
+            songs = songs.sort(() => Math.random() - 0.5);
         }
 
         function playSong(index) {
-            if (!isShuffled) shuffledSongs = [...songs];
-
-            let selectedSong = shuffledSongs[index];
+            let selectedSong = songs[index];
             let audioPlayer = document.getElementById('audioPlayer');
 
             audioPlayer.src = repoBaseUrl + selectedSong.filename;
@@ -146,23 +166,18 @@
         }
 
         function playNextSong() {
-            currentSongIndex = (currentSongIndex + 1) % shuffledSongs.length;
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
             playSong(currentSongIndex);
         }
 
         function playPreviousSong() {
-            currentSongIndex = (currentSongIndex - 1 + shuffledSongs.length) % shuffledSongs.length;
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
             playSong(currentSongIndex);
         }
 
         function recommendMusic() {
-            if (shuffledSongs.length === 0 || !isShuffled) {
-                shuffleSongs();
-                isShuffled = true;
-            }
-
-            let audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.onended = playNextSong;
+            if (!isShuffled) shuffleSongs();
+            document.getElementById('audioPlayer').onended = playNextSong;
             playSong(currentSongIndex);
         }
 
@@ -174,20 +189,6 @@
             isShuffled = !isShuffled;
             document.getElementById('shuffle-btn').innerText = isShuffled ? "🔀 Shuffle: ON" : "🔀 Shuffle: OFF";
             if (isShuffled) shuffleSongs();
-        }
-
-        function shareChat() {
-            let text = "Check out Àríyọ̀ AI - The Smart Naija Chatbot!";
-            let url = window.location.href;
-            if (navigator.share) {
-                navigator.share({ text, url });
-            } else {
-                alert("Copy this link: " + url);
-            }
-        }
-
-        function openChat() {
-            window.location.href = "chat.html";
         }
     </script>
 </body>
