@@ -54,6 +54,11 @@
         .dark-mode .container {
             background: rgba(50, 50, 50, 0.9);
         }
+        .dark-mode h1, 
+        .dark-mode .description, 
+        .dark-mode label {
+            color: white;
+        }
         .text-content {
             display: flex;
             flex-direction: column;
@@ -62,13 +67,13 @@
         }
         h1 {
             font-weight: 600;
-            color: #007bff; /* Primary color */
+            color: #007bff;
         }
         .description {
             font-size: 18px;
             margin-top: -5px;
             max-width: 600px;
-            color: #555; /* Secondary color */
+            color: #555;
         }
         iframe {
             margin-top: 20px;
@@ -127,14 +132,6 @@
             cursor: pointer;
             box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
         }
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-        }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -167,7 +164,7 @@
             <h1>Welcome to Àríyọ̀ AI</h1>
             <p class="description">Experience a smart and engaging Naija AI.</p>
         </div>
-        <iframe src="your-iframe-source-here" title="Interactive Content"></iframe>
+        <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Content"></iframe>
         <button class="play-button">Play</button>
         <button class="toggle-dark-mode">Toggle Dark Mode</button>
         <div class="volume-control">
@@ -175,5 +172,26 @@
             <input type="range" id="volume" min="0" max="100" value="50">
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const playButton = document.querySelector(".play-button");
+            const darkModeButton = document.querySelector(".toggle-dark-mode");
+            const body = document.body;
+            const volumeControl = document.getElementById("volume");
+
+            playButton.addEventListener("click", function () {
+                alert("Play button clicked! Implement audio functionality here.");
+            });
+
+            darkModeButton.addEventListener("click", function () {
+                body.classList.toggle("dark-mode");
+            });
+
+            volumeControl.addEventListener("input", function() {
+                console.log("Volume set to: " + this.value);
+            });
+        });
+    </script>
 </body>
 </html>
