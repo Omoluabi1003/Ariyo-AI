@@ -129,28 +129,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
             margin-top: 20px;
         }
-
-        @media (max-width: 600px) {
-            .header {
-                flex-direction: row;
-                align-items: center;
-                text-align: center;
-            }
-
-            .text-content {
-                align-items: center;
-                text-align: center;
-            }
-
-            .logo {
-                width: 60px;
-            }
-            
-            iframe {
-                width: 100%;
-                height: 500px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -163,7 +141,7 @@
             </div>
         </div>
 
-        <!-- Chatbot (Properly Sized) -->
+        <!-- Chatbot -->
         <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Content"></iframe>
 
         <!-- Tiny Text Above Play Button -->
@@ -193,43 +171,44 @@
             const darkModeButton = document.querySelector(".toggle-dark-mode");
             const body = document.body;
 
-            // Music files for shuffle play
-            const musicFiles = ["music.mp3", "music1.mp3", "music2.mp3", "music3.mp3"];
+            let musicFiles = ["music.mp3", "music1.mp3", "music2.mp3", "music3.mp3"];
+            let shuffledPlaylist = [];
 
-            // Function to pick and play a random song
-            function playRandomSong() {
-                const randomIndex = Math.floor(Math.random() * musicFiles.length);
-                audio.src = musicFiles[randomIndex];
+            function shuffleMusic() {
+                shuffledPlaylist = [...musicFiles].sort(() => Math.random() - 0.5);
+            }
+
+            function playNextSong() {
+                if (shuffledPlaylist.length === 0) {
+                    shuffleMusic();
+                }
+                let nextSong = shuffledPlaylist.pop();
+                audio.src = nextSong;
                 audio.play();
                 playButton.textContent = "Pause";
             }
 
-            // Play/Pause Functionality
             playButton.addEventListener("click", function () {
                 if (audio.paused) {
-                    playRandomSong();
+                    playNextSong();
                 } else {
                     audio.pause();
                     playButton.textContent = "Play";
                 }
             });
 
-            // Auto-shuffle when a song ends
-            audio.addEventListener("ended", playRandomSong);
+            audio.addEventListener("ended", playNextSong);
 
-            // Volume Control
             volumeControl.addEventListener("input", function () {
                 let volumeLevel = this.value;
                 audio.volume = volumeLevel / 100;
                 volumeValue.textContent = volumeLevel + "%";
             });
 
-            // Dark Mode Toggle
             darkModeButton.addEventListener("click", function () {
                 body.classList.toggle("dark-mode");
             });
 
-            // Set Default Volume
             audio.volume = volumeControl.value / 100;
         });
     </script>
