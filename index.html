@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Naija AI with futuristic reasoning.">
+    <meta name="keywords" content="Naija AI, chatbot, futuristic reasoning, interactive AI, music">
     <meta property="og:title" content="Welcome to Àríyọ̀ AI">
     <meta property="og:description" content="Experience a smart and engaging Naija AI.">
     <meta property="og:image" content="logo.jpg">
@@ -31,6 +32,7 @@
             width: 80px;
             height: auto;
             filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2));
+            alt="Àríyọ̀ AI Logo"; /* Added alt text */
         }
         .container {
             width: 100%;
@@ -116,7 +118,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.jpg" alt="Logo" class="logo">
+            <img src="logo.jpg" alt="Àríyọ̀ AI Logo" class="logo">
             <div class="text-content">
                 <h1>Welcome to Àríyọ̀ AI</h1>
                 <p class="description">Naija AI with futuristic reasoning.</p>
@@ -146,19 +148,23 @@
     <button class="toggle-dark-mode" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
     
     <script>
-        var isPlaying = false;
+        let isPlaying = false; // Changed var to let
+        const audio = document.getElementById("background-music"); // Cached audio element
+
         function adjustVolume(value) {
-            document.getElementById("background-music").volume = value / 100;
+            audio.volume = value / 100;
         }
 
         function toggleMusic() {
-            var audio = document.getElementById("background-music");
-            var button = document.querySelector(".play-button");
+            const button = document.querySelector(".play-button");
             if (isPlaying) {
                 audio.pause();
                 button.textContent = "▶ Play Music";
             } else {
-                audio.play().catch(error => console.log("Play error:", error));
+                audio.play().catch(error => {
+                    console.log("Play error:", error);
+                    alert("Sorry, music could not play. Please check your browser settings.");
+                });
                 button.textContent = "⏸ Pause Music";
             }
             isPlaying = !isPlaying;
@@ -166,6 +172,12 @@
 
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode")); // Save preference
+        }
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem("darkMode") === "true") {
+            document.body.classList.add("dark-mode");
         }
     </script>
 </body>
