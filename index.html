@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Naija AI with futuristic reasoning.">
-    <meta name="keywords" content="Naija AI, chatbot, futuristic reasoning, interactive AI, music">
+    <meta name="description" content="Naija AI with futuristic reasoning and music.">
+    <meta name="keywords" content="Naija AI, chatbot, music, interactive AI">
     <meta property="og:title" content="Welcome to Àríyọ̀ AI">
-    <meta property="og:description" content="Experience a smart and engaging Naija AI.">
+    <meta property="og:description" content="Experience a smart and engaging Naija AI with music.">
     <meta property="og:image" content="logo.jpg">
     <title>Welcome to Àríyọ̀ AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -23,15 +23,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin-top: 20px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             animation: fadeIn 1s ease-in-out;
         }
         .logo {
-            width: 80px;
+            width: 100px;
             height: auto;
             filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2));
+        }
+        .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            text-align: left;
+            max-width: 600px;
+        }
+        h1 {
+            font-weight: 600;
+            color: #007bff;
+            margin: 0;
+        }
+        .description {
+            font-size: 18px;
+            color: #555;
         }
         .container {
             width: 100%;
@@ -58,22 +74,6 @@
         .dark-mode .description, 
         .dark-mode label {
             color: white;
-        }
-        .text-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        h1 {
-            font-weight: 600;
-            color: #007bff;
-        }
-        .description {
-            font-size: 18px;
-            margin-top: -5px;
-            max-width: 600px;
-            color: #555;
         }
         iframe {
             margin-top: 20px;
@@ -110,7 +110,6 @@
             font-weight: 600;
         }
         input[type="range"] {
-            -webkit-appearance: none;
             width: 200px;
             height: 8px;
             border-radius: 5px;
@@ -122,35 +121,19 @@
         input[type="range"]:hover {
             opacity: 1;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
         @media (max-width: 600px) {
-            .container {
-                padding: 40px 10px;
+            .header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .text-content {
+                align-items: center;
+                text-align: center;
             }
             iframe {
                 width: 100%;
                 height: 700px;
-            }
-            .header {
-                flex-direction: row;
-                justify-content: center;
             }
         }
     </style>
@@ -159,38 +142,60 @@
     <div class="container">
         <div class="header">
             <img src="logo.jpg" alt="Àríyọ̀ AI Logo" class="logo">
+            <div class="text-content">
+                <h1>Welcome to Àríyọ̀ AI</h1>
+                <p class="description">Experience a smart and engaging Naija AI.</p>
+            </div>
         </div>
-        <div class="text-content">
-            <h1>Welcome to Àríyọ̀ AI</h1>
-            <p class="description">Experience a smart and engaging Naija AI.</p>
-        </div>
+
+        <!-- Chatbot -->
         <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Content"></iframe>
+
+        <!-- Music Player -->
+        <audio id="audioPlayer" src="music.mp3"></audio>
         <button class="play-button">Play</button>
-        <button class="toggle-dark-mode">Toggle Dark Mode</button>
+
+        <!-- Volume Control -->
         <div class="volume-control">
             <label for="volume">Volume:</label>
             <input type="range" id="volume" min="0" max="100" value="50">
         </div>
+
+        <!-- Dark Mode Toggle -->
+        <button class="toggle-dark-mode">Toggle Dark Mode</button>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const audio = document.getElementById("audioPlayer");
             const playButton = document.querySelector(".play-button");
+            const volumeControl = document.getElementById("volume");
             const darkModeButton = document.querySelector(".toggle-dark-mode");
             const body = document.body;
-            const volumeControl = document.getElementById("volume");
 
+            // Play/Pause Functionality
             playButton.addEventListener("click", function () {
-                alert("Play button clicked! Implement audio functionality here.");
+                if (audio.paused) {
+                    audio.play();
+                    playButton.textContent = "Pause";
+                } else {
+                    audio.pause();
+                    playButton.textContent = "Play";
+                }
             });
 
+            // Volume Control
+            volumeControl.addEventListener("input", function () {
+                audio.volume = this.value / 100;
+            });
+
+            // Dark Mode Toggle
             darkModeButton.addEventListener("click", function () {
                 body.classList.toggle("dark-mode");
             });
 
-            volumeControl.addEventListener("input", function() {
-                console.log("Volume set to: " + this.value);
-            });
+            // Set Default Volume
+            audio.volume = volumeControl.value / 100;
         });
     </script>
 </body>
