@@ -51,8 +51,9 @@
         }
 
         .description {
-            font-size: 18px;
+            font-size: 10px; /* Smallest size requested */
             color: #555;
+            margin-top: -8px; /* Keep it close to the heading */
         }
 
         .container {
@@ -70,61 +71,9 @@
             animation: slideIn 1s ease-out;
         }
 
-        .gbedu-text {
-            font-size: 12px;
-            color: #007bff;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .play-button, .toggle-dark-mode {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
-        }
-
-        .play-button:hover, .toggle-dark-mode:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #0056b3, #007bff);
-        }
-
-        .volume-control {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        #volume-value {
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        input[type="range"] {
-            width: 200px;
-            height: 8px;
-            border-radius: 5px;
-            background: #007bff;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-        }
-
-        input[type="range"]:hover {
-            opacity: 1;
-        }
-
-        /* Make Chatbot Full Width & Leave Space for Music Controls */
         .chat-container {
             width: 100%;
-            height: 70vh; /* Fill most of the page, leave space below */
+            height: 70vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -155,7 +104,7 @@
             }
 
             .chat-container {
-                height: 65vh; /* Slightly smaller on mobile */
+                height: 65vh;
             }
 
             iframe {
