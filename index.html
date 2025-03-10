@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Àríyọ̀ AI</title>
-    <meta name="description" content="Àríyọ̀ AI - The Naija AI with futuristic reasoning.">
-    <meta name="keywords" content="Naija AI, AI chatbot, African AI, smart assistant">
-    <meta property="og:title" content="Àríyọ̀ AI - Smart Naija AI">
-    <meta property="og:description" content="Futuristic AI with Nigerian vibes.">
+    <meta name="description" content="Naija AI with futuristic reasoning.">
+    <meta property="og:title" content="Welcome to Àríyọ̀ AI">
+    <meta property="og:description" content="Experience a smart and engaging Naija AI.">
     <meta property="og:image" content="logo.jpg">
-    <meta property="og:url" content="your-website-url">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Welcome to Àríyọ̀ AI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #007bff, #00c6ff);
-            background-attachment: fixed;
-            color: white;
+            background-color: #f4f4f4;
+            transition: background-color 0.5s, color 0.5s;
         }
         .container {
             width: 100%;
@@ -30,62 +26,36 @@
             justify-content: center;
             background: white;
             padding: 20px;
+            transition: background 0.5s;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #fff;
+        }
+        .dark-mode .container {
+            background: #333;
         }
         .logo {
             width: 150px;
-            height: auto;
             margin-bottom: 10px;
+            animation: fadeIn 1s;
         }
         .description {
             font-size: 18px;
             margin: 10px 20px;
             max-width: 600px;
         }
-        /* ✅ Fixed Chat Window Size */
         iframe {
             margin-top: 10px;
             width: 90%;
-            max-width: 700px;
-            height: 85vh;
-            min-height: 600px;
+            max-width: 600px;
+            height: 700px;
             border-radius: 10px;
         }
-        /* Feature Cards */
-        .features {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        .feature-card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 20px;
-            width: 200px;
-            text-align: center;
-            color: white;
-            transition: transform 0.3s;
-        }
-        .feature-card:hover {
-            transform: scale(1.1);
-        }
-        /* Chatbot Icon */
-        .chatbot-icon {
-            width: 80px;
-            height: auto;
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        /* Music Section */
         .music-section {
             margin-top: 20px;
         }
-        .play-button {
+        .play-button, .toggle-dark-mode {
             background-color: #007bff;
             color: white;
             border: none;
@@ -94,26 +64,17 @@
             cursor: pointer;
             border-radius: 5px;
             margin-top: 10px;
+            transition: background-color 0.3s;
         }
-        .play-button:hover {
+        .play-button:hover, .toggle-dark-mode:hover {
             background-color: #0056b3;
         }
         .volume-control {
             margin-top: 10px;
         }
-        /* Loading Spinner */
-        #loader {
-            border: 5px solid white;
-            border-top: 5px solid #007bff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         @media (max-width: 600px) {
             .container {
@@ -121,97 +82,61 @@
             }
             iframe {
                 width: 100%;
-                height: 70vh;
-            }
-            .logo {
-                width: 120px;
+                height: 650px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="logo.jpg" alt="Àríyọ̀ AI Logo" class="logo">
+        <img src="logo.jpg" alt="Logo" class="logo">
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p class="description">Naija AI with futuristic reasoning.</p>
-
-        <!-- Chatbot Icon -->
-        <img src="chatbot.gif" alt="Chatbot Icon" class="chatbot-icon">
+        <iframe 
+            src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
+            allow='clipboard-write *'>
+        </iframe>
         
-        <!-- Feature Cards -->
-        <div class="features">
-            <div class="feature-card">
-                <h3>🤖 Smart AI</h3>
-                <p>Get intelligent responses tailored for Nigerians.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🎶 Music Companion</h3>
-                <p>Listen to relaxing music while you chat with Àríyọ̀.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🔮 Futuristic Thinking</h3>
-                <p>Predict trends and analyze insights.</p>
-            </div>
-        </div>
-
-        <!-- Chatbot Iframe -->
-        <div id="chatbot-container">
-            <div id="loader"></div>
-            <iframe 
-                id="chatbot-iframe"
-                src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" 
-                allow="clipboard-write *"
-                onload="hideLoader()">
-            </iframe>
-        </div>
-
         <!-- Music Section -->
         <div class="music-section">
             <p>🎵 Enjoy relaxing music while using this AI. 🎶</p>
-            <button id="music-toggle" class="play-button">▶ Play Music</button>
+            <button class="play-button" onclick="toggleMusic()" aria-label="Toggle Background Music">▶ Play Music</button>
         </div>
     </div>
     
     <audio id="background-music" loop>
         <source src="music.mp3" type="audio/mpeg">
-        Your browser does not support the audio tag.
     </audio>
     
     <div class="volume-control">
         <label for="volume">🔊 Volume:</label>
-        <input type="range" id="volume" min="0" max="1" step="0.1" value="1">
-        <span id="volume-label">100%</span>
+        <input type="range" id="volume" min="0" max="100" step="10" value="100" onchange="adjustVolume(this.value)">
     </div>
     
-    <script defer>
-        document.addEventListener("DOMContentLoaded", function () {
+    <button class="toggle-dark-mode" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+    
+    <script>
+        var isPlaying = false;
+        function adjustVolume(value) {
+            document.getElementById("background-music").volume = value / 100;
+        }
+
+        function toggleMusic() {
             var audio = document.getElementById("background-music");
-            var musicButton = document.getElementById("music-toggle");
-            var volumeSlider = document.getElementById("volume");
-            var volumeLabel = document.getElementById("volume-label");
-
-            function toggleMusic() {
-                if (audio.paused) {
-                    audio.play();
-                    musicButton.textContent = "⏸ Pause Music";
-                } else {
-                    audio.pause();
-                    musicButton.textContent = "▶ Play Music";
-                }
+            var button = document.querySelector(".play-button");
+            if (isPlaying) {
+                audio.pause();
+                button.textContent = "▶ Play Music";
+            } else {
+                audio.play().catch(error => console.log("Play error:", error));
+                button.textContent = "⏸ Pause Music";
             }
+            isPlaying = !isPlaying;
+        }
 
-            function adjustVolume() {
-                audio.volume = parseFloat(volumeSlider.value);
-                volumeLabel.textContent = Math.round(audio.volume * 100) + "%";
-            }
-
-            function hideLoader() {
-                document.getElementById("loader").style.display = "none";
-            }
-
-            musicButton.addEventListener("click", toggleMusic);
-            volumeSlider.addEventListener("input", adjustVolume);
-        });
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
     </script>
 </body>
 </html>
