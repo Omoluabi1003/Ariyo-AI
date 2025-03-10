@@ -55,8 +55,8 @@
         .text-content {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center content */
-            text-align: center; /* Ensure text is centered */
+            align-items: center;
+            text-align: center;
             max-width: 600px;
         }
 
@@ -67,10 +67,10 @@
         }
 
         .description {
-            font-size: 8px; /* Smallest size requested */
+            font-size: 8px;
             color: #555;
-            margin-top: -5px; /* Keep it close to the heading */
-            text-align: center; /* Ensure it centers */
+            margin-top: -5px;
+            text-align: center;
         }
 
         .container {
@@ -88,9 +88,10 @@
             animation: slideIn 1s ease-out;
         }
 
+        /* Chatbot Full Width */
         .chat-container {
             width: 100%;
-            height: 70vh;
+            height: 80vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -104,6 +105,50 @@
             border: none;
         }
 
+        /* Play Button */
+        .play-button {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #0056b3, #007bff);
+        }
+
+        /* Volume Control */
+        .volume-control {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #volume-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        input[type="range"] {
+            width: 200px;
+            height: 8px;
+            border-radius: 5px;
+            background: #007bff;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        /* Dark Mode Button */
         .toggle-dark-mode {
             background: linear-gradient(135deg, #444, #222);
             color: white;
@@ -116,28 +161,7 @@
             transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
         }
 
-        .toggle-dark-mode:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #222, #444);
-        }
-
         @media (max-width: 600px) {
-            .header {
-                flex-direction: row;
-                align-items: center;
-                text-align: center;
-            }
-
-            .text-content {
-                align-items: center;
-                text-align: center;
-            }
-
-            .logo {
-                width: 60px;
-            }
-
             .chat-container {
                 height: 65vh;
             }
@@ -158,13 +182,21 @@
             </div>
         </div>
 
-        <!-- Full-Width Chatbot Window -->
+        <!-- Chatbot -->
         <div class="chat-container">
             <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
         </div>
 
-        <!-- Tiny Text Above Play Button -->
+        <!-- Play Button & Volume Control -->
         <p class="gbedu-text">Enjoy Naija Gbedu as you dey use me!</p>
+        <audio id="audioPlayer"></audio>
+        <button class="play-button">Play</button>
+
+        <div class="volume-control">
+            <label for="volume">Volume:</label>
+            <input type="range" id="volume" min="0" max="100" value="50">
+            <span id="volume-value">50%</span>
+        </div>
 
         <!-- Dark Mode Toggle -->
         <button class="toggle-dark-mode">Toggle Dark Mode</button>
@@ -172,18 +204,38 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const audio = document.getElementById("audioPlayer");
+            const playButton = document.querySelector(".play-button");
+            const volumeControl = document.getElementById("volume");
+            const volumeValue = document.getElementById("volume-value");
             const darkModeButton = document.querySelector(".toggle-dark-mode");
             const body = document.body;
 
-            // Dark Mode Toggle
+            let musicFiles = ["music.mp3", "music1.mp3", "music2.mp3", "music3.mp3"];
+
+            function playMusic() {
+                let randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
+                audio.src = randomSong;
+                audio.play();
+                playButton.textContent = "Pause";
+            }
+
+            playButton.addEventListener("click", function () {
+                if (audio.paused) {
+                    playMusic();
+                } else {
+                    audio.pause();
+                    playButton.textContent = "Play";
+                }
+            });
+
+            volumeControl.addEventListener("input", function () {
+                audio.volume = this.value / 100;
+                volumeValue.textContent = this.value + "%";
+            });
+
             darkModeButton.addEventListener("click", function () {
                 body.classList.toggle("dark-mode");
-
-                if (body.classList.contains("dark-mode")) {
-                    darkModeButton.textContent = "Light Mode";
-                } else {
-                    darkModeButton.textContent = "Dark Mode";
-                }
             });
         });
     </script>
