@@ -19,7 +19,7 @@
             padding: 0;
             background: linear-gradient(135deg, #007bff, #00c6ff);
             background-attachment: fixed;
-            color: white; /* Adjust text color for readability */
+            color: white;
         }
         .container {
             width: 100%;
@@ -32,7 +32,7 @@
             padding: 20px;
         }
         .logo {
-            width: 150px; /* Adjust as needed */
+            width: 150px;
             height: auto;
             margin-bottom: 10px;
         }
@@ -40,30 +40,17 @@
             font-size: 18px;
             margin: 10px 20px;
             max-width: 600px;
-            animation: fadeIn 1.5s ease-in-out;
         }
-        /* Animation for the description */
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(-10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        /* ✅ Fixed Chat Window Size */
         iframe {
             margin-top: 10px;
             width: 90%;
-            max-width: 600px;
-            height: 75vh;
+            max-width: 700px;
+            height: 85vh;
+            min-height: 600px;
             border-radius: 10px;
         }
-        /* Chatbot icon animation */
-        .chatbot-icon {
-            width: 80px;
-            height: auto;
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+        /* Feature Cards */
         .features {
             display: flex;
             gap: 20px;
@@ -84,6 +71,16 @@
         .feature-card:hover {
             transform: scale(1.1);
         }
+        /* Chatbot Icon */
+        .chatbot-icon {
+            width: 80px;
+            height: auto;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
         /* Music Section */
         .music-section {
             margin-top: 20px;
@@ -97,7 +94,6 @@
             cursor: pointer;
             border-radius: 5px;
             margin-top: 10px;
-            transition: background 0.3s;
         }
         .play-button:hover {
             background-color: #0056b3;
@@ -128,7 +124,7 @@
                 height: 70vh;
             }
             .logo {
-                width: 120px; /* Adjust for smaller screens */
+                width: 120px;
             }
         }
     </style>
@@ -142,7 +138,7 @@
         <!-- Chatbot Icon -->
         <img src="chatbot.gif" alt="Chatbot Icon" class="chatbot-icon">
         
-        <!-- Feature Cards Section -->
+        <!-- Feature Cards -->
         <div class="features">
             <div class="feature-card">
                 <h3>🤖 Smart AI</h3>
@@ -193,49 +189,28 @@
             var musicButton = document.getElementById("music-toggle");
             var volumeSlider = document.getElementById("volume");
             var volumeLabel = document.getElementById("volume-label");
-            var isPlaying = false;
 
             function toggleMusic() {
-                if (isPlaying) {
+                if (audio.paused) {
+                    audio.play();
+                    musicButton.textContent = "⏸ Pause Music";
+                } else {
                     audio.pause();
                     musicButton.textContent = "▶ Play Music";
-                } else {
-                    audio.play()
-                        .then(() => {
-                            console.log("Music playing.");
-                            musicButton.textContent = "⏸ Pause Music";
-                        })
-                        .catch(error => {
-                            console.log("Manual play needed:", error);
-                            alert("Click anywhere on the page first, then press Play.");
-                        });
                 }
-                isPlaying = !isPlaying;
             }
 
             function adjustVolume() {
-                let volumeValue = parseFloat(volumeSlider.value);
-                audio.volume = volumeValue;
-                volumeLabel.textContent = Math.round(volumeValue * 100) + "%";
-                console.log("Volume set to:", volumeValue);
+                audio.volume = parseFloat(volumeSlider.value);
+                volumeLabel.textContent = Math.round(audio.volume * 100) + "%";
             }
 
             function hideLoader() {
                 document.getElementById("loader").style.display = "none";
             }
 
-            function forcePlayMusic() {
-                audio.volume = parseFloat(volumeSlider.value);
-                audio.play().catch(error => console.log("Autoplay blocked:", error));
-            }
-
             musicButton.addEventListener("click", toggleMusic);
             volumeSlider.addEventListener("input", adjustVolume);
-            document.addEventListener("click", function () {
-                forcePlayMusic();
-            });
-
-            audio.volume = parseFloat(volumeSlider.value);
         });
     </script>
 </body>
