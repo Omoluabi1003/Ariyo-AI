@@ -121,13 +121,46 @@
             opacity: 1;
         }
 
+        /* Make Chatbot Full Width & Leave Space for Music Controls */
+        .chat-container {
+            width: 100%;
+            height: 70vh; /* Fill most of the page, leave space below */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         iframe {
-            border: none; 
-            width: 350px;
-            height: 500px;
+            width: 95%;
+            height: 100%;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-            margin-top: 20px;
+            border: none;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: row;
+                align-items: center;
+                text-align: center;
+            }
+
+            .text-content {
+                align-items: center;
+                text-align: center;
+            }
+
+            .logo {
+                width: 60px;
+            }
+
+            .chat-container {
+                height: 65vh; /* Slightly smaller on mobile */
+            }
+
+            iframe {
+                width: 98%;
+            }
         }
     </style>
 </head>
@@ -141,8 +174,10 @@
             </div>
         </div>
 
-        <!-- Chatbot -->
-        <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Content"></iframe>
+        <!-- Full-Width Chatbot Window -->
+        <div class="chat-container">
+            <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
+        </div>
 
         <!-- Tiny Text Above Play Button -->
         <p class="gbedu-text">Enjoy Naija Gbedu as you dey use me!</p>
