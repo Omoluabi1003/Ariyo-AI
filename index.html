@@ -63,26 +63,6 @@
             transition: background 0.5s;
             animation: slideIn 1s ease-out;
         }
-        .dark-mode {
-            background: linear-gradient(135deg, #222, #111);
-            color: #fff;
-        }
-        .dark-mode .container {
-            background: rgba(50, 50, 50, 0.9);
-        }
-        .dark-mode h1, 
-        .dark-mode .description, 
-        .dark-mode label {
-            color: white;
-        }
-        iframe {
-            margin-top: 20px;
-            width: 90%;
-            max-width: 800px;
-            height: 800px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
         .play-button, .toggle-dark-mode {
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
@@ -104,10 +84,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
         }
-        .volume-control label {
-            margin-right: 10px;
-            font-weight: 600;
+        #volume-value {
+            font-weight: bold;
+            color: #007bff;
         }
         input[type="range"] {
             width: 200px;
@@ -131,10 +112,6 @@
                 align-items: center;
                 text-align: center;
             }
-            iframe {
-                width: 100%;
-                height: 700px;
-            }
         }
     </style>
 </head>
@@ -152,13 +129,14 @@
         <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Content"></iframe>
 
         <!-- Music Player -->
-        <audio id="audioPlayer" src="music.mp3"></audio>
+        <audio id="audioPlayer"></audio>
         <button class="play-button">Play</button>
 
         <!-- Volume Control -->
         <div class="volume-control">
             <label for="volume">Volume:</label>
             <input type="range" id="volume" min="0" max="100" value="50">
+            <span id="volume-value">50%</span>
         </div>
 
         <!-- Dark Mode Toggle -->
@@ -170,23 +148,39 @@
             const audio = document.getElementById("audioPlayer");
             const playButton = document.querySelector(".play-button");
             const volumeControl = document.getElementById("volume");
+            const volumeValue = document.getElementById("volume-value");
             const darkModeButton = document.querySelector(".toggle-dark-mode");
             const body = document.body;
+
+            // Music files for shuffle play
+            const musicFiles = ["music.mp3", "music1.mp3", "music2.mp3", "music3.mp3"];
+
+            // Function to pick and play a random song
+            function playRandomSong() {
+                const randomIndex = Math.floor(Math.random() * musicFiles.length);
+                audio.src = musicFiles[randomIndex];
+                audio.play();
+                playButton.textContent = "Pause";
+            }
 
             // Play/Pause Functionality
             playButton.addEventListener("click", function () {
                 if (audio.paused) {
-                    audio.play();
-                    playButton.textContent = "Pause";
+                    playRandomSong();
                 } else {
                     audio.pause();
                     playButton.textContent = "Play";
                 }
             });
 
+            // Auto-shuffle when a song ends
+            audio.addEventListener("ended", playRandomSong);
+
             // Volume Control
             volumeControl.addEventListener("input", function () {
-                audio.volume = this.value / 100;
+                let volumeLevel = this.value;
+                audio.volume = volumeLevel / 100;
+                volumeValue.textContent = volumeLevel + "%";
             });
 
             // Dark Mode Toggle
