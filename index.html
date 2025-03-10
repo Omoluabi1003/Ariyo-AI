@@ -32,7 +32,6 @@
             width: 80px;
             height: auto;
             filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2));
-            alt="Àríyọ̀ AI Logo"; /* Added alt text */
         }
         .container {
             width: 100%;
@@ -42,9 +41,9 @@
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
+            padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             transition: background 0.5s;
             animation: slideIn 1s ease-out;
         }
@@ -61,13 +60,18 @@
             align-items: center;
             text-align: center;
         }
+        h1 {
+            font-weight: 600;
+            color: #007bff; /* Primary color */
+        }
         .description {
-            font-size: 16px;
+            font-size: 18px;
             margin-top: -5px;
             max-width: 600px;
+            color: #555; /* Secondary color */
         }
         iframe {
-            margin-top: 10px;
+            margin-top: 20px;
             width: 90%;
             max-width: 800px;
             height: 800px;
@@ -75,7 +79,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
         .play-button, .toggle-dark-mode {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -83,14 +87,53 @@
             cursor: pointer;
             border-radius: 8px;
             margin-top: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
         }
         .play-button:hover, .toggle-dark-mode:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #0056b3, #007bff);
         }
         .volume-control {
-            margin-top: 10px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .volume-control label {
+            margin-right: 10px;
+            font-weight: 600;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 200px;
+            height: 8px;
+            border-radius: 5px;
+            background: #007bff;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -118,67 +161,4 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo.jpg" alt="Àríyọ̀ AI Logo" class="logo">
-            <div class="text-content">
-                <h1>Welcome to Àríyọ̀ AI</h1>
-                <p class="description">Naija AI with futuristic reasoning.</p>
-            </div>
-        </div>
-        <iframe 
-            src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' 
-            allow='clipboard-write *'>
-        </iframe>
-        
-        <!-- Music Section -->
-        <div class="music-section">
-            <p>🎵 Enjoy relaxing music while using this AI. 🎶</p>
-            <button class="play-button" onclick="toggleMusic()" aria-label="Toggle Background Music">▶ Play Music</button>
-        </div>
-    </div>
-    
-    <audio id="background-music" loop>
-        <source src="music.mp3" type="audio/mpeg">
-    </audio>
-    
-    <div class="volume-control">
-        <label for="volume">🔊 Volume:</label>
-        <input type="range" id="volume" min="0" max="100" step="10" value="100" onchange="adjustVolume(this.value)">
-    </div>
-    
-    <button class="toggle-dark-mode" onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
-    
-    <script>
-        let isPlaying = false; // Changed var to let
-        const audio = document.getElementById("background-music"); // Cached audio element
-
-        function adjustVolume(value) {
-            audio.volume = value / 100;
-        }
-
-        function toggleMusic() {
-            const button = document.querySelector(".play-button");
-            if (isPlaying) {
-                audio.pause();
-                button.textContent = "▶ Play Music";
-            } else {
-                audio.play().catch(error => {
-                    console.log("Play error:", error);
-                    alert("Sorry, music could not play. Please check your browser settings.");
-                });
-                button.textContent = "⏸ Pause Music";
-            }
-            isPlaying = !isPlaying;
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode")); // Save preference
-        }
-
-        // Check for saved dark mode preference
-        if (localStorage.getItem("darkMode") === "true") {
-            document.body.classList.add("dark-mode");
-        }
-    </script>
-</body>
-</html>
+            <img src="
