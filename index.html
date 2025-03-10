@@ -10,6 +10,7 @@
     <meta property="og:image" content="logo.jpg">
     <title>Welcome to Àríyọ̀ AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -25,96 +26,105 @@
             color: #fff;
         }
 
-        .header {
+        .container {
+            width: 100%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 5px;
-            flex-wrap: nowrap;
+            padding: 20px;
+            min-height: 90vh;
         }
 
-        .text-content {
-            max-width: 600px;
+        .header {
+            margin-bottom: 10px;
         }
 
         h1 {
             font-weight: 600;
             color: #007bff;
-            margin-bottom: 5px;
+            margin: 0;
+            font-size: 24px;
         }
 
         .description {
-            font-size: 12px;
+            font-size: 14px;
             color: #555;
-        }
-
-        .container {
-            width: 100%;
-            min-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
         }
 
         .chat-container {
             width: 100%;
-            height: 85vh;
+            max-width: 900px;
+            height: 65vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         iframe {
-            width: 95%;
+            width: 100%;
             height: 100%;
             border-radius: 12px;
             border: none;
         }
 
-        .play-button {
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .play-button, .toggle-dark-mode {
             background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 10px 20px;
+            font-size: 14px;
             border-radius: 8px;
             cursor: pointer;
+            border: none;
+            transition: transform 0.2s;
+        }
+
+        .play-button:hover, .toggle-dark-mode:hover {
+            transform: scale(1.05);
         }
 
         .volume-control {
-            margin-top: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         input[type="range"] {
-            width: 200px;
+            width: 150px;
             height: 8px;
-            background: #007bff;
-        }
-
-        .toggle-dark-mode {
-            background: linear-gradient(135deg, #444, #222);
-            color: white;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 8px;
             cursor: pointer;
-            margin-top: 15px;
+            accent-color: #007bff;
         }
 
         @media (max-width: 600px) {
-            .chat-container {
-                height: 60vh;
+            h1 {
+                font-size: 20px;
             }
 
-            iframe {
-                width: 98%;
+            .description {
+                font-size: 12px;
+            }
+
+            .chat-container {
+                height: 55vh;
+            }
+
+            .play-button, .toggle-dark-mode {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+
+            input[type="range"] {
+                width: 120px;
             }
         }
     </style>
@@ -122,36 +132,31 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="text-content">
-                <h1>Welcome to Àríyọ̀ AI</h1>
-                <p class="description">Experience a smart and engaging Naija AI.</p>
-            </div>
+            <h1>Welcome to Àríyọ̀ AI</h1>
+            <p class="description">Experience a smart and engaging Naija AI.</p>
         </div>
 
         <div class="chat-container">
             <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
         </div>
 
-        <p style="font-size: 8px;">Enjoy Naija Gbedu as you use me!</p>
-        <audio id="audioPlayer"></audio>
-        <button class="play-button">Play</button>
-        <div class="volume-control">
-            <label for="volume">Volume:</label>
-            <input type="range" id="volume" min="0" max="100" value="50">
-            <span id="volume-value">50%</span>
-        </div>
+        <div class="controls">
+            <p style="font-size: 10px;">Enjoy Naija Gbedu while using me! 🎶</p>
+            <audio id="audioPlayer"></audio>
+            <button class="play-button">Play</button>
+            
+            <div class="volume-control">
+                <label for="volume">Volume:</label>
+                <input type="range" id="volume" min="0" max="100" value="50">
+                <span id="volume-value">50%</span>
+            </div>
 
-        <button class="toggle-dark-mode">Toggle Dark Mode</button>
+            <button class="toggle-dark-mode">Toggle Dark Mode</button>
+        </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            document.body.addEventListener("click", function () {
-                if (audio.paused) {
-                    playMusic();
-                }
-            }, { once: true });
-            playMusic();
             const audio = document.getElementById("audioPlayer");
             const playButton = document.querySelector(".play-button");
             const volumeControl = document.getElementById("volume");
@@ -164,13 +169,17 @@
             function playMusic() {
                 let randomSong = musicFiles[Math.floor(Math.random() * musicFiles.length)];
                 audio.src = randomSong;
-                audio.play();
-                playButton.textContent = "Pause";
+                audio.play().then(() => {
+                    playButton.textContent = "Pause";
+                }).catch(() => {
+                    console.warn("Autoplay blocked. User must interact first.");
+                });
             }
 
             playButton.addEventListener("click", function () {
                 if (audio.paused) {
-                    playMusic();
+                    audio.play();
+                    playButton.textContent = "Pause";
                 } else {
                     audio.pause();
                     playButton.textContent = "Play";
@@ -194,6 +203,12 @@
             if (localStorage.getItem("darkMode") === "true") {
                 body.classList.add("dark-mode");
             }
+
+            document.body.addEventListener("click", function () {
+                if (audio.paused) {
+                    playMusic();
+                }
+            }, { once: true });
         });
     </script>
 </body>
