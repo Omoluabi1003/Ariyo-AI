@@ -59,23 +59,14 @@
             height: 100%;
             border: none;
         }
-        .music-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 250px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 10px;
+        .voice-button {
+            background: #28a745;
             color: white;
-            display: none;
-        }
-        .toggle-dark-mode {
-            background: #007bff;
-            color: white;
+            border: none;
             padding: 10px;
             border-radius: 8px;
             cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -84,59 +75,26 @@
         <h1>Welcome to Àríyọ̀ AI</h1>
         <p id="naija-proverb">Loading proverb...</p>
         <button class="toggle-dark-mode">Toggle Dark Mode</button>
+        <button class="voice-button" onclick="startVoiceRecognition()">🎤 Talk to Àríyọ̀</button>
     </div>
     <div class="chat-popup" id="chatPopup">
         <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Interactive Chatbot"></iframe>
     </div>
     <button class="chat-button" onclick="toggleChat()">💬</button>
-    <div class="music-container" id="musicContainer">
-        <p id="song-title">Now Playing: No song</p>
-        <audio id="audioPlayer"></audio>
-        <button onclick="prevSong()">⏮</button>
-        <button onclick="toggleMusic()">▶</button>
-        <button onclick="nextSong()">⏭</button>
-        <input type="range" id="volume" min="0" max="100" value="50" onchange="setVolume(this.value)">
-    </div>
     <script>
-        const proverbs = ["No be who first call police dey win case.", "If soup sweet, na money kill am.", "Na who give up lose."];
-        document.getElementById("naija-proverb").innerText = proverbs[Math.floor(Math.random() * proverbs.length)];
         function toggleChat() {
             var chatPopup = document.getElementById("chatPopup");
             chatPopup.style.display = chatPopup.style.display === "block" ? "none" : "block";
         }
-        const audio = document.getElementById("audioPlayer");
-        const songTitle = document.getElementById("song-title");
-        let songs = ["music1.mp3", "music2.mp3", "music3.mp3"];
-        let songNames = ["Afrobeats Groove", "Naija Chill Vibes", "Street Anthem"];
-        let songIndex = 0;
-        function loadSong(index) {
-            audio.src = songs[index];
-            songTitle.textContent = "Now Playing: " + songNames[index];
+        function startVoiceRecognition() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "en-NG";
+            recognition.start();
+            recognition.onresult = function(event) {
+                let voiceInput = event.results[0][0].transcript;
+                alert("You said: " + voiceInput);
+            };
         }
-        function toggleMusic() {
-            if (audio.paused) {
-                audio.play();
-            } else {
-                audio.pause();
-            }
-        }
-        function nextSong() {
-            songIndex = (songIndex + 1) % songs.length;
-            loadSong(songIndex);
-            audio.play();
-        }
-        function prevSong() {
-            songIndex = (songIndex - 1 + songs.length) % songs.length;
-            loadSong(songIndex);
-            audio.play();
-        }
-        function setVolume(value) {
-            audio.volume = value / 100;
-        }
-        document.querySelector(".toggle-dark-mode").addEventListener("click", () => {
-            document.body.classList.toggle("dark-mode");
-        });
-        loadSong(songIndex);
     </script>
 </body>
 </html>
