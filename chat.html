@@ -14,16 +14,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
         .chat-container {
             width: 100vw;
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
             background: #111;
+            transition: height 0.3s ease-in-out;
         }
         iframe {
             width: 100%;
@@ -47,20 +48,20 @@
         /* Fix for mobile screens */
         @media screen and (max-width: 768px) {
             .chat-container {
-                height: 100dvh; /* Ensures height adapts to mobile screens */
+                height: 100dvh;
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
             }
             iframe {
-                height: 100dvh; /* Adjusts iframe height properly */
+                height: 100dvh;
             }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
-        <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
+        <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
     <button class="close-button" onclick="closeChat()">Close</button>
     
@@ -68,6 +69,26 @@
         function closeChat() {
             window.history.back();
         }
+
+        // Detect when the keyboard appears and adjust the iframe height
+        function adjustForKeyboard() {
+            const chatbotIframe = document.getElementById('chatbot');
+            const initialHeight = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                const currentHeight = window.innerHeight;
+
+                if (currentHeight < initialHeight) {
+                    // Keyboard is open, reduce iframe height
+                    chatbotIframe.style.height = "80dvh"; // Adjust as needed
+                } else {
+                    // Keyboard is closed, restore iframe height
+                    chatbotIframe.style.height = "100dvh";
+                }
+            });
+        }
+
+        adjustForKeyboard();
     </script>
 </body>
 </html>
