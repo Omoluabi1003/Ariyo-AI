@@ -153,11 +153,14 @@
     </audio>
 
     <script>
-        function playBackgroundMusic() {
-            const audio = document.getElementById("background-music");
-            audio.volume = 0.3;
-            audio.play().catch(() => console.log("Autoplay blocked: User interaction required"));
-        }
+        document.addEventListener("click", () => {
+    const audio = document.getElementById("background-music");
+    if (audio.paused) {
+        audio.volume = 0.3;
+        audio.play().catch(error => console.log("Playback error:", error));
+    }
+}, { once: true }); // Ensures it runs only once
+
 
         function toggleDarkMode() {
             document.body.classList.toggle("light-mode");
