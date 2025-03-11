@@ -76,28 +76,35 @@
             padding: 10px 0;
         }
 
-        .chat-bubble {
+        .chat-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            width: 60px;
-            height: 60px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .chat-container img {
+            width: 80px;
+            height: 80px;
             transition: transform 0.3s ease-in-out;
         }
 
-        .chat-bubble:hover {
+        .chat-container img:hover {
             transform: scale(1.1);
+        }
+
+        .chat-container span {
+            margin-top: 5px;
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .mode-toggle {
@@ -125,11 +132,9 @@
                 overflow-y: auto;
                 padding: 10px;
             }
-            .chat-bubble {
-                font-size: 14px;
-                width: 50px;
-                height: 50px;
-                padding: 10px;
+            .chat-container img {
+                width: 60px;
+                height: 60px;
             }
             #naija-news {
                 height: 100%;
@@ -144,7 +149,11 @@
         <div id="naija-news">Loading Naija News...</div>
     </div>
 
-    <button class="chat-bubble" onclick="openChat()">💬</button>
+    <div class="chat-container" onclick="openChat()">
+        <img src="/mnt/data/A_friendly_chatbot_character_with_a_futuristic_des.png" alt="Ariyo Chatbot">
+        <span>Hi, my name na Ariyo</span>
+    </div>
+
     <button class="mode-toggle" onclick="toggleMode()">🌙 Switch Mode</button>
 
     <script>
