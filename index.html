@@ -26,18 +26,13 @@
             padding: 20px;
         }
 
-        .music-player, .news-container {
+        .music-player {
             width: 100%;
             padding: 15px;
             border-radius: 10px;
             background: white;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
-        }
-
-        .news-container {
-            max-height: 200px;
-            overflow-y: auto;
         }
 
         .chat-bubble {
@@ -79,15 +74,10 @@
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI 🎶</h1>
 
-        <div class="news-container" id="news-section">
-            <h2>Latest Naija News 📰</h2>
-            <div id="news-list">Loading news...</div>
-        </div>
-
         <div class="music-player">
             <h2>Music Player</h2>
-            <button onclick="initializeFirebase(); playMusic()">▶ Play</button>
-            <button onclick="initializeFirebase(); nextSong()">⏭ Next</button>
+            <button onclick="playMusic()">▶ Play</button>
+            <button onclick="nextSong()">⏭ Next</button>
             <p id="music-output">check out gbedu 4 hia.</p>
             <audio id="audioPlayer" controls></audio>
         </div>
@@ -104,7 +94,7 @@
         function initializeFirebase() {
             if (firebaseInitialized) return;
             firebaseInitialized = true;
-            
+
             import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js").then(module => {
                 const { initializeApp } = module;
                 return import("https://www.gstatic.com/firebasejs/11.4.0/firebase-storage.js").then(storageModule => {
@@ -121,41 +111,49 @@
                     appId: "1:746752368473:web:7edf504badcca99161f648",
                     measurementId: "G-GDK1TX7H5L"
                 };
-                
+
                 const app = initializeApp(firebaseConfig);
                 const storage = getStorage(app);
                 window.firebaseStorage = { storage, ref, getDownloadURL, listAll };
-                loadSongs();
+                loadSongs();  // Fetch music from root storage
             });
         }
 
         async function loadSongs() {
             if (!window.firebaseStorage) return;
             const { storage, ref, getDownloadURL, listAll } = window.firebaseStorage;
-            
+
             try {
-                let result = await listAll(ref(storage, 'songs/'));
-                window.songList = await Promise.all(result.items.map(async (item) => {
+                let result = await listAll(ref(storage, '/'));  // Fetch from root storage
+                let audioFiles = result.items.filter(item => item.name.endsWith('.mp3'));
+
+                if (audioFiles.length === 0) {
+                    document.getElementById('music-output').innerHTML = "No music files found.";
+                    return;
+                }
+
+                window.songList = await Promise.all(audioFiles.map(async (item) => {
                     let url = await getDownloadURL(item);
                     return { title: item.name.replace(".mp3", ""), url };
                 }));
+
                 window.currentSongIndex = 0;
-                if (window.songList.length > 0) {
-                    playMusic();
-                }
+                playMusic();  // Play the first song automatically
             } catch (error) {
+                console.error("Error loading songs:", error);
                 document.getElementById('music-output').innerHTML = "Error loading songs.";
             }
         }
 
         function playMusic() {
             if (!window.songList || window.songList.length === 0) return;
+
             let song = window.songList[window.currentSongIndex];
             let audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = song.url;
             audioPlayer.play().catch(error => console.error("Playback failed: ", error));
             document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${song.title}</strong>`;
-            
+
             audioPlayer.onended = nextSong;
         }
 
@@ -165,7 +163,7 @@
             playMusic();
         }
 
-        fetchNews();
+        initializeFirebase();  // Initialize Firebase and load songs
     </script>
 </body>
 </html>
