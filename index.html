@@ -88,12 +88,12 @@
             <h2>Music Player</h2>
             <button onclick="initializeFirebase(); playMusic()">▶ Play</button>
             <button onclick="initializeFirebase(); nextSong()">⏭ Next</button>
-            <p id="music-output">No song playing.</p>
+            <p id="music-output">check out gbedu 4 hia.</p>
             <audio id="audioPlayer" controls></audio>
         </div>
     </div>
 
-    <button class="chat-bubble" onclick="openChat()">💬 Chat with Àríyọ̀ AI</button>
+    <button class="chat-bubble" onclick="openChat()">💬 Gist dey</button>
 
     <script>
         function openChat() {
@@ -134,12 +134,15 @@
             const { storage, ref, getDownloadURL, listAll } = window.firebaseStorage;
             
             try {
-                let result = await listAll(ref(storage, ''));
+                let result = await listAll(ref(storage, 'songs/'));
                 window.songList = await Promise.all(result.items.map(async (item) => {
                     let url = await getDownloadURL(item);
                     return { title: item.name.replace(".mp3", ""), url };
                 }));
                 window.currentSongIndex = 0;
+                if (window.songList.length > 0) {
+                    playMusic();
+                }
             } catch (error) {
                 document.getElementById('music-output').innerHTML = "Error loading songs.";
             }
@@ -150,7 +153,7 @@
             let song = window.songList[window.currentSongIndex];
             let audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = song.url;
-            audioPlayer.play();
+            audioPlayer.play().catch(error => console.error("Playback failed: ", error));
             document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${song.title}</strong>`;
             
             audioPlayer.onended = nextSong;
@@ -160,19 +163,6 @@
             if (!window.songList || window.songList.length === 0) return;
             window.currentSongIndex = (window.currentSongIndex + 1) % window.songList.length;
             playMusic();
-        }
-
-        async function fetchNews() {
-            let feeds = ["https://www.vanguardngr.com/feed/", "https://punchng.com/feed/", "https://guardian.ng/feed/"];
-            let fetchPromises = feeds.map(feed => fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`).then(res => res.json()));
-            
-            try {
-                let results = await Promise.all(fetchPromises);
-                let articles = results.flatMap(data => data.items || []).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0, 5);
-                document.getElementById('news-list').innerHTML = articles.map(article => `<div><strong><a href="${article.link}" target="_blank">${article.title}</a></strong><p>${new Date(article.pubDate).toDateString()}</p></div>`).join('');
-            } catch (error) {
-                document.getElementById('news-list').innerHTML = "<p>Could not fetch news. Try again later.</p>";
-            }
         }
 
         fetchNews();
