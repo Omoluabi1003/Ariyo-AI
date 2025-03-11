@@ -27,12 +27,12 @@
             padding: 0;
             background: linear-gradient(135deg, var(--bg-color), #333);
             color: var(--text-color);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            overflow: auto;
+            overflow-x: hidden;
             transition: background 0.5s, color 0.5s;
         }
 
@@ -42,6 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-top: 20px;
         }
 
         #naija-news {
@@ -96,7 +97,9 @@
         }
 
         .mode-toggle {
-            margin-top: 15px;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             padding: 10px 20px;
             background: #007bff;
             color: white;
@@ -131,11 +134,11 @@
 <body>
     <div class="container">
         <h1>Welcome to Àríyò AI 🎶</h1>
-        <button class="mode-toggle" onclick="toggleMode()">🌙 Switch Mode</button>
         <div id="naija-news">Loading Naija News...</div>
     </div>
 
     <button class="chat-bubble" onclick="openChat()">💬 Gist dey?</button>
+    <button class="mode-toggle" onclick="toggleMode()">🌙 Switch Mode</button>
 
     <script>
         function openChat() {
