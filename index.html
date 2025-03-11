@@ -4,21 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Àríyò AI - Smart Naija AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #111;
+            --text-color: white;
+            --box-bg: rgba(255, 255, 255, 0.1);
+            --border-color: black;
+        }
+
+        body.light-mode {
+            --bg-color: #f4f4f4;
+            --text-color: #111;
+            --box-bg: rgba(0, 0, 0, 0.1);
+            --border-color: #666;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #111, #333);
-            color: white;
+            background: linear-gradient(135deg, var(--bg-color), #333);
+            color: var(--text-color);
             height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: auto;
+            transition: background 0.5s, color 0.5s;
         }
 
         .container {
@@ -34,20 +49,36 @@
             min-height: 70vh;
             overflow-y: auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--box-bg);
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             text-align: left;
-            color: #f8f8f8;
-            font-size: 18px;
+            color: var(--text-color);
+            font-size: 20px;
+            font-family: 'Roboto', sans-serif;
             font-weight: bold;
-            border: 2px solid black;
+            border: 2px solid var(--border-color);
+            transition: background 0.5s, color 0.5s, border 0.5s;
+        }
+
+        .news-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .news-item a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 20px;
+            display: block;
+            padding: 12px 0;
         }
 
         .chat-bubble {
             position: fixed;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
             background: #007bff;
             color: white;
@@ -61,13 +92,29 @@
             align-items: center;
             justify-content: center;
             white-space: nowrap;
-            animation: dance 1.5s infinite alternate;
+            animation: floatBubble 4s infinite alternate;
         }
 
-        @keyframes dance {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-5px) rotate(2deg); }
-            100% { transform: translateY(0) rotate(-2deg); }
+        .mode-toggle {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .mode-toggle:hover {
+            background: #0056b3;
+        }
+
+        @keyframes floatBubble {
+            0% { bottom: 20px; }
+            50% { bottom: 50%; }
+            100% { bottom: 20px; }
         }
 
         @media (max-width: 768px) {
@@ -84,6 +131,7 @@
 <body>
     <div class="container">
         <h1>Welcome to Àríyò AI 🎶</h1>
+        <button class="mode-toggle" onclick="toggleMode()">🌙 Switch Mode</button>
         <div id="naija-news">Loading Naija News...</div>
     </div>
 
@@ -93,6 +141,18 @@
         function openChat() {
             window.location.href = "chat.html";
         }
+
+        function toggleMode() {
+            document.body.classList.toggle('light-mode');
+            let mode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+            localStorage.setItem('mode', mode);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('mode') === 'light') {
+                document.body.classList.add('light-mode');
+            }
+        });
 
         async function fetchNaijaNews() {
             const RSS_SOURCES = [
