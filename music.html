@@ -7,17 +7,49 @@
 </head>
 <body>
     <audio id="background-music" autoplay loop>
-        <source src="background-music.mp3" type="audio/mpeg">
+        <source id="audio-source" src="" type="audio/mpeg">
     </audio>
 
     <script>
+        async function getMP3Files() {
+            try {
+                // Fetch the list of files from your repository (adjust the endpoint as needed)
+                const response = await fetch(".");
+                const text = await response.text();
+
+                // Extract all .mp3 filenames from the directory listing
+                const mp3Files = [...text.matchAll(/href="([^"]+\.mp3)"/g)].map(m => m[1]);
+
+                return mp3Files.length > 0 ? mp3Files : ["background-music.mp3"]; // Fallback if no MP3s are found
+            } catch (error) {
+                console.error("Error fetching MP3 files:", error);
+                return ["background-music.mp3"]; // Default fallback
+            }
+        }
+
+        async function playRandomMusic() {
+            const audio = document.getElementById("background-music");
+            const source = document.getElementById("audio-source");
+
+            const mp3Files = await getMP3Files();
+            const randomIndex = Math.floor(Math.random() * mp3Files.length);
+            
+            source.src = mp3Files[randomIndex];
+            audio.load();
+            audio.volume = 0.3;
+            audio.play().catch(error => console.log("Playback error:", error));
+        }
+
         document.addEventListener("click", () => {
             const audio = document.getElementById("background-music");
             if (audio.paused) {
-                audio.volume = 0.3;
-                audio.play().catch(error => console.log("Playback error:", error));
+                playRandomMusic();
             }
         }, { once: true });
+
+        document.getElementById("background-music").addEventListener("ended", playRandomMusic);
+
+        window.addEventListener("load", playRandomMusic);
     </script>
 </body>
 </html>
