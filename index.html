@@ -4,28 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Àríyò AI - Smart Naija AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #111;
+            --bg-color: #0f172a;
             --text-color: white;
             --box-bg: rgba(255, 255, 255, 0.1);
             --border-color: black;
+            --gradient-bg: linear-gradient(135deg, #1e293b, #0f172a);
         }
 
         body.light-mode {
-            --bg-color: #f4f4f4;
+            --bg-color: #f9fafb;
             --text-color: #111;
             --box-bg: rgba(0, 0, 0, 0.1);
             --border-color: #666;
+            --gradient-bg: linear-gradient(135deg, #e2e8f0, #f8fafc);
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
-            background: var(--bg-color);
+            background: var(--gradient-bg);
             color: var(--text-color);
             height: 100vh;
             display: flex;
@@ -45,21 +47,20 @@
         }
 
         #naija-news {
-            width: 100%;
-            height: 80vh;
+            width: 90%;
+            height: 65vh;
             overflow-y: auto;
             padding: 20px;
             background: var(--box-bg);
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
             text-align: left;
             color: var(--text-color);
-            font-size: 16px;
-            font-family: 'Roboto', sans-serif;
+            font-size: 18px;
             font-weight: bold;
             border: 2px solid var(--border-color);
-            transition: background 0.5s, color 0.5s, border 0.5s;
+            transition: all 0.5s;
         }
 
         .news-item {
@@ -71,7 +72,7 @@
         .news-item a {
             text-decoration: none;
             color: var(--text-color);
-            font-size: 16px;
+            font-size: 18px;
             display: block;
             padding: 10px 0;
         }
@@ -88,8 +89,8 @@
         }
 
         .chat-container img {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             transition: transform 0.3s ease-in-out;
         }
 
@@ -101,44 +102,49 @@
             margin-top: 5px;
             background: #007bff;
             color: white;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: bold;
         }
 
-        .mode-toggle {
+        .mode-toggle, .share-button {
             position: fixed;
             bottom: 20px;
             left: 20px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: #007bff;
             color: white;
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
             transition: background 0.3s;
         }
 
-        .mode-toggle:hover {
+        .share-button {
+            left: auto;
+            right: 20px;
+        }
+
+        .mode-toggle:hover, .share-button:hover {
             background: #0056b3;
         }
 
         @media (max-width: 768px) {
             .container {
-                width: 100%;
+                width: 95%;
                 height: 100vh;
                 overflow-y: auto;
-                padding: 10px;
+                padding: 15px;
             }
             .chat-container img {
-                width: 60px;
-                height: 60px;
+                width: 70px;
+                height: 70px;
             }
             #naija-news {
                 height: 100%;
-                min-height: 70vh;
+                min-height: 65vh;
             }
         }
     </style>
@@ -151,10 +157,11 @@
 
     <div class="chat-container" onclick="openChat()">
         <img src="chatbot.png" alt="Ariyo Chatbot">
-        <span>Hi, my name na Ariyo</span>
+        <span>How far? My name na Ariyo</span>
     </div>
 
     <button class="mode-toggle" onclick="toggleMode()">🌙 Switch Mode</button>
+    <button class="share-button" onclick="sharePage()">📤 Share</button>
 
     <script>
         function openChat() {
@@ -167,45 +174,23 @@
             localStorage.setItem('mode', mode);
         }
 
+        function sharePage() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Àríyò AI',
+                    text: 'Check out Àríyò AI, your Naija AI padi!',
+                    url: window.location.href
+                }).catch(error => console.log('Error sharing:', error));
+            } else {
+                prompt('Copy this link to share:', window.location.href);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('mode') === 'light') {
                 document.body.classList.add('light-mode');
             }
         });
-
-        async function fetchNaijaNews() {
-            const RSS_SOURCES = [
-                "https://www.naijanews.com/feed/",
-                "https://guardian.ng/feed/",
-                "https://www.premiumtimesng.com/feed",
-                "https://www.vanguardngr.com/feed/",
-                "https://www.pulse.ng/rss",
-                "https://www.channelstv.com/feed/"
-            ];
-
-            let newsHTML = "<h2>Latest Naija News</h2>";
-            for (let rssUrl of RSS_SOURCES) {
-                try {
-                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-                    let data = await response.json();
-                    if (data.items && data.items.length > 0) {
-                        data.items.slice(0, 2).forEach(news => {
-                            newsHTML += `
-                                <div class='news-item'>
-                                    <a href="${news.link}" target="_blank">${news.title}</a>
-                                </div>
-                            `;
-                        });
-                    }
-                } catch (error) {
-                    console.error("RSS Feed Error:", error);
-                }
-            }
-            document.getElementById("naija-news").innerHTML = newsHTML;
-        }
-
-        setInterval(fetchNaijaNews, 1800000);
-        fetchNaijaNews();
     </script>
 </body>
 </html>
