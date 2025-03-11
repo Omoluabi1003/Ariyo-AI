@@ -38,31 +38,6 @@
             transition: background 0.5s, color 0.5s;
         }
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #naija-news {
-            width: 90%;
-            max-height: 65vh;
-            overflow-y: auto;
-            padding: 20px;
-            background: var(--box-bg);
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(15px);
-            text-align: left;
-            color: var(--text-color);
-            font-size: 18px;
-            font-weight: bold;
-            border: 2px solid var(--border-color);
-            transition: all 0.5s;
-        }
-
         .chat-container {
             position: fixed;
             bottom: 80px;
@@ -121,62 +96,78 @@
             background: #0056b3;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                width: 95%;
-                height: 100vh;
-                overflow-y: auto;
-                padding: 15px;
-            }
-            .chat-container {
-                bottom: 100px;
-            }
-            .chat-container img {
-                width: 70px;
-                height: 70px;
-            }
-            .mode-toggle, .share-button {
-                font-size: 18px;
-                top: 15px;
-            }
-            #naija-news {
-                max-height: 55vh;
-            }
+        #naija-news {
+            width: 90%;
+            max-height: 65vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--box-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            text-align: left;
+            color: var(--text-color);
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid var(--border-color);
+            transition: all 0.5s;
         }
+
+        .news-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .news-item a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 18px;
+            display: block;
+            padding: 10px 0;
+        }
+
+        .news-item p {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
     </style>
 </head>
-<body>
+<body onload="playBackgroundMusic()">
     <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
     <button class="share-button" onclick="shareSite()">Share</button>
 
     <div class="container">
-        <h1 id="chatbot-text"></h1>
+        <h1>Welcome to Àríyò AI 🎶</h1>
         <div id="naija-news">Loading Naija News...</div>
     </div>
 
     <div class="chat-container" onclick="openChat()">
-        <img src="chatbot-icon.png" alt="Chat">
-        <span id="chatbot-welcome">Hi there! 👋</span>
+        <img src="chatbot.png" alt="Chat">
+        <span id="chatbot-text"></span>
     </div>
 
+    <audio id="background-music" loop>
+        <source src="background-music.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
+        function playBackgroundMusic() {
+            const audio = document.getElementById("background-music");
+            audio.volume = 0.3;
+            audio.play().catch(() => console.log("Autoplay blocked: User interaction required"));
+        }
+
         function toggleDarkMode() {
             document.body.classList.toggle("light-mode");
-            const modeToggle = document.querySelector(".mode-toggle");
-            modeToggle.innerHTML = document.body.classList.contains("light-mode") ? "🌞" : "🌙";
+            document.querySelector(".mode-toggle").innerHTML = document.body.classList.contains("light-mode") ? "🌞" : "🌙";
         }
 
         function shareSite() {
-            const shareData = {
-                title: "Àríyò AI",
-                text: "Check out this awesome Nigerian AI-powered website!",
-                url: window.location.href
-            };
-            if (navigator.share) {
-                navigator.share(shareData).catch(console.error);
-            } else {
-                alert("Sharing is not supported on this browser.");
-            }
+            const shareData = { title: "Àríyò AI", text: "Check out this awesome AI-powered website!", url: window.location.href };
+            if (navigator.share) navigator.share(shareData).catch(console.error);
+            else alert("Sharing not supported on this browser.");
         }
 
         function openChat() {
@@ -184,33 +175,47 @@
         }
 
         function retypeText() {
-            const phrases = ["Welcome to Àríyò AI 🎶", "Your Smart Naija AI", "Bringing you the latest news!", "Powered by AI, built for Naija!"];
-            let index = 0;
-            let charIndex = 0;
-            let isDeleting = false;
+            const phrases = ["Hi there! 👋", "Welcome to Àríyò AI!", "How can I assist you?", "Bringing AI to Naija!"];
+            let index = 0, charIndex = 0, isDeleting = false;
             const chatbotText = document.getElementById("chatbot-text");
 
             function type() {
-                const currentPhrase = phrases[index];
-                if (isDeleting) {
-                    chatbotText.innerHTML = currentPhrase.substring(0, charIndex--);
-                } else {
-                    chatbotText.innerHTML = currentPhrase.substring(0, charIndex++);
-                }
-
-                if (!isDeleting && charIndex === currentPhrase.length + 1) {
-                    setTimeout(() => { isDeleting = true; }, 1500);
-                } else if (isDeleting && charIndex === 0) {
-                    isDeleting = false;
-                    index = (index + 1) % phrases.length;
-                }
-
+                chatbotText.innerHTML = isDeleting ? phrases[index].substring(0, charIndex--) : phrases[index].substring(0, charIndex++);
+                if (!isDeleting && charIndex === phrases[index].length + 1) setTimeout(() => isDeleting = true, 1500);
+                else if (isDeleting && charIndex === 0) isDeleting = false, index = (index + 1) % phrases.length;
                 setTimeout(type, isDeleting ? 50 : 100);
             }
 
             type();
         }
 
+        async function fetchNaijaNews() {
+            const RSS_SOURCES = [
+                "https://www.premiumtimesng.com/feed",
+                "https://www.vanguardngr.com/feed/",
+                "https://rss.punchng.com/v1/category/latest_news"
+            ];
+
+            let newsHTML = "<h2>Latest Naija News</h2>";
+            for (let rssUrl of RSS_SOURCES) {
+                try {
+                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+                    let data = await response.json();
+                    if (data.items && data.items.length > 0) {
+                        data.items.slice(0, 2).forEach(news => {
+                            newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
+                            <p>🕒 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
+                        });
+                    }
+                } catch (error) {
+                    console.error("RSS Feed Error:", error);
+                }
+            }
+            document.getElementById("naija-news").innerHTML = newsHTML;
+        }
+
+        fetchNaijaNews();
+        setInterval(fetchNaijaNews, 1800000);
         retypeText();
     </script>
 </body>
