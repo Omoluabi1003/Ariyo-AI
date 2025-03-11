@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Àríyọ̀ AI - Smart Naija AI</title>
+    <title>Àríyò AI - Smart Naija AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -11,7 +11,8 @@
             text-align: center;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
+            background: linear-gradient(135deg, #111, #333);
+            color: white;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -21,18 +22,45 @@
         }
 
         .container {
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #naija-news {
             width: 100%;
-            max-width: 600px;
+            height: 80vh;
+            overflow-y: auto;
             padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            text-align: left;
         }
 
         .music-player {
-            width: 100%;
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
             padding: 15px;
-            border-radius: 10px;
-            background: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 15px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: bottom 0.5s ease-in-out;
+        }
+
+        .music-icon {
+            font-size: 24px;
+            cursor: pointer;
         }
 
         .chat-bubble {
@@ -47,123 +75,80 @@
             font-size: 18px;
             cursor: pointer;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: bounce 1.5s infinite;
             display: flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            animation: bounce 1.5s infinite alternate;
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
         }
 
-        @media (max-width: 500px) {
-            .chat-bubble {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
+        @media (max-width: 768px) {
             .container {
-                width: 90%;
+                width: 95%;
+            }
+            .chat-bubble {
+                font-size: 14px;
+                padding: 10px 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Àríyọ̀ AI 🎶</h1>
-
-        <div class="music-player">
-            <h2>Music Player</h2>
-            <button onclick="playMusic()">▶ Play</button>
-            <button onclick="nextSong()">⏭ Next</button>
-            <p id="music-output">check out gbedu 4 hia.</p>
-            <audio id="audioPlayer" controls></audio>
-        </div>
+        <h1>Welcome to Àríyò AI 🎶</h1>
+        <div id="naija-news">Loading Naija News...</div>
     </div>
 
-    <button class="chat-bubble" onclick="openChat()">💬 Gist dey</button>
+    <div class="music-player" id="musicPlayer">
+        <span class="music-icon" onclick="toggleMusic()">🎵</span>
+        <button onclick="playMusic()">▶ Play</button>
+        <button onclick="nextSong()">⏭ Next</button>
+        <p id="music-output">Enjoy Gbedu</p>
+        <audio id="audioPlayer" controls></audio>
+    </div>
+
+    <button class="chat-bubble" onclick="openChat()">💬 Gist dey?</button>
 
     <script>
         function openChat() {
             window.location.href = "chat.html";
         }
 
-        let firebaseInitialized = false;
-        function initializeFirebase() {
-            if (firebaseInitialized) return;
-            firebaseInitialized = true;
+        async function fetchNaijaNews() {
+            const RSS_SOURCES = [
+                "https://www.naijanews.com/feed/",
+                "https://guardian.ng/feed/",
+                "https://www.premiumtimesng.com/feed",
+                "https://www.vanguardngr.com/feed/",
+                "https://www.pulse.ng/rss",
+                "https://www.channelstv.com/feed/"
+            ];
 
-            import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js").then(module => {
-                const { initializeApp } = module;
-                return import("https://www.gstatic.com/firebasejs/11.4.0/firebase-storage.js").then(storageModule => {
-                    const { getStorage, ref, getDownloadURL, listAll } = storageModule;
-                    return { initializeApp, getStorage, ref, getDownloadURL, listAll };
-                });
-            }).then(({ initializeApp, getStorage, ref, getDownloadURL, listAll }) => {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyA0RH86xv1KRPf_egUqPn6j2FIB4mgcSB8",
-                    authDomain: "ariyo-ai.firebaseapp.com",
-                    projectId: "ariyo-ai",
-                    storageBucket: "ariyo-ai.appspot.com",
-                    messagingSenderId: "746752368473",
-                    appId: "1:746752368473:web:7edf504badcca99161f648",
-                    measurementId: "G-GDK1TX7H5L"
-                };
-
-                const app = initializeApp(firebaseConfig);
-                const storage = getStorage(app);
-                window.firebaseStorage = { storage, ref, getDownloadURL, listAll };
-                loadSongs();  // Fetch music from root storage
-            });
-        }
-
-        async function loadSongs() {
-            if (!window.firebaseStorage) return;
-            const { storage, ref, getDownloadURL, listAll } = window.firebaseStorage;
-
-            try {
-                let result = await listAll(ref(storage, '/'));  // Fetch from root storage
-                let audioFiles = result.items.filter(item => item.name.endsWith('.mp3'));
-
-                if (audioFiles.length === 0) {
-                    document.getElementById('music-output').innerHTML = "No music files found.";
-                    return;
+            let newsHTML = "<h2>Latest Naija News</h2><ul>";
+            for (let rssUrl of RSS_SOURCES) {
+                try {
+                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+                    let data = await response.json();
+                    if (data.items && data.items.length > 0) {
+                        data.items.slice(0, 2).forEach(news => {
+                            newsHTML += `<li><a href="${news.link}" target="_blank">${news.title}</a></li>`;
+                        });
+                    }
+                } catch (error) {
+                    console.error("RSS Feed Error:", error);
                 }
-
-                window.songList = await Promise.all(audioFiles.map(async (item) => {
-                    let url = await getDownloadURL(item);
-                    return { title: item.name.replace(".mp3", ""), url };
-                }));
-
-                window.currentSongIndex = 0;
-                playMusic();  // Play the first song automatically
-            } catch (error) {
-                console.error("Error loading songs:", error);
-                document.getElementById('music-output').innerHTML = "Error loading songs.";
             }
+            newsHTML += "</ul>";
+            document.getElementById("naija-news").innerHTML = newsHTML;
         }
 
-        function playMusic() {
-            if (!window.songList || window.songList.length === 0) return;
-
-            let song = window.songList[window.currentSongIndex];
-            let audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.src = song.url;
-            audioPlayer.play().catch(error => console.error("Playback failed: ", error));
-            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${song.title}</strong>`;
-
-            audioPlayer.onended = nextSong;
-        }
-
-        function nextSong() {
-            if (!window.songList || window.songList.length === 0) return;
-            window.currentSongIndex = (window.currentSongIndex + 1) % window.songList.length;
-            playMusic();
-        }
-
-        initializeFirebase();  // Initialize Firebase and load songs
+        setInterval(fetchNaijaNews, 1800000);
+        fetchNaijaNews();
     </script>
 </body>
 </html>
