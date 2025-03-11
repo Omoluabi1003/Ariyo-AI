@@ -6,7 +6,6 @@
     <title>Àríyọ̀ AI - Smart Naija AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* General Styling */
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
@@ -36,22 +35,11 @@
             margin-bottom: 15px;
         }
 
-        .music-controls button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
         .news-container {
             max-height: 200px;
             overflow-y: auto;
         }
 
-        /* Chat Bubble */
         .chat-bubble {
             position: fixed;
             bottom: 20px;
@@ -72,103 +60,121 @@
         }
 
         @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
+        @media (max-width: 500px) {
+            .chat-bubble {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            .container {
+                width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome to Àríyọ̀ AI 🎶</h1>
 
-        <!-- News Section -->
         <div class="news-container" id="news-section">
             <h2>Latest Naija News 📰</h2>
             <div id="news-list">Loading news...</div>
         </div>
 
-        <!-- Music Player -->
         <div class="music-player">
             <h2>Music Player</h2>
-            <button onclick="playMusic()">▶ Play</button>
+            <button onclick="initializeFirebase(); playMusic()">▶ Play</button>
+            <button onclick="initializeFirebase(); nextSong()">⏭ Next</button>
             <p id="music-output">No song playing.</p>
             <audio id="audioPlayer" controls></audio>
         </div>
     </div>
 
-    <!-- Chat Bubble -->
-    <button class="chat-bubble" onclick="openChat()">💬 Gist dey?</button>
+    <button class="chat-bubble" onclick="openChat()">💬 Chat with Àríyọ̀ AI</button>
 
     <script>
-        // ✅ Fix for Audio Files from GitHub
-        let repoBaseUrl = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/";
-
-        let songs = [
-            { filename: "song1.mp3", title: "Song 1" },
-            { filename: "song2.mp3", title: "Song 2" },
-            { filename: "song3.mp3", title: "Song 3" }
-        ];
-
-        let currentSongIndex = 0;
-
-        function playMusic() {
-            let selectedSong = songs[currentSongIndex];
-            let audioPlayer = document.getElementById('audioPlayer');
-
-            // Ensuring proper GitHub audio link handling
-            audioPlayer.src = repoBaseUrl + selectedSong.filename;
-            audioPlayer.load(); // Ensure the audio file is loaded before playing
-            audioPlayer.play().catch(error => console.warn("Playback failed: ", error));
-
-            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${selectedSong.title}</strong>`;
-        }
-
-        // ✅ Chat Page Open Fix
         function openChat() {
             window.location.href = "chat.html";
         }
 
-        // ✅ RSS News Fetch (Final Fix)
-        async function fetchNews() {
-            let proxyUrl = "https://api.allorigins.win/get?url=";
-            let rssFeeds = [
-                "https://www.vanguardngr.com/feed/",
-                "https://punchng.com/feed/",
-                "https://guardian.ng/feed/"
-            ];
-            let randomFeed = rssFeeds[Math.floor(Math.random() * rssFeeds.length)];
+        let firebaseInitialized = false;
+        function initializeFirebase() {
+            if (firebaseInitialized) return;
+            firebaseInitialized = true;
+            
+            import("https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js").then(module => {
+                const { initializeApp } = module;
+                return import("https://www.gstatic.com/firebasejs/11.4.0/firebase-storage.js").then(storageModule => {
+                    const { getStorage, ref, getDownloadURL, listAll } = storageModule;
+                    return { initializeApp, getStorage, ref, getDownloadURL, listAll };
+                });
+            }).then(({ initializeApp, getStorage, ref, getDownloadURL, listAll }) => {
+                const firebaseConfig = {
+                    apiKey: "YOUR_SECURE_API_KEY_HERE",
+                    authDomain: "ariyo-ai.firebaseapp.com",
+                    projectId: "ariyo-ai",
+                    storageBucket: "ariyo-ai.appspot.com",
+                    messagingSenderId: "746752368473",
+                    appId: "1:746752368473:web:7edf504badcca99161f648",
+                    measurementId: "G-GDK1TX7H5L"
+                };
+                
+                const app = initializeApp(firebaseConfig);
+                const storage = getStorage(app);
+                window.firebaseStorage = { storage, ref, getDownloadURL, listAll };
+                loadSongs();
+            });
+        }
+
+        async function loadSongs() {
+            if (!window.firebaseStorage) return;
+            const { storage, ref, getDownloadURL, listAll } = window.firebaseStorage;
             
             try {
-                let response = await fetch(proxyUrl + encodeURIComponent(randomFeed));
-                let data = await response.json();
-                let parser = new DOMParser();
-                let xml = parser.parseFromString(data.contents, "text/xml");
-                let items = xml.querySelectorAll("item");
+                let result = await listAll(ref(storage, ''));
+                window.songList = await Promise.all(result.items.map(async (item) => {
+                    let url = await getDownloadURL(item);
+                    return { title: item.name.replace(".mp3", ""), url };
+                }));
+                window.currentSongIndex = 0;
+            } catch (error) {
+                document.getElementById('music-output').innerHTML = "Error loading songs.";
+            }
+        }
 
-                let newsHTML = "";
-                items.forEach((item, index) => {
-                    if (index < 5) {
-                        let title = item.querySelector("title") ? item.querySelector("title").textContent : "No Title";
-                        let link = item.querySelector("link") ? item.querySelector("link").textContent : "#";
-                        let pubDate = item.querySelector("pubDate") ? item.querySelector("pubDate").textContent.split(" ")[0] : "Unknown Date";
+        function playMusic() {
+            if (!window.songList || window.songList.length === 0) return;
+            let song = window.songList[window.currentSongIndex];
+            let audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = song.url;
+            audioPlayer.play();
+            document.getElementById('music-output').innerHTML = `🎶 Now Playing: <strong>${song.title}</strong>`;
+            
+            audioPlayer.onended = nextSong;
+        }
 
-                        newsHTML += `<div class='news-item'>
-                                        <strong><a href="${link}" target="_blank">${title}</a></strong>
-                                        <p>${pubDate}</p>
-                                    </div>`;
-                    }
-                });
+        function nextSong() {
+            if (!window.songList || window.songList.length === 0) return;
+            window.currentSongIndex = (window.currentSongIndex + 1) % window.songList.length;
+            playMusic();
+        }
 
-                document.getElementById('news-list').innerHTML = newsHTML;
+        async function fetchNews() {
+            let feeds = ["https://www.vanguardngr.com/feed/", "https://punchng.com/feed/", "https://guardian.ng/feed/"];
+            let fetchPromises = feeds.map(feed => fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feed)}`).then(res => res.json()));
+            
+            try {
+                let results = await Promise.all(fetchPromises);
+                let articles = results.flatMap(data => data.items || []).sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0, 5);
+                document.getElementById('news-list').innerHTML = articles.map(article => `<div><strong><a href="${article.link}" target="_blank">${article.title}</a></strong><p>${new Date(article.pubDate).toDateString()}</p></div>`).join('');
             } catch (error) {
                 document.getElementById('news-list').innerHTML = "<p>Could not fetch news. Try again later.</p>";
             }
         }
+
         fetchNews();
     </script>
 </body>
