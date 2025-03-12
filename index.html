@@ -158,7 +158,7 @@
         document.addEventListener("click", () => {
     const audio = document.getElementById("background-music");
     if (audio.paused) {
-        audio.volume = 3;
+        audio.volume = 1;
         audio.play().catch(error => console.log("Playback error:", error));
     }
 }, { once: true }); // Ensures it runs only once
