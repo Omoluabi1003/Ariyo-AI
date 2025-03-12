@@ -31,9 +31,8 @@
             height: 100%;
             border: none;
         }
-        .close-button {
+        .close-button, .mute-button {
             position: fixed;
-            top: 15px;
             right: 15px;
             background: #ff4757;
             color: white;
@@ -44,9 +43,13 @@
             cursor: pointer;
             z-index: 10;
         }
+        .close-button {
+            top: 15px;
+        }    
         .mute-button {
-            right: 80px;
+            top: 60px;
             background: #1e90ff;
+            transition: top 0.3s ease-in-out;
         }
 
         /* Fix for mobile screens */
@@ -71,6 +74,7 @@
    <button class="mute-button" id="muteButton" onclick="toggleMute()">Mute</button>
     
     <iframe id="musicIframe" src="music.html" style="display: none;"></iframe> 
+    
     <script>
         function closeChat() {
             window.history.back();
@@ -79,6 +83,7 @@
         // Detect when the keyboard appears and adjust the iframe height
         function adjustForKeyboard() {
             const chatbotIframe = document.getElementById('chatbot');
+            const muteButton = document.getElementById('muteButton');
             const initialHeight = window.innerHeight;
 
             window.addEventListener('resize', () => {
@@ -86,10 +91,12 @@
 
                 if (currentHeight < initialHeight) {
                     // Keyboard is open, reduce iframe height
-                    chatbotIframe.style.height = "80dvh"; // Adjust as needed
+                    chatbotIframe.style.height = "80dvh";
+                    muteButton.style.top = "100px"; // Adjust as needed
                 } else {
                     // Keyboard is closed, restore iframe height
                     chatbotIframe.style.height = "100dvh";
+                    muteButton.style.top = "60px";
                 }
             });
         }
