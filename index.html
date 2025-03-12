@@ -4,153 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Àríyò AI - Smart Naija AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --text-color: white;
-            --box-bg: rgba(255, 255, 255, 0.1);
-            --border-color: black;
-            --gradient-bg: linear-gradient(135deg, #1e293b, #0f172a);
-        }
-
-        body.light-mode {
-            --bg-color: #f9fafb;
-            --text-color: #111;
-            --box-bg: rgba(0, 0, 0, 0.1);
-            --border-color: #666;
-            --gradient-bg: linear-gradient(135deg, #e2e8f0, #f8fafc);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background: var(--gradient-bg);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            transition: background 0.5s, color 0.5s;
-        }
-
-        .mode-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: transparent;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .share-button, .mute-button {
-            position: fixed;
-            top: 20px;
-            background: #007bff;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .share-button { right: 20px; }
-        .mute-button { right: 80px; }
-
-        .share-button:hover, .mute-button:hover {
-            background: #0056b3;
-        }
-
-        .chat-container {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .chat-container img {
-            width: 90px;
-            height: 90px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .chat-container img:hover {
-            transform: scale(1.1);
-        }
-
-        .chat-container span {
-            margin-top: 5px;
-            background: #007bff;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
-            background: #007bff;
-            color: white;
-            text-align: center;
-            padding: 12px;
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 5px;
-            font-size: 16px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .toast.hide {
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .toast button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        #naija-news {
-            width: 90%;
-            max-height: 65vh;
-            overflow-y: auto;
-            padding: 20px;
-            background: var(--box-bg);
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(15px);
-            text-align: left;
-            color: var(--text-color);
-            font-size: 18px;
-            font-weight: bold;
-            border: 2px solid var(--border-color);
-            transition: all 0.5s;
-        }
-    </style>
 </head>
 <body>
     <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
@@ -183,7 +36,6 @@
             let toast = document.getElementById("toast");
             toast.innerHTML = message + '<button onclick="hideToast()">✖</button>';
             toast.classList.add("show");
-
             setTimeout(() => {
                 toast.classList.add("hide");
                 setTimeout(() => {
@@ -229,9 +81,52 @@
             location.assign("chat.html");
         }
 
-        fetchNaijaNews();
+        async function fetchNaijaNews() {
+            const RSS_SOURCES = [
+                "https://www.premiumtimesng.com/feed",
+                "https://www.vanguardngr.com/feed/",
+                "https://rss.punchng.com/v1/category/latest_news"
+            ];
+
+            let newsHTML = "<h2>Latest Naija News</h2>";
+            for (let rssUrl of RSS_SOURCES) {
+                try {
+                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+                    let data = await response.json();
+                    if (data.items && data.items.length > 0) {
+                        data.items.slice(0, 2).forEach(news => {
+                            newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
+                            <p>🕒 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
+                        });
+                    }
+                } catch (error) {
+                    console.error("RSS Feed Error:", error);
+                }
+            }
+            document.getElementById("naija-news").innerHTML = newsHTML;
+        }
+
+        function retypeText() {
+            const phrases = ["Wetin dey sup? 👋", "Welcome to Àríyò AI!", "How far na?", "I get tori!"];
+            let index = 0, charIndex = 0, isDeleting = false;
+            const chatbotText = document.getElementById("chatbot-text");
+
+            function type() {
+                chatbotText.innerHTML = isDeleting ? phrases[index].substring(0, charIndex--) : phrases[index].substring(0, charIndex++);
+                if (!isDeleting && charIndex === phrases[index].length + 1) setTimeout(() => isDeleting = true, 1500);
+                else if (isDeleting && charIndex === 0) isDeleting = false, index = (index + 1) % phrases.length;
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
+
+            type();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchNaijaNews();
+            retypeText();
+        });
+
         setInterval(fetchNaijaNews, 1800000);
-        retypeText();
     </script>
 </body>
 </html>
