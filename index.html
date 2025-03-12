@@ -6,38 +6,42 @@
     <title>Àríyò AI - Smart Naija AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js">        async function fetchNaijaNews() {
-            const RSS_SOURCES = [
-                "https://www.premiumtimesng.com/feed",
-                "https://www.vanguardngr.com/feed/",
-                "https://rss.punchng.com/v1/category/latest_news"
-            ];
+    const RSS_SOURCES = [
+        "https://www.premiumtimesng.com/feed",
+        "https://www.vanguardngr.com/feed/",
+        "https://rss.punchng.com/v1/category/latest_news"
+    ];
 
-            let newsHTML = "<h2>Latest Naija News</h2>";
-            const proxyUrl = "https://api.allorigins.win/get?url=";
+    let newsHTML = "<h2>Latest Naija News</h2>";
+    const proxyUrl = "https://corsproxy.io/?";
 
-            for (let rssUrl of RSS_SOURCES) {
-                try {
-                    let response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
-                    let data = await response.json();
-                    let parser = new DOMParser();
-                    let xmlDoc = parser.parseFromString(data.contents, "text/xml");
+    for (let rssUrl of RSS_SOURCES) {
+        try {
+            let response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
+            let data = await response.text();
+            let parser = new DOMParser();
+            let xmlDoc = parser.parseFromString(data, "text/xml");
 
-                    let items = xmlDoc.querySelectorAll("item");
-                    items.forEach((item, index) => {
-                        if (index < 10) {
-                            let title = item.querySelector("title").textContent;
-                            let link = item.querySelector("link").textContent;
-                            let pubDate = item.querySelector("pubDate") ? new Date(item.querySelector("pubDate").textContent).toLocaleString() : "Unknown Date";
+            let items = xmlDoc.querySelectorAll("item");
+            items.forEach((item, index) => {
+                if (index < 10) {
+                    let title = item.querySelector("title").textContent;
+                    let link = item.querySelector("link").textContent;
+                    let pubDate = item.querySelector("pubDate") ? new Date(item.querySelector("pubDate").textContent).toLocaleString() : "Unknown Date";
 
-                            newsHTML += `<div class='news-item'><a href="${link}" target="_blank">${title}</a>
-                                <p style='font-size: 10px;'>🕛 ${pubDate}</p></div>`;
-                        }
-                    });
-                } catch (error) {
-                    console.error("RSS Fetch Error:", error);
+                    newsHTML += `<div class='news-item'><a href="${link}" target="_blank">${title}</a>
+                        <p style='font-size: 10px;'>🕛 ${pubDate}</p></div>`;
                 }
-            }
-            document.getElementById("naija-news").innerHTML = newsHTML;
+            });
+        } catch (error) {
+            console.error("RSS Fetch Error:", error);
+            newsHTML += `<p style='color: red;'>⚠️ Unable to load news. Try again later.</p>`;
+        }
+    }
+    document.getElementById("naija-news").innerHTML = newsHTML;
+}
+
+document.addEventListener("DOMContentLoaded", fetchNaijaNews);
         }
         document.addEventListener("DOMContentLoaded", fetchNaijaNews);
 
@@ -220,7 +224,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            const chatbotTexts = ["Hi, my name na Àríyò", "How far?", "Wetin dey sup?", "Click me"];
+            const chatbotTexts = ["Hi, my name na Àríyò", "How far?", "Wetin sup?", "Click me"];
             let index = 0;
             const chatbotText = document.getElementById("chatbot-text");
             
