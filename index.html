@@ -92,7 +92,15 @@
             font-size: 16px;
         }
 
-        .share-button:hover {
+        .share-button {
+            right: 20px;
+        }
+
+        .mute-button {
+            right: 80px;
+        }
+
+        .share-button:hover, .mute-button:hover {
             background: #0056b3;
         }
 
@@ -154,15 +162,27 @@
     </audio>
 
     <script>
-        let isMuted = false; // Track the mute state
-        document.addEventListener("click", () => {
-    const audio = document.getElementById("background-music");
-    if (audio.paused) {
-        audio.volume = 1;
-        audio.play().catch(error => console.log("Playback error:", error));
-    }
-}, { once: true }); // Ensures it runs only once
+        let audio = document.getElementById("background-music");
 
+        // Auto-play music on first interaction unless muted
+        document.addEventListener("click", () => {
+            if (audio.paused && !localStorage.getItem("isMuted")) {
+                audio.volume = 1;
+                audio.play().catch(error => console.log("Playback error:", error));
+            }
+        }, { once: true }); // Ensures it runs only once
+
+        function toggleMute() {
+            let isMuted = audio.muted = !audio.muted;
+            localStorage.setItem("isMuted", isMuted ? "true" : "");
+            document.querySelector(".mute-button").innerHTML = isMuted ? "🔊" : "🔇";
+        }
+
+        // Load mute state
+        if (localStorage.getItem("isMuted")) {
+            audio.muted = true;
+            document.querySelector(".mute-button").innerHTML = "🔊";
+        }
 
         function toggleDarkMode() {
             document.body.classList.toggle("light-mode");
