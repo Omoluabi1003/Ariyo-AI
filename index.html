@@ -5,6 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Àríyò AI - Smart Naija AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js">        async function fetchNaijaNews() {
+            const RSS_SOURCES = [
+                "https://www.premiumtimesng.com/feed",
+                "https://www.vanguardngr.com/feed/",
+                "https://rss.punchng.com/v1/category/latest_news"
+            ];
+
+            let newsHTML = "<h2>Latest Naija News</h2>";
+            const proxyUrl = "https://api.allorigins.win/get?url=";
+
+            for (let rssUrl of RSS_SOURCES) {
+                try {
+                    let response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
+                    let data = await response.json();
+                    let parser = new DOMParser();
+                    let xmlDoc = parser.parseFromString(data.contents, "text/xml");
+
+                    let items = xmlDoc.querySelectorAll("item");
+                    items.forEach((item, index) => {
+                        if (index < 10) {
+                            let title = item.querySelector("title").textContent;
+                            let link = item.querySelector("link").textContent;
+                            let pubDate = item.querySelector("pubDate") ? new Date(item.querySelector("pubDate").textContent).toLocaleString() : "Unknown Date";
+
+                            newsHTML += `<div class='news-item'><a href="${link}" target="_blank">${title}</a>
+                                <p style='font-size: 10px;'>🕛 ${pubDate}</p></div>`;
+                        }
+                    });
+                } catch (error) {
+                    console.error("RSS Fetch Error:", error);
+                }
+            }
+            document.getElementById("naija-news").innerHTML = newsHTML;
+        }
+        document.addEventListener("DOMContentLoaded", fetchNaijaNews);
+
+        async function loadAudioFiles() {
+    let audio = document.getElementById("background-music");
+    let audioFiles = [];
+
+    try {
+        let audioFiles = [
+            'EFCC.mp3',
+            'Emergency.mp3',
+            'Film Trick Election.mp3',
+            'Gbas Gbos.mp3',
+            'Kindness (Remastered).mp3',
+            'Locked Away.mp3',
+            'Multi choice palava.mp3',
+            'Na My Turn.mp3',
+            'Ogoni Anthem (Remastered).mp3',
+            'Ogoni Anthem.mp3',
+            'Rich Pauper.mp3',
+            'Senator Natasha’s Whisper.mp3',
+            'Sharing Formula.mp3',
+            'Show Of Shame v3 (Remastered).mp3',
+            'Subsidy.mp3',
+            'Vex Money.mp3',
+            'Working on myself.mp3'
+        ];
+        if (!response.ok) throw new Error("Failed to fetch JSON");
+        let data = await response.json();
+        audioFiles = data.files;
+
+        if (audioFiles.length === 0) throw new Error("No MP3 files found");
+        
+        audioFiles = audioFiles.sort(() => Math.random() - 0.5);
+        let currentIndex = 0;
+
+        function playNext() {
+            audio.src = encodeURI(audioFiles[currentIndex]);
+            audio.play().catch(console.error);
+            currentIndex = (currentIndex + 1) % audioFiles.length;
+        }
+
+        audio.addEventListener("ended", playNext);
+        playNext();
+    } catch (error) {
+        console.error("Error loading audio files:", error);
+    }
+}
+            } catch (error) {
+                console.error("Error loading audio files:", error);
+            }
+        }
+
+        function enableAudioOniOS() {
+            let audio = document.getElementById("background-music");
+            if (audio.paused) {
+                audio.play().catch(error => console.log("Playback error on iOS:", error));
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.addEventListener("click", enableAudioOniOS, { once: true });
+            loadAudioFiles();
+        });
+    </script>
+
+    <audio id="background-music" loop>
+        <source src="" type="audio/mpeg">
+    </audio>
+</body>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -38,50 +141,43 @@
             transition: background 0.5s, color 0.5s;
         }
 
-        .mode-toggle, .share-button, .mute-button {
+        .top-icons {
             position: absolute;
-            top: 20px;
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
+            top: 15px;
+            right: 15px;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            gap: 10px;
         }
-        
-        .mode-toggle { left: 20px; }
-        .share-button { right: 20px; }
-        .mute-button { right: 80px; }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .icon-button:hover {
+            color: #facc15;
+        }
 
         .chat-container {
             position: fixed;
             bottom: 10px;
             right: 10px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
             cursor: pointer;
             text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
-            border-radius: 20px;
-            color: white;
+            background: none;
+            padding: 5px 10px;
             font-weight: bold;
+            font-size: 14px;
+            color: white;
+            border-radius: 10px;
+            border: 1px solid white;
         }
 
-        .chat-container img {
-            width: 50px;
-            height: auto;
-            margin-right: 10px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .chat-container img:hover {
-            transform: scale(1.1);
+        .chat-container:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         #naija-news {
@@ -99,41 +195,6 @@
             border: 2px solid var(--border-color);
             transition: all 0.5s;
         }
-
-        .news-item a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px black;
-            transition: color 0.3s;
-        }
-
-        .news-item a:hover {
-            color: red;
-        }
-
-        .news-item p {
-            font-size: 10px;
-            opacity: 0.7;
-        }
-
-        @media only screen and (max-width: 768px) {
-            body {
-                display: block;
-                text-align: center;
-                padding: 10px;
-            }
-            .chat-container {
-                bottom: 5px;
-                right: 5px;
-                padding: 5px 10px;
-                font-size: 14px;
-            }
-            #naija-news {
-                max-width: 95%;
-                font-size: 16px;
-            }
-        }
     </style>
 </head>
 <body onload="playBackgroundMusic()">
@@ -141,99 +202,32 @@
         <h1>Welcome to Àríyò AI 🎶</h1>
         <p>Your smart Naija A.I; Àríyò dey bring latest news!</p>
     </div>
-    <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
-    <button class="share-button" onclick="shareSite()">Share</button>
-    <button class="mute-button" onclick="toggleMute()">🔇</button>
+    <div class="top-icons">
+        <button class="icon-button" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+        <button class="icon-button" onclick="shareSite()"><i class="fas fa-share-alt"></i></button>
+        <button class="icon-button" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
+    </div>
     
     <div id="naija-news">Loading Naija News...</div>
     <div class="chat-container" onclick="openChat()">
-        <img src="chatbot.png" alt="Chat">
-        <span>Chat</span>
+        <span id="chatbot-text">Click me</span>
     </div>
+
     <script>
-        async function fetchNaijaNews() {
-            const RSS_SOURCES = [
-                "https://www.premiumtimesng.com/feed",
-                "https://www.vanguardngr.com/feed/",
-                "https://rss.punchng.com/v1/category/latest_news"
-            ];
-
-            let newsHTML = "<h2>Latest Naija News</h2>";
-            const proxyUrl = "https://api.allorigins.win/get?url=";
-
-            for (let rssUrl of RSS_SOURCES) {
-                try {
-                    let response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
-                    let data = await response.json();
-                    let parser = new DOMParser();
-                    let xmlDoc = parser.parseFromString(data.contents, "text/xml");
-
-                    let items = xmlDoc.querySelectorAll("item");
-                    items.forEach((item, index) => {
-                        if (index < 10) {
-                            let title = item.querySelector("title").textContent;
-                            let link = item.querySelector("link").textContent;
-                            let pubDate = item.querySelector("pubDate") ? new Date(item.querySelector("pubDate").textContent).toLocaleString() : "Unknown Date";
-
-                            newsHTML += `<div class='news-item'><a href="${link}" target="_blank">${title}</a>
-                                <p>🕛 ${pubDate}</p></div>`;
-                        }
-                    });
-                } catch (error) {
-                    console.error("Error fetching news:", error);
-                    newsHTML += `<p>⚠️ Unable to load news from this source.</p>`;
-                }
-            }
-            document.getElementById("naija-news").innerHTML = newsHTML;
+        function openChat() {
+            window.location.href = "chat.html";
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            fetchNaijaNews();
-            loadAudioFiles();
+            const chatbotTexts = ["Hi, my name na Àríyò", "How far?", "Wetin sup?", "Click me"];
+            let index = 0;
+            const chatbotText = document.getElementById("chatbot-text");
+            
+            setInterval(() => {
+                chatbotText.textContent = chatbotTexts[index];
+                index = (index + 1) % chatbotTexts.length;
+            }, 3000);
         });
-
-        async function loadAudioFiles() {
-            let audio = document.getElementById("background-music");
-            let audioFiles = [];
-
-            try {
-                let response = await fetch("."); // Fetch directory listing (server must allow directory browsing)
-                let text = await response.text();
-                let parser = new DOMParser();
-                let doc = parser.parseFromString(text, "text/html");
-                let links = doc.querySelectorAll("a");
-
-                links.forEach(link => {
-                    let href = link.getAttribute("href");
-                    if (href.endsWith(".mp3")) {
-                        audioFiles.push(href);
-                    }
-                });
-
-                if (audioFiles.length === 0) throw new Error("No MP3 files found");
-                
-                audioFiles = audioFiles.sort(() => Math.random() - 0.5);
-                let currentIndex = 0;
-
-                function playNext() {
-                    audio.src = audioFiles[currentIndex];
-                    audio.play().catch(console.error);
-                    currentIndex = (currentIndex + 1) % audioFiles.length;
-                }
-
-                audio.addEventListener("ended", playNext);
-                playNext();
-            } catch (error) {
-                console.error("Error loading audio files:", error);
-            }
-        }
-            function openChat() {
-            window.location.href = "chat.html";
-        }
     </script>
-
-    <audio id="background-music" loop>
-        <source src="" type="audio/mpeg">
-    </audio>
 </body>
 </html>
