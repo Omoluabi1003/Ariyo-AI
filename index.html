@@ -137,6 +137,7 @@
 <body onload="playBackgroundMusic()">
     <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
     <button class="share-button" onclick="shareSite()">Share</button>
+    <button class="mute-button" onclick="toggleMute()">🔇</button>
 
     <div class="container">
         <h1>Welcome to Àríyò AI 🎶</h1>
@@ -153,6 +154,7 @@
     </audio>
 
     <script>
+        let isMuted = false; // Track the mute state
         document.addEventListener("click", () => {
     const audio = document.getElementById("background-music");
     if (audio.paused) {
