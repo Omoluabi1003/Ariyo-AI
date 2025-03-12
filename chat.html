@@ -89,10 +89,23 @@
         }
 
         adjustForKeyboard();
-    </script>
-    <iframe src="music.html" allow="autoplay" style="display: none;"></iframe>
-</body>
-</html>
 
+        // Mute/Unmute functionality
+        let isMuted = false;
+        function toggleMute() {
+            const musicIframe = document.getElementById("musicIframe");
+            const muteButton = document.getElementById("muteButton");
+
+            if (isMuted) {
+                musicIframe.src = "music.html"; // Restart audio
+                muteButton.textContent = "Mute";
+            } else {
+                musicIframe.src = ""; // Stop audio
+                muteButton.textContent = "Unmute";
+            }
+
+            isMuted = !isMuted;
+        }
+    </script>
 </body>
 </html>
