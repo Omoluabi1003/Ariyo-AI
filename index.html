@@ -38,87 +38,87 @@
             transition: background 0.5s, color 0.5s;
         }
 
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
+        .mode-toggle, .share-button, .mute-button {
+            position: fixed;
+            top: 20px;
             background: #007bff;
             color: white;
-            text-align: center;
-            padding: 12px;
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
             font-size: 16px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .mode-toggle { left: 20px; }
+        .share-button { right: 20px; }
+        .mute-button { right: 80px; }
+        .share-button:hover, .mute-button:hover { background: #0056b3; }
+
+        .chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
         }
 
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
+        .chat-container img {
+            width: 120px;
+            height: auto;
+            transition: transform 0.3s ease-in-out;
         }
 
-        .toast.hide {
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+        .chat-container img:hover {
+            transform: scale(1.1);
+        }
+
+        #naija-news {
+            width: 90%;
+            max-height: 65vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--box-bg);
+            border-radius: 20px;
+            text-align: left;
+            color: var(--text-color);
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid var(--border-color);
+            transition: all 0.5s;
         }
     </style>
 </head>
 <body onload="playBackgroundMusic()">
+    <h1>Welcome to Àríyò AI 🎶</h1>
+    <p>Your smart Naija AI assistant bringing you the latest news and more!</p>
     <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
     <button class="share-button" onclick="shareSite()">Share</button>
     <button class="mute-button" onclick="toggleMute()">🔇</button>
     
-    <div id="toast" class="toast">
-        🎶 Playing background music...
-        <button onclick="hideToast()">✖</button>
-    </div>
-
     <div id="naija-news">Loading Naija News...</div>
     <div class="chat-container" onclick="openChat()">
         <img src="chatbot.png" alt="Chat">
-        <span id="chatbot-text"></span>
+        <span id="chatbot-text">Hi, My name Na Ariyo</span>
     </div>
 
-    <audio id="background-music" loop>
-        <source src="background-music.mp3" type="audio/mpeg">
-    </audio>
-
     <script>
-        let audio = document.getElementById("background-music");
-
-        function showToast(message) {
-            let toast = document.getElementById("toast");
-            toast.innerHTML = message + '<button onclick="hideToast()">✖</button>';
-            toast.classList.add("show");
-
-            setTimeout(() => {
-                toast.classList.add("hide");
-                setTimeout(() => {
-                    toast.classList.remove("show", "hide");
-                }, 500);
-            }, 3000);
+        function toggleDarkMode() {
+            document.body.classList.toggle("light-mode");
+            document.querySelector(".mode-toggle").innerHTML = document.body.classList.contains("light-mode") ? "☀️" : "🌙";
         }
 
-        function hideToast() {
-            let toast = document.getElementById("toast");
-            toast.classList.add("hide");
-            setTimeout(() => {
-                toast.classList.remove("show", "hide");
-            }, 500);
+        function shareSite() {
+            const shareData = { title: "Àríyò AI", text: "Check out this awesome AI-powered website!", url: window.location.href };
+            if (navigator.share) navigator.share(shareData).catch(console.error);
+            else alert("Sharing not supported on this browser.");
         }
-
-        document.addEventListener("click", () => {
-            if (audio.paused && !localStorage.getItem("isMuted")) {
-                showToast("🎶 Playing background music...");
-                audio.volume = 1;
-                audio.play().catch(error => console.log("Playback error:", error));
-            }
-        }, { once: true });
 
         function toggleMute() {
+            let audio = document.getElementById("background-music");
             let isMuted = audio.muted = !audio.muted;
             localStorage.setItem("isMuted", isMuted ? "true" : "");
             document.querySelector(".mute-button").innerHTML = isMuted ? "🔊" : "🔇";
@@ -126,6 +126,34 @@
 
         function openChat() {
             location.assign("chat.html");
+        }
+    </script>
+    <audio id="background-music" loop>
+        <source src="background-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let audio = document.getElementById("background-music");
+
+        document.addEventListener("click", () => {
+            if (audio.paused && !localStorage.getItem("isMuted")) {
+                audio.volume = 1;
+                audio.play().catch(error => console.log("Playback error:", error));
+            }
+        }, { once: true });
+
+        function retypeText() {
+            const phrases = ["Wetin dey sup? 👋", "Welcome to Àríyò AI!", "How far na?", "I get tori!"];
+            let index = 0, charIndex = 0, isDeleting = false;
+            const chatbotText = document.getElementById("chatbot-text");
+
+            function type() {
+                chatbotText.innerHTML = isDeleting ? phrases[index].substring(0, charIndex--) : phrases[index].substring(0, charIndex++);
+                if (!isDeleting && charIndex === phrases[index].length + 1) setTimeout(() => isDeleting = true, 1500);
+                else if (isDeleting && charIndex === 0) isDeleting = false, index = (index + 1) % phrases.length;
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
+            type();
         }
 
         async function fetchNaijaNews() {
@@ -141,7 +169,7 @@
                     let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
                     let data = await response.json();
                     if (data.items && data.items.length > 0) {
-                        data.items.slice(0, 2).forEach(news => {
+                        data.items.slice(0, 3).forEach(news => {
                             newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
                             <p>🕛 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
                         });
@@ -153,7 +181,11 @@
             document.getElementById("naija-news").innerHTML = newsHTML;
         }
 
-        fetchNaijaNews();
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchNaijaNews();
+            retypeText();
+        });
+
         setInterval(fetchNaijaNews, 1800000);
     </script>
 </body>
