@@ -44,6 +44,10 @@
             cursor: pointer;
             z-index: 10;
         }
+        .mute-button {
+            right: 80px;
+            background: #1e90ff;
+        }
 
         /* Fix for mobile screens */
         @media screen and (max-width: 768px) {
@@ -64,7 +68,9 @@
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
     <button class="close-button" onclick="closeChat()">Close</button>
+   <button class="mute-button" id="muteButton" onclick="toggleMute()">Mute</button>
     
+    <iframe id="musicIframe" src="music.html" style="display: none;"></iframe> 
     <script>
         function closeChat() {
             window.history.back();
