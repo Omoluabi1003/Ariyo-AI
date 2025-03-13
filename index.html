@@ -246,6 +246,25 @@
             let audio = document.getElementById("background-music");
             audio.muted = !audio.muted;
         }
+
+        // Listen for messages to control music
+        window.addEventListener("message", function(event) {
+            if (event.origin !== window.location.origin) {
+                return; // Ignore messages from unknown sources
+            }
+
+            const audio = document.getElementById("background-music");
+
+            if (event.data.action === "play") {
+                audio.play();
+            } else if (event.data.action === "pause") {
+                audio.pause();
+            } else if (event.data.action === "mute") {
+                audio.muted = true;
+            } else if (event.data.action === "unmute") {
+                audio.muted = false;
+            }
+        });
     </script>
 
     <div class="chat-container" id="chatbot" onclick="window.open('chat.html', '_blank')">
