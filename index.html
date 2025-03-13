@@ -156,6 +156,7 @@
     </style>
 </head>
 <body>
+
     <div class="top-icons" style="position: fixed; top: 15px; right: 15px; display: flex; gap: 10px;">
         <button class="icon-button" onclick="toggleDarkMode()">🌙</button>
         <button class="icon-button" onclick="shareSite()">🔗</button>
@@ -176,6 +177,27 @@
     </audio>
 
     <script>
+        let chatWindow = null; // Variable to store reference to the chat window
+
+        // Open chat window
+        function openChat() {
+            if (chatWindow && !chatWindow.closed) {
+                // If the chat window is already open, bring it to the front
+                chatWindow.focus();
+            } else {
+                // Open a new chat window and store the reference
+                chatWindow = window.open('chat.html', '_blank');
+            }
+        }
+
+        // Close the chat window when returning to index.html
+        window.onbeforeunload = function() {
+            if (chatWindow && !chatWindow.closed) {
+                chatWindow.close(); // Close the chat window if it's open
+            }
+        };
+
+        // Background change logic
         const backgrounds = [
             'Naija AI.jpg',
             'Naija AI2.jpg',
@@ -217,6 +239,7 @@
             document.getElementById("naija-news").innerHTML = newsHTML;
         }
 
+        // Dark mode functionality
         function toggleDarkMode() {
             document.body.classList.toggle("light-mode");
             let isLightMode = document.body.classList.contains("light-mode");
@@ -234,6 +257,7 @@
             fetchNaijaNews();
         });
 
+        // Share site function
         function shareSite() {
             if (navigator.share) {
                 navigator.share({
@@ -246,6 +270,7 @@
             }
         }
 
+        // Mute/unmute background music
         function toggleMute() {
             let audio = document.getElementById("background-music");
             audio.muted = !audio.muted;
@@ -270,7 +295,7 @@
             }
         });
 
-        // Open chat in new tab
+        // Open chat in a new tab
         function openChat() {
             window.open('chat.html', '_blank');
         }
