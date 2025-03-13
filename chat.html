@@ -54,6 +54,24 @@
         }
         .close-button { top: 15px; }
         .mute-button { top: 65px; }
+        /* Hidden by default until chat is closed */
+        .player-container {
+            display: none; 
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+        iframe#musicIframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
 
         @media screen and (max-width: 768px) {
             .chat-container, iframe { height: 100dvh; }
@@ -68,15 +86,22 @@
     <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
     <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
 
-    <iframe id="musicIframe" src="music.html" style="display: block;"></iframe> 
+    <!-- Hidden Music Player, revealed after closing chat -->
+    <div class="player-container" id="musicPlayer">
+        <iframe id="musicIframe" src="music.html"></iframe>
+    </div>
 
     <script>
         let isMuted = false;
+
+        // Close the chat and reveal music player
         function closeChat() {
             document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('musicPlayer').style.display = 'block'; // Reveal music player
             localStorage.setItem('chatClosed', 'true');
         }
 
+        // Toggle mute functionality for music
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
             const musicIframe = document.getElementById("musicIframe");
@@ -91,11 +116,11 @@
         }
 
         window.onload = function() {
-            // Ensure music plays when chat.html opens
-            document.getElementById('musicIframe').style.display = 'block';
-            document.getElementById('musicIframe').src = 'music.html';
+            // Play music immediately in the background, and only show player if chat is closed
+            const musicIframe = document.getElementById('musicIframe');
             if (localStorage.getItem('chatClosed') === 'true') {
                 document.getElementById('chatContainer').style.display = 'none';
+                document.getElementById('musicPlayer').style.display = 'block'; // Show music player when chat is closed
             }
         }
     </script>
