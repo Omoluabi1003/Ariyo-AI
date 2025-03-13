@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Player</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
     <style>
         body {
@@ -67,32 +66,6 @@
             flex-direction: column;
             gap: 10px;
         }
-
-        /* Aesthetic Back to Landing Page Button */
-        .button.back-to-landing {
-            background: linear-gradient(45deg, #ff7e5f, #feb47b);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 18px;
-            cursor: pointer;
-            z-index: 100;
-            width: 150px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease-in-out;
-            transform: scale(1);
-        }
-
-        .button.back-to-landing:hover {
-            background: linear-gradient(45deg, #feb47b, #ff7e5f);
-            transform: scale(1.1);
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
     </style>
 </head>
 <body>
@@ -105,25 +78,7 @@
 
         <!-- Track selection dropdown -->
         <select id="trackSelector" onchange="changeTrack()">
-            <option value="A%20Very%20Good%20Bad%20Guy%20v3.mp3">A Very Good Bad Guy v3</option>
-            <option value="Dem%20Wan%20Shut%20Me%20Up.mp3">Dem Wan Shut Me Up</option>
-            <option value="EFCC.mp3">EFCC</option>
-            <option value="Emergency.mp3">Emergency</option>
-            <option value="Film%20Trick%20Election.mp3">Film Trick Election</option>
-            <option value="Gbas%20Gbos.mp3">Gbas Gbos</option>
-            <option value="Kindness%20(Remastered).mp3">Kindness (Remastered)</option>
-            <option value="Locked%20Away.mp3">Locked Away</option>
-            <option value="Multi%20choice%20palava.mp3">Multi choice palav</option>
-            <option value="Na%20My%20Turn.mp3">Na My Turn</option>
-            <option value="Ogoni%20Anthem%20(Remastered).mp3">Ogoni Anthem (Remastered)</option>
-            <option value="Ogoni%20Anthem.mp3">Ogoni Anthem</option>
-            <option value="Rich%20Pauper.mp3">Rich Pauper</option>
-            <option value="Senator%20Natasha’s%20Whisper.mp3">Senator Natasha’s Whisper</option>
-            <option value="Sharing%20Formula.mp3">Sharing Formula</option>
-            <option value="Show%20Of%20Shame%20v3%20(Remastered).mp3">Show Of Shame v3 (Remastered)</option>
-            <option value="Subsidy.mp3">Subsidy</option>
-            <option value="Vex%20Money.mp3">Vex Money</option>
-            <option value="Working%20on%20myself.mp3">Working on myself</option>
+            <!-- Dynamic options will be added by JavaScript -->
         </select>
 
         <div class="controls">
@@ -136,108 +91,61 @@
         <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
     </div>
 
-    <!-- Button to go back to the landing page -->
-    <div class="button-container">
-        <button class="button back-to-landing" onclick="goBackToLanding()">Back to Landing Page</button>
-    </div>
-
     <script>
         let isMuted = false;
-        const tracks = [
-            "A%20Very%20Good%20Bad%20Guy%20v3.mp3",
-            "Dem%20Wan%20Shut%20Me%20Up.mp3",
-            "EFCC.mp3",
-            "Emergency.mp3",
-            "Film%20Trick%20Election.mp3",
-            "Gbas%20Gbos.mp3",
-            "Kindness%20(Remastered).mp3",
-            "Locked%20Away.mp3",
-            "Multi%20choice%20palava.mp3",
-            "Na%20My%20Turn.mp3",
-            "Ogoni%20Anthem%20(Remastered).mp3",
-            "Ogoni%20Anthem.mp3",
-            "Rich%20Pauper.mp3",
-            "Senator%20Natasha’s%20Whisper.mp3",
-            "Sharing%20Formula.mp3",
-            "Show%20Of%20Shame%20v3%20(Remastered).mp3",
-            "Subsidy.mp3",
-            "Vex%20Money.mp3",
-            "Working%20on%20myself.mp3"
-        ];
-
+        let musicLinks = [];
         let currentTrack = 0;
-        let isShuffle = true;
-        let isRepeat = false;
-        let playedTracks = [];
+
         const audioPlayer = document.getElementById("audioPlayer");
         const songTitle = document.getElementById("songTitle");
         const playPauseIcon = document.getElementById("playPauseIcon");
-        const shuffleButton = document.getElementById("shuffleButton");
-        const repeatButton = document.getElementById("repeatButton");
-        const timeDisplay = document.getElementById("timeDisplay");
 
-        // Shuffle tracks
-        function shuffleTracks() {
-            for (let i = tracks.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; // Swap elements
+        // Listen for messages from chat.html
+        window.addEventListener("message", (event) => {
+            if (event.data.action === "play") {
+                musicLinks = event.data.musicLinks;
+                loadTrack(0);  // Play the first track from the list
+                audioPlayer.play();
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            } else if (event.data.action === "pause") {
+                audioPlayer.pause();
+                playPauseIcon.classList.replace("fa-pause", "fa-play");
+            } else if (event.data.action === "mute") {
+                audioPlayer.muted = true;
+            } else if (event.data.action === "unmute") {
+                audioPlayer.muted = false;
             }
-        }
-
-        function playRandomTrack() {
-            const trackName = tracks[0]; // Get the first track from the shuffled array
-            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
-            const musicPlayer = document.getElementById("audioPlayer");
-            const trackSource = document.createElement("source");
-            trackSource.src = trackURL;
-            trackSource.type = "audio/mp3";
-            audioPlayer.innerHTML = ""; // Clear previous sources
-            audioPlayer.appendChild(trackSource); // Add new track source
-            audioPlayer.load();
-            audioPlayer.play();
-        }
-
-        document.getElementById('audioPlayer').addEventListener('ended', function() {
-            shuffleTracks(); // Shuffle tracks before playing the next one
-            playRandomTrack();
         });
 
-        window.onload = function() {
-            shuffleTracks(); // Shuffle tracks on page load
-            playRandomTrack(); // Play the first track from the shuffled list
+        // Load the track
+        function loadTrack(index) {
+            const track = musicLinks[index];
+            audioPlayer.src = track;
+            songTitle.textContent = track.split('/').pop().replace("%20", " ").replace(".mp3", "");
         }
 
         // Change track when user selects from dropdown
         function changeTrack() {
             const trackSelector = document.getElementById('trackSelector');
             const trackName = trackSelector.value;
-            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
-            const musicPlayer = document.getElementById("audioPlayer");
-            const trackSource = document.createElement("source");
-            trackSource.src = trackURL;
-            trackSource.type = "audio/mp3";
-            audioPlayer.innerHTML = ""; // Clear previous sources
-            audioPlayer.appendChild(trackSource); // Add new track source
-            audioPlayer.load();
+            loadTrack(musicLinks.indexOf(trackName));
             audioPlayer.play();
         }
 
-        // Go back to landing page
-        function goBackToLanding() {
-            window.location.href = 'index.html';  // Replace with the path to your index.html
+        // Add music options to dropdown
+        function populateTrackSelector() {
+            const trackSelector = document.getElementById('trackSelector');
+            musicLinks.forEach((track, index) => {
+                const option = document.createElement('option');
+                option.value = track;
+                option.textContent = track.split('/').pop().replace("%20", " ").replace(".mp3", "");
+                trackSelector.appendChild(option);
+            });
         }
 
-        // Listen for messages from chat.html
-        window.addEventListener("message", (event) => {
-            if (event.data.action === "play") {
-                audioPlayer.play().catch(error => console.log("Playback error:", error));
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
-            } else if (event.data.action === "pause") {
-                audioPlayer.pause();
-                playPauseIcon.classList.replace("fa-pause", "fa-play");
-            }
-        });
+        window.onload = function() {
+            populateTrackSelector();
+        };
     </script>
-
 </body>
 </html>
