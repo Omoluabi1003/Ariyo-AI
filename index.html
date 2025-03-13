@@ -33,7 +33,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
             z-index: -1;
-        }}
+        }
 
         h1 {
             font-size: 3rem;
@@ -68,42 +68,65 @@
             background: #0056b3;
             transform: scale(1.05);
         }
-    
+
+        #naija-news {
+            width: 95%;
+            max-width: 1000px;
+            margin: 0 auto; /* Centers the RSS feed */}
+        
+        .chat-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 200px; /* Increased the width for a bigger size */
+            height: 150px; /* Increased the height for a bigger size */
+            border-radius: 10px; /* Rounded corners */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            color: white;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            z-index: 2000;
+            transition: all 0.3s ease-in-out;
+            background: none; /* No background for the chatbot */
+        }
+
+        .chat-container:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-message {
+            font-size: 18px; /* Adjust font size for the message */
+            font-weight: bold;
+            text-align: center;
+        }
+
         .news-item a {
             color: white; /* Ensures text is readable */
             text-decoration: none;
             font-weight: bold;
             text-shadow: 2px 2px 3px black;
             transition: color 0.3s ease-in-out;
-        }}
+        }
+
         .news-item a:hover {
             color: red;
             text-decoration: underline;
-        }}
+        }
+
         body.light-mode .news-item a {
             color: #222;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
+
         body.light-mode .news-item a:hover {
             color: red;
             text-decoration: underline;
-        }}
-        .news-item a:hover {
-            color: red;
-            text-decoration: underline;
-        }}}
-        body.light-mode .news-item a {
-            color: #222; /* Dark text in light mode */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Adjusted for readability */
         }
-        .news-item a:hover {
-            color: red;
-            text-decoration: underline;
-        }}}
-        .news-item a:hover {
-            color: red;
-            text-decoration: underline;
-        }}
+
         :root {
             --bg-color: #0f172a;
             --text-color: white;
@@ -118,7 +141,7 @@
             --box-bg: rgba(0, 0, 0, 0.1);
             --border-color: #666;
             --gradient-bg: linear-gradient(135deg, #e2e8f0, #f8fafc);
-        }}
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -135,32 +158,6 @@
             margin: 0;
             padding: 0;
         }
-
-        #naija-news {
-            width: 95%;
-            max-width: 1000px;
-            margin: 0 auto; /* Centers the RSS feed */}
-
-        .chat-container {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            cursor: pointer;
-            text-align: center;
-            background: none;
-            padding: 5px 10px;
-            font-weight: bold;
-            font-size: 14px;
-            color: white;
-            border-radius: 10px;
-            border: 1px solid white;
-            display: flex;
-            align-items: center;
-        }
-
-        .chat-container:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
     </style>
 </head>
 <body>
@@ -176,10 +173,8 @@
     </div>
 
     <div id="naija-news" style="position: relative; overflow-y: auto; height: 500px; padding-bottom: 60px;">
-        
-        Loading Naija News...</div>
-
-    
+        Loading Naija News...
+    </div>
 
     <audio id="background-music" loop autoplay>
         <source src="background-music.mp3" type="audio/mpeg">
@@ -260,8 +255,9 @@
             audio.muted = !audio.muted;
         }
     </script>
-    <div class="chat-container" id="chatbot" onclick="window.open('chat.html', '_self')" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; transition: all 0.3s ease-in-out; background: rgba(0, 0, 0, 0.9); border: 3px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2000; box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);">
-        <img src="chatbot.png" alt="Chatbot" style="width: 50px; height: 50px;">
+
+    <div class="chat-container" id="chatbot" onclick="window.open('chat.html', '_self')">
+        <div class="chat-message">How far now?</div>
     </div>
 </body>
 </html>
