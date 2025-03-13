@@ -182,13 +182,41 @@
             margin-top: 20px;
         }
 
-        .track-list {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
+        /* Modal Styles */
+        .modal {
             display: none;
-            background: rgba(34, 34, 34, 0.9);
-            border-radius: 5px;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .track-list a {
@@ -196,63 +224,19 @@
             padding: 10px;
             color: white;
             text-decoration: none;
+            background-color: #333;
+            margin-bottom: 5px;
         }
 
         .track-list a:hover {
             background-color: #ff758c;
         }
 
-        /* Dark Mode Styles */
-        .dark-mode {
-            background-color: #1c1c1c;
-            color: #ecf0f1;
-        }
-
-        .dark-mode .sidebar {
-            background: rgba(50, 50, 50, 0.9);
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                padding: 10px;
-            }
-
-            .album-cover {
-                width: 150px;
-                height: 150px;
-            }
-
-            .music-controls button {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-
-            .track-info {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .album-cover {
-                width: 120px;
-                height: 120px;
-            }
-
-            .music-controls button {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-
-            .track-info {
-                font-size: 14px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="header">
-        Album: Kindness (Coming Soon) 🎶
+        Welcome to Àríyò AI 🎶
         <button class="share-button" onclick="shareContent()">
             <i class="fas fa-share-alt"></i>
         </button>
@@ -280,14 +264,38 @@
             <button onclick="playMusic()">▶️ Play</button>
             <button onclick="pauseMusic()">⏸️ Pause</button>
             <button onclick="stopMusic()">⏹️ Stop</button>
-            <button onclick="toggleShuffle()">🔀 Shuffle</button> <!-- Shuffle button next to Stop -->
+            <button onclick="toggleShuffle()">🔀 Shuffle</button>
         </div>
 
-        <div class="dropdown" onclick="toggleTrackList()">🎵 Choose A Track then press PLAY</div>
-        <div id="trackList" class="track-list">
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'Omoluabi - A Very Good Bad Guy v3')">Omoluabi - A Very Good Bad Guy v3</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
-            <!-- Add more tracks as needed -->
+        <div class="dropdown" onclick="openTrackList()">🎵 Choose A Track</div>
+    </div>
+
+    <!-- Modal for Track List -->
+    <div id="trackModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTrackList()">&times;</span>
+            <h3>Choose A Track</h3>
+            <div class="track-list">
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'Omoluabi - A Very Good Bad Guy v3')">Omoluabi - A Very Good Bad Guy v3</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', 'EFCC')">EFCC</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', 'Emergency')">Emergency</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', 'Film Trick Election')">Film Trick Election</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', 'Gbas Gbos')">Gbas Gbos</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', 'Kindness (Remastered)')">Kindness (Remastered)</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', 'Locked Away')">Locked Away</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', 'Multi choice palava')">Multi choice palava</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', 'Na My Turn')">Na My Turn</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', 'Ogoni Anthem (Remastered)')">Ogoni Anthem (Remastered)</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', 'Ogoni Anthem')">Ogoni Anthem</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', 'Rich Pauper')">Rich Pauper</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', 'Senator Natasha’s Whisper')">Senator Natasha’s Whisper</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', 'Sharing Formula')">Sharing Formula</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', 'Show Of Shame v3 (Remastered)')">Show Of Shame v3 (Remastered)</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', 'Subsidy')">Subsidy</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', 'Vex Money')">Vex Money</a>
+                <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', 'Working on myself')">Working on myself</a>
+            </div>
         </div>
     </div>
 
@@ -306,7 +314,23 @@
         let trackList = [
             { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', title: 'Omoluabi - A Very Good Bad Guy v3' },
             { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', title: 'Dem Wan Shut Me Up' },
-            // Add more tracks as needed
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', title: 'EFCC' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', title: 'Emergency' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', title: 'Film Trick Election' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', title: 'Gbas Gbos' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', title: 'Kindness (Remastered)' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', title: 'Locked Away' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', title: 'Multi choice palava' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', title: 'Na My Turn' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', title: 'Ogoni Anthem (Remastered)' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', title: 'Ogoni Anthem' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', title: 'Rich Pauper' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', title: 'Senator Natasha’s Whisper' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', title: 'Sharing Formula' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', title: 'Show Of Shame v3 (Remastered)' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', title: 'Subsidy' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', title: 'Vex Money' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', title: 'Working on myself' }
         ];
         let currentTrackIndex = 0;
 
@@ -340,9 +364,13 @@
             return min + ":" + (sec < 10 ? "0" + sec : sec);
         }
 
-        function toggleTrackList() {
-            const trackList = document.getElementById("trackList");
-            trackList.style.display = trackList.style.display === "block" ? "none" : "block";
+        // Modal Open and Close Functions
+        function openTrackList() {
+            document.getElementById('trackModal').style.display = "block";
+        }
+
+        function closeTrackList() {
+            document.getElementById('trackModal').style.display = "none";
         }
 
         function selectTrack(src, title) {
@@ -350,8 +378,8 @@
             trackInfo.textContent = title;
             trackArtist.textContent = "Artist: Omoluabi";
             trackYear.textContent = "Release Year: 2025";
-            // Do not play the music automatically anymore.
-            albumCover.classList.remove("spin"); // Remove the spinning effect if track changes before play
+            // Close the modal after selection
+            closeTrackList();
         }
 
         function toggleShuffle() {
