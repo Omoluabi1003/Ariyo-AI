@@ -10,7 +10,7 @@
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
-            background: no-repeat center center/cover;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: white;
             margin: 0;
             padding: 0;
@@ -18,10 +18,7 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
-        }
-        .dark-mode {
-            color: #f5f5f5;
+            transition: background 0.5s ease-in-out;
         }
         .header {
             background: rgba(0, 123, 255, 0.9);
@@ -48,105 +45,194 @@
             border-radius: 15px;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
         }
-        .chatbot-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .chatbot-frame {
-            width: 80%;
-            height: 70%;
+        .sidebar button {
+            background: linear-gradient(135deg, #ff7eb3, #ff758c);
+            color: white;
+            padding: 10px 15px;
             border: none;
+            border-radius: 25px;
+            width: 90%;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        .chatbot-intro {
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #ffeb3b;
+        .sidebar button:hover {
+            transform: scale(1.08);
+            box-shadow: 0px 4px 10px rgba(255, 117, 140, 0.6);
         }
-        .floating-chat {
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .music-player {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 0;
+            width: 100%;
+            background: rgba(34, 34, 34, 0.9);
+            padding: 10px;
+            text-align: center;
+        }
+        .album-cover {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+        }
+        .spin {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .music-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .music-controls button {
             background: #ff758c;
             color: white;
-            padding: 12px 15px;
-            border-radius: 50%;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 20px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s;
+            font-size: 16px;
+            transition: transform 0.2s;
         }
-        .floating-chat:hover {
+        .music-controls button:hover {
             transform: scale(1.1);
         }
-        .chat-popup {
-            display: none;
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 350px;
-            height: 500px;
-            background: rgba(34, 34, 34, 0.95);
-            border-radius: 15px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-            padding: 10px;
+        .track-info {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        .track-duration {
+            font-size: 14px;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="header">Welcome to Àríyò AI 🤖</div>
+    <div class="header">Welcome to Àríyò AI 🎶</div>
     <div class="container">
         <div class="sidebar">
             <button onclick="showContent('news')">📰 Latest News</button>
+            <button onclick="showContent('music')">🎵 Music Player</button>
             <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
         </div>
-        <div class="chatbot-container">
-            <p class="chatbot-intro">Abeg, ask me anything for Pidgin. I go answer you sharp sharp! 🇳🇬</p>
-            <iframe class="chatbot-frame" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn"></iframe>
+        <div class="content" id="main-content">
+            <h2>Select an option from the sidebar</h2>
         </div>
     </div>
-    <button class="floating-chat" onclick="toggleChatPopup()">💬</button>
-    <div class="chat-popup" id="chatPopup">
-        <iframe class="chatbot-frame" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn"></iframe>
+    <div class="music-player">
+        <h3>Music Player</h3>
+        <img id="albumCover" class="album-cover" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg" alt="Album Cover">
+        <p class="track-info" id="trackInfo">Omoluabi - A Very Good Bad Guy v3</p>
+        <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+        <div class="music-controls">
+            <button onclick="playMusic()">▶️ Play</button>
+            <button onclick="pauseMusic()">⏸️ Pause</button>
+            <button onclick="stopMusic()">⏹️ Stop</button>
+        </div>
+        <audio id="audioPlayer" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3" ontimeupdate="updateTrackTime()"></audio>
     </div>
+
+    <div class="music-player">
+        <h3>Other Tracks</h3>
+        <div class="track-info">Dem Wan Shut Me Up</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">EFCC</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Emergency</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Film Trick Election</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Gbas Gbos</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Kindness (Remastered)</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Locked Away</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Multi choice palava</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Na My Turn</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Ogoni Anthem (Remastered)</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Ogoni Anthem</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Rich Pauper</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Senator Natasha’s Whisper</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Sharing Formula</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Show Of Shame v3 (Remastered)</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Subsidy</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Vex Money</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3" ontimeupdate="updateTrackTime()"></audio>
+
+        <div class="track-info">Working on myself</div>
+        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3" ontimeupdate="updateTrackTime()"></audio>
+    </div>
+
     <script>
-        const images = [
-            'background1.jpg', 'background2.jpg', 'background3.jpg', 'background4.jpg'
-        ];
-
-        function getRandomImage() {
-            return images[Math.floor(Math.random() * images.length)];
+        const audioPlayer = document.getElementById("audioPlayer");
+        const albumCover = document.getElementById("albumCover");
+        const trackDuration = document.getElementById("trackDuration");
+        
+        function playMusic() {
+            audioPlayer.play();
+            albumCover.classList.add("spin");
         }
-
-        function setBackground() {
-            const imageUrl = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${getRandomImage()}`;
-            document.body.style.background = `url('${imageUrl}') no-repeat center center/cover`;
+        function pauseMusic() {
+            audioPlayer.pause();
+            albumCover.classList.remove("spin");
         }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-            setBackground();
+        function stopMusic() {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            albumCover.classList.remove("spin");
         }
-
-        function loadDarkMode() {
-            if (localStorage.getItem("darkMode") === "true") {
-                document.body.classList.add("dark-mode");
-            }
-            setBackground();
+        function updateTrackTime() {
+            let current = Math.floor(audioPlayer.currentTime);
+            let duration = Math.floor(audioPlayer.duration) || 0;
+            trackDuration.textContent = formatTime(current) + " / " + formatTime(duration);
         }
-
-        function toggleChatPopup() {
-            const chatPopup = document.getElementById("chatPopup");
-            chatPopup.style.display = chatPopup.style.display === "block" ? "none" : "block";
+        function formatTime(seconds) {
+            let min = Math.floor(seconds / 60);
+            let sec = Math.floor(seconds % 60);
+            return min + ":" + (sec < 10 ? "0" + sec : sec);
         }
-
-        window.onload = loadDarkMode;
     </script>
 </body>
 </html>
