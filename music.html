@@ -11,45 +11,46 @@
     </audio>
 
     <script>
-        async function getMP3Files() {
-            try {
-                // Fetch the list of files from your repository (adjust the endpoint as needed)
-                const response = await fetch(".");
-                const text = await response.text();
-
-                // Extract all .mp3 filenames from the directory listing
-                const mp3Files = [...text.matchAll(/href="([^"]+\.mp3)"/g)].map(m => m[1]);
-
-                return mp3Files.length > 0 ? mp3Files : ["background-music.mp3"]; // Fallback if no MP3s are found
-            } catch (error) {
-                console.error("Error fetching MP3 files:", error);
-                return ["background-music.mp3"]; // Default fallback
-            }
-        }
-
-        async function playRandomMusic() {
-            const audio = document.getElementById("background-music");
-            const source = document.getElementById("audio-source");
-
-            const mp3Files = await getMP3Files();
-            const randomIndex = Math.floor(Math.random() * mp3Files.length);
+        async function loadAudioFiles() {
+            let audio = document.getElementById("background-music");
+            let audioFiles = [
+                'EFCC.mp3', 'Emergency.mp3', 'Film Trick Election.mp3', 'Gbas Gbos.mp3',
+                'Kindness (Remastered).mp3', 'Locked Away.mp3', 'Multi choice palava.mp3',
+                'Na My Turn.mp3', 'Ogoni Anthem (Remastered).mp3', 'Ogoni Anthem.mp3',
+                'Rich Pauper.mp3', 'Senator Natasha’s Whisper.mp3', 'Sharing Formula.mp3',
+                'Show Of Shame v3 (Remastered).mp3', 'Subsidy.mp3', 'Vex Money.mp3',
+                'Working on myself.mp3'
+            ];
             
-            source.src = mp3Files[randomIndex];
-            audio.load();
-            audio.volume = 3;
-            audio.play().catch(error => console.log("Playback error:", error));
+            audioFiles = audioFiles.sort(() => Math.random() - 0.5);
+            let currentIndex = 0;
+
+            function playNext() {
+                audio.src = encodeURI(audioFiles[currentIndex]);
+                audio.play().catch(error => console.error("Audio Playback Error:", error));
+                currentIndex = (currentIndex + 1) % audioFiles.length;
+            }
+
+            audio.addEventListener("ended", playNext);
+            playNext();
         }
 
-        document.addEventListener("click", () => {
-            const audio = document.getElementById("background-music");
+        function enableAudioOniOS() {
+            let audio = document.getElementById("background-music");
             if (audio.paused) {
-                playRandomMusic();
+                audio.play().catch(error => console.log("Playback error on iOS:", error));
             }
-        }, { once: true });
+        }
 
-        document.getElementById("background-music").addEventListener("ended", playRandomMusic);
+        document.addEventListener("DOMContentLoaded", () => {
+            document.addEventListener("click", enableAudioOniOS, { once: true });
+            loadAudioFiles();
+        });
+    </script>
 
-        window.addEventListener("load", playRandomMusic);
+    <audio id="background-music" loop>
+        <source src="" type="audio/mpeg">
+    </audio>
     </script>
 </body>
 </html>
