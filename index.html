@@ -10,7 +10,6 @@
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: white;
             margin: 0;
             padding: 0;
@@ -19,6 +18,8 @@
             height: 100vh;
             overflow: hidden;
             transition: background 0.5s ease-in-out;
+            background-size: cover;
+            background-position: center;
         }
         .header {
             background: rgba(0, 123, 255, 0.9);
@@ -78,6 +79,8 @@
             background: rgba(34, 34, 34, 0.9);
             padding: 10px;
             text-align: center;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
         }
         .album-cover {
             width: 200px;
@@ -121,6 +124,37 @@
             font-size: 14px;
             margin-top: 5px;
         }
+        .track-details {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .dropdown {
+            width: 100%;
+            background: rgba(34, 34, 34, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .track-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            display: none;
+            background: rgba(34, 34, 34, 0.9);
+            border-radius: 5px;
+        }
+        .track-list a {
+            display: block;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+        }
+        .track-list a:hover {
+            background-color: #ff758c;
+        }
     </style>
 </head>
 <body>
@@ -138,100 +172,97 @@
     <div class="music-player">
         <h3>Music Player</h3>
         <img id="albumCover" class="album-cover" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg" alt="Album Cover">
+        
         <p class="track-info" id="trackInfo">Omoluabi - A Very Good Bad Guy v3</p>
+        <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
+        <p class="track-details" id="trackYear">Release Year: 2025</p>
         <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+
         <div class="music-controls">
             <button onclick="playMusic()">▶️ Play</button>
             <button onclick="pauseMusic()">⏸️ Pause</button>
             <button onclick="stopMusic()">⏹️ Stop</button>
         </div>
-        <audio id="audioPlayer" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3" ontimeupdate="updateTrackTime()"></audio>
-    </div>
 
-    <div class="music-player">
-        <h3>Other Tracks</h3>
-        <div class="track-info">Dem Wan Shut Me Up</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">EFCC</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Emergency</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Film Trick Election</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Gbas Gbos</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Kindness (Remastered)</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Locked Away</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Multi choice palava</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Na My Turn</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Ogoni Anthem (Remastered)</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Ogoni Anthem</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Rich Pauper</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Senator Natasha’s Whisper</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Sharing Formula</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Show Of Shame v3 (Remastered)</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Subsidy</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Vex Money</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3" ontimeupdate="updateTrackTime()"></audio>
-
-        <div class="track-info">Working on myself</div>
-        <audio src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3" ontimeupdate="updateTrackTime()"></audio>
+        <!-- Scrollable Track List Dropdown -->
+        <div class="dropdown" onclick="toggleTrackList()">🎵 Select Track</div>
+        <div id="trackList" class="track-list">
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'Omoluabi - A Very Good Bad Guy v3')">Omoluabi - A Very Good Bad Guy v3</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', 'EFCC')">EFCC</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', 'Emergency')">Emergency</a>
+            <!-- Add other tracks here -->
+        </div>
     </div>
 
     <script>
         const audioPlayer = document.getElementById("audioPlayer");
         const albumCover = document.getElementById("albumCover");
-        const trackDuration = document.getElementById("trackDuration");
-        
+        const trackInfo = document.getElementById("trackInfo");
+        const trackArtist = document.getElementById("trackArtist");
+        const trackYear = document.getElementById("trackYear");
+        const body = document.body;
+
+        // List of image URLs in your GitHub repository
+        const backgroundImages = [
+            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
+            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
+            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg',
+            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg'
+        ];
+
+        let currentImageIndex = 0;
+
+        // Function to change background every 20 seconds
+        function changeBackground() {
+            body.style.backgroundImage = `url('${backgroundImages[currentImageIndex]}')`;
+            currentImageIndex = (currentImageIndex + 1) % backgroundImages.length;
+        }
+
+        // Initial background change
+        changeBackground();
+        setInterval(changeBackground, 20000); // Change background every 20 seconds
+
         function playMusic() {
             audioPlayer.play();
             albumCover.classList.add("spin");
         }
+
         function pauseMusic() {
             audioPlayer.pause();
             albumCover.classList.remove("spin");
         }
+
         function stopMusic() {
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
             albumCover.classList.remove("spin");
         }
+
         function updateTrackTime() {
             let current = Math.floor(audioPlayer.currentTime);
             let duration = Math.floor(audioPlayer.duration) || 0;
             trackDuration.textContent = formatTime(current) + " / " + formatTime(duration);
         }
+
         function formatTime(seconds) {
             let min = Math.floor(seconds / 60);
             let sec = Math.floor(seconds % 60);
             return min + ":" + (sec < 10 ? "0" + sec : sec);
+        }
+
+        function toggleTrackList() {
+            const trackList = document.getElementById("trackList");
+            trackList.style.display = trackList.style.display === "block" ? "none" : "block";
+        }
+
+        function selectTrack(src, title) {
+            audioPlayer.src = src;
+            trackInfo.textContent = title;
+            trackArtist.textContent = "Artist: Omoluabi";
+            trackYear.textContent = "Release Year: 2025";
+            audioPlayer.play();
+            albumCover.classList.add("spin");
         }
     </script>
 </body>
