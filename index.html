@@ -89,14 +89,23 @@
             margin: 10px auto;
             display: block;
             box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease-in-out;
         }
+
+        /* Vinyl spinning effect */
         .spin {
             animation: spin 3s linear infinite;
         }
+
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
+
         .music-controls {
             margin-top: 10px;
             display: flex;
@@ -187,11 +196,26 @@
         <!-- Scrollable Track List Dropdown -->
         <div class="dropdown" onclick="toggleTrackList()">🎵 Select Track</div>
         <div id="trackList" class="track-list">
+            <!-- Add all 19 tracks -->
             <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'Omoluabi - A Very Good Bad Guy v3')">Omoluabi - A Very Good Bad Guy v3</a>
             <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
             <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', 'EFCC')">EFCC</a>
             <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', 'Emergency')">Emergency</a>
-            <!-- Add other tracks here -->
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', 'Film Trick Election')">Film Trick Election</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', 'Gbas Gbos')">Gbas Gbos</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', 'Kindness (Remastered)')">Kindness (Remastered)</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', 'Locked Away')">Locked Away</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', 'Multi choice palava')">Multi choice palava</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', 'Na My Turn')">Na My Turn</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', 'Ogoni Anthem (Remastered)')">Ogoni Anthem (Remastered)</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', 'Ogoni Anthem')">Ogoni Anthem</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', 'Rich Pauper')">Rich Pauper</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', 'Senator Natasha’s Whisper')">Senator Natasha’s Whisper</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', 'Sharing Formula')">Sharing Formula</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', 'Show Of Shame v3 (Remastered)')">Show Of Shame v3 (Remastered)</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', 'Subsidy')">Subsidy</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', 'Vex Money')">Vex Money</a>
+            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', 'Working on myself')">Working on myself</a>
         </div>
     </div>
 
@@ -201,7 +225,6 @@
         const trackInfo = document.getElementById("trackInfo");
         const trackArtist = document.getElementById("trackArtist");
         const trackYear = document.getElementById("trackYear");
-        const body = document.body;
 
         // List of image URLs in your GitHub repository
         const backgroundImages = [
@@ -215,7 +238,7 @@
 
         // Function to change background every 20 seconds
         function changeBackground() {
-            body.style.backgroundImage = `url('${backgroundImages[currentImageIndex]}')`;
+            document.body.style.backgroundImage = `url('${backgroundImages[currentImageIndex]}')`;
             currentImageIndex = (currentImageIndex + 1) % backgroundImages.length;
         }
 
