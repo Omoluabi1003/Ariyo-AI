@@ -4,46 +4,193 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .player-container {
+            max-width: 400px;
+            margin: auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
+        }
+        .song-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        button:hover {
+            transform: scale(1.2);
+        }
+        #volumeSlider {
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <audio id="background-music" autoplay loop>
-        Your browser does not support the audio element.
-    </audio>
+
+    <div class="player-container">
+        <h2>Music Player</h2>
+        <p class="song-title" id="songTitle">Loading...</p>
+        <audio id="audioPlayer"></audio>
+        <p id="timeDisplay">0:00 / 0:00</p>
+        <div class="controls">
+            <button onclick="prevTrack()"><i class="fa-solid fa-backward"></i></button>
+            <button onclick="togglePlay()" id="playPauseButton"><i id="playPauseIcon" class="fa-solid fa-play"></i></button>
+            <button onclick="nextTrack()"><i class="fa-solid fa-forward"></i></button>
+            <button onclick="toggleShuffle()" id="shuffleButton"><i class="fa-solid fa-random"></i></button>
+            <button onclick="toggleRepeat()" id="repeatButton"><i class="fa-solid fa-repeat"></i></button>
+        </div>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
+    </div>
 
     <script>
-        const audioFiles = [
-            'Kindness (Remastered).mp3', 'Locked Away.mp3', 'Multi choice palava.mp3',
-            'Na My Turn.mp3', 'Ogoni Anthem (Remastered).mp3', 'Ogoni Anthem.mp3',
-            'Rich Pauper.mp3', 'Àríyọ̀.mp3', 'Gbos.mp3', 'Kindness (Remastered).mp3',
-            'Locked Away.mp3', 'Multi choice palava.mp3', 'Na My Turn.mp3'
-    ];
+        const songs = [
+            "A Very Good Bad Guy v3.mp3",
+            "Dem Wan Shut Me Up.mp3",
+            "EFCC.mp3",
+            "Emergency.mp3",
+            "Film Trick Election.mp3",
+            "Gbas Gbos.mp3",
+            "Kindness (Remastered).mp3",
+            "Locked Away.mp3",
+            "Multi choice palava.mp3",
+            "Na My Turn.mp3",
+            "Ogoni Anthem (Remastered).mp3",
+            "Ogoni Anthem.mp3",
+            "Rich Pauper.mp3",
+            "Senator Natasha’s Whistle.mp3",
+            "Sharing Formula.mp3",
+            "Show Of Shame v3 (Remastered).mp3",
+            "Subsidy.mp3"
+        ];
 
-    let currentIndex = 0;
-    const audio = document.getElementById("background-music");
+        let currentTrack = 0;
+        let isShuffle = true;
+        let isRepeat = false;
+        let playedTracks = [];
+        const audioPlayer = document.getElementById("audioPlayer");
+        const songTitle = document.getElementById("songTitle");
+        const playPauseIcon = document.getElementById("playPauseIcon");
+        const shuffleButton = document.getElementById("shuffleButton");
+        const repeatButton = document.getElementById("repeatButton");
+        const timeDisplay = document.getElementById("timeDisplay");
 
-    // Shuffle playlist
-    audioFilesShuffled = audioFiles.sort(() => Math.random() - 0.5);
+        function loadTrack(index) {
+            if (index < 0) index = songs.length - 1;
+            if (index >= songs.length) index = 0;
+            currentTrack = index;
+            audioPlayer.src = songs[currentTrack];
+            songTitle.textContent = songs[currentTrack].replace(".mp3", "");
+            playPauseIcon.classList.replace("fa-pause", "fa-play");
+        }
 
-    function playAudio(index) {
-        const audioPlayer = document.getElementById('background-music');
-        audioPlayer.src = encodeURI(audioFiles[index]);
-        audioPlayer.play().catch(error => console.error("Audio Playback Error:", error));
-    }
+        function togglePlay() {
+            if (audioPlayer.paused) {
+                audioPlayer.play().catch(error => console.log("Playback error:", error));
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            } else {
+                audioPlayer.pause();
+                playPauseIcon.classList.replace("fa-pause", "fa-play");
+            }
+        }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        audioFiles = audioFiles.sort(() => Math.random() - 0.5);
-        let currentIndex = 0;
-        const audioPlayer = document.getElementById('background-music');
+        function nextTrack() {
+            if (isShuffle) {
+                playRandomTrack();
+            } else {
+                currentTrack = (currentTrack + 1) % songs.length;
+                loadTrack(currentTrack);
+                audioPlayer.play();
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            }
+        }
 
-        audioPlayer.addEventListener('ended', () => {
-            currentIndex = (currentIndex + 1) % audioFiles.length;
-            audioPlayer.src = encodeURI(audioFiles[currentIndex]);
+        function prevTrack() {
+            currentTrack = (currentTrack - 1 + songs.length) % songs.length;
+            loadTrack(currentTrack);
             audioPlayer.play();
+            playPauseIcon.classList.replace("fa-play", "fa-pause");
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            shuffleButton.style.color = isShuffle ? "limegreen" : "white";
+        }
+
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            repeatButton.style.color = isRepeat ? "limegreen" : "white";
+            audioPlayer.loop = isRepeat;
+        }
+
+        function playRandomTrack() {
+            if (playedTracks.length === songs.length) {
+                playedTracks = [];
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * songs.length);
+            } while (playedTracks.includes(randomIndex) && playedTracks.length < songs.length);
+
+            playedTracks.push(randomIndex);
+            loadTrack(randomIndex);
+            audioPlayer.play();
+            playPauseIcon.classList.replace("fa-play", "fa-pause");
+        }
+
+        function changeVolume(value) {
+            audioPlayer.volume = value;
+        }
+
+        function updateTime() {
+            let currentTime = Math.floor(audioPlayer.currentTime);
+            let duration = Math.floor(audioPlayer.duration) || 0;
+
+            let currentMinutes = Math.floor(currentTime / 60);
+            let currentSeconds = currentTime % 60;
+            let durationMinutes = Math.floor(duration / 60);
+            let durationSeconds = duration % 60;
+
+            currentSeconds = currentSeconds < 10 ? `0${currentSeconds}` : currentSeconds;
+            durationSeconds = durationSeconds < 10 ? `0${durationSeconds}` : durationSeconds;
+
+            timeDisplay.textContent = `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
+        }
+
+        // Auto-update time display
+        audioPlayer.addEventListener("timeupdate", updateTime);
+
+        // Auto-play next song when current song ends
+        audioPlayer.addEventListener("ended", () => {
+            if (!isRepeat) nextTrack();
         });
 
-        audioPlayer.src = encodeURI(audioFiles[currentIndex]);
-        audioPlayer.play();
-    });
-</script>
+        // Load first song, but don't autoplay
+        loadTrack(0);
+    </script>
+
 </body>
 </html>
