@@ -78,6 +78,26 @@
             font-size: 18px;
             font-weight: bold;
         }
+
+        .chatbox {
+            position: fixed;
+            top: 2%;
+            left: 2%;
+            width: 96%;
+            height: 96%;
+            background: var(--glass);
+            border: 5px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .chatbox iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -107,8 +127,8 @@
         <span id="chatbot-text">Click me</span>
     </div>
 
-    <div id="chatbox" class="chatbox" style="display: none;">
-        <iframe src="chat.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    <div id="chatbox" class="chatbox">
+        <iframe src="chat.html"></iframe>
     </div>
 
     <audio id="background-music" loop>
@@ -116,42 +136,9 @@
     </audio>
     
     <script>
-        function fetchNaijaNews() {
-            let category = document.getElementById("news-category").value;
-            document.getElementById("naija-news").innerHTML = `Loading ${category} news...`;
-            setTimeout(() => {
-                document.getElementById("naija-news").innerHTML = `Showing latest ${category} news!`;
-            }, 1500);
-        }
-
         function toggleChat() {
             let chatbox = document.getElementById("chatbox");
             chatbox.style.display = chatbox.style.display === "none" ? "block" : "none";
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("light-mode");
-            localStorage.setItem("darkMode", document.body.classList.contains("light-mode") ? "off" : "on");
-        }
-
-        function toggleMute() {
-            let audio = document.getElementById("background-music");
-            let muteButton = document.getElementById("mute-button").querySelector("i");
-            audio.muted = !audio.muted;
-            muteButton.classList.toggle("fa-volume-up", !audio.muted);
-            muteButton.classList.toggle("fa-volume-mute", audio.muted);
-        }
-
-        function shareSite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: "Àríyò AI",
-                    text: "Check out this amazing Naija AI!",
-                    url: window.location.href
-                }).catch(error => console.error("Share failed:", error));
-            } else {
-                alert("Sharing not supported on this device.");
-            }
         }
     </script>
 </body>
