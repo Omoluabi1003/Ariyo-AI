@@ -64,19 +64,32 @@
     </div>
 
     <button class="close-button" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
-    <button class="mute-button" id="muteButton"><i class="fa-solid fa-volume-high"></i></button>
+    <button class="mute-button" id="muteButton" onclick="toggleMute()"><i class="fa-solid fa-volume-high"></i></button>
 
     <iframe id="musicIframe" src="music.html" style="display: none;"></iframe> 
 
     <script>
         let isMuted = false;
+        let musicIframe = document.getElementById("musicIframe");
 
         function closeChat() {
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'none';
         }
 
-        document.querySelector('.close-button').addEventListener('click', closeChat);
+        function toggleMute() {
+            const muteButton = document.getElementById("muteButton");
+            const musicIframe = document.getElementById("musicIframe");
+
+            if (isMuted) {
+                musicIframe.src = "music.html"; // Reload music to play
+                muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            } else {
+                musicIframe.src = ""; // Stop music
+                muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            }
+
+            isMuted = !isMuted;
+        }
 
         function adjustForKeyboard() {
             const chatbotIframe = document.getElementById('chatbot');
@@ -89,28 +102,13 @@
                     muteButton.style.top = "100px";
                 } else {
                     chatbotIframe.style.height = "100dvh";
-                    muteButton.style.top = "60px";
+                    muteButton.style.top = "65px";
                 }
             });
         }
 
-        function toggleMute() {
-            const musicIframe = document.getElementById("musicIframe");
-            const muteButton = document.getElementById("muteButton");
-
-            if (isMuted) {
-                musicIframe.src = "music.html";
-                muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-            } else {
-                musicIframe.src = "";
-                muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-            }
-
-            isMuted = !isMuted;
-        }
+        // Initialize Keyboard Resize Adjustment
+        adjustForKeyboard();
     </script>
-
-    <button class="close-button" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
-    <button class="mute-button" id="muteButton" onclick="adjustMute()"><i class="fa-solid fa-volume-high"></i></button>
 </body>
 </html>
