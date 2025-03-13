@@ -46,6 +46,32 @@
             width: 100%;
             margin-top: 10px;
         }
+        .button {
+            position: fixed;
+            right: 15px;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .button:hover {
+            background: linear-gradient(135deg, #feb47b, #ff7e5f);
+            transform: scale(1.1);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+        }
+        .close-button { top: 15px; }
+        .mute-button { top: 65px; }
+
     </style>
 </head>
 <body>
@@ -64,6 +90,9 @@
         </div>
         <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
     </div>
+
+    <button class="button close-button" onclick="closePlayer()" aria-label="Close music player"><i class="fa-solid fa-xmark"></i></button>
+    <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
 
     <script>
         const songs = [
@@ -97,6 +126,9 @@
         const repeatButton = document.getElementById("repeatButton");
         const timeDisplay = document.getElementById("timeDisplay");
 
+        let isMuted = false;
+
+        // Functions for player control
         function loadTrack(index) {
             if (index < 0) index = songs.length - 1;
             if (index >= songs.length) index = 0;
@@ -199,7 +231,25 @@
             }
         });
 
-        // Load first song, but don't autoplay
+        // Mute functionality
+        function toggleMute() {
+            const muteButton = document.getElementById("muteButton");
+            if (isMuted) {
+                audioPlayer.muted = false;
+                muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            } else {
+                audioPlayer.muted = true;
+                muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+            }
+            isMuted = !isMuted;
+        }
+
+        // Close player
+        function closePlayer() {
+            document.querySelector('.player-container').style.display = 'none';
+        }
+
+        // Load first song
         loadTrack(0);
     </script>
 
