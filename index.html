@@ -47,45 +47,39 @@ document.addEventListener("DOMContentLoaded", fetchNaijaNews);
 
         async function loadAudioFiles() {
     let audio = document.getElementById("background-music");
-    let audioFiles = [];
+    let audioFiles = [
+        'EFCC.mp3',
+        'Emergency.mp3',
+        'Film Trick Election.mp3',
+        'Gbas Gbos.mp3',
+        'Kindness (Remastered).mp3',
+        'Locked Away.mp3',
+        'Multi choice palava.mp3',
+        'Na My Turn.mp3',
+        'Ogoni Anthem (Remastered).mp3',
+        'Ogoni Anthem.mp3',
+        'Rich Pauper.mp3',
+        'Senator Natasha’s Whisper.mp3',
+        'Sharing Formula.mp3',
+        'Show Of Shame v3 (Remastered).mp3',
+        'Subsidy.mp3',
+        'Vex Money.mp3',
+        'Working on myself.mp3'
+    ];
+    
+    audioFiles = audioFiles.sort(() => Math.random() - 0.5);
+    let currentIndex = 0;
 
-    try {
-        let audioFiles = [
-            'EFCC.mp3',
-            'Emergency.mp3',
-            'Film Trick Election.mp3',
-            'Gbas Gbos.mp3',
-            'Kindness (Remastered).mp3',
-            'Locked Away.mp3',
-            'Multi choice palava.mp3',
-            'Na My Turn.mp3',
-            'Ogoni Anthem (Remastered).mp3',
-            'Ogoni Anthem.mp3',
-            'Rich Pauper.mp3',
-            'Senator Natasha’s Whisper.mp3',
-            'Sharing Formula.mp3',
-            'Show Of Shame v3 (Remastered).mp3',
-            'Subsidy.mp3',
-            'Vex Money.mp3',
-            'Working on myself.mp3'
-        ];
-        if (!response.ok) throw new Error("Failed to fetch JSON");
-        let data = await response.json();
-        audioFiles = data.files;
+    function playNext() {
+        audio.src = encodeURI(audioFiles[currentIndex]);
+        audio.play().catch(error => console.error("Audio Playback Error:", error));
+        currentIndex = (currentIndex + 1) % audioFiles.length;
+    }
 
-        if (audioFiles.length === 0) throw new Error("No MP3 files found");
-        
-        audioFiles = audioFiles.sort(() => Math.random() - 0.5);
-        let currentIndex = 0;
-
-        function playNext() {
-            audio.src = encodeURI(audioFiles[currentIndex]);
-            audio.play().catch(console.error);
-            currentIndex = (currentIndex + 1) % audioFiles.length;
-        }
-
-        audio.addEventListener("ended", playNext);
-        playNext();
+    audio.addEventListener("ended", playNext);
+    playNext();
+}
+}
     } catch (error) {
         console.error("Error loading audio files:", error);
     }
