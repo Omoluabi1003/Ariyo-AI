@@ -69,12 +69,80 @@
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
 
+    <!-- Music player (hidden by default, auto-started when the page is opened) -->
+    <audio id="musicPlayer" controls style="display:none;" loop autoplay>
+        <source id="trackSource" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Track Selector Dropdown (Optional for users to pick a track) -->
+    <select id="trackSelector" onchange="changeTrack()">
+        <option value="Emergency.mp3">Emergency</option>
+        <option value="A%20Very%20Good%20Bad%20Guy%20v3.mp3">A Very Good Bad Guy v3</option>
+        <option value="Dem%20Wan%20Shut%20Me%20Up.mp3">Dem Wan Shut Me Up</option>
+        <option value="EFCC.mp3">EFCC</option>
+        <option value="Film%20Trick%20Election.mp3">Film Trick Election</option>
+        <option value="Gbas%20Gbos.mp3">Gbas Gbos</option>
+        <option value="Kindness%20(Remastered).mp3">Kindness (Remastered)</option>
+        <option value="Locked%20Away.mp3">Locked Away</option>
+        <option value="Multi%20choice%20palava.mp3">Multi choice palav</option>
+        <option value="Na%20My%20Turn.mp3">Na My Turn</option>
+        <option value="Ogoni%20Anthem%20(Remastered).mp3">Ogoni Anthem (Remastered)</option>
+        <option value="Ogoni%20Anthem.mp3">Ogoni Anthem</option>
+        <option value="Rich%20Pauper.mp3">Rich Pauper</option>
+        <option value="Senator%20Natasha’s%20Whisper.mp3">Senator Natasha’s Whisper</option>
+        <option value="Sharing%20Formula.mp3">Sharing Formula</option>
+    </select>
+
     <!-- Close button for the chat -->
     <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
     <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
 
     <script>
         let isMuted = false;
+        const tracks = [
+            "Emergency.mp3",
+            "A Very Good Bad Guy v3.mp3",
+            "Dem Wan Shut Me Up.mp3",
+            "EFCC.mp3",
+            "Film Trick Election.mp3",
+            "Gbas Gbos.mp3",
+            "Kindness (Remastered).mp3",
+            "Locked Away.mp3",
+            "Multi choice palav.mp3",
+            "Na My Turn.mp3",
+            "Ogoni Anthem (Remastered).mp3",
+            "Ogoni Anthem.mp3",
+            "Rich Pauper.mp3",
+            "Senator Natasha’s Whisper.mp3",
+            "Sharing Formula.mp3"
+        ];
+
+        // Function to randomly shuffle the tracks array
+        function shuffleTracks() {
+            for (let i = tracks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; // Swap the elements
+            }
+        }
+
+        // Play the next random track after the current one ends
+        document.getElementById('musicPlayer').addEventListener('ended', function() {
+            shuffleTracks(); // Shuffle tracks before playing the next one
+            playRandomTrack();
+        });
+
+        // Function to play a random track from the shuffled list
+        function playRandomTrack() {
+            const trackName = tracks[0]; // Get the first track from the shuffled array
+            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
+            const musicPlayer = document.getElementById("musicPlayer");
+            const trackSource = document.getElementById("trackSource");
+
+            trackSource.src = trackURL;
+            musicPlayer.load(); // Reload the audio element with the new track
+            musicPlayer.play(); // Play the new track
+        }
 
         // Open the chat container
         function openChat() {
@@ -96,19 +164,21 @@
         // Toggle mute functionality
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
-            const musicIframe = document.getElementById("musicIframe");
+            const musicPlayer = document.getElementById("musicPlayer");
             if (isMuted) {
-                musicIframe.style.display = 'block';
+                musicPlayer.play(); // Resume playing when unmuted
                 muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
             } else {
-                musicIframe.style.display = 'none';
+                musicPlayer.pause(); // Pause when muted
                 muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
             }
             isMuted = !isMuted;
         }
 
-        // On window load, check if the chat has been closed before
+        // Start with a shuffled track when the page is loaded
         window.onload = function() {
+            shuffleTracks(); // Shuffle the tracks when the page loads
+            playRandomTrack(); // Play the first random track
             if (localStorage.getItem('chatClosed') === 'true') {
                 document.getElementById('chatContainer').style.display = 'none';
             }
