@@ -72,13 +72,13 @@
 
     <div class="player-container">
         <h2>Music Player</h2>
-        <p class="song-title" id="songTitle">Loading...</p>
-        <audio id="audioPlayer" autoplay loop></audio>
+        <p class="song-title" id="songTitle">Select a song</p>
+        <audio id="audioPlayer" controls></audio>
         <p id="timeDisplay">0:00 / 0:00</p>
 
         <!-- Track selection dropdown -->
         <select id="trackSelector" onchange="changeTrack()">
-            <!-- Dynamic options will be added by JavaScript -->
+            <!-- Music options will be added dynamically -->
         </select>
 
         <div class="controls">
@@ -92,60 +92,107 @@
     </div>
 
     <script>
-        let isMuted = false;
-        let musicLinks = [];
+        let musicLinks = [
+            { name: "Track 1 - Afro Vibes", url: "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/song1.mp3" },
+            { name: "Track 2 - Lagos Nights", url: "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/song2.mp3" },
+            { name: "Track 3 - Naija Groove", url: "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/song3.mp3" }
+        ];
+        
         let currentTrack = 0;
-
         const audioPlayer = document.getElementById("audioPlayer");
         const songTitle = document.getElementById("songTitle");
+        const trackSelector = document.getElementById("trackSelector");
         const playPauseIcon = document.getElementById("playPauseIcon");
 
-        // Listen for messages from chat.html
-        window.addEventListener("message", (event) => {
-            if (event.data.action === "play") {
-                musicLinks = event.data.musicLinks;
-                loadTrack(0);  // Play the first track from the list
-                audioPlayer.play();
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
-            } else if (event.data.action === "pause") {
-                audioPlayer.pause();
-                playPauseIcon.classList.replace("fa-pause", "fa-play");
-            } else if (event.data.action === "mute") {
-                audioPlayer.muted = true;
-            } else if (event.data.action === "unmute") {
-                audioPlayer.muted = false;
-            }
-        });
-
-        // Load the track
-        function loadTrack(index) {
-            const track = musicLinks[index];
-            audioPlayer.src = track;
-            songTitle.textContent = track.split('/').pop().replace("%20", " ").replace(".mp3", "");
-        }
-
-        // Change track when user selects from dropdown
-        function changeTrack() {
-            const trackSelector = document.getElementById('trackSelector');
-            const trackName = trackSelector.value;
-            loadTrack(musicLinks.indexOf(trackName));
-            audioPlayer.play();
-        }
-
-        // Add music options to dropdown
         function populateTrackSelector() {
-            const trackSelector = document.getElementById('trackSelector');
+            trackSelector.innerHTML = "";
             musicLinks.forEach((track, index) => {
                 const option = document.createElement('option');
-                option.value = track;
-                option.textContent = track.split('/').pop().replace("%20", " ").replace(".mp3", "");
+                option.value = track.url;
+                option.textContent = track.name;
                 trackSelector.appendChild(option);
             });
+
+            // Load saved track from localStorage
+            let savedTrack = localStorage.getItem("currentTrack");
+            if (savedTrack) {
+                trackSelector.value = savedTrack;
+                changeTrack(true);
+            }
         }
+
+        function changeTrack(autoPlay = false) {
+            let selectedTrack = trackSelector.value;
+            audioPlayer.src = selectedTrack;
+            songTitle.textContent = trackSelector.options[trackSelector.selectedIndex].text;
+            localStorage.setItem("currentTrack", selectedTrack);
+
+            if (autoPlay) {
+                audioPlayer.play();
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            }
+        }
+
+        function togglePlay() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            } else {
+                audioPlayer.pause();
+                playPauseIcon.classList.replace("fa-pause", "fa-play");
+            }
+        }
+
+        function prevTrack() {
+            currentTrack = (currentTrack - 1 + musicLinks.length) % musicLinks.length;
+            trackSelector.value = musicLinks[currentTrack].url;
+            changeTrack(true);
+        }
+
+        function nextTrack() {
+            currentTrack = (currentTrack + 1) % musicLinks.length;
+            trackSelector.value = musicLinks[currentTrack].url;
+            changeTrack(true);
+        }
+
+        function toggleShuffle() {
+            currentTrack = Math.floor(Math.random() * musicLinks.length);
+            trackSelector.value = musicLinks[currentTrack].url;
+            changeTrack(true);
+        }
+
+        function toggleRepeat() {
+            audioPlayer.loop = !audioPlayer.loop;
+            document.getElementById("repeatButton").classList.toggle("active", audioPlayer.loop);
+        }
+
+        function changeVolume(value) {
+            audioPlayer.volume = value;
+            localStorage.setItem("volume", value);
+        }
+
+        function updateTrackTime() {
+            const timeDisplay = document.getElementById("timeDisplay");
+            let currentTime = Math.floor(audioPlayer.currentTime);
+            let duration = Math.floor(audioPlayer.duration);
+            timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        }
+
+        function formatTime(seconds) {
+            let minutes = Math.floor(seconds / 60);
+            let remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+        }
+
+        audioPlayer.addEventListener("timeupdate", updateTrackTime);
 
         window.onload = function() {
             populateTrackSelector();
+            let savedVolume = localStorage.getItem("volume") || 1;
+            audioPlayer.volume = savedVolume;
+            document.getElementById("volumeSlider").value = savedVolume;
         };
     </script>
+
 </body>
 </html>
