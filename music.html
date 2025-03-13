@@ -227,6 +227,16 @@
             window.location.href = 'index.html';  // Replace with the path to your index.html
         }
 
+        // Listen for messages from chat.html
+        window.addEventListener("message", (event) => {
+            if (event.data.action === "play") {
+                audioPlayer.play().catch(error => console.log("Playback error:", error));
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            } else if (event.data.action === "pause") {
+                audioPlayer.pause();
+                playPauseIcon.classList.replace("fa-pause", "fa-play");
+            }
+        });
     </script>
 
 </body>
