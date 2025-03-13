@@ -7,10 +7,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js">        async function fetchNaijaNews() {
             const RSS_SOURCES = [
-                "https://www.premiumtimesng.com/feed",
-                "https://www.vanguardngr.com/feed/",
-                "https://rss.punchng.com/v1/category/latest_news"
-            ];
+    "https://www.premiumtimesng.com/feed",
+    "https://www.vanguardngr.com/feed/",
+    "https://rss.punchng.com/v1/category/latest_news",
+    "https://guardian.ng/feed/",
+    "https://saharareporters.com/articles/rss-feed",
+    "https://www.legit.ng/rss/all.rss",
+    "https://dailypost.ng/feed",
+    "https://www.informationng.com/feed",
+    "https://www.nigerianbulletin.com/forums/-/index.rss",
+    "https://www.lindaikejisblog.com/feeds/posts/default?alt=rss" // Gossip RSS Feed
+];
 
             let newsHTML = "<h2>Latest Naija News</h2>";
             const proxyUrl = "https://api.allorigins.win/get?url=";
