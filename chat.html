@@ -38,7 +38,7 @@
             border-radius: 50%;
             font-size: 18px;
             cursor: pointer;
-            z-index: 10;
+            z-index: 100; /* Higher z-index for chat */
             width: 40px;
             height: 40px;
             display: flex;
@@ -46,6 +46,7 @@
             justify-content: center;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
             transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+            margin-bottom: 10px; /* Spacing between icons */
         }
         .button:hover {
             background: linear-gradient(135deg, #feb47b, #ff7e5f);
@@ -75,7 +76,7 @@
         Your browser does not support the audio element.
     </audio>
 
-    <!-- Track Selector Dropdown (Optional for users to pick a track) -->
+    <!-- Track Selector Dropdown -->
     <select id="trackSelector" onchange="changeTrack()">
         <option value="Emergency.mp3">Emergency</option>
         <option value="A%20Very%20Good%20Bad%20Guy%20v3.mp3">A Very Good Bad Guy v3</option>
@@ -118,21 +119,13 @@
             "Sharing Formula.mp3"
         ];
 
-        // Function to randomly shuffle the tracks array
         function shuffleTracks() {
             for (let i = tracks.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; // Swap the elements
+                [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; // Swap elements
             }
         }
 
-        // Play the next random track after the current one ends
-        document.getElementById('musicPlayer').addEventListener('ended', function() {
-            shuffleTracks(); // Shuffle tracks before playing the next one
-            playRandomTrack();
-        });
-
-        // Function to play a random track from the shuffled list
         function playRandomTrack() {
             const trackName = tracks[0]; // Get the first track from the shuffled array
             const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
@@ -140,48 +133,56 @@
             const trackSource = document.getElementById("trackSource");
 
             trackSource.src = trackURL;
-            musicPlayer.load(); // Reload the audio element with the new track
-            musicPlayer.play(); // Play the new track
+            musicPlayer.load();
+            musicPlayer.play();
         }
 
-        // Open the chat container
+        document.getElementById('musicPlayer').addEventListener('ended', function() {
+            shuffleTracks(); // Shuffle tracks before playing the next one
+            playRandomTrack();
+        });
+
+        window.onload = function() {
+            shuffleTracks(); // Shuffle tracks on page load
+            playRandomTrack(); // Play the first track from the shuffled list
+        }
+
         function openChat() {
-            console.log("Open chat clicked"); // Debugging line
             const chatContainer = document.getElementById('chatContainer');
-            chatContainer.style.display = 'flex'; // Show the chat container
-            document.querySelector('.button').style.display = 'none'; // Hide open button after clicking
+            chatContainer.style.display = 'flex';
+            document.querySelector('.button').style.display = 'none';
             localStorage.setItem('chatClosed', 'false');
         }
 
-        // Close the chat container
         function closeChat() {
-            console.log("Close chat clicked"); // Debugging line
             document.getElementById('chatContainer').style.display = 'none';
-            document.querySelector('.button').style.display = 'block'; // Show open button when chat is closed
+            document.querySelector('.button').style.display = 'block';
             localStorage.setItem('chatClosed', 'true');
         }
 
-        // Toggle mute functionality
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
             const musicPlayer = document.getElementById("musicPlayer");
             if (isMuted) {
-                musicPlayer.play(); // Resume playing when unmuted
+                musicPlayer.play();
                 muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
             } else {
-                musicPlayer.pause(); // Pause when muted
+                musicPlayer.pause();
                 muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
             }
             isMuted = !isMuted;
         }
 
-        // Start with a shuffled track when the page is loaded
-        window.onload = function() {
-            shuffleTracks(); // Shuffle the tracks when the page loads
-            playRandomTrack(); // Play the first random track
-            if (localStorage.getItem('chatClosed') === 'true') {
-                document.getElementById('chatContainer').style.display = 'none';
-            }
+        function changeTrack() {
+            const trackSelector = document.getElementById('trackSelector');
+            const trackName = trackSelector.value;
+            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
+            const musicPlayer = document.getElementById("musicPlayer");
+            const trackSource = document.getElementById("trackSource");
+
+            trackSource.src = trackURL;
+            musicPlayer.load();
+            musicPlayer.play();
         }
     </script>
 </body>
