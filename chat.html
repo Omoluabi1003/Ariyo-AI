@@ -32,11 +32,11 @@
         .button {
             position: fixed;
             right: 15px;
-            background: #333;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 20px;
+            border-radius: 50%;
+            font-size: 18px;
             cursor: pointer;
             z-index: 10;
             width: 40px;
@@ -44,15 +44,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .button:hover {
+            background: linear-gradient(135deg, #feb47b, #ff7e5f);
+            transform: scale(1.1);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
         }
         .close-button { top: 15px; }
         .mute-button { top: 65px; }
-        .darkmode-button { top: 115px; }
-
-        .light-mode {
-            background: #fff;
-            color: black;
-        }
 
         @media screen and (max-width: 768px) {
             .chat-container, iframe { height: 100dvh; }
@@ -66,90 +67,37 @@
 
     <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
     <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
-    <button class="button darkmode-button" onclick="toggleDarkMode()" aria-label="Toggle dark mode"><i class="fa-solid fa-moon"></i></button>
 
-    <iframe id="musicIframe" src="music.html" style="display: none;"></iframe> 
+    <iframe id="musicIframe" src="music.html" style="display: block;"></iframe> 
 
     <script>
         let isMuted = false;
-        let musicIframe = document.getElementById("musicIframe");
-
         function closeChat() {
-            document.getElementById('chatContainer').style.display = 'none';
-            localStorage.setItem('chatClosed', 'true');
-            // Music keeps playing after closing chat
-            
-            document.getElementById('chatContainer').style.display = 'none';
-            localStorage.setItem('chatClosed', 'true');
-            document.getElementById('chatContainer').style.display = 'none';
-            localStorage.setItem('chatClosed', 'true');
-             // Reopens automatically after 5 seconds
-            document.getElementById('chatContainer').remove();
-            document.body.style.background = '#fff';
-             font-size: 20px; color: #333; margin-top: 20%;">Chat closed. Refresh the page to reopen.</p>';
-            localStorage.setItem('chatClosed', 'true');
-            document.getElementById('chatContainer').remove();
-            document.body.style.background = '#000';
             document.getElementById('chatContainer').style.display = 'none';
             localStorage.setItem('chatClosed', 'true');
         }
 
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
+            const musicIframe = document.getElementById("musicIframe");
             if (isMuted) {
-                document.body.appendChild(musicIframe);
+                musicIframe.style.display = 'block';
                 muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
             } else {
-                musicIframe.remove();
+                musicIframe.style.display = 'none';
                 muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
             }
             isMuted = !isMuted;
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('light-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('light-mode') ? 'light' : 'dark');
-        }
-
-        function adjustForKeyboard() {
-            const chatbotIframe = document.getElementById('chatbot');
-            const initialHeight = window.visualViewport.height;
-
-            window.visualViewport.addEventListener('resize', () => {
-                if (window.visualViewport.height < initialHeight) {
-                    chatbotIframe.style.height = "80dvh";
-                } else {
-                    chatbotIframe.style.height = "100dvh";
-                }
-            });
-        }
-
-        // Load state from localStorage
         window.onload = function() {
             // Ensure music plays when chat.html opens
-            const musicIframe = document.getElementById('musicIframe');
-            musicIframe.style.display = 'block';
-            musicIframe.src = 'music.html'; // Ensure the music starts playing
-            
-            // Ensure music plays when chat.html opens
             document.getElementById('musicIframe').style.display = 'block';
-            // Ensure music plays when chatbot is open
-            
-            document.body.appendChild(musicIframe);
+            document.getElementById('musicIframe').src = 'music.html';
             if (localStorage.getItem('chatClosed') === 'true') {
-                document.getElementById('chatContainer')?.remove();
-                document.body.style.background = '#000';
                 document.getElementById('chatContainer').style.display = 'none';
-                musicIframe.remove();
-                document.getElementById('chatContainer').style.display = 'none';
-            }
-            if (localStorage.getItem('darkMode') === 'light') {
-                document.body.classList.add('light-mode');
             }
         }
-
-        // Initialize Keyboard Resize Adjustment
-        adjustForKeyboard();
     </script>
 </body>
 </html>
