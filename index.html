@@ -34,7 +34,6 @@
             position: relative;
         }
 
-        /* Share button */
         .share-button {
             position: absolute;
             top: 10px;
@@ -122,7 +121,6 @@
             transition: transform 0.3s ease-in-out;
         }
 
-        /* Vinyl spinning effect */
         .spin {
             animation: spin 3s linear infinite;
         }
@@ -206,15 +204,14 @@
 
         /* Dark Mode Styles */
         .dark-mode {
-            background-color: #1c1c1c; /* Dark background */
-            color: #ecf0f1; /* Light text color */
+            background-color: #1c1c1c;
+            color: #ecf0f1;
         }
 
         .dark-mode .sidebar {
             background: rgba(50, 50, 50, 0.9);
         }
 
-        /* Media Queries for responsiveness */
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%;
@@ -256,7 +253,6 @@
 <body>
     <div class="header">
         Welcome to Àríyò AI 🎶
-        <!-- Share button -->
         <button class="share-button" onclick="shareContent()">
             <i class="fas fa-share-alt"></i>
         </button>
@@ -284,30 +280,14 @@
             <button onclick="playMusic()">▶️ Play</button>
             <button onclick="pauseMusic()">⏸️ Pause</button>
             <button onclick="stopMusic()">⏹️ Stop</button>
+            <button onclick="toggleShuffle()">🔀 Shuffle</button> <!-- Shuffle button next to Stop -->
         </div>
 
-        <!-- Scrollable Track List Dropdown -->
         <div class="dropdown" onclick="toggleTrackList()">🎵 Choose A Track then press PLAY</div>
         <div id="trackList" class="track-list">
             <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'Omoluabi - A Very Good Bad Guy v3')">Omoluabi - A Very Good Bad Guy v3</a>
             <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', 'EFCC')">EFCC</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', 'Emergency')">Emergency</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', 'Film Trick Election')">Film Trick Election</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', 'Gbas Gbos')">Gbas Gbos</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', 'Kindness (Remastered)')">Kindness (Remastered)</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', 'Locked Away')">Locked Away</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', 'Multi choice palava')">Multi choice palava</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', 'Na My Turn')">Na My Turn</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', 'Ogoni Anthem (Remastered)')">Ogoni Anthem (Remastered)</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', 'Ogoni Anthem')">Ogoni Anthem</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', 'Rich Pauper')">Rich Pauper</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', 'Senator Natasha’s Whisper')">Senator Natasha’s Whisper</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', 'Sharing Formula')">Sharing Formula</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', 'Show Of Shame v3 (Remastered)')">Show Of Shame v3 (Remastered)</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', 'Subsidy')">Subsidy</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', 'Vex Money')">Vex Money</a>
-            <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', 'Working on myself')">Working on myself</a>
+            <!-- Add more tracks as needed -->
         </div>
     </div>
 
@@ -321,6 +301,14 @@
         const trackArtist = document.getElementById("trackArtist");
         const trackYear = document.getElementById("trackYear");
         const trackDuration = document.getElementById("trackDuration");
+
+        let shuffleMode = false;
+        let trackList = [
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', title: 'Omoluabi - A Very Good Bad Guy v3' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', title: 'Dem Wan Shut Me Up' },
+            // Add more tracks as needed
+        ];
+        let currentTrackIndex = 0;
 
         function playMusic() {
             if (audioPlayer.src) {
@@ -362,40 +350,26 @@
             trackInfo.textContent = title;
             trackArtist.textContent = "Artist: Omoluabi";
             trackYear.textContent = "Release Year: 2025";
-            audioPlayer.play();
-            albumCover.classList.add("spin");
-            updateTrackTime();
-            setInterval(updateTrackTime, 1000); // Update track time every second
+            // Do not play the music automatically anymore.
+            albumCover.classList.remove("spin"); // Remove the spinning effect if track changes before play
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
+        function toggleShuffle() {
+            shuffleMode = !shuffleMode;
+            const shuffleButton = document.querySelector('.music-controls button:nth-child(4)');
+            shuffleButton.textContent = shuffleMode ? "🔀 Shuffle (ON)" : "🔀 Shuffle";
         }
 
-        // Cycle background images every 30 seconds
-        const backgrounds = [
-            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
-            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
-            'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
-        ];
-
-        let currentBackground = 0;
-        setInterval(() => {
-            document.body.style.backgroundImage = `url('${backgrounds[currentBackground]}')`;
-            currentBackground = (currentBackground + 1) % backgrounds.length; // Loop through images
-        }, 30000); // Change background every 30 seconds
-
-        // Share button functionality
-        function shareContent() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Àríyò AI - Smart Naija AI',
-                    url: window.location.href
-                }).catch(console.error);
+        // Shuffle or next track logic
+        audioPlayer.addEventListener('ended', () => {
+            if (shuffleMode) {
+                const randomIndex = Math.floor(Math.random() * trackList.length);
+                selectTrack(trackList[randomIndex].src, trackList[randomIndex].title);
             } else {
-                alert('Share not supported on this browser.');
+                currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+                selectTrack(trackList[currentTrackIndex].src, trackList[currentTrackIndex].title);
             }
-        }
+        });
     </script>
 </body>
 </html>
