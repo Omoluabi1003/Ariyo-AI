@@ -9,22 +9,21 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #000;
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            transition: background 0.3s ease-in-out;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         .chat-container {
-            width: 100vw;
-            height: 100vh;
-            display: flex; /* Flexbox for alignment */
-            justify-content: center;
-            align-items: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Make the chat container scrollable */
+            padding: 10px;
             background: #111;
-            transition: height 0.3s ease-in-out;
-            position: relative;
         }
 
         iframe {
@@ -65,12 +64,38 @@
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
         }
 
-        /* Media query to adjust button positioning on mobile */
-        @media screen and (max-width: 768px) {
-            .button-container {
-                top: 5px;
-                right: 5px;
-                gap: 10px; /* Reduced space between buttons on mobile */
+        .back-to-landing {
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 150px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            transform: scale(1);
+        }
+
+        .back-to-landing:hover {
+            background: linear-gradient(135deg, #feb47b, #ff7e5f);
+            transform: scale(1.1);
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ensure the chat input box stays at the bottom */
+        .chat-container iframe {
+            flex-grow: 1; /* Make iframe take all remaining space */
+        }
+
+        /* Media Query for smaller devices */
+        @media (max-width: 768px) {
+            .chat-container {
+                padding-bottom: 60px; /* Ensure there's space at the bottom for the typing box */
             }
         }
     </style>
@@ -86,69 +111,17 @@
 
     <!-- Button container for mute and close actions -->
     <div class="button-container">
-        <!-- Close button for the chat -->
         <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
-        <!-- Mute button for the music -->
         <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
     </div>
 
     <script>
         let isMuted = false;
-        const tracks = [
-            "A Very Good Bad Guy v3.mp3",
-            "Dem Wan Shut Me Up.mp3",
-            "EFCC.mp3",
-            "Emergency.mp3",
-            "Film Trick Election.mp3",
-            "Gbas Gbos.mp3",
-            "Kindness (Remastered).mp3",
-            "Locked Away.mp3",
-            "Multi choice palav.mp3",
-            "Na My Turn.mp3",
-            "Ogoni Anthem (Remastered).mp3",
-            "Ogoni Anthem.mp3",
-            "Rich Pauper.mp3",
-            "Senator Natasha’s Whisper.mp3",
-            "Sharing Formula.mp3",
-            "Show Of Shame v3 (Remastered).mp3",
-            "Subsidy.mp3",
-            "Vex Money.mp3",
-            "Working on myself.mp3"
-        ];
 
-        function shuffleTracks() {
-            for (let i = tracks.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; // Swap elements
-            }
-        }
-
-        function playRandomTrack() {
-            const trackName = tracks[0]; // Get the first track from the shuffled array
-            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
-            const musicPlayer = document.getElementById("musicPlayer");
-            const trackSource = document.getElementById("trackSource");
-
-            trackSource.src = trackURL;
-            musicPlayer.load();
-            musicPlayer.play();
-        }
-
-        document.getElementById('musicPlayer').addEventListener('ended', function() {
-            shuffleTracks(); // Shuffle tracks before playing the next one
-            playRandomTrack();
-        });
-
-        window.onload = function() {
-            shuffleTracks(); // Shuffle tracks on page load
-            playRandomTrack(); // Play the first track from the shuffled list
-        }
-
+        // Function to send the play message to music.html when chat is opened
         function openChat() {
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.style.display = 'flex';
-            document.querySelector('.button').style.display = 'none';
-            localStorage.setItem('chatClosed', 'false');
+            const musicIframe = document.getElementById('musicIframe');
+            musicIframe.contentWindow.postMessage({ action: 'play' }, '*');
         }
 
         function closeChat() {
@@ -157,34 +130,21 @@
             localStorage.setItem('chatClosed', 'true');
         }
 
+        function goBackToLanding() {
+            window.location.href = 'index.html';  // Redirect to the landing page
+        }
+
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
-            const musicPlayer = document.getElementById("musicPlayer");
-            if (isMuted) {
-                musicPlayer.play();
-                muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-            } else {
-                musicPlayer.pause();
-                muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-            }
+            const musicIframe = document.getElementById("musicIframe");
+            const muteStatus = isMuted ? 'unmute' : 'mute';
+            musicIframe.contentWindow.postMessage({ action: muteStatus }, '*');
             isMuted = !isMuted;
         }
 
-        function changeTrack() {
-            const trackSelector = document.getElementById('trackSelector');
-            const trackName = trackSelector.value;
-            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
-            const musicPlayer = document.getElementById("musicPlayer");
-            const trackSource = document.getElementById("trackSource");
-
-            trackSource.src = trackURL;
-            musicPlayer.load();
-            musicPlayer.play();
-        }
-
-        // Redirect to the landing page (index.html)
-        function goBackToLanding() {
-            window.location.href = 'index.html';  // Replace with the path to your index.html
+        // On window load, send the message to start music playback
+        window.onload = function() {
+            openChat();  // Automatically start the music when chat is opened
         }
     </script>
 </body>
