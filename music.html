@@ -188,6 +188,17 @@
             if (!isRepeat) nextTrack();
         });
 
+        // Handle play/pause messages from parent `chat.html`
+        window.addEventListener("message", (event) => {
+            if (event.data.action === "play") {
+                audioPlayer.play().catch(error => console.log("Playback error:", error));
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            } else if (event.data.action === "pause") {
+                audioPlayer.pause();
+                playPauseIcon.classList.replace("fa-pause", "fa-play");
+            }
+        });
+
         // Load first song, but don't autoplay
         loadTrack(0);
     </script>
