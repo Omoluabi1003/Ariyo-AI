@@ -21,17 +21,8 @@
             margin: 0;
             padding: 0;
             position: relative;
-        }
-
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: -1;
+            background-size: cover;
+            background-position: center;
         }
 
         h1 {
@@ -70,38 +61,16 @@
             margin: 0 auto;
         }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
+        /* Chatbot styles */
         .chat-container {
             position: fixed;
             bottom: 10px;
             right: 10px;
             cursor: pointer;
-            background: none;
             padding: 5px 10px;
-            color: white;
             border-radius: 10px;
-            border: 1px solid white;
-            display: flex;
-            align-items: center;
             z-index: 2000;
-            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
-            transition: all 0.3s ease-in-out;
             animation: pulse 2s infinite;
-        }
-
-        .chat-container:hover {
-            background: rgba(255, 255, 255, 0.2);
         }
 
         .chat-container img {
@@ -109,19 +78,22 @@
             height: 50px;
         }
 
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Light/Dark Mode */
         :root {
             --bg-color: #0f172a;
             --text-color: white;
-            --box-bg: rgba(255, 255, 255, 0.1);
-            --border-color: black;
             --gradient-bg: linear-gradient(135deg, #1e293b, #0f172a);
         }
 
         body.light-mode {
             --bg-color: #f9fafb;
             --text-color: #222;
-            --box-bg: rgba(0, 0, 0, 0.1);
-            --border-color: #666;
             --gradient-bg: linear-gradient(135deg, #e2e8f0, #f8fafc);
         }
 
@@ -134,16 +106,6 @@
         }
 
         .news-item a:hover {
-            color: red;
-            text-decoration: underline;
-        }
-
-        body.light-mode .news-item a {
-            color: #222;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        body.light-mode .news-item a:hover {
             color: red;
             text-decoration: underline;
         }
@@ -174,7 +136,7 @@
         <source src="background-music.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Fixed: Chatbot link wrapped inside an anchor tag -->
+    <!-- Chatbot icon with link to chat.html -->
     <a href="chat.html">
         <div class="chat-container" id="chatbot">
             <img src="chatbot.png" alt="Chatbot">
@@ -182,11 +144,54 @@
     </a>
 
     <script>
+        // Naija Background Rotator
+        const backgrounds = [
+            'Naija AI.jpg',
+            'Naija AI2.jpg',
+            'Naija AI3.jpg'
+        ];
+
+        let currentIndex = 0;
+
+        function changeBackground() {
+            document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
+            currentIndex = (currentIndex + 1) % backgrounds.length;
+        }
+
+        setInterval(changeBackground, 10000);
+        changeBackground();
+
+        // Fetch Naija News
+        async function fetchNaijaNews() {
+            const RSS_SOURCES = [
+                "https://www.premiumtimesng.com/feed",
+                "https://www.vanguardngr.com/feed/",
+                "https://rss.punchng.com/v1/category/latest_news"
+            ];
+
+            let newsHTML = "<h2>Latest Naija News</h2>";
+            for (let rssUrl of RSS_SOURCES) {
+                try {
+                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+                    let data = await response.json();
+                    if (data.items) {
+                        data.items.slice(0, 3).forEach(news => {
+                            newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
+                            <p style='font-size: 12px;'>🕛 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
+                        });
+                    }
+                } catch (error) {
+                    console.error("RSS Fetch Error:", error);
+                }
+            }
+            document.getElementById("naija-news").innerHTML = newsHTML;
+        }
+
+        fetchNaijaNews();
+
         function toggleDarkMode() {
             document.body.classList.toggle("light-mode");
-            let isLightMode = document.body.classList.contains("light-mode");
-            localStorage.setItem("darkMode", isLightMode ? "on" : "off");
-            document.querySelector(".icon-button").innerHTML = isLightMode ? "🌞" : "🌙";
+            localStorage.setItem("darkMode", document.body.classList.contains("light-mode") ? "on" : "off");
         }
 
         function shareSite() {
@@ -204,17 +209,6 @@
         function toggleMute() {
             let audio = document.getElementById("background-music");
             audio.muted = !audio.muted;
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("darkMode") === "on") {
-                document.body.classList.add("light-mode");
-                document.querySelector(".icon-button").innerHTML = "🌞";
-            }
-        });
-
-        function openChat() {
-            window.open('chat.html', '_blank');
         }
     </script>
 
