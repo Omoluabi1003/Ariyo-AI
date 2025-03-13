@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Àríyò AI - Smart Naija AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.5s ease-in-out;
+        }
+        .header {
+            background: rgba(0, 123, 255, 0.9);
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 2px solid white;
+            box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 100px);
+        }
+        .sidebar {
+            width: 18%;
+            background: rgba(34, 34, 34, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            gap: 12px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .sidebar button {
+            background: linear-gradient(135deg, #ff7eb3, #ff758c);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 25px;
+            width: 90%;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .sidebar button:hover {
+            transform: scale(1.08);
+            box-shadow: 0px 4px 10px rgba(255, 117, 140, 0.6);
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .music-player {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(34, 34, 34, 0.9);
+            padding: 10px;
+            text-align: center;
+        }
+        .album-cover {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+        }
+        .spin {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .music-controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .music-controls button {
+            background: #ff758c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .music-controls button:hover {
+            transform: scale(1.1);
+        }
+        .track-info {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        .track-duration {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Welcome to Àríyò AI 🎶</div>
+    <div class="container">
+        <div class="sidebar">
+            <button onclick="showContent('news')">📰 Latest News</button>
+            <button onclick="showContent('music')">🎵 Music Player</button>
+            <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+        </div>
+        <div class="content" id="main-content">
+            <h2>Select an option from the sidebar</h2>
+        </div>
+    </div>
+    <div class="music-player">
+        <h3>Music Player</h3>
+        <img id="albumCover" class="album-cover" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg" alt="Album Cover">
+        <p class="track-info" id="trackInfo">Omoluabi - A Very Good Bad Guy v3</p>
+        <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+        <div class="music-controls">
+            <button onclick="playMusic()">▶️ Play</button>
+            <button onclick="pauseMusic()">⏸️ Pause</button>
+            <button onclick="stopMusic()">⏹️ Stop</button>
+        </div>
+        <audio id="audioPlayer" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A_Very_Good_Bad_Guy_v3.mp3" ontimeupdate="updateTrackTime()"></audio>
+    </div>
+    <script>
+        const audioPlayer = document.getElementById("audioPlayer");
+        const albumCover = document.getElementById("albumCover");
+        const trackDuration = document.getElementById("trackDuration");
+        
+        function playMusic() {
+            audioPlayer.play();
+            albumCover.classList.add("spin");
+        }
+        function pauseMusic() {
+            audioPlayer.pause();
+            albumCover.classList.remove("spin");
+        }
+        function stopMusic() {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            albumCover.classList.remove("spin");
+        }
+        function updateTrackTime() {
+            let current = Math.floor(audioPlayer.currentTime);
+            let duration = Math.floor(audioPlayer.duration) || 0;
+            trackDuration.textContent = formatTime(current) + " / " + formatTime(duration);
+        }
+        function formatTime(seconds) {
+            let min = Math.floor(seconds / 60);
+            let sec = Math.floor(seconds % 60);
+            return min + ":" + (sec < 10 ? "0" + sec : sec);
+        }
+    </script>
+</body>
+</html>
