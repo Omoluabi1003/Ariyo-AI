@@ -19,11 +19,10 @@
         .chat-container {
             width: 100vw;
             height: 100vh;
-            display: flex; /* Flexbox for alignment */
+            display: flex;
             justify-content: center;
             align-items: center;
             background: #111;
-            transition: height 0.3s ease-in-out;
             position: relative;
         }
 
@@ -38,9 +37,9 @@
             top: 10px;
             right: 10px;
             display: flex;
-            flex-direction: column; /* Stack buttons vertically */
-            gap: 15px; /* Space between buttons */
-            z-index: 100; /* Higher z-index for chat */
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
         }
 
         .button {
@@ -65,63 +64,69 @@
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
         }
 
-        /* Media query to adjust button positioning on mobile */
+        /* Responsive Adjustments */
         @media screen and (max-width: 768px) {
             .button-container {
                 top: 5px;
                 right: 5px;
-                gap: 10px; /* Reduced space between buttons on mobile */
+                gap: 10px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Chat container -->
-    <div class="chat-container" id="chatContainer">
+    <div class="chat-container">
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
 
-    <!-- Back to Landing Page Button in chat.html -->
-    <button class="button back-to-landing" onclick="goBackToLanding()">Back to Landing Page</button>
+    <!-- Navigation Button: Back to Landing Page -->
+    <button class="button" onclick="goBackToLanding()" aria-label="Back to Landing Page">
+        <i class="fa-solid fa-arrow-left"></i>
+    </button>
 
     <!-- Button container for mute and close actions -->
     <div class="button-container">
-        <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
-        <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
+        <button class="button close-button" onclick="closeChat()" aria-label="Close chat">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music">
+            <i class="fa-solid fa-volume-high"></i>
+        </button>
     </div>
 
     <script>
         let isMuted = false;
 
-        // Function to send the play message to index.html when chat is opened
-        function openChat() {
-            const musicIframe = document.getElementById('musicIframe');
-            if (musicIframe) {
-                musicIframe.contentWindow.postMessage({ action: 'play' }, '*');
-            }
+        function goBackToLanding() {
+            window.location.href = "index.html";
         }
 
         function closeChat() {
-            document.getElementById('chatContainer').style.display = 'none';
-            document.querySelector('.button').style.display = 'block';
+            document.querySelector('.chat-container').style.display = 'none';
+            document.querySelector('.button-container').style.display = 'none';
             localStorage.setItem('chatClosed', 'true');
-        }
-
-        function goBackToLanding() {
-            window.location.href = 'index.html';  // Redirect to the landing page
         }
 
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
             const musicIframe = document.getElementById("musicIframe");
-            const muteStatus = isMuted ? 'unmute' : 'mute';
-            musicIframe.contentWindow.postMessage({ action: muteStatus }, '*');
-            isMuted = !isMuted;
+
+            if (musicIframe) {
+                const muteStatus = isMuted ? 'unmute' : 'mute';
+                musicIframe.contentWindow.postMessage({ action: muteStatus }, '*');
+                isMuted = !isMuted;
+
+                muteButton.innerHTML = isMuted 
+                    ? '<i class="fa-solid fa-volume-xmark"></i>' 
+                    : '<i class="fa-solid fa-volume-high"></i>';
+            }
         }
 
-        // On window load, send the message to start music playback
         window.onload = function() {
-            openChat();  // Automatically start the music when chat is opened
+            if (localStorage.getItem("chatClosed") === "true") {
+                closeChat();
+            }
         }
     </script>
 </body>
