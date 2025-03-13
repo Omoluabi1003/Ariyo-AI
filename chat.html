@@ -54,24 +54,6 @@
         }
         .close-button { top: 15px; }
         .mute-button { top: 65px; }
-        /* Hidden by default until chat is closed */
-        .player-container {
-            display: none; 
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #222;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
-        }
-        iframe#musicIframe {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
 
         @media screen and (max-width: 768px) {
             .chat-container, iframe { height: 100dvh; }
@@ -79,37 +61,39 @@
     </style>
 </head>
 <body>
+    <!-- Button to open the chat -->
     <button class="button" onclick="openChat()" aria-label="Open chat"><i class="fa-solid fa-comments"></i></button>
     
+    <!-- Chat container (hidden by default) -->
     <div class="chat-container" id="chatContainer">
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
 
+    <!-- Close button for the chat -->
     <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
     <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
-
-    <!-- Hidden Music Player, revealed after closing chat -->
-    <div class="player-container" id="musicPlayer">
-        <iframe id="musicIframe" src="music.html"></iframe>
-    </div>
 
     <script>
         let isMuted = false;
 
-        // Open the chat
+        // Open the chat container
         function openChat() {
-            document.getElementById('chatContainer').style.display = 'flex'; // Show the chat container
+            console.log("Open chat clicked"); // Debugging line
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.style.display = 'flex'; // Show the chat container
+            document.querySelector('.button').style.display = 'none'; // Hide open button after clicking
             localStorage.setItem('chatClosed', 'false');
         }
 
-        // Close the chat and reveal music player
+        // Close the chat container
         function closeChat() {
+            console.log("Close chat clicked"); // Debugging line
             document.getElementById('chatContainer').style.display = 'none';
-            document.getElementById('musicPlayer').style.display = 'block'; // Reveal music player
+            document.querySelector('.button').style.display = 'block'; // Show open button when chat is closed
             localStorage.setItem('chatClosed', 'true');
         }
 
-        // Toggle mute functionality for music
+        // Toggle mute functionality
         function toggleMute() {
             const muteButton = document.getElementById("muteButton");
             const musicIframe = document.getElementById("musicIframe");
@@ -123,12 +107,10 @@
             isMuted = !isMuted;
         }
 
+        // On window load, check if the chat has been closed before
         window.onload = function() {
-            // Play music immediately in the background, and only show player if chat is closed
-            const musicIframe = document.getElementById('musicIframe');
             if (localStorage.getItem('chatClosed') === 'true') {
                 document.getElementById('chatContainer').style.display = 'none';
-                document.getElementById('musicPlayer').style.display = 'block'; // Show music player when chat is closed
             }
         }
     </script>
