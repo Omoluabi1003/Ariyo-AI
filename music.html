@@ -7,50 +7,43 @@
 </head>
 <body>
     <audio id="background-music" autoplay loop>
-        <source id="audio-source" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
 
     <script>
-        async function loadAudioFiles() {
-            let audio = document.getElementById("background-music");
-            let audioFiles = [
-                'EFCC.mp3', 'Emergency.mp3', 'Film Trick Election.mp3', 'Gbas Gbos.mp3',
-                'Kindness (Remastered).mp3', 'Locked Away.mp3', 'Multi choice palava.mp3',
-                'Na My Turn.mp3', 'Ogoni Anthem (Remastered).mp3', 'Ogoni Anthem.mp3',
-                'Rich Pauper.mp3', 'Senator Natasha’s Whisper.mp3', 'Sharing Formula.mp3',
-                'Show Of Shame v3 (Remastered).mp3', 'Subsidy.mp3', 'Vex Money.mp3',
-                'Working on myself.mp3'
-            ];
-            
-            audioFiles = audioFiles.sort(() => Math.random() - 0.5);
-            let currentIndex = 0;
+        const audioFiles = [
+            'Kindness (Remastered).mp3', 'Locked Away.mp3', 'Multi choice palava.mp3',
+            'Na My Turn.mp3', 'Ogoni Anthem (Remastered).mp3', 'Ogoni Anthem.mp3',
+            'Rich Pauper.mp3', 'Àríyọ̀.mp3', 'Gbos.mp3', 'Kindness (Remastered).mp3',
+            'Locked Away.mp3', 'Multi choice palava.mp3', 'Na My Turn.mp3'
+    ];
 
-            function playNext() {
-                audio.src = encodeURI(audioFiles[currentIndex]);
-                audio.play().catch(error => console.error("Audio Playback Error:", error));
-                currentIndex = (currentIndex + 1) % audioFiles.length;
-            }
+    let currentIndex = 0;
+    const audio = document.getElementById("background-music");
 
-            audio.addEventListener("ended", playNext);
-            playNext();
-        }
+    // Shuffle playlist
+    audioFilesShuffled = audioFiles.sort(() => Math.random() - 0.5);
 
-        function enableAudioOniOS() {
-            let audio = document.getElementById("background-music");
-            if (audio.paused) {
-                audio.play().catch(error => console.log("Playback error on iOS:", error));
-            }
-        }
+    function playAudio(index) {
+        const audioPlayer = document.getElementById('background-music');
+        audioPlayer.src = encodeURI(audioFiles[index]);
+        audioPlayer.play().catch(error => console.error("Audio Playback Error:", error));
+    }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            document.addEventListener("click", enableAudioOniOS, { once: true });
-            loadAudioFiles();
+    document.addEventListener("DOMContentLoaded", () => {
+        audioFiles = audioFiles.sort(() => Math.random() - 0.5);
+        let currentIndex = 0;
+        const audioPlayer = document.getElementById('background-music');
+
+        audioPlayer.addEventListener('ended', () => {
+            currentIndex = (currentIndex + 1) % audioFiles.length;
+            audioPlayer.src = encodeURI(audioFiles[currentIndex]);
+            audioPlayer.play();
         });
-    </script>
 
-    <audio id="background-music" loop>
-        <source src="" type="audio/mpeg">
-    </audio>
-    </script>
+        audioPlayer.src = encodeURI(audioFiles[currentIndex]);
+        audioPlayer.play();
+    });
+</script>
 </body>
 </html>
