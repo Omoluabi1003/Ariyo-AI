@@ -338,6 +338,7 @@
             if (audioPlayer.src) {
                 audioPlayer.play();
                 albumCover.classList.add("spin");  // Start spinning vinyl effect
+                setInterval(updateTrackTime, 1000); // Update track time every second
             }
         }
 
