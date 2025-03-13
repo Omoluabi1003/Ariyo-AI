@@ -65,14 +65,6 @@
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
         }
 
-        .button.close-button {
-            /* No changes needed for close button */
-        }
-
-        .button.mute-button {
-            /* No changes needed for mute button */
-        }
-
         /* Media query to adjust button positioning on mobile */
         @media screen and (max-width: 768px) {
             .button-container {
@@ -84,53 +76,29 @@
     </style>
 </head>
 <body>
-    <!-- Button to open the chat -->
-    <button class="button" onclick="openChat()" aria-label="Open chat"><i class="fa-solid fa-comments"></i></button>
-    
-    <!-- Chat container (hidden by default) -->
+    <!-- Chat container -->
     <div class="chat-container" id="chatContainer">
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
 
-    <!-- Music player (hidden by default, auto-started when the page is opened) -->
-    <audio id="musicPlayer" controls style="display:none;" loop autoplay>
-        <source id="trackSource" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3" type="audio/mp3">
-        Your browser does not support the audio element.
-    </audio>
-
-    <!-- Track Selector Dropdown -->
-    <select id="trackSelector" onchange="changeTrack()">
-        <option value="Emergency.mp3">Emergency</option>
-        <option value="A%20Very%20Good%20Bad%20Guy%20v3.mp3">A Very Good Bad Guy v3</option>
-        <option value="Dem%20Wan%20Shut%20Me%20Up.mp3">Dem Wan Shut Me Up</option>
-        <option value="EFCC.mp3">EFCC</option>
-        <option value="Film%20Trick%20Election.mp3">Film Trick Election</option>
-        <option value="Gbas%20Gbos.mp3">Gbas Gbos</option>
-        <option value="Kindness%20(Remastered).mp3">Kindness (Remastered)</option>
-        <option value="Locked%20Away.mp3">Locked Away</option>
-        <option value="Multi%20choice%20palava.mp3">Multi choice palav</option>
-        <option value="Na%20My%20Turn.mp3">Na My Turn</option>
-        <option value="Ogoni%20Anthem%20(Remastered).mp3">Ogoni Anthem (Remastered)</option>
-        <option value="Ogoni%20Anthem.mp3">Ogoni Anthem</option>
-        <option value="Rich%20Pauper.mp3">Rich Pauper</option>
-        <option value="Senator%20Natasha’s%20Whisper.mp3">Senator Natasha’s Whisper</option>
-        <option value="Sharing%20Formula.mp3">Sharing Formula</option>
-    </select>
+    <!-- Back to Landing Page Button in chat.html -->
+    <button class="button back-to-landing" onclick="goBackToLanding()">Back to Landing Page</button>
 
     <!-- Button container for mute and close actions -->
     <div class="button-container">
         <!-- Close button for the chat -->
         <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
+        <!-- Mute button for the music -->
         <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
     </div>
 
     <script>
         let isMuted = false;
         const tracks = [
-            "Emergency.mp3",
             "A Very Good Bad Guy v3.mp3",
             "Dem Wan Shut Me Up.mp3",
             "EFCC.mp3",
+            "Emergency.mp3",
             "Film Trick Election.mp3",
             "Gbas Gbos.mp3",
             "Kindness (Remastered).mp3",
@@ -141,7 +109,11 @@
             "Ogoni Anthem.mp3",
             "Rich Pauper.mp3",
             "Senator Natasha’s Whisper.mp3",
-            "Sharing Formula.mp3"
+            "Sharing Formula.mp3",
+            "Show Of Shame v3 (Remastered).mp3",
+            "Subsidy.mp3",
+            "Vex Money.mp3",
+            "Working on myself.mp3"
         ];
 
         function shuffleTracks() {
@@ -208,6 +180,11 @@
             trackSource.src = trackURL;
             musicPlayer.load();
             musicPlayer.play();
+        }
+
+        // Redirect to the landing page (index.html)
+        function goBackToLanding() {
+            window.location.href = 'index.html';  // Replace with the path to your index.html
         }
     </script>
 </body>
