@@ -77,6 +77,10 @@
         function closeChat() {
             document.getElementById('chatContainer').style.display = 'none';
             localStorage.setItem('chatClosed', 'true');
+            // Music keeps playing after closing chat
+            
+            document.getElementById('chatContainer').style.display = 'none';
+            localStorage.setItem('chatClosed', 'true');
             document.getElementById('chatContainer').style.display = 'none';
             localStorage.setItem('chatClosed', 'true');
              // Reopens automatically after 5 seconds
@@ -122,6 +126,11 @@
 
         // Load state from localStorage
         window.onload = function() {
+            // Ensure music plays when chat.html opens
+            const musicIframe = document.getElementById('musicIframe');
+            musicIframe.style.display = 'block';
+            musicIframe.src = 'music.html'; // Ensure the music starts playing
+            
             // Ensure music plays when chat.html opens
             document.getElementById('musicIframe').style.display = 'block';
             // Ensure music plays when chatbot is open
