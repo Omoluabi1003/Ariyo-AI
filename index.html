@@ -114,11 +114,6 @@
             width: 50px;
             height: 50px;
         }
-
-        /* Security: Prevent unauthorized script injection */
-        script {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -139,9 +134,9 @@
 
     <script>
         const backgrounds = [
-            "Naija_AI_1.jpg",
-            "Naija_AI_2.jpg",
-            "Naija_AI_3.jpg"
+            "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg",
+            "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg",
+            "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg"
         ];
 
         let currentIndex = 0;
@@ -179,16 +174,7 @@
             document.getElementById("naija-news").innerHTML = newsHTML;
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle("light-mode");
-            let isLightMode = document.body.classList.contains("light-mode");
-            localStorage.setItem("darkMode", isLightMode ? "on" : "off");
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("darkMode") === "on") {
-                document.body.classList.add("light-mode");
-            }
             fetchNaijaNews();
         });
 
