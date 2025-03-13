@@ -21,17 +21,8 @@
             margin: 0;
             padding: 0;
             position: relative;
-        }
-
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: -1;
+            background-size: cover;
+            background-position: center;
         }
 
         h1, p {
@@ -78,6 +69,24 @@
             border: 3px solid white;
             text-shadow: 2px 2px 4px black;
             font-weight: bold;
+        }
+
+        .news-item a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .news-item a:hover {
+            color: yellow;
+            text-decoration: underline;
+        }
+
+        .news-item p {
+            font-size: 10px;
+            color: #ddd;
+            margin: 2px 0;
         }
 
         .chat-container {
@@ -129,6 +138,22 @@
     </div>
 
     <script>
+        const backgrounds = [
+            "Naija_AI_1.jpg",
+            "Naija_AI_2.jpg",
+            "Naija_AI_3.jpg"
+        ];
+
+        let currentIndex = 0;
+
+        function changeBackground() {
+            document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
+            currentIndex = (currentIndex + 1) % backgrounds.length;
+        }
+
+        setInterval(changeBackground, 10000);
+        changeBackground();
+
         async function fetchNaijaNews() {
             const RSS_SOURCES = [
                 "https://www.premiumtimesng.com/feed",
@@ -144,7 +169,7 @@
                     if (data.items) {
                         data.items.slice(0, 3).forEach(news => {
                             newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
-                            <p style='font-size: 12px;'>🕛 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
+                            <p>🕛 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
                         });
                     }
                 } catch (error) {
@@ -178,9 +203,13 @@
                 alert("Sharing not supported on this device.");
             }
         }
+
+        function openChat() {
+            window.location.href = "chat.html";
+        }
     </script>
 
-    <div class="chat-container" id="chatbot">
+    <div class="chat-container" id="chatbot" onclick="openChat()">
         <img src="chatbot.png" alt="Chatbot">
     </div>
 
