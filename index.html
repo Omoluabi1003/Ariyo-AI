@@ -6,87 +6,64 @@
     <title>Àríyò AI - Smart Naija AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js">        async function fetchNaijaNews() {
-    const RSS_SOURCES = [
-        "https://www.premiumtimesng.com/feed",
-        "https://www.vanguardngr.com/feed/",
-        "https://rss.punchng.com/v1/category/latest_news"
-    ];
+            const RSS_SOURCES = [
+                "https://www.premiumtimesng.com/feed",
+                "https://www.vanguardngr.com/feed/",
+                "https://rss.punchng.com/v1/category/latest_news"
+            ];
 
-    let newsHTML = "<h2>Latest Naija News</h2>";
-    const proxyUrl = "https://corsproxy.io/?";
+            let newsHTML = "<h2>Latest Naija News</h2>";
+            const proxyUrl = "https://api.allorigins.win/get?url=";
 
-    for (let rssUrl of RSS_SOURCES) {
-        try {
-            let response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
-            let data = await response.text();
-            let parser = new DOMParser();
-            let xmlDoc = parser.parseFromString(data, "text/xml");
+            for (let rssUrl of RSS_SOURCES) {
+                try {
+                    let response = await fetch(proxyUrl + encodeURIComponent(rssUrl));
+                    let data = await response.json();
+                    let parser = new DOMParser();
+                    let xmlDoc = parser.parseFromString(data.contents, "text/xml");
 
-            let items = xmlDoc.querySelectorAll("item");
-            items.forEach((item, index) => {
-                if (index < 10) {
-                    let title = item.querySelector("title").textContent;
-                    let link = item.querySelector("link").textContent;
-                    let pubDate = item.querySelector("pubDate") ? new Date(item.querySelector("pubDate").textContent).toLocaleString() : "Unknown Date";
+                    let items = xmlDoc.querySelectorAll("item");
+                    items.forEach((item, index) => {
+                        if (index < 10) {
+                            let title = item.querySelector("title").textContent;
+                            let link = item.querySelector("link").textContent;
+                            let pubDate = item.querySelector("pubDate") ? new Date(item.querySelector("pubDate").textContent).toLocaleString() : "Unknown Date";
 
-                    newsHTML += `<div class='news-item'><a href="${link}" target="_blank">${title}</a>
-                        <p style='font-size: 10px;'>🕛 ${pubDate}</p></div>`;
+                            newsHTML += `<div class='news-item'><a href="${link}" target="_blank">${title}</a>
+                                <p style='font-size: 10px;'>🕛 ${pubDate}</p></div>`;
+                        }
+                    });
+                } catch (error) {
+                    console.error("RSS Fetch Error:", error);
+                    newsHTML += `<p style='color: red;'>⚠️ Unable to load news. Try again later.</p>`;
                 }
-            });
-        } catch (error) {
-            console.error("RSS Fetch Error:", error);
-            newsHTML += `<p style='color: red;'>⚠️ Unable to load news. Try again later.</p>`;
-        }
-    }
-    document.getElementById("naija-news").innerHTML = newsHTML;
-}
-
-document.addEventListener("DOMContentLoaded", fetchNaijaNews);
+            }
+            document.getElementById("naija-news").innerHTML = newsHTML;
         }
         document.addEventListener("DOMContentLoaded", fetchNaijaNews);
 
         async function loadAudioFiles() {
-    let audio = document.getElementById("background-music");
-    let audioFiles = [
-        'EFCC.mp3',
-        'Emergency.mp3',
-        'Film Trick Election.mp3',
-        'Gbas Gbos.mp3',
-        'Kindness (Remastered).mp3',
-        'Locked Away.mp3',
-        'Multi choice palava.mp3',
-        'Na My Turn.mp3',
-        'Ogoni Anthem (Remastered).mp3',
-        'Ogoni Anthem.mp3',
-        'Rich Pauper.mp3',
-        'Senator Natasha’s Whisper.mp3',
-        'Sharing Formula.mp3',
-        'Show Of Shame v3 (Remastered).mp3',
-        'Subsidy.mp3',
-        'Vex Money.mp3',
-        'Working on myself.mp3'
-    ];
-    
-    audioFiles = audioFiles.sort(() => Math.random() - 0.5);
-    let currentIndex = 0;
+            let audio = document.getElementById("background-music");
+            let audioFiles = [
+                'EFCC.mp3', 'Emergency.mp3', 'Film Trick Election.mp3', 'Gbas Gbos.mp3',
+                'Kindness (Remastered).mp3', 'Locked Away.mp3', 'Multi choice palava.mp3',
+                'Na My Turn.mp3', 'Ogoni Anthem (Remastered).mp3', 'Ogoni Anthem.mp3',
+                'Rich Pauper.mp3', 'Senator Natasha’s Whisper.mp3', 'Sharing Formula.mp3',
+                'Show Of Shame v3 (Remastered).mp3', 'Subsidy.mp3', 'Vex Money.mp3',
+                'Working on myself.mp3'
+            ];
+            
+            audioFiles = audioFiles.sort(() => Math.random() - 0.5);
+            let currentIndex = 0;
 
-    function playNext() {
-        audio.src = encodeURI(audioFiles[currentIndex]);
-        audio.play().catch(error => console.error("Audio Playback Error:", error));
-        currentIndex = (currentIndex + 1) % audioFiles.length;
-    }
-
-    audio.addEventListener("ended", playNext);
-    playNext();
-}
-}
-    } catch (error) {
-        console.error("Error loading audio files:", error);
-    }
-}
-            } catch (error) {
-                console.error("Error loading audio files:", error);
+            function playNext() {
+                audio.src = encodeURI(audioFiles[currentIndex]);
+                audio.play().catch(error => console.error("Audio Playback Error:", error));
+                currentIndex = (currentIndex + 1) % audioFiles.length;
             }
+
+            audio.addEventListener("ended", playNext);
+            playNext();
         }
 
         function enableAudioOniOS() {
@@ -100,28 +77,6 @@ document.addEventListener("DOMContentLoaded", fetchNaijaNews);
             document.addEventListener("click", enableAudioOniOS, { once: true });
             loadAudioFiles();
         });
-            function toggleDarkMode() {
-            document.body.classList.toggle("light-mode");
-        }
-
-        function shareSite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: "Àríyò AI",
-                    text: "Check out this amazing Naija AI!",
-                    url: window.location.href
-                }).catch(error => console.error("Share failed:", error));
-            } else {
-                alert("Sharing not supported on this device.");
-            }
-        }
-
-        function toggleMute() {
-            let audio = document.getElementById("background-music");
-            audio.muted = !audio.muted;
-            document.querySelector(".icon-button[onclick='toggleMute()'] i").classList.toggle("fa-volume-up", !audio.muted);
-            document.querySelector(".icon-button[onclick='toggleMute()'] i").classList.toggle("fa-volume-mute", audio.muted);
-        }
     </script>
 
     <audio id="background-music" loop>
@@ -239,8 +194,36 @@ document.addEventListener("DOMContentLoaded", fetchNaijaNews);
             window.location.href = "chat.html";
         }
 
+        function toggleDarkMode() {
+            document.body.classList.toggle("light-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("light-mode") ? "off" : "on");
+        }
+
+        function shareSite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: "Àríyò AI",
+                    text: "Check out this amazing Naija AI!",
+                    url: window.location.href
+                }).catch(error => console.error("Share failed:", error));
+            } else {
+                alert("Sharing not supported on this device.");
+            }
+        }
+
+        function toggleMute() {
+            let audio = document.getElementById("background-music");
+            let muteButton = document.querySelector(".icon-button[onclick='toggleMute()'] i");
+            audio.muted = !audio.muted;
+            muteButton.classList.toggle("fa-volume-up", !audio.muted);
+            muteButton.classList.toggle("fa-volume-mute", audio.muted);
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
-            const chatbotTexts = ["Hi, my name na Àríyò!", "How far?", "Wetin dey sup?", "Click me!"];
+            if (localStorage.getItem("darkMode") === "off") {
+                document.body.classList.add("light-mode");
+            }
+            const chatbotTexts = ["Hi, my name na Àríyò", "How far?", "Wetin sup?", "Click me"];
             let index = 0;
             const chatbotText = document.getElementById("chatbot-text");
             
