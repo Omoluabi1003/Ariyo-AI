@@ -30,7 +30,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
+            background: rgba(0, 0, 0, 0.7);
             z-index: -1;
         }
 
@@ -70,7 +70,6 @@
             margin: 0 auto;
         }
 
-        /* Pulse effect for chatbot icon */
         @keyframes pulse {
             0% {
                 transform: scale(1);
@@ -98,7 +97,7 @@
             z-index: 2000;
             box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
             transition: all 0.3s ease-in-out;
-            animation: pulse 2s infinite; /* Add the pulse animation */
+            animation: pulse 2s infinite;
         }
 
         .chat-container:hover {
@@ -124,20 +123,6 @@
             --box-bg: rgba(0, 0, 0, 0.1);
             --border-color: #666;
             --gradient-bg: linear-gradient(135deg, #e2e8f0, #f8fafc);
-        }
-
-        body {
-            background: var(--gradient-bg);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            transition: background 0.5s, color 0.5s;
-            margin: 0;
-            padding: 0;
         }
 
         .news-item a {
@@ -166,7 +151,6 @@
         audio {
             display: none;
         }
-
     </style>
 </head>
 <body>
@@ -190,88 +174,21 @@
         <source src="background-music.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- Fixed: Chatbot link wrapped inside an anchor tag -->
+    <a href="chat.html">
+        <div class="chat-container" id="chatbot">
+            <img src="chatbot.png" alt="Chatbot">
+        </div>
+    </a>
+
     <script>
-        let chatWindow = null; // Variable to store reference to the chat window
-
-        // Open chat window
-        function openChat() {
-            if (chatWindow && !chatWindow.closed) {
-                // If the chat window is already open, bring it to the front
-                chatWindow.focus();
-            } else {
-                // Open a new chat window and store the reference
-                chatWindow = window.open('chat.html', '_blank');
-            }
-        }
-
-        // Close the chat window when returning to index.html
-        window.onbeforeunload = function() {
-            if (chatWindow && !chatWindow.closed) {
-                chatWindow.close(); // Close the chat window if it's open
-            }
-        };
-
-        // Background change logic
-        const backgrounds = [
-            'Naija AI.jpg',
-            'Naija AI2.jpg',
-            'Naija AI3.jpg'
-        ];
-
-        let currentIndex = 0;
-
-        function changeBackground() {
-            document.body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
-            currentIndex = (currentIndex + 1) % backgrounds.length; // Loop back to the first image
-        }
-
-        setInterval(changeBackground, 10000); // Change background every 10 seconds
-        changeBackground(); // Initial call to set the first background
-
-        async function fetchNaijaNews() {
-            const RSS_SOURCES = [
-                "https://www.premiumtimesng.com/feed",
-                "https://www.vanguardngr.com/feed/",
-                "https://rss.punchng.com/v1/category/latest_news"
-            ];
-
-            let newsHTML = "<h2>Latest Naija News</h2>";
-            for (let rssUrl of RSS_SOURCES) {
-                try {
-                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-                    let data = await response.json();
-                    if (data.items) {
-                        data.items.slice(0, 3).forEach(news => {
-                            newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
-                            <p style='font-size: 12px;'>🕛 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
-                        });
-                    }
-                } catch (error) {
-                    console.error("RSS Fetch Error:", error);
-                }
-            }
-            document.getElementById("naija-news").innerHTML = newsHTML;
-        }
-
-        // Dark mode functionality
         function toggleDarkMode() {
             document.body.classList.toggle("light-mode");
             let isLightMode = document.body.classList.contains("light-mode");
             localStorage.setItem("darkMode", isLightMode ? "on" : "off");
-            
-            // Update button icon
             document.querySelector(".icon-button").innerHTML = isLightMode ? "🌞" : "🌙";
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("darkMode") === "on") {
-                document.body.classList.add("light-mode");
-                document.querySelector(".icon-button").innerHTML = "🌞";
-            }
-            fetchNaijaNews();
-        });
-
-        // Share site function
         function shareSite() {
             if (navigator.share) {
                 navigator.share({
@@ -284,42 +201,22 @@
             }
         }
 
-        // Mute/unmute background music
         function toggleMute() {
             let audio = document.getElementById("background-music");
             audio.muted = !audio.muted;
         }
 
-        // Listen for messages to control music
-        window.addEventListener("message", function(event) {
-            if (event.origin !== window.location.origin) {
-                return; // Ignore messages from unknown sources
-            }
-
-            const audio = document.getElementById("background-music");
-
-            if (event.data.action === "play") {
-                audio.play();
-            } else if (event.data.action === "pause") {
-                audio.pause();
-            } else if (event.data.action === "mute") {
-                audio.muted = true;
-            } else if (event.data.action === "unmute") {
-                audio.muted = false;
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("darkMode") === "on") {
+                document.body.classList.add("light-mode");
+                document.querySelector(".icon-button").innerHTML = "🌞";
             }
         });
 
-        // Open chat in a new tab
         function openChat() {
             window.open('chat.html', '_blank');
         }
-
-        document.querySelector('.chat-container').addEventListener('click', openChat);
     </script>
-
-    <div class="chat-container" id="chatbot">
-        <img src="chatbot.png" alt="Chatbot">
-    </div>
 
 </body>
 </html>
