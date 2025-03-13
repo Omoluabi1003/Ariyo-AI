@@ -90,10 +90,13 @@
         <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
     </div>
 
+    <!-- Music iframe (hidden) -->
+    <iframe id="musicIframe" src="music.html" style="display:none;"></iframe>
+
     <script>
         let isMuted = false;
 
-        // Music links hosted on GitHub
+        // Music file links (hosted on GitHub or other locations)
         const musicLinks = [
             "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3",
             "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3",
@@ -119,7 +122,9 @@
         // Function to send the play message to music.html when chat is opened
         function openChat() {
             const musicIframe = document.getElementById('musicIframe');
-            musicIframe.contentWindow.postMessage({ action: 'play' }, '*');
+            if (musicIframe) {
+                musicIframe.contentWindow.postMessage({ action: 'play', musicLinks: musicLinks }, '*');
+            }
         }
 
         function closeChat() {
