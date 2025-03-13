@@ -76,6 +76,7 @@
             border-radius: 30px;
             font-size: 18px;
             cursor: pointer;
+            z-index: 100;
             width: 150px;
             height: 50px;
             display: flex;
@@ -143,25 +144,25 @@
     <script>
         let isMuted = false;
         const tracks = [
-            "A Very Good Bad Guy v3.mp3",
-            "Dem Wan Shut Me Up.mp3",
+            "A%20Very%20Good%20Bad%20Guy%20v3.mp3",
+            "Dem%20Wan%20Shut%20Me%20Up.mp3",
             "EFCC.mp3",
             "Emergency.mp3",
-            "Film Trick Election.mp3",
-            "Gbas Gbos.mp3",
-            "Kindness (Remastered).mp3",
-            "Locked Away.mp3",
-            "Multi choice palav.mp3",
-            "Na My Turn.mp3",
-            "Ogoni Anthem (Remastered).mp3",
-            "Ogoni Anthem.mp3",
-            "Rich Pauper.mp3",
-            "Senator Natasha’s Whisper.mp3",
-            "Sharing Formula.mp3",
-            "Show Of Shame v3 (Remastered).mp3",
+            "Film%20Trick%20Election.mp3",
+            "Gbas%20Gbos.mp3",
+            "Kindness%20(Remastered).mp3",
+            "Locked%20Away.mp3",
+            "Multi%20choice%20palava.mp3",
+            "Na%20My%20Turn.mp3",
+            "Ogoni%20Anthem%20(Remastered).mp3",
+            "Ogoni%20Anthem.mp3",
+            "Rich%20Pauper.mp3",
+            "Senator%20Natasha’s%20Whisper.mp3",
+            "Sharing%20Formula.mp3",
+            "Show%20Of%20Shame%20v3%20(Remastered).mp3",
             "Subsidy.mp3",
-            "Vex Money.mp3",
-            "Working on myself.mp3"
+            "Vex%20Money.mp3",
+            "Working%20on%20myself.mp3"
         ];
 
         let currentTrack = 0;
@@ -226,16 +227,6 @@
             window.location.href = 'index.html';  // Replace with the path to your index.html
         }
 
-        // Listen for messages from chat.html
-        window.addEventListener("message", (event) => {
-            if (event.data.action === "play") {
-                audioPlayer.play().catch(error => console.log("Playback error:", error));
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
-            } else if (event.data.action === "pause") {
-                audioPlayer.pause();
-                playPauseIcon.classList.replace("fa-pause", "fa-play");
-            }
-        });
     </script>
 
 </body>
