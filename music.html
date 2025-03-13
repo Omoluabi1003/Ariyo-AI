@@ -70,13 +70,12 @@
 
         /* Aesthetic Back to Landing Page Button */
         .button.back-to-landing {
-            background: linear-gradient(45deg, #ff7e5f, #feb47b); /* Gradient background */
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
             color: white;
             border: none;
-            border-radius: 30px; /* Rounded corners */
+            border-radius: 30px;
             font-size: 18px;
             cursor: pointer;
-            z-index: 100;
             width: 150px;
             height: 50px;
             display: flex;
@@ -84,7 +83,7 @@
             justify-content: center;
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease-in-out;
-            transform: scale(1); /* Initial size */
+            transform: scale(1);
         }
 
         .button.back-to-landing:hover {
@@ -226,6 +225,17 @@
         function goBackToLanding() {
             window.location.href = 'index.html';  // Replace with the path to your index.html
         }
+
+        // Listen for messages from chat.html
+        window.addEventListener("message", (event) => {
+            if (event.data.action === "play") {
+                audioPlayer.play().catch(error => console.log("Playback error:", error));
+                playPauseIcon.classList.replace("fa-play", "fa-pause");
+            } else if (event.data.action === "pause") {
+                audioPlayer.pause();
+                playPauseIcon.classList.replace("fa-pause", "fa-play");
+            }
+        });
     </script>
 
 </body>
