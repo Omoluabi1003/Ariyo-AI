@@ -100,6 +100,28 @@ document.addEventListener("DOMContentLoaded", fetchNaijaNews);
             document.addEventListener("click", enableAudioOniOS, { once: true });
             loadAudioFiles();
         });
+            function toggleDarkMode() {
+            document.body.classList.toggle("light-mode");
+        }
+
+        function shareSite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: "Àríyò AI",
+                    text: "Check out this amazing Naija AI!",
+                    url: window.location.href
+                }).catch(error => console.error("Share failed:", error));
+            } else {
+                alert("Sharing not supported on this device.");
+            }
+        }
+
+        function toggleMute() {
+            let audio = document.getElementById("background-music");
+            audio.muted = !audio.muted;
+            document.querySelector(".icon-button[onclick='toggleMute()'] i").classList.toggle("fa-volume-up", !audio.muted);
+            document.querySelector(".icon-button[onclick='toggleMute()'] i").classList.toggle("fa-volume-mute", audio.muted);
+        }
     </script>
 
     <audio id="background-music" loop>
@@ -218,7 +240,7 @@ document.addEventListener("DOMContentLoaded", fetchNaijaNews);
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            const chatbotTexts = ["Hi, my name na Àríyò", "How far?", "Wetin sup?", "Click me"];
+            const chatbotTexts = ["Hi, my name na Àríyò!", "How far?", "Wetin dey sup?", "Click me!"];
             let index = 0;
             const chatbotText = document.getElementById("chatbot-text");
             
