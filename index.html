@@ -149,20 +149,26 @@
             text-decoration: underline;
         }
 
-        audio {
-            display: none;
-        }
-
     </style>
 </head>
 <body>
+    <div class="top-icons" style="position: fixed; top: 15px; right: 15px; display: flex; gap: 10px;">
+        <button class="icon-button" onclick="toggleDarkMode()">🌙</button>
+        <button class="icon-button" onclick="shareSite()">🔗</button>
+        <button class="icon-button" onclick="toggleMute()">🔇</button>
+    </div>
+
     <div>
         <h1>Welcome to Àríyò AI 🎶</h1>
         <p>Your smart Naija A.I; Àríyò dey bring latest news!</p>
     </div>
 
+    <div id="naija-news" style="position: relative; overflow-y: auto; height: 500px; padding-bottom: 60px;">
+        Loading Naija News...
+    </div>
+
     <audio id="background-music" loop autoplay>
-        <source src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/background-music.mp3" type="audio/mpeg">
+        <source src="background-music.mp3" type="audio/mpeg">
     </audio>
 
     <script>
@@ -259,7 +265,6 @@
                 audio.muted = false;
             }
         });
-
     </script>
 
     <div class="chat-container" id="chatbot" onclick="window.open('chat.html', '_blank')">
