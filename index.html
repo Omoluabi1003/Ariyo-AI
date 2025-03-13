@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Àríyò AI - Smart Naija AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js">function toggleDarkMode() {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>function toggleDarkMode() {
     document.body.classList.toggle("light-mode");
     localStorage.setItem("darkMode", document.body.classList.contains("light-mode") ? "on" : "off");
 }
@@ -30,6 +30,8 @@ function shareSite() {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("mute-button").addEventListener("click", toggleMute);
+    document.getElementById("share-button").addEventListener("click", shareSite);
+    document.querySelector(".icon-button[onclick='toggleDarkMode()']").addEventListener("click", toggleDarkMode);
 });
 function toggleMute() {
     let audio = document.getElementById("background-music");
