@@ -17,12 +17,13 @@
         }
         .chat-container {
             width: 100vw;
-            height: 100dvh;
-            display: none; /* Initially hidden */
+            height: 100vh;
+            display: flex; /* Flexbox for alignment */
             justify-content: center;
             align-items: center;
             background: #111;
             transition: height 0.3s ease-in-out;
+            position: relative;
         }
         iframe {
             width: 100%;
@@ -57,7 +58,21 @@
         .mute-button { top: 65px; }
 
         @media screen and (max-width: 768px) {
-            .chat-container, iframe { height: 100dvh; }
+            /* Ensuring responsiveness */
+            .button {
+                right: 10px; /* Adjust the position for smaller screens */
+            }
+            iframe {
+                height: 100vh;
+            }
+        }
+
+        @media screen and (min-width: 768px) {
+            /* Ensure the desktop version stays visible */
+            .button {
+                top: 10px; /* Ensure buttons are not overlapping */
+                right: 10px; /* For desktop view */
+            }
         }
     </style>
 </head>
