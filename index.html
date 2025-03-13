@@ -269,10 +269,18 @@
                 audio.muted = false;
             }
         });
+
+        // Open chat in new tab
+        function openChat() {
+            window.open('chat.html', '_blank');
+        }
+
+        document.querySelector('.chat-container').addEventListener('click', openChat);
     </script>
 
-    <div class="chat-container" id="chatbot" onclick="window.open('chat.html', '_blank')">
+    <div class="chat-container" id="chatbot">
         <img src="chatbot.png" alt="Chatbot">
     </div>
+
 </body>
 </html>
