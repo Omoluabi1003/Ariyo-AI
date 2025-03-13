@@ -47,6 +47,18 @@
             margin-top: 10px;
         }
 
+        /* Track selection dropdown */
+        select {
+            background: #222;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 16px;
+            width: 100%;
+        }
+
         .button-container {
             position: fixed;
             bottom: 20px;
@@ -64,206 +76,21 @@
             border-radius: 30px; /* Rounded corners */
             font-size: 18px;
             cursor: pointer;
-            width: 150px; /* Width adjusted for a more visible button */
-            height: 50px; /* Height for consistency */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow effect */
-            transition: all 0.3s ease-in-out; /* Smooth transition */
-            transform: scale(1); /* Initial size */
-        }
-
-        /* Hover Effect */
-        .button.back-to-landing:hover {
-            background: linear-gradient(45deg, #feb47b, #ff7e5f); /* Inverted gradient */
-            transform: scale(1.1); /* Slightly increase size */
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
-        }
-
-        /* Focus Effect */
-        .button.back-to-landing:focus {
-            outline: none; /* Remove default outline */
-            border: 2px solid #feb47b; /* Add a focus border */
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="player-container">
-        <h2>Music Player</h2>
-        <p class="song-title" id="songTitle">Loading...</p>
-        <audio id="audioPlayer" autoplay loop></audio>
-        <p id="timeDisplay">0:00 / 0:00</p>
-        <div class="controls">
-            <button onclick="prevTrack()"><i class="fa-solid fa-backward"></i></button>
-            <button onclick="togglePlay()" id="playPauseButton"><i id="playPauseIcon" class="fa-solid fa-play"></i></button>
-            <button onclick="nextTrack()"><i class="fa-solid fa-forward"></i></button>
-            <button onclick="toggleShuffle()" id="shuffleButton"><i class="fa-solid fa-random"></i></button>
-            <button onclick="toggleRepeat()" id="repeatButton"><i class="fa-solid fa-repeat"></i></button>
-        </div>
-        <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
-    </div>
-
-    <!-- Button to go back to the landing page -->
-    <div class="button-container">
-        <button class="button back-to-landing" onclick="goBackToLanding()">Back to Landing Page</button>
-    </div>
-
-    <script>
-        let isMuted = false;
-        const tracks = [
-            "A Very Good Bad Guy v3.mp3",
-            "Dem Wan Shut Me Up.mp3",
-            "EFCC.mp3",
-            "Emergency.mp3",
-            "Film Trick Election.mp3",
-            "Gbas Gbos.mp3",
-            "Kindness (Remastered).mp3",
-            "Locked Away.mp3",
-            "Multi choice palav.mp3",
-            "Na My Turn.mp3",
-            "Ogoni Anthem (Remastered).mp3",
-            "Ogoni Anthem.mp3",
-            "Rich Pauper.mp3",
-            "Senator Natasha’s Whisper.mp3",
-            "Sharing Formula.mp3",
-            "Show Of Shame v3 (Remastered).mp3",
-            "Subsidy.mp3",
-            "Vex Money.mp3",
-            "Working on myself.mp3"
-        ];
-
-        let currentTrack = 0;
-        let isShuffle = true;
-        let isRepeat = false;
-        let playedTracks = [];
-        const audioPlayer = document.getElementById("audioPlayer");
-        const songTitle = document.getElementById("songTitle");
-        const playPauseIcon = document.getElementById("playPauseIcon");
-        const shuffleButton = document.getElementById("shuffleButton");
-        const repeatButton = document.getElementById("repeatButton");
-        const timeDisplay = document.getElementById("timeDisplay");
-
-        // Shuffle tracks
-        function shuffleTracks() {
-            for (let i = tracks.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [tracks[i], tracks[j]] = [tracks[j], tracks[i]]; // Swap elements
-            }
-        }
-
-        function playRandomTrack() {
-            const trackName = tracks[0]; // Get the first track from the shuffled array
-            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
-            const musicPlayer = document.getElementById("audioPlayer");
-            const trackSource = document.createElement("source");
-            trackSource.src = trackURL;
-            trackSource.type = "audio/mp3";
-            audioPlayer.innerHTML = ""; // Clear previous sources
-            audioPlayer.appendChild(trackSource); // Add new track source
-            audioPlayer.load();
-            audioPlayer.play();
-        }
-
-        document.getElementById('audioPlayer').addEventListener('ended', function() {
-            shuffleTracks(); // Shuffle tracks before playing the next one
-            playRandomTrack();
-        });
-
-        window.onload = function() {
-            shuffleTracks(); // Shuffle tracks on page load
-            playRandomTrack(); // Play the first track from the shuffled list
-        }
-
-        // Go back to landing page
-        function goBackToLanding() {
-            window.location.href = 'index.html';  // Replace with the path to your index.html
-        }
-    </script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Player</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #111;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        .player-container {
-            max-width: 400px;
-            margin: auto;
-            background: #222;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.2);
-        }
-        .song-title {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        button:hover {
-            transform: scale(1.2);
-        }
-        #volumeSlider {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .button-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .button.back-to-landing {
-            background: linear-gradient(135deg, #ff7e5f, #feb47b);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 18px;
-            cursor: pointer;
             z-index: 100;
-            width: 50px;
+            width: 150px;
             height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+            transform: scale(1); /* Initial size */
         }
 
         .button.back-to-landing:hover {
-            background: linear-gradient(135deg, #feb47b, #ff7e5f);
+            background: linear-gradient(45deg, #feb47b, #ff7e5f);
             transform: scale(1.1);
-            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
         }
 
     </style>
@@ -275,6 +102,30 @@
         <p class="song-title" id="songTitle">Loading...</p>
         <audio id="audioPlayer" autoplay loop></audio>
         <p id="timeDisplay">0:00 / 0:00</p>
+
+        <!-- Track selection dropdown -->
+        <select id="trackSelector" onchange="changeTrack()">
+            <option value="A%20Very%20Good%20Bad%20Guy%20v3.mp3">A Very Good Bad Guy v3</option>
+            <option value="Dem%20Wan%20Shut%20Me%20Up.mp3">Dem Wan Shut Me Up</option>
+            <option value="EFCC.mp3">EFCC</option>
+            <option value="Emergency.mp3">Emergency</option>
+            <option value="Film%20Trick%20Election.mp3">Film Trick Election</option>
+            <option value="Gbas%20Gbos.mp3">Gbas Gbos</option>
+            <option value="Kindness%20(Remastered).mp3">Kindness (Remastered)</option>
+            <option value="Locked%20Away.mp3">Locked Away</option>
+            <option value="Multi%20choice%20palava.mp3">Multi choice palav</option>
+            <option value="Na%20My%20Turn.mp3">Na My Turn</option>
+            <option value="Ogoni%20Anthem%20(Remastered).mp3">Ogoni Anthem (Remastered)</option>
+            <option value="Ogoni%20Anthem.mp3">Ogoni Anthem</option>
+            <option value="Rich%20Pauper.mp3">Rich Pauper</option>
+            <option value="Senator%20Natasha’s%20Whisper.mp3">Senator Natasha’s Whisper</option>
+            <option value="Sharing%20Formula.mp3">Sharing Formula</option>
+            <option value="Show%20Of%20Shame%20v3%20(Remastered).mp3">Show Of Shame v3 (Remastered)</option>
+            <option value="Subsidy.mp3">Subsidy</option>
+            <option value="Vex%20Money.mp3">Vex Money</option>
+            <option value="Working%20on%20myself.mp3">Working on myself</option>
+        </select>
+
         <div class="controls">
             <button onclick="prevTrack()"><i class="fa-solid fa-backward"></i></button>
             <button onclick="togglePlay()" id="playPauseButton"><i id="playPauseIcon" class="fa-solid fa-play"></i></button>
@@ -356,97 +207,22 @@
             playRandomTrack(); // Play the first track from the shuffled list
         }
 
-        function togglePlay() {
-            if (audioPlayer.paused) {
-                audioPlayer.play().catch(error => console.log("Playback error:", error));
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
-            } else {
-                audioPlayer.pause();
-                playPauseIcon.classList.replace("fa-pause", "fa-play");
-            }
-        }
-
-        function nextTrack() {
-            if (isShuffle) {
-                playRandomTrack();
-            } else {
-                currentTrack = (currentTrack + 1) % tracks.length;
-                loadTrack(currentTrack);
-                audioPlayer.play();
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
-            }
-        }
-
-        function prevTrack() {
-            currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
-            loadTrack(currentTrack);
+        // Change track when user selects from dropdown
+        function changeTrack() {
+            const trackSelector = document.getElementById('trackSelector');
+            const trackName = trackSelector.value;
+            const trackURL = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${trackName}`;
+            const musicPlayer = document.getElementById("audioPlayer");
+            const trackSource = document.createElement("source");
+            trackSource.src = trackURL;
+            trackSource.type = "audio/mp3";
+            audioPlayer.innerHTML = ""; // Clear previous sources
+            audioPlayer.appendChild(trackSource); // Add new track source
+            audioPlayer.load();
             audioPlayer.play();
-            playPauseIcon.classList.replace("fa-play", "fa-pause");
         }
 
-        function toggleShuffle() {
-            isShuffle = !isShuffle;
-            shuffleButton.style.color = isShuffle ? "limegreen" : "white";
-        }
-
-        function toggleRepeat() {
-            isRepeat = !isRepeat;
-            repeatButton.style.color = isRepeat ? "limegreen" : "white";
-            audioPlayer.loop = isRepeat;
-        }
-
-        function changeVolume(value) {
-            audioPlayer.volume = value;
-        }
-
-        function updateTime() {
-            let currentTime = Math.floor(audioPlayer.currentTime);
-            let duration = Math.floor(audioPlayer.duration) || 0;
-
-            let currentMinutes = Math.floor(currentTime / 60);
-            let currentSeconds = currentTime % 60;
-            let durationMinutes = Math.floor(duration / 60);
-            let durationSeconds = duration % 60;
-
-            currentSeconds = currentSeconds < 10 ? `0${currentSeconds}` : currentSeconds;
-            durationSeconds = durationSeconds < 10 ? `0${durationSeconds}` : durationSeconds;
-
-            timeDisplay.textContent = `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
-        }
-
-        // Auto-update time display
-        audioPlayer.addEventListener("timeupdate", updateTime);
-
-        // Auto-play next song when current song ends
-        audioPlayer.addEventListener("ended", () => {
-            if (!isRepeat) nextTrack();
-        });
-
-        // Handle play/pause messages from parent `chat.html`
-        window.addEventListener("message", (event) => {
-            if (event.data.action === "play") {
-                audioPlayer.play().catch(error => console.log("Playback error:", error));
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
-            } else if (event.data.action === "pause") {
-                audioPlayer.pause();
-                playPauseIcon.classList.replace("fa-pause", "fa-play");
-            }
-        });
-
-        // Mute functionality
-        function toggleMute() {
-            const muteButton = document.getElementById("muteButton");
-            if (isMuted) {
-                audioPlayer.muted = false;
-                muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-            } else {
-                audioPlayer.muted = true;
-                muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-            }
-            isMuted = !isMuted;
-        }
-
-        // Redirect to the landing page (index.html)
+        // Go back to landing page
         function goBackToLanding() {
             window.location.href = 'index.html';  // Replace with the path to your index.html
         }
