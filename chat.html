@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Àríyọ̀ AI Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background: #000;
             margin: 0;
             padding: 0;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100dvh;
             overflow: hidden;
         }
         .chat-container {
@@ -34,91 +31,86 @@
         .close-button, .mute-button {
             position: fixed;
             right: 15px;
-            background: #ff4757;
+            background: #333;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 20px;
             cursor: pointer;
             z-index: 10;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .close-button {
             top: 15px;
         }    
         .mute-button {
-            top: 60px;
-            background: #1e90ff;
-            transition: top 0.3s ease-in-out;
+            top: 65px;
         }
 
-        /* Fix for mobile screens */
         @media screen and (max-width: 768px) {
-            .chat-container {
-                height: 100dvh;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-            }
-            iframe {
+            .chat-container, iframe {
                 height: 100dvh;
             }
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
+    <div class="chat-container" id="chatContainer">
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
-    <button class="close-button" onclick="closeChat()">Close</button>
-   <button class="mute-button" id="muteButton" onclick="toggleMute()">Mute</button>
-    
+
+    <button class="close-button" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
+    <button class="mute-button" id="muteButton"><i class="fa-solid fa-volume-high"></i></button>
+
     <iframe id="musicIframe" src="music.html" style="display: none;"></iframe> 
-    
+
     <script>
+        let isMuted = false;
+
         function closeChat() {
-            window.history.back();
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.style.display = 'none';
         }
 
-        // Detect when the keyboard appears and adjust the iframe height
+        document.querySelector('.close-button').addEventListener('click', closeChat);
+
         function adjustForKeyboard() {
             const chatbotIframe = document.getElementById('chatbot');
-            const muteButton = document.getElementById('muteButton');
+            const muteButton = document.querySelector('.mute-button');
             const initialHeight = window.innerHeight;
 
             window.addEventListener('resize', () => {
-                const currentHeight = window.innerHeight;
-
-                if (currentHeight < initialHeight) {
-                    // Keyboard is open, reduce iframe height
+                if (window.innerHeight < initialHeight) {
                     chatbotIframe.style.height = "80dvh";
-                    muteButton.style.top = "100px"; // Adjust as needed
+                    muteButton.style.top = "100px";
                 } else {
-                    // Keyboard is closed, restore iframe height
                     chatbotIframe.style.height = "100dvh";
                     muteButton.style.top = "60px";
                 }
             });
         }
 
-        adjustForKeyboard();
-
-        // Mute/Unmute functionality
-        let isMuted = false;
         function toggleMute() {
             const musicIframe = document.getElementById("musicIframe");
             const muteButton = document.getElementById("muteButton");
 
             if (isMuted) {
-                musicIframe.src = "music.html"; // Restart audio
-                muteButton.textContent = "Mute";
+                musicIframe.src = "music.html";
+                muteButton.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
             } else {
-                musicIframe.src = ""; // Stop audio
-                muteButton.textContent = "Unmute";
+                musicIframe.src = "";
+                muteButton.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
             }
 
             isMuted = !isMuted;
         }
     </script>
+
+    <button class="close-button" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
+    <button class="mute-button" id="muteButton" onclick="adjustMute()"><i class="fa-solid fa-volume-high"></i></button>
 </body>
 </html>
