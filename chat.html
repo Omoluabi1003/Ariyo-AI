@@ -15,6 +15,7 @@
             overflow: hidden;
             transition: background 0.3s ease-in-out;
         }
+
         .chat-container {
             width: 100vw;
             height: 100vh;
@@ -25,21 +26,30 @@
             transition: height 0.3s ease-in-out;
             position: relative;
         }
+
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        .button {
+
+        .button-container {
             position: fixed;
-            right: 15px;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 15px; /* Space between buttons */
+            z-index: 100; /* Higher z-index for chat */
+        }
+
+        .button {
             background: linear-gradient(135deg, #ff7e5f, #feb47b);
             color: white;
             border: none;
             border-radius: 50%;
             font-size: 18px;
             cursor: pointer;
-            z-index: 100; /* Higher z-index for chat */
             width: 40px;
             height: 40px;
             display: flex;
@@ -47,31 +57,28 @@
             justify-content: center;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
             transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-            margin-bottom: 10px; /* Spacing between icons */
         }
+
         .button:hover {
             background: linear-gradient(135deg, #feb47b, #ff7e5f);
             transform: scale(1.1);
             box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
         }
-        .close-button { top: 15px; }
-        .mute-button { top: 65px; }
 
-        @media screen and (max-width: 768px) {
-            /* Ensuring responsiveness */
-            .button {
-                right: 10px; /* Adjust the position for smaller screens */
-            }
-            iframe {
-                height: 100vh;
-            }
+        .button.close-button {
+            /* No changes needed for close button */
         }
 
-        @media screen and (min-width: 768px) {
-            /* Ensure the desktop version stays visible */
-            .button {
-                top: 10px; /* Ensure buttons are not overlapping */
-                right: 10px; /* For desktop view */
+        .button.mute-button {
+            /* No changes needed for mute button */
+        }
+
+        /* Media query to adjust button positioning on mobile */
+        @media screen and (max-width: 768px) {
+            .button-container {
+                top: 5px;
+                right: 5px;
+                gap: 10px; /* Reduced space between buttons on mobile */
             }
         }
     </style>
@@ -110,9 +117,12 @@
         <option value="Sharing%20Formula.mp3">Sharing Formula</option>
     </select>
 
-    <!-- Close button for the chat -->
-    <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
-    <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
+    <!-- Button container for mute and close actions -->
+    <div class="button-container">
+        <!-- Close button for the chat -->
+        <button class="button close-button" onclick="closeChat()" aria-label="Close chat"><i class="fa-solid fa-xmark"></i></button>
+        <button class="button mute-button" id="muteButton" onclick="toggleMute()" aria-label="Mute or unmute music"><i class="fa-solid fa-volume-high"></i></button>
+    </div>
 
     <script>
         let isMuted = false;
