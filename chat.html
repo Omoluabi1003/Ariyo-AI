@@ -18,7 +18,7 @@
         .chat-container {
             width: 100vw;
             height: 100dvh;
-            display: flex;
+            display: none; /* Initially hidden */
             justify-content: center;
             align-items: center;
             background: #111;
@@ -79,6 +79,8 @@
     </style>
 </head>
 <body>
+    <button class="button" onclick="openChat()" aria-label="Open chat"><i class="fa-solid fa-comments"></i></button>
+    
     <div class="chat-container" id="chatContainer">
         <iframe id="chatbot" src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Àríyọ̀ AI Chat"></iframe>
     </div>
@@ -93,6 +95,12 @@
 
     <script>
         let isMuted = false;
+
+        // Open the chat
+        function openChat() {
+            document.getElementById('chatContainer').style.display = 'flex'; // Show the chat container
+            localStorage.setItem('chatClosed', 'false');
+        }
 
         // Close the chat and reveal music player
         function closeChat() {
