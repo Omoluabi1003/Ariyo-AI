@@ -10,7 +10,6 @@
         body {
             font-family: 'Inter', sans-serif;
             text-align: center;
-            background: url('Naija AI.jpg') center/cover no-repeat;
             color: white;
             height: 100vh;
             display: flex;
@@ -78,30 +77,25 @@
             position: fixed;
             bottom: 10px;
             right: 10px;
-            width: 200px; /* Increased the width for a bigger size */
-            height: 150px; /* Increased the height for a bigger size */
-            border-radius: 10px; /* Rounded corners */
+            width: 60px; /* Width for the chatbot image */
+            height: 60px; /* Height for the chatbot image */
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 10px;
-            color: white;
-            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
+            justify-content: center;
             cursor: pointer;
             z-index: 2000;
             transition: all 0.3s ease-in-out;
             background: none; /* No background for the chatbot */
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5);
         }
 
         .chat-container:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .chat-message {
-            font-size: 18px; /* Adjust font size for the message */
-            font-weight: bold;
-            text-align: center;
+        .chat-container img {
+            width: 50px; /* Adjust the image size */
+            height: 50px; /* Adjust the image size */
         }
 
         .news-item a {
@@ -181,83 +175,32 @@
     </audio>
 
     <script>
-        function expandChatbot() {
-            let chatbot = document.getElementById("chatbot");
-            let isExpanded = chatbot.style.width === "95%";
-            chatbot.style.width = isExpanded ? "60px" : "95%";
-            chatbot.style.height = isExpanded ? "60px" : "95%";
-            chatbot.style.bottom = isExpanded ? "20px" : "2%";
-            chatbot.style.right = isExpanded ? "20px" : "2%";
-            chatbot.style.borderRadius = isExpanded ? "50%" : "10px";
-            chatbot.style.background = isExpanded ? "rgba(0, 0, 0, 0.7)" : "rgba(0, 0, 0, 0.9)";
-            chatbot.style.border = isExpanded ? "2px solid white" : "3px solid white";
-        }
-        document.addEventListener("DOMContentLoaded", () => {
-            fetchNaijaNews();
-            retypeText();
-        });
+        // List of background images
+        const backgrounds = [
+            'Naija AI.jpg',
+            'Naija AI2.jpg',
+            'Naija AI3.jpg'
+        ];
 
-        async function fetchNaijaNews() {
-            const RSS_SOURCES = [
-                "https://www.premiumtimesng.com/feed",
-                "https://www.vanguardngr.com/feed/",
-                "https://rss.punchng.com/v1/category/latest_news"
-            ];
-            let newsHTML = "<h2>Latest Naija News</h2>";
-            for (let rssUrl of RSS_SOURCES) {
-                try {
-                    let response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-                    let data = await response.json();
-                    if (data.items) {
-                        data.items.slice(0, 3).forEach(news => {
-                            newsHTML += `<div class='news-item'><a href="${news.link}" target="_blank">${news.title}</a>
-                            <p style='font-size: 12px;'>🕛 ${new Date(news.pubDate).toLocaleString()}</p></div>`;
-                        });
-                    }
-                } catch (error) {
-                    console.error("RSS Fetch Error:", error);
-                }
-            }
-            document.getElementById("naija-news").innerHTML = newsHTML;
-        }
+        let currentIndex = 0;
 
-        function toggleDarkMode() {
-            document.body.classList.toggle("light-mode");
-            let isLightMode = document.body.classList.contains("light-mode");
-            localStorage.setItem("darkMode", isLightMode ? "on" : "off");
+        // Function to change the background image
+        function changeBackground() {
+            // Get the body element
+            const body = document.querySelector('body');
+
+            // Set the background image to the current image in the array
+            body.style.backgroundImage = `url('${backgrounds[currentIndex]}')`;
             
-            // Update button icon
-            document.querySelector(".icon-button").innerHTML = isLightMode ? "🌞" : "🌙";
+            // Increment the index to change to the next image
+            currentIndex = (currentIndex + 1) % backgrounds.length;
         }
 
-        // Ensure dark mode persists
-        document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem("darkMode") === "on") {
-                document.body.classList.add("light-mode");
-                document.querySelector(".icon-button").innerHTML = "🌞";
-            }
-        });
+        // Change background every 10 seconds (adjust the time as needed)
+        setInterval(changeBackground, 10000);
 
-        function shareSite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: "Àríyò AI",
-                    text: "Check out this smart Naija AI!",
-                    url: window.location.href
-                }).catch(error => console.error("Share failed:", error));
-            } else {
-                alert("Sharing not supported on this device.");
-            }
-        }
-
-        function toggleMute() {
-            let audio = document.getElementById("background-music");
-            audio.muted = !audio.muted;
-        }
+        // Initial call to set the background when the page loads
+        changeBackground();
     </script>
-
-    <div class="chat-container" id="chatbot" onclick="window.open('chat.html', '_self')">
-        <div class="chat-message">How far now?</div>
-    </div>
 </body>
 </html>
