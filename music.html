@@ -79,7 +79,7 @@
     <div class="player-container">
         <h2>Music Player</h2>
         <p class="song-title" id="songTitle">Loading...</p>
-        <audio id="audioPlayer"></audio>
+        <audio id="audioPlayer" autoplay loop></audio>
         <p id="timeDisplay">0:00 / 0:00</p>
         <div class="controls">
             <button onclick="prevTrack()"><i class="fa-solid fa-backward"></i></button>
@@ -133,7 +133,7 @@
             if (index < 0) index = songs.length - 1;
             if (index >= songs.length) index = 0;
             currentTrack = index;
-            audioPlayer.src = songs[currentTrack];
+            audioPlayer.src = `https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/${songs[currentTrack]}`;
             songTitle.textContent = songs[currentTrack].replace(".mp3", "");
             playPauseIcon.classList.replace("fa-pause", "fa-play");
         }
@@ -249,8 +249,14 @@
             document.querySelector('.player-container').style.display = 'none';
         }
 
-        // Load first song
+        // Start with the first track
         loadTrack(0);
+
+        // Automatically start music when page loads
+        window.onload = function() {
+            loadTrack(0);
+            audioPlayer.play();
+        }
     </script>
 
 </body>
