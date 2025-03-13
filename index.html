@@ -78,6 +78,7 @@
         }
         .news-item a:hover {
             color: red;
+            text-decoration: underline;
         }
         body.light-mode .news-item a {
             color: #222;
@@ -109,7 +110,7 @@
 
         body.light-mode {
             --bg-color: #f9fafb;
-            --text-color: #222; /* Darker text for better contrast */
+            --text-color: #222;
             --box-bg: rgba(0, 0, 0, 0.1);
             --border-color: #666;
             --gradient-bg: linear-gradient(135deg, #e2e8f0, #f8fafc);
@@ -171,7 +172,7 @@
     </div>
 
     <div id="naija-news" style="position: relative; overflow-y: auto; height: 500px; padding-bottom: 60px;">
-        <div class="chat-container" id="chatbot" onclick="expandChatbot()" style="position: absolute; bottom: 10px; right: 10px; width: 50px; height: 50px; transition: all 0.3s ease-in-out; background: none; border: 1px solid white;">
+        <div class="chat-container" id="chatbot" onclick="expandChatbot()" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; transition: all 0.3s ease-in-out; background: rgba(0, 0, 0, 0.7); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1000;">
             <img src="chatbot.png" alt="Chatbot" style="width: 50px; height: 50px;">
         </div>
         Loading Naija News...</div>
