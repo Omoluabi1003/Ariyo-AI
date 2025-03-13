@@ -45,8 +45,6 @@
             width: 100%;
             margin-top: 10px;
         }
-
-        /* Track selection dropdown */
         select {
             background: #222;
             color: white;
@@ -57,14 +55,24 @@
             font-size: 16px;
             width: 100%;
         }
-
-        .button-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+        .nav-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .nav-button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+        .nav-button:hover {
+            background: #0056b3;
         }
     </style>
 </head>
@@ -76,7 +84,6 @@
         <audio id="audioPlayer" controls></audio>
         <p id="timeDisplay">0:00 / 0:00</p>
 
-        <!-- Track selection dropdown -->
         <select id="trackSelector" onchange="changeTrack()">
             <!-- Music options will be added dynamically -->
         </select>
@@ -88,32 +95,35 @@
             <button onclick="toggleShuffle()" id="shuffleButton"><i class="fa-solid fa-random"></i></button>
             <button onclick="toggleRepeat()" id="repeatButton"><i class="fa-solid fa-repeat"></i></button>
         </div>
+
         <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="changeVolume(this.value)">
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <button class="nav-button" onclick="goToIndex()">🏠 Back to Home</button>
+            <button class="nav-button" onclick="goToChat()">💬 Back to Chat</button>
+        </div>
     </div>
 
     <script>
         let musicLinks = [
-            { name: "Track 1 - Afro Vibes", url: "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/song1.mp3" },
-            { name: "Track 2 - Lagos Nights", url: "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/song2.mp3" },
-            { name: "Track 3 - Naija Groove", url: "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/song3.mp3" }
+            { name: "A Very Good Bad Guy v3", url: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A_Very_Good_Bad_Guy_v3.mp3" },
+            { name: "Dem Wan Shut Me Up", url: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem_Wan_Shut_Me_Up.mp3" },
+            { name: "EFCC", url: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3" },
+            { name: "Emergency", url: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3" },
+            { name: "Film Trick Election", url: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film_Trick_Election.mp3" },
+            { name: "Vex Money", url: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex_Money.mp3" }
         ];
-        
-        let currentTrack = 0;
-        const audioPlayer = document.getElementById("audioPlayer");
-        const songTitle = document.getElementById("songTitle");
-        const trackSelector = document.getElementById("trackSelector");
-        const playPauseIcon = document.getElementById("playPauseIcon");
 
         function populateTrackSelector() {
             trackSelector.innerHTML = "";
-            musicLinks.forEach((track, index) => {
+            musicLinks.forEach((track) => {
                 const option = document.createElement('option');
                 option.value = track.url;
                 option.textContent = track.name;
                 trackSelector.appendChild(option);
             });
 
-            // Load saved track from localStorage
             let savedTrack = localStorage.getItem("currentTrack");
             if (savedTrack) {
                 trackSelector.value = savedTrack;
@@ -129,7 +139,6 @@
 
             if (autoPlay) {
                 audioPlayer.play();
-                playPauseIcon.classList.replace("fa-play", "fa-pause");
             }
         }
 
@@ -144,53 +153,43 @@
         }
 
         function prevTrack() {
-            currentTrack = (currentTrack - 1 + musicLinks.length) % musicLinks.length;
-            trackSelector.value = musicLinks[currentTrack].url;
+            let index = trackSelector.selectedIndex - 1;
+            trackSelector.selectedIndex = index < 0 ? musicLinks.length - 1 : index;
             changeTrack(true);
         }
 
         function nextTrack() {
-            currentTrack = (currentTrack + 1) % musicLinks.length;
-            trackSelector.value = musicLinks[currentTrack].url;
+            let index = trackSelector.selectedIndex + 1;
+            trackSelector.selectedIndex = index >= musicLinks.length ? 0 : index;
             changeTrack(true);
         }
 
         function toggleShuffle() {
-            currentTrack = Math.floor(Math.random() * musicLinks.length);
-            trackSelector.value = musicLinks[currentTrack].url;
+            let index = Math.floor(Math.random() * musicLinks.length);
+            trackSelector.selectedIndex = index;
             changeTrack(true);
         }
 
         function toggleRepeat() {
             audioPlayer.loop = !audioPlayer.loop;
-            document.getElementById("repeatButton").classList.toggle("active", audioPlayer.loop);
-        }
-
-        function changeVolume(value) {
-            audioPlayer.volume = value;
-            localStorage.setItem("volume", value);
         }
 
         function updateTrackTime() {
-            const timeDisplay = document.getElementById("timeDisplay");
-            let currentTime = Math.floor(audioPlayer.currentTime);
-            let duration = Math.floor(audioPlayer.duration);
-            timeDisplay.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+            let timeDisplay = document.getElementById("timeDisplay");
+            timeDisplay.textContent = `${Math.floor(audioPlayer.currentTime)} / ${Math.floor(audioPlayer.duration)}`;
         }
 
-        function formatTime(seconds) {
-            let minutes = Math.floor(seconds / 60);
-            let remainingSeconds = seconds % 60;
-            return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+        function goToIndex() {
+            window.location.href = "index.html";
         }
 
-        audioPlayer.addEventListener("timeupdate", updateTrackTime);
+        function goToChat() {
+            window.location.href = "chat.html";
+        }
 
         window.onload = function() {
             populateTrackSelector();
-            let savedVolume = localStorage.getItem("volume") || 1;
-            audioPlayer.volume = savedVolume;
-            document.getElementById("volumeSlider").value = savedVolume;
+            audioPlayer.addEventListener("timeupdate", updateTrackTime);
         };
     </script>
 
