@@ -166,7 +166,7 @@
 
     /* Music Player */
     .music-player {
-      background: rgba(34, 34, 34, 0.9);
+      background: rgba(34, 34, 34, 0.7); /* slightly transparent */
       padding: 10px;
       text-align: center;
       border-radius: 10px;
@@ -293,9 +293,11 @@
     .chatbot-container {
       position: fixed;
       bottom: 170px;
-      right: 20px;
-      width: 300px;
-      height: 450px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 600px;
+      height: 80vh; /* equal vertical height to the track modal */
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       background: white;
@@ -378,16 +380,33 @@
     .watermark {
       position: absolute;
       font-size: 2rem;
-      color: rgba(255,255,255,0.2);
+      color: rgba(255, 255, 255, 0.5);
       text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
       white-space: nowrap;
-      animation: drift 30s linear infinite;
     }
-    @keyframes drift {
-      0%   { transform: translate(0, 0) rotate(0deg); }
+    /* Different drift animations for varied directions */
+    @keyframes drift1 {
+      0% { transform: translate(0, 0) rotate(0deg); }
       100% { transform: translate(200vw, 200vh) rotate(360deg); }
     }
-
+    @keyframes drift2 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-200vw, -200vh) rotate(-360deg); }
+    }
+    @keyframes drift3 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(200vw, -200vh) rotate(360deg); }
+    }
+    @keyframes drift4 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-200vw, 200vh) rotate(-360deg); }
+    }
+    .drift1 { animation: drift1 30s linear infinite; }
+    .drift2 { animation: drift2 30s linear infinite; }
+    .drift3 { animation: drift3 30s linear infinite; }
+    .drift4 { animation: drift4 30s linear infinite; }
+    
+    /* Additional watermarks for at least 10 elements (here we have 12) */
     /* Responsive Media Queries */
     @media (max-width: 768px) {
       .sidebar {
@@ -400,7 +419,6 @@
         flex-direction: column;
       }
       .music-player {
-        /* For tablet sizes, you may let it be static */
         position: static;
         transform: none;
         margin: 20px auto 0 auto;
@@ -420,6 +438,7 @@
       .chatbot-bubble-container {
         width: 60px;
         height: 60px;
+        bottom: 240px;
       }
       .chatbot-float-icon {
         width: 60px;
@@ -428,7 +447,6 @@
       .watermark {
         font-size: 1.4rem;
       }
-      /* On very small screens, keep the music player fixed at the bottom */
       .music-player {
         position: fixed;
         bottom: 0;
@@ -439,13 +457,8 @@
         padding: 10px 5px;
         z-index: 200;
       }
-      /* Ensure chatbot is above the music player */
-      .chatbot-container {
-        z-index: 300;
-      }
-      .chatbot-bubble-container {
-        z-index: 310;
-      }
+      .chatbot-container { z-index: 300; }
+      .chatbot-bubble-container { z-index: 310; }
     }
   </style>
 </head>
@@ -546,11 +559,18 @@
 
   <!-- Floating Watermarks -->
   <div class="floating-watermarks">
-    <div class="watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 30%; left: 15%;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 50%; left: 2%;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 70%; left: 20%;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 85%; left: 10%;">Omoluabi Productions</div>
+    <div class="watermark drift1" style="top: 10%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark drift2" style="top: 25%; left: 20%;">Omoluabi Productions</div>
+    <div class="watermark drift3" style="top: 40%; left: 10%;">Omoluabi Productions</div>
+    <div class="watermark drift4" style="top: 55%; left: 30%;">Omoluabi Productions</div>
+    <div class="watermark drift1" style="top: 70%; left: 15%;">Omoluabi Productions</div>
+    <div class="watermark drift2" style="top: 85%; left: 25%;">Omoluabi Productions</div>
+    <div class="watermark drift3" style="top: 20%; left: 50%;">Omoluabi Productions</div>
+    <div class="watermark drift4" style="top: 65%; left: 60%;">Omoluabi Productions</div>
+    <div class="watermark drift1" style="top: 30%; left: 70%;">Omoluabi Productions</div>
+    <div class="watermark drift2" style="top: 50%; left: 80%;">Omoluabi Productions</div>
+    <div class="watermark drift3" style="top: 15%; left: 85%;">Omoluabi Productions</div>
+    <div class="watermark drift4" style="top: 75%; left: 5%;">Omoluabi Productions</div>
   </div>
 
   <script>
