@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Àríyò AI - Smart Naija AI</title>
 
   <!-- Google Fonts -->
@@ -24,6 +24,13 @@
   ></script>
 
   <style>
+    /* Ensure full height and proper background for mobile */
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #000;
+    }
+
     /* ------------------------------------
        BASIC & RESPONSIVE STYLES
        ------------------------------------ */
@@ -42,9 +49,7 @@
     a {
       text-decoration: none;
     }
-
-    /* We keep the .dark-mode class in case you decide to reintroduce it later,
-       but it's not used now since we've removed the button & function. */
+    /* The .dark-mode class is preserved for future use */
     .dark-mode {
       background-color: #121212;
       color: #ffffff;
@@ -359,7 +364,8 @@
     .floating-watermarks {
       pointer-events: none;
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
@@ -431,7 +437,6 @@
 
   <div class="container">
     <div class="sidebar">
-      <!-- Removed the Dark Mode button -->
       <button onclick="showContent('news')">📰 Latest News</button>
       <button onclick="showContent('music')">🎵 Music Player</button>
     </div>
@@ -717,7 +722,6 @@
       return min + ':' + (sec < 10 ? '0' + sec : sec);
     }
 
-    // Auto-play next track on end
     audioPlayer.addEventListener('ended', () => {
       clearInterval(trackTimeInterval);
       if (shuffleMode) {
@@ -757,15 +761,12 @@
 
     function toggleShuffle() {
       shuffleMode = !shuffleMode;
-      // The last button in the row. Let's target it precisely:
       const controls = document.querySelector(".music-controls.icons-only");
       const shuffleBtn = controls.querySelector('button:nth-child(6)');
       shuffleBtn.textContent = shuffleMode ? '🔀(ON)' : '🔀';
     }
 
-    /* ---------------------------------------------
-       Changing Chatbot Bubble Repeatedly
-       --------------------------------------------- */
+    /* Changing Chatbot Bubble Repeatedly */
     const chatbotBubble = document.getElementById('chatbotBubble');
     const chatbotMessages = ["How far?", "You dey alright?", "Wetin dey?"];
     let msgIndex = 0;
@@ -773,7 +774,7 @@
     setInterval(() => {
       msgIndex = (msgIndex + 1) % chatbotMessages.length;
       chatbotBubble.textContent = chatbotMessages[msgIndex];
-    }, 4000);  // cycle text every 4 seconds
+    }, 4000);
   </script>
 </body>
 </html>
