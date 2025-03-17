@@ -49,21 +49,21 @@
     a {
       text-decoration: none;
     }
-    /* The .dark-mode class is preserved for future use */
     .dark-mode {
       background-color: #121212;
       color: #ffffff;
     }
 
-    /* Header */
+    /* Header with safe-area inset for mobile */
     .header {
-      background: rgba(0, 123, 255, 0.9);
-      padding: 15px;
+      padding-top: calc(15px + env(safe-area-inset-top));
+      padding-bottom: 15px;
       text-align: center;
       font-size: 24px;
       font-weight: bold;
       border-bottom: 2px solid white;
       box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+      background: rgba(0, 123, 255, 0.9);
       position: relative;
     }
     .share-button {
@@ -132,6 +132,13 @@
       transition: opacity 0.5s ease-in-out;
     }
 
+    /* Mobile: Constrain content area so it doesn't scroll endlessly */
+    @media (max-width: 480px) {
+      .content {
+        margin-bottom: 220px; /* leave space for fixed music player */
+      }
+    }
+
     /* News Container (Multiple Feeds) */
     .news-container {
       margin-top: 20px;
@@ -178,7 +185,7 @@
       border-radius: 50%;
       margin: 10px auto;
       display: block;
-      box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+      box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
       transition: transform 0.3s ease-in-out;
     }
     .spin {
@@ -211,7 +218,6 @@
     .music-controls.icons-only button:hover {
       transform: scale(1.1);
     }
-
     .track-info {
       margin-top: 10px;
       font-size: 18px;
@@ -226,7 +232,7 @@
     }
     .dropdown {
       width: 100%;
-      background: rgba(34, 34, 34, 0.8);
+      background: rgba(34,34,34,0.8);
       color: white;
       padding: 10px;
       border-radius: 5px;
@@ -245,7 +251,7 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
+      background-color: rgba(0,0,0,0.4);
     }
     .modal-content {
       background-color: #fefefe;
@@ -303,7 +309,6 @@
       border: none;
       border-radius: 10px;
     }
-
     .chatbot-bubble-container {
       position: fixed;
       bottom: 80px;
@@ -328,7 +333,6 @@
       50%  { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
     }
-
     /* Comic-style bubble for chatbot text */
     .chatbot-speech-bubble {
       position: absolute;
@@ -396,6 +400,7 @@
         flex-direction: column;
       }
       .music-player {
+        /* For tablet sizes, you may let it be static */
         position: static;
         transform: none;
         margin: 20px auto 0 auto;
@@ -422,6 +427,17 @@
       }
       .watermark {
         font-size: 1.4rem;
+      }
+      /* On very small screens, keep the music player fixed at the bottom */
+      .music-player {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        padding: 10px 5px;
+        z-index: 200;
       }
     }
   </style>
@@ -480,7 +496,6 @@
       <span class="close" onclick="closeTrackList()">&times;</span>
       <h3>Choose A Track</h3>
       <div class="track-list">
-        <!-- All 19 tracks, clickable -->
         <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'A Very Good Bad Guy v3')">A Very Good Bad Guy v3</a>
         <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
         <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', 'EFCC')">EFCC</a>
@@ -532,25 +547,20 @@
   </div>
 
   <script>
-    /* -------------------------------------------
-       SHARE BUTTON (Web Share API)
-       ------------------------------------------- */
+    /* SHARE BUTTON (Web Share API) */
     function shareContent() {
       if (navigator.share) {
         navigator.share({
           title: "Àríyò AI - Smart Naija AI",
           text: "Check out this awesome page!",
           url: window.location.href
-        })
-        .catch((err) => console.error("Share failed:", err));
+        }).catch((err) => console.error("Share failed:", err));
       } else {
         alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
       }
     }
 
-    /* ----------------------
-       CHATBOT TOGGLE
-       ---------------------- */
+    /* CHATBOT TOGGLE */
     function toggleChatbot() {
       const chatbot = document.getElementById('chatbotContainer');
       chatbot.style.display =
@@ -559,9 +569,7 @@
           : 'none';
     }
 
-    /* -------------------------------------------
-       BACKGROUND CYCLER: 3 Images, 30s Interval
-       ------------------------------------------- */
+    /* BACKGROUND CYCLER: 3 Images, 30s Interval */
     const backgrounds = [
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
@@ -569,19 +577,15 @@
     ];
     let currentBgIndex = 0;
     document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
-
     setInterval(() => {
       currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
       document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
     }, 30000);
 
-    /* ----------------------------------
-       SHOW CONTENT (NEWS or MUSIC)
-       ---------------------------------- */
+    /* SHOW CONTENT (NEWS or MUSIC) */
     function showContent(contentType) {
       const contentElem = document.getElementById('main-content');
       const newsContainer = document.getElementById('newsContainer');
-
       if (contentType === 'news') {
         contentElem.innerHTML = '<h2>Latest News</h2><p>Loading top Nigerian news sources...</p>';
         newsContainer.style.display = 'block';
@@ -590,7 +594,6 @@
         contentElem.innerHTML = '<h2>Music Player Section</h2><p>Check out the player below!</p>';
         newsContainer.style.display = 'none';
       }
-
       if (window.gsap) {
         gsap.to(contentElem, {opacity: 1, duration: 1});
       } else {
@@ -598,9 +601,7 @@
       }
     }
 
-    /* ---------------------------------------
-       MULTIPLE NIGERIAN NEWS RSS FEEDS
-       --------------------------------------- */
+    /* MULTIPLE NIGERIAN NEWS RSS FEEDS */
     const RSS_TO_JSON_API = 'https://api.rss2json.com/v1/api.json?rss_url=';
     const NIGERIAN_NEWS_FEEDS = [
       { name: 'The Guardian Nigeria', url: 'https://guardian.ng/feed' },
@@ -612,22 +613,18 @@
       { name: 'Nigerian Tribune', url: 'https://tribuneonlineng.com/feed' },
       { name: 'The Nation', url: 'https://thenationonlineng.net/feed' }
     ];
-
     async function loadAllNigeriaRSS() {
       const newsContainer = document.getElementById('newsContainer');
-      newsContainer.innerHTML = ''; // clear any previous content
-
+      newsContainer.innerHTML = '';
       for (let feed of NIGERIAN_NEWS_FEEDS) {
         try {
           const response = await fetch(RSS_TO_JSON_API + encodeURIComponent(feed.url));
           const data = await response.json();
-
           if (data && data.items) {
             const feedHeading = document.createElement('div');
             feedHeading.className = 'feed-title';
             feedHeading.textContent = feed.name;
             newsContainer.appendChild(feedHeading);
-
             data.items.forEach(item => {
               const newsItem = document.createElement('div');
               newsItem.className = 'rss-item';
@@ -650,19 +647,15 @@
       }
     }
 
-    /* ---------------------------------------
-       MUSIC PLAYER LOGIC (19 Tracks)
-       --------------------------------------- */
+    /* MUSIC PLAYER LOGIC (19 Tracks) */
     const audioPlayer = document.createElement('audio');
     audioPlayer.setAttribute('id', 'audioPlayer');
     document.body.appendChild(audioPlayer);
-
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
     const trackDuration = document.getElementById('trackDuration');
-
     let shuffleMode = false;
     let trackTimeInterval;
     let trackList = [
@@ -687,7 +680,6 @@
       { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', title: 'Working on myself' }
     ];
     let currentTrackIndex = 0;
-
     function playMusic() {
       if (audioPlayer.src) {
         audioPlayer.play();
@@ -695,13 +687,11 @@
         trackTimeInterval = setInterval(updateTrackTime, 1000);
       }
     }
-
     function pauseMusic() {
       audioPlayer.pause();
       albumCover.classList.remove('spin');
       clearInterval(trackTimeInterval);
     }
-
     function stopMusic() {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
@@ -709,19 +699,16 @@
       clearInterval(trackTimeInterval);
       trackDuration.textContent = '0:00 / 0:00';
     }
-
     function updateTrackTime() {
       let current = Math.floor(audioPlayer.currentTime);
       let duration = Math.floor(audioPlayer.duration) || 0;
       trackDuration.textContent = formatTime(current) + ' / ' + formatTime(duration);
     }
-
     function formatTime(seconds) {
       let min = Math.floor(seconds / 60);
       let sec = Math.floor(seconds % 60);
       return min + ':' + (sec < 10 ? '0' + sec : sec);
     }
-
     audioPlayer.addEventListener('ended', () => {
       clearInterval(trackTimeInterval);
       if (shuffleMode) {
@@ -731,8 +718,6 @@
         nextTrack();
       }
     });
-
-    /* PREVIOUS & NEXT button logic */
     function nextTrack() {
       currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
       selectTrack(trackList[currentTrackIndex].src, trackList[currentTrackIndex].title);
@@ -741,14 +726,12 @@
       currentTrackIndex = (currentTrackIndex - 1 + trackList.length) % trackList.length;
       selectTrack(trackList[currentTrackIndex].src, trackList[currentTrackIndex].title);
     }
-
     function openTrackList() {
       document.getElementById('trackModal').style.display = 'block';
     }
     function closeTrackList() {
       document.getElementById('trackModal').style.display = 'none';
     }
-
     function selectTrack(src, title) {
       audioPlayer.src = src;
       trackInfo.textContent = title;
@@ -758,19 +741,15 @@
       stopMusic();
       playMusic();
     }
-
     function toggleShuffle() {
       shuffleMode = !shuffleMode;
       const controls = document.querySelector(".music-controls.icons-only");
       const shuffleBtn = controls.querySelector('button:nth-child(6)');
       shuffleBtn.textContent = shuffleMode ? '🔀(ON)' : '🔀';
     }
-
-    /* Changing Chatbot Bubble Repeatedly */
     const chatbotBubble = document.getElementById('chatbotBubble');
     const chatbotMessages = ["How far?", "You dey alright?", "Wetin dey?"];
     let msgIndex = 0;
-
     setInterval(() => {
       msgIndex = (msgIndex + 1) % chatbotMessages.length;
       chatbotBubble.textContent = chatbotMessages[msgIndex];
