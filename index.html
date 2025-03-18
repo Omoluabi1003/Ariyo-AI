@@ -334,7 +334,9 @@
       0%   { transform: translateY(0px); }
       50%  { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
-   
+    }
+    /* Comic-style bubble for chatbot text */
+    .chatbot-speech-bubble {
       position: absolute;
       bottom: 90%;
       left: 50%;
@@ -454,7 +456,10 @@
         border-radius: 0;
         padding: 10px 5px;
         z-index: 200;
-     
+      }
+      .chatbot-container { z-index: 300; }
+      .chatbot-bubble-container { z-index: 310; }
+    }
   </style>
 </head>
 
@@ -544,7 +549,8 @@
     <div class="chatbot-speech-bubble" id="chatbotBubble">How far?</div>
   </div>
 
- 
+  <!-- Chatbot Container -->
+  <div class="chatbot-container" id="chatbotContainer">
     <iframe
       src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn"
       title="Chatbot"
