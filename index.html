@@ -274,7 +274,7 @@
       overflow: hidden;
       display: none;
       z-index: 101;
-      position: relative; /* For positioning close button */
+      position: relative;
     }
     .chatbot-container iframe, .sabi-bible-container iframe {
       width: 100%;
@@ -700,13 +700,42 @@
       currentAlbumIndex = albumIndex;
       currentTrackIndex = 0;
       albumCover.src = albums[currentAlbumIndex].cover;
-      selectTrack(
+      loadTrack(
         albums[currentAlbumIndex].tracks[currentTrackIndex].src,
         albums[currentAlbumIndex].tracks[currentTrackIndex].title,
         currentTrackIndex
       );
       updateTrackListModal();
       closeAlbumList();
+    }
+
+    function loadTrack(src, title, index) {
+      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      audioPlayer.src = src;
+      trackInfo.textContent = title;
+      trackArtist.textContent = 'Artist: Omoluabi';
+      trackYear.textContent = 'Release Year: 2025';
+      stopMusic(); // Ensure stopped state, no playback
+    }
+
+    function selectTrack(src, title, index) {
+      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      audioPlayer.src = src;
+      trackInfo.textContent = title;
+      trackArtist.textContent = 'Artist: Omoluabi';
+      trackYear.textContent = 'Release Year: 2025';
+      closeTrackList();
+      stopMusic();
+      audioPlayer.play()
+        .then(() => {
+          albumCover.classList.add('spin');
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+        })
+        .catch(error => {
+          console.error(`Error playing ${title}:`, error);
+        });
     }
 
     function playMusic() {
@@ -823,26 +852,6 @@
       console.log('Track list closed');
     }
 
-    function selectTrack(src, title, index) {
-      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
-      currentTrackIndex = index;
-      audioPlayer.src = src;
-      trackInfo.textContent = title;
-      trackArtist.textContent = 'Artist: Omoluabi';
-      trackYear.textContent = 'Release Year: 2025';
-      closeTrackList();
-      stopMusic();
-      audioPlayer.play()
-        .then(() => {
-          albumCover.classList.add('spin');
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
-        })
-        .catch(error => {
-          console.error(`Error playing ${title}:`, error);
-          alert(`Failed to play ${title}. Check console for details.`);
-        });
-    }
-
     function toggleShuffle() {
       shuffleMode = !shuffleMode;
       const controls = document.querySelector(".music-controls.icons-only");
@@ -869,7 +878,7 @@
       sabiBibleBubble.textContent = sabiBibleMessages[sabiMsgIndex];
     }, 4000);
 
-    // Initialize with the first album
+    // Initialize with the first album without playing
     selectAlbum(0);
   </script>
 </body>
