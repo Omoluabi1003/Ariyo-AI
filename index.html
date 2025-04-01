@@ -274,12 +274,32 @@
       overflow: hidden;
       display: none;
       z-index: 101;
+      position: relative; /* For positioning close button */
     }
     .chatbot-container iframe, .sabi-bible-container iframe {
       width: 100%;
       height: 100%;
       border: none;
       border-radius: 10px;
+    }
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      background: #ff758c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1rem;
+      line-height: 24px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 102;
+    }
+    .popup-close:hover {
+      background: #ff4060;
     }
     .chatbot-bubble-container {
       position: fixed;
@@ -521,6 +541,7 @@
 
   <!-- Chatbot Container -->
   <div class="chatbot-container" id="chatbotContainer">
+    <button class="popup-close" onclick="toggleChatbot()">×</button>
     <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Chatbot"></iframe>
   </div>
 
@@ -532,6 +553,7 @@
 
   <!-- Sabi Bible Container -->
   <div class="sabi-bible-container" id="sabiBibleContainer">
+    <button class="popup-close" onclick="toggleSabiBible()">×</button>
     <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7ve7fdl002jlclh8y1n6n1y" style="border: none;"></iframe>
   </div>
 
@@ -569,12 +591,14 @@
     function toggleChatbot() {
       const chatbot = document.getElementById('chatbotContainer');
       chatbot.style.display = chatbot.style.display === 'none' || chatbot.style.display === '' ? 'block' : 'none';
+      console.log(`Chatbot popup: ${chatbot.style.display === 'block' ? 'opened' : 'closed'}`);
     }
 
     /* SABI BIBLE TOGGLE */
     function toggleSabiBible() {
       const sabiBible = document.getElementById('sabiBibleContainer');
       sabiBible.style.display = sabiBible.style.display === 'none' || sabiBible.style.display === '' ? 'block' : 'none';
+      console.log(`Sabi Bible popup: ${sabiBible.style.display === 'block' ? 'opened' : 'closed'}`);
     }
 
     /* BACKGROUND CYCLER */
