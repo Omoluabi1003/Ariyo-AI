@@ -23,6 +23,9 @@
     defer
   ></script>
 
+  <!-- Web App Manifest (Step 4) -->
+  <link rel="manifest" href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/manifest.json">
+
   <style>
     /* Ensure full height and proper background */
     html, body {
@@ -160,6 +163,18 @@
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      display: none;
+      width: 30px;
+      height: 30px;
+      border: 4px solid #fff;
+      border-top: 4px solid #ff758c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
     }
 
     /* Icon-Only Music Controls */
@@ -346,7 +361,7 @@
       color: #000000;
       border: 3px solid #000000;
       border-radius: 15px;
-      font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+      font-family: "Comic Sans MS dove", "Chalkboard SE", sans-serif;
       font-size: clamp(0.8rem, 2vw, 0.9rem);
       padding: 0.6rem 1rem;
       white-space: nowrap;
@@ -442,7 +457,7 @@
 <body>
   <div class="header">
     Welcome to Àríyò AI 
-    <button class="share-button" onclick="shareContent()">
+    <button class="share-button" aria-label="Share this page" onclick="shareContent()">
       <i class="fas fa-share-alt"></i>
     </button>
   </div>
@@ -468,6 +483,7 @@
       src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
       alt="Album Cover"
     />
+    <div id="loadingSpinner" class="loading-spinner"></div>
     <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
@@ -480,23 +496,24 @@
       max="100"
       step="1"
       style="width: 90%; margin-top: 10px;"
+      aria-label="Seek bar for audio playback"
     />
-    <div class="dropdown" onclick="openTrackList()">🎵 Choose A Track</div>
+    <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
-      <button onclick="previousTrack()">⏮</button>
-      <button onclick="playMusic()">▶</button>
-      <button onclick="pauseMusic()">⏸</button>
-      <button onclick="stopMusic()">⏹</button>
-      <button onclick="nextTrack()">⏭</button>
-      <button onclick="toggleShuffle()">🔀</button>
+      <button aria-label="Previous track" onclick="previousTrack()">⏮</button>
+      <button aria-label="Play" onclick="playMusic()">▶</button>
+      <button aria-label="Pause" onclick="pauseMusic()">⏸</button>
+      <button aria-label="Stop" onclick="stopMusic()">⏹</button>
+      <button aria-label="Next track" onclick="nextTrack()">⏭</button>
+      <button aria-label="Toggle shuffle" onclick="toggleShuffle()">🔀</button>
     </div>
   </div>
 
   <!-- Modal for Album List -->
-  <div id="albumModal" class="modal">
+  <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
     <div class="modal-content">
-      <span class="close" onclick="closeAlbumList()">×</span>
-      <h3>Choose An Album</h3>
+      <span class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</span>
+      <h3 id="albumModalTitle">Choose An Album</h3>
       <div class="album-list">
         <a href="#" onclick="selectAlbum(0)">Album 1: Kindness</a>
         <a href="#" onclick="selectAlbum(1)">Album 2: Street Sense</a>
@@ -505,10 +522,10 @@
   </div>
 
   <!-- Modal for Track List -->
-  <div id="trackModal" class="modal">
+  <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
     <div class="modal-content">
-      <span class="close" onclick="closeTrackList()">×</span>
-      <h3>Choose A Track</h3>
+      <span class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</span>
+      <h3 id="trackModalTitle">Choose A Track</h3>
       <div class="track-list">
         <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'A Very Good Bad Guy v3')">A Very Good Bad Guy v3</a>
         <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', 'Dem Wan Shut Me Up')">Dem Wan Shut Me Up</a>
@@ -534,26 +551,26 @@
   </div>
 
   <!-- Chatbot Floating Icon & Comic Bubble -->
-  <div class="chatbot-bubble-container" onclick="toggleChatbot()">
+  <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
     <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
     <div class="chatbot-speech-bubble" id="chatbotBubble">How far?</div>
   </div>
 
   <!-- Chatbot Container -->
   <div class="chatbot-container" id="chatbotContainer">
-    <button class="popup-close" onclick="toggleChatbot()">×</button>
+    <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
     <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Chatbot"></iframe>
   </div>
 
   <!-- Sabi Bible Floating Icon & Comic Bubble -->
-  <div class="sabi-bible-bubble-container" onclick="toggleSabiBible()">
+  <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
     <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
     <div class="sabi-bible-speech-bubble" id="sabiBibleBubble">Sabi Bible dey here!</div>
   </div>
 
   <!-- Sabi Bible Container -->
   <div class="sabi-bible-container" id="sabiBibleContainer">
-    <button class="popup-close" onclick="toggleSabiBible()">×</button>
+    <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
     <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7ve7fdl002jlclh8y1n6n1y" style="border: none;"></iframe>
   </div>
 
@@ -617,6 +634,7 @@
     /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
     audioPlayer.id = 'audioPlayer';
+    audioPlayer.preload = 'auto'; // Preload audio for smoother playback
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
@@ -624,6 +642,7 @@
     const trackYear = document.getElementById('trackYear');
     const trackDuration = document.getElementById('trackDuration');
     const seekBar = document.getElementById('seekBar');
+    const loadingSpinner = document.getElementById('loadingSpinner');
     let shuffleMode = false;
 
     const albums = [
@@ -682,6 +701,31 @@
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
 
+    // LocalStorage Functions
+    function savePlayerState() {
+        const playerState = {
+            albumIndex: currentAlbumIndex,
+            trackIndex: currentTrackIndex,
+            playbackPosition: audioPlayer.currentTime,
+            shuffleMode: shuffleMode,
+            timestamp: new Date().getTime()
+        };
+        localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
+        console.log('Player state saved:', playerState);
+    }
+
+    function loadPlayerState() {
+        const savedState = localStorage.getItem('ariyoPlayerState');
+        if (savedState) {
+            const playerState = JSON.parse(savedState);
+            const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
+            if (ageInHours < 24) {
+                return playerState;
+            }
+        }
+        return null;
+    }
+
     function updateTrackListModal() {
       const trackListContainer = document.querySelector('.track-list');
       trackListContainer.innerHTML = '';
@@ -696,84 +740,130 @@
     }
 
     function selectAlbum(albumIndex) {
-      console.log(`Selecting album: ${albums[albumIndex].name}`);
-      currentAlbumIndex = albumIndex;
-      currentTrackIndex = 0;
-      albumCover.src = albums[currentAlbumIndex].cover;
-      loadTrack(
-        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-        currentTrackIndex
-      );
-      updateTrackListModal();
-      closeAlbumList();
+        console.log(`Selecting album: ${albums[albumIndex].name}`);
+        currentAlbumIndex = albumIndex;
+        currentTrackIndex = 0;
+        albumCover.src = albums[currentAlbumIndex].cover;
+        loadTrack(
+            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+            currentTrackIndex
+        );
+        updateTrackListModal();
+        closeAlbumList();
+        savePlayerState();
     }
 
     function loadTrack(src, title, index) {
-      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
-      currentTrackIndex = index;
-      audioPlayer.src = src;
-      trackInfo.textContent = title;
-      trackArtist.textContent = 'Artist: Omoluabi';
-      trackYear.textContent = 'Release Year: 2025';
-      stopMusic(); // Ensure stopped state, no playback
+        console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+        currentTrackIndex = index;
+        audioPlayer.src = src;
+        audioPlayer.currentTime = 0; // Reset to start
+        trackInfo.textContent = title;
+        trackArtist.textContent = 'Artist: Omoluabi';
+        trackYear.textContent = 'Release Year: 2025';
+        stopMusic();
+        loadingSpinner.style.display = 'block'; // Show spinner
+        albumCover.style.display = 'none'; // Hide album cover while loading
+        audioPlayer.addEventListener('canplay', () => {
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+        }, { once: true });
     }
 
     function selectTrack(src, title, index) {
-      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
-      currentTrackIndex = index;
-      audioPlayer.src = src;
-      trackInfo.textContent = title;
-      trackArtist.textContent = 'Artist: Omoluabi';
-      trackYear.textContent = 'Release Year: 2025';
-      closeTrackList();
-      stopMusic();
-      audioPlayer.play()
-        .then(() => {
-          albumCover.classList.add('spin');
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
-        })
-        .catch(error => {
-          console.error(`Error playing ${title}:`, error);
-        });
+        console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+        currentTrackIndex = index;
+        audioPlayer.src = src;
+        audioPlayer.currentTime = 0; // Reset to start
+        trackInfo.textContent = title;
+        trackArtist.textContent = 'Artist: Omoluabi';
+        trackYear.textContent = 'Release Year: 2025';
+        closeTrackList();
+        stopMusic();
+        loadingSpinner.style.display = 'block'; // Show spinner
+        albumCover.style.display = 'none'; // Hide album cover while loading
+        audioPlayer.addEventListener('canplay', () => {
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            audioPlayer.play()
+                .then(() => {
+                    albumCover.classList.add('spin');
+                    audioPlayer.addEventListener('timeupdate', updateTrackTime);
+                    savePlayerState();
+                    gsap.fromTo(albumCover, 
+                        { scale: 1 }, 
+                        { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+                    );
+                })
+                .catch(error => {
+                    console.error(`Error playing ${title}:`, error);
+                    loadingSpinner.style.display = 'none';
+                    albumCover.style.display = 'block';
+                    if (!navigator.onLine) {
+                        trackInfo.textContent = 'Offline - Audio unavailable';
+                    }
+                });
+        }, { once: true });
     }
 
     function playMusic() {
-      if (audioPlayer.src) {
-        audioPlayer.play()
-          .then(() => {
-            albumCover.classList.add('spin');
-            audioPlayer.addEventListener('timeupdate', updateTrackTime);
-            console.log(`Playing: ${trackInfo.textContent}`);
-          })
-          .catch(error => console.error('Play error:', error));
-      }
+        if (audioPlayer.src) {
+            loadingSpinner.style.display = 'block'; // Show spinner
+            albumCover.style.display = 'none'; // Hide album cover while loading
+            audioPlayer.addEventListener('canplay', () => {
+                loadingSpinner.style.display = 'none';
+                albumCover.style.display = 'block';
+                audioPlayer.play()
+                    .then(() => {
+                        albumCover.classList.add('spin');
+                        audioPlayer.addEventListener('timeupdate', updateTrackTime);
+                        console.log(`Playing: ${trackInfo.textContent}`);
+                        savePlayerState();
+                        gsap.fromTo(albumCover, 
+                            { scale: 1 }, 
+                            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+                        );
+                    })
+                    .catch(error => {
+                        console.error('Play error:', error);
+                        loadingSpinner.style.display = 'none';
+                        albumCover.style.display = 'block';
+                        if (!navigator.onLine) {
+                            trackInfo.textContent = 'Offline - Audio unavailable';
+                        }
+                    });
+            }, { once: true });
+        }
     }
 
     function pauseMusic() {
-      audioPlayer.pause();
-      albumCover.classList.remove('spin');
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-      console.log('Paused');
+        audioPlayer.pause();
+        albumCover.classList.remove('spin');
+        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+        console.log('Paused');
+        savePlayerState();
     }
 
     function stopMusic() {
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
-      albumCover.classList.remove('spin');
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-      seekBar.value = 0;
-      trackDuration.textContent = '0:00 / 0:00';
-      console.log('Stopped');
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        albumCover.classList.remove('spin');
+        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+        seekBar.value = 0;
+        trackDuration.textContent = '0:00 / 0:00';
+        console.log('Stopped');
+        savePlayerState();
     }
 
     function updateTrackTime() {
-      const currentTime = audioPlayer.currentTime;
-      const duration = audioPlayer.duration || 0;
-      if (!isNaN(duration) && duration > 0) {
-        trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-        seekBar.value = (currentTime / duration) * 100;
-      }
+        const currentTime = audioPlayer.currentTime;
+        const duration = audioPlayer.duration || 0;
+        if (!isNaN(duration) && duration > 0) {
+            trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+            seekBar.value = (currentTime / duration) * 100;
+            savePlayerState();
+        }
     }
 
     function formatTime(seconds) {
@@ -832,32 +922,85 @@
     }
 
     function openAlbumList() {
-      document.getElementById('albumModal').style.display = 'block';
+      const modal = document.getElementById('albumModal');
+      modal.style.display = 'block';
+      gsap.fromTo(modal.querySelector('.modal-content'), 
+        { scale: 0.8, opacity: 0, y: 50 }, 
+        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+      );
       console.log('Album list opened');
     }
 
     function closeAlbumList() {
-      document.getElementById('albumModal').style.display = 'none';
+      const modal = document.getElementById('albumModal');
+      gsap.to(modal.querySelector('.modal-content'), 
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
+          onComplete: () => { modal.style.display = 'none'; } 
+        }
+      );
       console.log('Album list closed');
     }
 
     function openTrackList() {
       updateTrackListModal();
-      document.getElementById('trackModal').style.display = 'block';
+      const modal = document.getElementById('trackModal');
+      modal.style.display = 'block';
+      gsap.fromTo(modal.querySelector('.modal-content'), 
+        { scale: 0.8, opacity: 0, y: 50 }, 
+        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+      );
       console.log('Track list opened');
     }
 
     function closeTrackList() {
-      document.getElementById('trackModal').style.display = 'none';
+      const modal = document.getElementById('trackModal');
+      gsap.to(modal.querySelector('.modal-content'), 
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
+          onComplete: () => { modal.style.display = 'none'; } 
+        }
+      );
       console.log('Track list closed');
     }
 
     function toggleShuffle() {
-      shuffleMode = !shuffleMode;
-      const controls = document.querySelector(".music-controls.icons-only");
-      const shuffleBtn = controls.querySelector('button:nth-child(6)');
-      shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
-      console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
+        shuffleMode = !shuffleMode;
+        const controls = document.querySelector(".music-controls.icons-only");
+        const shuffleBtn = controls.querySelector('button:nth-child(6)');
+        shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
+        console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
+        savePlayerState();
+    }
+
+    function initializePlayer() {
+        const savedState = loadPlayerState();
+        if (savedState) {
+            currentAlbumIndex = savedState.albumIndex;
+            currentTrackIndex = savedState.trackIndex;
+            shuffleMode = savedState.shuffleMode;
+            
+            albumCover.src = albums[currentAlbumIndex].cover;
+            const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
+            audioPlayer.src = track.src;
+            trackInfo.textContent = track.title;
+            trackArtist.textContent = 'Artist: Omoluabi';
+            trackYear.textContent = 'Release Year: 2025';
+            
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                audioPlayer.currentTime = savedState.playbackPosition; // Only set from saved state here
+                updateTrackTime();
+            }, { once: true });
+            
+            updateTrackListModal();
+            
+            const controls = document.querySelector(".music-controls.icons-only");
+            const shuffleBtn = controls.querySelector('button:nth-child(6)');
+            shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
+            
+            console.log('Player restored from saved state:', savedState);
+        } else {
+            selectAlbum(0);
+            console.log('No saved state found, initialized with default');
+        }
     }
 
     /* Chatbot Bubble Messages */
@@ -878,8 +1021,42 @@
       sabiBibleBubble.textContent = sabiBibleMessages[sabiMsgIndex];
     }, 4000);
 
-    // Initialize with the first album without playing
-    selectAlbum(0);
+    // GSAP Sidebar Button Animations
+    document.querySelectorAll('.sidebar button').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        gsap.to(button, { scale: 1.08, duration: 0.3, ease: "power2.out" });
+      });
+      button.addEventListener('mouseleave', () => {
+        gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
+      });
+      button.addEventListener('click', () => {
+        gsap.to(button, { 
+          scale: 0.95, 
+          duration: 0.1, 
+          ease: "power1.in", 
+          onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
+        });
+      });
+    });
+
+    // Register Service Worker (Step 4)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+
+    // Initialize player
+    initializePlayer();
+
+    // Save state before unloading
+    window.addEventListener('beforeunload', savePlayerState);
   </script>
 </body>
 </html>
