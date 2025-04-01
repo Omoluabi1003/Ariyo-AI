@@ -24,21 +24,19 @@
   ></script>
 
   <style>
-    /* Ensure full height and proper background for mobile */
+    /* Ensure full height and proper background */
     html, body {
       height: 100%;
       overflow-x: hidden;
       background-color: #000;
+      margin: 0;
+      padding: 0;
     }
 
-    /* ------------------------------------
-       BASIC & RESPONSIVE STYLES
-       ------------------------------------ */
+    /* Basic & Responsive Styles */
     body {
       font-family: 'Montserrat', sans-serif;
       color: #fff;
-      margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
@@ -54,12 +52,11 @@
       color: #ffffff;
     }
 
-    /* Header with safe-area inset for mobile */
+    /* Header */
     .header {
-      padding-top: calc(15px + env(safe-area-inset-top));
-      padding-bottom: 15px;
+      padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
       text-align: center;
-      font-size: 24px;
+      font-size: clamp(1.5rem, 4vw, 2rem);
       font-weight: bold;
       border-bottom: 2px solid white;
       box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
@@ -68,14 +65,14 @@
     }
     .share-button {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 0.5rem;
+      right: 0.5rem;
       background-color: rgba(0, 123, 255, 0.7);
       color: white;
-      padding: 10px;
+      padding: 0.6rem;
       border: none;
       border-radius: 50%;
-      font-size: 18px;
+      font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.3s ease;
     }
@@ -97,8 +94,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px;
-      gap: 12px;
+      padding: 1rem;
+      gap: 1rem;
       border-radius: 15px;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
       flex-shrink: 0;
@@ -106,17 +103,18 @@
     .sidebar button {
       background: linear-gradient(135deg, #ff7eb3, #ff758c);
       color: white;
-      padding: 10px 15px;
+      padding: 0.8rem 1rem;
       border: none;
       border-radius: 25px;
       width: 90%;
       cursor: pointer;
-      font-size: 14px;
+      font-size: clamp(0.9rem, 2vw, 1rem);
       transition: all 0.3s ease-in-out;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 0.5rem;
+      min-height: 48px;
     }
     .sidebar button:hover {
       transform: scale(1.08);
@@ -126,53 +124,21 @@
     /* Content Area */
     .content {
       flex: 1;
-      padding: 20px;
+      padding: 1.5rem;
       overflow-y: auto;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
     }
 
-    /* Mobile: Constrain content area so it doesn't scroll endlessly */
-    @media (max-width: 480px) {
-      .content {
-        margin-bottom: 220px; /* leave space for fixed music player */
-      }
-    }
-
-    /* News Container (Multiple Feeds) */
-    .news-container {
-      margin-top: 20px;
-    }
-    .feed-title {
-      margin-top: 25px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #ffd700;
-    }
-    .rss-item {
-      background: rgba(0,0,0,0.2);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .rss-item .rss-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .rss-item .rss-link {
-      color: #ffd700;
-      text-decoration: underline;
-    }
-
     /* Music Player */
     .music-player {
       background: rgba(34, 34, 34, 0.7);
-      padding: 10px;
+      padding: 1rem;
       text-align: center;
       border-radius: 10px;
       box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
       position: fixed;
-      bottom: 0;
+      bottom: calc(1rem + env(safe-area-inset-bottom));
       width: 100%;
       max-width: 600px;
       left: 50%;
@@ -180,10 +146,10 @@
       z-index: 100;
     }
     .album-cover {
-      width: 200px;
-      height: 200px;
+      width: clamp(120px, 30vw, 200px);
+      height: clamp(120px, 30vw, 200px);
       border-radius: 50%;
-      margin: 10px auto;
+      margin: 0.6rem auto;
       display: block;
       box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
       transition: transform 0.3s ease-in-out;
@@ -198,50 +164,53 @@
 
     /* Icon-Only Music Controls */
     .music-controls.icons-only {
-      margin-top: 10px;
+      margin-top: 0.6rem;
       display: flex;
       justify-content: center;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 0.6rem;
     }
     .music-controls.icons-only button {
       background: #ff758c;
       color: white;
       border: none;
-      padding: 10px 15px;
+      padding: 0.8rem;
       border-radius: 25px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 1rem;
       transition: transform 0.2s;
+      min-width: 48px;
+      min-height: 48px;
     }
     .music-controls.icons-only button:hover {
       transform: scale(1.1);
     }
     .track-info {
-      margin-top: 10px;
-      font-size: 18px;
+      margin-top: 0.6rem;
+      font-size: clamp(1rem, 3vw, 1.2rem);
     }
     .track-duration {
-      font-size: 14px;
-      margin-top: 5px;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      margin-top: 0.3rem;
     }
     .track-details {
-      margin-top: 10px;
-      font-size: 14px;
+      margin-top: 0.6rem;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
     }
     .dropdown {
       width: 100%;
       background: rgba(34,34,34,0.8);
       color: white;
-      padding: 10px;
+      padding: 0.6rem;
       border-radius: 5px;
       cursor: pointer;
       text-align: center;
-      margin-top: 20px;
+      margin-top: 1rem;
+      font-size: clamp(0.9rem, 2vw, 1rem);
     }
 
-    /* Modal (Track List) */
+    /* Modal */
     .modal {
       display: none;
       position: fixed;
@@ -255,10 +224,10 @@
     }
     .modal-content {
       background-color: #fefefe;
-      margin: 15% auto;
-      padding: 20px;
+      margin: 10% auto;
+      padding: 1.5rem;
       border: 1px solid #888;
-      width: 80%;
+      width: 90%;
       max-width: 600px;
       max-height: 80vh;
       overflow-y: auto;
@@ -267,7 +236,7 @@
     .close {
       color: #aaa;
       float: right;
-      font-size: 28px;
+      font-size: 1.8rem;
       font-weight: bold;
     }
     .close:hover,
@@ -276,28 +245,29 @@
       text-decoration: none;
       cursor: pointer;
     }
-    .track-list a {
+    .track-list a, .album-list a {
       display: block;
-      padding: 10px;
+      padding: 0.8rem;
       color: white;
       text-decoration: none;
       background-color: #333;
-      margin-bottom: 5px;
+      margin-bottom: 0.3rem;
       border-radius: 5px;
+      font-size: clamp(0.9rem, 2vw, 1rem);
     }
-    .track-list a:hover {
+    .track-list a:hover, .album-list a:hover {
       background-color: #ff758c;
     }
 
-    /* Chatbot Container / Comic Bubble */
-    .chatbot-container {
+    /* Chatbot & Sabi Bible Containers */
+    .chatbot-container, .sabi-bible-container {
       position: fixed;
-      bottom: 100px; /* Lowered chatbot container further down */
+      bottom: calc(100px + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%);
-      width: 80%;
+      width: 90%;
       max-width: 600px;
-      height: 70vh; /* Height maintained at 70vh */
+      height: 70vh;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       background: white;
@@ -305,7 +275,7 @@
       display: none;
       z-index: 101;
     }
-    .chatbot-container iframe {
+    .chatbot-container iframe, .sabi-bible-container iframe {
       width: 100%;
       height: 100%;
       border: none;
@@ -313,19 +283,31 @@
     }
     .chatbot-bubble-container {
       position: fixed;
-      bottom: 80px;
-      right: 20px;
-      width: 70px;
-      height: 70px;
+      bottom: calc(80px + env(safe-area-inset-bottom));
+      left: 1rem;
+      width: clamp(60px, 15vw, 70px);
+      height: clamp(60px, 15vw, 70px);
       cursor: pointer;
       z-index: 100;
       display: flex;
       align-items: flex-end;
       justify-content: center;
     }
-    .chatbot-float-icon {
-      width: 70px;
-      height: 70px;
+    .sabi-bible-bubble-container {
+      position: fixed;
+      bottom: calc(80px + env(safe-area-inset-bottom));
+      right: 1rem;
+      width: clamp(60px, 15vw, 70px);
+      height: clamp(60px, 15vw, 70px);
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .chatbot-float-icon, .sabi-bible-float-icon {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       animation: float 3s ease-in-out infinite;
@@ -335,10 +317,9 @@
       50%  { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
     }
-    /* Comic-style bubble for chatbot text */
-    .chatbot-speech-bubble {
+    .chatbot-speech-bubble, .sabi-bible-speech-bubble {
       position: absolute;
-      bottom: 90%;
+      bottom: 100%;
       left: 50%;
       transform: translateX(-50%);
       background: #ffffff;
@@ -346,18 +327,18 @@
       border: 3px solid #000000;
       border-radius: 15px;
       font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
-      font-size: 14px;
-      padding: 10px 15px;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      padding: 0.6rem 1rem;
       white-space: nowrap;
       box-shadow: 3px 3px 0px #000000;
       pointer-events: none;
       z-index: 1;
     }
-    .chatbot-speech-bubble::after {
+    .chatbot-speech-bubble::after, .sabi-bible-speech-bubble::after {
       content: "";
       position: absolute;
       bottom: -20px;
-      left: 20px;
+      left: 50%;
       width: 0;
       height: 0;
       border: 10px solid transparent;
@@ -379,12 +360,11 @@
     }
     .watermark {
       position: absolute;
-      font-size: 2rem;
+      font-size: clamp(1rem, 4vw, 2rem);
       color: rgba(255, 255, 255, 0.5);
       text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
       white-space: nowrap;
     }
-    /* Different drift animations for varied directions */
     @keyframes drift1 {
       0% { transform: translate(0, 0) rotate(0deg); }
       100% { transform: translate(200vw, 200vh) rotate(360deg); }
@@ -405,8 +385,7 @@
     .drift2 { animation: drift2 30s linear infinite; }
     .drift3 { animation: drift3 30s linear infinite; }
     .drift4 { animation: drift4 30s linear infinite; }
-    
-    /* Additional watermarks for at least 10 elements (here we have 12) */
+
     /* Responsive Media Queries */
     @media (max-width: 768px) {
       .sidebar {
@@ -414,58 +393,35 @@
         flex-direction: row;
         justify-content: space-around;
         border-radius: 0;
+        padding: 0.5rem;
       }
       .container {
         flex-direction: column;
       }
-      .music-player {
-        position: static;
-        transform: none;
-        margin: 20px auto 0 auto;
-        max-width: 100%;
-        border-radius: 0;
+      .content {
+        padding-bottom: 15rem;
       }
     }
     @media (max-width: 480px) {
       .sidebar button {
-        font-size: 12px;
-        padding: 8px 10px;
-      }
-      .album-cover {
-        width: 150px;
-        height: 150px;
-      }
-      .chatbot-bubble-container {
-        width: 60px;
-        height: 60px;
-        bottom: 240px;
-      }
-      .chatbot-float-icon {
-        width: 60px;
-        height: 60px;
-      }
-      .watermark {
-        font-size: 1.4rem;
+        padding: 0.6rem;
+        min-width: 60px;
       }
       .music-player {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        margin: 0;
+        bottom: env(safe-area-inset-bottom);
+        padding: 0.5rem;
         border-radius: 0;
-        padding: 10px 5px;
-        z-index: 200;
       }
-      .chatbot-container { z-index: 300; }
-      .chatbot-bubble-container { z-index: 310; }
+      .chatbot-bubble-container, .sabi-bible-bubble-container {
+        bottom: calc(15rem + env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
 
 <body>
   <div class="header">
-    Welcome to Àríyò AI 🎶
+    Welcome to Àríyò AI 
     <button class="share-button" onclick="shareContent()">
       <i class="fas fa-share-alt"></i>
     </button>
@@ -473,10 +429,10 @@
 
   <div class="container">
     <div class="sidebar">
-      <button onclick="showContent('news')">📰 Latest News</button>
-      <button onclick="showContent('music')">🎵 Music Player</button>
+      <button onclick="openAlbumList()">🎧 Choose An Album</button>
+      <button onclick="toggleChatbot()">💬 Chatbot</button>
+      <button onclick="toggleSabiBible()">📖 Sabi Bible</button>
     </div>
-
     <div class="content" id="main-content">
       <h2>Select an option from the sidebar</h2>
       <div id="newsContainer" class="news-container" style="display: none;"></div>
@@ -496,8 +452,16 @@
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
     <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
-
-    <!-- Icon-Only Controls -->
+    <input
+      type="range"
+      id="seekBar"
+      value="0"
+      min="0"
+      max="100"
+      step="1"
+      style="width: 90%; margin-top: 10px;"
+    />
+    <div class="dropdown" onclick="openTrackList()">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
       <button onclick="previousTrack()">⏮</button>
       <button onclick="playMusic()">▶</button>
@@ -506,14 +470,24 @@
       <button onclick="nextTrack()">⏭</button>
       <button onclick="toggleShuffle()">🔀</button>
     </div>
+  </div>
 
-    <div class="dropdown" onclick="openTrackList()">🎵 Choose A Track</div>
+  <!-- Modal for Album List -->
+  <div id="albumModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAlbumList()">×</span>
+      <h3>Choose An Album</h3>
+      <div class="album-list">
+        <a href="#" onclick="selectAlbum(0)">Album 1: Kindness</a>
+        <a href="#" onclick="selectAlbum(1)">Album 2: Street Sense</a>
+      </div>
+    </div>
   </div>
 
   <!-- Modal for Track List -->
   <div id="trackModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeTrackList()">&times;</span>
+      <span class="close" onclick="closeTrackList()">×</span>
       <h3>Choose A Track</h3>
       <div class="track-list">
         <a href="#" onclick="selectTrack('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', 'A Very Good Bad Guy v3')">A Very Good Bad Guy v3</a>
@@ -541,20 +515,24 @@
 
   <!-- Chatbot Floating Icon & Comic Bubble -->
   <div class="chatbot-bubble-container" onclick="toggleChatbot()">
-    <img
-      src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png"
-      alt="Chatbot Icon"
-      class="chatbot-float-icon"
-    />
+    <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
     <div class="chatbot-speech-bubble" id="chatbotBubble">How far?</div>
   </div>
 
   <!-- Chatbot Container -->
   <div class="chatbot-container" id="chatbotContainer">
-    <iframe
-      src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn"
-      title="Chatbot"
-    ></iframe>
+    <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn" title="Chatbot"></iframe>
+  </div>
+
+  <!-- Sabi Bible Floating Icon & Comic Bubble -->
+  <div class="sabi-bible-bubble-container" onclick="toggleSabiBible()">
+    <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+    <div class="sabi-bible-speech-bubble" id="sabiBibleBubble">Sabi Bible dey here!</div>
+  </div>
+
+  <!-- Sabi Bible Container -->
+  <div class="sabi-bible-container" id="sabiBibleContainer">
+    <iframe src="https://interfaces.zapier.com/embed/chatbot/cm7ve7fdl002jlclh8y1n6n1y" style="border: none;"></iframe>
   </div>
 
   <!-- Floating Watermarks -->
@@ -590,13 +568,16 @@
     /* CHATBOT TOGGLE */
     function toggleChatbot() {
       const chatbot = document.getElementById('chatbotContainer');
-      chatbot.style.display =
-        chatbot.style.display === 'none' || chatbot.style.display === ''
-          ? 'block'
-          : 'none';
+      chatbot.style.display = chatbot.style.display === 'none' || chatbot.style.display === '' ? 'block' : 'none';
     }
 
-    /* BACKGROUND CYCLER: 3 Images, 30s Interval */
+    /* SABI BIBLE TOGGLE */
+    function toggleSabiBible() {
+      const sabiBible = document.getElementById('sabiBibleContainer');
+      sabiBible.style.display = sabiBible.style.display === 'none' || sabiBible.style.display === '' ? 'block' : 'none';
+    }
+
+    /* BACKGROUND CYCLER */
     const backgrounds = [
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
@@ -609,171 +590,244 @@
       document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
     }, 30000);
 
-    /* SHOW CONTENT (NEWS or MUSIC) */
-    function showContent(contentType) {
-      const contentElem = document.getElementById('main-content');
-      const newsContainer = document.getElementById('newsContainer');
-      if (contentType === 'news') {
-        contentElem.innerHTML = '<h2>Latest News</h2><p>Loading top Nigerian news sources...</p>';
-        newsContainer.style.display = 'block';
-        loadAllNigeriaRSS();
-      } else if (contentType === 'music') {
-        contentElem.innerHTML = '<h2>Music Player Section</h2><p>Check out the player below!</p>';
-        newsContainer.style.display = 'none';
-      }
-      if (window.gsap) {
-        gsap.to(contentElem, {opacity: 1, duration: 1});
-      } else {
-        contentElem.style.opacity = 1;
-      }
-    }
-
-    /* MULTIPLE NIGERIAN NEWS RSS FEEDS */
-    const RSS_TO_JSON_API = 'https://api.rss2json.com/v1/api.json?rss_url=';
-    const NIGERIAN_NEWS_FEEDS = [
-      { name: 'The Guardian Nigeria', url: 'https://guardian.ng/feed' },
-      { name: 'Punch News', url: 'https://punchng.com/feed' },
-      { name: 'Vanguard', url: 'https://www.vanguardngr.com/feed' },
-      { name: 'Channels TV', url: 'https://www.channelstv.com/feed' },
-      { name: 'Premium Times', url: 'https://www.premiumtimesng.com/feed' },
-      { name: 'ThisDay', url: 'https://www.thisdaylive.com/feed' },
-      { name: 'Nigerian Tribune', url: 'https://tribuneonlineng.com/feed' },
-      { name: 'The Nation', url: 'https://thenationonlineng.net/feed' }
-    ];
-    async function loadAllNigeriaRSS() {
-      const newsContainer = document.getElementById('newsContainer');
-      newsContainer.innerHTML = '';
-      for (let feed of NIGERIAN_NEWS_FEEDS) {
-        try {
-          const response = await fetch(RSS_TO_JSON_API + encodeURIComponent(feed.url));
-          const data = await response.json();
-          if (data && data.items) {
-            const feedHeading = document.createElement('div');
-            feedHeading.className = 'feed-title';
-            feedHeading.textContent = feed.name;
-            newsContainer.appendChild(feedHeading);
-            data.items.forEach(item => {
-              const newsItem = document.createElement('div');
-              newsItem.className = 'rss-item';
-              newsItem.innerHTML = `
-                <div class="rss-title">${item.title}</div>
-                <div>${item.pubDate}</div>
-                <a class="rss-link" href="${item.link}" target="_blank" rel="noopener">
-                  Read more
-                </a>
-              `;
-              newsContainer.appendChild(newsItem);
-            });
-          } else {
-            newsContainer.innerHTML += `<p>Unable to load news from ${feed.name}.</p>`;
-          }
-        } catch (err) {
-          console.error('Error fetching feed:', feed.name, err);
-          newsContainer.innerHTML += `<p>Error loading ${feed.name}. Please try again later.</p>`;
-        }
-      }
-    }
-
-    /* MUSIC PLAYER LOGIC (19 Tracks) */
-    const audioPlayer = document.createElement('audio');
-    audioPlayer.setAttribute('id', 'audioPlayer');
+    /* MUSIC PLAYER LOGIC */
+    const audioPlayer = new Audio();
+    audioPlayer.id = 'audioPlayer';
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
     const trackDuration = document.getElementById('trackDuration');
+    const seekBar = document.getElementById('seekBar');
     let shuffleMode = false;
-    let trackTimeInterval;
-    let trackList = [
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', title: 'A Very Good Bad Guy v3' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', title: 'Dem Wan Shut Me Up' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', title: 'EFCC' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', title: 'Emergency' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', title: 'Film Trick Election' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', title: 'Gbas Gbos' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', title: 'Kindness (Remastered)' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', title: 'Locked Away' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', title: 'Multi choice palava' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', title: 'Na My Turn' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', title: 'Ogoni Anthem (Remastered)' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', title: 'Ogoni Anthem' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', title: 'Rich Pauper' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', title: 'Senator Natasha’s Whisper' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', title: 'Sharing Formula' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', title: 'Show Of Shame v3 (Remastered)' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', title: 'Subsidy' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', title: 'Vex Money' },
-      { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', title: 'Working on myself' }
+
+    const albums = [
+      {
+        name: 'Kindness',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg',
+        tracks: [
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', title: 'A Very Good Bad Guy v3' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', title: 'Dem Wan Shut Me Up' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', title: 'EFCC' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', title: 'Emergency' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', title: 'Film Trick Election' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', title: 'Gbas Gbos' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', title: 'Kindness (Remastered)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', title: 'Locked Away' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', title: 'Multi choice palava' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', title: 'Na My Turn' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', title: 'Ogoni Anthem (Remastered)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', title: 'Ogoni Anthem' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', title: 'Rich Pauper' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', title: 'Senator Natasha’s Whisper' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', title: 'Sharing Formula' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', title: 'Show Of Shame v3 (Remastered)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', title: 'Subsidy' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', title: 'Vex Money' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', title: 'Working on myself' }
+        ]
+      },
+      {
+        name: 'Street Sense',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg',
+        tracks: [
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Algorithm%20Of%20Life.mp3', title: 'Algorithm of life' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Babygirl.mp3', title: 'Babygirl' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Blood%20Money%20(Lithium).mp3', title: 'Blood Money (Lithium)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/E%20Get%20Why.mp3', title: 'E Get Why' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Game%20Of%20Thrones.mp3', title: 'Game of Thrones' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Give%20and%20Take%20(Reciprocity%20in%20love).mp3', title: 'Give and Take (Reciprocity in love)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Midas%20Touch.mp3', title: 'Midas Touch' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20Youth;%20Rise.mp3', title: 'Naija Youth, Rise' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Party%20No%20Go%20Stop.mp3', title: 'Party No Go Stop' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Pigeonhole%20Gbedu.mp3', title: 'Pigeonhole Gbedu' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Queen%20Warrior.mp3', title: 'Queen Warrior' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sengemenge.mp3', title: 'Sengemenge' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sowore.mp3', title: 'Sowore' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street%20Sense.mp3', title: 'Street Sense' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/VDM.mp3', title: 'VDM' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/We%20Are%20Not%20Doing%20That.mp3', title: 'We Are Not Doing That' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Oil%20Money.mp3', title: 'Oil Money' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbamsolutely.mp3', title: 'Gbamsolutely' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Mic%20No%20Be%20For%20Waist.mp3', title: 'Mic No Be For Waist' }
+        ]
+      }
     ];
+
+    let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
+
+    function updateTrackListModal() {
+      const trackListContainer = document.querySelector('.track-list');
+      trackListContainer.innerHTML = '';
+      albums[currentAlbumIndex].tracks.forEach((track, index) => {
+        const trackLink = document.createElement('a');
+        trackLink.href = '#';
+        trackLink.onclick = () => selectTrack(track.src, track.title, index);
+        trackLink.textContent = track.title;
+        trackListContainer.appendChild(trackLink);
+      });
+      console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
+    }
+
+    function selectAlbum(albumIndex) {
+      console.log(`Selecting album: ${albums[albumIndex].name}`);
+      currentAlbumIndex = albumIndex;
+      currentTrackIndex = 0;
+      albumCover.src = albums[currentAlbumIndex].cover;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+      updateTrackListModal();
+      closeAlbumList();
+    }
+
     function playMusic() {
       if (audioPlayer.src) {
-        audioPlayer.play();
-        albumCover.classList.add('spin');
-        trackTimeInterval = setInterval(updateTrackTime, 1000);
+        audioPlayer.play()
+          .then(() => {
+            albumCover.classList.add('spin');
+            audioPlayer.addEventListener('timeupdate', updateTrackTime);
+            console.log(`Playing: ${trackInfo.textContent}`);
+          })
+          .catch(error => console.error('Play error:', error));
       }
     }
+
     function pauseMusic() {
       audioPlayer.pause();
       albumCover.classList.remove('spin');
-      clearInterval(trackTimeInterval);
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      console.log('Paused');
     }
+
     function stopMusic() {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       albumCover.classList.remove('spin');
-      clearInterval(trackTimeInterval);
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      seekBar.value = 0;
       trackDuration.textContent = '0:00 / 0:00';
+      console.log('Stopped');
     }
+
     function updateTrackTime() {
-      let current = Math.floor(audioPlayer.currentTime);
-      let duration = Math.floor(audioPlayer.duration) || 0;
-      trackDuration.textContent = formatTime(current) + ' / ' + formatTime(duration);
+      const currentTime = audioPlayer.currentTime;
+      const duration = audioPlayer.duration || 0;
+      if (!isNaN(duration) && duration > 0) {
+        trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        seekBar.value = (currentTime / duration) * 100;
+      }
     }
+
     function formatTime(seconds) {
-      let min = Math.floor(seconds / 60);
-      let sec = Math.floor(seconds % 60);
-      return min + ':' + (sec < 10 ? '0' + sec : sec);
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
     }
+
+    function seekAudio(value) {
+      if (audioPlayer.duration) {
+        const newTime = (value / 100) * audioPlayer.duration;
+        audioPlayer.currentTime = newTime;
+        updateTrackTime();
+      }
+    }
+
+    seekBar.addEventListener('input', () => seekAudio(seekBar.value));
+    seekBar.addEventListener('touchstart', () => audioPlayer.pause(), { passive: true });
+    seekBar.addEventListener('touchend', () => {
+      seekAudio(seekBar.value);
+      if (!audioPlayer.paused) audioPlayer.play();
+    });
+
+    audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
+
     audioPlayer.addEventListener('ended', () => {
-      clearInterval(trackTimeInterval);
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       if (shuffleMode) {
-        const randomIndex = Math.floor(Math.random() * trackList.length);
-        selectTrack(trackList[randomIndex].src, trackList[randomIndex].title);
+        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+        selectTrack(
+          albums[currentAlbumIndex].tracks[randomIndex].src,
+          albums[currentAlbumIndex].tracks[randomIndex].title,
+          randomIndex
+        );
       } else {
         nextTrack();
       }
     });
+
     function nextTrack() {
-      currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
-      selectTrack(trackList[currentTrackIndex].src, trackList[currentTrackIndex].title);
+      currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
     }
+
     function previousTrack() {
-      currentTrackIndex = (currentTrackIndex - 1 + trackList.length) % trackList.length;
-      selectTrack(trackList[currentTrackIndex].src, trackList[currentTrackIndex].title);
+      currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
     }
+
+    function openAlbumList() {
+      document.getElementById('albumModal').style.display = 'block';
+      console.log('Album list opened');
+    }
+
+    function closeAlbumList() {
+      document.getElementById('albumModal').style.display = 'none';
+      console.log('Album list closed');
+    }
+
     function openTrackList() {
+      updateTrackListModal();
       document.getElementById('trackModal').style.display = 'block';
+      console.log('Track list opened');
     }
+
     function closeTrackList() {
       document.getElementById('trackModal').style.display = 'none';
+      console.log('Track list closed');
     }
-    function selectTrack(src, title) {
+
+    function selectTrack(src, title, index) {
+      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
       audioPlayer.src = src;
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
       closeTrackList();
       stopMusic();
-      playMusic();
+      audioPlayer.play()
+        .then(() => {
+          albumCover.classList.add('spin');
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+        })
+        .catch(error => {
+          console.error(`Error playing ${title}:`, error);
+          alert(`Failed to play ${title}. Check console for details.`);
+        });
     }
+
     function toggleShuffle() {
       shuffleMode = !shuffleMode;
       const controls = document.querySelector(".music-controls.icons-only");
       const shuffleBtn = controls.querySelector('button:nth-child(6)');
-      shuffleBtn.textContent = shuffleMode ? '🔀(ON)' : '🔀';
+      shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
+      console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
     }
+
+    /* Chatbot Bubble Messages */
     const chatbotBubble = document.getElementById('chatbotBubble');
     const chatbotMessages = ["How far?", "You dey alright?", "Wetin dey?"];
     let msgIndex = 0;
@@ -781,6 +835,18 @@
       msgIndex = (msgIndex + 1) % chatbotMessages.length;
       chatbotBubble.textContent = chatbotMessages[msgIndex];
     }, 4000);
+
+    /* Sabi Bible Bubble Messages */
+    const sabiBibleBubble = document.getElementById('sabiBibleBubble');
+    const sabiBibleMessages = ["Sabi Bible dey here!", "Read am sabi!", "God’s word for you!"];
+    let sabiMsgIndex = 0;
+    setInterval(() => {
+      sabiMsgIndex = (sabiMsgIndex + 1) % sabiBibleMessages.length;
+      sabiBibleBubble.textContent = sabiBibleMessages[sabiMsgIndex];
+    }, 4000);
+
+    // Initialize with the first album
+    selectAlbum(0);
   </script>
 </body>
 </html>
