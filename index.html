@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" /> <!-- iOS full-screen -->
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> <!-- iOS status bar -->
-  <meta name="theme-color" content="#ff758c" /> <!-- Android status bar -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#ff758c" />
   <title>Àríyò AI - Smart Naija AI</title>
 
   <!-- Google Fonts -->
@@ -376,6 +376,32 @@
     .drift2 { animation: drift2 30s linear infinite; }
     .drift3 { animation: drift3 30s linear infinite; }
     .drift4 { animation: drift4 30s linear infinite; }
+    .retry-button {
+      background: #ff758c;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .retry-button:hover { background: #ff4060; }
+    .progress-bar {
+      width: 90%;
+      height: 5px;
+      background: #555;
+      margin: 0.5rem auto;
+      border-radius: 5px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar div {
+      height: 100%;
+      background: #ff758c;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
     @media (max-width: 768px) {
       .sidebar {
         width: 100%;
@@ -427,6 +453,7 @@
       alt="Album Cover"
     />
     <div id="loadingSpinner" class="loading-spinner"></div>
+    <div id="progressBar" class="progress-bar"><div></div></div>
     <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
@@ -441,6 +468,7 @@
       style="width: 90%; margin-top: 10px;"
       aria-label="Seek bar for audio playback"
     />
+    <button id="retryButton" class="retry-button" onclick="retryTrack()">Retry</button>
     <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
       <button aria-label="Previous track" onclick="previousTrack()">⏮</button>
@@ -602,7 +630,13 @@
     const trackDuration = document.getElementById('trackDuration');
     const seekBar = document.getElementById('seekBar');
     const loadingSpinner = document.getElementById('loadingSpinner');
+    const retryButton = document.getElementById('retryButton');
+    const progressBar = document.getElementById('progressBar').querySelector('div');
     let shuffleMode = false;
+    let isFirstPlay = true;
+    let lastTrackSrc = '';
+    let lastTrackTitle = '';
+    let lastTrackIndex = 0;
 
     const albums = [
       {
@@ -724,11 +758,21 @@
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
+    }
+
+    function retryTrack() {
+      selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
     }
 
     function selectTrack(src, title, index) {
       console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
+      lastTrackSrc = src;
+      lastTrackTitle = title;
+      lastTrackIndex = index;
       audioPlayer.src = src + '?t=' + new Date().getTime();
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
@@ -738,35 +782,38 @@
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
 
       const playTimeout = setTimeout(() => {
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
-        trackInfo.textContent = 'Error: Track failed to load';
-        console.error(`Timeout: ${title} failed to buffer within 15 seconds`);
-      }, 15000);
+        document.getElementById('progressBar').style.display = 'none';
+        trackInfo.textContent = 'Error: Track failed to load (timeout)';
+        retryButton.style.display = 'block';
+        console.error(`Timeout: ${title} failed to buffer within 4 seconds`);
+      }, 4000);
+
+      audioPlayer.addEventListener('progress', () => {
+        if (audioPlayer.buffered.length > 0) {
+          const bufferedEnd = audioPlayer.buffered.end(0);
+          const duration = audioPlayer.duration || 0;
+          if (duration > 0) {
+            progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
+          }
+        }
+      });
 
       audioPlayer.addEventListener('canplaythrough', () => {
         clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
-        audioPlayer.play()
-          .then(() => {
-            albumCover.classList.add('spin');
-            audioPlayer.addEventListener('timeupdate', updateTrackTime);
-            savePlayerState();
-            gsap.fromTo(albumCover, 
-              { scale: 1 }, 
-              { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-            );
-          })
-          .catch(error => {
-            clearTimeout(playTimeout);
-            loadingSpinner.style.display = 'none';
-            albumCover.style.display = 'block';
-            console.error(`Error playing ${title}:`, error);
-            trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
-          });
+        document.getElementById('progressBar').style.display = 'none';
+        console.log(`Track ${title} can play through`);
+        if (!isFirstPlay) {
+          audioPlayer.play().catch(error => handlePlayError(error, title));
+        }
       }, { once: true });
 
       audioPlayer.addEventListener('canplay', () => {
@@ -774,23 +821,11 @@
           clearTimeout(playTimeout);
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
-          audioPlayer.play()
-            .then(() => {
-              albumCover.classList.add('spin');
-              audioPlayer.addEventListener('timeupdate', updateTrackTime);
-              savePlayerState();
-              gsap.fromTo(albumCover, 
-                { scale: 1 }, 
-                { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-              );
-            })
-            .catch(error => {
-              clearTimeout(playTimeout);
-              loadingSpinner.style.display = 'none';
-              albumCover.style.display = 'block';
-              console.error(`Fallback play error for ${title}:`, error);
-              trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
-            });
+          document.getElementById('progressBar').style.display = 'none';
+          console.log(`Track ${title} can play (fallback)`);
+          if (!isFirstPlay) {
+            audioPlayer.play().catch(error => handlePlayError(error, title));
+          }
         }
       }, { once: true });
 
@@ -798,45 +833,52 @@
         clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
+        document.getElementById('progressBar').style.display = 'none';
         trackInfo.textContent = 'Error: Unable to load track';
+        retryButton.style.display = 'block';
         console.error(`Audio error for ${title}:`, audioPlayer.error);
+        if (audioPlayer.error) {
+          console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
+        }
       }, { once: true });
+
+      audioPlayer.load(); // Force load for iOS
     }
 
     function playMusic() {
       if (audioPlayer.src) {
         loadingSpinner.style.display = 'block';
         albumCover.style.display = 'none';
+        retryButton.style.display = 'none';
+        document.getElementById('progressBar').style.display = 'block';
+        progressBar.style.width = '0%';
 
         const playTimeout = setTimeout(() => {
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
-          trackInfo.textContent = 'Error: Track failed to load';
-          console.error('Timeout: Track failed to buffer within 15 seconds');
-        }, 15000);
+          document.getElementById('progressBar').style.display = 'none';
+          trackInfo.textContent = 'Error: Track failed to load (timeout)';
+          retryButton.style.display = 'block';
+          console.error('Timeout: Track failed to buffer within 4 seconds');
+        }, 4000);
+
+        audioPlayer.addEventListener('progress', () => {
+          if (audioPlayer.buffered.length > 0) {
+            const bufferedEnd = audioPlayer.buffered.end(0);
+            const duration = audioPlayer.duration || 0;
+            if (duration > 0) {
+              progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
+            }
+          }
+        });
 
         audioPlayer.addEventListener('canplaythrough', () => {
           clearTimeout(playTimeout);
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
-          audioPlayer.play()
-            .then(() => {
-              albumCover.classList.add('spin');
-              audioPlayer.addEventListener('timeupdate', updateTrackTime);
-              console.log(`Playing: ${trackInfo.textContent}`);
-              savePlayerState();
-              gsap.fromTo(albumCover, 
-                { scale: 1 }, 
-                { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-              );
-            })
-            .catch(error => {
-              clearTimeout(playTimeout);
-              loadingSpinner.style.display = 'none';
-              albumCover.style.display = 'block';
-              console.error('Play error:', error);
-              trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
-            });
+          document.getElementById('progressBar').style.display = 'none';
+          console.log(`Track ${trackInfo.textContent} can play through`);
+          attemptPlay();
         }, { once: true });
 
         audioPlayer.addEventListener('canplay', () => {
@@ -844,24 +886,9 @@
             clearTimeout(playTimeout);
             loadingSpinner.style.display = 'none';
             albumCover.style.display = 'block';
-            audioPlayer.play()
-              .then(() => {
-                albumCover.classList.add('spin');
-                audioPlayer.addEventListener('timeupdate', updateTrackTime);
-                console.log(`Playing (fallback): ${trackInfo.textContent}`);
-                savePlayerState();
-                gsap.fromTo(albumCover, 
-                  { scale: 1 }, 
-                  { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-                );
-              })
-              .catch(error => {
-                clearTimeout(playTimeout);
-                loadingSpinner.style.display = 'none';
-                albumCover.style.display = 'block';
-                console.error('Fallback play error:', error);
-                trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
-              });
+            document.getElementById('progressBar').style.display = 'none';
+            console.log(`Track ${trackInfo.textContent} can play (fallback)`);
+            attemptPlay();
           }
         }, { once: true });
 
@@ -869,9 +896,44 @@
           clearTimeout(playTimeout);
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
           trackInfo.textContent = 'Error: Unable to load track';
+          retryButton.style.display = 'block';
           console.error('Audio error:', audioPlayer.error);
+          if (audioPlayer.error) {
+            console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
+          }
         }, { once: true });
+
+        audioPlayer.load(); // Force load for iOS
+      }
+    }
+
+    function attemptPlay() {
+      audioPlayer.play()
+        .then(() => {
+          albumCover.classList.add('spin');
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          console.log(`Playing: ${trackInfo.textContent}`);
+          savePlayerState();
+          gsap.fromTo(albumCover, 
+            { scale: 1 }, 
+            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+          );
+          isFirstPlay = false;
+        })
+        .catch(error => handlePlayError(error, trackInfo.textContent));
+    }
+
+    function handlePlayError(error, title) {
+      loadingSpinner.style.display = 'none';
+      albumCover.style.display = 'block';
+      document.getElementById('progressBar').style.display = 'none';
+      retryButton.style.display = 'block';
+      console.error(`Error playing ${title}:`, error);
+      trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
+      if (error.name === 'NotAllowedError') {
+        console.log('Safari requires user interaction for first play');
       }
     }
 
