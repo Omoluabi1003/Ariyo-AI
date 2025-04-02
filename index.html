@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" /> <!-- iOS full-screen -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /> <!-- iOS status bar -->
+  <meta name="theme-color" content="#ff758c" /> <!-- Android status bar -->
   <title>Àríyò AI - Smart Naija AI</title>
 
   <!-- Google Fonts -->
@@ -23,8 +26,11 @@
     defer
   ></script>
 
-  <!-- Web App Manifest (Hosted on omoluabi.rf.gd) -->
+  <!-- Web App Manifest -->
   <link rel="manifest" href="/manifest.json">
+
+  <!-- Apple Touch Icon -->
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png">
 
   <style>
     html, body {
@@ -587,7 +593,7 @@
     /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
     audioPlayer.id = 'audioPlayer';
-    audioPlayer.preload = 'metadata';
+    audioPlayer.preload = 'auto';
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
@@ -646,7 +652,7 @@
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/We%20Are%20Not%20Doing%20That.mp3', title: 'We Are Not Doing That' },
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Oil%20Money.mp3', title: 'Oil Money' },
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbamsolutely.mp3', title: 'Gbamsolutely' },
-          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Mic%20Be%20For%20Waist.mp3', title: 'Mic No Be For Waist' }
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Mic%20No%20Be%20For%20Waist.mp3', title: 'Mic No Be For Waist' }
         ]
       }
     ];
@@ -723,7 +729,7 @@
     function selectTrack(src, title, index) {
       console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
-      audioPlayer.src = src;
+      audioPlayer.src = src + '?t=' + new Date().getTime();
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
@@ -737,8 +743,8 @@
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         trackInfo.textContent = 'Error: Track failed to load';
-        console.error(`Timeout: ${title} failed to buffer within 10 seconds`);
-      }, 10000);
+        console.error(`Timeout: ${title} failed to buffer within 15 seconds`);
+      }, 15000);
 
       audioPlayer.addEventListener('canplaythrough', () => {
         clearTimeout(playTimeout);
@@ -763,6 +769,31 @@
           });
       }, { once: true });
 
+      audioPlayer.addEventListener('canplay', () => {
+        if (loadingSpinner.style.display === 'block') {
+          clearTimeout(playTimeout);
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          audioPlayer.play()
+            .then(() => {
+              albumCover.classList.add('spin');
+              audioPlayer.addEventListener('timeupdate', updateTrackTime);
+              savePlayerState();
+              gsap.fromTo(albumCover, 
+                { scale: 1 }, 
+                { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+              );
+            })
+            .catch(error => {
+              clearTimeout(playTimeout);
+              loadingSpinner.style.display = 'none';
+              albumCover.style.display = 'block';
+              console.error(`Fallback play error for ${title}:`, error);
+              trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
+            });
+        }
+      }, { once: true });
+
       audioPlayer.addEventListener('error', () => {
         clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
@@ -781,8 +812,8 @@
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
           trackInfo.textContent = 'Error: Track failed to load';
-          console.error('Timeout: Track failed to buffer within 10 seconds');
-        }, 10000);
+          console.error('Timeout: Track failed to buffer within 15 seconds');
+        }, 15000);
 
         audioPlayer.addEventListener('canplaythrough', () => {
           clearTimeout(playTimeout);
@@ -806,6 +837,32 @@
               console.error('Play error:', error);
               trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
             });
+        }, { once: true });
+
+        audioPlayer.addEventListener('canplay', () => {
+          if (loadingSpinner.style.display === 'block') {
+            clearTimeout(playTimeout);
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            audioPlayer.play()
+              .then(() => {
+                albumCover.classList.add('spin');
+                audioPlayer.addEventListener('timeupdate', updateTrackTime);
+                console.log(`Playing (fallback): ${trackInfo.textContent}`);
+                savePlayerState();
+                gsap.fromTo(albumCover, 
+                  { scale: 1 }, 
+                  { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+                );
+              })
+              .catch(error => {
+                clearTimeout(playTimeout);
+                loadingSpinner.style.display = 'none';
+                albumCover.style.display = 'block';
+                console.error('Fallback play error:', error);
+                trackInfo.textContent = navigator.onLine ? 'Error playing track' : 'Offline - Audio unavailable';
+              });
+          }
         }, { once: true });
 
         audioPlayer.addEventListener('error', () => {
@@ -1033,6 +1090,40 @@
 
     // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
+
+    // PWA Install Prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      console.log('Install prompt available');
+      const installBtn = document.createElement('button');
+      installBtn.textContent = 'Install Àríyò AI';
+      installBtn.style.position = 'fixed';
+      installBtn.style.bottom = '20px';
+      installBtn.style.right = '20px';
+      installBtn.style.background = '#ff758c';
+      installBtn.style.color = 'white';
+      installBtn.style.padding = '10px 20px';
+      installBtn.style.border = 'none';
+      installBtn.style.borderRadius = '5px';
+      installBtn.style.zIndex = '1000';
+      installBtn.onclick = () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User installed the app');
+          }
+          deferredPrompt = null;
+          installBtn.remove();
+        });
+      };
+      document.body.appendChild(installBtn);
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+    });
   </script>
 </body>
 </html>
