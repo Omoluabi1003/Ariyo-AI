@@ -13,7 +13,7 @@ const urlsToCache = [
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg', // Background image 3
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg', // Album cover 1
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg', // Album cover 2
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png', // Chatbot icon and screenshot
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png', // Chatbot icon and screenshot
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png', // Sabi Bible icon
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png', // Icon 192x192
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png', // Icon 512x512
