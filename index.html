@@ -430,16 +430,30 @@
     </button>
   </div>
 
-  <div class="container">
-    <div class="sidebar">
-      <button onclick="openAlbumList()">🎧 Choose An Album</button>
-      <button onclick="openRadioList()">📻 Radio Stations</button>
-    </div>
-    <div class="content" id="main-content">
-      <h2>Select an option from the sidebar</h2>
-      <div id="newsContainer" class="news-container" style="display: none;"></div>
-    </div>
+<div class="container">
+  <div class="sidebar">
+    <button onclick="openAlbumList()">🎧 Choose An Album</button>
+    <button onclick="openRadioList()">📻 Radio Stations</button>
+    <button onclick="showAbout()">ℹ️ About Àríyò AI</button>
   </div>
+
+  <div class="content" id="main-content">
+    <h2>Select an option from the sidebar</h2>
+    <div id="newsContainer" class="news-container" style="display: none;"></div>
+  </div> <!-- This closes main-content -->
+
+  <!-- 🔥 Inserted About Section Here -->
+  <div id="about-section" style="display:none; padding: 2rem; color: #fff; max-width: 900px; margin: auto;">
+    <h2 style="color:#ff758c;">Smart Naija AI, Powered by Omoluabi</h2>
+    <p>
+      Àríyò AI no be your regular AI. E dey reason like street-smart Naija padi wey sabi cruise and still get sense...
+    </p>
+    <!-- the rest of the about section -->
+    <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg" alt="Àríyò AI" style="width:100%; border-radius:10px; margin-top:1rem;">
+    <br>
+    <button onclick="goHome()" style="margin-top: 1rem; background:#ff758c; border:none; padding:0.7rem 1rem; border-radius:8px; color:white;">⬅️ Back to Main</button>
+  </div>
+</div>
 
   <!-- Music Player -->
   <div class="music-player">
@@ -1459,6 +1473,17 @@
         console.log('Page visible, reattached timeupdate listener');
       }
     });
-  </script>
+  <script>
+  function showAbout() {
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('about-section').style.display = 'block';
+  }
+
+  function goHome() {
+    document.getElementById('about-section').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  }
+</script>
+
 </body>
 </html>
