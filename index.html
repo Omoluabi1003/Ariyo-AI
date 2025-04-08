@@ -6,37 +6,26 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#ff758c" />
+  <meta name="description" content="Àríyò AI - A street-smart Nigerian AI by Omoluabi Productions offering music, radio, and chatbot features." />
+  <meta name="keywords" content="Àríyò AI, Naija AI, Omoluabi, Nigerian music, AI chatbot" />
+
   <title>Àríyò AI - Smart Naija AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFzONWFxfg==" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-16esztaSRplJROstbIIdwX3N97V1+pZvV33ABoG1H2OyTttBxEGkTsoIVsiP1iaTtM8b3+hu2kB6pQ4Clr5yug==" crossorigin="anonymous" defer></script>
+  <script async type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js" onerror="console.warn('Zapier script failed to load')"></script>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome (Icons) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
-
-  <!-- GSAP (Animations) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
-
-  <!-- Zapier Web Component Script -->
-  <script async type='module' src='https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js'></script>
-
-  <!-- Web App Manifest -->
-  <link rel="manifest" href="/manifest.json">
-
-  <!-- Icons for PWA (Fixing Android Thumbnail Issue) -->
+  <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
   <link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-192x192.png">
   <link rel="icon" type="image/png" sizes="180x180" href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png">
   <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-512x512.png">
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png">
-
-  <style>
-    html, body {
-      height: 100%;
-      overflow-x: hidden;
-      background-color: #000;
-      margin: 0;
-      padding: 0;
-    }
+  
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow-x: hidden; background-color: #000; }
     body {
       font-family: 'Montserrat', sans-serif;
       color: #fff;
@@ -46,38 +35,46 @@
       background-size: cover;
       background-position: center;
       transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      will-change: background-image;
     }
     a { text-decoration: none; }
     .dark-mode { background-color: #121212; color: #ffffff; }
+
     .header {
       padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
       text-align: center;
       font-size: clamp(1.5rem, 4vw, 2rem);
       font-weight: bold;
-      border-bottom: 2px solid white;
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
       box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
-      background: rgba(0, 123, 255, 0.9);
       position: relative;
+      z-index: 1000;
     }
     .share-button {
       position: absolute;
-      top: 0.5rem;
+      top: calc(0.5rem + env(safe-area-inset-top));
       right: 0.5rem;
-      background-color: rgba(0, 123, 255, 0.7);
+      background-color: rgba(0, 123, 255, 0.9);
       color: white;
-      padding: 0.6rem;
+      padding: 0.8rem;
       border: none;
       border-radius: 50%;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
-    .share-button:hover { background-color: rgba(0, 123, 255, 1); }
-    .container {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
+    .share-button:hover { background-color: rgba(0, 123, 255, 1); transform: scale(1.1); }
+
+    .container { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: row; 
+      overflow: hidden; 
+      overflow-y: auto;
+      height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     }
     .sidebar {
       width: 250px;
@@ -91,10 +88,12 @@
       border-radius: 15px;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
       flex-shrink: 0;
+      z-index: 100;
     }
-    .sidebar button {
+
+        .sidebar button {
       background: linear-gradient(135deg, #ff7eb3, #ff758c);
-      color: white;
+      color: #fff;
       padding: 0.8rem 1rem;
       border: none;
       border-radius: 25px;
@@ -108,19 +107,19 @@
       gap: 0.5rem;
       min-height: 48px;
     }
-    .sidebar button:hover {
-      transform: scale(1.08);
-      box-shadow: 0px 4px 10px rgba(255, 117, 140, 0.6);
-    }
-    .content {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
-      opacity: 0;
+    .sidebar button:hover { transform: scale(1.08); box-shadow: 0px 4px 10px rgba(255, 117, 140, 0.6); }
+    .sidebar button:focus { outline: 2px solid #ff4060; outline-offset: 2px; }
+    .content { 
+      flex: 1; 
+      padding: 1.5rem; 
+      overflow-y: auto; 
+      opacity: 0; 
       transition: opacity 0.5s ease-in-out;
+      min-height: 200px;
     }
+
     .music-player {
-      background: rgba(34, 34, 34, 0.7);
+      background: linear-gradient(135deg, rgba(34, 34, 34, 0.7), rgba(18, 18, 18, 0.9));
       padding: 1rem;
       text-align: center;
       border-radius: 10px;
@@ -140,8 +139,9 @@
       margin: 0.6rem auto;
       display: block;
       box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease;
     }
+
     .spin { animation: spin 3s linear infinite; }
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -156,6 +156,7 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto;
+      transition: opacity 0.3s ease;
     }
     .music-controls.icons-only {
       margin-top: 0.6rem;
@@ -165,23 +166,24 @@
       flex-wrap: wrap;
       gap: 0.6rem;
     }
+
     .music-controls.icons-only button {
       background: #ff758c;
       color: white;
       border: none;
-      padding: 0.8rem;
+      padding: 1rem;
       border-radius: 25px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.2rem;
       transition: transform 0.2s;
-      min-width: 48px;
-      min-height: 48px;
+      min-width: 56px;
+      min-height: 56px;
     }
     .music-controls.icons-only button:hover { transform: scale(1.1); }
     .track-info { margin-top: 0.6rem; font-size: clamp(1rem, 3vw, 1.2rem); }
     .track-duration { font-size: clamp(0.8rem, 2vw, 0.9rem); margin-top: 0.3rem; }
     .track-details { margin-top: 0.6rem; font-size: clamp(0.8rem, 2vw, 0.9rem); }
-    #streakInfo { color: #ff0000; } /* Bright red for Current Streak */
+    #streakInfo { color: #ff0000; }
     .dropdown {
       width: 100%;
       background: rgba(34,34,34,0.8);
@@ -193,6 +195,7 @@
       margin-top: 1rem;
       font-size: clamp(0.9rem, 2vw, 1rem);
     }
+
     .modal {
       display: none;
       position: fixed;
@@ -205,7 +208,7 @@
       background-color: rgba(0,0,0,0.4);
     }
     .modal-content {
-      background-color: #fefefe;
+      background-color: #ffffff;
       margin: 10% auto;
       padding: 1.5rem;
       border: 1px solid #888;
@@ -214,25 +217,34 @@
       max-height: 80vh;
       overflow-y: auto;
       border-radius: 10px;
+      color: #000;
+      position: relative;
     }
     .close {
-      color: #aaa;
-      float: right;
-      font-size: 1.8rem;
-      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 50%;
+      color: transparent;
+      font-size: 0;
+      cursor: pointer;
     }
-    .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+
     .track-list a, .album-list a, .radio-list a {
       display: block;
       padding: 0.8rem;
-      color: white;
+      color: #000;
       text-decoration: none;
-      background-color: #333;
+      background-color: #f0f0f0;
       margin-bottom: 0.3rem;
       border-radius: 5px;
       font-size: clamp(0.9rem, 2vw, 1rem);
     }
-    .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: #ff758c; }
+    .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: #ff758c; color: #fff; }
+
     .chatbot-container, .sabi-bible-container {
       position: fixed;
       bottom: calc(100px + env(safe-area-inset-bottom));
@@ -256,6 +268,7 @@
       border: none;
       border-radius: 10px;
     }
+
     .popup-close {
       position: absolute;
       top: 10px;
@@ -284,7 +297,9 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
+      transition: transform 0.3s ease;
     }
+
     .sabi-bible-bubble-container {
       position: fixed;
       bottom: calc(80px + env(safe-area-inset-bottom));
@@ -296,7 +311,9 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
+      transition: transform 0.3s ease;
     }
+    .chatbot-bubble-container:hover, .sabi-bible-bubble-container:hover { transform: scale(1.1); }
     .chatbot-float-icon, .sabi-bible-float-icon {
       width: 100%;
       height: 100%;
@@ -304,9 +321,10 @@
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       animation: float 3s ease-in-out infinite;
     }
+
     @keyframes float {
-      0%   { transform: translateY(0px); }
-      50%  { transform: translateY(-10px); }
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
     }
     .chatbot-speech-bubble, .sabi-bible-speech-bubble {
@@ -326,6 +344,7 @@
       pointer-events: none;
       z-index: 1;
     }
+
     .chatbot-speech-bubble::after, .sabi-bible-speech-bubble::after {
       content: "";
       position: absolute;
@@ -348,6 +367,7 @@
       overflow: hidden;
       z-index: 9999;
     }
+
     .watermark {
       position: absolute;
       font-size: clamp(1rem, 4vw, 2rem);
@@ -371,6 +391,7 @@
       0% { transform: translate(0, 0) rotate(0deg); }
       100% { transform: translate(-200vw, 200vh) rotate(-360deg); }
     }
+
     .drift1 { animation: drift1 30s linear infinite; }
     .drift2 { animation: drift2 30s linear infinite; }
     .drift3 { animation: drift3 30s linear infinite; }
@@ -386,6 +407,7 @@
       display: none;
     }
     .retry-button:hover { background: #ff4060; }
+
     .progress-bar {
       width: 90%;
       height: 5px;
@@ -402,87 +424,58 @@
       transition: width 0.2s ease;
     }
     @media (max-width: 768px) {
-      .sidebar {
-        width: 100%;
-        flex-direction: row;
-        justify-content: space-around;
-        border-radius: 0;
-        padding: 0.5rem;
-      }
-      .container { flex-direction: column; }
+      .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; border-radius: 0; padding: 0.5rem; }
+      .container { flex-direction: column; overflow-y: auto; }
       .content { padding-bottom: 15rem; }
     }
+
     @media (max-width: 480px) {
       .sidebar button { padding: 0.6rem; min-width: 60px; }
       .music-player { bottom: env(safe-area-inset-bottom); padding: 0.5rem; border-radius: 0; }
-      .chatbot-bubble-container, .sabi-bible-bubble-container {
-        bottom: calc(15rem + env(safe-area-inset-bottom));
-      }
+      .chatbot-bubble-container, .sabi-bible-bubble-container { bottom: calc(15rem + env(safe-area-inset-bottom)); }
+      .container { overflow-y: scroll; height: auto; min-height: calc(100vh - 60px); }
     }
   </style>
 </head>
 
 <body>
   <div class="header">
-    Welcome to Àríyò AI 
+    <style="height: 40px; vertical-align: middle;"> 
+    Welcome to Àríyò AI
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
       <i class="fas fa-share-alt"></i>
     </button>
   </div>
-
 <div class="container">
   <div class="sidebar">
-    <button onclick="openAlbumList()">🎧 Choose An Album</button>
-    <button onclick="openRadioList()">📻 Radio Stations</button>
-    <button onclick="showAbout()">ℹ️ About Àríyò AI</button>
-  </div>
-
-  <div class="content" id="main-content">
-    <h2>Select an option from the sidebar</h2>
-    <div id="newsContainer" class="news-container" style="display: none;"></div>
-  </div> <!-- This closes main-content -->
-
-  <!-- 🔥 Inserted About Section Here -->
-  <div id="about-section" style="display:none; padding: 2rem; color: #fff; max-width: 900px; margin: auto;">
-    <h2 style="color:#ff758c;">Smart Naija AI, Powered by Omoluabi</h2>
-    <p>
-      Àríyò AI no be your regular AI. E dey reason like street-smart Naija padi wey sabi cruise and still get sense...
-    </p>
-    <!-- the rest of the about section -->
-    <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg" alt="Àríyò AI" style="width:100%; border-radius:10px; margin-top:1rem;">
-    <br>
-    <button onclick="goHome()" style="margin-top: 1rem; background:#ff758c; border:none; padding:0.7rem 1rem; border-radius:8px; color:white;">⬅️ Back to Main</button>
+    <button onclick="openAlbumList()" aria-label="Choose an album">🎵 Choose An Album</button>
+    <button onclick="openRadioList()" aria-label="Select radio stations">📻 Radio Stations</button>
+    <button id="aboutBtn" aria-label="Learn more about Àríyò AI">ℹ️ About Àríyò AI</button>
   </div>
 </div>
 
-  <!-- Music Player -->
-  <div class="music-player">
+    <div class="content" id="main-content">
+      <h2>Select an option from the sidebar</h2>
+      <div id="newsContainer" class="news-container" style="display: none;"></div>
+    </div>
+  </div>
+  <div class="music-player" aria-live="polite">
     <h3>Music Player</h3>
-    <img
-      id="albumCover"
-      class="album-cover"
-      src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-      alt="Album Cover"
-    />
+    <figure>
+      <img id="albumCover" class="album-cover" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg" alt="Current album cover" />
+      <figcaption id="trackInfo">A Very Good Bad Guy v3</figcaption>
+    </figure>
+
     <div id="loadingSpinner" class="loading-spinner"></div>
     <div id="progressBar" class="progress-bar"><div></div></div>
-    <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
     <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
     <p id="streakInfo" class="track-details">🔥 Current Streak: 0 days</p>
-    <input
-      type="range"
-      id="seekBar"
-      value="0"
-      min="0"
-      max="100"
-      step="1"
-      style="width: 90%; margin-top: 10px;"
-      aria-label="Seek bar for audio playback"
-    />
+    <input type="range" id="seekBar" value="0" min="0" max="100" step="1" style="width: 90%; margin-top: 10px;" aria-label="Seek bar for audio playback" />
     <button id="retryButton" class="retry-button" onclick="retryTrack()">Retry</button>
     <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)">Download for Offline</button>
+
     <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()">🎵 Choose A Track</div>
     <div class="dropdown" role="button" aria-label="Choose a radio station" onclick="openRadioList()">📻 Radio Stations</div>
     <div class="music-controls icons-only">
@@ -495,77 +488,51 @@
     </div>
   </div>
 
-  <!-- Modal for Album List -->
-  <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
+  <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle" aria-describedby="albumModalDesc">
     <div class="modal-content">
-      <span class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</span>
+      <span class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()"></span>
       <h3 id="albumModalTitle">Choose An Album</h3>
+      <p id="albumModalDesc" style="display: none;">Select an album to play.</p>
       <div class="album-list">
         <a href="#" onclick="selectAlbum(0)">Album 1: Kindness</a>
         <a href="#" onclick="selectAlbum(1)">Album 2: Street Sense</a>
       </div>
     </div>
   </div>
-
-  <!-- Modal for Track List -->
-  <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
+  <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle" aria-describedby="trackModalDesc">
     <div class="modal-content">
-      <span class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</span>
+      <span class="close" role="button" aria-label="Close track list" onclick="closeTrackList()"></span>
       <h3 id="trackModalTitle">Choose A Track</h3>
-      <div class="track-list">
-        <!-- Dynamically populated -->
-      </div>
+      <p id="trackModalDesc" style="display: none;">Select a track to play.</p>
+      <div class="track-list"></div>
     </div>
   </div>
 
-  <!-- Modal for Radio Stations -->
-  <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
+  <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle" aria-describedby="radioModalDesc">
     <div class="modal-content">
-      <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
+      <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()"></span>
       <h3 id="radioModalTitle">Choose A Radio Station</h3>
-      <div class="radio-list">
-        <!-- Dynamically populated -->
-      </div>
+      <p id="radioModalDesc" style="display: none;">Select a radio station to listen to.</p>
+      <div class="radio-list"></div>
     </div>
   </div>
-
-  <!-- Chatbot Floating Icon & Comic Bubble -->
   <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
     <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
-    <div class="chatbot-speech-bubble" id="chatbotBubble">How far?</div>
+    <div class="chatbot-speech-bubble" id="chatbotBubble" aria-hidden="true">How far?</div>
   </div>
-
-  <!-- Chatbot Container -->
   <div class="chatbot-container" id="chatbotContainer">
     <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
-    <zapier-interfaces-chatbot-embed 
-      is-popup="false" 
-      chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn" 
-      height="100%" 
-      width="100%" 
-      title="Àríyò AI Chatbot">
-    </zapier-interfaces-chatbot-embed>
+    <zapier-interfaces-chatbot-embed is-popup="false" chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn" height="100%" width="100%" title="Àríyò AI Chatbot"></zapier-interfaces-chatbot-embed>
   </div>
 
-  <!-- Sabi Bible Floating Icon & Comic Bubble -->
   <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
     <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-    <div class="sabi-bible-speech-bubble" id="sabiBibleBubble">Sabi Bible dey here!</div>
+    <div class="sabi-bible-speech-bubble" id="sabiBibleBubble" aria-hidden="true">Sabi Bible dey here!</div>
   </div>
-
-  <!-- Sabi Bible Container -->
   <div class="sabi-bible-container" id="sabiBibleContainer">
     <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
-    <zapier-interfaces-chatbot-embed 
-      is-popup="false" 
-      chatbot-id="cm7ve7fdl002jlclh8y1n6n1y" 
-      height="100%" 
-      width="100%" 
-      title="Sabi Bible Chatbot">
-    </zapier-interfaces-chatbot-embed>
+    <zapier-interfaces-chatbot-embed is-popup="false" chatbot-id="cm7ve7fdl002jlclh8y1n6n1y" height="100%" width="100%" title="Sabi Bible Chatbot"></zapier-interfaces-chatbot-embed>
   </div>
-
-  <!-- Floating Watermarks -->
   <div class="floating-watermarks">
     <div class="watermark drift1" style="top: 10%; left: 5%;">Omoluabi Productions</div>
     <div class="watermark drift2" style="top: 25%; left: 20%;">Omoluabi Productions</div>
@@ -580,35 +547,76 @@
     <div class="watermark drift3" style="top: 15%; left: 85%;">Omoluabi Productions</div>
     <div class="watermark drift4" style="top: 75%; left: 5%;">Omoluabi Productions</div>
   </div>
-
   <script>
-    /* SHARE BUTTON (Web Share API) */
+   
     function shareContent() {
-      if (navigator.share) {
-        navigator.share({
-          title: "Àríyò AI - Smart Naija AI",
-          text: "Check out this awesome page!",
-          url: window.location.href
-        }).catch((err) => console.error("Share failed:", err));
-      } else {
-        alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
-      }
-    }
+  if (navigator.share) {
+    navigator.share({
+      title: "Àríyò AI - Smart Naija AI",
+      text: "Check out this awesome page!",
+      url: window.location.href
+    }).catch((err) => console.error("Share failed:", err));
+  } else {
+    alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
+  }
+}
+function loadAboutContent() {
+  const contentDiv = document.getElementById('main-content');
+  contentDiv.style.opacity = '0';
 
-    /* BACKGROUND CYCLER */
-    const backgrounds = [
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
-    ];
-    let currentBgIndex = 0;
-    document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
-    setInterval(() => {
+  fetch('about-content.html')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status} (${response.statusText})`);
+      }
+      return response.text();
+    })
+    .then(html => {
+      contentDiv.innerHTML = html;
+      contentDiv.style.padding = '0';
+      contentDiv.style.backgroundColor = 'transparent';
+      contentDiv.style.overflowY = 'auto';
+      contentDiv.style.maxHeight = 'calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom))';
+      gsap.to(contentDiv, { opacity: 1, duration: 0.5 });
+
+      // Reconnect back button
+      const backButton = contentDiv.querySelector('.back-button');
+      if (backButton) {
+        backButton.addEventListener('click', resetContent);
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching about-content.html:', error.message);
+      contentDiv.innerHTML = `<h2>Error</h2><p>Could not load About page: ${error.message}. Please try again later.</p>`;
+      gsap.to(contentDiv, { opacity: 1, duration: 0.5 });
+    });
+}
+
+function resetContent() {
+  const contentDiv = document.getElementById('main-content');
+  contentDiv.style.opacity = '0';
+  contentDiv.innerHTML = '<h2>Select an option from the sidebar</h2><div id="newsContainer" class="news-container" style="display: none;"></div>';
+  contentDiv.style.padding = '1.5rem';
+  contentDiv.style.backgroundColor = 'transparent';
+  gsap.to(contentDiv, { opacity: 1, duration: 0.5 });
+}
+
+const backgrounds = [
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
+];
+let currentBgIndex = sessionStorage.getItem('bgIndex') ? parseInt(sessionStorage.getItem('bgIndex')) : 0;
+function setBackground() {
+  document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+}
+    setBackground();
+    const bgInterval = setInterval(() => {
       currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
-      document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+      sessionStorage.setItem('bgIndex', currentBgIndex);
+      setBackground();
     }, 30000);
 
-    /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
     audioPlayer.id = 'audioPlayer';
     audioPlayer.preload = 'auto';
@@ -621,7 +629,7 @@
     const seekBar = document.getElementById('seekBar');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const retryButton = document.getElementById('retryButton');
-    const cacheButton = document.getElementById('cacheButton'); // New cache button
+    const cacheButton = document.getElementById('cacheButton');
     const progressBar = document.getElementById('progressBar').querySelector('div');
     const streakInfo = document.getElementById('streakInfo');
     let shuffleMode = false;
@@ -684,72 +692,61 @@
     ];
 
     const radioStations = [
-  { name: "Nigeria Info FM", location: "Lagos", url: "https://nigeriainfofmlagos993-atunwadigital.streamguys1.com/nigeriainfofmlagos993", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Radio Lagos FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/2/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Vision FM", location: "Kaduna", url: "https://stream-172.zeno.fm/92mxpb1akhruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Mm14cGIxYWtocnV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6ImV5OWlMMlhEU1JLMHNyYnd0b3F4ckEiLCJpYXQiOjE3NDM5MTU4MzgsImV4cCI6MTc0MzkxNTg5OH0.5sHfe_ukTnT2Fdiy83NdYdU0da51JkZXBgFoJVhg8_I", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Wazobia FM", location: "Lagos", url: "https://wazobiafmlagos951-atunwadigital.streamguys1.com/wazobiafmlagos951", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Inspiration 92.3 FM", location: "Lagos", url: "https://inspiration923fm-atunwadigital.streamguys1.com/inspiration923fm", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Splash FM 105.5", location: "Ibadan", url: "http://edge.mixlr.com/channel/cfeki", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "The Beat 99.9 FM", location: "Lagos", url: "http://beatfmlagos.atunwadigital.streamguys1.com/beatfmlagos", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Fresh 107.9 FM", location: "Abeokuta", url: "https://stream-144.zeno.fm/7gs2681gqeruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3Z3MyNjgxZ3FlcnV2IiwiaG9zdCI6InN0cmVhbS0xNDQuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6Im5nQmJkeTBjU3QtSlhMeG5QczVMUUEiLCJpYXQiOjE3NDM5MTMxNTksImV4cCI6MTc0MzkxMzIxOX0.bBtX4N1gdSrYDAPnoVAvA_OR42oPE3ceaGueOZW5dkg", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Faaji 106.5 FM", location: "Lagos", url: "http://streaming.faajifmradio.com:8000/faaji", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Jay 101.9 FM", location: "Jos", url: "http://live2.rcast.net:8970/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "FRCN Lagos Metro FM", location: "Abuja", url: "http://go.webgateready.com:7668/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Radio Nigeria", location: "Abuja", url: "https://stream.radionigeria.gov.ng/live", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "NBS Solid 97.1 FM", location: "Nassarawa", url: "https://nbsradio1.radioca.st/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Vision Africa Radio", location: "Abia", url: "https://xstreamer.galcom.org:8443/VisionAfrica", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Crest 106.1 FM", location: "Ondo", url: "https://stream-154.zeno.fm/9cgtkwg3teruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Y2d0a3dnM3RlcnV2IiwiaG9zdCI6InN0cmVhbS0xNTQuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IlI4MXQzdjhRUWhDQWdkODRsaWJtckEiLCJpYXQiOjE3NDM5MTI3NzQsImV4cCI6MTc0MzkxMjgzNH0.QiIm090_iZfI55MZu7WqKjm5inX-mmKanKQgGBBbA7w", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Eko FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/1/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Liveway Radio Network FM", location: "Lagos", url: "https://stream-173.zeno.fm/qc43ktn6n0quv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJxYzQza3RuNm4wcXV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6ImMtb0ZiQ3dtVE1hZUlEVU5YQ3BiVUEiLCJpYXQiOjE3NDM5MTMyODcsImV4cCI6MTc0MzkxMzM0N30.HVLieksgqvV_vsqRr9_rcDexkz6Lqeqeu7stKvuJr10", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Radio Space FM", location: "Ibadan", url: "https://stream-175.zeno.fm/79hmhafteg0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3OWhtaGFmdGVnMHV2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IkFqako3a0doUllPcVB1cmY3RDJmN2ciLCJpYXQiOjE3NDM5MTM0NzUsImV4cCI6MTc0MzkxMzUzNX0.Ow_YytmLcyURU6d_ji4EvQ-4YuLvJjXATerfWMHO67o", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "AKBC Akwa Ibom Radio", location: "Uyo", url: "https://stream-175.zeno.fm/2ttc8yl6giztv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIydHRjOHlsNmdpenR2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IlE5VFpTRXpOUzFTMVlHSHdxaW5sQWciLCJpYXQiOjE3NDM5MTM3NjgsImV4cCI6MTc0MzkxMzgyOH0.9X5nRAtcN_4Pv-z5uE6ukYrNEIcwW0gHTVuYUlxVCj4", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "RFI Haoussa", location: "Nigeria", url: "https://rfihaoussa96k.ice.infomaniak.ch/rfihaoussa-96k.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-{ name: "Tungba FM", location: "Lagos", url: "https://stream-173.zeno.fm/3vd633m7ctzuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIzdmQ2MzNtN2N0enV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6Im9QY19lN292UWFLdGUxSjFuNTI3M2ciLCJpYXQiOjE3NDM5MTQ0OTEsImV4cCI6MTc0MzkxNDU1MX0.UvA6Q0NuULFeRcHvqPJ9d68DeWz-0agoUBi8GDQWN0E", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-
-  // International English Stations
-  { name: "NPR News", location: "Washington DC", url: "https://npr-ice.streamguys1.com/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "BBC World Service", location: "London", url: "https://utulsa.streamguys1.com/KWGSHD3-MP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Capital FM", location: "London", url: "https://media-ssl.musicradio.com/CapitalMP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "WNYC", location: "New York", url: "https://fm939.wnyc.org/wnycfm-tunein", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "RTE Radio 1", location: "Dublin", url: "https://icecast.rte.ie/radio1", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Virgin Radio UK", location: "London", url: "https://radio.virginradio.co.uk/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "WBEZ", location: "Chicago", url: "http://wbez.streamguys1.com/wbez128.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Joy FM", location: "Accra", url: "http://provisioning.streamtheworld.com/pls/JOY_FM.pls", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "UBC Radio", location: "Kampala", url: "https://stream.ubc.go.ug/ubcradio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-  { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" }
- ];
+      { name: "Nigeria Info FM", location: "Lagos", url: "https://nigeriainfofmlagos993-atunwadigital.streamguys1.com/nigeriainfofmlagos993", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Lagos FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/2/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Vision FM", location: "Kaduna", url: "https://stream-172.zeno.fm/92mxpb1akhruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Mm14cGIxYWtocnV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImV5OWlMMlhEU1JLMHNyYnd0b3F4ckEiLCJpYXQiOjE3NDM5MTU4MzgsImV4cCI6MTc0MzkxNTg5OH0.5sHfe_ukTnT2Fdiy83NdYdU0da51JkZXBgFoJVhg8_I", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Wazobia FM", location: "Lagos", url: "https://wazobiafmlagos951-atunwadigital.streamguys1.com/wazobiafmlagos951", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Inspiration 92.3 FM", location: "Lagos", url: "https://inspiration923fm-atunwadigital.streamguys1.com/inspiration923fm", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Splash FM 105.5", location: "Ibadan", url: "http://edge.mixlr.com/channel/cfeki", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "The Beat 99.9 FM", location: "Lagos", url: "http://beatfmlagos.atunwadigital.streamguys1.com/beatfmlagos", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Fresh 107.9 FM", location: "Abeokuta", url: "https://stream-144.zeno.fm/7gs2681gqeruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3Z3MyNjgxZ3FlcnV2IiwiaG9zdCI6InN0cmVhbS0xNDQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im5nQmJkeTBjU3QtSlhMeG5QczVMUUEiLCJpYXQiOjE3NDM5MTMxNTksImV4cCI6MTc0MzkxMzIxOX0.bBtX4N1gdSrYDAPnoVAvA_OR42oPE3ceaGueOZW5dkg", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Faaji 106.5 FM", location: "Lagos", url: "http://streaming.faajifmradio.com:8000/faaji", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Jay 101.9 FM", location: "Jos", url: "http://live2.rcast.net:8970/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "FRCN Lagos Metro FM", location: "Abuja", url: "http://go.webgateready.com:7668/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Nigeria", location: "Abuja", url: "https://stream.radionigeria.gov.ng/live", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "NBS Solid 97.1 FM", location: "Nassarawa", url: "https://nbsradio1.radioca.st/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Vision Africa Radio", location: "Abia", url: "https://xstreamer.galcom.org:8443/VisionAfrica", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Crest 106.1 FM", location: "Ondo", url: "https://stream-154.zeno.fm/9cgtkwg3teruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Y2d0a3dnM3RlcnV2IiwiaG9zdCI6InN0cmVhbS0xNTQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlI4MXQzdjhRUWhDQWdkODRsaWJtckEiLCJpYXQiOjE3NDM5MTI3NzQsImV4cCI6MTc0MzkxMjgzNH0.QiIm090_iZfI55MZu7WqKjm5inX-mmKanKQgGBBbA7w", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Eko FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/1/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Liveway Radio Network FM", location: "Lagos", url: "https://stream-173.zeno.fm/qc43ktn6n0quv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJxYzQza3RuNm4wcXV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImMtb0ZiQ3dtVE1hZUlEVU5YQ3BiVUEiLCJpYXQiOjE3NDM5MTMyODcsImV4cCI6MTc0MzkxMzM0N30.HVLieksgqvV_vsqRr9_rcDexkz6Lqeqeu7stKvuJr10", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Space FM", location: "Ibadan", url: "https://stream-175.zeno.fm/79hmhafteg0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3OWhtaGFmdGVnMHV2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IkFqako3a0doUllPcVB1cmY3RDJmN2ciLCJpYXQiOjE3NDM5MTM0NzUsImV4cCI6MTc0MzkxMzUzNX0.Ow_YytmLcyURU6d_ji4EvQ-4YuLvJjXATerfWMHO67o", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "AKBC Akwa Ibom Radio", location: "Uyo", url: "https://stream-175.zeno.fm/2ttc8yl6giztv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIydHRjOHlsNmdpenR2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlE5VFpTRXpOUzFTMVlHSHdxaW5sQWciLCJpYXQiOjE3NDM5MTM3NjgsImV4cCI6MTc0MzkxMzgyOH0.9X5nRAtcN_4Pv-z5uE6ukYrNEIcwW0gHTVuYUlxVCj4", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "RFI Haoussa", location: "Nigeria", url: "https://rfihaoussa96k.ice.infomaniak.ch/rfihaoussa-96k.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Tungba FM", location: "Lagos", url: "https://stream-173.zeno.fm/3vd633m7ctzuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIzdmQ2MzNtN2N0enV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im9QY19lN292UWFLdGUxSjFuNTI3M2ciLCJpYXQiOjE3NDM5MTQ0OTEsImV4cCI6MTc0MzkxNDU1MX0.UvA6Q0NuULFeRcHvqPJ9d68DeWz-0agoUBi8GDQWN0E", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "NPR News", location: "Washington DC", url: "https://npr-ice.streamguys1.com/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "BBC World Service", location: "London", url: "https://utulsa.streamguys1.com/KWGSHD3-MP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Capital FM", location: "London", url: "https://media-ssl.musicradio.com/CapitalMP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "WNYC", location: "New York", url: "https://fm939.wnyc.org/wnycfm-tunein", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "RTE Radio 1", location: "Dublin", url: "https://icecast.rte.ie/radio1", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Virgin Radio UK", location: "London", url: "https://radio.virginradio.co.uk/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "WBEZ", location: "Chicago", url: "http://wbez.streamguys1.com/wbez128.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Joy FM", location: "Accra", url: "http://provisioning.streamtheworld.com/pls/JOY_FM.pls", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "UBC Radio", location: "Kampala", url: "https://stream.ubc.go.ug/ubcradio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" }
+    ];
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
     let currentRadioIndex = -1;
 
-    // Streak Logic
     function updateStreak() {
       const now = new Date();
       const today = now.toDateString();
       const streakData = JSON.parse(localStorage.getItem('ariyoStreak')) || { streak: 0, lastDate: null };
-
       if (streakData.lastDate !== today) {
         const lastDate = streakData.lastDate ? new Date(streakData.lastDate) : null;
         if (lastDate) {
           const diffTime = now - lastDate;
           const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          if (diffDays === 1) {
-            streakData.streak += 1;
-          } else if (diffDays > 1) {
-            streakData.streak = 1; // Reset if more than a day is missed
-          }
-        } else {
-          streakData.streak = 1; // First use
-        }
+          if (diffDays === 1) streakData.streak += 1;
+          else if (diffDays > 1) streakData.streak = 1;
+        } else streakData.streak = 1;
         streakData.lastDate = today;
         localStorage.setItem('ariyoStreak', JSON.stringify(streakData));
       }
-
       streakInfo.textContent = `🔥 Current Streak: ${streakData.streak} days`;
-      console.log(`Streak updated: ${streakData.streak} days`);
     }
 
     function savePlayerState() {
@@ -757,22 +754,21 @@
         albumIndex: currentAlbumIndex,
         trackIndex: currentTrackIndex,
         radioIndex: currentRadioIndex,
+        src: audioPlayer.src,
         playbackPosition: audioPlayer.currentTime,
+        isPlaying: !audioPlayer.paused,
         shuffleMode: shuffleMode,
         timestamp: new Date().getTime()
       };
-      localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
-      console.log('Player state saved:', playerState);
+      sessionStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
     }
 
     function loadPlayerState() {
-      const savedState = localStorage.getItem('ariyoPlayerState');
+      const savedState = sessionStorage.getItem('ariyoPlayerState');
       if (savedState) {
         const playerState = JSON.parse(savedState);
-        const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
-        if (ageInHours < 24) {
-          return playerState;
-        }
+        const ageInSeconds = (new Date().getTime() - playerState.timestamp) / 1000;
+        if (ageInSeconds < 3600) return playerState; // Valid for 1 hour
       }
       return null;
     }
@@ -787,7 +783,6 @@
         trackLink.textContent = track.title;
         trackListContainer.appendChild(trackLink);
       });
-      console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
     }
 
     function updateRadioListModal() {
@@ -800,27 +795,20 @@
         radioLink.textContent = `${station.name} (${station.location})`;
         radioListContainer.appendChild(radioLink);
       });
-      console.log('Radio station list updated');
     }
 
     function selectAlbum(albumIndex) {
-      console.log(`Selecting album: ${albums[albumIndex].name}`);
       currentAlbumIndex = albumIndex;
       currentTrackIndex = 0;
       currentRadioIndex = -1;
       albumCover.src = albums[currentAlbumIndex].cover;
-      loadTrack(
-        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-        currentTrackIndex
-      );
+      loadTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
       updateTrackListModal();
       closeAlbumList();
       savePlayerState();
     }
 
     function loadTrack(src, title, index) {
-      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
       audioPlayer.src = src;
@@ -832,13 +820,12 @@
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'block'; // Show cache button for tracks
+      cacheButton.style.display = 'block';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
     }
 
     function selectTrack(src, title, index) {
-      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
       lastTrackSrc = src;
@@ -854,7 +841,7 @@
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'block'; // Show cache button
+      cacheButton.style.display = 'block';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       handleAudioLoad(src, title);
@@ -862,7 +849,6 @@
     }
 
     function selectRadio(src, title, index, logo) {
-      console.log(`Selecting radio: ${title}`);
       currentRadioIndex = index;
       currentTrackIndex = -1;
       lastTrackSrc = src;
@@ -879,7 +865,7 @@
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'none'; // Hide cache button for radio
+      cacheButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       handleAudioLoad(src, title);
@@ -887,11 +873,8 @@
     }
 
     function retryTrack() {
-      if (currentRadioIndex >= 0) {
-        selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
-      } else {
-        selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
-      }
+      if (currentRadioIndex >= 0) selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
+      else selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
     }
 
     function handleAudioLoad(src, title) {
@@ -901,7 +884,6 @@
         document.getElementById('progressBar').style.display = 'none';
         trackInfo.textContent = 'Error: Stream failed to load (timeout)';
         retryButton.style.display = 'block';
-        console.error(`Timeout: ${title} failed to buffer within 4 seconds`);
       }, 4000);
 
       audioPlayer.addEventListener('progress', () => {
@@ -917,10 +899,7 @@
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
-        console.log(`Stream ${title} can play through`);
-        if (!isFirstPlay) {
-          audioPlayer.play().catch(error => handlePlayError(error, title));
-        }
+        if (!isFirstPlay) audioPlayer.play().catch(error => handlePlayError(error, title));
       }, { once: true });
 
       audioPlayer.addEventListener('canplay', () => {
@@ -929,10 +908,7 @@
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
-          console.log(`Stream ${title} can play (fallback)`);
-          if (!isFirstPlay) {
-            audioPlayer.play().catch(error => handlePlayError(error, title));
-          }
+          if (!isFirstPlay) audioPlayer.play().catch(error => handlePlayError(error, title));
         }
       }, { once: true });
 
@@ -941,91 +917,76 @@
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
-        fetch(audioPlayer.src)
-          .then(res => res.json())
-          .then(data => {
-            if (data.error) trackInfo.textContent = data.error;
-          })
-          .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
+        trackInfo.textContent = 'Error: Unable to load stream';
         retryButton.style.display = 'block';
-        console.error(`Audio error for ${title}:`, audioPlayer.error);
-        if (audioPlayer.error) {
-          console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
-        }
       }, { once: true });
 
-      audioPlayer.load(); // Force load
+      audioPlayer.load();
     }
 
     function manageVinylRotation() {
-      if (!audioPlayer.paused && !audioPlayer.ended) {
-        albumCover.classList.add('spin');
-      } else {
-        albumCover.classList.remove('spin');
-      }
+      if (!audioPlayer.paused && !audioPlayer.ended) albumCover.classList.add('spin');
+      else albumCover.classList.remove('spin');
     }
 
     function playMusic() {
-      if (audioPlayer.src) {
-        loadingSpinner.style.display = 'block';
-        albumCover.style.display = 'none';
-        retryButton.style.display = 'none';
-        document.getElementById('progressBar').style.display = 'block';
-        progressBar.style.width = '0%';
+      try {
+        if (audioPlayer.src) {
+          loadingSpinner.style.display = 'block';
+          albumCover.style.display = 'none';
+          retryButton.style.display = 'none';
+          document.getElementById('progressBar').style.display = 'block';
+          progressBar.style.width = '0%';
 
-        const playTimeout = setTimeout(() => {
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          trackInfo.textContent = 'Error: Stream failed to load (timeout)';
-          retryButton.style.display = 'block';
-          console.error('Timeout: Stream failed to buffer within 4 seconds');
-        }, 4000);
+          const playTimeout = setTimeout(() => {
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            document.getElementById('progressBar').style.display = 'none';
+            trackInfo.textContent = 'Error: Stream failed to load (timeout)';
+            retryButton.style.display = 'block';
+          }, 4000);
 
-        audioPlayer.addEventListener('progress', () => {
-          if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
-            const bufferedEnd = audioPlayer.buffered.end(0);
-            const duration = audioPlayer.duration;
-            progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
-          }
-        });
+          audioPlayer.addEventListener('progress', () => {
+            if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
+              const bufferedEnd = audioPlayer.buffered.end(0);
+              const duration = audioPlayer.duration;
+              progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
+            }
+          });
 
-        audioPlayer.addEventListener('canplaythrough', () => {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          console.log(`Stream ${trackInfo.textContent} can play through`);
-          attemptPlay();
-        }, { once: true });
-
-        audioPlayer.addEventListener('canplay', () => {
-          if (loadingSpinner.style.display === 'block') {
+          audioPlayer.addEventListener('canplaythrough', () => {
             clearTimeout(playTimeout);
             loadingSpinner.style.display = 'none';
             albumCover.style.display = 'block';
             document.getElementById('progressBar').style.display = 'none';
-            console.log(`Stream ${trackInfo.textContent} can play (fallback)`);
             attemptPlay();
-          }
-        }, { once: true });
+          }, { once: true });
 
-        audioPlayer.addEventListener('error', () => {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          fetch(audioPlayer.src)
-            .then(res => res.json())
-            .then(data => {
-              if (data.error) trackInfo.textContent = data.error;
-            })
-            .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
-          retryButton.style.display = 'block';
-          console.error('Audio error:', audioPlayer.error);
-        }, { once: true });
+          audioPlayer.addEventListener('canplay', () => {
+            if (loadingSpinner.style.display === 'block') {
+              clearTimeout(playTimeout);
+              loadingSpinner.style.display = 'none';
+              albumCover.style.display = 'block';
+              document.getElementById('progressBar').style.display = 'none';
+              attemptPlay();
+            }
+          }, { once: true });
 
-        audioPlayer.load(); // Force load
+          audioPlayer.addEventListener('error', () => {
+            clearTimeout(playTimeout);
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            document.getElementById('progressBar').style.display = 'none';
+            trackInfo.textContent = 'Error: Unable to load stream';
+            retryButton.style.display = 'block';
+          }, { once: true });
+
+          audioPlayer.load();
+        }
+      } catch (error) {
+        console.error('Error in playMusic:', error);
+        trackInfo.textContent = 'Error: Unable to play';
+        retryButton.style.display = 'block';
       }
     }
 
@@ -1034,14 +995,10 @@
         .then(() => {
           manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
-          console.log(`Playing: ${trackInfo.textContent}`);
+          audioPlayer.addEventListener('timeupdate', debouncedUpdateTrackTime);
           updateStreak();
           savePlayerState();
-          gsap.fromTo(albumCover, 
-            { scale: 1 }, 
-            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-          );
+          gsap.fromTo(albumCover, { scale: 1 }, { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" });
           isFirstPlay = false;
         })
         .catch(error => handlePlayError(error, trackInfo.textContent));
@@ -1059,8 +1016,7 @@
     function pauseMusic() {
       audioPlayer.pause();
       manageVinylRotation();
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-      console.log('Paused');
+      audioPlayer.removeEventListener('timeupdate', debouncedUpdateTrackTime);
       savePlayerState();
     }
 
@@ -1068,13 +1024,13 @@
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       manageVinylRotation();
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      audioPlayer.removeEventListener('timeupdate', debouncedUpdateTrackTime);
       seekBar.value = 0;
       trackDuration.textContent = '0:00 / 0:00';
-      console.log('Stopped');
       savePlayerState();
     }
 
+    const debouncedUpdateTrackTime = debounce(updateTrackTime, 100);
     function updateTrackTime() {
       const currentTime = audioPlayer.currentTime;
       const duration = audioPlayer.duration || 0;
@@ -1082,9 +1038,15 @@
         trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
         seekBar.value = (currentTime / duration) * 100;
         savePlayerState();
-      } else {
-        trackDuration.textContent = `${formatTime(currentTime)} / Live`;
-      }
+      } else trackDuration.textContent = `${formatTime(currentTime)} / Live`;
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
     }
 
     function formatTime(seconds) {
@@ -1111,27 +1073,19 @@
     audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
 
     audioPlayer.addEventListener('ended', () => {
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      audioPlayer.removeEventListener('timeupdate', debouncedUpdateTrackTime);
       manageVinylRotation();
       if (currentRadioIndex === -1) {
         if (shuffleMode) {
           const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
+          selectTrack(albums[currentAlbumIndex].tracks[randomIndex].src, albums[currentAlbumIndex].tracks[randomIndex].title, randomIndex);
         } else {
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+          selectTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
         }
         audioPlayer.addEventListener('canplay', () => {
           audioPlayer.play();
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          audioPlayer.addEventListener('timeupdate', debouncedUpdateTrackTime);
           manageVinylRotation();
         }, { once: true });
       }
@@ -1145,18 +1099,10 @@
       if (currentRadioIndex === -1) {
         if (shuffleMode) {
           const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
+          selectTrack(albums[currentAlbumIndex].tracks[randomIndex].src, albums[currentAlbumIndex].tracks[randomIndex].title, randomIndex);
         } else {
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+          selectTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
         }
         if (!audioPlayer.paused) {
           audioPlayer.addEventListener('canplay', () => {
@@ -1171,18 +1117,10 @@
       if (currentRadioIndex === -1) {
         if (shuffleMode) {
           const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
+          selectTrack(albums[currentAlbumIndex].tracks[randomIndex].src, albums[currentAlbumIndex].tracks[randomIndex].title, randomIndex);
         } else {
           currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+          selectTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
         }
         if (!audioPlayer.paused) {
           audioPlayer.addEventListener('canplay', () => {
@@ -1196,63 +1134,42 @@
     function openAlbumList() {
       const modal = document.getElementById('albumModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
-        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-      );
-      console.log('Album list opened');
+      gsap.fromTo(modal.querySelector('.modal-content'), { scale: 0.8, opacity: 0, y: 50 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+      sessionStorage.setItem('albumModalState', 'open');
     }
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
-        }
-      );
-      console.log('Album list closed');
+      gsap.to(modal.querySelector('.modal-content'), { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", onComplete: () => { modal.style.display = 'none'; } });
+      sessionStorage.setItem('albumModalState', 'closed');
     }
 
     function openTrackList() {
       updateTrackListModal();
       const modal = document.getElementById('trackModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
-        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-      );
-      console.log('Track list opened');
+      gsap.fromTo(modal.querySelector('.modal-content'), { scale: 0.8, opacity: 0, y: 50 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+      sessionStorage.setItem('trackModalState', 'open');
     }
 
     function closeTrackList() {
       const modal = document.getElementById('trackModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
-        }
-      );
-      console.log('Track list closed');
+      gsap.to(modal.querySelector('.modal-content'), { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", onComplete: () => { modal.style.display = 'none'; } });
+      sessionStorage.setItem('trackModalState', 'closed');
     }
 
     function openRadioList() {
       updateRadioListModal();
       const modal = document.getElementById('radioModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
-        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-      );
-      console.log('Radio list opened');
+      gsap.fromTo(modal.querySelector('.modal-content'), { scale: 0.8, opacity: 0, y: 50 }, { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+      sessionStorage.setItem('radioModalState', 'open');
     }
 
     function closeRadioList() {
       const modal = document.getElementById('radioModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
-        }
-      );
-      console.log('Radio list closed');
+      gsap.to(modal.querySelector('.modal-content'), { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", onComplete: () => { modal.style.display = 'none'; } });
+      sessionStorage.setItem('radioModalState', 'closed');
     }
 
     function toggleShuffle() {
@@ -1260,57 +1177,41 @@
       const controls = document.querySelector(".music-controls.icons-only");
       const shuffleBtn = controls.querySelector('button:nth-child(6)');
       shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
-      console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
       savePlayerState();
     }
 
-    /* CHATBOT TOGGLE */
     const chatbotContainer = document.getElementById('chatbotContainer');
     function toggleChatbot() {
       const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
       chatbotContainer.style.display = isHidden ? 'block' : 'none';
-      console.log(`Chatbot popup: ${chatbotContainer.style.display}`);
+      sessionStorage.setItem('chatbotState', chatbotContainer.style.display);
     }
 
-    /* SABI BIBLE TOGGLE */
     const sabiBibleContainer = document.getElementById('sabiBibleContainer');
     function toggleSabiBible() {
       const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
       sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
-      console.log(`Sabi Bible popup: ${sabiBibleContainer.style.display}`);
+      sessionStorage.setItem('sabiBibleState', sabiBibleContainer.style.display);
     }
 
-    /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'CACHE_TRACK',
-          url: trackUrl
-        });
-        console.log(`Requested caching for: ${trackUrl}`);
+        navigator.serviceWorker.controller.postMessage({ type: 'CACHE_TRACK', url: trackUrl });
       } else {
-        console.warn('Service worker not available for caching');
-        alert('Offline caching unavailable. Please try again later.');
+        alert('Offline caching unavailable.');
       }
     }
 
-    // Listen for caching confirmation from service worker
     navigator.serviceWorker.onmessage = (event) => {
       if (event.data && event.data.type === 'TRACK_CACHED') {
-        console.log(`Track cached successfully: ${event.data.url}`);
         alert(`Track cached for offline use: ${event.data.url.split('/').pop()}`);
       }
     };
 
-    /* MEDIA SESSION API */
     function updateMediaSession() {
       if ('mediaSession' in navigator) {
-        const track = currentRadioIndex === -1 
-          ? albums[currentAlbumIndex].tracks[currentTrackIndex] 
-          : radioStations[currentRadioIndex];
-        const artwork = currentRadioIndex === -1 
-          ? albums[currentAlbumIndex].cover 
-          : radioStations[currentRadioIndex].logo;
+        const track = currentRadioIndex === -1 ? albums[currentAlbumIndex].tracks[currentTrackIndex] : radioStations[currentRadioIndex];
+        const artwork = currentRadioIndex === -1 ? albums[currentAlbumIndex].cover : radioStations[currentRadioIndex].logo;
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
@@ -1331,8 +1232,6 @@
         navigator.mediaSession.setActionHandler('stop', stopMusic);
         navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
         navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
-
-        console.log('Media Session updated with artwork');
       }
     }
 
@@ -1353,89 +1252,95 @@
         currentTrackIndex = savedState.trackIndex;
         currentRadioIndex = savedState.radioIndex;
         shuffleMode = savedState.shuffleMode;
-        if (currentRadioIndex >= 0) {
-          const station = radioStations[currentRadioIndex];
-          albumCover.src = station.logo;
-          audioPlayer.src = station.url;
-          trackInfo.textContent = `${station.name} - ${station.location}`;
-          trackArtist.textContent = '';
-          trackYear.textContent = '';
-          cacheButton.style.display = 'none'; // Hide for radio
-          audioPlayer.addEventListener('loadedmetadata', () => {
-            audioPlayer.currentTime = savedState.playbackPosition;
-            updateTrackTime();
-            manageVinylRotation();
-          }, { once: true });
-        } else {
-          albumCover.src = albums[currentAlbumIndex].cover;
-          const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          audioPlayer.src = track.src;
-          trackInfo.textContent = track.title;
-          trackArtist.textContent = 'Artist: Omoluabi';
-          trackYear.textContent = 'Release Year: 2025';
-          cacheButton.style.display = 'block'; // Show for tracks
-          audioPlayer.addEventListener('loadedmetadata', () => {
-            audioPlayer.currentTime = savedState.playbackPosition;
-            updateTrackTime();
-            manageVinylRotation();
-          }, { once: true });
-        }
+        audioPlayer.src = savedState.src;
+        audioPlayer.currentTime = savedState.playbackPosition;
+        albumCover.src = currentRadioIndex >= 0 ? radioStations[currentRadioIndex].logo : albums[currentAlbumIndex].cover;
+        trackInfo.textContent = currentRadioIndex >= 0 ? `${radioStations[currentRadioIndex].name} - ${radioStations[currentRadioIndex].location}` : albums[currentAlbumIndex].tracks[currentTrackIndex].title;
+        trackArtist.textContent = currentRadioIndex >= 0 ? '' : 'Artist: Omoluabi';
+        trackYear.textContent = currentRadioIndex >= 0 ? '' : 'Release Year: 2025';
+        cacheButton.style.display = currentRadioIndex >= 0 ? 'none' : 'block';
         updateTrackListModal();
         const controls = document.querySelector(".music-controls.icons-only");
         const shuffleBtn = controls.querySelector('button:nth-child(6)');
         shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
-        console.log('Player restored from saved state:', savedState);
+        if (savedState.isPlaying) {
+          audioPlayer.addEventListener('canplay', () => {
+            audioPlayer.play();
+            manageVinylRotation();
+          }, { once: true });
+        }
+        audioPlayer.load();
       } else {
         selectAlbum(0);
-        console.log('No saved state found, initialized with default');
       }
       updateStreak();
       updateMediaSession();
+
+      if (sessionStorage.getItem('albumModalState') === 'open') openAlbumList();
+      if (sessionStorage.getItem('trackModalState') === 'open') openTrackList();
+      if (sessionStorage.getItem('radioModalState') === 'open') openRadioList();
+      if (sessionStorage.getItem('chatbotState') === 'block') toggleChatbot();
+      if (sessionStorage.getItem('sabiBibleState') === 'block') toggleSabiBible();
     }
 
-    // GSAP Sidebar Button Animations
-    document.querySelectorAll('.sidebar button').forEach(button => {
-      button.addEventListener('mouseenter', () => {
-        gsap.to(button, { scale: 1.08, duration: 0.3, ease: "power2.out" });
-      });
-      button.addEventListener('mouseleave', () => {
-        gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
-      });
-      button.addEventListener('click', () => {
-        gsap.to(button, { 
-          scale: 0.95, 
-          duration: 0.1, 
-          ease: "power1.in", 
-          onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
+    function reattachButtonListeners() {
+      document.querySelectorAll('.sidebar button').forEach(button => {
+        button.addEventListener('mouseenter', () => gsap.to(button, { scale: 1.08, duration: 0.3, ease: "power2.out" }));
+        button.addEventListener('mouseleave', () => gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" }));
+        button.addEventListener('click', () => {
+          gsap.to(button, { scale: 0.95, duration: 0.1, ease: "power1.in", onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" }) });
         });
       });
-    });
-
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(registration => {
-            console.log('Service Worker registered with scope:', registration.scope);
-          })
-          .catch(error => {
-            console.error('Service Worker registration failed:', error);
-          });
-      });
     }
 
-    // Initialize player
+    if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Service Worker registration
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => console.log('Service Worker registered:', registration.scope))
+      .catch(error => console.error('Service Worker registration failed:', error));
+
+    // Existing initialization
     initializePlayer();
+    reattachButtonListeners();
 
-    // Save state before unloading
-    window.addEventListener('beforeunload', savePlayerState);
+    // About button listener
+    const aboutBtn = document.getElementById('aboutBtn');
+    if (aboutBtn) {
+      aboutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('About button clicked'); // Debugging
+        loadAboutContent();
+      });
+    } else {
+      console.error('About button not found in DOM');
+    }
+  });
+} else {
+  // If no service worker support, still run the initialization and About button listener
+  window.addEventListener('load', () => {
+    initializePlayer();
+    reattachButtonListeners();
 
-    // PWA Install Prompt
+    const aboutBtn = document.getElementById('aboutBtn');
+    if (aboutBtn) {
+      aboutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('About button clicked'); // Debugging
+        loadAboutContent();
+      });
+    } else {
+      console.error('About button not found in DOM');
+    }
+  });
+}
+
+window.addEventListener('beforeunload', savePlayerState);
+
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      console.log('Install prompt available');
       const installBtn = document.createElement('button');
       installBtn.textContent = 'Install Àríyò AI';
       installBtn.style.position = 'fixed';
@@ -1450,9 +1355,7 @@
       installBtn.onclick = () => {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User installed the app');
-          }
+          if (choiceResult.outcome === 'accepted') console.log('User installed the app');
           deferredPrompt = null;
           installBtn.remove();
         });
@@ -1460,30 +1363,15 @@
       document.body.appendChild(installBtn);
     });
 
-    window.addEventListener('appinstalled', () => {
-      console.log('PWA was installed');
-    });
+    window.addEventListener('appinstalled', () => console.log('PWA was installed'));
 
-    // Handle visibility change to fix track time bar after sleep
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && !audioPlayer.paused) {
-        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-        audioPlayer.addEventListener('timeupdate', updateTrackTime);
+        audioPlayer.removeEventListener('timeupdate', debouncedUpdateTrackTime);
+        audioPlayer.addEventListener('timeupdate', debouncedUpdateTrackTime);
         updateTrackTime();
-        console.log('Page visible, reattached timeupdate listener');
       }
     });
-  <script>
-  function showAbout() {
-    document.getElementById('main-content').style.display = 'none';
-    document.getElementById('about-section').style.display = 'block';
-  }
-
-  function goHome() {
-    document.getElementById('about-section').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-  }
-</script>
-
+  </script>
 </body>
 </html>
