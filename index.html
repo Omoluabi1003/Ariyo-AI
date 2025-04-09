@@ -76,6 +76,7 @@
       overflow-y: auto;
       height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
       position: relative;
+      padding-bottom: 15rem; /* Ensure space for media player */
     }
     .sidebar {
       width: 250px;
@@ -92,6 +93,8 @@
       z-index: 100;
       position: sticky;
       top: 0;
+      overflow-y: auto; /* Allow sidebar to scroll if content overflows */
+      max-height: calc(100vh - 60px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
     }
     .sidebar button {
       background: linear-gradient(135deg, #ff7eb3, #ff758c);
@@ -126,7 +129,7 @@
       border-radius: 10px;
       box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
       position: fixed;
-      bottom: calc(2rem + env(safe-area-inset-bottom));
+      bottom: calc(1rem + env(safe-area-inset-bottom)); /* Reduced spacing to position below sidebar */
       width: 100%;
       max-width: 600px;
       left: 50%;
@@ -285,7 +288,7 @@
     .popup-close:hover { background: #ff4060; }
     .chatbot-bubble-container {
       position: fixed;
-      bottom: calc(80px + env(safe-area-inset-bottom));
+      bottom: calc(5rem + env(safe-area-inset-bottom)); /* Adjusted to position above media player */
       left: 1rem;
       width: clamp(60px, 15vw, 70px);
       height: clamp(60px, 15vw, 70px);
@@ -298,7 +301,7 @@
     }
     .sabi-bible-bubble-container {
       position: fixed;
-      bottom: calc(80px + env(safe-area-inset-bottom));
+      bottom: calc(5rem + env(safe-area-inset-bottom)); /* Adjusted to position above media player */
       right: 1rem;
       width: clamp(60px, 15vw, 70px);
       height: clamp(60px, 15vw, 70px);
@@ -430,17 +433,19 @@
         position: sticky; 
         top: 0; 
         z-index: 100; 
+        max-height: 100px; /* Limit height to prevent overlap */
+        overflow-x: auto; /* Allow horizontal scrolling if needed */
       }
       .container { 
         flex-direction: column; 
         overflow-y: auto; 
-        padding-bottom: 20rem; /* Increased padding to ensure space for media player */
+        padding-bottom: 15rem; /* Adjusted to ensure space for media player */
       }
       .content { 
-        padding-bottom: 20rem; /* Ensure content doesn't overlap media player */
+        padding-bottom: 15rem; /* Ensure content doesn't overlap media player */
       }
       .music-player { 
-        bottom: calc(8rem + env(safe-area-inset-bottom)); /* Increased spacing to avoid overlap */
+        bottom: calc(1rem + env(safe-area-inset-bottom)); /* Keep minimal spacing */
       }
     }
     @media (max-width: 480px) {
@@ -449,19 +454,19 @@
         min-width: 60px; 
       }
       .music-player { 
-        bottom: calc(10rem + env(safe-area-inset-bottom)); /* Further increased spacing for smaller screens */
+        bottom: calc(1rem + env(safe-area-inset-bottom)); /* Minimal spacing for smaller screens */
         padding: 0.5rem; 
         border-radius: 0; 
         max-width: 90%; 
       }
       .chatbot-bubble-container, .sabi-bible-bubble-container { 
-        bottom: calc(22rem + env(safe-area-inset-bottom)); /* Adjusted to avoid overlap with media player */
+        bottom: calc(5rem + env(safe-area-inset-bottom)); /* Adjusted to position above media player */
       }
       .container { 
         overflow-y: scroll; 
         height: auto; 
         min-height: calc(100vh - 60px); 
-        padding-bottom: 24rem; /* Increased padding for smaller screens */
+        padding-bottom: 15rem; /* Adjusted for smaller screens */
       }
     }
   </style>
