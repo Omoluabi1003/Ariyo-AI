@@ -1,31 +1,29 @@
 // service-worker.js
-const CACHE_VERSION = 'v3'; // Upgraded version for static cache
-const STATIC_CACHE_NAME = `ariyo-ai-cache-${CACHE_VERSION}`; // Cache for app shell and static assets
-const AUDIO_CACHE_NAME = `ariyo-ai-audio-cache-v2`; // Upgraded version for audio cache
-const DYNAMIC_CACHE_NAME = `ariyo-ai-dynamic-${CACHE_VERSION}`; // New dynamic cache for runtime assets
+const CACHE_VERSION = 'v3';
+const STATIC_CACHE_NAME = `ariyo-ai-cache-${CACHE_VERSION}`;
+const AUDIO_CACHE_NAME = `ariyo-ai-audio-cache-v2`;
+const DYNAMIC_CACHE_NAME = `ariyo-ai-dynamic-${CACHE_VERSION}`;
 
+// Static assets to cache during install (removed Google Fonts due to CORS)
 const urlsToCache = [
-  '/', // Root URL
-  '/index.html', // Main HTML file
-  '/manifest.json', // PWA manifest
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap', // Google Fonts
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js', // Font Awesome
-  'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js', // GSAP
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg', // Background image 1
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg', // Background image 2
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg', // Background image 3
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg', // Album cover 1
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg', // Album cover 2
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png', // Chatbot screenshot
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png', // Sabi Bible icon
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png', // Icon 192x192
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png', // Icon 512x512
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png', // Icon 180x180
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png', // Icon 144x144
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png', // NEW: Icon 256x256 from upgraded manifest
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-384x384.png', // NEW: Icon 384x384 from upgraded manifest
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png', // Screenshot 1
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3' // Offline audio fallback
+  '/',
+  '/index.html',
+  '/manifest.json',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-384x384.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3'
 ];
 
 // Install event: Cache app shell and static assets
@@ -34,21 +32,24 @@ self.addEventListener('install', event => {
     caches.open(STATIC_CACHE_NAME)
       .then(cache => {
         console.log('Service Worker: Caching app shell and static assets');
-        return cache.addAll(urlsToCache.filter(url => url !== '')); // Filter out invalid URLs
+        return cache.addAll(urlsToCache.filter(url => url !== ''));
       })
       .catch(err => console.error('Cache install failed:', err))
-      .then(() => self.skipWaiting()) // Force immediate activation
+      .then(() => self.skipWaiting())
   );
 });
 
 // Activate event: Clean up old caches
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [STATIC_CACHE_NAME, Fennell
+  const cacheWhitelist = [STATIC_CACHE_NAME, AUDIO_CACHE_NAME, DYNAMIC_CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.filter(name => !cacheWhitelist.includes(name))
-          .map(name => caches.delete(name))
+          .map(name => {
+            console.log(`Service Worker: Deleting old cache: ${name}`);
+            return caches.delete(name);
+          })
       );
     })
     .then(() => self.clients.claim())
@@ -66,27 +67,31 @@ self.addEventListener('fetch', event => {
       caches.match(event.request)
         .then(cachedResponse => {
           if (cachedResponse) {
-            console.log(`Serving cached audio: ${requestUrl}`);
+            console.log(`Service Worker: Serving cached audio: ${requestUrl}`);
+            // Update access time for LRU eviction
+            updateAudioAccessTime(requestUrl);
             return cachedResponse;
           }
-          // Fetch with timeout for streaming
           const fetchPromise = fetch(event.request, { cache: 'no-store' })
             .then(networkResponse => {
-              console.log(`Streamed audio from network: ${requestUrl}`);
-              // Cache audio dynamically if not already cached
+              console.log(`Service Worker: Streamed audio from network: ${requestUrl}`);
               caches.open(AUDIO_CACHE_NAME).then(cache => {
                 cache.put(event.request, networkResponse.clone());
+                // Update access time and manage cache size
+                updateAudioAccessTime(requestUrl);
+                manageAudioCacheSize();
               });
               return networkResponse;
             })
             .catch(() => {
+              console.warn(`Service Worker: Audio fetch failed for ${requestUrl}, serving fallback`);
               return caches.match('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3')
                 .then(fallbackAudio => {
                   if (fallbackAudio) {
-                    console.log('Serving offline audio fallback');
+                    console.log('Service Worker: Serving offline audio fallback');
                     return fallbackAudio;
                   }
-                  console.warn('No offline audio available');
+                  console.warn('Service Worker: No offline audio available');
                   return new Response(
                     new Blob([JSON.stringify({ error: 'Offline - Audio unavailable' })], { type: 'application/json' }),
                     { status: 503, headers: { 'Content-Type': 'application/json' } }
@@ -94,7 +99,6 @@ self.addEventListener('fetch', event => {
                 });
             });
 
-          // Add timeout to prevent hanging
           const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Audio fetch timeout')), 10000)
           );
@@ -111,10 +115,38 @@ self.addEventListener('fetch', event => {
       caches.match(event.request)
         .then(response => {
           if (response) {
-            console.log(`Serving cached image: ${requestUrl}`);
+            console.log(`Service Worker: Serving cached image: ${requestUrl}`);
             return response;
           }
           return fetchAndCache(event.request, STATIC_CACHE_NAME);
+        })
+    );
+    return;
+  }
+
+  // Handle Google Fonts dynamically (network-first, cache fallback)
+  if (requestUrl.includes('fonts.googleapis.com') || requestUrl.includes('fonts.gstatic.com')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse.ok) {
+            caches.open(DYNAMIC_CACHE_NAME).then(cache => {
+              cache.put(event.request, networkResponse.clone());
+              console.log(`Service Worker: Cached Google Font: ${requestUrl}`);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request)
+            .then(cachedResponse => {
+              if (cachedResponse) {
+                console.log(`Service Worker: Serving cached Google Font: ${requestUrl}`);
+                return cachedResponse;
+              }
+              console.warn(`Service Worker: Google Font unavailable offline: ${requestUrl}`);
+              return new Response('', { status: 503 });
+            });
         })
     );
     return;
@@ -127,6 +159,7 @@ self.addEventListener('fetch', event => {
         if (networkResponse.ok) {
           caches.open(DYNAMIC_CACHE_NAME).then(cache => {
             cache.put(event.request, networkResponse.clone());
+            console.log(`Service Worker: Cached dynamic resource: ${requestUrl}`);
           });
         }
         return networkResponse;
@@ -135,11 +168,19 @@ self.addEventListener('fetch', event => {
         return caches.match(event.request)
           .then(cachedResponse => {
             if (cachedResponse) {
-              console.log(`Serving cached resource: ${requestUrl}`);
+              console.log(`Service Worker: Serving cached resource: ${requestUrl}`);
               return cachedResponse;
             }
-            console.log('Offline, falling back to index.html');
-            return caches.match('/index.html');
+            console.log('Service Worker: Offline, falling back to index.html');
+            return caches.match('/index.html')
+              .then(fallback => {
+                if (fallback) return fallback;
+                console.warn('Service Worker: No fallback available');
+                return new Response(
+                  '<h1>Offline</h1><p>Sorry, you are offline and this page is not available.</p>',
+                  { status: 503, headers: { 'Content-Type': 'text/html' } }
+                );
+              });
           });
       })
   );
@@ -150,25 +191,50 @@ function fetchAndCache(request, cacheName) {
   return fetch(request)
     .then(networkResponse => {
       if (!networkResponse || networkResponse.status !== 200) {
-        console.warn(`Fetch failed or invalid response for ${request.url}: ${networkResponse.status}`);
+        console.warn(`Service Worker: Fetch failed or invalid response for ${request.url}: ${networkResponse.status}`);
         return networkResponse;
       }
       const responseToCache = networkResponse.clone();
       caches.open(cacheName)
         .then(cache => {
           cache.put(request, responseToCache);
-          console.log(`Cached new resource in ${cacheName}: ${request.url}`);
+          console.log(`Service Worker: Cached new resource in ${cacheName}: ${request.url}`);
         })
-        .catch(err => console.error(`Failed to cache ${request.url}:`, err));
+        .catch(err => console.error(`Service Worker: Failed to cache ${request.url}:`, err));
       return networkResponse;
     })
     .catch(err => {
-      console.error(`Fetch error for ${request.url}:`, err);
+      console.error(`Service Worker: Fetch error for ${request.url}:`, err);
       throw err;
     });
 }
 
-// Message event: Handle dynamic caching requests from the app (e.g., for audio tracks)
+// LRU Cache Management for Audio
+const MAX_AUDIO_CACHE_SIZE = 10; // Maximum number of audio files to cache
+const audioAccessTimes = new Map(); // Track access times for LRU eviction
+
+function updateAudioAccessTime(url) {
+  audioAccessTimes.set(url, Date.now());
+  console.log(`Service Worker: Updated access time for ${url}`);
+}
+
+async function manageAudioCacheSize() {
+  const cache = await caches.open(AUDIO_CACHE_NAME);
+  const keys = await cache.keys();
+  if (keys.length > MAX_AUDIO_CACHE_SIZE) {
+    const sortedEntries = Array.from(audioAccessTimes.entries())
+      .filter(([url]) => keys.some(key => key.url === url))
+      .sort((a, b) => a[1] - b[1]); // Sort by access time (oldest first)
+    const urlsToDelete = sortedEntries.slice(0, keys.length - MAX_AUDIO_CACHE_SIZE);
+    for (const [url] of urlsToDelete) {
+      await cache.delete(url);
+      audioAccessTimes.delete(url);
+      console.log(`Service Worker: Evicted audio from cache (LRU): ${url}`);
+    }
+  }
+}
+
+// Message event: Handle dynamic caching requests from the app
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'CACHE_TRACK') {
     const trackUrl = event.data.url;
@@ -178,15 +244,17 @@ self.addEventListener('message', event => {
           .then(response => {
             if (response.ok) {
               cache.put(trackUrl, response.clone());
-              console.log(`Cached audio track: ${trackUrl}`);
+              updateAudioAccessTime(trackUrl);
+              manageAudioCacheSize();
+              console.log(`Service Worker: Cached audio track: ${trackUrl}`);
               self.clients.matchAll().then(clients => {
                 clients.forEach(client => client.postMessage({ type: 'TRACK_CACHED', url: trackUrl }));
               });
             } else {
-              console.warn(`Failed to fetch track ${trackUrl}: ${response.status}`);
+              console.warn(`Service Worker: Failed to fetch track ${trackUrl}: ${response.status}`);
             }
           })
-          .catch(err => console.error(`Failed to cache track ${trackUrl}:`, err));
+          .catch(err => console.error(`Service Worker: Failed to cache track ${trackUrl}:`, err));
       });
   }
 });
@@ -195,9 +263,8 @@ self.addEventListener('message', event => {
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-streak') {
     event.waitUntil(
-      // Placeholder for streak sync logic (e.g., send to server when online)
       console.log('Service Worker: Syncing streak data')
-      // Add actual sync logic here if needed
+      // Add actual sync logic here if needed, e.g., send streak data to server
     );
   }
 });
