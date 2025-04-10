@@ -1136,21 +1136,54 @@ function toggleShuffle() {
   // Initialize
   document.getElementById('aboutBtn').addEventListener('click', openAboutPage);
   updateStreak();
-  forceRefresh(); // Check for new version on load
-  const playerState = loadPlayerState();
+const playerState = loadPlayerState();
   if (playerState) {
-   currentAlbumIndex = playerState.albumIndex;
-   currentTrackIndex = playerState.trackIndex;
-   currentRadioIndex = playerState.radioIndex;
-   shuffleMode = playerState.shuffleMode;
-   if (currentRadioIndex >= 0) {
-    selectRadio(radioStations[currentRadioIndex].url, `${radioStations[currentRadioIndex].name} - ${radioStations[currentRadioIndex].location}`, currentRadioIndex, radioStations[currentRadioIndex].logo);
-   } else {
-    selectTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
-   }
-   audioPlayer.currentTime = playerState.playbackPosition;
-   if (playerState.isPlaying) playMusic();
+    // Load previous player state...
   }
+});
+
+// 🧠 Load previous player state
+const playerState = loadPlayerState();
+if (playerState) {
+  currentAlbumIndex = playerState.albumIndex;
+  currentTrackIndex = playerState.trackIndex;
+  currentRadioIndex = playerState.radioIndex;
+  shuffleMode = playerState.shuffleMode;
+
+  // ✅ Update shuffle button UI
+  const shuffleBtn = document.querySelector('button[aria-label="Toggle shuffle"]');
+  if (shuffleBtn) {
+    if (shuffleMode) {
+      shuffleBtn.style.background = '#00cc66'; // green
+      shuffleBtn.title = "Shuffle ON";
+    } else {
+      shuffleBtn.style.background = '#ff758c'; // pink
+      shuffleBtn.title = "Shuffle OFF";
+    }
+  }
+
+  // 🎵 Load radio or track
+  if (currentRadioIndex >= 0) {
+    selectRadio(
+      radioStations[currentRadioIndex].url,
+      `${radioStations[currentRadioIndex].name} - ${radioStations[currentRadioIndex].location}`,
+      currentRadioIndex,
+      radioStations[currentRadioIndex].logo
+    );
+  } else {
+    selectTrack(
+      albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+      albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+      currentTrackIndex
+    );
+  }
+
+  // ⏩ Set previous position
+  audioPlayer.currentTime = playerState.playbackPosition;
+
+  // ▶️ Auto resume
+  if (playerState.isPlaying) playMusic();
+}
  </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92d605cd8b6832fb',t:'MTc0NDE1OTk1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
