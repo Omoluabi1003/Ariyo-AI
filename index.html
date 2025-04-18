@@ -500,16 +500,28 @@
     </div>
   </div>
 
-  <!-- Modal for Radio Stations -->
-  <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
-    <div class="modal-content">
-      <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
-      <h3 id="radioModalTitle">Choose A Radio Station</h3>
-      <div class="radio-list">
-        <!-- Dynamically populated -->
-      </div>
-    </div>
+
+<!-- Modal for Radio Stations -->
+<div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
+  <div class="modal-content">
+    <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
+
+    <!-- Group: Nigeria -->
+    <h4>Nigeria</h4>
+    <div id="nigeria-stations" class="radio-list"></div>
+    <button onclick="loadMoreStations('nigeria')" style="margin: 1rem 0;">Load More Nigerian Stations</button>
+
+    <!-- Group: West Africa -->
+    <h4>West Africa</h4>
+    <div id="westAfrica-stations" class="radio-list"></div>
+    <button onclick="loadMoreStations('westAfrica')" style="margin: 1rem 0;">Load More West African Stations</button>
+
+    <!-- Group: International -->
+    <h4>International</h4>
+    <div id="international-stations" class="radio-list"></div>
+    <button onclick="loadMoreStations('international')" style="margin: 1rem 0;">Load More International Stations</button>
   </div>
+</div>
 
   <!-- Chatbot Floating Icon & Comic Bubble -->
 <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
@@ -708,6 +720,8 @@
       { name: "WFM 91.77 Women Radio", location: "Lagos", url: "https://s28.myradiostream.com:11618/listen.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "RFI Haoussa", location: "Nigeria", url: "https://rfihaoussa96k.ice.infomaniak.ch/rfihaoussa-96k.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Tungba FM", location: "Lagos", url: "https://stream-173.zeno.fm/3vd633m7ctzuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIzdmQ2MzNtN2N0enV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im9QY19lN292UWFLdGUxSjFuNTI3M2ciLCJpYXQiOjE3NDM5MTQ0OTEsImV4cCI6MTc0MzkxNDU1MX0.UvA6Q0NuULFeRcHvqPJ9d68DeWz-0agoUBi8GDQWN0E", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Siren Songs", location: "Belgium", url: "https://sirensongs-mynoise.radioca.st/live", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Relax", location: "Ukraine", url: "https://online.radiorelax.ua/RadioRelax_Instrumental_HD", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Exclusively Kenny G", location: "Dubai", url: "https://2.mystreaming.net/er/kennyg/icecast.audio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Exclusively Jim Reeves", location: "Dubai", url: "https://nl4.mystreaming.net/er/jimreeves/icecast.audio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "247 Praise Radio", location: "Jacksonville, Florida", url: "https://streaming.radio.co/s6da23ac69/listen", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
@@ -729,6 +743,7 @@
       { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" }
     ];
+
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -799,18 +814,58 @@
       console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
     }
 
-    function updateRadioListModal() {
-      const radioListContainer = document.querySelector('.radio-list');
-      radioListContainer.innerHTML = '';
-      radioStations.forEach((station, index) => {
-        const radioLink = document.createElement('a');
-        radioLink.href = '#';
-        radioLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
-        radioLink.textContent = `${station.name} (${station.location})`;
-        radioListContainer.appendChild(radioLink);
-      });
-      console.log('Radio station list updated');
-    }
+    const stationsPerPage = 6;
+let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+
+// Region Classifier
+function classifyStation(station) {
+  const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
+  const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
+  
+  if (nigeriaLocations.includes(station.location)) return "nigeria";
+  if (westAfricaLocations.includes(station.location)) return "westAfrica";
+  return "international";
+}
+
+// Grouped Stations
+const groupedStations = { nigeria: [], westAfrica: [], international: [] };
+radioStations.forEach(station => {
+  const region = classifyStation(station);
+  groupedStations[region].push(station);
+});
+
+function updateRadioListModal() {
+  stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+
+  ["nigeria", "westAfrica", "international"].forEach(region => {
+    document.getElementById(`${region}-stations`).innerHTML = '';
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
+    loadMoreStations(region); 
+  });
+
+  console.log("Grouped and displayed radio stations by region");
+}
+
+function loadMoreStations(region) {
+  const container = document.getElementById(`${region}-stations`);
+  const stations = groupedStations[region];
+  const start = stationDisplayCounts[region];
+  const end = start + stationsPerPage;
+
+  stations.slice(start, end).forEach((station, index) => {
+    const stationLink = document.createElement("a");
+    stationLink.href = "#";
+    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
+    stationLink.textContent = `${station.name} (${station.location})`;
+    container.appendChild(stationLink);
+  });
+
+  stationDisplayCounts[region] = end;
+
+  if (stationDisplayCounts[region] >= stations.length) {
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
+  }
+}
 
     function selectAlbum(albumIndex) {
       console.log(`Selecting album: ${albums[albumIndex].name}`);
