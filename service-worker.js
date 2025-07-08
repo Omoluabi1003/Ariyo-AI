@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE_NAME = `ariyo-ai-cache-${CACHE_VERSION}`;
 const AUDIO_CACHE_NAME = `ariyo-ai-audio-cache-v2`;
 const DYNAMIC_CACHE_NAME = `ariyo-ai-dynamic-${CACHE_VERSION}`;
