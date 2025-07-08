@@ -244,7 +244,7 @@
       z-index: 101;
       position: relative;
     }
-    .chatbot-container zapier-interfaces-chatbot-embed, 
+    .chatbot-container zapier-interfaces-chatbot-embed,
     .sabi-bible-container zapier-interfaces-chatbot-embed {
       width: 100%;
       height: 100%;
@@ -419,7 +419,7 @@
 
 <body>
   <div class="header">
-    Welcome to Àríyò AI 
+    Welcome to Àríyò AI
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
       <i class="fas fa-share-alt"></i>
     </button>
@@ -644,10 +644,10 @@
     const progressBar = document.getElementById('progressBar').querySelector('div');
     const streakInfo = document.getElementById('streakInfo');
     let shuffleMode = false;
-    let isFirstPlay = true;
+    let isFirstPlay = true; // Used to prevent autoplay on initial load or first track selection by user
     let lastTrackSrc = '';
     let lastTrackTitle = '';
-    let lastTrackIndex = 0;
+    let lastTrackIndex = 0; // Store index relative to its album for retry
 
     const albums = [
       {
@@ -774,7 +774,7 @@
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
-    let currentRadioIndex = -1;
+    let currentRadioIndex = -1; // -1 indicates not in radio mode; otherwise, it's the index in radioStations array
 
     // Streak Logic
     function updateStreak() {
@@ -820,235 +820,263 @@
       const savedState = localStorage.getItem('ariyoPlayerState');
       if (savedState) {
         const playerState = JSON.parse(savedState);
+        // Only restore if state is less than 24 hours old
         const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
         if (ageInHours < 24) {
           return playerState;
         }
       }
-      return null;
+      return null; // No valid saved state
     }
 
     function updateTrackListModal() {
       const trackListContainer = document.querySelector('.track-list');
-      trackListContainer.innerHTML = '';
-      albums[currentAlbumIndex].tracks.forEach((track, index) => {
-        const trackLink = document.createElement('a');
-        trackLink.href = '#';
-        trackLink.onclick = () => selectTrack(track.src, track.title, index);
-        trackLink.textContent = track.title;
-        trackListContainer.appendChild(trackLink);
-      });
-      console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
+      trackListContainer.innerHTML = ''; // Clear existing list
+      if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks) {
+        albums[currentAlbumIndex].tracks.forEach((track, index) => {
+          const trackLink = document.createElement('a');
+          trackLink.href = '#';
+          // Pass src, title, and index to selectTrack for clarity and robustness
+          trackLink.onclick = () => selectTrack(track.src, track.title, index);
+          trackLink.textContent = track.title;
+          trackListContainer.appendChild(trackLink);
+        });
+        console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
+      } else {
+        console.warn("Attempted to update track list modal for an invalid album index:", currentAlbumIndex);
+      }
     }
 
     const stationsPerPage = 6;
-let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+    let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
 
-// Region Classifier
-function classifyStation(station) {
-  const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
-  const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
-  
-  if (nigeriaLocations.includes(station.location)) return "nigeria";
-  if (westAfricaLocations.includes(station.location)) return "westAfrica";
-  return "international";
-}
+    function classifyStation(station) {
+      const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
+      const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
+      if (nigeriaLocations.some(loc => station.location.includes(loc))) return "nigeria";
+      if (westAfricaLocations.some(loc => station.location.includes(loc))) return "westAfrica";
+      return "international";
+    }
 
-// Grouped Stations
-const groupedStations = { nigeria: [], westAfrica: [], international: [] };
-radioStations.forEach(station => {
-  const region = classifyStation(station);
-  groupedStations[region].push(station);
-});
+    const groupedStations = { nigeria: [], westAfrica: [], international: [] };
+    radioStations.forEach(station => {
+      const region = classifyStation(station);
+      groupedStations[region].push(station);
+    });
 
-function updateRadioListModal() {
-  stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+    function updateRadioListModal() {
+      stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+      ["nigeria", "westAfrica", "international"].forEach(region => {
+        const container = document.getElementById(`${region}-stations`);
+        if(container) container.innerHTML = ''; // Clear previous stations
+        const button = document.querySelector(`button[onclick="loadMoreStations('${region}')"]`);
+        if(button) button.style.display = (groupedStations[region].length > 0) ? 'inline-block' : 'none';
+        loadMoreStations(region);
+      });
+      console.log("Grouped and displayed radio stations by region");
+    }
 
-  ["nigeria", "westAfrica", "international"].forEach(region => {
-    document.getElementById(`${region}-stations`).innerHTML = '';
-    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
-    loadMoreStations(region); 
-  });
+    function loadMoreStations(region) {
+      const container = document.getElementById(`${region}-stations`);
+      const stations = groupedStations[region];
+      const start = stationDisplayCounts[region];
+      const end = Math.min(start + stationsPerPage, stations.length);
 
-  console.log("Grouped and displayed radio stations by region");
-}
+      stations.slice(start, end).forEach((station, globalIndexOffset) => {
+        // Find the original index in the main radioStations array for selectRadio
+        const originalIndex = radioStations.findIndex(rs => rs.url === station.url && rs.name === station.name);
+        const stationLink = document.createElement("a");
+        stationLink.href = "#";
+        stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, originalIndex, station.logo);
+        stationLink.textContent = `${station.name} (${station.location})`;
+        if(container) container.appendChild(stationLink);
+      });
 
-function loadMoreStations(region) {
-  const container = document.getElementById(`${region}-stations`);
-  const stations = groupedStations[region];
-  const start = stationDisplayCounts[region];
-  const end = start + stationsPerPage;
+      stationDisplayCounts[region] = end;
+      const loadMoreButton = document.querySelector(`button[onclick="loadMoreStations('${region}')"]`);
+      if (loadMoreButton) {
+          loadMoreButton.style.display = (stationDisplayCounts[region] < stations.length) ? 'inline-block' : 'none';
+      }
+    }
 
-  stations.slice(start, end).forEach((station, index) => {
-    const stationLink = document.createElement("a");
-    stationLink.href = "#";
-    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
-    stationLink.textContent = `${station.name} (${station.location})`;
-    container.appendChild(stationLink);
-  });
-
-  stationDisplayCounts[region] = end;
-
-  if (stationDisplayCounts[region] >= stations.length) {
-    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
-  }
-}
-
-    function selectAlbum(albumIndex) {
-      console.log(`Selecting album: ${albums[albumIndex].name}`);
+    // Main function to select an album and optionally a specific track within it
+    function selectAlbum(albumIndex, trackIndexToPlay = 0) {
+      console.log(`Selecting album: "${albums[albumIndex].name}", track to play index: ${trackIndexToPlay}`);
       currentAlbumIndex = albumIndex;
-      currentTrackIndex = 0;
-      currentRadioIndex = -1;
-      albumCover.src = albums[currentAlbumIndex].cover;
-      loadTrack(
-        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-        currentTrackIndex
-      );
-      updateTrackListModal();
-      closeAlbumList();
-      savePlayerState();
+      currentRadioIndex = -1; // Ensure we're in album mode
+
+      albumCover.src = albums[currentAlbumIndex].cover; // Update album cover
+      updateTrackListModal(); // Update the track list modal for the new album
+
+      // Select and load the specified track from the newly selected album
+      const trackToSelect = albums[currentAlbumIndex].tracks[trackIndexToPlay];
+      if (trackToSelect) {
+        // currentTrackIndex will be set within selectTrack
+        selectTrack(trackToSelect.src, trackToSelect.title, trackIndexToPlay);
+      } else {
+        console.warn(`Track index ${trackIndexToPlay} out of bounds for album ${albums[currentAlbumIndex].name}. Selecting first track.`);
+        const firstTrack = albums[currentAlbumIndex].tracks[0];
+        selectTrack(firstTrack.src, firstTrack.title, 0);
+      }
+
+      const albumModal = document.getElementById('albumModal');
+      if (albumModal.style.display === 'block') { // Only close if it was open
+        closeAlbumList();
+      }
+      // savePlayerState(); // selectTrack will call savePlayerState
     }
 
-    function loadTrack(src, title, index) {
-      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
-      currentTrackIndex = index;
-      currentRadioIndex = -1;
-      audioPlayer.src = src;
-      audioPlayer.currentTime = 0;
-      trackInfo.textContent = title;
-      trackArtist.textContent = 'Artist: Omoluabi';
-      trackYear.textContent = 'Release Year: 2025';
-      stopMusic();
-      loadingSpinner.style.display = 'block';
-      albumCover.style.display = 'none';
-      retryButton.style.display = 'none';
-      cacheButton.style.display = 'block'; // Show cache button for tracks
-      document.getElementById('progressBar').style.display = 'block';
-      progressBar.style.width = '0%';
-    }
-
+    // selectTrack is now the primary function for loading and preparing a single track for playback
     function selectTrack(src, title, index) {
-      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
-      currentTrackIndex = index;
-      currentRadioIndex = -1;
-      lastTrackSrc = src;
+      console.log(`Selecting track: "${title}" (index ${index}) from album: "${albums[currentAlbumIndex].name}"`);
+      currentTrackIndex = index; // Set the current track index for the current album
+      currentRadioIndex = -1;    // Ensure we are in album mode
+
+      lastTrackSrc = src;        // For retry functionality
       lastTrackTitle = title;
       lastTrackIndex = index;
-      audioPlayer.src = src + '?t=' + new Date().getTime();
+
+      audioPlayer.src = src + '?t=' + new Date().getTime(); // Append timestamp to try and avoid caching issues with the audio file itself
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
-      closeTrackList();
+
+      const trackModal = document.getElementById('trackModal');
+      if (trackModal.style.display === 'block') { // Only close if it was open
+        closeTrackList();
+      }
+
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'block'; // Show cache button
+      cacheButton.style.display = 'block';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
+
       handleAudioLoad(src, title);
       updateMediaSession();
+      savePlayerState();
     }
 
     function selectRadio(src, title, index, logo) {
       console.log(`Selecting radio: ${title}`);
-      currentRadioIndex = index;
-      currentTrackIndex = -1;
+      currentRadioIndex = index; // Set to the index in the main radioStations array
+      currentTrackIndex = -1;    // Not an album track
+
       lastTrackSrc = src;
       lastTrackTitle = title;
-      lastTrackIndex = index;
+      lastTrackIndex = index; // Used for retry, refers to radioStations index
+
+      albumCover.src = logo;
       audioPlayer.src = src;
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
-      albumCover.src = logo;
-      closeRadioList();
+
+      const radioModal = document.getElementById('radioModal');
+      if (radioModal.style.display === 'block') {
+        closeRadioList();
+      }
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'none'; // Hide cache button for radio
+      cacheButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       handleAudioLoad(src, title);
       updateMediaSession();
+      savePlayerState();
     }
 
     function retryTrack() {
-      if (currentRadioIndex >= 0) {
+      if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
         selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
-      } else {
+      } else if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[lastTrackIndex]) {
         selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
+      } else {
+        console.warn("Could not retry track, state is invalid.");
       }
     }
 
     function handleAudioLoad(src, title) {
-      const playTimeout = setTimeout(() => {
+      // Clear any existing timeout
+      if (window.playTimeoutId) {
+        clearTimeout(window.playTimeoutId);
+      }
+
+      window.playTimeoutId = setTimeout(() => {
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         trackInfo.textContent = 'Error: Stream failed to load (timeout)';
         retryButton.style.display = 'block';
-        console.error(`Timeout: ${title} failed to buffer within 4 seconds`);
-      }, 4000);
+        console.error(`Timeout: ${title} failed to buffer within 10 seconds`); // Increased timeout
+      }, 10000); // Increased timeout to 10 seconds
 
-      audioPlayer.addEventListener('progress', () => {
-        if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
-          const bufferedEnd = audioPlayer.buffered.end(0);
+      // Remove old listeners to prevent multiple executions
+      audioPlayer.removeEventListener('progress', window.audioProgressHandler);
+      audioPlayer.removeEventListener('canplaythrough', window.audioCanPlayThroughHandler);
+      audioPlayer.removeEventListener('canplay', window.audioCanPlayHandler);
+      audioPlayer.removeEventListener('error', window.audioErrorHandler);
+
+      window.audioProgressHandler = () => {
+        if (audioPlayer.buffered.length > 0 && audioPlayer.duration && isFinite(audioPlayer.duration)) {
+          const bufferedEnd = audioPlayer.buffered.end(audioPlayer.buffered.length - 1);
           const duration = audioPlayer.duration;
           progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
         }
-      });
+      };
 
-      audioPlayer.addEventListener('canplaythrough', () => {
-        clearTimeout(playTimeout);
+      window.audioCanPlayThroughHandler = () => {
+        clearTimeout(window.playTimeoutId);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         console.log(`Stream ${title} can play through`);
         if (!isFirstPlay) {
-          audioPlayer.play().catch(error => handlePlayError(error, title));
+          attemptPlay();
         }
-      }, { once: true });
+      };
 
-      audioPlayer.addEventListener('canplay', () => {
+      window.audioCanPlayHandler = () => {
         if (loadingSpinner.style.display === 'block') {
-          clearTimeout(playTimeout);
+          clearTimeout(window.playTimeoutId);
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
           console.log(`Stream ${title} can play (fallback)`);
-
-    updateMediaSession(); // ✅ Move it here
-    
           if (!isFirstPlay) {
-            audioPlayer.play().catch(error => handlePlayError(error, title));
+            attemptPlay();
           }
         }
-      }, { once: true });
+      };
 
-      audioPlayer.addEventListener('error', () => {
-        clearTimeout(playTimeout);
+      window.audioErrorHandler = () => {
+        clearTimeout(window.playTimeoutId);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
-        fetch(audioPlayer.src)
-          .then(res => res.json())
-          .then(data => {
-            if (data.error) trackInfo.textContent = data.error;
-          })
-          .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
-        retryButton.style.display = 'block';
-        console.error(`Audio error for ${title}:`, audioPlayer.error);
+        let errorMsg = `Error: Unable to load ${title}`;
         if (audioPlayer.error) {
-          console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
+            errorMsg = `Error: Could not play ${title} (Code: ${audioPlayer.error.code})`;
+            console.error(`Audio error for ${title}: Code ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
+        } else {
+            console.error(`Audio error for ${title}, but error object is null.`);
         }
-      }, { once: true });
+        trackInfo.textContent = errorMsg;
+        retryButton.style.display = 'block';
+      };
 
-      audioPlayer.load(); // Force load
+      audioPlayer.addEventListener('progress', window.audioProgressHandler);
+      audioPlayer.addEventListener('canplaythrough', window.audioCanPlayThroughHandler, { once: true });
+      audioPlayer.addEventListener('canplay', window.audioCanPlayHandler, { once: true });
+      audioPlayer.addEventListener('error', window.audioErrorHandler, { once: true });
+
+      audioPlayer.load();
     }
 
     function manageVinylRotation() {
@@ -1059,86 +1087,40 @@ function loadMoreStations(region) {
       }
     }
 
-    function playMusic() {
+    function playMusic() { // Primarily for user click on play button
       if (audioPlayer.src) {
-        loadingSpinner.style.display = 'block';
-        albumCover.style.display = 'none';
-        retryButton.style.display = 'none';
-        document.getElementById('progressBar').style.display = 'block';
-        progressBar.style.width = '0%';
-
-        const playTimeout = setTimeout(() => {
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          trackInfo.textContent = 'Error: Stream failed to load (timeout)';
-          retryButton.style.display = 'block';
-          console.error('Timeout: Stream failed to buffer within 4 seconds');
-        }, 4000);
-
-        audioPlayer.addEventListener('progress', () => {
-          if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
-            const bufferedEnd = audioPlayer.buffered.end(0);
-            const duration = audioPlayer.duration;
-            progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
-          }
-        });
-
-        audioPlayer.addEventListener('canplaythrough', () => {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          console.log(`Stream ${trackInfo.textContent} can play through`);
-          attemptPlay();
-        }, { once: true });
-
-        audioPlayer.addEventListener('canplay', () => {
-          if (loadingSpinner.style.display === 'block') {
-            clearTimeout(playTimeout);
-            loadingSpinner.style.display = 'none';
-            albumCover.style.display = 'block';
-            document.getElementById('progressBar').style.display = 'none';
-            console.log(`Stream ${trackInfo.textContent} can play (fallback)`);
-            attemptPlay();
-          }
-        }, { once: true });
-
-        audioPlayer.addEventListener('error', () => {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          fetch(audioPlayer.src)
-            .then(res => res.json())
-            .then(data => {
-              if (data.error) trackInfo.textContent = data.error;
-            })
-            .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
-          retryButton.style.display = 'block';
-          console.error('Audio error:', audioPlayer.error);
-        }, { once: true });
-
-        audioPlayer.load(); // Force load
+        attemptPlay();
+      } else {
+        // If no src, maybe play the first track of the current/default album
+        console.log("Play clicked, but no source. Initializing with default.");
+        if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]){
+            selectTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
+            // attemptPlay will be called by handleAudioLoad if !isFirstPlay
+        } else {
+            selectAlbum(0,0); // Default to first album, first track
+        }
+         // Set isFirstPlay to false here because user initiated this play action.
+        isFirstPlay = false;
       }
     }
 
     function attemptPlay() {
+      if (!audioPlayer.src) {
+        console.log("Attempted to play but no audio source set.");
+        return;
+      }
+      // Ensure loading indicators are handled before play attempt
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+
       audioPlayer.play()
         .then(() => {
-          manageVinylRotation();
-          audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
-          console.log(`Playing: ${trackInfo.textContent}`);
-          updateStreak();
-          savePlayerState();
-          gsap.fromTo(albumCover, 
-            { scale: 1 }, 
-            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-          );
-          isFirstPlay = false;
+          // UI updates on successful play are now mostly in 'playing' event
         })
-        .catch(error => handlePlayError(error, trackInfo.textContent));
+        .catch(error => {
+            handlePlayError(error, trackInfo.textContent || "selected track");
+            console.error(`Attempt to play "${trackInfo.textContent}" failed directly:`, error);
+        });
     }
 
     function handlePlayError(error, title) {
@@ -1147,13 +1129,18 @@ function loadMoreStations(region) {
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'block';
       console.error(`Error playing ${title}:`, error);
-      trackInfo.textContent = navigator.onLine ? 'Error playing stream' : 'Offline - Stream unavailable';
+      if (error.name === 'NotAllowedError') {
+        trackInfo.textContent = 'Autoplay blocked. Click play.';
+      } else if (error.name === 'NotSupportedError') {
+        trackInfo.textContent = `Format not supported: ${title}.`;
+      } else {
+        trackInfo.textContent = navigator.onLine ? `Error playing ${title}` : `Offline - ${title} unavailable`;
+      }
     }
 
     function pauseMusic() {
       audioPlayer.pause();
       manageVinylRotation();
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       console.log('Paused');
       savePlayerState();
     }
@@ -1162,173 +1149,149 @@ function loadMoreStations(region) {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       manageVinylRotation();
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       seekBar.value = 0;
-      trackDuration.textContent = '0:00 / 0:00';
+      if (currentRadioIndex === -1 && albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]) {
+        trackDuration.textContent = `0:00 / ${formatTime(audioPlayer.duration || 0)}`;
+      } else {
+         trackDuration.textContent = '0:00 / 0:00';
+      }
       console.log('Stopped');
       savePlayerState();
     }
 
     function updateTrackTime() {
-  const currentTime = audioPlayer.currentTime;
+      const currentTime = audioPlayer.currentTime;
+      if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
+        trackDuration.textContent = `${formatTime(currentTime)} / Live`;
+        seekBar.style.display = 'none';
+        return;
+      }
 
-  // 🔒 If it's a radio stream, don't format duration
-  if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
-    trackDuration.textContent = `${formatTime(currentTime)} / Live`;
-    seekBar.style.display = 'none'; // hide seekbar for radio
-    return;
-  }
-
-  const duration = audioPlayer.duration || 0;
-
-  if (!isNaN(duration) && duration > 0) {
-    trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-    seekBar.value = (currentTime / duration) * 100;
-    seekBar.style.display = 'block';
-    savePlayerState();
-  } else {
-    trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
-    seekBar.style.display = 'block';
-  }
-}
+      const duration = audioPlayer.duration;
+      if (!isNaN(duration) && duration > 0) {
+        trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        seekBar.value = (currentTime / duration) * 100;
+        seekBar.style.display = 'block';
+      } else {
+        trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+        seekBar.style.display = 'block';
+      }
+    }
 
     function formatTime(seconds) {
       const minutes = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
-      return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
     function seekAudio(value) {
-      if (audioPlayer.duration && currentRadioIndex === -1) {
+      if (audioPlayer.duration && isFinite(audioPlayer.duration) && currentRadioIndex === -1) {
         const newTime = (value / 100) * audioPlayer.duration;
         audioPlayer.currentTime = newTime;
         updateTrackTime();
       }
     }
 
-    seekBar.addEventListener('input', () => seekAudio(seekBar.value));
-    seekBar.addEventListener('touchstart', () => audioPlayer.pause(), { passive: true });
-    seekBar.addEventListener('touchend', () => {
-      seekAudio(seekBar.value);
-      if (!audioPlayer.paused) audioPlayer.play();
-    });
-
-    audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
-
-    audioPlayer.addEventListener('ended', () => {
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-      manageVinylRotation();
-      if (currentRadioIndex === -1) {
-        if (shuffleMode) {
-          const randomAlbumIndex = Math.floor(Math.random() * albums.length);
-          currentAlbumIndex = randomAlbumIndex; // Update currentAlbumIndex
-          const randomTrackIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomTrackIndex].src,
-            albums[currentAlbumIndex].tracks[randomTrackIndex].title,
-            randomTrackIndex
-          );
-        } else {
-          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+    seekBar.addEventListener('input', () => {
+        if (audioPlayer.duration && isFinite(audioPlayer.duration) && currentRadioIndex === -1) {
+            const tempTime = (seekBar.value / 100) * audioPlayer.duration;
+            trackDuration.textContent = `${formatTime(tempTime)} / ${formatTime(audioPlayer.duration)}`;
         }
-        // Ensure playback starts for the new track
-        // The selectTrack function already handles stopping previous playback and loading the new one.
-        // We need to ensure it plays if it was playing before.
-        // Adding a short delay or relying on canplaythrough within selectTrack might be more robust,
-        // but for now, let's ensure it attempts to play.
-        audioPlayer.addEventListener('canplay', () => {
-          // Check if the audio source is still the one we intended to play,
-          // to avoid race conditions if user clicks rapidly.
-          const expectedSrc = shuffleMode ? albums[currentAlbumIndex].tracks[currentTrackIndex].src : albums[currentAlbumIndex].tracks[currentTrackIndex].src;
-          if (audioPlayer.src.startsWith(expectedSrc.split('?')[0])) { // Compare base src without timestamp
-             audioPlayer.play().catch(e => console.error("Error playing next track on ended: ", e));
-          }
-          audioPlayer.addEventListener('timeupdate', updateTrackTime); // Re-add for the new track
-          manageVinylRotation();
-        }, { once: true });
+    });
+    seekBar.addEventListener('change', () => seekAudio(seekBar.value));
+    seekBar.addEventListener('touchstart', (e) => {
+        if(currentRadioIndex === -1) audioPlayer.pause(); // Only pause for seekable tracks
+    }, { passive: true });
+    seekBar.addEventListener('touchend', (e) => {
+      if(currentRadioIndex === -1) {
+        seekAudio(seekBar.value);
+        if (audioPlayer.src && !audioPlayer.ended) {
+            attemptPlay();
+        }
       }
     });
 
-    audioPlayer.addEventListener('play', manageVinylRotation);
-    audioPlayer.addEventListener('pause', manageVinylRotation);
-    audioPlayer.addEventListener('ended', manageVinylRotation);
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        updateTrackTime();
+        if (currentRadioIndex === -1 && isFinite(audioPlayer.duration)) {
+            seekBar.max = 100;
+        }
+    });
 
-audioPlayer.addEventListener('playing', () => {
-  audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
-  audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
-  updateTrackTime();  // update UI instantly
-  manageVinylRotation(); // spin the album cover if needed
-  console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
-});
-
-    function nextTrack() {
+    audioPlayer.addEventListener('ended', () => {
+      manageVinylRotation();
       if (currentRadioIndex === -1) {
+        let wasPlayingBeforeEnded = !audioPlayer.paused; // Check before track actually ends
+        isFirstPlay = false; // After any track ends, it's no longer the "first play" for autoplay logic
+
         if (shuffleMode) {
           const randomAlbumIndex = Math.floor(Math.random() * albums.length);
           const randomTrackIndex = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
-          // Update currentAlbumIndex before selecting the track to ensure UI consistency
-          currentAlbumIndex = randomAlbumIndex;
-          selectTrack(
-            albums[randomAlbumIndex].tracks[randomTrackIndex].src,
-            albums[randomAlbumIndex].tracks[randomTrackIndex].title,
-            randomTrackIndex
-          );
+          selectAlbum(randomAlbumIndex, randomTrackIndex); // This will call selectTrack
         } else {
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+          const nextTrackDetails = albums[currentAlbumIndex].tracks[currentTrackIndex];
+          selectTrack(nextTrackDetails.src, nextTrackDetails.title, currentTrackIndex);
         }
-        if (!audioPlayer.paused) {
-          audioPlayer.addEventListener('canplay', () => {
-            audioPlayer.play();
-            manageVinylRotation();
-          }, { once: true });
+        // attemptPlay is now primarily handled by handleAudioLoad's canplay/canplaythrough
+        // if !isFirstPlay. No explicit attemptPlay needed here if that logic is sound.
+      }
+    });
+
+    audioPlayer.addEventListener('play', () => {
+        manageVinylRotation();
+        isFirstPlay = false; // Once play starts (user-initiated or auto), it's not the first play anymore
+    });
+    audioPlayer.addEventListener('pause', manageVinylRotation);
+
+    audioPlayer.addEventListener('playing', () => {
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      audioPlayer.addEventListener('timeupdate', updateTrackTime);
+      updateTrackTime();
+      manageVinylRotation();
+      console.log(`🎧 Playback started/resumed: ${trackInfo.textContent}`);
+      loadingSpinner.style.display = 'none';
+      albumCover.style.display = 'block';
+      document.getElementById('progressBar').style.display = 'none';
+    });
+
+    function nextTrack() {
+      if (currentRadioIndex === -1) {
+        isFirstPlay = false; // User interaction, so allow autoplay for the next selected track
+        if (shuffleMode) {
+          const randomAlbumIndex = Math.floor(Math.random() * albums.length);
+          const randomTrackIndex = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
+          selectAlbum(randomAlbumIndex, randomTrackIndex);
+        } else {
+          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
+          const nextTrackDetails = albums[currentAlbumIndex].tracks[currentTrackIndex];
+          selectTrack(nextTrackDetails.src, nextTrackDetails.title, currentTrackIndex);
         }
+        // Playback will be handled by selectTrack -> handleAudioLoad -> attemptPlay (due to !isFirstPlay)
       }
     }
 
     function previousTrack() {
       if (currentRadioIndex === -1) {
+        isFirstPlay = false; // User interaction
         if (shuffleMode) {
           const randomAlbumIndex = Math.floor(Math.random() * albums.length);
           const randomTrackIndex = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
-          // Update currentAlbumIndex before selecting the track
-          currentAlbumIndex = randomAlbumIndex;
-          selectTrack(
-            albums[randomAlbumIndex].tracks[randomTrackIndex].src,
-            albums[randomAlbumIndex].tracks[randomTrackIndex].title,
-            randomTrackIndex
-          );
+          selectAlbum(randomAlbumIndex, randomTrackIndex);
         } else {
           currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+          const prevTrackDetails = albums[currentAlbumIndex].tracks[currentTrackIndex];
+          selectTrack(prevTrackDetails.src, prevTrackDetails.title, currentTrackIndex);
         }
-        if (!audioPlayer.paused) {
-          audioPlayer.addEventListener('canplay', () => {
-            audioPlayer.play();
-            manageVinylRotation();
-          }, { once: true });
-        }
+        // Playback will be handled by selectTrack -> handleAudioLoad -> attemptPlay
       }
     }
 
     function openAlbumList() {
       const modal = document.getElementById('albumModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
+      gsap.fromTo(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50 },
         { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
       );
       console.log('Album list opened');
@@ -1336,20 +1299,20 @@ audioPlayer.addEventListener('playing', () => {
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
         }
       );
       console.log('Album list closed');
     }
 
     function openTrackList() {
-      updateTrackListModal();
+      updateTrackListModal(); // Ensure it's up-to-date for current album
       const modal = document.getElementById('trackModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
+      gsap.fromTo(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50 },
         { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
       );
       console.log('Track list opened');
@@ -1357,9 +1320,9 @@ audioPlayer.addEventListener('playing', () => {
 
     function closeTrackList() {
       const modal = document.getElementById('trackModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
         }
       );
       console.log('Track list closed');
@@ -1369,8 +1332,8 @@ audioPlayer.addEventListener('playing', () => {
       updateRadioListModal();
       const modal = document.getElementById('radioModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
+      gsap.fromTo(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50 },
         { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
       );
       console.log('Radio list opened');
@@ -1378,9 +1341,9 @@ audioPlayer.addEventListener('playing', () => {
 
     function closeRadioList() {
       const modal = document.getElementById('radioModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
         }
       );
       console.log('Radio list closed');
@@ -1389,43 +1352,42 @@ audioPlayer.addEventListener('playing', () => {
     function toggleShuffle() {
       shuffleMode = !shuffleMode;
       const controls = document.querySelector(".music-controls.icons-only");
-      const shuffleBtn = controls.querySelector('button:nth-child(6)');
-      shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
+      const shuffleBtn = controls.querySelector('button:nth-child(6)'); // Assuming it's the 6th button
+      shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀'; // Update text to show shuffle status
       console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
       savePlayerState();
     }
 
     /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
-const chatbotContainer = document.getElementById('chatbotContainer');
-const sabiBibleContainer = document.getElementById('sabiBibleContainer');
+    const chatbotContainer = document.getElementById('chatbotContainer');
+    const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 
-// Spoof user as if dem dey America
-window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
-console.log("US Spoof Active:", window.spoofedLocation);
+    window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
+    console.log("US Spoof Active:", window.spoofedLocation);
 
-function toggleChatbot(){
-  const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
-  chatbotContainer.style.display = isHidden ? 'block' : 'none';
-  console.log("Chatbot opened as US user:", window.spoofedLocation);
-  const chatbotEmbed = chatbotContainer.querySelector("zapier-interfaces-chatbot-embed");
-  if(chatbotEmbed){
-    chatbotEmbed.setAttribute("language",window.spoofedLocation.language);
-    chatbotEmbed.setAttribute("region",window.spoofedLocation.country);
-    chatbotEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
-  }
-}
+    function toggleChatbot(){
+      const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
+      chatbotContainer.style.display = isHidden ? 'block' : 'none';
+      console.log("Chatbot opened as US user:", window.spoofedLocation);
+      const chatbotEmbed = chatbotContainer.querySelector("zapier-interfaces-chatbot-embed");
+      if(chatbotEmbed){
+        chatbotEmbed.setAttribute("language",window.spoofedLocation.language);
+        chatbotEmbed.setAttribute("region",window.spoofedLocation.country);
+        chatbotEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
+      }
+    }
 
-function toggleSabiBible(){
-  const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
-  sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
-  console.log("Sabi Bible opened as US user:", window.spoofedLocation);
-  const sabiEmbed = sabiBibleContainer.querySelector("zapier-interfaces-chatbot-embed");
-  if(sabiEmbed){
-    sabiEmbed.setAttribute("language",window.spoofedLocation.language);
-    sabiEmbed.setAttribute("region",window.spoofedLocation.country);
-    sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
-  }
-}
+    function toggleSabiBible(){
+      const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
+      sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+      console.log("Sabi Bible opened as US user:", window.spoofedLocation);
+      const sabiEmbed = sabiBibleContainer.querySelector("zapier-interfaces-chatbot-embed");
+      if(sabiEmbed){
+        sabiEmbed.setAttribute("language",window.spoofedLocation.language);
+        sabiEmbed.setAttribute("region",window.spoofedLocation.country);
+        sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
+      }
+    }
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
@@ -1441,7 +1403,6 @@ function toggleSabiBible(){
       }
     }
 
-    // Listen for caching confirmation from service worker
     navigator.serviceWorker.onmessage = (event) => {
       if (event.data && event.data.type === 'TRACK_CACHED') {
         console.log(`Track cached successfully: ${event.data.url}`);
@@ -1452,24 +1413,33 @@ function toggleSabiBible(){
     /* MEDIA SESSION API */
     function updateMediaSession() {
       if ('mediaSession' in navigator) {
-        const track = currentRadioIndex === -1 
-          ? albums[currentAlbumIndex].tracks[currentTrackIndex] 
-          : radioStations[currentRadioIndex];
-        const artwork = currentRadioIndex === -1 
-          ? albums[currentAlbumIndex].cover 
-          : radioStations[currentRadioIndex].logo;
+        let trackTitle = "Unknown Track";
+        let albumName = "Unknown Album";
+        let artworkSrc = "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png"; // Default artwork
+
+        if (currentRadioIndex !== -1 && radioStations[currentRadioIndex]) {
+            const radio = radioStations[currentRadioIndex];
+            trackTitle = radio.name;
+            albumName = radio.location || "Radio";
+            artworkSrc = radio.logo || artworkSrc;
+        } else if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]) {
+            const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
+            trackTitle = track.title;
+            albumName = albums[currentAlbumIndex].name;
+            artworkSrc = albums[currentAlbumIndex].cover || artworkSrc;
+        }
 
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
-          artist: currentRadioIndex === -1 ? 'Omoluabi' : '',
-          album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
+          title: trackTitle,
+          artist: (currentRadioIndex === -1) ? 'Omoluabi' : '', // Artist only for album tracks
+          album: albumName,
           artwork: [
-            { src: artwork, sizes: '96x96', type: 'image/jpeg' },
-            { src: artwork, sizes: '128x128', type: 'image/jpeg' },
-            { src: artwork, sizes: '192x192', type: 'image/jpeg' },
-            { src: artwork, sizes: '256x256', type: 'image/jpeg' },
-            { src: artwork, sizes: '384x384', type: 'image/jpeg' },
-            { src: artwork, sizes: '512x512', type: 'image/jpeg' }
+            { src: artworkSrc, sizes: '96x96', type: 'image/png' }, // Assuming PNG, adjust if type varies
+            { src: artworkSrc, sizes: '128x128', type: 'image/png' },
+            { src: artworkSrc, sizes: '192x192', type: 'image/png' },
+            { src: artworkSrc, sizes: '256x256', type: 'image/png' },
+            { src: artworkSrc, sizes: '384x384', type: 'image/png' },
+            { src: artworkSrc, sizes: '512x512', type: 'image/png' }
           ]
         });
 
@@ -1479,12 +1449,12 @@ function toggleSabiBible(){
         navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
         navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
 
-        console.log('Media Session updated with artwork');
+        console.log('Media Session updated.');
       }
     }
 
     audioPlayer.addEventListener('timeupdate', () => {
-      if ('mediaSession' in navigator && audioPlayer.duration && currentRadioIndex === -1) {
+      if ('mediaSession' in navigator && audioPlayer.duration && isFinite(audioPlayer.duration) && currentRadioIndex === -1) {
         navigator.mediaSession.setPositionState({
           duration: audioPlayer.duration,
           playbackRate: audioPlayer.playbackRate,
@@ -1496,48 +1466,45 @@ function toggleSabiBible(){
     function initializePlayer() {
       const savedState = loadPlayerState();
       if (savedState) {
-        currentAlbumIndex = savedState.albumIndex;
-        currentTrackIndex = savedState.trackIndex;
-        currentRadioIndex = savedState.radioIndex;
-        shuffleMode = savedState.shuffleMode;
-        if (currentRadioIndex >= 0) {
+        currentAlbumIndex = savedState.albumIndex || 0;
+        currentTrackIndex = savedState.trackIndex || 0;
+        currentRadioIndex = savedState.radioIndex === undefined ? -1 : savedState.radioIndex;
+        shuffleMode = savedState.shuffleMode || false;
+
+        // Set the shuffle button text correctly on load
+        const shuffleBtn = document.querySelector(".music-controls.icons-only button:nth-child(6)");
+        if(shuffleBtn) shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
+
+        if (currentRadioIndex !== -1 && radioStations[currentRadioIndex]) {
           const station = radioStations[currentRadioIndex];
-          albumCover.src = station.logo;
-          audioPlayer.src = station.url;
-          trackInfo.textContent = `${station.name} - ${station.location}`;
-          trackArtist.textContent = '';
-          trackYear.textContent = '';
-          cacheButton.style.display = 'none'; // Hide for radio
-          audioPlayer.addEventListener('loadedmetadata', () => {
-            audioPlayer.currentTime = savedState.playbackPosition;
-            updateTrackTime();
-            manageVinylRotation();
-          }, { once: true });
+          selectRadio(station.url, `${station.name} - ${station.location}`, currentRadioIndex, station.logo);
+          // For radio, playback position might not be restorable or meaningful in the same way
+           if (savedState.playbackPosition && isFirstPlay) { // only set if it's the first play, otherwise it might interrupt live stream
+             audioPlayer.currentTime = savedState.playbackPosition;
+           }
+        } else if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]) {
+          // selectAlbum will call selectTrack, which handles UI and audio loading
+          selectAlbum(currentAlbumIndex, currentTrackIndex);
+           if (savedState.playbackPosition && isFirstPlay) {
+             audioPlayer.addEventListener('canplay', () => {
+                audioPlayer.currentTime = savedState.playbackPosition;
+             }, {once: true});
+           }
         } else {
-          albumCover.src = albums[currentAlbumIndex].cover;
-          const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          audioPlayer.src = track.src;
-          trackInfo.textContent = track.title;
-          trackArtist.textContent = 'Artist: Omoluabi';
-          trackYear.textContent = 'Release Year: 2025';
-          cacheButton.style.display = 'block'; // Show for tracks
-          audioPlayer.addEventListener('loadedmetadata', () => {
-            audioPlayer.currentTime = savedState.playbackPosition;
-            updateTrackTime();
-            manageVinylRotation();
-          }, { once: true });
+          // Fallback to default if saved state is somehow invalid
+          selectAlbum(0, 0);
         }
-        updateTrackListModal();
-        const controls = document.querySelector(".music-controls.icons-only");
-        const shuffleBtn = controls.querySelector('button:nth-child(6)');
-        shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
         console.log('Player restored from saved state:', savedState);
+         // isFirstPlay should remain true until user explicitly plays or a track auto-plays after the initial one.
+         // If we restored a track, we might not want it to autoplay immediately.
+         // The current logic in attemptPlay and handleAudioLoad handles !isFirstPlay for autoplay.
+         // So, we don't set isFirstPlay = false here.
       } else {
-        selectAlbum(0);
-        console.log('No saved state found, initialized with default');
+        selectAlbum(0, 0); // Default to first album, first track
+        console.log('No valid saved state found, initialized with default album and track.');
       }
       updateStreak();
-      updateMediaSession();
+      // updateMediaSession(); // selectTrack/Radio will call this
     }
 
     // GSAP Sidebar Button Animations
@@ -1549,10 +1516,10 @@ function toggleSabiBible(){
         gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
       });
       button.addEventListener('click', () => {
-        gsap.to(button, { 
-          scale: 0.95, 
-          duration: 0.1, 
-          ease: "power1.in", 
+        gsap.to(button, {
+          scale: 0.95,
+          duration: 0.1,
+          ease: "power1.in",
           onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
         });
       });
@@ -1574,10 +1541,8 @@ function toggleSabiBible(){
     // Initialize player
     initializePlayer();
 
-    // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
 
-    // PWA Install Prompt
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -1585,33 +1550,37 @@ function toggleSabiBible(){
       console.log('Install prompt available');
       const installBtn = document.createElement('button');
       installBtn.textContent = 'Install Àríyò AI';
-      installBtn.style.position = 'fixed';
-      installBtn.style.bottom = '20px';
-      installBtn.style.right = '20px';
-      installBtn.style.background = '#ff758c';
-      installBtn.style.color = 'white';
-      installBtn.style.padding = '10px 20px';
-      installBtn.style.border = 'none';
-      installBtn.style.borderRadius = '5px';
-      installBtn.style.zIndex = '1000';
+      installBtn.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px;
+        background: #ff758c; color: white; padding: 10px 20px;
+        border: none; border-radius: 5px; z-index: 1000; cursor: pointer;`;
       installBtn.onclick = () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User installed the app');
-          }
-          deferredPrompt = null;
-          installBtn.remove();
-        });
+        if(deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User installed the app');
+            }
+            deferredPrompt = null;
+            installBtn.remove();
+          });
+        }
       };
       document.body.appendChild(installBtn);
+      // Remove button if not used after a while
+      setTimeout(() => {
+        if(deferredPrompt && installBtn.parentNode) { // Check if still in DOM
+            installBtn.remove();
+        }
+      }, 300000); // 5 minutes
     });
 
     window.addEventListener('appinstalled', () => {
       console.log('PWA was installed');
+       const installBtn = document.querySelector('button[onclick*="deferredPrompt.prompt()"]');
+       if(installBtn) installBtn.remove();
     });
 
-    // Handle visibility change to fix track time bar after sleep
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && !audioPlayer.paused) {
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
