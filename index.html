@@ -1220,11 +1220,13 @@ function loadMoreStations(region) {
       manageVinylRotation();
       if (currentRadioIndex === -1) {
         if (shuffleMode) {
-          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+          const randomAlbumIndex = Math.floor(Math.random() * albums.length);
+          currentAlbumIndex = randomAlbumIndex; // Update currentAlbumIndex
+          const randomTrackIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
           selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
+            albums[currentAlbumIndex].tracks[randomTrackIndex].src,
+            albums[currentAlbumIndex].tracks[randomTrackIndex].title,
+            randomTrackIndex
           );
         } else {
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
@@ -1234,9 +1236,19 @@ function loadMoreStations(region) {
             currentTrackIndex
           );
         }
+        // Ensure playback starts for the new track
+        // The selectTrack function already handles stopping previous playback and loading the new one.
+        // We need to ensure it plays if it was playing before.
+        // Adding a short delay or relying on canplaythrough within selectTrack might be more robust,
+        // but for now, let's ensure it attempts to play.
         audioPlayer.addEventListener('canplay', () => {
-          audioPlayer.play();
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          // Check if the audio source is still the one we intended to play,
+          // to avoid race conditions if user clicks rapidly.
+          const expectedSrc = shuffleMode ? albums[currentAlbumIndex].tracks[currentTrackIndex].src : albums[currentAlbumIndex].tracks[currentTrackIndex].src;
+          if (audioPlayer.src.startsWith(expectedSrc.split('?')[0])) { // Compare base src without timestamp
+             audioPlayer.play().catch(e => console.error("Error playing next track on ended: ", e));
+          }
+          audioPlayer.addEventListener('timeupdate', updateTrackTime); // Re-add for the new track
           manageVinylRotation();
         }, { once: true });
       }
