@@ -1,0 +1,111 @@
+body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #000;
+      color: #fff;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(to right, #ff758c, #ff7eb3);
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    section.banner {
+      position: relative;
+      background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Banner.png');
+      background-size: cover;
+      background-position: center;
+      padding: 5rem 1rem;
+    }
+    .banner::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .banner h2 {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      font-size: 2rem;
+      color: #fff;
+    }
+    section.about {
+      background-color: #121212;
+      padding: 4rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+    }
+    .about-text, .about-image {
+      flex: 1 1 400px;
+      max-width: 600px;
+    }
+    .about-text h3 {
+      font-size: 1.8rem;
+      color: #ff758c;
+    }
+    .about-text p {
+      margin-top: 1rem;
+      color: #ccc;
+    }
+    .about-image img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+    section.album-section, section.social-section {
+      background-color: #1a1a1a;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    .album-section h4, .social-section h4 {
+      color: #ff758c;
+      font-size: 1.6rem;
+      margin-bottom: 2rem;
+    }
+    .album-covers, .social-icons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .album-covers a img, .social-icons a img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      transition: transform 0.3s ease;
+    }
+    .album-covers a img:hover, .social-icons a img:hover {
+      transform: scale(1.1);
+    }
+    footer {
+      background-color: #1c1c1c;
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+    @media (max-width: 768px) {
+      .about-text, .about-image {
+        text-align: center;
+        padding: 0 1rem;
+      }
+      .about-text h3 {
+        font-size: 1.5rem;
+      }
+      .about-text p {
+        font-size: 0.95rem;
+      }
+      .album-covers a img,
+      .social-icons a img {
+        width: 100px;
+        height: 100px;
+      }
+    }

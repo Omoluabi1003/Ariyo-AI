@@ -16,14 +16,15 @@ const urlsToCache = [
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-384x384.png',
+  '/icons/Ariyo.png',
+  '/icons/Ariyo_AI.png',
+  '/icons/Ariyo-180x180.png',
+  '/icons/Ariyo-144x144.png',
+  '/icons/Ariyo-256x256.png',
+  '/icons/Ariyo-384x384.png',
+  '/images/radio_default_logo.jpg',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3'
+  '/audio/offline-audio.mp3' // Changed to local path
 ];
 
 // Install event: Cache app shell and static assets
@@ -85,7 +86,7 @@ self.addEventListener('fetch', event => {
             })
             .catch(() => {
               console.warn(`Service Worker: Audio fetch failed for ${requestUrl}, serving fallback`);
-              return caches.match('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3')
+              return caches.match('/audio/offline-audio.mp3') // Changed to local path
                 .then(fallbackAudio => {
                   if (fallbackAudio) {
                     console.log('Service Worker: Serving offline audio fallback');
