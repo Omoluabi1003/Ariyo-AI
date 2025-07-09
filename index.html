@@ -453,6 +453,7 @@
     <p class="track-details" id="trackYear">Release Year: 2025</p>
     <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
     <p id="streakInfo" class="track-details">🔥 Current Streak: 0 days</p>
+    <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p> <!-- New shuffle status display -->
     <input
       type="range"
       id="seekBar"
@@ -643,7 +644,8 @@
     const cacheButton = document.getElementById('cacheButton'); // New cache button
     const progressBar = document.getElementById('progressBar').querySelector('div');
     const streakInfo = document.getElementById('streakInfo');
-    let shuffleMode = false;
+    let shuffleMode = false; // True if any shuffle is active
+    let shuffleScope = 'off'; // 'off', 'album', 'all'
     let isFirstPlay = true;
     let lastTrackSrc = '';
     let lastTrackTitle = '';
@@ -810,6 +812,7 @@
         radioIndex: currentRadioIndex,
         playbackPosition: audioPlayer.currentTime,
         shuffleMode: shuffleMode,
+        shuffleScope: shuffleScope, // Save shuffleScope
         timestamp: new Date().getTime()
       };
       localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
@@ -822,6 +825,8 @@
         const playerState = JSON.parse(savedState);
         const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
         if (ageInHours < 24) {
+          // Ensure shuffleScope is loaded, default if not present in older saved states
+          playerState.shuffleScope = playerState.shuffleScope || 'off'; 
           return playerState;
         }
       }
@@ -1218,15 +1223,30 @@ function loadMoreStations(region) {
     audioPlayer.addEventListener('ended', () => {
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
-      if (currentRadioIndex === -1) {
+      if (currentRadioIndex === -1) { // Only if not playing a radio station
         if (shuffleMode) {
-          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
-        } else {
+          if (shuffleScope === 'all') {
+            // Shuffle across all albums
+            const allTracks = [];
+            albums.forEach((album, albumIdx) => {
+              album.tracks.forEach((track, trackIdx) => {
+                allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+              });
+            });
+            if (allTracks.length > 0) {
+              const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+              currentAlbumIndex = randomTrackInfo.originalAlbumIndex; // Update currentAlbumIndex
+              selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+            }
+          } else { // shuffleScope === 'album'
+            const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+            selectTrack(
+              albums[currentAlbumIndex].tracks[randomIndex].src,
+              albums[currentAlbumIndex].tracks[randomIndex].title,
+              randomIndex
+            );
+          }
+        } else { // No shuffle
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
           selectTrack(
             albums[currentAlbumIndex].tracks[currentTrackIndex].src,
@@ -1255,15 +1275,29 @@ audioPlayer.addEventListener('playing', () => {
 });
 
     function nextTrack() {
-      if (currentRadioIndex === -1) {
+      if (currentRadioIndex === -1) { // Only if not playing a radio station
         if (shuffleMode) {
-          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
-        } else {
+          if (shuffleScope === 'all') {
+            const allTracks = [];
+            albums.forEach((album, albumIdx) => {
+              album.tracks.forEach((track, trackIdx) => {
+                allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+              });
+            });
+            if (allTracks.length > 0) {
+              const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+              currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
+              selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+            }
+          } else { // shuffleScope === 'album'
+            const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+            selectTrack(
+              albums[currentAlbumIndex].tracks[randomIndex].src,
+              albums[currentAlbumIndex].tracks[randomIndex].title,
+              randomIndex
+            );
+          }
+        } else { // No shuffle
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
           selectTrack(
             albums[currentAlbumIndex].tracks[currentTrackIndex].src,
@@ -1369,11 +1403,27 @@ audioPlayer.addEventListener('playing', () => {
     }
 
     function toggleShuffle() {
-      shuffleMode = !shuffleMode;
-      const controls = document.querySelector(".music-controls.icons-only");
-      const shuffleBtn = controls.querySelector('button:nth-child(6)');
-      shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
-      console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
+      const shuffleBtn = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
+      const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+      if (shuffleScope === 'off') {
+        shuffleScope = 'album';
+        shuffleMode = true; 
+        shuffleBtn.textContent = '🔀 Album'; 
+        shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
+        console.log('Shuffle mode: Album');
+      } else if (shuffleScope === 'album') {
+        shuffleScope = 'all';
+        shuffleMode = true; 
+        shuffleBtn.textContent = '🔀 All'; 
+        shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+        console.log('Shuffle mode: All');
+      } else { // shuffleScope === 'all'
+        shuffleScope = 'off';
+        shuffleMode = false; 
+        shuffleBtn.textContent = '🔀 Off'; 
+        shuffleStatusInfo.textContent = 'Shuffle: Off';
+        console.log('Shuffle mode: Off');
+      }
       savePlayerState();
     }
 
@@ -1481,7 +1531,7 @@ function toggleSabiBible(){
         currentAlbumIndex = savedState.albumIndex;
         currentTrackIndex = savedState.trackIndex;
         currentRadioIndex = savedState.radioIndex;
-        shuffleMode = savedState.shuffleMode;
+        // shuffleMode = savedState.shuffleMode; // This line is updated below
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
@@ -1511,10 +1561,30 @@ function toggleSabiBible(){
         }
         updateTrackListModal();
         const controls = document.querySelector(".music-controls.icons-only");
-        const shuffleBtn = controls.querySelector('button:nth-child(6)');
-        shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
+        // Updated section for shuffle button text:
+        const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
+        const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+        
+        shuffleMode = savedState.shuffleMode; 
+        shuffleScope = savedState.shuffleScope;
+
+        if (shuffleScope === 'album') {
+          shuffleBtn.textContent = '🔀 Album';
+          shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
+        } else if (shuffleScope === 'all') {
+          shuffleBtn.textContent = '🔀 All';
+          shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+        } else { // off
+          shuffleBtn.textContent = '🔀 Off';
+          shuffleStatusInfo.textContent = 'Shuffle: Off';
+        }
         console.log('Player restored from saved state:', savedState);
       } else {
+        // Default state for a new session if no saved state
+        shuffleScope = 'off'; 
+        shuffleMode = false;
+        document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
+        document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
         selectAlbum(0);
         console.log('No saved state found, initialized with default');
       }
