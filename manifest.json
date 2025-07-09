@@ -65,9 +65,5 @@
     }
   ],
   "categories": ["music", "entertainment", "utilities"],
-  "prefer_related_applications": false,
-  "service_worker": {
-    "src": "/service-worker.js",
-    "scope": "/"
-  }
+  "prefer_related_applications": false
 }
