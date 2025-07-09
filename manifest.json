@@ -6,7 +6,6 @@
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "minimal-ui", "fullscreen"],
   "background_color": "#000000",
   "theme_color": "#ff758c",
   "orientation": "any",
@@ -14,37 +13,37 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png",
+      "src": "/assets/Ariyo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png",
+      "src": "/assets/Ariyo_AI.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png",
+      "src": "/assets/Ariyo-180x180.png",
       "sizes": "180x180",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png",
+      "src": "/assets/Ariyo-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png",
+      "src": "/assets/Ariyo-256x256.png",
       "sizes": "256x256",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-384x384.png",
+      "src": "/assets/Ariyo-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
@@ -52,22 +51,18 @@
   ],
   "screenshots": [
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png",
+      "src": "/assets/music-player.png",
       "sizes": "1280x720",
       "type": "image/png",
       "description": "Music player interface showcasing track playback"
     },
     {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png",
+      "src": "/assets/chatbot-screenshot.png",
       "sizes": "1280x720",
       "type": "image/png",
       "description": "Chatbot interaction with Àríyò AI"
     }
   ],
   "categories": ["music", "entertainment", "utilities"],
-  "prefer_related_applications": false,
-  "service_worker": {
-    "src": "/service-worker.js",
-    "scope": "/"
-  }
+  "prefer_related_applications": false
 }
