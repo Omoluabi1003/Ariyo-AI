@@ -17,13 +17,25 @@
       "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png",
@@ -35,7 +47,13 @@
       "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png",
