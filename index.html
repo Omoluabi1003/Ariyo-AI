@@ -643,8 +643,8 @@
     const cacheButton = document.getElementById('cacheButton'); // New cache button
     const progressBar = document.getElementById('progressBar').querySelector('div');
     const streakInfo = document.getElementById('streakInfo');
-    let shuffleMode = false;
-    let albumShuffleMode = false; // Added for album shuffling
+    let isTrackShuffleActive = false; // New state for track-specific shuffle
+    let isAlbumShuffleActive = false; // New state for album-wide shuffle
     let isFirstPlay = true;
     let lastTrackSrc = '';
     let lastTrackTitle = '';
@@ -810,8 +810,8 @@
         trackIndex: currentTrackIndex,
         radioIndex: currentRadioIndex,
         playbackPosition: audioPlayer.currentTime,
-        shuffleMode: shuffleMode,
-        albumShuffleMode: albumShuffleMode, // Save albumShuffleMode
+        isTrackShuffleActive: isTrackShuffleActive, // Save new shuffle state
+        isAlbumShuffleActive: isAlbumShuffleActive, // Save new shuffle state
         timestamp: new Date().getTime()
       };
       localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
@@ -1220,27 +1220,10 @@ function loadMoreStations(region) {
     audioPlayer.addEventListener('ended', () => {
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
-      if (currentRadioIndex === -1) {
-        if (shuffleMode) {
-          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
-        } else {
-          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
-        }
-        audioPlayer.addEventListener('canplay', () => {
-          audioPlayer.play();
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
-          manageVinylRotation();
-        }, { once: true });
+      if (currentRadioIndex === -1) { // Only if not a radio stream
+        // Call nextTrack, which now contains all shuffle logic
+        nextTrack();
+        // The autoplay logic is handled within nextTrack/selectTrack
       }
     });
 
@@ -1258,47 +1241,42 @@ audioPlayer.addEventListener('playing', () => {
 
     function nextTrack() {
       if (currentRadioIndex === -1) { // Only proceed if not in radio mode
-        if (albumShuffleMode) {
+        let nextAlbumIndex = currentAlbumIndex;
+        let nextTrackIndexInAlbum;
+
+        if (isAlbumShuffleActive) {
           // Album shuffle logic
-          const randomAlbumIndex = Math.floor(Math.random() * albums.length);
-          const randomTrackIndexInAlbum = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
+          nextAlbumIndex = Math.floor(Math.random() * albums.length);
+          nextTrackIndexInAlbum = Math.floor(Math.random() * albums[nextAlbumIndex].tracks.length);
 
-          currentAlbumIndex = randomAlbumIndex; // Update current album index
-          // Select and load the new track from the randomly selected album
-          selectTrack(
-            albums[randomAlbumIndex].tracks[randomTrackIndexInAlbum].src,
-            albums[randomAlbumIndex].tracks[randomTrackIndexInAlbum].title,
-            randomTrackIndexInAlbum // This is the index within the *new* album
-          );
-          // Update album cover and track list modal to reflect the new album
-          albumCover.src = albums[currentAlbumIndex].cover;
-          updateTrackListModal();
-
-        } else if (shuffleMode) {
+          currentAlbumIndex = nextAlbumIndex; // Update current album index for selectTrack
+          albumCover.src = albums[currentAlbumIndex].cover; // Update cover immediately
+          updateTrackListModal(); // Update track list for the new album
+        } else if (isTrackShuffleActive) {
           // Track shuffle logic (within the current album)
-          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
+          nextTrackIndexInAlbum = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
         } else {
           // Normal playback: next track in the current album
-          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
+          nextTrackIndexInAlbum = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
         }
 
-        // Autoplay if music was playing
+        // Select and load the new track
+        // Note: currentAlbumIndex is already updated if album shuffle was active
+        selectTrack(
+          albums[currentAlbumIndex].tracks[nextTrackIndexInAlbum].src,
+          albums[currentAlbumIndex].tracks[nextTrackIndexInAlbum].title,
+          nextTrackIndexInAlbum // This is the index within the (potentially new) current album
+        );
+
+        // Autoplay if music was playing or it's the first play action
+        // The play logic is mostly handled within selectTrack/handleAudioLoad now,
+        // but ensuring it plays if it was already playing or is first interaction.
         if (!audioPlayer.paused || isFirstPlay) {
-             // isFirstPlay check might be redundant if autoPlay is handled by selectTrack/loadTrack
-          audioPlayer.addEventListener('canplaythrough', () => { // Or 'canplay'
+          audioPlayer.addEventListener('canplaythrough', () => {
             audioPlayer.play().catch(e => console.error("Error playing next track:", e));
             manageVinylRotation();
           }, { once: true });
+          if(isFirstPlay) isFirstPlay = false; // Reset after first play attempt
         }
       }
     }
@@ -1395,26 +1373,25 @@ audioPlayer.addEventListener('playing', () => {
       const controls = document.querySelector(".music-controls.icons-only");
       const shuffleBtn = controls.querySelector('button:nth-child(6)');
 
-      if (!shuffleMode && !albumShuffleMode) {
-        // Cycle: Off -> Track Shuffle
-        shuffleMode = true;
-        albumShuffleMode = false;
+      if (!isTrackShuffleActive && !isAlbumShuffleActive) {
+        // Current state: OFF. Next state: Track Shuffle
+        isTrackShuffleActive = true;
+        isAlbumShuffleActive = false;
         shuffleBtn.textContent = '🔀 Track';
         console.log('Shuffle mode: Track');
-      } else if (shuffleMode && !albumShuffleMode) {
-        // Cycle: Track Shuffle -> Album Shuffle
-        shuffleMode = true; // Keep shuffleMode true for album shuffle as well
-        albumShuffleMode = true;
+      } else if (isTrackShuffleActive && !isAlbumShuffleActive) {
+        // Current state: Track Shuffle. Next state: Album Shuffle
+        isTrackShuffleActive = false;
+        isAlbumShuffleActive = true;
         shuffleBtn.textContent = '🔀 Album';
         console.log('Shuffle mode: Album');
       } else {
-        // Cycle: Album Shuffle -> Off
-        shuffleMode = false;
-        albumShuffleMode = false;
-        shuffleBtn.textContent = '🔀'; // Default shuffle icon when off
+        // Current state: Album Shuffle. Next state: OFF
+        isTrackShuffleActive = false;
+        isAlbumShuffleActive = false;
+        shuffleBtn.textContent = '🔀'; // Default icon for OFF
         console.log('Shuffle mode: OFF');
       }
-      // Make sure to save albumShuffleMode in player state
       savePlayerState();
     }
 
@@ -1522,8 +1499,9 @@ function toggleSabiBible(){
         currentAlbumIndex = savedState.albumIndex;
         currentTrackIndex = savedState.trackIndex;
         currentRadioIndex = savedState.radioIndex;
-        shuffleMode = savedState.shuffleMode;
-        albumShuffleMode = savedState.albumShuffleMode || false; // Load albumShuffleMode, default to false if not present
+        // Load new shuffle states, defaulting to false if not previously saved
+        isTrackShuffleActive = savedState.isTrackShuffleActive || false;
+        isAlbumShuffleActive = savedState.isAlbumShuffleActive || false;
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
@@ -1554,13 +1532,13 @@ function toggleSabiBible(){
         updateTrackListModal();
         const controls = document.querySelector(".music-controls.icons-only");
         const shuffleBtn = controls.querySelector('button:nth-child(6)');
-        // Update shuffle button based on loaded state
-        if (albumShuffleMode) {
+        // Update shuffle button UI based on loaded states
+        if (isAlbumShuffleActive) {
           shuffleBtn.textContent = '🔀 Album';
-        } else if (shuffleMode) {
+        } else if (isTrackShuffleActive) {
           shuffleBtn.textContent = '🔀 Track';
         } else {
-          shuffleBtn.textContent = '🔀'; // Default icon
+          shuffleBtn.textContent = '🔀'; // Default icon for OFF
         }
         console.log('Player restored from saved state:', savedState);
       } else {
