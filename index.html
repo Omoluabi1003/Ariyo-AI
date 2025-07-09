@@ -644,10 +644,11 @@
     const progressBar = document.getElementById('progressBar').querySelector('div');
     const streakInfo = document.getElementById('streakInfo');
     let shuffleMode = false;
-    let isFirstPlay = true; // Used to prevent autoplay on initial load or first track selection by user
+    let albumShuffleMode = false; // Added for album shuffling
+    let isFirstPlay = true;
     let lastTrackSrc = '';
     let lastTrackTitle = '';
-    let lastTrackIndex = 0; // Store index relative to its album for retry
+    let lastTrackIndex = 0;
 
     const albums = [
       {
@@ -774,7 +775,7 @@
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
-    let currentRadioIndex = -1; // -1 indicates not in radio mode; otherwise, it's the index in radioStations array
+    let currentRadioIndex = -1;
 
     // Streak Logic
     function updateStreak() {
@@ -810,6 +811,7 @@
         radioIndex: currentRadioIndex,
         playbackPosition: audioPlayer.currentTime,
         shuffleMode: shuffleMode,
+        albumShuffleMode: albumShuffleMode, // Save albumShuffleMode
         timestamp: new Date().getTime()
       };
       localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
@@ -820,263 +822,235 @@
       const savedState = localStorage.getItem('ariyoPlayerState');
       if (savedState) {
         const playerState = JSON.parse(savedState);
-        // Only restore if state is less than 24 hours old
         const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
         if (ageInHours < 24) {
           return playerState;
         }
       }
-      return null; // No valid saved state
+      return null;
     }
 
     function updateTrackListModal() {
       const trackListContainer = document.querySelector('.track-list');
-      trackListContainer.innerHTML = ''; // Clear existing list
-      if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks) {
-        albums[currentAlbumIndex].tracks.forEach((track, index) => {
-          const trackLink = document.createElement('a');
-          trackLink.href = '#';
-          // Pass src, title, and index to selectTrack for clarity and robustness
-          trackLink.onclick = () => selectTrack(track.src, track.title, index);
-          trackLink.textContent = track.title;
-          trackListContainer.appendChild(trackLink);
-        });
-        console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
-      } else {
-        console.warn("Attempted to update track list modal for an invalid album index:", currentAlbumIndex);
-      }
+      trackListContainer.innerHTML = '';
+      albums[currentAlbumIndex].tracks.forEach((track, index) => {
+        const trackLink = document.createElement('a');
+        trackLink.href = '#';
+        trackLink.onclick = () => selectTrack(track.src, track.title, index);
+        trackLink.textContent = track.title;
+        trackListContainer.appendChild(trackLink);
+      });
+      console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
     }
 
     const stationsPerPage = 6;
-    let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
 
-    function classifyStation(station) {
-      const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
-      const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
-      if (nigeriaLocations.some(loc => station.location.includes(loc))) return "nigeria";
-      if (westAfricaLocations.some(loc => station.location.includes(loc))) return "westAfrica";
-      return "international";
-    }
+// Region Classifier
+function classifyStation(station) {
+  const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
+  const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
 
-    const groupedStations = { nigeria: [], westAfrica: [], international: [] };
-    radioStations.forEach(station => {
-      const region = classifyStation(station);
-      groupedStations[region].push(station);
-    });
+  if (nigeriaLocations.includes(station.location)) return "nigeria";
+  if (westAfricaLocations.includes(station.location)) return "westAfrica";
+  return "international";
+}
 
-    function updateRadioListModal() {
-      stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
-      ["nigeria", "westAfrica", "international"].forEach(region => {
-        const container = document.getElementById(`${region}-stations`);
-        if(container) container.innerHTML = ''; // Clear previous stations
-        const button = document.querySelector(`button[onclick="loadMoreStations('${region}')"]`);
-        if(button) button.style.display = (groupedStations[region].length > 0) ? 'inline-block' : 'none';
-        loadMoreStations(region);
-      });
-      console.log("Grouped and displayed radio stations by region");
-    }
+// Grouped Stations
+const groupedStations = { nigeria: [], westAfrica: [], international: [] };
+radioStations.forEach(station => {
+  const region = classifyStation(station);
+  groupedStations[region].push(station);
+});
 
-    function loadMoreStations(region) {
-      const container = document.getElementById(`${region}-stations`);
-      const stations = groupedStations[region];
-      const start = stationDisplayCounts[region];
-      const end = Math.min(start + stationsPerPage, stations.length);
+function updateRadioListModal() {
+  stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
 
-      stations.slice(start, end).forEach((station, globalIndexOffset) => {
-        // Find the original index in the main radioStations array for selectRadio
-        const originalIndex = radioStations.findIndex(rs => rs.url === station.url && rs.name === station.name);
-        const stationLink = document.createElement("a");
-        stationLink.href = "#";
-        stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, originalIndex, station.logo);
-        stationLink.textContent = `${station.name} (${station.location})`;
-        if(container) container.appendChild(stationLink);
-      });
+  ["nigeria", "westAfrica", "international"].forEach(region => {
+    document.getElementById(`${region}-stations`).innerHTML = '';
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
+    loadMoreStations(region);
+  });
 
-      stationDisplayCounts[region] = end;
-      const loadMoreButton = document.querySelector(`button[onclick="loadMoreStations('${region}')"]`);
-      if (loadMoreButton) {
-          loadMoreButton.style.display = (stationDisplayCounts[region] < stations.length) ? 'inline-block' : 'none';
-      }
-    }
+  console.log("Grouped and displayed radio stations by region");
+}
 
-    // Main function to select an album and optionally a specific track within it
-    function selectAlbum(albumIndex, trackIndexToPlay = 0) {
-      console.log(`Selecting album: "${albums[albumIndex].name}", track to play index: ${trackIndexToPlay}`);
+function loadMoreStations(region) {
+  const container = document.getElementById(`${region}-stations`);
+  const stations = groupedStations[region];
+  const start = stationDisplayCounts[region];
+  const end = start + stationsPerPage;
+
+  stations.slice(start, end).forEach((station, index) => {
+    const stationLink = document.createElement("a");
+    stationLink.href = "#";
+    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
+    stationLink.textContent = `${station.name} (${station.location})`;
+    container.appendChild(stationLink);
+  });
+
+  stationDisplayCounts[region] = end;
+
+  if (stationDisplayCounts[region] >= stations.length) {
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
+  }
+}
+
+    function selectAlbum(albumIndex) {
+      console.log(`Selecting album: ${albums[albumIndex].name}`);
       currentAlbumIndex = albumIndex;
-      currentRadioIndex = -1; // Ensure we're in album mode
-
-      albumCover.src = albums[currentAlbumIndex].cover; // Update album cover
-      updateTrackListModal(); // Update the track list modal for the new album
-
-      // Select and load the specified track from the newly selected album
-      const trackToSelect = albums[currentAlbumIndex].tracks[trackIndexToPlay];
-      if (trackToSelect) {
-        // currentTrackIndex will be set within selectTrack
-        selectTrack(trackToSelect.src, trackToSelect.title, trackIndexToPlay);
-      } else {
-        console.warn(`Track index ${trackIndexToPlay} out of bounds for album ${albums[currentAlbumIndex].name}. Selecting first track.`);
-        const firstTrack = albums[currentAlbumIndex].tracks[0];
-        selectTrack(firstTrack.src, firstTrack.title, 0);
-      }
-
-      const albumModal = document.getElementById('albumModal');
-      if (albumModal.style.display === 'block') { // Only close if it was open
-        closeAlbumList();
-      }
-      // savePlayerState(); // selectTrack will call savePlayerState
+      currentTrackIndex = 0;
+      currentRadioIndex = -1;
+      albumCover.src = albums[currentAlbumIndex].cover;
+      loadTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+      updateTrackListModal();
+      closeAlbumList();
+      savePlayerState();
     }
 
-    // selectTrack is now the primary function for loading and preparing a single track for playback
-    function selectTrack(src, title, index) {
-      console.log(`Selecting track: "${title}" (index ${index}) from album: "${albums[currentAlbumIndex].name}"`);
-      currentTrackIndex = index; // Set the current track index for the current album
-      currentRadioIndex = -1;    // Ensure we are in album mode
-
-      lastTrackSrc = src;        // For retry functionality
-      lastTrackTitle = title;
-      lastTrackIndex = index;
-
-      audioPlayer.src = src + '?t=' + new Date().getTime(); // Append timestamp to try and avoid caching issues with the audio file itself
+    function loadTrack(src, title, index) {
+      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      currentRadioIndex = -1;
+      audioPlayer.src = src;
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
-
-      const trackModal = document.getElementById('trackModal');
-      if (trackModal.style.display === 'block') { // Only close if it was open
-        closeTrackList();
-      }
-
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'block';
+      cacheButton.style.display = 'block'; // Show cache button for tracks
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
+    }
 
+    function selectTrack(src, title, index) {
+      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      currentRadioIndex = -1;
+      lastTrackSrc = src;
+      lastTrackTitle = title;
+      lastTrackIndex = index;
+      audioPlayer.src = src + '?t=' + new Date().getTime();
+      audioPlayer.currentTime = 0;
+      trackInfo.textContent = title;
+      trackArtist.textContent = 'Artist: Omoluabi';
+      trackYear.textContent = 'Release Year: 2025';
+      closeTrackList();
+      stopMusic();
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      cacheButton.style.display = 'block'; // Show cache button
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
       handleAudioLoad(src, title);
       updateMediaSession();
-      savePlayerState();
     }
 
     function selectRadio(src, title, index, logo) {
       console.log(`Selecting radio: ${title}`);
-      currentRadioIndex = index; // Set to the index in the main radioStations array
-      currentTrackIndex = -1;    // Not an album track
-
+      currentRadioIndex = index;
+      currentTrackIndex = -1;
       lastTrackSrc = src;
       lastTrackTitle = title;
-      lastTrackIndex = index; // Used for retry, refers to radioStations index
-
-      albumCover.src = logo;
+      lastTrackIndex = index;
       audioPlayer.src = src;
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
-
-      const radioModal = document.getElementById('radioModal');
-      if (radioModal.style.display === 'block') {
-        closeRadioList();
-      }
+      albumCover.src = logo;
+      closeRadioList();
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'none';
+      cacheButton.style.display = 'none'; // Hide cache button for radio
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       handleAudioLoad(src, title);
       updateMediaSession();
-      savePlayerState();
     }
 
     function retryTrack() {
-      if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
+      if (currentRadioIndex >= 0) {
         selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
-      } else if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[lastTrackIndex]) {
-        selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
       } else {
-        console.warn("Could not retry track, state is invalid.");
+        selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
       }
     }
 
     function handleAudioLoad(src, title) {
-      // Clear any existing timeout
-      if (window.playTimeoutId) {
-        clearTimeout(window.playTimeoutId);
-      }
-
-      window.playTimeoutId = setTimeout(() => {
+      const playTimeout = setTimeout(() => {
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         trackInfo.textContent = 'Error: Stream failed to load (timeout)';
         retryButton.style.display = 'block';
-        console.error(`Timeout: ${title} failed to buffer within 10 seconds`); // Increased timeout
-      }, 10000); // Increased timeout to 10 seconds
+        console.error(`Timeout: ${title} failed to buffer within 4 seconds`);
+      }, 4000);
 
-      // Remove old listeners to prevent multiple executions
-      audioPlayer.removeEventListener('progress', window.audioProgressHandler);
-      audioPlayer.removeEventListener('canplaythrough', window.audioCanPlayThroughHandler);
-      audioPlayer.removeEventListener('canplay', window.audioCanPlayHandler);
-      audioPlayer.removeEventListener('error', window.audioErrorHandler);
-
-      window.audioProgressHandler = () => {
-        if (audioPlayer.buffered.length > 0 && audioPlayer.duration && isFinite(audioPlayer.duration)) {
-          const bufferedEnd = audioPlayer.buffered.end(audioPlayer.buffered.length - 1);
+      audioPlayer.addEventListener('progress', () => {
+        if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
+          const bufferedEnd = audioPlayer.buffered.end(0);
           const duration = audioPlayer.duration;
           progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
         }
-      };
+      });
 
-      window.audioCanPlayThroughHandler = () => {
-        clearTimeout(window.playTimeoutId);
+      audioPlayer.addEventListener('canplaythrough', () => {
+        clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         console.log(`Stream ${title} can play through`);
         if (!isFirstPlay) {
-          attemptPlay();
+          audioPlayer.play().catch(error => handlePlayError(error, title));
         }
-      };
+      }, { once: true });
 
-      window.audioCanPlayHandler = () => {
+      audioPlayer.addEventListener('canplay', () => {
         if (loadingSpinner.style.display === 'block') {
-          clearTimeout(window.playTimeoutId);
+          clearTimeout(playTimeout);
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
           console.log(`Stream ${title} can play (fallback)`);
+
+    updateMediaSession(); // ✅ Move it here
+
           if (!isFirstPlay) {
-            attemptPlay();
+            audioPlayer.play().catch(error => handlePlayError(error, title));
           }
         }
-      };
+      }, { once: true });
 
-      window.audioErrorHandler = () => {
-        clearTimeout(window.playTimeoutId);
+      audioPlayer.addEventListener('error', () => {
+        clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
-        let errorMsg = `Error: Unable to load ${title}`;
-        if (audioPlayer.error) {
-            errorMsg = `Error: Could not play ${title} (Code: ${audioPlayer.error.code})`;
-            console.error(`Audio error for ${title}: Code ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
-        } else {
-            console.error(`Audio error for ${title}, but error object is null.`);
-        }
-        trackInfo.textContent = errorMsg;
+        fetch(audioPlayer.src)
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) trackInfo.textContent = data.error;
+          })
+          .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
         retryButton.style.display = 'block';
-      };
+        console.error(`Audio error for ${title}:`, audioPlayer.error);
+        if (audioPlayer.error) {
+          console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
+        }
+      }, { once: true });
 
-      audioPlayer.addEventListener('progress', window.audioProgressHandler);
-      audioPlayer.addEventListener('canplaythrough', window.audioCanPlayThroughHandler, { once: true });
-      audioPlayer.addEventListener('canplay', window.audioCanPlayHandler, { once: true });
-      audioPlayer.addEventListener('error', window.audioErrorHandler, { once: true });
-
-      audioPlayer.load();
+      audioPlayer.load(); // Force load
     }
 
     function manageVinylRotation() {
@@ -1087,40 +1061,86 @@
       }
     }
 
-    function playMusic() { // Primarily for user click on play button
+    function playMusic() {
       if (audioPlayer.src) {
-        attemptPlay();
-      } else {
-        // If no src, maybe play the first track of the current/default album
-        console.log("Play clicked, but no source. Initializing with default.");
-        if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]){
-            selectTrack(albums[currentAlbumIndex].tracks[currentTrackIndex].src, albums[currentAlbumIndex].tracks[currentTrackIndex].title, currentTrackIndex);
-            // attemptPlay will be called by handleAudioLoad if !isFirstPlay
-        } else {
-            selectAlbum(0,0); // Default to first album, first track
-        }
-         // Set isFirstPlay to false here because user initiated this play action.
-        isFirstPlay = false;
+        loadingSpinner.style.display = 'block';
+        albumCover.style.display = 'none';
+        retryButton.style.display = 'none';
+        document.getElementById('progressBar').style.display = 'block';
+        progressBar.style.width = '0%';
+
+        const playTimeout = setTimeout(() => {
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          trackInfo.textContent = 'Error: Stream failed to load (timeout)';
+          retryButton.style.display = 'block';
+          console.error('Timeout: Stream failed to buffer within 4 seconds');
+        }, 4000);
+
+        audioPlayer.addEventListener('progress', () => {
+          if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
+            const bufferedEnd = audioPlayer.buffered.end(0);
+            const duration = audioPlayer.duration;
+            progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
+          }
+        });
+
+        audioPlayer.addEventListener('canplaythrough', () => {
+          clearTimeout(playTimeout);
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          console.log(`Stream ${trackInfo.textContent} can play through`);
+          attemptPlay();
+        }, { once: true });
+
+        audioPlayer.addEventListener('canplay', () => {
+          if (loadingSpinner.style.display === 'block') {
+            clearTimeout(playTimeout);
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            document.getElementById('progressBar').style.display = 'none';
+            console.log(`Stream ${trackInfo.textContent} can play (fallback)`);
+            attemptPlay();
+          }
+        }, { once: true });
+
+        audioPlayer.addEventListener('error', () => {
+          clearTimeout(playTimeout);
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          fetch(audioPlayer.src)
+            .then(res => res.json())
+            .then(data => {
+              if (data.error) trackInfo.textContent = data.error;
+            })
+            .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
+          retryButton.style.display = 'block';
+          console.error('Audio error:', audioPlayer.error);
+        }, { once: true });
+
+        audioPlayer.load(); // Force load
       }
     }
 
     function attemptPlay() {
-      if (!audioPlayer.src) {
-        console.log("Attempted to play but no audio source set.");
-        return;
-      }
-      // Ensure loading indicators are handled before play attempt
-      loadingSpinner.style.display = 'block';
-      albumCover.style.display = 'none';
-
       audioPlayer.play()
         .then(() => {
-          // UI updates on successful play are now mostly in 'playing' event
+          manageVinylRotation();
+          audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          console.log(`Playing: ${trackInfo.textContent}`);
+          updateStreak();
+          savePlayerState();
+          gsap.fromTo(albumCover,
+            { scale: 1 },
+            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+          );
+          isFirstPlay = false;
         })
-        .catch(error => {
-            handlePlayError(error, trackInfo.textContent || "selected track");
-            console.error(`Attempt to play "${trackInfo.textContent}" failed directly:`, error);
-        });
+        .catch(error => handlePlayError(error, trackInfo.textContent));
     }
 
     function handlePlayError(error, title) {
@@ -1129,18 +1149,13 @@
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'block';
       console.error(`Error playing ${title}:`, error);
-      if (error.name === 'NotAllowedError') {
-        trackInfo.textContent = 'Autoplay blocked. Click play.';
-      } else if (error.name === 'NotSupportedError') {
-        trackInfo.textContent = `Format not supported: ${title}.`;
-      } else {
-        trackInfo.textContent = navigator.onLine ? `Error playing ${title}` : `Offline - ${title} unavailable`;
-      }
+      trackInfo.textContent = navigator.onLine ? 'Error playing stream' : 'Offline - Stream unavailable';
     }
 
     function pauseMusic() {
       audioPlayer.pause();
       manageVinylRotation();
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       console.log('Paused');
       savePlayerState();
     }
@@ -1149,141 +1164,168 @@
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       manageVinylRotation();
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       seekBar.value = 0;
-      if (currentRadioIndex === -1 && albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]) {
-        trackDuration.textContent = `0:00 / ${formatTime(audioPlayer.duration || 0)}`;
-      } else {
-         trackDuration.textContent = '0:00 / 0:00';
-      }
+      trackDuration.textContent = '0:00 / 0:00';
       console.log('Stopped');
       savePlayerState();
     }
 
     function updateTrackTime() {
-      const currentTime = audioPlayer.currentTime;
-      if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
-        trackDuration.textContent = `${formatTime(currentTime)} / Live`;
-        seekBar.style.display = 'none';
-        return;
-      }
+  const currentTime = audioPlayer.currentTime;
 
-      const duration = audioPlayer.duration;
-      if (!isNaN(duration) && duration > 0) {
-        trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-        seekBar.value = (currentTime / duration) * 100;
-        seekBar.style.display = 'block';
-      } else {
-        trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
-        seekBar.style.display = 'block';
-      }
-    }
+  // 🔒 If it's a radio stream, don't format duration
+  if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
+    trackDuration.textContent = `${formatTime(currentTime)} / Live`;
+    seekBar.style.display = 'none'; // hide seekbar for radio
+    return;
+  }
+
+  const duration = audioPlayer.duration || 0;
+
+  if (!isNaN(duration) && duration > 0) {
+    trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+    seekBar.value = (currentTime / duration) * 100;
+    seekBar.style.display = 'block';
+    savePlayerState();
+  } else {
+    trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+    seekBar.style.display = 'block';
+  }
+}
 
     function formatTime(seconds) {
       const minutes = Math.floor(seconds / 60);
       const secs = Math.floor(seconds % 60);
-      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+      return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
     }
 
     function seekAudio(value) {
-      if (audioPlayer.duration && isFinite(audioPlayer.duration) && currentRadioIndex === -1) {
+      if (audioPlayer.duration && currentRadioIndex === -1) {
         const newTime = (value / 100) * audioPlayer.duration;
         audioPlayer.currentTime = newTime;
         updateTrackTime();
       }
     }
 
-    seekBar.addEventListener('input', () => {
-        if (audioPlayer.duration && isFinite(audioPlayer.duration) && currentRadioIndex === -1) {
-            const tempTime = (seekBar.value / 100) * audioPlayer.duration;
-            trackDuration.textContent = `${formatTime(tempTime)} / ${formatTime(audioPlayer.duration)}`;
-        }
-    });
-    seekBar.addEventListener('change', () => seekAudio(seekBar.value));
-    seekBar.addEventListener('touchstart', (e) => {
-        if(currentRadioIndex === -1) audioPlayer.pause(); // Only pause for seekable tracks
-    }, { passive: true });
-    seekBar.addEventListener('touchend', (e) => {
-      if(currentRadioIndex === -1) {
-        seekAudio(seekBar.value);
-        if (audioPlayer.src && !audioPlayer.ended) {
-            attemptPlay();
-        }
-      }
+    seekBar.addEventListener('input', () => seekAudio(seekBar.value));
+    seekBar.addEventListener('touchstart', () => audioPlayer.pause(), { passive: true });
+    seekBar.addEventListener('touchend', () => {
+      seekAudio(seekBar.value);
+      if (!audioPlayer.paused) audioPlayer.play();
     });
 
-    audioPlayer.addEventListener('loadedmetadata', () => {
-        updateTrackTime();
-        if (currentRadioIndex === -1 && isFinite(audioPlayer.duration)) {
-            seekBar.max = 100;
-        }
-    });
+    audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
 
     audioPlayer.addEventListener('ended', () => {
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
       if (currentRadioIndex === -1) {
-        let wasPlayingBeforeEnded = !audioPlayer.paused; // Check before track actually ends
-        isFirstPlay = false; // After any track ends, it's no longer the "first play" for autoplay logic
-
         if (shuffleMode) {
-          const randomAlbumIndex = Math.floor(Math.random() * albums.length);
-          const randomTrackIndex = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
-          selectAlbum(randomAlbumIndex, randomTrackIndex); // This will call selectTrack
+          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+          selectTrack(
+            albums[currentAlbumIndex].tracks[randomIndex].src,
+            albums[currentAlbumIndex].tracks[randomIndex].title,
+            randomIndex
+          );
         } else {
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          const nextTrackDetails = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          selectTrack(nextTrackDetails.src, nextTrackDetails.title, currentTrackIndex);
+          selectTrack(
+            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+            currentTrackIndex
+          );
         }
-        // attemptPlay is now primarily handled by handleAudioLoad's canplay/canplaythrough
-        // if !isFirstPlay. No explicit attemptPlay needed here if that logic is sound.
+        audioPlayer.addEventListener('canplay', () => {
+          audioPlayer.play();
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          manageVinylRotation();
+        }, { once: true });
       }
     });
 
-    audioPlayer.addEventListener('play', () => {
-        manageVinylRotation();
-        isFirstPlay = false; // Once play starts (user-initiated or auto), it's not the first play anymore
-    });
+    audioPlayer.addEventListener('play', manageVinylRotation);
     audioPlayer.addEventListener('pause', manageVinylRotation);
+    audioPlayer.addEventListener('ended', manageVinylRotation);
 
-    audioPlayer.addEventListener('playing', () => {
-      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-      audioPlayer.addEventListener('timeupdate', updateTrackTime);
-      updateTrackTime();
-      manageVinylRotation();
-      console.log(`🎧 Playback started/resumed: ${trackInfo.textContent}`);
-      loadingSpinner.style.display = 'none';
-      albumCover.style.display = 'block';
-      document.getElementById('progressBar').style.display = 'none';
-    });
+audioPlayer.addEventListener('playing', () => {
+  audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
+  audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
+  updateTrackTime();  // update UI instantly
+  manageVinylRotation(); // spin the album cover if needed
+  console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
+});
 
     function nextTrack() {
-      if (currentRadioIndex === -1) {
-        isFirstPlay = false; // User interaction, so allow autoplay for the next selected track
-        if (shuffleMode) {
+      if (currentRadioIndex === -1) { // Only proceed if not in radio mode
+        if (albumShuffleMode) {
+          // Album shuffle logic
           const randomAlbumIndex = Math.floor(Math.random() * albums.length);
-          const randomTrackIndex = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
-          selectAlbum(randomAlbumIndex, randomTrackIndex);
+          const randomTrackIndexInAlbum = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
+
+          currentAlbumIndex = randomAlbumIndex; // Update current album index
+          // Select and load the new track from the randomly selected album
+          selectTrack(
+            albums[randomAlbumIndex].tracks[randomTrackIndexInAlbum].src,
+            albums[randomAlbumIndex].tracks[randomTrackIndexInAlbum].title,
+            randomTrackIndexInAlbum // This is the index within the *new* album
+          );
+          // Update album cover and track list modal to reflect the new album
+          albumCover.src = albums[currentAlbumIndex].cover;
+          updateTrackListModal();
+
+        } else if (shuffleMode) {
+          // Track shuffle logic (within the current album)
+          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+          selectTrack(
+            albums[currentAlbumIndex].tracks[randomIndex].src,
+            albums[currentAlbumIndex].tracks[randomIndex].title,
+            randomIndex
+          );
         } else {
+          // Normal playback: next track in the current album
           currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          const nextTrackDetails = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          selectTrack(nextTrackDetails.src, nextTrackDetails.title, currentTrackIndex);
+          selectTrack(
+            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+            currentTrackIndex
+          );
         }
-        // Playback will be handled by selectTrack -> handleAudioLoad -> attemptPlay (due to !isFirstPlay)
+
+        // Autoplay if music was playing
+        if (!audioPlayer.paused || isFirstPlay) {
+             // isFirstPlay check might be redundant if autoPlay is handled by selectTrack/loadTrack
+          audioPlayer.addEventListener('canplaythrough', () => { // Or 'canplay'
+            audioPlayer.play().catch(e => console.error("Error playing next track:", e));
+            manageVinylRotation();
+          }, { once: true });
+        }
       }
     }
 
     function previousTrack() {
       if (currentRadioIndex === -1) {
-        isFirstPlay = false; // User interaction
         if (shuffleMode) {
-          const randomAlbumIndex = Math.floor(Math.random() * albums.length);
-          const randomTrackIndex = Math.floor(Math.random() * albums[randomAlbumIndex].tracks.length);
-          selectAlbum(randomAlbumIndex, randomTrackIndex);
+          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+          selectTrack(
+            albums[currentAlbumIndex].tracks[randomIndex].src,
+            albums[currentAlbumIndex].tracks[randomIndex].title,
+            randomIndex
+          );
         } else {
           currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
-          const prevTrackDetails = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          selectTrack(prevTrackDetails.src, prevTrackDetails.title, currentTrackIndex);
+          selectTrack(
+            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+            currentTrackIndex
+          );
         }
-        // Playback will be handled by selectTrack -> handleAudioLoad -> attemptPlay
+        if (!audioPlayer.paused) {
+          audioPlayer.addEventListener('canplay', () => {
+            audioPlayer.play();
+            manageVinylRotation();
+          }, { once: true });
+        }
       }
     }
 
@@ -1308,7 +1350,7 @@
     }
 
     function openTrackList() {
-      updateTrackListModal(); // Ensure it's up-to-date for current album
+      updateTrackListModal();
       const modal = document.getElementById('trackModal');
       modal.style.display = 'block';
       gsap.fromTo(modal.querySelector('.modal-content'),
@@ -1350,44 +1392,63 @@
     }
 
     function toggleShuffle() {
-      shuffleMode = !shuffleMode;
       const controls = document.querySelector(".music-controls.icons-only");
-      const shuffleBtn = controls.querySelector('button:nth-child(6)'); // Assuming it's the 6th button
-      shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀'; // Update text to show shuffle status
-      console.log(`Shuffle mode: ${shuffleMode ? 'ON' : 'OFF'}`);
+      const shuffleBtn = controls.querySelector('button:nth-child(6)');
+
+      if (!shuffleMode && !albumShuffleMode) {
+        // Cycle: Off -> Track Shuffle
+        shuffleMode = true;
+        albumShuffleMode = false;
+        shuffleBtn.textContent = '🔀 Track';
+        console.log('Shuffle mode: Track');
+      } else if (shuffleMode && !albumShuffleMode) {
+        // Cycle: Track Shuffle -> Album Shuffle
+        shuffleMode = true; // Keep shuffleMode true for album shuffle as well
+        albumShuffleMode = true;
+        shuffleBtn.textContent = '🔀 Album';
+        console.log('Shuffle mode: Album');
+      } else {
+        // Cycle: Album Shuffle -> Off
+        shuffleMode = false;
+        albumShuffleMode = false;
+        shuffleBtn.textContent = '🔀'; // Default shuffle icon when off
+        console.log('Shuffle mode: OFF');
+      }
+      // Make sure to save albumShuffleMode in player state
       savePlayerState();
     }
 
     /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
-    const chatbotContainer = document.getElementById('chatbotContainer');
-    const sabiBibleContainer = document.getElementById('sabiBibleContainer');
+const chatbotContainer = document.getElementById('chatbotContainer');
+const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 
-    window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
-    console.log("US Spoof Active:", window.spoofedLocation);
+// Spoof user as if dem dey America
+window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
+console.log("US Spoof Active:", window.spoofedLocation);
 
-    function toggleChatbot(){
-      const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
-      chatbotContainer.style.display = isHidden ? 'block' : 'none';
-      console.log("Chatbot opened as US user:", window.spoofedLocation);
-      const chatbotEmbed = chatbotContainer.querySelector("zapier-interfaces-chatbot-embed");
-      if(chatbotEmbed){
-        chatbotEmbed.setAttribute("language",window.spoofedLocation.language);
-        chatbotEmbed.setAttribute("region",window.spoofedLocation.country);
-        chatbotEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
-      }
-    }
+function toggleChatbot(){
+  const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
+  chatbotContainer.style.display = isHidden ? 'block' : 'none';
+  console.log("Chatbot opened as US user:", window.spoofedLocation);
+  const chatbotEmbed = chatbotContainer.querySelector("zapier-interfaces-chatbot-embed");
+  if(chatbotEmbed){
+    chatbotEmbed.setAttribute("language",window.spoofedLocation.language);
+    chatbotEmbed.setAttribute("region",window.spoofedLocation.country);
+    chatbotEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
+  }
+}
 
-    function toggleSabiBible(){
-      const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
-      sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
-      console.log("Sabi Bible opened as US user:", window.spoofedLocation);
-      const sabiEmbed = sabiBibleContainer.querySelector("zapier-interfaces-chatbot-embed");
-      if(sabiEmbed){
-        sabiEmbed.setAttribute("language",window.spoofedLocation.language);
-        sabiEmbed.setAttribute("region",window.spoofedLocation.country);
-        sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
-      }
-    }
+function toggleSabiBible(){
+  const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
+  sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+  console.log("Sabi Bible opened as US user:", window.spoofedLocation);
+  const sabiEmbed = sabiBibleContainer.querySelector("zapier-interfaces-chatbot-embed");
+  if(sabiEmbed){
+    sabiEmbed.setAttribute("language",window.spoofedLocation.language);
+    sabiEmbed.setAttribute("region",window.spoofedLocation.country);
+    sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
+  }
+}
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
@@ -1403,6 +1464,7 @@
       }
     }
 
+    // Listen for caching confirmation from service worker
     navigator.serviceWorker.onmessage = (event) => {
       if (event.data && event.data.type === 'TRACK_CACHED') {
         console.log(`Track cached successfully: ${event.data.url}`);
@@ -1413,33 +1475,24 @@
     /* MEDIA SESSION API */
     function updateMediaSession() {
       if ('mediaSession' in navigator) {
-        let trackTitle = "Unknown Track";
-        let albumName = "Unknown Album";
-        let artworkSrc = "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png"; // Default artwork
-
-        if (currentRadioIndex !== -1 && radioStations[currentRadioIndex]) {
-            const radio = radioStations[currentRadioIndex];
-            trackTitle = radio.name;
-            albumName = radio.location || "Radio";
-            artworkSrc = radio.logo || artworkSrc;
-        } else if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]) {
-            const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
-            trackTitle = track.title;
-            albumName = albums[currentAlbumIndex].name;
-            artworkSrc = albums[currentAlbumIndex].cover || artworkSrc;
-        }
+        const track = currentRadioIndex === -1
+          ? albums[currentAlbumIndex].tracks[currentTrackIndex]
+          : radioStations[currentRadioIndex];
+        const artwork = currentRadioIndex === -1
+          ? albums[currentAlbumIndex].cover
+          : radioStations[currentRadioIndex].logo;
 
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: trackTitle,
-          artist: (currentRadioIndex === -1) ? 'Omoluabi' : '', // Artist only for album tracks
-          album: albumName,
+          title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
+          artist: currentRadioIndex === -1 ? 'Omoluabi' : '',
+          album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
           artwork: [
-            { src: artworkSrc, sizes: '96x96', type: 'image/png' }, // Assuming PNG, adjust if type varies
-            { src: artworkSrc, sizes: '128x128', type: 'image/png' },
-            { src: artworkSrc, sizes: '192x192', type: 'image/png' },
-            { src: artworkSrc, sizes: '256x256', type: 'image/png' },
-            { src: artworkSrc, sizes: '384x384', type: 'image/png' },
-            { src: artworkSrc, sizes: '512x512', type: 'image/png' }
+            { src: artwork, sizes: '96x96', type: 'image/jpeg' },
+            { src: artwork, sizes: '128x128', type: 'image/jpeg' },
+            { src: artwork, sizes: '192x192', type: 'image/jpeg' },
+            { src: artwork, sizes: '256x256', type: 'image/jpeg' },
+            { src: artwork, sizes: '384x384', type: 'image/jpeg' },
+            { src: artwork, sizes: '512x512', type: 'image/jpeg' }
           ]
         });
 
@@ -1449,12 +1502,12 @@
         navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
         navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
 
-        console.log('Media Session updated.');
+        console.log('Media Session updated with artwork');
       }
     }
 
     audioPlayer.addEventListener('timeupdate', () => {
-      if ('mediaSession' in navigator && audioPlayer.duration && isFinite(audioPlayer.duration) && currentRadioIndex === -1) {
+      if ('mediaSession' in navigator && audioPlayer.duration && currentRadioIndex === -1) {
         navigator.mediaSession.setPositionState({
           duration: audioPlayer.duration,
           playbackRate: audioPlayer.playbackRate,
@@ -1466,45 +1519,56 @@
     function initializePlayer() {
       const savedState = loadPlayerState();
       if (savedState) {
-        currentAlbumIndex = savedState.albumIndex || 0;
-        currentTrackIndex = savedState.trackIndex || 0;
-        currentRadioIndex = savedState.radioIndex === undefined ? -1 : savedState.radioIndex;
-        shuffleMode = savedState.shuffleMode || false;
-
-        // Set the shuffle button text correctly on load
-        const shuffleBtn = document.querySelector(".music-controls.icons-only button:nth-child(6)");
-        if(shuffleBtn) shuffleBtn.textContent = shuffleMode ? '(ON)' : '🔀';
-
-        if (currentRadioIndex !== -1 && radioStations[currentRadioIndex]) {
+        currentAlbumIndex = savedState.albumIndex;
+        currentTrackIndex = savedState.trackIndex;
+        currentRadioIndex = savedState.radioIndex;
+        shuffleMode = savedState.shuffleMode;
+        albumShuffleMode = savedState.albumShuffleMode || false; // Load albumShuffleMode, default to false if not present
+        if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
-          selectRadio(station.url, `${station.name} - ${station.location}`, currentRadioIndex, station.logo);
-          // For radio, playback position might not be restorable or meaningful in the same way
-           if (savedState.playbackPosition && isFirstPlay) { // only set if it's the first play, otherwise it might interrupt live stream
-             audioPlayer.currentTime = savedState.playbackPosition;
-           }
-        } else if (albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks[currentTrackIndex]) {
-          // selectAlbum will call selectTrack, which handles UI and audio loading
-          selectAlbum(currentAlbumIndex, currentTrackIndex);
-           if (savedState.playbackPosition && isFirstPlay) {
-             audioPlayer.addEventListener('canplay', () => {
-                audioPlayer.currentTime = savedState.playbackPosition;
-             }, {once: true});
-           }
+          albumCover.src = station.logo;
+          audioPlayer.src = station.url;
+          trackInfo.textContent = `${station.name} - ${station.location}`;
+          trackArtist.textContent = '';
+          trackYear.textContent = '';
+          cacheButton.style.display = 'none'; // Hide for radio
+          audioPlayer.addEventListener('loadedmetadata', () => {
+            audioPlayer.currentTime = savedState.playbackPosition;
+            updateTrackTime();
+            manageVinylRotation();
+          }, { once: true });
         } else {
-          // Fallback to default if saved state is somehow invalid
-          selectAlbum(0, 0);
+          albumCover.src = albums[currentAlbumIndex].cover;
+          const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
+          audioPlayer.src = track.src;
+          trackInfo.textContent = track.title;
+          trackArtist.textContent = 'Artist: Omoluabi';
+          trackYear.textContent = 'Release Year: 2025';
+          cacheButton.style.display = 'block'; // Show for tracks
+          audioPlayer.addEventListener('loadedmetadata', () => {
+            audioPlayer.currentTime = savedState.playbackPosition;
+            updateTrackTime();
+            manageVinylRotation();
+          }, { once: true });
+        }
+        updateTrackListModal();
+        const controls = document.querySelector(".music-controls.icons-only");
+        const shuffleBtn = controls.querySelector('button:nth-child(6)');
+        // Update shuffle button based on loaded state
+        if (albumShuffleMode) {
+          shuffleBtn.textContent = '🔀 Album';
+        } else if (shuffleMode) {
+          shuffleBtn.textContent = '🔀 Track';
+        } else {
+          shuffleBtn.textContent = '🔀'; // Default icon
         }
         console.log('Player restored from saved state:', savedState);
-         // isFirstPlay should remain true until user explicitly plays or a track auto-plays after the initial one.
-         // If we restored a track, we might not want it to autoplay immediately.
-         // The current logic in attemptPlay and handleAudioLoad handles !isFirstPlay for autoplay.
-         // So, we don't set isFirstPlay = false here.
       } else {
-        selectAlbum(0, 0); // Default to first album, first track
-        console.log('No valid saved state found, initialized with default album and track.');
+        selectAlbum(0);
+        console.log('No saved state found, initialized with default');
       }
       updateStreak();
-      // updateMediaSession(); // selectTrack/Radio will call this
+      updateMediaSession();
     }
 
     // GSAP Sidebar Button Animations
@@ -1541,8 +1605,10 @@
     // Initialize player
     initializePlayer();
 
+    // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
 
+    // PWA Install Prompt
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -1550,37 +1616,33 @@
       console.log('Install prompt available');
       const installBtn = document.createElement('button');
       installBtn.textContent = 'Install Àríyò AI';
-      installBtn.style.cssText = `
-        position: fixed; bottom: 20px; right: 20px;
-        background: #ff758c; color: white; padding: 10px 20px;
-        border: none; border-radius: 5px; z-index: 1000; cursor: pointer;`;
+      installBtn.style.position = 'fixed';
+      installBtn.style.bottom = '20px';
+      installBtn.style.right = '20px';
+      installBtn.style.background = '#ff758c';
+      installBtn.style.color = 'white';
+      installBtn.style.padding = '10px 20px';
+      installBtn.style.border = 'none';
+      installBtn.style.borderRadius = '5px';
+      installBtn.style.zIndex = '1000';
       installBtn.onclick = () => {
-        if(deferredPrompt) {
-          deferredPrompt.prompt();
-          deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-              console.log('User installed the app');
-            }
-            deferredPrompt = null;
-            installBtn.remove();
-          });
-        }
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User installed the app');
+          }
+          deferredPrompt = null;
+          installBtn.remove();
+        });
       };
       document.body.appendChild(installBtn);
-      // Remove button if not used after a while
-      setTimeout(() => {
-        if(deferredPrompt && installBtn.parentNode) { // Check if still in DOM
-            installBtn.remove();
-        }
-      }, 300000); // 5 minutes
     });
 
     window.addEventListener('appinstalled', () => {
       console.log('PWA was installed');
-       const installBtn = document.querySelector('button[onclick*="deferredPrompt.prompt()"]');
-       if(installBtn) installBtn.remove();
     });
 
+    // Handle visibility change to fix track time bar after sleep
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && !audioPlayer.paused) {
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
