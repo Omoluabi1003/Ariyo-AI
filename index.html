@@ -945,6 +945,7 @@ function loadMoreStations(region) {
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
+      albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
       closeTrackList();
       stopMusic();
       loadingSpinner.style.display = 'block';
