@@ -36,36 +36,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png",
-      "sizes": "256x256",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
     }
   ],
   "screenshots": [
