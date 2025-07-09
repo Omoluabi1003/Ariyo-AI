@@ -14,16 +14,17 @@ const urlsToCache = [
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-180x180.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-144x144.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-256x256.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo-384x384.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png',
-  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3'
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png', // Assuming this is not critical for app shell
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png', // Assuming this is not critical for app shell
+  '/icons/Ariyo.png',
+  '/icons/Ariyo_AI.png',
+  '/icons/Ariyo-180x180.png',
+  '/icons/Ariyo-144x144.png',
+  '/icons/Ariyo-256x256.png',
+  '/icons/Ariyo-384x384.png',
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png', // Assuming this is not critical for app shell
+  'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3',
+  '/about.html' // Add about page to cache
 ];
 
 // Install event: Cache app shell and static assets
