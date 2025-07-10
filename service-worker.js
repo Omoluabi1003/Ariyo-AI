@@ -14,6 +14,8 @@ const urlsToCache = [
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg',
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg',
+  'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/FaithandB.jpg', // Needs album cover
+  'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Neo-Soul.jpg', // Holy Vibes Only album cover
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png', // Assuming this is not critical for app shell
   'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png', // Assuming this is not critical for app shell
   '/icons/Ariyo.png',
