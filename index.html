@@ -454,6 +454,7 @@
     <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
+    <p class="track-details" id="trackAlbum"></p> <!-- Added for album display -->
     <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
     <p id="streakInfo" class="track-details">🔥 Current Streak: 0 days</p>
     <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p> <!-- New shuffle status display -->
@@ -642,6 +643,7 @@
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
+    const trackAlbum = document.getElementById('trackAlbum'); // Added for album display
     const trackDuration = document.getElementById('trackDuration');
     const seekBar = document.getElementById('seekBar');
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -969,6 +971,7 @@ function loadMoreStations(region) {
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
+      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
@@ -990,6 +993,7 @@ function loadMoreStations(region) {
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
+      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
       closeTrackList();
       stopMusic();
@@ -1015,6 +1019,7 @@ function loadMoreStations(region) {
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
+      trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
       albumCover.src = logo;
       closeRadioList();
       stopMusic();
@@ -1585,6 +1590,7 @@ function toggleSabiBible(){
           trackInfo.textContent = `${station.name} - ${station.location}`;
           trackArtist.textContent = '';
           trackYear.textContent = '';
+          trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
           cacheButton.style.display = 'none'; // Hide for radio
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
@@ -1598,6 +1604,7 @@ function toggleSabiBible(){
           trackInfo.textContent = track.title;
           trackArtist.textContent = 'Artist: Omoluabi';
           trackYear.textContent = 'Release Year: 2025';
+           trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
           cacheButton.style.display = 'block'; // Show for tracks
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
