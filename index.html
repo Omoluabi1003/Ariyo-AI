@@ -653,7 +653,53 @@
         const aboutDoc = parser.parseFromString(aboutHtmlText, 'text/html');
         
         const aboutPageActualContent = aboutDoc.body.innerHTML; // Get everything inside body of about.html
-        mainContent.innerHTML = aboutPageActualContent;
+        // mainContent.innerHTML = aboutPageActualContent; // Content will be set after modification
+
+        // Create a temporary div to hold and parse about.html's body content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = aboutDoc.body.innerHTML;
+
+        // Dynamically generate album list
+        const albumCoversDiv = tempDiv.querySelector('.album-covers');
+        if (albumCoversDiv) {
+          albumCoversDiv.innerHTML = ''; // Clear static placeholders
+          albums.forEach(album => {
+            const albumLink = document.createElement('a');
+            // For now, link to '#' as specific album links on about page might need more definition
+            // Original about.html links to spotify, which is fine if that's the desired behavior.
+            // Let's keep the Spotify link for "Kindness" if it's that album, as an example,
+            // The original about.html had specific Spotify links.
+            // For dynamic generation, these URLs would ideally come from the album object.
+            // For now, let's default to '#' or a placeholder if not available.
+            albumLink.href = album.external_url || '#'; // Use a generic 'external_url' or fallback
+            if (album.external_url) {
+                albumLink.target = '_blank'; // Open in new tab if it's a real link
+            }
+
+            const img = document.createElement('img');
+            img.src = album.cover;
+            img.alt = album.name + " Album Cover";
+            img.title = album.name; 
+
+            const nameParagraph = document.createElement('p');
+            nameParagraph.textContent = album.name;
+            nameParagraph.style.color = '#fff'; // Ensure text is visible
+            nameParagraph.style.fontSize = '0.8rem';
+            nameParagraph.style.marginTop = '0.5rem';
+
+            const albumContainer = document.createElement('div'); // To hold image and text
+            albumContainer.style.textAlign = 'center';
+            albumContainer.appendChild(img);
+            albumContainer.appendChild(nameParagraph);
+            
+            albumLink.appendChild(albumContainer);
+            albumCoversDiv.appendChild(albumLink);
+          });
+        }
+        
+        // Set the modified content
+        mainContent.innerHTML = tempDiv.innerHTML; // tempDiv now contains the modified album list
+
 
         // Remove old styles if they exist, then add new ones
         const oldStyles = document.getElementById('about-page-styles');
@@ -664,6 +710,29 @@
         styleElement.id = 'about-page-styles';
         styleElement.textContent = aboutDoc.head.querySelector('style').textContent;
         document.head.appendChild(styleElement);
+
+        // Add specific override for social icon sizes
+        let socialIconOverrideStyle = document.getElementById('social-icon-override-styles');
+        if (!socialIconOverrideStyle) {
+          socialIconOverrideStyle = document.createElement('style');
+          socialIconOverrideStyle.id = 'social-icon-override-styles';
+          document.head.appendChild(socialIconOverrideStyle);
+        }
+        socialIconOverrideStyle.textContent = `
+          /* Ensure specificity and use !important if necessary, though direct modification is often better */
+          #main-content .social-icons a img { 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 8px; /* Optional: adjust border-radius if desired */
+            object-fit: cover;
+          }
+          @media (max-width: 768px) {
+            #main-content .social-icons a img {
+              width: 40px;
+              height: 40px;
+            }
+          }
+        `;
 
         if (window.location.pathname !== '/about.html') {
           history.pushState({ page: 'about' }, 'About Us', 'about.html');
@@ -685,15 +754,20 @@
 
     function navigateToHome() {
       const mainContent = document.getElementById('main-content');
-      if (mainContent.dataset.originalContentStored && originalMainContentHTML) {
-        mainContent.innerHTML = originalMainContentHTML;
-      } else {
-        mainContent.innerHTML = '<h2>Select an option from the sidebar</h2><div id="newsContainer" class="news-container" style="display: none;"></div>';
-      }
+      // Set to a minimal home state, preserving newsContainer if it's used elsewhere.
+      // This avoids restoring the "Select an option..." h2 text.
+      mainContent.innerHTML = '<div id="newsContainer" class="news-container" style="display: none;"></div>';
+      
+      // If newsContainer is populated by a separate function, that function might need to be called here
+      // or initializePlayer should handle it. For now, just restoring its placeholder.
 
       const aboutPageStyles = document.getElementById('about-page-styles');
       if (aboutPageStyles) {
         aboutPageStyles.remove();
+      }
+      const socialIconOverride = document.getElementById('social-icon-override-styles');
+      if (socialIconOverride) {
+        socialIconOverride.remove();
       }
 
       let currentPath = window.location.pathname;
