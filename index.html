@@ -673,6 +673,8 @@
           aboutButtonGlobal.textContent = '🎵 Back to Player';
           aboutButtonGlobal.onclick = navigateToHome;
         }
+        mainContent.style.position = 'relative'; // Ensure z-index works
+        mainContent.style.zIndex = '101';      // Bring content above player
         mainContent.style.opacity = '1'; // Make sure content is visible
 
       } catch (error) {
@@ -710,6 +712,8 @@
         aboutButtonGlobal.onclick = originalAboutButtonOnClick; 
       }
       
+      mainContent.style.zIndex = ''; // Reset z-index
+      mainContent.style.position = ''; // Reset position
       // Restore opacity using GSAP as it's used elsewhere for content display
       gsap.to(mainContent, { opacity: 1, duration: 0.5 });
     }
