@@ -1,0 +1,636 @@
+:root {
+  /* Colors */
+  --primary-color: #ff758c;
+  --primary-hover-color: #ff4060; /* For retry button hover */
+  --secondary-color: #ff7eb3;
+  --header-bg: rgba(0, 123, 255, 0.9);
+  --header-bg-hover: rgba(0, 123, 255, 1);
+  --text-light: #fff;
+  --text-dark: #000;
+  --text-muted: #ccc;
+  --text- subdued: #aaa;
+  --bg-dark: #000;
+  --bg-dark-accent: #121212;
+  --bg-sidebar: rgba(34, 34, 34, 0.9);
+  --bg-player: rgba(34, 34, 34, 0.7);
+  --bg-modal-content: #fefefe;
+  --bg-list-item: #333;
+  --bg-dropdown: rgba(34,34,34,0.8);
+  --progress-bar-bg: #555;
+  --streak-color: #ff0000;
+  --watermark-color: rgba(255, 255, 255, 0.5);
+
+  /* Fonts */
+  --font-primary: 'Montserrat', sans-serif;
+  --font-comic: "Comic Sans MS", "Chalkboard SE", sans-serif;
+
+  /* Radii */
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --radius-lg: 15px;
+  --radius-xl: 25px;
+  --radius-circle: 50%;
+
+  /* Spacing (can be expanded) */
+  --space-xs: 0.3rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.6rem; /* also 0.8rem is used, might consolidate or add variable */
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+
+  /* Transitions */
+  --transition-short: all 0.3s ease;
+  --transition-medium: all 0.3s ease-in-out;
+  --transition-background: background 0.5s ease-in-out, color 0.5s ease-in-out;
+  --transition-progress: width 0.2s ease;
+  --transition-transform-short: transform 0.2s;
+  --transition-transform-medium: transform 0.3s ease-in-out;
+}
+
+/* --- Accessibility Utilities --- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- General Styles --- */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-dark);
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-primary);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  transition: var(--transition-background);
+}
+
+a { text-decoration: none; }
+
+.dark-mode {
+  background-color: var(--bg-dark-accent);
+  color: var(--text-light);
+}
+
+/* --- Header --- */
+.header {
+  padding: calc(var(--space-lg) + env(safe-area-inset-top)) var(--space-lg) var(--space-lg);
+  text-align: center;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: bold;
+  border-bottom: 2px solid var(--text-light);
+  box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+  background: var(--header-bg);
+  position: relative;
+}
+
+.share-button {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background-color: var(--header-bg); /* Slightly less transparent for base */
+  color: var(--text-light);
+  padding: var(--space-md);
+  border: none;
+  border-radius: var(--radius-circle);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition-short);
+}
+.share-button:hover { background-color: var(--header-bg-hover); }
+
+/* --- Layout Container & Sidebar --- */
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 250px;
+  background: var(--bg-sidebar);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-lg);
+  gap: var(--space-lg);
+  border-radius: var(--radius-lg);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.sidebar button {
+  background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+  color: var(--text-light);
+  padding: 0.8rem var(--space-lg); /* Keep specific if needed */
+  border: none;
+  border-radius: var(--radius-xl);
+  width: 90%;
+  cursor: pointer;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: var(--transition-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 48px;
+}
+.sidebar button:hover {
+  transform: scale(1.08);
+  box-shadow: 0px 4px 10px rgba(255, 117, 140, 0.6); /* Keep specific shadow color for effect */
+}
+
+/* --- Main Content --- */
+.content {
+  flex: 1;
+  padding: var(--space-xl);
+  overflow-y: auto;
+  opacity: 0; /* Managed by JS */
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* --- Music Player --- */
+.music-player {
+  background: var(--bg-player);
+  padding: var(--space-lg);
+  text-align: center;
+  border-radius: var(--radius-md);
+  box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+  position: fixed;
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 600px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.album-cover {
+  width: clamp(120px, 30vw, 200px);
+  height: clamp(120px, 30vw, 200px);
+  border-radius: var(--radius-circle);
+  margin: var(--space-md) auto;
+  display: block;
+  box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
+  transition: var(--transition-transform-medium);
+}
+.spin { animation: spin 3s linear infinite; }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  display: none; /* Managed by JS */
+  width: 30px;
+  height: 30px;
+  border: 4px solid var(--text-light);
+  border-top: 4px solid var(--primary-color);
+  border-radius: var(--radius-circle);
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.music-controls.icons-only {
+  margin-top: var(--space-md);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+.music-controls.icons-only button {
+  background: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  padding: 0.8rem; /* Keep specific */
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition-transform-short);
+  min-width: 48px;
+  min-height: 48px;
+}
+.music-controls.icons-only button:hover { transform: scale(1.1); }
+
+.track-info { margin-top: var(--space-md); font-size: clamp(1rem, 3vw, 1.2rem); }
+.track-duration { font-size: clamp(0.8rem, 2vw, 0.9rem); margin-top: var(--space-xs); }
+.track-details { margin-top: var(--space-md); font-size: clamp(0.8rem, 2vw, 0.9rem); }
+#streakInfo { color: var(--streak-color); }
+
+.dropdown {
+  width: 100%;
+  background: var(--bg-dropdown);
+  color: var(--text-light);
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: center;
+  margin-top: var(--space-lg);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+/* --- Modals --- */
+.modal {
+  display: none; /* Managed by JS */
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: var(--bg-modal-content);
+  margin: 10% auto;
+  padding: var(--space-xl);
+  border: 1px solid #888; /* Keep specific or make variable */
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: var(--radius-md);
+}
+
+.close {
+  color: var(--text-subdued);
+  float: right;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+.close:hover, .close:focus {
+  color: var(--text-dark);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.track-list a, .album-list a, .radio-list a {
+  display: block;
+  padding: 0.8rem; /* Keep specific */
+  color: var(--text-light);
+  text-decoration: none;
+  background-color: var(--bg-list-item);
+  margin-bottom: var(--space-xs);
+  border-radius: var(--radius-sm);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+.track-list a:hover, .album-list a:hover, .radio-list a:hover {
+  background-color: var(--primary-color);
+}
+
+/* --- Chatbot & Sabi Bible --- */
+.chatbot-container, .sabi-bible-container {
+  position: fixed;
+  bottom: calc(100px + env(safe-area-inset-bottom)); /* Keep specific calculation */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 600px;
+  height: 70vh;
+  border-radius: var(--radius-md);
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+  background: var(--text-light); /* White background */
+  overflow: hidden;
+  display: none; /* Managed by JS */
+  z-index: 101;
+  position: relative; /* For popup-close positioning */
+}
+
+.chatbot-container zapier-interfaces-chatbot-embed,
+.sabi-bible-container zapier-interfaces-chatbot-embed {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: var(--radius-md);
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-circle);
+  font-size: 1rem;
+  line-height: 24px; /* Match height for vertical centering */
+  text-align: center;
+  cursor: pointer;
+  z-index: 102;
+}
+.popup-close:hover { background: var(--primary-hover-color); }
+
+.chatbot-bubble-container, .sabi-bible-bubble-container {
+  position: fixed;
+  bottom: calc(80px + env(safe-area-inset-bottom)); /* Specific calculation */
+  width: clamp(60px, 15vw, 70px);
+  height: clamp(60px, 15vw, 70px);
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.chatbot-bubble-container { left: var(--space-lg); }
+.sabi-bible-bubble-container { right: var(--space-lg); }
+
+.chatbot-float-icon, .sabi-bible-float-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.chatbot-speech-bubble, .sabi-bible-speech-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-light);
+  color: var(--text-dark);
+  border: 3px solid var(--text-dark);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-comic);
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  padding: var(--space-md) var(--space-lg);
+  white-space: nowrap;
+  box-shadow: 3px 3px 0px var(--text-dark);
+  pointer-events: none;
+  z-index: 1;
+}
+.chatbot-speech-bubble::after, .sabi-bible-speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -20px; /* Specific positioning */
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top: 10px solid var(--text-light);
+  box-shadow: -1px -1px 0 1px var(--text-dark); /* Match border */
+  transform: translateX(-50%);
+}
+
+/* --- Utility & Misc --- */
+.floating-watermarks {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 9999;
+}
+.watermark {
+  position: absolute;
+  font-size: clamp(1rem, 4vw, 2rem);
+  color: var(--watermark-color);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+/* Keyframes for drift animations remain unchanged */
+@keyframes drift1 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(200vw, 200vh) rotate(360deg); } }
+@keyframes drift2 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-200vw, -200vh) rotate(-360deg); } }
+@keyframes drift3 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(200vw, -200vh) rotate(360deg); } }
+@keyframes drift4 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-200vw, 200vh) rotate(-360deg); } }
+.drift1 { animation: drift1 30s linear infinite; }
+.drift2 { animation: drift2 30s linear infinite; }
+.drift3 { animation: drift3 30s linear infinite; }
+.drift4 { animation: drift4 30s linear infinite; }
+
+.retry-button {
+  background: var(--primary-color);
+  color: var(--text-light);
+  padding: var(--space-sm) var(--space-lg);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-top: var(--space-sm);
+  display: none; /* Managed by JS */
+}
+.retry-button:hover { background: var(--primary-hover-color); }
+
+.progress-bar {
+  width: 90%;
+  height: 5px;
+  background: var(--progress-bar-bg);
+  margin: var(--space-sm) auto;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: none; /* Managed by JS */
+}
+.progress-bar div {
+  height: 100%;
+  background: var(--primary-color);
+  width: 0%; /* Managed by JS */
+  transition: var(--transition-progress);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    border-radius: 0;
+    padding: var(--space-sm);
+  }
+  .container { flex-direction: column; }
+  .content { padding-bottom: 15rem; } /* Keep specific for player overlap */
+}
+
+@media (max-width: 480px) {
+  .sidebar button { padding: var(--space-md); min-width: 60px; }
+  .music-player {
+    bottom: env(safe-area-inset-bottom);
+    padding: var(--space-sm);
+    border-radius: 0;
+  }
+  .chatbot-bubble-container, .sabi-bible-bubble-container {
+    bottom: calc(15rem + env(safe-area-inset-bottom)); /* Keep specific */
+  }
+}
+
+/* --- Styles for About Page Content (Loaded into #main-content) --- */
+/* Original body styles from about.html applied to the container */
+.about-page-content {
+  margin: 0; /* Reset margin if main-content might have it */
+  font-family: var(--font-primary); /* Use global font */
+  background-color: var(--bg-dark); /* Match main app bg */
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.about-page-content header {
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+  padding: 2rem;
+  text-align: center;
+}
+
+.about-page-content header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+.about-page-content section.banner {
+  position: relative;
+  /* background-image will be set by the inline style in about.html's body if needed, or define here */
+  /* background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Banner.png'); */
+  background-size: cover;
+  background-position: center;
+  padding: 5rem 1rem;
+}
+
+.about-page-content .banner::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.6); /* Dark overlay */
+}
+
+.about-page-content .banner h2 {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-size: 2rem;
+  color: var(--text-light);
+}
+
+.about-page-content section.about {
+  background-color: var(--bg-dark-accent); /* Slightly different dark shade */
+  padding: 4rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.about-page-content .about-text,
+.about-page-content .about-image {
+  flex: 1 1 400px;
+  max-width: 600px;
+}
+
+.about-page-content .about-text h3 {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+}
+
+.about-page-content .about-text p {
+  margin-top: var(--space-lg);
+  color: var(--text-muted);
+}
+
+.about-page-content .about-image img {
+  width: 100%;
+  border-radius: var(--radius-md); /* Consistent radius */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.about-page-content section.album-section,
+.about-page-content section.social-section {
+  background-color: #1a1a1a; /* Another dark shade, can be a variable */
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.about-page-content .album-section h4,
+.about-page-content .social-section h4 {
+  color: var(--primary-color);
+  font-size: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.about-page-content .album-covers,
+.about-page-content .social-icons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-xl); /* Consistent gap */
+}
+
+.about-page-content .album-covers a img,
+.about-page-content .social-icons a img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  transition: transform 0.3s ease;
+}
+
+.about-page-content .album-covers a img:hover,
+.about-page-content .social-icons a img:hover {
+  transform: scale(1.1);
+}
+
+.about-page-content footer {
+  background-color: #1c1c1c; /* Darker footer bg, can be variable */
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-subdued);
+}
+
+/* Responsive adjustments for about page content */
+@media (max-width: 768px) {
+  .about-page-content .about-text,
+  .about-page-content .about-image {
+    text-align: center;
+    padding: 0 var(--space-lg);
+  }
+  .about-page-content .about-text h3 {
+    font-size: 1.5rem;
+  }
+  .about-page-content .about-text p {
+    font-size: 0.95rem;
+  }
+  .about-page-content .album-covers a img,
+  .about-page-content .social-icons a img {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Override for social icons from main index.html when about page is loaded, ensure it's specific enough */
+/* This was previously dynamically added, now part of the main stylesheet but scoped */
+#main-content.about-page-content .social-icons a img {
+  width: 48px !important;  /* Use !important if needed to override other general styles, or increase specificity */
+  height: 48px !important;
+  border-radius: var(--radius-sm) !important; /* Optional: adjust border-radius if desired */
+  object-fit: cover !important;
+}
+@media (max-width: 768px) {
+  #main-content.about-page-content .social-icons a img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
