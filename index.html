@@ -614,10 +614,104 @@
       }
     }
 
-    /* NAVIGATE TO ABOUT PAGE */
-    function navigateToAbout() {
-      savePlayerState(); // Save player state before navigation
-      window.location.href = 'about.html';
+    /* NAVIGATE TO ABOUT PAGE & HOME */
+    let originalMainContentHTML = ''; // To store the initial HTML of #main-content
+    let aboutButtonGlobal = null; // To store the reference to the About Us/Back to Player button
+    let originalAboutButtonText = '';
+    let originalAboutButtonOnClick;
+
+    async function navigateToAbout() {
+      const mainContent = document.getElementById('main-content');
+      
+      // Find the 'About Us' button more reliably
+      if (!aboutButtonGlobal) {
+          const sidebarButtons = document.querySelectorAll('.sidebar button');
+          aboutButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
+          if (aboutButtonGlobal) {
+              originalAboutButtonText = aboutButtonGlobal.textContent;
+              originalAboutButtonOnClick = aboutButtonGlobal.onclick;
+          }
+      }
+
+      // If #main-content doesn't have our specific marker, store its content
+      if (!mainContent.dataset.originalContentStored) {
+        originalMainContentHTML = mainContent.innerHTML;
+        mainContent.dataset.originalContentStored = 'true';
+      }
+      
+      savePlayerState();
+
+      try {
+        const response = await fetch('about.html');
+        if (!response.ok) {
+          console.error('Failed to fetch about.html:', response.status);
+          mainContent.innerHTML = '<p>Error loading About page content.</p>';
+          return;
+        }
+        const aboutHtmlText = await response.text();
+        const parser = new DOMParser();
+        const aboutDoc = parser.parseFromString(aboutHtmlText, 'text/html');
+        
+        const aboutPageActualContent = aboutDoc.body.innerHTML; // Get everything inside body of about.html
+        mainContent.innerHTML = aboutPageActualContent;
+
+        // Remove old styles if they exist, then add new ones
+        const oldStyles = document.getElementById('about-page-styles');
+        if (oldStyles) {
+          oldStyles.remove();
+        }
+        const styleElement = document.createElement('style');
+        styleElement.id = 'about-page-styles';
+        styleElement.textContent = aboutDoc.head.querySelector('style').textContent;
+        document.head.appendChild(styleElement);
+
+        if (window.location.pathname !== '/about.html') {
+          history.pushState({ page: 'about' }, 'About Us', 'about.html');
+        }
+
+        if (aboutButtonGlobal) {
+          aboutButtonGlobal.textContent = '🎵 Back to Player';
+          aboutButtonGlobal.onclick = navigateToHome;
+        }
+        mainContent.style.opacity = '1'; // Make sure content is visible
+
+      } catch (error) {
+        console.error('Error navigating to About page:', error);
+        mainContent.innerHTML = '<p>Error loading About page content.</p>';
+      }
+    }
+
+    function navigateToHome() {
+      const mainContent = document.getElementById('main-content');
+      if (mainContent.dataset.originalContentStored && originalMainContentHTML) {
+        mainContent.innerHTML = originalMainContentHTML;
+      } else {
+        mainContent.innerHTML = '<h2>Select an option from the sidebar</h2><div id="newsContainer" class="news-container" style="display: none;"></div>';
+      }
+
+      const aboutPageStyles = document.getElementById('about-page-styles');
+      if (aboutPageStyles) {
+        aboutPageStyles.remove();
+      }
+
+      let currentPath = window.location.pathname;
+      // Normalize currentPath to ensure it ends with a / if it's a directory, or is just the filename
+      if (currentPath.endsWith('/index.html')) currentPath = currentPath.substring(0, currentPath.length - 'index.html'.length);
+      if (currentPath.endsWith('/about.html')) {
+          history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
+      } else if (currentPath !== '/' && !currentPath.endsWith('/')) { 
+          // If it's some other path that's not root or recognized, go to root.
+           history.pushState({ page: 'home' }, 'Home', '/');
+      }
+      // No pushState if already at effective root.
+
+      if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
+        aboutButtonGlobal.textContent = originalAboutButtonText;
+        aboutButtonGlobal.onclick = originalAboutButtonOnClick; 
+      }
+      
+      // Restore opacity using GSAP as it's used elsewhere for content display
+      gsap.to(mainContent, { opacity: 1, duration: 0.5 });
     }
 
     /* BACKGROUND CYCLER */
@@ -1722,6 +1816,29 @@ function toggleSabiBible(){
         audioPlayer.addEventListener('timeupdate', updateTrackTime);
         updateTrackTime();
         console.log('Page visible, reattached timeupdate listener');
+      }
+    });
+
+    // Handle Browser Back/Forward Navigation for dynamically loaded content
+    window.addEventListener('popstate', (event) => {
+      const mainContent = document.getElementById('main-content');
+      const aboutPageStyles = document.getElementById('about-page-styles'); 
+
+      if (event.state && event.state.page) {
+        if (event.state.page === 'about') {
+          if (!aboutPageStyles || mainContent.innerHTML.includes('<h2>Select an option from the sidebar')) {
+            navigateToAbout(); 
+          }
+        } else if (event.state.page === 'home') {
+          if (aboutPageStyles) { 
+            navigateToHome();
+          }
+        }
+      } else {
+        // Fallback for initial state or null state. If about page is showing, go home.
+        if (aboutPageStyles) {
+          navigateToHome();
+        }
       }
     });
   </script>
