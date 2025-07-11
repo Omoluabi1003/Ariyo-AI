@@ -1564,12 +1564,26 @@ audioPlayer.addEventListener('playing', () => {
 
     function openAlbumList() {
       const modal = document.getElementById('albumModal');
+      const modalContent = modal.querySelector('.modal-content');
+
+      modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
+
+      gsap.fromTo(modalContent, 
         { scale: 0.8, opacity: 0, y: 50 }, 
-        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+        { 
+          scale: 1, 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.5, 
+          ease: "power2.out",
+          onComplete: () => {
+            modalContent.style.pointerEvents = 'auto';
+            console.log('Album list animation complete, clicks enabled.');
+          }
+        }
       );
-      console.log('Album list opened');
+      console.log('Album list opened, animating...');
     }
 
     function closeAlbumList() {
@@ -1606,12 +1620,26 @@ audioPlayer.addEventListener('playing', () => {
     function openRadioList() {
       updateRadioListModal();
       const modal = document.getElementById('radioModal');
+      const modalContent = modal.querySelector('.modal-content');
+
+      modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
+
+      gsap.fromTo(modalContent, 
         { scale: 0.8, opacity: 0, y: 50 }, 
-        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+        { 
+          scale: 1, 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.5, 
+          ease: "power2.out",
+          onComplete: () => {
+            modalContent.style.pointerEvents = 'auto';
+            console.log('Radio list animation complete, clicks enabled.');
+          }
+        }
       );
-      console.log('Radio list opened');
+      console.log('Radio list opened, animating...');
     }
 
     function closeRadioList() {
