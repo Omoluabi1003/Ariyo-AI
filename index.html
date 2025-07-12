@@ -433,6 +433,7 @@
     <div class="sidebar">
       <button onclick="openAlbumList()">🎧 Choose An Album</button>
       <button onclick="openRadioList()">📻 Radio Stations</button>
+      <button onclick="navigateToNews()">📰 Naija News</button>
       <button onclick="navigateToAbout()">ℹ️ About Us</button>
     </div>
     <div class="content" id="main-content">
@@ -620,6 +621,77 @@
     let aboutButtonGlobal = null; // To store the reference to the About Us/Back to Player button
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
+    let newsButtonGlobal = null;
+    let originalNewsButtonText = '';
+    let originalNewsButtonOnClick;
+
+    async function navigateToNews() {
+      const mainContent = document.getElementById('main-content');
+      if (!newsButtonGlobal) {
+        const sidebarButtons = document.querySelectorAll('.sidebar button');
+        newsButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('Naija News'));
+        if (newsButtonGlobal) {
+          originalNewsButtonText = newsButtonGlobal.textContent;
+          originalNewsButtonOnClick = newsButtonGlobal.onclick;
+        }
+      }
+
+      if (!mainContent.dataset.originalContentStored) {
+        originalMainContentHTML = mainContent.innerHTML;
+        mainContent.dataset.originalContentStored = 'true';
+      }
+      savePlayerState();
+
+      try {
+        const response = await fetch('news.html');
+        if (!response.ok) {
+          console.error('Failed to fetch news.html:', response.status);
+          mainContent.innerHTML = '<p>Error loading News page content.</p>';
+          return;
+        }
+        const newsHtmlText = await response.text();
+        const parser = new DOMParser();
+        const newsDoc = parser.parseFromString(newsHtmlText, 'text/html');
+
+        mainContent.innerHTML = newsDoc.body.innerHTML;
+
+        const scriptElement = newsDoc.head.querySelector('script');
+        if (scriptElement) {
+          const newScript = document.createElement('script');
+          newScript.textContent = scriptElement.textContent;
+          mainContent.appendChild(newScript); // Append script to mainContent so it executes
+        }
+
+        // Add styles
+        const styleElement = document.createElement('style');
+        styleElement.id = 'news-page-styles'; // Ensure it can be removed later
+        styleElement.textContent = newsDoc.head.querySelector('style').textContent;
+        document.head.appendChild(styleElement);
+
+
+        if (window.location.pathname !== '/news.html') {
+          history.pushState({ page: 'news' }, 'Naija News', 'news.html');
+        }
+
+        if (newsButtonGlobal) {
+          newsButtonGlobal.textContent = '🎵 Back to Player';
+          newsButtonGlobal.onclick = navigateToHome;
+        }
+        // Ensure About Us button is reset if it was the one used to navigate away
+        if (aboutButtonGlobal && aboutButtonGlobal.textContent !== originalAboutButtonText) {
+            aboutButtonGlobal.textContent = originalAboutButtonText;
+            aboutButtonGlobal.onclick = originalAboutButtonOnClick;
+        }
+
+        mainContent.style.position = 'relative';
+        mainContent.style.zIndex = '101';
+        mainContent.style.opacity = '1';
+
+      } catch (error) {
+        console.error('Error navigating to News page:', error);
+        mainContent.innerHTML = '<p>Error loading News page content.</p>';
+      }
+    }
 
     async function navigateToAbout() {
       const mainContent = document.getElementById('main-content');
@@ -785,6 +857,10 @@
       if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
         aboutButtonGlobal.textContent = originalAboutButtonText;
         aboutButtonGlobal.onclick = originalAboutButtonOnClick;
+      }
+      if (newsButtonGlobal && originalNewsButtonText && typeof originalNewsButtonOnClick === 'function') {
+        newsButtonGlobal.textContent = originalNewsButtonText;
+        newsButtonGlobal.onclick = originalNewsButtonOnClick;
       }
 
       mainContent.style.zIndex = ''; // Reset z-index
