@@ -34,7 +34,6 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME)
       .then(cache => {
-        console.log('Service Worker: Caching app shell and static assets');
         return cache.addAll(urlsToCache.filter(url => url !== ''));
       })
       .catch(err => console.error('Cache install failed:', err))
@@ -50,13 +49,11 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.filter(name => !cacheWhitelist.includes(name))
           .map(name => {
-            console.log(`Service Worker: Deleting old cache: ${name}`);
             return caches.delete(name);
           })
       );
     })
     .then(() => self.clients.claim())
-    .then(() => console.log('Service Worker: Activated, old caches cleared'))
   );
 });
 
@@ -70,14 +67,12 @@ self.addEventListener('fetch', event => {
       caches.match(event.request)
         .then(cachedResponse => {
           if (cachedResponse) {
-            console.log(`Service Worker: Serving cached audio: ${requestUrl}`);
             // Update access time for LRU eviction
             updateAudioAccessTime(requestUrl);
             return cachedResponse;
           }
           const fetchPromise = fetch(event.request, { cache: 'no-store' })
             .then(networkResponse => {
-              console.log(`Service Worker: Streamed audio from network: ${requestUrl}`);
               caches.open(AUDIO_CACHE_NAME).then(cache => {
                 cache.put(event.request, networkResponse.clone());
                 // Update access time and manage cache size
@@ -87,14 +82,11 @@ self.addEventListener('fetch', event => {
               return networkResponse;
             })
             .catch(() => {
-              console.warn(`Service Worker: Audio fetch failed for ${requestUrl}, serving fallback`);
               return caches.match('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/offline-audio.mp3')
                 .then(fallbackAudio => {
                   if (fallbackAudio) {
-                    console.log('Service Worker: Serving offline audio fallback');
                     return fallbackAudio;
                   }
-                  console.warn('Service Worker: No offline audio available');
                   return new Response(
                     new Blob([JSON.stringify({ error: 'Offline - Audio unavailable' })], { type: 'application/json' }),
                     { status: 503, headers: { 'Content-Type': 'application/json' } }
@@ -118,7 +110,6 @@ self.addEventListener('fetch', event => {
       caches.match(event.request)
         .then(response => {
           if (response) {
-            console.log(`Service Worker: Serving cached image: ${requestUrl}`);
             return response;
           }
           return fetchAndCache(event.request, STATIC_CACHE_NAME);
@@ -135,7 +126,6 @@ self.addEventListener('fetch', event => {
           if (networkResponse.ok) {
             caches.open(DYNAMIC_CACHE_NAME).then(cache => {
               cache.put(event.request, networkResponse.clone());
-              console.log(`Service Worker: Cached Google Font: ${requestUrl}`);
             });
           }
           return networkResponse;
@@ -144,10 +134,8 @@ self.addEventListener('fetch', event => {
           return caches.match(event.request)
             .then(cachedResponse => {
               if (cachedResponse) {
-                console.log(`Service Worker: Serving cached Google Font: ${requestUrl}`);
                 return cachedResponse;
               }
-              console.warn(`Service Worker: Google Font unavailable offline: ${requestUrl}`);
               return new Response('', { status: 503 });
             });
         })
@@ -162,7 +150,6 @@ self.addEventListener('fetch', event => {
         if (networkResponse.ok) {
           caches.open(DYNAMIC_CACHE_NAME).then(cache => {
             cache.put(event.request, networkResponse.clone());
-            console.log(`Service Worker: Cached dynamic resource: ${requestUrl}`);
           });
         }
         return networkResponse;
@@ -171,14 +158,11 @@ self.addEventListener('fetch', event => {
         return caches.match(event.request)
           .then(cachedResponse => {
             if (cachedResponse) {
-              console.log(`Service Worker: Serving cached resource: ${requestUrl}`);
               return cachedResponse;
             }
-            console.log('Service Worker: Offline, falling back to index.html');
             return caches.match('/index.html')
               .then(fallback => {
                 if (fallback) return fallback;
-                console.warn('Service Worker: No fallback available');
                 return new Response(
                   '<h1>Offline</h1><p>Sorry, you are offline and this page is not available.</p>',
                   { status: 503, headers: { 'Content-Type': 'text/html' } }
@@ -194,14 +178,12 @@ function fetchAndCache(request, cacheName) {
   return fetch(request)
     .then(networkResponse => {
       if (!networkResponse || networkResponse.status !== 200) {
-        console.warn(`Service Worker: Fetch failed or invalid response for ${request.url}: ${networkResponse.status}`);
         return networkResponse;
       }
       const responseToCache = networkResponse.clone();
       caches.open(cacheName)
         .then(cache => {
           cache.put(request, responseToCache);
-          console.log(`Service Worker: Cached new resource in ${cacheName}: ${request.url}`);
         })
         .catch(err => console.error(`Service Worker: Failed to cache ${request.url}:`, err));
       return networkResponse;
@@ -218,7 +200,6 @@ const audioAccessTimes = new Map(); // Track access times for LRU eviction
 
 function updateAudioAccessTime(url) {
   audioAccessTimes.set(url, Date.now());
-  console.log(`Service Worker: Updated access time for ${url}`);
 }
 
 async function manageAudioCacheSize() {
@@ -232,7 +213,6 @@ async function manageAudioCacheSize() {
     for (const [url] of urlsToDelete) {
       await cache.delete(url);
       audioAccessTimes.delete(url);
-      console.log(`Service Worker: Evicted audio from cache (LRU): ${url}`);
     }
   }
 }
@@ -249,12 +229,10 @@ self.addEventListener('message', event => {
               cache.put(trackUrl, response.clone());
               updateAudioAccessTime(trackUrl);
               manageAudioCacheSize();
-              console.log(`Service Worker: Cached audio track: ${trackUrl}`);
               self.clients.matchAll().then(clients => {
                 clients.forEach(client => client.postMessage({ type: 'TRACK_CACHED', url: trackUrl }));
               });
             } else {
-              console.warn(`Service Worker: Failed to fetch track ${trackUrl}: ${response.status}`);
             }
           })
           .catch(err => console.error(`Service Worker: Failed to cache track ${trackUrl}:`, err));
@@ -266,7 +244,6 @@ self.addEventListener('message', event => {
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-streak') {
     event.waitUntil(
-      console.log('Service Worker: Syncing streak data')
       // Add actual sync logic here if needed, e.g., send streak data to server
     );
   }
