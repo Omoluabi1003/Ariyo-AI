@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exchange Rate</title>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      background-color: #121212;
+    }
+    .exchange-rate {
+      padding: 1.5rem;
+      background: rgba(34, 34, 34, 0.9);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="exchange-rate">
+    <h2>Exchange Rate</h2>
+    <p id="exchange-rate-info">Loading...</p>
+  </div>
+
+  <script>
+    const EXCHANGE_RATE_API_KEY = '4a06680847c39f0b75c40443';
+
+    async function getExchangeRate() {
+      const exchangeRateInfo = document.getElementById('exchange-rate-info');
+      try {
+        const response = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+        const data = await response.json();
+        if (data.result === 'error') {
+            throw new Error(`ExchangeRate-API error: ${data['error-type']}`);
+        }
+        const rate = data.conversion_rates.NGN;
+        exchangeRateInfo.textContent = `1 USD = ${rate} NGN`;
+      } catch (error) {
+        exchangeRateInfo.textContent = 'Could not fetch exchange rate. Please check the console for more details.';
+        console.error('Error fetching exchange rate:', error);
+      }
+    }
+
+    getExchangeRate();
+  </script>
+</body>
+</html>
