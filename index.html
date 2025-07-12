@@ -432,8 +432,6 @@
     <div class="sidebar">
       <button onclick="openAlbumList()">🎧 Choose An Album</button>
       <button onclick="openRadioList()">📻 Radio Stations</button>
-      <button onclick="navigateToNews()">📰 Naija News</button>
-      <button onclick="navigateToExchange()">💱 Exchange Rate</button>
       <button onclick="navigateToAbout()">ℹ️ About Us</button>
     </div>
     <div class="content" id="main-content">
@@ -621,142 +619,6 @@
     let aboutButtonGlobal = null; // To store the reference to the About Us/Back to Player button
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
-    let newsButtonGlobal = null;
-    let originalNewsButtonText = '';
-    let originalNewsButtonOnClick;
-
-    async function navigateToNews() {
-      const mainContent = document.getElementById('main-content');
-      if (!newsButtonGlobal) {
-        const sidebarButtons = document.querySelectorAll('.sidebar button');
-        newsButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('Naija News'));
-        if (newsButtonGlobal) {
-          originalNewsButtonText = newsButtonGlobal.textContent;
-          originalNewsButtonOnClick = newsButtonGlobal.onclick;
-        }
-      }
-
-      if (!mainContent.dataset.originalContentStored) {
-        originalMainContentHTML = mainContent.innerHTML;
-        mainContent.dataset.originalContentStored = 'true';
-      }
-      savePlayerState();
-
-      try {
-        const response = await fetch('news.html');
-        if (!response.ok) {
-          console.error('Failed to fetch news.html:', response.status);
-          mainContent.innerHTML = '<p>Error loading News page content.</p>';
-          return;
-        }
-        const newsHtmlText = await response.text();
-        const parser = new DOMParser();
-        const newsDoc = parser.parseFromString(newsHtmlText, 'text/html');
-
-        mainContent.innerHTML = newsDoc.body.innerHTML;
-
-        const scriptElement = newsDoc.head.querySelector('script');
-        if (scriptElement) {
-          const newScript = document.createElement('script');
-          newScript.textContent = scriptElement.textContent;
-          mainContent.appendChild(newScript); // Append script to mainContent so it executes
-        }
-
-        // Add styles
-        const styleElement = document.createElement('style');
-        styleElement.id = 'news-page-styles'; // Ensure it can be removed later
-        styleElement.textContent = newsDoc.head.querySelector('style').textContent;
-        document.head.appendChild(styleElement);
-
-
-        if (window.location.pathname !== '/news.html') {
-          history.pushState({ page: 'news' }, 'Naija News', 'news.html');
-        }
-
-        if (newsButtonGlobal) {
-          newsButtonGlobal.textContent = '🎵 Back to Player';
-          newsButtonGlobal.onclick = navigateToHome;
-        }
-        // Ensure About Us button is reset if it was the one used to navigate away
-        if (aboutButtonGlobal && aboutButtonGlobal.textContent !== originalAboutButtonText) {
-            aboutButtonGlobal.textContent = originalAboutButtonText;
-            aboutButtonGlobal.onclick = originalAboutButtonOnClick;
-        }
-
-        mainContent.style.position = 'relative';
-        mainContent.style.zIndex = '101';
-        mainContent.style.opacity = '1';
-
-      } catch (error) {
-        console.error('Error navigating to News page:', error);
-        mainContent.innerHTML = '<p>Error loading News page content.</p>';
-      }
-    }
-
-    async function navigateToExchange() {
-      const mainContent = document.getElementById('main-content');
-      if (!mainContent.dataset.originalContentStored) {
-        originalMainContentHTML = mainContent.innerHTML;
-        mainContent.dataset.originalContentStored = 'true';
-      }
-      savePlayerState();
-
-      try {
-        const response = await fetch('exchange.html');
-        if (!response.ok) {
-          console.error('Failed to fetch exchange.html:', response.status);
-          mainContent.innerHTML = '<p>Error loading Exchange Rate page content.</p>';
-          return;
-        }
-        const exchangeHtmlText = await response.text();
-        const parser = new DOMParser();
-        const exchangeDoc = parser.parseFromString(exchangeHtmlText, 'text/html');
-
-        mainContent.innerHTML = exchangeDoc.body.innerHTML;
-
-        const scriptElement = exchangeDoc.head.querySelector('script');
-        if (scriptElement) {
-          const newScript = document.createElement('script');
-          newScript.textContent = scriptElement.textContent;
-          mainContent.appendChild(newScript); // Append script to mainContent so it executes
-        }
-
-        // Add styles
-        const styleElement = document.createElement('style');
-        styleElement.id = 'exchange-page-styles'; // Ensure it can be removed later
-        styleElement.textContent = exchangeDoc.head.querySelector('style').textContent;
-        document.head.appendChild(styleElement);
-
-
-        if (window.location.pathname !== '/exchange.html') {
-          history.pushState({ page: 'exchange' }, 'Exchange Rate', 'exchange.html');
-        }
-
-        const exchangeButton = Array.from(document.querySelectorAll('.sidebar button')).find(btn => btn.textContent.includes('Exchange Rate'));
-        if (exchangeButton) {
-          exchangeButton.textContent = '🎵 Back to Player';
-          exchangeButton.onclick = navigateToHome;
-        }
-
-        // Ensure other buttons are reset
-        if (aboutButtonGlobal && aboutButtonGlobal.textContent !== originalAboutButtonText) {
-            aboutButtonGlobal.textContent = originalAboutButtonText;
-            aboutButtonGlobal.onclick = originalAboutButtonOnClick;
-        }
-        if (newsButtonGlobal && newsButtonGlobal.textContent !== originalNewsButtonText) {
-            newsButtonGlobal.textContent = originalNewsButtonText;
-            newsButtonGlobal.onclick = originalNewsButtonOnClick;
-        }
-
-        mainContent.style.position = 'relative';
-        mainContent.style.zIndex = '101';
-        mainContent.style.opacity = '1';
-
-      } catch (error) {
-        console.error('Error navigating to Exchange Rate page:', error);
-        mainContent.innerHTML = '<p>Error loading Exchange Rate page content.</p>';
-      }
-    }
 
     async function navigateToAbout() {
       const mainContent = document.getElementById('main-content');
@@ -903,10 +765,6 @@
       if (aboutPageStyles) {
         aboutPageStyles.remove();
       }
-      const newsPageStyles = document.getElementById('news-page-styles');
-      if (newsPageStyles) {
-        newsPageStyles.remove();
-      }
       const socialIconOverride = document.getElementById('social-icon-override-styles');
       if (socialIconOverride) {
         socialIconOverride.remove();
@@ -917,8 +775,6 @@
       if (currentPath.endsWith('/index.html')) currentPath = currentPath.substring(0, currentPath.length - 'index.html'.length);
       if (currentPath.endsWith('/about.html')) {
           history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
-      } else if (currentPath.endsWith('/news.html')) {
-          history.pushState({ page: 'home' }, 'Home', currentPath.replace('news.html', ''));
       } else if (currentPath !== '/' && !currentPath.endsWith('/')) {
           // If it's some other path that's not root or recognized, go to root.
            history.pushState({ page: 'home' }, 'Home', '/');
@@ -928,18 +784,6 @@
       if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
         aboutButtonGlobal.textContent = originalAboutButtonText;
         aboutButtonGlobal.onclick = originalAboutButtonOnClick;
-      }
-      if (newsButtonGlobal && originalNewsButtonText && typeof originalNewsButtonOnClick === 'function') {
-        newsButtonGlobal.textContent = originalNewsButtonText;
-        newsButtonGlobal.onclick = originalNewsButtonOnClick;
-      }
-      const exchangeButton = Array.from(document.querySelectorAll('.sidebar button')).find(btn => btn.textContent.includes('Back to Player'));
-      if (exchangeButton) {
-          const originalButton = Array.from(document.querySelectorAll('.sidebar button')).find(btn => btn.textContent.includes('Exchange Rate'));
-          if(originalButton) {
-            exchangeButton.textContent = "💱 Exchange Rate";
-            exchangeButton.onclick = navigateToExchange;
-          }
       }
 
       mainContent.style.zIndex = ''; // Reset z-index
