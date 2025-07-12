@@ -6,8 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#ff758c" />
-  <meta name="description" content="Àríyò AI: Your smart companion for Naija music, chat, and more!" />
   <title>Àríyò AI - Smart Naija AI</title>
+  <meta name="description" content="Àríyò AI: Your smart companion for Naija music, chat, and more!" />
 
   <link rel="manifest" href="/manifest.json">
 
@@ -248,7 +248,7 @@
       z-index: 101;
       position: relative;
     }
-    .chatbot-container zapier-interfaces-chatbot-embed, 
+    .chatbot-container zapier-interfaces-chatbot-embed,
     .sabi-bible-container zapier-interfaces-chatbot-embed {
       width: 100%;
       height: 100%;
@@ -423,7 +423,7 @@
 
 <body>
   <div class="header">
-    Welcome to Àríyò AI 
+    Welcome to Àríyò AI
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
       <i class="fas fa-share-alt"></i>
     </button>
@@ -623,7 +623,7 @@
 
     async function navigateToAbout() {
       const mainContent = document.getElementById('main-content');
-      
+
       // Find the 'About Us' button more reliably
       if (!aboutButtonGlobal) {
           const sidebarButtons = document.querySelectorAll('.sidebar button');
@@ -639,7 +639,7 @@
         originalMainContentHTML = mainContent.innerHTML;
         mainContent.dataset.originalContentStored = 'true';
       }
-      
+
       savePlayerState();
 
       try {
@@ -652,7 +652,7 @@
         const aboutHtmlText = await response.text();
         const parser = new DOMParser();
         const aboutDoc = parser.parseFromString(aboutHtmlText, 'text/html');
-        
+
         const aboutPageActualContent = aboutDoc.body.innerHTML; // Get everything inside body of about.html
         // mainContent.innerHTML = aboutPageActualContent; // Content will be set after modification
 
@@ -680,7 +680,7 @@
             const img = document.createElement('img');
             img.src = album.cover;
             img.alt = album.name + " Album Cover";
-            img.title = album.name; 
+            img.title = album.name;
 
             const nameParagraph = document.createElement('p');
             nameParagraph.textContent = album.name;
@@ -692,12 +692,12 @@
             albumContainer.style.textAlign = 'center';
             albumContainer.appendChild(img);
             albumContainer.appendChild(nameParagraph);
-            
+
             albumLink.appendChild(albumContainer);
             albumCoversDiv.appendChild(albumLink);
           });
         }
-        
+
         // Set the modified content
         mainContent.innerHTML = tempDiv.innerHTML; // tempDiv now contains the modified album list
 
@@ -721,9 +721,9 @@
         }
         socialIconOverrideStyle.textContent = `
           /* Ensure specificity and use !important if necessary, though direct modification is often better */
-          #main-content .social-icons a img { 
-            width: 48px; 
-            height: 48px; 
+          #main-content .social-icons a img {
+            width: 48px;
+            height: 48px;
             border-radius: 8px; /* Optional: adjust border-radius if desired */
             object-fit: cover;
           }
@@ -758,7 +758,7 @@
       // Set to a minimal home state, preserving newsContainer if it's used elsewhere.
       // This avoids restoring the "Select an option..." h2 text.
       mainContent.innerHTML = '<div id="newsContainer" class="news-container" style="display: none;"></div>';
-      
+
       // If newsContainer is populated by a separate function, that function might need to be called here
       // or initializePlayer should handle it. For now, just restoring its placeholder.
 
@@ -776,7 +776,7 @@
       if (currentPath.endsWith('/index.html')) currentPath = currentPath.substring(0, currentPath.length - 'index.html'.length);
       if (currentPath.endsWith('/about.html')) {
           history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
-      } else if (currentPath !== '/' && !currentPath.endsWith('/')) { 
+      } else if (currentPath !== '/' && !currentPath.endsWith('/')) {
           // If it's some other path that's not root or recognized, go to root.
            history.pushState({ page: 'home' }, 'Home', '/');
       }
@@ -784,9 +784,9 @@
 
       if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
         aboutButtonGlobal.textContent = originalAboutButtonText;
-        aboutButtonGlobal.onclick = originalAboutButtonOnClick; 
+        aboutButtonGlobal.onclick = originalAboutButtonOnClick;
       }
-      
+
       mainContent.style.zIndex = ''; // Reset z-index
       mainContent.style.position = ''; // Reset position
       // Restore opacity using GSAP as it's used elsewhere for content display
@@ -1045,7 +1045,7 @@
         const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
         if (ageInHours < 24) {
           // Ensure shuffleScope is loaded, default if not present in older saved states
-          playerState.shuffleScope = playerState.shuffleScope || 'off'; 
+          playerState.shuffleScope = playerState.shuffleScope || 'off';
           return playerState;
         }
       }
@@ -1072,7 +1072,7 @@ let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
 function classifyStation(station) {
   const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
   const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
-  
+
   if (nigeriaLocations.includes(station.location)) return "nigeria";
   if (westAfricaLocations.includes(station.location)) return "westAfrica";
   return "international";
@@ -1091,7 +1091,7 @@ function updateRadioListModal() {
   ["nigeria", "westAfrica", "international"].forEach(region => {
     document.getElementById(`${region}-stations`).innerHTML = '';
     document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
-    loadMoreStations(region); 
+    loadMoreStations(region);
   });
 
   console.log("Grouped and displayed radio stations by region");
@@ -1251,7 +1251,7 @@ function loadMoreStations(region) {
           console.log(`Stream ${title} can play (fallback)`);
 
     updateMediaSession(); // ✅ Move it here
-    
+
           if (!isFirstPlay) {
             audioPlayer.play().catch(error => handlePlayError(error, title));
           }
@@ -1360,8 +1360,8 @@ function loadMoreStations(region) {
           console.log(`Playing: ${trackInfo.textContent}`);
           updateStreak();
           savePlayerState();
-          gsap.fromTo(albumCover, 
-            { scale: 1 }, 
+          gsap.fromTo(albumCover,
+            { scale: 1 },
             { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
           );
           isFirstPlay = false;
@@ -1570,13 +1570,13 @@ audioPlayer.addEventListener('playing', () => {
       modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
 
-      gsap.fromTo(modalContent, 
-        { scale: 0.8, opacity: 0, y: 50 }, 
-        { 
-          scale: 1, 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.5, 
+      gsap.fromTo(modalContent,
+        { scale: 0.8, opacity: 0, y: 50 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
           ease: "power2.out",
           onComplete: () => {
             modalContent.style.pointerEvents = 'auto';
@@ -1589,9 +1589,9 @@ audioPlayer.addEventListener('playing', () => {
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
         }
       );
       console.log('Album list closed');
@@ -1601,8 +1601,8 @@ audioPlayer.addEventListener('playing', () => {
       updateTrackListModal();
       const modal = document.getElementById('trackModal');
       modal.style.display = 'block';
-      gsap.fromTo(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50 }, 
+      gsap.fromTo(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50 },
         { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
       );
       console.log('Track list opened');
@@ -1610,9 +1610,9 @@ audioPlayer.addEventListener('playing', () => {
 
     function closeTrackList() {
       const modal = document.getElementById('trackModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
         }
       );
       console.log('Track list closed');
@@ -1626,13 +1626,13 @@ audioPlayer.addEventListener('playing', () => {
       modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
 
-      gsap.fromTo(modalContent, 
-        { scale: 0.8, opacity: 0, y: 50 }, 
-        { 
-          scale: 1, 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.5, 
+      gsap.fromTo(modalContent,
+        { scale: 0.8, opacity: 0, y: 50 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
           ease: "power2.out",
           onComplete: () => {
             modalContent.style.pointerEvents = 'auto';
@@ -1645,9 +1645,9 @@ audioPlayer.addEventListener('playing', () => {
 
     function closeRadioList() {
       const modal = document.getElementById('radioModal');
-      gsap.to(modal.querySelector('.modal-content'), 
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", 
-          onComplete: () => { modal.style.display = 'none'; } 
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
         }
       );
       console.log('Radio list closed');
@@ -1658,20 +1658,20 @@ audioPlayer.addEventListener('playing', () => {
       const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
       if (shuffleScope === 'off') {
         shuffleScope = 'album';
-        shuffleMode = true; 
-        shuffleBtn.textContent = '🔀 Album'; 
+        shuffleMode = true;
+        shuffleBtn.textContent = '🔀 Album';
         shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
         console.log('Shuffle mode: Album');
       } else if (shuffleScope === 'album') {
         shuffleScope = 'all';
-        shuffleMode = true; 
-        shuffleBtn.textContent = '🔀 All'; 
+        shuffleMode = true;
+        shuffleBtn.textContent = '🔀 All';
         shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
         console.log('Shuffle mode: All');
       } else { // shuffleScope === 'all'
         shuffleScope = 'off';
-        shuffleMode = false; 
-        shuffleBtn.textContent = '🔀 Off'; 
+        shuffleMode = false;
+        shuffleBtn.textContent = '🔀 Off';
         shuffleStatusInfo.textContent = 'Shuffle: Off';
         console.log('Shuffle mode: Off');
       }
@@ -1735,11 +1735,11 @@ function toggleSabiBible(){
     /* MEDIA SESSION API */
     function updateMediaSession() {
       if ('mediaSession' in navigator) {
-        const track = currentRadioIndex === -1 
-          ? albums[currentAlbumIndex].tracks[currentTrackIndex] 
+        const track = currentRadioIndex === -1
+          ? albums[currentAlbumIndex].tracks[currentTrackIndex]
           : radioStations[currentRadioIndex];
-        const artwork = currentRadioIndex === -1 
-          ? albums[currentAlbumIndex].cover 
+        const artwork = currentRadioIndex === -1
+          ? albums[currentAlbumIndex].cover
           : radioStations[currentRadioIndex].logo;
 
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -1817,8 +1817,8 @@ function toggleSabiBible(){
         // Updated section for shuffle button text:
         const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
         const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
-        
-        shuffleMode = savedState.shuffleMode; 
+
+        shuffleMode = savedState.shuffleMode;
         shuffleScope = savedState.shuffleScope;
 
         if (shuffleScope === 'album') {
@@ -1834,7 +1834,7 @@ function toggleSabiBible(){
         console.log('Player restored from saved state:', savedState);
       } else {
         // Default state for a new session if no saved state
-        shuffleScope = 'off'; 
+        shuffleScope = 'off';
         shuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
         document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
@@ -1854,10 +1854,10 @@ function toggleSabiBible(){
         gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
       });
       button.addEventListener('click', () => {
-        gsap.to(button, { 
-          scale: 0.95, 
-          duration: 0.1, 
-          ease: "power1.in", 
+        gsap.to(button, {
+          scale: 0.95,
+          duration: 0.1,
+          ease: "power1.in",
           onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
         });
       });
@@ -1929,15 +1929,15 @@ function toggleSabiBible(){
     // Handle Browser Back/Forward Navigation for dynamically loaded content
     window.addEventListener('popstate', (event) => {
       const mainContent = document.getElementById('main-content');
-      const aboutPageStyles = document.getElementById('about-page-styles'); 
+      const aboutPageStyles = document.getElementById('about-page-styles');
 
       if (event.state && event.state.page) {
         if (event.state.page === 'about') {
           if (!aboutPageStyles || mainContent.innerHTML.includes('<h2>Select an option from the sidebar')) {
-            navigateToAbout(); 
+            navigateToAbout();
           }
         } else if (event.state.page === 'home') {
-          if (aboutPageStyles) { 
+          if (aboutPageStyles) {
             navigateToHome();
           }
         }
