@@ -22,19 +22,9 @@
     .news-item h3 {
       margin-top: 0;
     }
-    .exchange-rate {
-      padding: 1.5rem;
-      background: rgba(34, 34, 34, 0.9);
-      border-radius: 10px;
-      margin-bottom: 1rem;
-    }
   </style>
 </head>
 <body>
-  <div class="exchange-rate">
-    <h2>Exchange Rate</h2>
-    <p id="exchange-rate-info">Loading...</p>
-  </div>
   <div class="news-container" id="news-container">
     <h2>Naija News</h2>
     <!-- News articles will be loaded here -->
@@ -48,46 +38,32 @@
       try {
         const response = await fetch(`https://newsapi.org/v2/top-headlines?country=ng&apiKey=${NEWS_API_KEY}`);
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         }
         const data = await response.json();
         newsContainer.innerHTML = '<h2>Naija News</h2>'; // Clear previous content
+        if (data.articles.length === 0) {
+          newsContainer.innerHTML += '<p>No news articles found.</p>';
+          return;
+        }
         data.articles.forEach(article => {
           const newsItem = document.createElement('div');
           newsItem.className = 'news-item';
           newsItem.innerHTML = `
             <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-            <p>${article.description}</p>
+            <p>${article.description || 'No description available.'}</p>
             <p><strong>Source:</strong> ${article.source.name}</p>
           `;
           newsContainer.appendChild(newsItem);
         });
       } catch (error) {
-        newsContainer.innerHTML = '<h2>Naija News</h2><p>Could not fetch news at this time.</p>';
+        newsContainer.innerHTML = '<h2>Naija News</h2><p>Could not fetch news at this time. Please check the console for more details.</p>';
         console.error('Error fetching news:', error);
       }
     }
 
-    const EXCHANGE_RATE_API_KEY = '4a06680847c39f0b75c40443';
-
-    async function getExchangeRate() {
-      const exchangeRateInfo = document.getElementById('exchange-rate-info');
-      try {
-        const response = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const rate = data.conversion_rates.NGN;
-        exchangeRateInfo.textContent = `1 USD = ${rate} NGN`;
-      } catch (error) {
-        exchangeRateInfo.textContent = 'Could not fetch exchange rate at this time.';
-        console.error('Error fetching exchange rate:', error);
-      }
-    }
-
     getNews();
-    getExchangeRate();
   </script>
 </body>
 </html>
