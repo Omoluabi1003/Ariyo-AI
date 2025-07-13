@@ -1,0 +1,9 @@
+:root { --theme-color: #00bcd4; } /* Default color */
+.header { background: linear-gradient(135deg, var(--theme-color), #000); }
+.sidebar button { background: linear-gradient(135deg, var(--theme-color), #333); }
+.music-controls.icons-only button { background: var(--theme-color); }
+.track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
+.popup-close { background: var(--theme-color); }
+.retry-button { background: var(--theme-color); }
+.progress-bar div { background: var(--theme-color); }
+.install-btn { background: var(--theme-color); }
