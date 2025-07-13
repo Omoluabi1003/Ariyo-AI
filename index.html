@@ -308,9 +308,9 @@
     .edge-panel-handle {
         position: absolute;
         top: 50%;
-        left: -10px;
+        left: -5px;
         transform: translateY(-50%);
-        width: 20px;
+        width: 10px;
         height: 100px;
         background-color: rgba(255, 255, 255, 0.5);
         border-radius: 5px 0 0 5px;
@@ -598,12 +598,10 @@
         <!-- Chatbot Floating Icon & Comic Bubble -->
         <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
-          <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
         </div>
         <!-- Sabi Bible Floating Icon & Comic Bubble -->
         <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-          <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
         </div>
     </div>
 </div>
@@ -1824,82 +1822,6 @@ function toggleSabiBible(){
   }
 }
 
-    /* CHATBOT GREETINGS */
-    const chatbotBubble = document.getElementById('chatbotBubble');
-    const sabiBibleBubble = document.getElementById('sabiBibleBubble');
-
-    const chatbotGreetings = [
-        "How far?",
-        "Wetin dey sup?",
-        "I dey here for you.",
-        "Ask me anything.",
-        "Make we yarn.",
-        "How I fit help you?"
-    ];
-
-    const sabiBibleGreetings = [
-        "Sabi Bible dey here!",
-        "Need some wisdom?",
-        "The Word dey for you.",
-        "Your guide to the Bible.",
-        "Make we learn together.",
-        "Wetin you wan know?"
-    ];
-
-    function fadeInOutGreeting(element, greeting) {
-        element.style.opacity = 0;
-        element.textContent = greeting;
-        let opacity = 0;
-        const fadeIn = setInterval(() => {
-            if (opacity >= 1) {
-                clearInterval(fadeIn);
-                setTimeout(() => {
-                    const fadeOut = setInterval(() => {
-                        if (opacity <= 0) {
-                            clearInterval(fadeOut);
-                        } else {
-                            opacity -= 0.1;
-                            element.style.opacity = opacity;
-                        }
-                    }, 50);
-                }, 2000);
-            } else {
-                opacity += 0.1;
-                element.style.opacity = opacity;
-            }
-        }, 50);
-    }
-
-    function updateChatbotGreeting() {
-        let greeting;
-        if (audioPlayer.paused) {
-            greeting = chatbotGreetings[Math.floor(Math.random() * chatbotGreetings.length)];
-        } else {
-            greeting = "Enjoying the tunes? Ask me to recommend a song!";
-        }
-        fadeInOutGreeting(chatbotBubble, greeting);
-        chatbotBubble.parentElement.style.animation = 'pulse 1s infinite';
-        setTimeout(() => {
-            chatbotBubble.parentElement.style.animation = 'float 3s ease-in-out infinite';
-        }, 3000);
-    }
-
-    function updateSabiBibleGreeting() {
-        const greeting = sabiBibleGreetings[Math.floor(Math.random() * sabiBibleGreetings.length)];
-        fadeInOutGreeting(sabiBibleBubble, greeting);
-        sabiBibleBubble.parentElement.style.animation = 'pulse 1s infinite';
-        setTimeout(() => {
-            sabiBibleBubble.parentElement.style.animation = 'float 3s ease-in-out infinite';
-        }, 3000);
-    }
-
-    // Initial greetings
-    updateChatbotGreeting();
-    updateSabiBibleGreeting();
-
-    // Update greetings every 10 seconds
-    setInterval(updateChatbotGreeting, 10000);
-    setInterval(updateSabiBibleGreeting, 10000);
 
     const collapsibleContainerLeft = document.getElementById('collapsibleContainerLeft');
     const collapsibleContainerRight = document.getElementById('collapsibleContainerRight');
@@ -1942,7 +1864,7 @@ function toggleSabiBible(){
         }
     });
 
-    edgePanelHandle.addEventListener('click', () => {
+    edgePanel.addEventListener('click', () => {
         edgePanel.classList.toggle('visible');
     });
 
