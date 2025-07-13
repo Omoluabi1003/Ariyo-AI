@@ -1473,71 +1473,119 @@ audioPlayer.addEventListener('playing', () => {
   console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
 });
 
-    function nextTrack() {
-      if (currentRadioIndex === -1) { // Only if not playing a radio station
-        if (shuffleMode) {
-          if (shuffleScope === 'all') {
-            const allTracks = [];
-            albums.forEach((album, albumIdx) => {
-              album.tracks.forEach((track, trackIdx) => {
-                allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
-              });
-            });
-            if (allTracks.length > 0) {
-              const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
-              currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
-              selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
-            }
-          } else { // shuffleScope === 'album'
-            const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-            selectTrack(
-              albums[currentAlbumIndex].tracks[randomIndex].src,
-              albums[currentAlbumIndex].tracks[randomIndex].title,
-              randomIndex
-            );
-          }
-        } else { // No shuffle
-          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
-        }
-        if (!audioPlayer.paused) {
-          audioPlayer.addEventListener('canplay', () => {
-            audioPlayer.play();
-            manageVinylRotation();
-          }, { once: true });
-        }
-      }
+function nextTrack() {
+  // If a radio station is playing
+  if (currentRadioIndex !== -1) {
+    if (shuffleMode) {
+      // Shuffle mode: select a random station
+      const randomIndex = Math.floor(Math.random() * radioStations.length);
+      const station = radioStations[randomIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, randomIndex, station.logo);
+    } else {
+      // Normal mode: select the next station
+      const nextIndex = (currentRadioIndex + 1) % radioStations.length;
+      const station = radioStations[nextIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, nextIndex, station.logo);
     }
+  }
+  // If an album track is playing
+  else {
+    if (shuffleMode) {
+      if (shuffleScope === 'all') {
+        const allTracks = [];
+        albums.forEach((album, albumIdx) => {
+          album.tracks.forEach((track, trackIdx) => {
+            allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+          });
+        });
+        if (allTracks.length > 0) {
+          const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+          currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
+          selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+        }
+      } else { // shuffleScope === 'album'
+        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+        selectTrack(
+          albums[currentAlbumIndex].tracks[randomIndex].src,
+          albums[currentAlbumIndex].tracks[randomIndex].title,
+          randomIndex
+        );
+      }
+    } else { // No shuffle
+      currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+    }
+  }
 
-    function previousTrack() {
-      if (currentRadioIndex === -1) {
-        if (shuffleMode) {
-          const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-          selectTrack(
-            albums[currentAlbumIndex].tracks[randomIndex].src,
-            albums[currentAlbumIndex].tracks[randomIndex].title,
-            randomIndex
-          );
-        } else {
-          currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
-        }
-        if (!audioPlayer.paused) {
-          audioPlayer.addEventListener('canplay', () => {
-            audioPlayer.play();
-            manageVinylRotation();
-          }, { once: true });
-        }
-      }
+  // Autoplay if the player was already playing
+  if (!audioPlayer.paused) {
+    audioPlayer.addEventListener('canplay', () => {
+      audioPlayer.play();
+      manageVinylRotation();
+    }, { once: true });
+  }
+}
+
+function previousTrack() {
+  // If a radio station is playing
+  if (currentRadioIndex !== -1) {
+    if (shuffleMode) {
+      // Shuffle mode: select a random station
+      const randomIndex = Math.floor(Math.random() * radioStations.length);
+      const station = radioStations[randomIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, randomIndex, station.logo);
+    } else {
+      // Normal mode: select the previous station
+      const prevIndex = (currentRadioIndex - 1 + radioStations.length) % radioStations.length;
+      const station = radioStations[prevIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, prevIndex, station.logo);
     }
+  }
+  // If an album track is playing
+  else {
+    if (shuffleMode) {
+      if (shuffleScope === 'all') {
+        const allTracks = [];
+        albums.forEach((album, albumIdx) => {
+          album.tracks.forEach((track, trackIdx) => {
+            allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+          });
+        });
+        if (allTracks.length > 0) {
+          const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+          currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
+          selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+        }
+      } else { // shuffleScope === 'album'
+        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+        selectTrack(
+          albums[currentAlbumIndex].tracks[randomIndex].src,
+          albums[currentAlbumIndex].tracks[randomIndex].title,
+          randomIndex
+        );
+      }
+    } else { // No shuffle
+      currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+    }
+  }
+
+  // Autoplay if the player was already playing
+  if (!audioPlayer.paused) {
+    audioPlayer.addEventListener('canplay', () => {
+      audioPlayer.play();
+      manageVinylRotation();
+    }, { once: true });
+  }
+}
 
     function openAlbumList() {
       const modal = document.getElementById('albumModal');
@@ -1629,30 +1677,47 @@ audioPlayer.addEventListener('playing', () => {
       console.log('Radio list closed');
     }
 
-    function toggleShuffle() {
-      const shuffleBtn = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
-      const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
-      if (shuffleScope === 'off') {
-        shuffleScope = 'album';
-        shuffleMode = true;
-        shuffleBtn.textContent = '🔀 Album';
-        shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
-        console.log('Shuffle mode: Album');
-      } else if (shuffleScope === 'album') {
-        shuffleScope = 'all';
-        shuffleMode = true;
-        shuffleBtn.textContent = '🔀 All';
-        shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
-        console.log('Shuffle mode: All');
-      } else { // shuffleScope === 'all'
-        shuffleScope = 'off';
-        shuffleMode = false;
-        shuffleBtn.textContent = '🔀 Off';
-        shuffleStatusInfo.textContent = 'Shuffle: Off';
-        console.log('Shuffle mode: Off');
-      }
-      savePlayerState();
+function toggleShuffle() {
+  const shuffleBtn = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
+  const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+
+  // If we are in radio mode, shuffle only has on/off states
+  if (currentRadioIndex !== -1) {
+    shuffleMode = !shuffleMode;
+    if (shuffleMode) {
+      shuffleBtn.textContent = '🔀 Radio';
+      shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
+      console.log('Shuffle mode: Radio');
+    } else {
+      shuffleBtn.textContent = '🔀 Off';
+      shuffleStatusInfo.textContent = 'Shuffle: Off';
+      console.log('Shuffle mode: Off');
     }
+  }
+  // If we are in album/track mode, cycle through off, album, all
+  else {
+    if (shuffleScope === 'off') {
+      shuffleScope = 'album';
+      shuffleMode = true;
+      shuffleBtn.textContent = '🔀 Album';
+      shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
+      console.log('Shuffle mode: Album');
+    } else if (shuffleScope === 'album') {
+      shuffleScope = 'all';
+      shuffleMode = true;
+      shuffleBtn.textContent = '🔀 All';
+      shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+      console.log('Shuffle mode: All');
+    } else { // shuffleScope === 'all'
+      shuffleScope = 'off';
+      shuffleMode = false;
+      shuffleBtn.textContent = '🔀 Off';
+      shuffleStatusInfo.textContent = 'Shuffle: Off';
+      console.log('Shuffle mode: Off');
+    }
+  }
+  savePlayerState();
+}
 
     /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
 const chatbotContainer = document.getElementById('chatbotContainer');
