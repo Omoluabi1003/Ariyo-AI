@@ -603,10 +603,6 @@
         <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
         </div>
-        <!-- Map Icon -->
-        <div class="map-icon-container" role="button" aria-label="Open Map" onclick="navigateToMap()">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/IMG_9361.png" alt="Map Icon" style="width: 40px; height: 40px; border-radius: 50%;" />
-        </div>
     </div>
 </div>
 
@@ -1888,54 +1884,6 @@ function toggleSabiBible() {
     }
 
 
-    /* NAVIGATE TO MAP PAGE */
-    async function navigateToMap() {
-      const mainContent = document.getElementById('main-content');
-
-      if (!mainContent.dataset.originalContentStored) {
-        originalMainContentHTML = mainContent.innerHTML;
-        mainContent.dataset.originalContentStored = 'true';
-      }
-
-      savePlayerState();
-
-      try {
-        const response = await fetch('map.html');
-        if (!response.ok) {
-          console.error('Failed to fetch map.html:', response.status);
-          mainContent.innerHTML = '<p>Error loading Map page content.</p>';
-          return;
-        }
-        const mapHtmlText = await response.text();
-        const parser = new DOMParser();
-        const mapDoc = parser.parseFromString(mapHtmlText, 'text/html');
-        const mapContent = mapDoc.body.innerHTML;
-        mainContent.innerHTML = mapContent;
-
-        const scriptElement = document.createElement('script');
-        scriptElement.textContent = mapDoc.querySelector('script').textContent;
-        mainContent.appendChild(scriptElement);
-
-        if (window.location.pathname !== '/map.html') {
-          history.pushState({ page: 'map' }, 'Map', 'map.html');
-        }
-
-        const sidebarButtons = document.querySelectorAll('.sidebar button');
-        const aboutButton = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
-        if (aboutButton) {
-            aboutButton.textContent = '🎵 Back to Player';
-            aboutButton.onclick = navigateToHome;
-        }
-
-        mainContent.style.position = 'relative';
-        mainContent.style.zIndex = '101';
-        mainContent.style.opacity = '1';
-
-      } catch (error) {
-        console.error('Error navigating to Map page:', error);
-        mainContent.innerHTML = '<p>Error loading Map page content.</p>';
-      }
-    }
 
     /* AUTO POP-OUT/RETRACT EDGE PANEL */
     let chatbotWindowOpen = false;
