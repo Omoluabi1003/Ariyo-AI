@@ -334,10 +334,6 @@
         align-items: center;
         height: 100%;
     }
-    #map {
-        height: 100%;
-        width: 100%;
-    }
     .tap-area {
         position: fixed;
         bottom: 0;
@@ -602,7 +598,18 @@
 <div class="edge-panel" id="edgePanel">
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
-        <div id="map"></div>
+        <!-- Chatbot Floating Icon & Comic Bubble -->
+        <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
+        </div>
+        <!-- Sabi Bible Floating Icon & Comic Bubble -->
+        <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+        </div>
+        <!-- Map Icon -->
+        <div class="map-icon-container" role="button" aria-label="Open Map" onclick="navigateToMap()">
+            <i class="fas fa-map-marked-alt" style="font-size: 2rem; color: white;"></i>
+        </div>
     </div>
 </div>
 
@@ -1883,28 +1890,46 @@ function toggleSabiBible() {
         edgePanel.style.right = '-70px';
     }
 
-    /* MAP INITIALIZATION */
-    let map;
-    function initializeMap() {
-        if (map) return;
-        map = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    /* NAVIGATE TO MAP PAGE */
+    async function navigateToMap() {
+      const mainContent = document.getElementById('main-content');
 
-        map.locate({setView: true, maxZoom: 16});
+      if (!mainContent.dataset.originalContentStored) {
+        originalMainContentHTML = mainContent.innerHTML;
+        mainContent.dataset.originalContentStored = 'true';
+      }
 
-        function onLocationFound(e) {
-            var radius = e.accuracy / 2;
-            L.marker(e.latlng).addTo(map)
-                .bindPopup("You are within " + radius + " meters from this point").openPopup();
-            L.circle(e.latlng, radius).addTo(map);
+      savePlayerState();
+
+      try {
+        const response = await fetch('map.html');
+        if (!response.ok) {
+          console.error('Failed to fetch map.html:', response.status);
+          mainContent.innerHTML = '<p>Error loading Map page content.</p>';
+          return;
         }
-        function onLocationError(e) {
-            alert(e.message);
+        const mapHtmlText = await response.text();
+        mainContent.innerHTML = mapHtmlText;
+
+        if (window.location.pathname !== '/map.html') {
+          history.pushState({ page: 'map' }, 'Map', 'map.html');
         }
-        map.on('locationfound', onLocationFound);
-        map.on('locationerror', onLocationError);
+
+        const sidebarButtons = document.querySelectorAll('.sidebar button');
+        const aboutButton = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
+        if (aboutButton) {
+            aboutButton.textContent = '🎵 Back to Player';
+            aboutButton.onclick = navigateToHome;
+        }
+
+        mainContent.style.position = 'relative';
+        mainContent.style.zIndex = '101';
+        mainContent.style.opacity = '1';
+
+      } catch (error) {
+        console.error('Error navigating to Map page:', error);
+        mainContent.innerHTML = '<p>Error loading Map page content.</p>';
+      }
     }
 
     /* AUTO POP-OUT/RETRACT EDGE PANEL */
