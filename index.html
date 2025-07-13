@@ -70,6 +70,22 @@
       font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+      }
     }
     .share-button:hover { background-color: rgba(0, 123, 255, 1); }
     .container {
@@ -494,7 +510,7 @@
   <div class="header">
     Welcome to Àríyò AI
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
-      <i class="fas fa-share-alt"></i>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
     </button>
   </div>
 
@@ -2163,6 +2179,48 @@ function toggleSabiBible() {
         }
       }
     });
+
+    // Weekly Color Scheme Changer
+    function changeColorScheme() {
+      const lastColorChange = localStorage.getItem('lastColorChange');
+      const now = new Date().getTime();
+      const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+      if (!lastColorChange || (now - lastColorChange > oneWeek)) {
+        let newColor;
+        let recentColors = JSON.parse(localStorage.getItem('recentColors')) || [];
+        do {
+          newColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+        } while (recentColors.includes(newColor));
+
+        recentColors.push(newColor);
+        if (recentColors.length > 8) {
+          recentColors.shift();
+        }
+        localStorage.setItem('recentColors', JSON.stringify(recentColors));
+        localStorage.setItem('lastColorChange', now);
+        localStorage.setItem('currentColor', newColor);
+      }
+
+      const currentColor = localStorage.getItem('currentColor');
+      if (currentColor) {
+        const style = document.createElement('style');
+        style.innerHTML = `
+          :root { --theme-color: ${currentColor}; }
+          .header { background: linear-gradient(135deg, ${currentColor}, #000); }
+          .sidebar button { background: linear-gradient(135deg, ${currentColor}, #333); }
+          .music-controls.icons-only button { background: ${currentColor}; }
+          .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: ${currentColor}; }
+          .popup-close { background: ${currentColor}; }
+          .retry-button { background: ${currentColor}; }
+          .progress-bar div { background: ${currentColor}; }
+          .install-btn { background: ${currentColor}; }
+        `;
+        document.head.appendChild(style);
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', currentColor);
+      }
+    }
+    changeColorScheme();
   </script>
 </body>
 </html>
