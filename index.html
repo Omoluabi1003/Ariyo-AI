@@ -312,6 +312,13 @@
       50% { transform: scale(1.1); }
       100% { transform: scale(1); }
     }
+    .blinking-cursor {
+        animation: blink 1s infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
     .chatbot-speech-bubble, .sabi-bible-speech-bubble {
       position: absolute;
       bottom: 100%;
@@ -324,10 +331,12 @@
       font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
       font-size: clamp(0.8rem, 2vw, 0.9rem);
       padding: 0.6rem 1rem;
-      white-space: nowrap;
+      white-space: normal;
+      word-wrap: break-word;
       box-shadow: 3px 3px 0px #000000;
       pointer-events: none;
       z-index: 1;
+      width: 150px;
     }
     .chatbot-speech-bubble::after, .sabi-bible-speech-bubble::after {
       content: "";
@@ -1761,34 +1770,35 @@ function toggleSabiBible(){
     const sabiBibleBubble = document.getElementById('sabiBibleBubble');
 
     const chatbotGreetings = [
-        "How far?",
-        "Wetin dey sup?",
-        "Ask me any question.",
-        "I fit help you.",
-        "Make we yarn.",
-        "You get question?"
+        "Cyber-Howdy!",
+        "System check... all clear. Ask away!",
+        "Giga-greetings!",
+        "I am online and ready.",
+        "Welcome to the datastream.",
+        "Your query, my command."
     ];
 
     const sabiBibleGreetings = [
-        "Sabi Bible dey here!",
-        "Need wisdom?",
-        "Ask, you go receive.",
-        "Your guide for Bible.",
-        "Make we study.",
-        "Wetin you wan know?"
+        "Accessing ancient scrolls...",
+        "Wisdom of the ages, online.",
+        "Your digital prophet.",
+        "Connecting to the divine...",
+        "Seek and ye shall find... data.",
+        "The Word, now in bytes."
     ];
 
     function typeGreeting(element, greeting) {
         let i = 0;
-        element.textContent = "";
+        element.innerHTML = "";
         const typing = setInterval(() => {
             if (i < greeting.length) {
-                element.textContent += greeting.charAt(i);
+                element.innerHTML += greeting.charAt(i);
                 i++;
             } else {
                 clearInterval(typing);
+                element.innerHTML += '<span class="blinking-cursor">|</span>';
             }
-        }, 100);
+        }, 50);
     }
 
     function updateChatbotGreeting() {
