@@ -1829,28 +1829,6 @@ function toggleSabiBible() {
     const edgePanel = document.getElementById('edgePanel');
     const edgePanelHandle = document.querySelector('.edge-panel-handle');
     let isDragging = false;
-
-    edgePanelHandle.addEventListener('mousedown', () => {
-        isDragging = true;
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            const right = window.innerWidth - e.clientX;
-            edgePanel.style.right = `${right}px`;
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        if (parseInt(edgePanel.style.right) < -100) {
-            edgePanel.style.right = '-200px';
-        } else {
-            edgePanel.style.right = '0';
-        }
-    });
-
-    let isDragging = false;
     let initialX;
     let initialRight;
 
