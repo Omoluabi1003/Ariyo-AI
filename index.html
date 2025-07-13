@@ -290,17 +290,37 @@
     .collapsible-container.visible.right {
         right: 1rem;
     }
-    .vertical-container {
+    .edge-panel {
         position: fixed;
         top: 50%;
-        right: -100px;
+        right: -240px;
         transform: translateY(-50%);
-        width: 50px;
+        width: 250px;
         height: 150px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 10px 0 0 10px;
         transition: right 0.3s ease-in-out;
+        z-index: 1001;
     }
-    .vertical-container.visible {
+    .edge-panel.visible {
         right: 0;
+    }
+    .edge-panel-handle {
+        position: absolute;
+        top: 50%;
+        left: -10px;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 100px;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 5px 0 0 5px;
+        cursor: pointer;
+    }
+    .edge-panel-content {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%;
     }
     .tap-area {
         position: fixed;
@@ -563,15 +583,14 @@
   </div>
 </div>
 
-<div class="vertical-container" id="verticalContainer">
-    <div class="collapsible-container left" id="collapsibleContainerLeft">
+<div class="edge-panel" id="edgePanel">
+    <div class="edge-panel-handle"></div>
+    <div class="edge-panel-content">
         <!-- Chatbot Floating Icon & Comic Bubble -->
         <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
           <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
         </div>
-    </div>
-    <div class="collapsible-container right" id="collapsibleContainerRight">
         <!-- Sabi Bible Floating Icon & Comic Bubble -->
         <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
@@ -1884,10 +1903,32 @@ function toggleSabiBible(){
         }, 45000);
     }
 
-    const verticalContainer = document.getElementById('verticalContainer');
+    const edgePanel = document.getElementById('edgePanel');
+    const edgePanelHandle = document.querySelector('.edge-panel-handle');
+    let isDragging = false;
 
-    verticalContainer.addEventListener('click', () => {
-        verticalContainer.classList.toggle('visible');
+    edgePanelHandle.addEventListener('mousedown', () => {
+        isDragging = true;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const right = window.innerWidth - e.clientX;
+            edgePanel.style.right = `${right}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        if (parseInt(edgePanel.style.right) < -100) {
+            edgePanel.style.right = '-200px';
+        } else {
+            edgePanel.style.right = '0';
+        }
+    });
+
+    edgePanelHandle.addEventListener('click', () => {
+        edgePanel.classList.toggle('visible');
     });
 
     /* DYNAMIC AUDIO CACHING */
