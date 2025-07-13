@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://omoluabi1003.github.io/Ariyo-AI/sitemap.xml
