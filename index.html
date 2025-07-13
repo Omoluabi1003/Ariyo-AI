@@ -496,6 +496,10 @@
       <button onclick="openAlbumList()">🎧 Choose An Album</button>
       <button onclick="openRadioList()">📻 Radio Stations</button>
       <button onclick="navigateToAbout()">ℹ️ About Us</button>
+      <button onclick="openForexModal()">
+        <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Forex%20icon.png" alt="Forex Icon" style="width: 24px; height: 24px; margin-right: 5px;">
+        Forex
+      </button>
     </div>
     <div class="content" id="main-content">
       <h2>Select an option from the sidebar</h2>
@@ -565,6 +569,17 @@
       <h3 id="trackModalTitle">Choose A Track</h3>
       <div class="track-list">
         <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Forex -->
+  <div id="forexModal" class="modal" role="dialog" aria-labelledby="forexModalTitle">
+    <div class="modal-content">
+      <span class="close" role="button" aria-label="Close forex modal" onclick="closeForexModal()">×</span>
+      <h3 id="forexModalTitle">Forex Information</h3>
+      <div id="forex-content">
+        <!-- Content from alpha-vantage.html will be loaded here -->
       </div>
     </div>
   </div>
@@ -1740,6 +1755,49 @@ function previousTrack() {
         }
       );
       console.log('Radio list closed');
+    }
+
+    /* FOREX MODAL */
+    async function openForexModal() {
+      const modal = document.getElementById('forexModal');
+      const forexContent = document.getElementById('forex-content');
+      try {
+        const response = await fetch('alpha-vantage.html');
+        if (!response.ok) {
+          forexContent.innerHTML = '<p>Error loading content.</p>';
+        } else {
+          forexContent.innerHTML = await response.text();
+        }
+      } catch (error) {
+        forexContent.innerHTML = '<p>Error loading content.</p>';
+      }
+
+      const modalContent = modal.querySelector('.modal-content');
+      modalContent.style.pointerEvents = 'none';
+      modal.style.display = 'block';
+
+      gsap.fromTo(modalContent,
+        { scale: 0.8, opacity: 0, y: 50 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+          onComplete: () => {
+            modalContent.style.pointerEvents = 'auto';
+          }
+        }
+      );
+    }
+
+    function closeForexModal() {
+      const modal = document.getElementById('forexModal');
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
+        }
+      );
     }
 
 function toggleShuffle() {
