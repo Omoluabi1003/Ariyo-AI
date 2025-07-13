@@ -1888,18 +1888,18 @@ function toggleSabiBible() {
     function autoPopOutEdgePanel() {
         if (chatbotWindowOpen) return;
 
-        // Show after 30 seconds
+        // Show after 15 seconds
         setTimeout(() => {
             if (chatbotWindowOpen) return;
             edgePanel.classList.add('visible');
             edgePanel.style.right = '0';
 
-            // Retract after 15 seconds
+            // Retract after 30 seconds
             setTimeout(() => {
                 if (chatbotWindowOpen) return;
                 closeEdgePanel();
-            }, 15000);
-        }, 30000);
+            }, 30000);
+        }, 15000);
 
         // Periodically pop out for new users
         autoPopOutInterval = setInterval(() => {
