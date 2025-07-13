@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Naija-Global Navigation Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <!-- Leaflet Routing Machine CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
+    />
+    <!-- Geocoder CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"
+    />
+
+    <style>
+      #map {
+        height: 90vh;
+        margin-bottom: 10px;
+      }
+      #controls {
+        padding: 10px;
+        background: #f4f4f4;
+        font-family: sans-serif;
+      }
+      select {
+        padding: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+
+    <div id="controls">
+      <label><b>Choose destination:</b></label>
+      <select id="destinations">
+        <option value="6.5164,3.3965">UNILAG, Lagos</option>
+        <option value="6.4531,3.3958">Lekki Phase 1</option>
+        <option value="6.5244,3.3792">Lagos Island</option>
+        <option value="40.7484,-73.9857">Empire State Building, NY</option>
+        <option value="51.5074,-0.1278">London Central</option>
+        <option value="48.8584,2.2945">Eiffel Tower, Paris</option>
+        <option value="custom">Pick on map</option>
+      </select>
+
+      &nbsp;&nbsp;
+
+      <label><b>Mode:</b></label>
+      <select id="travelMode">
+        <option value="car">Driving</option>
+        <option value="foot">Walking</option>
+      </select>
+
+      <p id="routeInfo" style="margin-top: 10px;"></p>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <!-- Geocoder JS -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+      const map = L.map("map").setView([6.5244, 3.3792], 13); // Lagos by default
+
+      // OpenStreetMap base layer
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      // Search bar
+      L.Control.geocoder().addTo(map);
+
+      let userLocation;
+      let routingControl;
+
+      // Get user's current position
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          userLocation = L.latLng(pos.coords.latitude, pos.coords.longitude);
+          L.marker(userLocation).addTo(map).bindPopup("You're here!").openPopup();
+          map.setView(userLocation, 14);
+        },
+        function () {
+          alert("We couldn’t get your location. Check GPS permissions.");
+        }
+      );
+
+      function buildRoute(destination, mode = "car") {
+        if (!userLocation) {
+          alert("Location still loading. Try again shortly.");
+          return;
+        }
+
+        if (routingControl) {
+          map.removeControl(routingControl);
+        }
+
+        routingControl = L.Routing.control({
+          waypoints: [userLocation, destination],
+          router: L.Routing.osrmv1({
+            serviceUrl: `https://router.project-osrm.org/route/v1/${mode}`,
+          }),
+          routeWhileDragging: true,
+          show: false,
+          addWaypoints: false,
+        })
+          .on("routesfound", function (e) {
+            const summary = e.routes[0].summary;
+            document.getElementById("routeInfo").innerHTML =
+              `🛣️ Route: ${(summary.totalDistance / 1000).toFixed(2)} km<br>` +
+              `⏱️ ETA: ${(summary.totalTime / 60).toFixed(0)} mins`;
+          })
+          .addTo(map);
+      }
+
+      document.getElementById("destinations").addEventListener("change", function () {
+        const value = this.value;
+        const travelMode = document.getElementById("travelMode").value;
+
+        if (value === "custom") {
+          alert("Click on the map to set a custom destination.");
+          map.once("click", function (e) {
+            buildRoute(e.latlng, travelMode);
+          });
+        } else {
+          const coords = value.split(",");
+          const destination = L.latLng(parseFloat(coords[0]), parseFloat(coords[1]));
+          buildRoute(destination, travelMode);
+        }
+      });
+
+      document.getElementById("travelMode").addEventListener("change", function () {
+        document.getElementById("destinations").dispatchEvent(new Event("change"));
+      });
+    </script>
+  </body>
+</html>
