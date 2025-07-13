@@ -1917,6 +1917,7 @@ function toggleSabiBible() {
         const scriptElement = document.createElement('script');
         scriptElement.textContent = mapDoc.querySelector('script').textContent;
         mainContent.appendChild(scriptElement);
+        initializeMap();
 
         if (window.location.pathname !== '/map.html') {
           history.pushState({ page: 'map' }, 'Map', 'map.html');
