@@ -1,4 +1,6 @@
 // service-worker.js
+console.log('Service Worker loading...');
+
 const CACHE_VERSION = 'v3';
 const STATIC_CACHE_NAME = `ariyo-ai-cache-${CACHE_VERSION}`;
 const AUDIO_CACHE_NAME = `ariyo-ai-audio-cache-v2`;
@@ -31,9 +33,11 @@ const urlsToCache = [
 
 // Install event: Cache app shell and static assets
 self.addEventListener('install', event => {
+  console.log('Service Worker: Install event');
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME)
       .then(cache => {
+        console.log('Service Worker: Caching app shell');
         return cache.addAll(urlsToCache.filter(url => url !== ''));
       })
       .catch(err => console.error('Cache install failed:', err))
@@ -43,12 +47,14 @@ self.addEventListener('install', event => {
 
 // Activate event: Clean up old caches
 self.addEventListener('activate', event => {
+  console.log('Service Worker: Activate event');
   const cacheWhitelist = [STATIC_CACHE_NAME, AUDIO_CACHE_NAME, DYNAMIC_CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.filter(name => !cacheWhitelist.includes(name))
           .map(name => {
+            console.log('Service Worker: Deleting old cache:', name);
             return caches.delete(name);
           })
       );
