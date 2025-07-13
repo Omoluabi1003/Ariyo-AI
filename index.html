@@ -1907,7 +1907,14 @@ function toggleSabiBible() {
           return;
         }
         const mapHtmlText = await response.text();
-        mainContent.innerHTML = mapHtmlText;
+        const parser = new DOMParser();
+        const mapDoc = parser.parseFromString(mapHtmlText, 'text/html');
+        const mapContent = mapDoc.body.innerHTML;
+        mainContent.innerHTML = mapContent;
+
+        const scriptElement = document.createElement('script');
+        scriptElement.textContent = mapDoc.querySelector('script').textContent;
+        mainContent.appendChild(scriptElement);
 
         if (window.location.pathname !== '/map.html') {
           history.pushState({ page: 'map' }, 'Map', 'map.html');
