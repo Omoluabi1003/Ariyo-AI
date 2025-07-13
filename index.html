@@ -1794,16 +1794,20 @@ console.log("US Spoof Active:", window.spoofedLocation);
 function toggleChatbot() {
     const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
     chatbotContainer.style.display = isHidden ? 'block' : 'none';
+    chatbotWindowOpen = isHidden;
     if (isHidden) {
         closeEdgePanel(); // Close edge panel when chatbot is opened
+        clearInterval(autoPopOutInterval);
     }
 }
 
 function toggleSabiBible() {
     const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
     sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+    chatbotWindowOpen = isHidden;
     if (isHidden) {
         closeEdgePanel(); // Close edge panel when Sabi Bible is opened
+        clearInterval(autoPopOutInterval);
     }
 }
 
@@ -1875,6 +1879,39 @@ function toggleSabiBible() {
     function closeEdgePanel() {
         edgePanel.classList.remove('visible');
         edgePanel.style.right = '-70px';
+    }
+
+    /* AUTO POP-OUT/RETRACT EDGE PANEL */
+    let chatbotWindowOpen = false;
+    let autoPopOutInterval;
+
+    function autoPopOutEdgePanel() {
+        if (chatbotWindowOpen) return;
+
+        // Show after 30 seconds
+        setTimeout(() => {
+            if (chatbotWindowOpen) return;
+            edgePanel.classList.add('visible');
+            edgePanel.style.right = '0';
+
+            // Retract after 15 seconds
+            setTimeout(() => {
+                if (chatbotWindowOpen) return;
+                closeEdgePanel();
+            }, 15000);
+        }, 30000);
+
+        // Periodically pop out for new users
+        autoPopOutInterval = setInterval(() => {
+            if (chatbotWindowOpen) return;
+            edgePanel.classList.add('visible');
+            edgePanel.style.right = '0';
+
+            setTimeout(() => {
+                if (chatbotWindowOpen) return;
+                closeEdgePanel();
+            }, 15000);
+        }, 60000); // Every 60 seconds
     }
 
     /* DYNAMIC AUDIO CACHING */
@@ -2045,6 +2082,7 @@ function toggleSabiBible() {
 
     // Initialize player
     initializePlayer();
+    autoPopOutEdgePanel();
 
     // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
