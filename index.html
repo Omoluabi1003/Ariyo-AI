@@ -467,7 +467,8 @@
       .sidebar {
         width: 100%;
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: center;
+        gap: 1rem;
         border-radius: 0;
         padding: 0.5rem;
       }
@@ -475,7 +476,12 @@
       .content { padding-bottom: 15rem; }
     }
     @media (max-width: 480px) {
-      .sidebar button { padding: 0.6rem; min-width: 60px; }
+      .sidebar button {
+        padding: 0.5rem;
+        min-width: auto;
+        font-size: 0.8rem;
+        width: 30%;
+      }
       .music-player { bottom: env(safe-area-inset-bottom); padding: 0.5rem; border-radius: 0; }
       .chatbot-bubble-container, .sabi-bible-bubble-container {
         bottom: calc(15rem + env(safe-area-inset-bottom));
