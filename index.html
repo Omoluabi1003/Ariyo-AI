@@ -42,9 +42,15 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      background-size: cover;
+      background-size: 300% 300%;
       background-position: center;
-      transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+      animation: flow 30s ease-in-out infinite;
+    }
+
+    @keyframes flow {
+      0% { background-position: 0 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0 50%; }
     }
     a { text-decoration: none; }
     .dark-mode { background-color: #121212; color: #ffffff; }
@@ -53,9 +59,11 @@
       text-align: center;
       font-size: clamp(1.5rem, 4vw, 2rem);
       font-weight: bold;
-      border-bottom: 2px solid white;
-      box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
-      background: rgba(0, 123, 255, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+      background: rgba(0, 123, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       position: relative;
     }
     .share-button {
@@ -80,14 +88,15 @@
     }
     .sidebar {
       width: 250px;
-      background: rgba(34, 34, 34, 0.9);
+      background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 1rem;
       gap: 1rem;
-      border-radius: 15px;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
       flex-shrink: 0;
     }
@@ -119,13 +128,15 @@
       transition: opacity 0.5s ease-in-out;
     }
     .music-player {
-      background: rgba(34, 34, 34, 0.7);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       padding: 1rem;
       text-align: center;
-      border-radius: 10px;
-      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+      box-shadow: 0px -5px 15px rgba(0,0,0,0.3);
       position: fixed;
-      bottom: calc(1rem + env(safe-area-inset-bottom));
+      bottom: 0;
       width: 100%;
       max-width: 600px;
       left: 50%;
