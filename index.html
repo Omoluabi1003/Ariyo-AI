@@ -307,6 +307,11 @@
       50%  { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
     }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
     .chatbot-speech-bubble, .sabi-bible-speech-bubble {
       position: absolute;
       bottom: 100%;
@@ -532,7 +537,7 @@
   <!-- Chatbot Floating Icon & Comic Bubble -->
 <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
   <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
-  <div class="chatbot-speech-bubble" id="chatbotBubble">How far?</div>
+  <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
 </div>
 
 <!-- Chatbot Container -->
@@ -551,7 +556,7 @@
 <!-- Sabi Bible Floating Icon & Comic Bubble -->
 <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
   <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-  <div class="sabi-bible-speech-bubble" id="sabiBibleBubble">Sabi Bible dey here!</div>
+  <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
 </div>
 
 <!-- Sabi Bible Container -->
@@ -1750,6 +1755,59 @@ function toggleSabiBible(){
     sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
   }
 }
+
+    /* CHATBOT GREETINGS */
+    const chatbotBubble = document.getElementById('chatbotBubble');
+    const sabiBibleBubble = document.getElementById('sabiBibleBubble');
+
+    const chatbotGreetings = [
+        "How far?",
+        "Ask me anything!",
+        "What's on your mind?",
+        "I'm here to help.",
+        "Let's chat!",
+        "Got questions?"
+    ];
+
+    const sabiBibleGreetings = [
+        "Sabi Bible dey here!",
+        "Need some wisdom?",
+        "Ask and you shall receive.",
+        "Your guide to the Word.",
+        "Let's study together.",
+        "What's your question?"
+    ];
+
+    function updateChatbotGreeting() {
+        let greeting;
+        if (audioPlayer.paused) {
+            greeting = chatbotGreetings[Math.floor(Math.random() * chatbotGreetings.length)];
+        } else {
+            greeting = "Enjoying the tunes? Ask me to recommend a song!";
+        }
+        chatbotBubble.textContent = greeting;
+        chatbotBubble.parentElement.style.animation = 'pulse 1s infinite';
+        setTimeout(() => {
+            chatbotBubble.parentElement.style.animation = 'float 3s ease-in-out infinite';
+        }, 3000);
+    }
+
+    function updateSabiBibleGreeting() {
+        const greeting = sabiBibleGreetings[Math.floor(Math.random() * sabiBibleGreetings.length)];
+        sabiBibleBubble.textContent = greeting;
+        sabiBibleBubble.parentElement.style.animation = 'pulse 1s infinite';
+        setTimeout(() => {
+            sabiBibleBubble.parentElement.style.animation = 'float 3s ease-in-out infinite';
+        }, 3000);
+    }
+
+    // Initial greetings
+    updateChatbotGreeting();
+    updateSabiBibleGreeting();
+
+    // Update greetings every 10 seconds
+    setInterval(updateChatbotGreeting, 10000);
+    setInterval(updateSabiBibleGreeting, 10000);
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
