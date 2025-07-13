@@ -8,6 +8,8 @@
   <meta name="apple-mobile-web-app-title" content="Àríyò AI">
   <meta name="apple-touch-fullscreen" content="yes">
   <meta name="theme-color" content="#00bcd4" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/Ariyo.png">
   <meta name="description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
   <meta name="keywords" content="Àríyò AI, Naija AI, Nigerian music, AI chatbot, Sabi Bible, PWA, Omoluabi" />
   <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
@@ -20,8 +22,6 @@
   <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png" />
   <title>Àríyò AI - Smart Naija AI</title>
-
-  <link rel="manifest" href="/manifest.json">
 
   <script type="application/ld+json">
   {
@@ -37,26 +37,6 @@
     }
   }
   </script>
-
-  <!-- PWA Icons -->
-  <link rel="icon" type="image/png" sizes="180x180" href="icons/Ariyo-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/Ariyo.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/Ariyo_AI.png">
-  <link rel="apple-touch-icon" href="icons/Ariyo.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="icons/Ariyo-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/Ariyo-180x180.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="icons/Ariyo-167x167.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="icons/Ariyo-120x120.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="icons/Ariyo-76x76.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="icons/Ariyo-60x60.png">
-
-  <!-- iOS Splash Screens -->
-  <link rel="apple-touch-startup-image" href="icons/Ariyo-180x180.png" sizes="180x180" />
-  <link rel="apple-touch-startup-image" href="icons/Ariyo-167x167.png" sizes="167x167" />
-  <link rel="apple-touch-startup-image" href="icons/Ariyo-152x152.png" sizes="152x152" />
-  <link rel="apple-touch-startup-image" href="icons/Ariyo-120x120.png" sizes="120x120" />
-  <link rel="apple-touch-startup-image" href="icons/Ariyo-76x76.png" sizes="76x76" />
-  <link rel="apple-touch-startup-image" href="icons/Ariyo-60x60.png" sizes="60x60" />
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
@@ -549,7 +529,6 @@
 <body>
   <div class="header">
     Welcome to Àríyò AI
-    <div id="sw-status" style="position: absolute; top: 10px; left: 10px; font-size: 12px; color: white; background-color: red; padding: 5px; border-radius: 5px;">SW: Inactive</div>
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
     </button>
@@ -2134,32 +2113,6 @@ function toggleSabiBible() {
       });
     });
 
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(registration => {
-            console.log('Service Worker registered with scope:', registration.scope);
-            let serviceWorker;
-            if (registration.installing) {
-              serviceWorker = registration.installing;
-              console.log('Service worker installing.');
-            } else if (registration.waiting) {
-              serviceWorker = registration.waiting;
-              console.log('Service worker waiting.');
-            } else if (registration.active) {
-              serviceWorker = registration.active;
-              console.log('Service worker active.');
-              document.getElementById('sw-status').textContent = 'SW: Active';
-              document.getElementById('sw-status').style.backgroundColor = 'green';
-            }
-          })
-          .catch(error => {
-            console.error('Service Worker registration failed:', error);
-          });
-      });
-    }
-
     // Initialize player
     initializePlayer();
     autoPopOutEdgePanel();
@@ -2168,6 +2121,16 @@ function toggleSabiBible() {
     window.addEventListener('beforeunload', savePlayerState);
 
     // PWA Install Prompt
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+        }, function(err) {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+      });
+    }
+
     let deferredPrompt;
     const installBtn = document.createElement('button');
     installBtn.textContent = 'Install Àríyò AI';
