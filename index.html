@@ -2143,33 +2143,39 @@ function toggleSabiBible() {
 
     // PWA Install Prompt
     let deferredPrompt;
+    const installBtn = document.createElement('button');
+    installBtn.textContent = 'Install Àríyò AI';
+    installBtn.style.position = 'fixed';
+    installBtn.style.bottom = '20px';
+    installBtn.style.right = '20px';
+    installBtn.style.background = '#00bcd4';
+    installBtn.style.color = 'white';
+    installBtn.style.padding = '10px 20px';
+    installBtn.style.border = 'none';
+    installBtn.style.borderRadius = '5px';
+    installBtn.style.zIndex = '1000';
+    installBtn.style.display = 'none';
+    document.body.appendChild(installBtn);
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
+      installBtn.style.display = 'block';
       console.log('Install prompt available');
-      const installBtn = document.createElement('button');
-      installBtn.textContent = 'Install Àríyò AI';
-      installBtn.style.position = 'fixed';
-      installBtn.style.bottom = '20px';
-      installBtn.style.right = '20px';
-      installBtn.style.background = '#00bcd4';
-      installBtn.style.color = 'white';
-      installBtn.style.padding = '10px 20px';
-      installBtn.style.border = 'none';
-      installBtn.style.borderRadius = '5px';
-      installBtn.style.zIndex = '1000';
-      installBtn.onclick = () => {
+    });
+
+    installBtn.onclick = () => {
+      if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
             console.log('User installed the app');
           }
           deferredPrompt = null;
-          installBtn.remove();
+          installBtn.style.display = 'none';
         });
-      };
-      document.body.appendChild(installBtn);
-    });
+      }
+    };
 
     window.addEventListener('appinstalled', () => {
       console.log('PWA was installed');
