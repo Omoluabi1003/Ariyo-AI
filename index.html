@@ -1762,21 +1762,34 @@ function toggleSabiBible(){
 
     const chatbotGreetings = [
         "How far?",
-        "Ask me anything!",
-        "What's on your mind?",
-        "I'm here to help.",
-        "Let's chat!",
-        "Got questions?"
+        "Wetin dey sup?",
+        "Ask me any question.",
+        "I fit help you.",
+        "Make we yarn.",
+        "You get question?"
     ];
 
     const sabiBibleGreetings = [
         "Sabi Bible dey here!",
-        "Need some wisdom?",
-        "Ask and you shall receive.",
-        "Your guide to the Word.",
-        "Let's study together.",
-        "What's your question?"
+        "Need wisdom?",
+        "Ask, you go receive.",
+        "Your guide for Bible.",
+        "Make we study.",
+        "Wetin you wan know?"
     ];
+
+    function typeGreeting(element, greeting) {
+        let i = 0;
+        element.textContent = "";
+        const typing = setInterval(() => {
+            if (i < greeting.length) {
+                element.textContent += greeting.charAt(i);
+                i++;
+            } else {
+                clearInterval(typing);
+            }
+        }, 100);
+    }
 
     function updateChatbotGreeting() {
         let greeting;
@@ -1785,7 +1798,7 @@ function toggleSabiBible(){
         } else {
             greeting = "Enjoying the tunes? Ask me to recommend a song!";
         }
-        chatbotBubble.textContent = greeting;
+        typeGreeting(chatbotBubble, greeting);
         chatbotBubble.parentElement.style.animation = 'pulse 1s infinite';
         setTimeout(() => {
             chatbotBubble.parentElement.style.animation = 'float 3s ease-in-out infinite';
@@ -1794,7 +1807,7 @@ function toggleSabiBible(){
 
     function updateSabiBibleGreeting() {
         const greeting = sabiBibleGreetings[Math.floor(Math.random() * sabiBibleGreetings.length)];
-        sabiBibleBubble.textContent = greeting;
+        typeGreeting(sabiBibleBubble, greeting);
         sabiBibleBubble.parentElement.style.animation = 'pulse 1s infinite';
         setTimeout(() => {
             sabiBibleBubble.parentElement.style.animation = 'float 3s ease-in-out infinite';
