@@ -293,9 +293,9 @@
     .edge-panel {
         position: fixed;
         top: 50%;
-        right: -240px;
+        right: -70px;
         transform: translateY(-50%);
-        width: 250px;
+        width: 80px;
         height: 150px;
         background-color: rgba(0, 0, 0, 0.5);
         border-radius: 10px 0 0 10px;
@@ -308,12 +308,12 @@
     .edge-panel-handle {
         position: absolute;
         top: 50%;
-        left: -5px;
+        left: -10px;
         transform: translateY(-50%);
-        width: 10px;
+        width: 20px;
         height: 100px;
         background-color: rgba(255, 255, 255, 0.5);
-        border-radius: 5px 0 0 5px;
+        border-radius: 10px 0 0 10px;
         cursor: pointer;
         display: flex;
         justify-content: center;
@@ -1792,34 +1792,20 @@ const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
 console.log("US Spoof Active:", window.spoofedLocation);
 
-function toggleChatbot(){
-  const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
-  chatbotContainer.style.display = isHidden ? 'block' : 'none';
-  console.log("Chatbot opened as US user:", window.spoofedLocation);
-  const chatbotEmbed = chatbotContainer.querySelector("zapier-interfaces-chatbot-embed");
-  if(chatbotEmbed){
-    chatbotEmbed.setAttribute("language",window.spoofedLocation.language);
-    chatbotEmbed.setAttribute("region",window.spoofedLocation.country);
-    chatbotEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
-  }
-  if (isHidden) {
-    closeEdgePanel();
-  }
+function toggleChatbot() {
+    const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
+    chatbotContainer.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        closeEdgePanel(); // Close edge panel when chatbot is opened
+    }
 }
 
-function toggleSabiBible(){
-  const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
-  sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
-  console.log("Sabi Bible opened as US user:", window.spoofedLocation);
-  const sabiEmbed = sabiBibleContainer.querySelector("zapier-interfaces-chatbot-embed");
-  if(sabiEmbed){
-    sabiEmbed.setAttribute("language",window.spoofedLocation.language);
-    sabiEmbed.setAttribute("region",window.spoofedLocation.country);
-    sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
-  }
-  if (isHidden) {
-    closeEdgePanel();
-  }
+function toggleSabiBible() {
+    const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
+    sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        closeEdgePanel(); // Close edge panel when Sabi Bible is opened
+    }
 }
 
 
@@ -1864,8 +1850,11 @@ function toggleSabiBible(){
         }
     });
 
-    edgePanel.addEventListener('click', () => {
-        edgePanel.classList.toggle('visible');
+    edgePanel.addEventListener('click', (event) => {
+        // If the click is on the handle, toggle visibility
+        if (event.target.classList.contains('edge-panel-handle')) {
+            edgePanel.classList.toggle('visible');
+        }
     });
 
     function closeEdgePanel() {
