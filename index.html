@@ -2125,31 +2125,48 @@ function toggleSabiBible() {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
           console.log('Service Worker registered with scope:', registration.scope);
-        }, function(err) {
-          console.log('ServiceWorker registration failed: ', err);
+        }).catch(function(error) {
+          console.log('Service worker registration failed:', error);
         });
       });
     }
 
     let deferredPrompt;
+    const installContainer = document.createElement('div');
+    installContainer.style.position = 'fixed';
+    installContainer.style.bottom = '20px';
+    installContainer.style.right = '20px';
+    installContainer.style.zIndex = '1000';
+    document.body.appendChild(installContainer);
+
     const installBtn = document.createElement('button');
     installBtn.textContent = 'Install Àríyò AI';
-    installBtn.style.position = 'fixed';
-    installBtn.style.bottom = '20px';
-    installBtn.style.right = '20px';
     installBtn.style.background = '#00bcd4';
     installBtn.style.color = 'white';
     installBtn.style.padding = '10px 20px';
     installBtn.style.border = 'none';
     installBtn.style.borderRadius = '5px';
-    installBtn.style.zIndex = '1000';
     installBtn.style.display = 'none';
-    document.body.appendChild(installBtn);
+    installContainer.appendChild(installBtn);
+
+    const iosInstallBanner = document.createElement('div');
+    iosInstallBanner.innerHTML = '<p>To install, tap the share button and then "Add to Home Screen".</p>';
+    iosInstallBanner.style.background = 'rgba(0,0,0,0.8)';
+    iosInstallBanner.style.color = 'white';
+    iosInstallBanner.style.padding = '10px';
+    iosInstallBanner.style.borderRadius = '5px';
+    iosInstallBanner.style.display = 'none';
+    installContainer.appendChild(iosInstallBanner);
+
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.style.display = 'block';
+      if (isIOS()) {
+        iosInstallBanner.style.display = 'block';
+      } else {
+        installBtn.style.display = 'block';
+      }
       console.log('Install prompt available');
     });
 
@@ -2165,6 +2182,10 @@ function toggleSabiBible() {
         });
       }
     };
+
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
 
     window.addEventListener('appinstalled', () => {
       console.log('PWA was installed');

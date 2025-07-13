@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ariyo-ai-cache-v1';
+const CACHE_NAME = 'ariyo-ai-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -13,6 +13,21 @@ self.addEventListener('install', event => {
       .then(cache => {
         return cache.addAll(urlsToCache);
       })
+  );
+});
+
+self.addEventListener('activate', event => {
+  var cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheWhitelist.indexOf(cacheName) === -1) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
 
