@@ -1,63 +1,20 @@
 {
-  "id": "/?source=pwa",
-  "name": "Àríyò AI - Smart Naija AI",
   "short_name": "Àríyò AI",
-  "description": "A smart Naija AI music player and chatbot with offline support",
-  "start_url": "/?source=pwa",
-  "scope": "/",
-  "display": "standalone",
-  "display_override": ["window-controls-overlay", "minimal-ui", "fullscreen"],
-  "background_color": "#000000",
-  "theme_color": "#ff758c",
-  "orientation": "any",
-  "lang": "en",
-  "dir": "ltr",
+  "name": "Àríyò AI - Smart Naija AI",
   "icons": [
     {
       "src": "icons/Ariyo.png",
-      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "192x192"
     },
     {
       "src": "icons/Ariyo_AI.png",
-      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/Ariyo-180x180.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/Ariyo-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icons/Ariyo-167x167.png",
-      "sizes": "167x167",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "512x512"
     }
   ],
-  "screenshots": [
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/music-player.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "description": "Music player interface showcasing track playback"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot-screenshot.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "description": "Chatbot interaction with Àríyò AI"
-    }
-  ],
-  "categories": ["music", "entertainment", "utilities"],
-  "prefer_related_applications": false
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#00bcd4",
+  "background_color": "#000000"
 }
