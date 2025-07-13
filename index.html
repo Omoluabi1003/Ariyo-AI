@@ -271,29 +271,15 @@
       z-index: 102;
     }
     .popup-close:hover { background: #ff4060; }
-    .chatbot-bubble-container {
-      position: fixed;
-      bottom: calc(80px + env(safe-area-inset-bottom));
-      left: 1rem;
-      width: clamp(60px, 15vw, 70px);
-      height: clamp(60px, 15vw, 70px);
-      cursor: pointer;
-      z-index: 100;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
+    .collapsible-container {
+        position: fixed;
+        bottom: calc(80px + env(safe-area-inset-bottom));
+        right: -100px;
+        width: 150px;
+        transition: right 0.3s ease-in-out;
     }
-    .sabi-bible-bubble-container {
-      position: fixed;
-      bottom: calc(80px + env(safe-area-inset-bottom));
-      right: 1rem;
-      width: clamp(60px, 15vw, 70px);
-      height: clamp(60px, 15vw, 70px);
-      cursor: pointer;
-      z-index: 100;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
+    .collapsible-container.visible {
+        right: 1rem;
     }
     .chatbot-float-icon, .sabi-bible-float-icon {
       width: 100%;
@@ -543,42 +529,44 @@
   </div>
 </div>
 
-  <!-- Chatbot Floating Icon & Comic Bubble -->
-<div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
-  <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
-  <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
-</div>
+<div class="collapsible-container" id="collapsibleContainer">
+    <!-- Chatbot Floating Icon & Comic Bubble -->
+    <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
+      <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
+      <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
+    </div>
 
-<!-- Chatbot Container -->
-<div class="chatbot-container" id="chatbotContainer">
-  <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
-  <zapier-interfaces-chatbot-embed
-    is-popup="false"
-    chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
-    height="100%"
-    width="100%"
-    title="Àríyò AI Chatbot"
-    src="https://interfaces.zapier.com/embed/cm7s2oyu2000b3vmuwcwkj9kn?region=US&language=en-US&timezone=America/New_York">
-  </zapier-interfaces-chatbot-embed>
-</div>
+    <!-- Chatbot Container -->
+    <div class="chatbot-container" id="chatbotContainer">
+      <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
+      <zapier-interfaces-chatbot-embed
+        is-popup="false"
+        chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
+        height="100%"
+        width="100%"
+        title="Àríyò AI Chatbot"
+        src="https://interfaces.zapier.com/embed/cm7s2oyu2000b3vmuwcwkj9kn?region=US&language=en-US&timezone=America/New_York">
+      </zapier-interfaces-chatbot-embed>
+    </div>
 
-<!-- Sabi Bible Floating Icon & Comic Bubble -->
-<div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
-  <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-  <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
-</div>
+    <!-- Sabi Bible Floating Icon & Comic Bubble -->
+    <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
+      <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+      <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
+    </div>
 
-<!-- Sabi Bible Container -->
-<div class="sabi-bible-container" id="sabiBibleContainer">
-  <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
-  <zapier-interfaces-chatbot-embed
-    is-popup="false"
-    chatbot-id="cm7ve7fdl002jlclh8y1n6n1y"
-    height="100%"
-    width="100%"
-    title="Sabi Bible Chatbot"
-    src="https://interfaces.zapier.com/embed/cm7ve7fdl002jlclh8y1n6n1y?region=US&language=en-US&timezone=America/New_York">
-  </zapier-interfaces-chatbot-embed>
+    <!-- Sabi Bible Container -->
+    <div class="sabi-bible-container" id="sabiBibleContainer">
+      <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
+      <zapier-interfaces-chatbot-embed
+        is-popup="false"
+        chatbot-id="cm7ve7fdl002jlclh8y1n6n1y"
+        height="100%"
+        width="100%"
+        title="Sabi Bible Chatbot"
+        src="https://interfaces.zapier.com/embed/cm7ve7fdl002jlclh8y1n6n1y?region=US&language=en-US&timezone=America/New_York">
+      </zapier-interfaces-chatbot-embed>
+    </div>
 </div>
 
   <!-- Floating Watermarks -->
@@ -1831,6 +1819,25 @@ function toggleSabiBible(){
     // Update greetings every 10 seconds
     setInterval(updateChatbotGreeting, 10000);
     setInterval(updateSabiBibleGreeting, 10000);
+
+    const collapsibleContainer = document.getElementById('collapsibleContainer');
+
+    function toggleCollapsibleContainer() {
+        collapsibleContainer.classList.toggle('visible');
+    }
+
+    setInterval(() => {
+        if (!collapsibleContainer.classList.contains('visible')) {
+            toggleCollapsibleContainer();
+            setTimeout(toggleCollapsibleContainer, 5000);
+        }
+    }, 15000);
+
+    collapsibleContainer.addEventListener('click', () => {
+        if (!collapsibleContainer.classList.contains('visible')) {
+            toggleCollapsibleContainer();
+        }
+    });
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
