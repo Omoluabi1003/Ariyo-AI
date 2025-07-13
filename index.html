@@ -1850,15 +1850,54 @@ function toggleSabiBible() {
         }
     });
 
-    edgePanel.addEventListener('click', (event) => {
-        // If the click is on the handle, toggle visibility
-        if (event.target.classList.contains('edge-panel-handle')) {
+    let isDragging = false;
+    let initialX;
+    let initialRight;
+
+    edgePanelHandle.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        initialX = e.clientX;
+        initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+        edgePanel.style.transition = 'none'; // Disable transition during drag
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const currentX = e.clientX;
+            const dx = currentX - initialX;
+            edgePanel.style.right = `${initialRight - dx}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            edgePanel.style.transition = 'right 0.3s ease-in-out'; // Re-enable transition
+            const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+            if (finalRight < -40) {
+                edgePanel.classList.remove('visible');
+                edgePanel.style.right = '-70px';
+            } else {
+                edgePanel.classList.add('visible');
+                edgePanel.style.right = '0';
+            }
+        }
+    });
+
+    edgePanelHandle.addEventListener('click', () => {
+        if (!isDragging) {
             edgePanel.classList.toggle('visible');
+            if (edgePanel.classList.contains('visible')) {
+                edgePanel.style.right = '0';
+            } else {
+                edgePanel.style.right = '-70px';
+            }
         }
     });
 
     function closeEdgePanel() {
         edgePanel.classList.remove('visible');
+        edgePanel.style.right = '-70px';
     }
 
     /* DYNAMIC AUDIO CACHING */
