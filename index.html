@@ -310,14 +310,22 @@
         top: 50%;
         left: -10px;
         transform: translateY(-50%);
-        width: 10px;
+        width: 20px;
         height: 100px;
         background-color: rgba(255, 255, 255, 0.5);
         border-radius: 5px 0 0 5px;
         cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .edge-panel-handle::before {
+        content: '🤖';
+        font-size: 1.2rem;
     }
     .edge-panel-content {
         display: flex;
+        flex-direction: column;
         justify-content: space-around;
         align-items: center;
         height: 100%;
@@ -1795,6 +1803,9 @@ function toggleChatbot(){
     chatbotEmbed.setAttribute("region",window.spoofedLocation.country);
     chatbotEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
   }
+  if (!isHidden) {
+    edgePanel.classList.remove('visible');
+  }
 }
 
 function toggleSabiBible(){
@@ -1806,6 +1817,9 @@ function toggleSabiBible(){
     sabiEmbed.setAttribute("language",window.spoofedLocation.language);
     sabiEmbed.setAttribute("region",window.spoofedLocation.country);
     sabiEmbed.setAttribute("timezone",window.spoofedLocation.timezone);
+  }
+  if (!isHidden) {
+    edgePanel.classList.remove('visible');
   }
 }
 
