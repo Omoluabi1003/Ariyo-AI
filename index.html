@@ -290,6 +290,18 @@
     .collapsible-container.visible.right {
         right: 1rem;
     }
+    .vertical-container {
+        position: fixed;
+        top: 50%;
+        right: -100px;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 150px;
+        transition: right 0.3s ease-in-out;
+    }
+    .vertical-container.visible {
+        right: 0;
+    }
     .tap-area {
         position: fixed;
         bottom: 0;
@@ -551,22 +563,22 @@
   </div>
 </div>
 
-<div class="collapsible-container left" id="collapsibleContainerLeft">
-    <!-- Chatbot Floating Icon & Comic Bubble -->
-    <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
-      <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
-      <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
+<div class="vertical-container" id="verticalContainer">
+    <div class="collapsible-container left" id="collapsibleContainerLeft">
+        <!-- Chatbot Floating Icon & Comic Bubble -->
+        <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
+          <div class="chatbot-speech-bubble" id="chatbotBubble"></div>
+        </div>
+    </div>
+    <div class="collapsible-container right" id="collapsibleContainerRight">
+        <!-- Sabi Bible Floating Icon & Comic Bubble -->
+        <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+          <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
+        </div>
     </div>
 </div>
-<div class="collapsible-container right" id="collapsibleContainerRight">
-    <!-- Sabi Bible Floating Icon & Comic Bubble -->
-    <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
-      <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-      <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
-    </div>
-</div>
-<div class="tap-area left" id="tapAreaLeft"></div>
-<div class="tap-area right" id="tapAreaRight"></div>
 
 <!-- Chatbot Container -->
 <div class="chatbot-container" id="chatbotContainer">
@@ -1872,17 +1884,10 @@ function toggleSabiBible(){
         }, 45000);
     }
 
-    const tapAreaLeft = document.getElementById('tapAreaLeft');
-    const tapAreaRight = document.getElementById('tapAreaRight');
+    const verticalContainer = document.getElementById('verticalContainer');
 
-    tapAreaLeft.addEventListener('click', () => {
-        toggleCollapsibleContainer(collapsibleContainerLeft);
-        resetInactivityTimer();
-    });
-
-    tapAreaRight.addEventListener('click', () => {
-        toggleCollapsibleContainer(collapsibleContainerRight);
-        resetInactivityTimer();
+    verticalContainer.addEventListener('click', () => {
+        verticalContainer.classList.toggle('visible');
     });
 
     /* DYNAMIC AUDIO CACHING */
