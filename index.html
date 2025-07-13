@@ -1769,20 +1769,20 @@ function toggleSabiBible(){
 
     const chatbotGreetings = [
         "How far?",
-        "Wetin dey happen?",
-        "Ask me anything, I dey for you.",
-        "I dey kampe to help you.",
-        "Oya, make we talk.",
-        "You get any question for me?"
+        "Wetin dey sup?",
+        "I dey here for you.",
+        "Ask me anything.",
+        "Make we yarn.",
+        "How I fit help you?"
     ];
 
     const sabiBibleGreetings = [
-        "Sabi Bible don land!",
-        "Want make I give you wisdom?",
-        "Ask, and you go receive.",
-        "Your sure guide for Bible.",
-        "Oya, make we learn together.",
-        "Wetin you wan ask?"
+        "Sabi Bible dey here!",
+        "Need some wisdom?",
+        "The Word dey for you.",
+        "Your guide to the Bible.",
+        "Make we learn together.",
+        "Wetin you wan know?"
     ];
 
     function fadeInOutGreeting(element, greeting) {
@@ -1847,15 +1847,28 @@ function toggleSabiBible(){
         container.classList.toggle('visible');
     }
 
+    let inactivityTimer;
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            collapsibleContainerLeft.classList.remove('visible');
+            collapsibleContainerRight.classList.remove('visible');
+        }, 45000);
+    }
+
+    document.addEventListener('click', resetInactivityTimer);
+    document.addEventListener('mousemove', resetInactivityTimer);
+    document.addEventListener('keypress', resetInactivityTimer);
+
     setInterval(() => {
         if (!collapsibleContainerLeft.classList.contains('visible')) {
             toggleCollapsibleContainer(collapsibleContainerLeft);
-            setTimeout(() => toggleCollapsibleContainer(collapsibleContainerLeft), 5000);
         }
         if (!collapsibleContainerRight.classList.contains('visible')) {
             toggleCollapsibleContainer(collapsibleContainerRight);
-            setTimeout(() => toggleCollapsibleContainer(collapsibleContainerRight), 5000);
         }
+        resetInactivityTimer();
     }, 15000);
 
     collapsibleContainerLeft.addEventListener('click', () => {
