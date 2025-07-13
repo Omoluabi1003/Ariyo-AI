@@ -290,6 +290,19 @@
     .collapsible-container.visible.right {
         right: 1rem;
     }
+    .tap-area {
+        position: fixed;
+        bottom: 0;
+        width: 50px;
+        height: 100px;
+        z-index: 1000;
+    }
+    .tap-area.left {
+        left: 0;
+    }
+    .tap-area.right {
+        right: 0;
+    }
     .chatbot-float-icon, .sabi-bible-float-icon {
       width: 50px;
       height: 50px;
@@ -552,6 +565,8 @@
       <div class="sabi-bible-speech-bubble" id="sabiBibleBubble"></div>
     </div>
 </div>
+<div class="tap-area left" id="tapAreaLeft"></div>
+<div class="tap-area right" id="tapAreaRight"></div>
 
 <!-- Chatbot Container -->
 <div class="chatbot-container" id="chatbotContainer">
@@ -1857,30 +1872,17 @@ function toggleSabiBible(){
         }, 45000);
     }
 
-    document.addEventListener('click', resetInactivityTimer);
-    document.addEventListener('mousemove', resetInactivityTimer);
-    document.addEventListener('keypress', resetInactivityTimer);
+    const tapAreaLeft = document.getElementById('tapAreaLeft');
+    const tapAreaRight = document.getElementById('tapAreaRight');
 
-    setInterval(() => {
-        if (!collapsibleContainerLeft.classList.contains('visible')) {
-            toggleCollapsibleContainer(collapsibleContainerLeft);
-        }
-        if (!collapsibleContainerRight.classList.contains('visible')) {
-            toggleCollapsibleContainer(collapsibleContainerRight);
-        }
+    tapAreaLeft.addEventListener('click', () => {
+        toggleCollapsibleContainer(collapsibleContainerLeft);
         resetInactivityTimer();
-    }, 15000);
-
-    collapsibleContainerLeft.addEventListener('click', () => {
-        if (!collapsibleContainerLeft.classList.contains('visible')) {
-            toggleCollapsibleContainer(collapsibleContainerLeft);
-        }
     });
 
-    collapsibleContainerRight.addEventListener('click', () => {
-        if (!collapsibleContainerRight.classList.contains('visible')) {
-            toggleCollapsibleContainer(collapsibleContainerRight);
-        }
+    tapAreaRight.addEventListener('click', () => {
+        toggleCollapsibleContainer(collapsibleContainerRight);
+        resetInactivityTimer();
     });
 
     /* DYNAMIC AUDIO CACHING */
