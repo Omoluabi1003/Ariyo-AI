@@ -608,7 +608,7 @@
         </div>
         <!-- Map Icon -->
         <div class="map-icon-container" role="button" aria-label="Open Map" onclick="navigateToMap()">
-            <i class="fas fa-map-marked-alt" style="font-size: 2rem; color: white;"></i>
+            <i class="fas fa-map-signs" style="font-size: 2rem; color: white;"></i>
         </div>
     </div>
 </div>
@@ -1909,7 +1909,14 @@ function toggleSabiBible() {
           return;
         }
         const mapHtmlText = await response.text();
-        mainContent.innerHTML = mapHtmlText;
+        const parser = new DOMParser();
+        const mapDoc = parser.parseFromString(mapHtmlText, 'text/html');
+        const mapContent = mapDoc.body.innerHTML;
+        mainContent.innerHTML = mapContent;
+
+        const scriptElement = document.createElement('script');
+        scriptElement.textContent = mapDoc.querySelector('script').textContent;
+        mainContent.appendChild(scriptElement);
 
         if (window.location.pathname !== '/map.html') {
           history.pushState({ page: 'map' }, 'Map', 'map.html');
