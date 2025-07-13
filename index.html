@@ -27,6 +27,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script async type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"></script>
 
+  <!-- Leaflet.js -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
   <style>
     html, body {
       height: 100%;
@@ -330,6 +334,10 @@
         align-items: center;
         height: 100%;
     }
+    #map {
+        height: 100%;
+        width: 100%;
+    }
     .tap-area {
         position: fixed;
         bottom: 0;
@@ -594,14 +602,7 @@
 <div class="edge-panel" id="edgePanel">
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
-        <!-- Chatbot Floating Icon & Comic Bubble -->
-        <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
-          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
-        </div>
-        <!-- Sabi Bible Floating Icon & Comic Bubble -->
-        <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
-          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-        </div>
+        <div id="map"></div>
     </div>
 </div>
 
@@ -1870,6 +1871,7 @@ function toggleSabiBible() {
             edgePanel.classList.toggle('visible');
             if (edgePanel.classList.contains('visible')) {
                 edgePanel.style.right = '0';
+                initializeMap();
             } else {
                 edgePanel.style.right = '-70px';
             }
@@ -1879,6 +1881,30 @@ function toggleSabiBible() {
     function closeEdgePanel() {
         edgePanel.classList.remove('visible');
         edgePanel.style.right = '-70px';
+    }
+
+    /* MAP INITIALIZATION */
+    let map;
+    function initializeMap() {
+        if (map) return;
+        map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        map.locate({setView: true, maxZoom: 16});
+
+        function onLocationFound(e) {
+            var radius = e.accuracy / 2;
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("You are within " + radius + " meters from this point").openPopup();
+            L.circle(e.latlng, radius).addTo(map);
+        }
+        function onLocationError(e) {
+            alert(e.message);
+        }
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
     }
 
     /* AUTO POP-OUT/RETRACT EDGE PANEL */
