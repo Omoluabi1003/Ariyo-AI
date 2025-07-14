@@ -40,27 +40,52 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleGrid.innerHTML = '';
         tiles = [];
         const gridSize = Math.sqrt(tileCount);
-        puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, 100px)`;
-        puzzleGrid.style.gridTemplateRows = `repeat(${gridSize}, 100px)`;
-        const tileNumbers = Array.from({ length: tileCount }, (_, i) => i);
+        const tileWidth = 400 / gridSize;
+        const tileHeight = 300 / gridSize;
+        puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, ${tileWidth}px)`;
+        puzzleGrid.style.gridTemplateRows = `repeat(${gridSize}, ${tileHeight}px)`;
+        puzzleGrid.style.width = '400px';
+        puzzleGrid.style.height = '300px';
 
+        let tileNumbers = Array.from({ length: tileCount - 1 }, (_, i) => i);
+
+        // Fisher-Yates shuffle
         for (let i = tileNumbers.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [tileNumbers[i], tileNumbers[j]] = [tileNumbers[j], tileNumbers[i]];
         }
 
+        // Check for solvability
+        let inversions = 0;
+        for (let i = 0; i < tileNumbers.length; i++) {
+            for (let j = i + 1; j < tileNumbers.length; j++) {
+                if (tileNumbers[i] > tileNumbers[j]) {
+                    inversions++;
+                }
+            }
+        }
+
+        if (inversions % 2 !== 0) {
+            // Swap two elements to make inversions even
+            [tileNumbers[0], tileNumbers[1]] = [tileNumbers[1], tileNumbers[0]];
+        }
+
+        tileNumbers.push(tileCount - 1); // Add the empty tile at the end
+
         for (let i = 0; i < tileCount; i++) {
             const tile = document.createElement('div');
             tile.classList.add('puzzle-tile');
+            tile.style.width = `${tileWidth}px`;
+            tile.style.height = `${tileHeight}px`;
             tile.dataset.index = tileNumbers[i];
             tile.draggable = true;
             if (tileNumbers[i] === emptyTileIndex) {
                 tile.classList.add('empty-tile');
             } else {
                 tile.style.backgroundImage = `url(${puzzleImage})`;
-                const gridSize = Math.sqrt(tileCount);
-                const x = (tileNumbers[i] % gridSize) * (400 / gridSize);
-                const y = Math.floor(tileNumbers[i] / gridSize) * (300 / gridSize);
+                tile.style.backgroundSize = `400px 300px`;
+                const x = (tileNumbers[i] % gridSize) * tileWidth;
+                const y = Math.floor(tileNumbers[i] / gridSize) * tileHeight;
                 tile.style.backgroundPosition = `-${x}px -${y}px`;
             }
             tiles.push(tile);
@@ -117,25 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
         tile1.dataset.index = tile2.dataset.index;
         tile2.dataset.index = dataIndex1;
 
-        if (tile1.classList.contains('empty-tile')) {
-            tile1.classList.remove('empty-tile');
-            tile2.classList.add('empty-tile');
-            tile1.style.backgroundImage = `url(${puzzleImage})`;
-            const gridSize = Math.sqrt(tileCount);
-            const x = (dataIndex1 % gridSize) * (400 / gridSize);
-            const y = Math.floor(dataIndex1 / gridSize) * (300 / gridSize);
-            tile1.style.backgroundPosition = `-${x}px -${y}px`;
-            tile2.style.backgroundImage = 'none';
-        } else {
-            tile2.classList.remove('empty-tile');
-            tile1.classList.add('empty-tile');
-            tile2.style.backgroundImage = `url(${puzzleImage})`;
-            const gridSize = Math.sqrt(tileCount);
-            const x = (tile2.dataset.index % gridSize) * (400 / gridSize);
-            const y = Math.floor(tile2.dataset.index / gridSize) * (300 / gridSize);
-            tile2.style.backgroundPosition = `-${x}px -${y}px`;
-            tile1.style.backgroundImage = 'none';
-        }
+        const gridSize = Math.sqrt(tileCount);
+        const tileWidth = 400 / gridSize;
+        const tileHeight = 300 / gridSize;
+
+        const emptyTile = document.querySelector('.empty-tile');
+        const nonEmptyTile = tile1 === emptyTile ? tile2 : tile1;
+
+        emptyTile.classList.remove('empty-tile');
+        nonEmptyTile.classList.add('empty-tile');
+
+        emptyTile.style.backgroundImage = `url(${puzzleImage})`;
+        const x = (emptyTile.dataset.index % gridSize) * tileWidth;
+        const y = Math.floor(emptyTile.dataset.index / gridSize) * tileHeight;
+        emptyTile.style.backgroundPosition = `-${x}px -${y}px`;
+        nonEmptyTile.style.backgroundImage = 'none';
 
         updateScore();
         checkWin();
@@ -185,19 +206,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    let tileCount = 12;
+    let tileCount;
 
-    difficultySelect.addEventListener('change', () => {
+    function setDifficulty() {
         difficultyFactor = parseInt(difficultySelect.value);
         if (difficultyFactor === 1) {
-            tileCount = 12;
+            tileCount = 9;
         } else if (difficultyFactor === 2) {
             tileCount = 16;
         } else {
             tileCount = 25;
         }
         emptyTileIndex = tileCount - 1;
-    });
+    }
+
+    difficultySelect.addEventListener('change', setDifficulty);
+    setDifficulty();
 
     startButton.addEventListener('click', () => {
         scramblePuzzle();
@@ -211,6 +235,20 @@ document.addEventListener('DOMContentLoaded', () => {
         showOriginalImage();
     });
 
-    puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
+    puzzles.forEach(puzzle => {
+        const option = document.createElement('option');
+        const puzzleName = puzzle.split('/').pop().split('.')[0].replace(/%20/g, ' ');
+        option.value = puzzle;
+        option.textContent = puzzleName;
+        puzzleNameSelect.appendChild(option);
+    });
+
+    puzzleNameSelect.addEventListener('change', () => {
+        puzzleImage = puzzleNameSelect.value;
+        showOriginalImage();
+    });
+
+    puzzleImage = puzzles[0];
+    puzzleNameSelect.value = puzzleImage;
     showOriginalImage();
 });
