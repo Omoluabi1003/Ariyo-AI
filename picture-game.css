@@ -1,12 +1,25 @@
+#game-container {
+    display: flex;
+    gap: 20px;
+}
+
+#instructions {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
 #puzzle-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
 }
 
 #puzzle-grid {
     display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(3, 100px);
     border: 2px solid #333;
 }
 
@@ -14,24 +27,35 @@
     width: 100px;
     height: 100px;
     border: 1px solid #ccc;
-    background-size: cover;
+    background-size: 400px 300px;
     cursor: pointer;
+}
+
+.empty-tile {
+    background: #eee;
 }
 
 #puzzle-controls {
     margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
-#difficulty {
+#difficulty, #puzzle-name {
     padding: 5px;
     border-radius: 5px;
 }
 
-#start-button {
+#start-button, #stop-button {
     padding: 5px 10px;
     border-radius: 5px;
     background-color: #00bcd4;
     color: white;
     border: none;
     cursor: pointer;
+}
+
+#score, #timer {
+    font-weight: bold;
 }
