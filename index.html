@@ -2184,7 +2184,9 @@ function toggleSabiBible() {
     });
 
     function showIosInstallBanner() {
-      iosInstallBanner.style.display = 'block';
+      if (isIOS() && !navigator.standalone) {
+        iosInstallBanner.style.display = 'block';
+      }
     }
 
     installBtn.onclick = () => {
@@ -2201,18 +2203,8 @@ function toggleSabiBible() {
     };
 
     function isIOS() {
-      console.log('navigator.platform:', navigator.platform);
-      console.log('navigator.userAgent:', navigator.userAgent);
-      return [
-        'iPad Simulator',
-        'iPhone Simulator',
-        'iPod Simulator',
-        'iPad',
-        'iPhone',
-        'iPod'
-      ].includes(navigator.platform)
-      // iPad on iOS 13 detection
-      || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test( userAgent );
     }
 
     window.addEventListener('appinstalled', () => {
