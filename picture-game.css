@@ -27,6 +27,23 @@
     border: 1px solid #ccc;
     background-size: 400px 300px;
     cursor: pointer;
+    position: relative;
+}
+
+.jigsaw-in-out-in-out {
+    clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+}
+
+.jigsaw-out-in-out-in {
+    clip-path: polygon(0% 20%, 20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%);
+}
+
+.jigsaw-in-in-in-in {
+    clip-path: polygon(20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%, 0 20%);
+}
+
+.jigsaw-out-out-out-out {
+    clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);
 }
 
 .empty-tile {
