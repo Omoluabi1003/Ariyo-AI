@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopButton = document.getElementById('stop-button');
     const scoreDisplay = document.getElementById('score');
     const timerDisplay = document.getElementById('timer');
+    const startOverlay = document.getElementById('start-overlay');
 
     const puzzles = [
         "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abuja%20City%20Gate.jfif",
@@ -23,8 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let timer;
     let time = 0;
+    let draggedTile = null;
 
-    function createPuzzle() {
+    function showOriginalImage() {
+        puzzleGrid.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = puzzleImage;
+        img.style.width = '400px';
+        img.style.height = '300px';
+        puzzleGrid.appendChild(img);
+    }
+
+    function scramblePuzzle() {
         puzzleGrid.innerHTML = '';
         tiles = [];
         const tileCount = 12;
@@ -39,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tile = document.createElement('div');
             tile.classList.add('puzzle-tile');
             tile.dataset.index = tileNumbers[i];
+            tile.draggable = true;
             if (tileNumbers[i] === emptyTileIndex) {
                 tile.classList.add('empty-tile');
             } else {
@@ -50,6 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tiles.push(tile);
             puzzleGrid.appendChild(tile);
             tile.addEventListener('click', () => moveTile(i));
+            tile.addEventListener('dragstart', handleDragStart);
+            tile.addEventListener('dragover', handleDragOver);
+            tile.addEventListener('drop', handleDrop);
+            tile.addEventListener('dragend', handleDragEnd);
         }
     }
 
@@ -62,24 +78,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if ((clickedRow === emptyRow && Math.abs(clickedCol - emptyCol) === 1) ||
             (clickedCol === emptyCol && Math.abs(clickedRow - emptyRow) === 1)) {
-            const clickedTile = tiles[clickedIndex];
-            const emptyTile = tiles[emptyIndex];
-
-            const clickedDataIndex = clickedTile.dataset.index;
-            clickedTile.dataset.index = emptyTile.dataset.index;
-            emptyTile.dataset.index = clickedDataIndex;
-
-            clickedTile.classList.add('empty-tile');
-            emptyTile.classList.remove('empty-tile');
-            emptyTile.style.backgroundImage = `url(${puzzleImage})`;
-            const x = (clickedDataIndex % 4) * 100;
-            const y = Math.floor(clickedDataIndex / 4) * 100;
-            emptyTile.style.backgroundPosition = `-${x}px -${y}px`;
-            clickedTile.style.backgroundImage = 'none';
-
-            updateScore();
-            checkWin();
+            swapTiles(clickedIndex, emptyIndex);
         }
+    }
+
+    function handleDragStart(e) {
+        draggedTile = this;
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const targetTile = this;
+        if (targetTile.classList.contains('empty-tile')) {
+            const draggedIndex = Array.from(tiles).indexOf(draggedTile);
+            const targetIndex = Array.from(tiles).indexOf(targetTile);
+            swapTiles(draggedIndex, targetIndex);
+        }
+    }
+
+    function handleDragEnd() {
+        draggedTile = null;
+    }
+
+    function swapTiles(index1, index2) {
+        const tile1 = tiles[index1];
+        const tile2 = tiles[index2];
+
+        const dataIndex1 = tile1.dataset.index;
+        tile1.dataset.index = tile2.dataset.index;
+        tile2.dataset.index = dataIndex1;
+
+        if (tile1.classList.contains('empty-tile')) {
+            tile1.classList.remove('empty-tile');
+            tile2.classList.add('empty-tile');
+            tile1.style.backgroundImage = `url(${puzzleImage})`;
+            const x = (dataIndex1 % 4) * 100;
+            const y = Math.floor(dataIndex1 / 4) * 100;
+            tile1.style.backgroundPosition = `-${x}px -${y}px`;
+            tile2.style.backgroundImage = 'none';
+        } else {
+            tile2.classList.remove('empty-tile');
+            tile1.classList.add('empty-tile');
+            tile2.style.backgroundImage = `url(${puzzleImage})`;
+            const x = (tile2.dataset.index % 4) * 100;
+            const y = Math.floor(tile2.dataset.index / 4) * 100;
+            tile2.style.backgroundPosition = `-${x}px -${y}px`;
+            tile1.style.backgroundImage = 'none';
+        }
+
+        updateScore();
+        checkWin();
     }
 
     function updateScore() {
@@ -122,13 +174,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     startButton.addEventListener('click', () => {
+        startOverlay.style.display = 'none';
         puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
-        createPuzzle();
-        startTimer();
-        updateScore();
+        showOriginalImage();
+        setTimeout(() => {
+            scramblePuzzle();
+            startTimer();
+            updateScore();
+        }, 10000);
     });
 
     stopButton.addEventListener('click', () => {
         clearInterval(timer);
+        startOverlay.style.display = 'flex';
     });
 });
