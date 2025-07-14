@@ -85,4 +85,12 @@
     margin-top: 20px;
     font-size: 0.9rem;
     color: #333;
+    text-align: center;
+    font-weight: bold;
+}
+
+@media screen and (max-width: 600px) {
+    #game-container {
+        text-align: center;
+    }
 }
