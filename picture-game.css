@@ -5,6 +5,14 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    overflow: auto;
+}
+
+#game-title {
+    font-family: 'Lobster', cursive;
+    font-size: 3rem;
+    color: #00bcd4;
+    margin-bottom: 20px;
 }
 
 #puzzle-container {
