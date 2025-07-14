@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopButton = document.getElementById('stop-button');
     const scoreDisplay = document.getElementById('score');
     const timerDisplay = document.getElementById('timer');
-    const startOverlay = document.getElementById('start-overlay');
 
     const puzzles = [
         "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abuja%20City%20Gate.jfif",
@@ -174,18 +173,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     startButton.addEventListener('click', () => {
-        startOverlay.style.display = 'none';
-        puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
-        showOriginalImage();
-        setTimeout(() => {
-            scramblePuzzle();
-            startTimer();
-            updateScore();
-        }, 10000);
+        scramblePuzzle();
+        startTimer();
+        updateScore();
     });
 
     stopButton.addEventListener('click', () => {
         clearInterval(timer);
-        startOverlay.style.display = 'flex';
+        showOriginalImage();
     });
+
+    puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
+    showOriginalImage();
 });
