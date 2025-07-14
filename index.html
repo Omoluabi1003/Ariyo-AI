@@ -1859,6 +1859,8 @@ function toggleChatbot() {
     if (isHidden) {
         closeEdgePanel(); // Close edge panel when chatbot is opened
         clearInterval(autoPopOutInterval);
+    } else {
+        autoPopOutEdgePanel();
     }
 }
 
@@ -1869,6 +1871,8 @@ function toggleSabiBible() {
     if (isHidden) {
         closeEdgePanel(); // Close edge panel when Sabi Bible is opened
         clearInterval(autoPopOutInterval);
+    } else {
+        autoPopOutEdgePanel();
     }
 }
 
@@ -1950,7 +1954,10 @@ function toggleSabiBible() {
     let autoPopOutInterval;
 
     function autoPopOutEdgePanel() {
-        if (chatbotWindowOpen) return;
+        if (chatbotWindowOpen) {
+            clearInterval(autoPopOutInterval);
+            return;
+        }
 
         // Show after 15 seconds
         setTimeout(() => {
@@ -2265,21 +2272,31 @@ function toggleSabiBible() {
     function openPictureGame() {
         const container = document.getElementById('pictureGameContainer');
         container.style.display = 'block';
+        chatbotWindowOpen = true;
+        closeEdgePanel();
+        clearInterval(autoPopOutInterval);
     }
 
     function closePictureGame() {
         const container = document.getElementById('pictureGameContainer');
         container.style.display = 'none';
+        chatbotWindowOpen = false;
+        autoPopOutEdgePanel();
     }
 
     function openAraPuzzle() {
         const container = document.getElementById('araPuzzleContainer');
         container.style.display = 'block';
+        chatbotWindowOpen = true;
+        closeEdgePanel();
+        clearInterval(autoPopOutInterval);
     }
 
     function closeAraPuzzle() {
         const container = document.getElementById('araPuzzleContainer');
         container.style.display = 'none';
+        chatbotWindowOpen = false;
+        autoPopOutEdgePanel();
     }
 
     // Weekly Color Scheme Changer
