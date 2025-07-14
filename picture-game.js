@@ -156,7 +156,16 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(timer);
             score += 5 * difficultyFactor;
             scoreDisplay.textContent = `Score: ${score}`;
-            alert('You win!');
+            const winMessage = document.createElement('div');
+            winMessage.id = 'win-message';
+            winMessage.textContent = 'You Win!';
+            const playAgainButton = document.createElement('button');
+            playAgainButton.textContent = 'Play Again';
+            playAgainButton.addEventListener('click', () => {
+                location.reload();
+            });
+            winMessage.appendChild(playAgainButton);
+            document.getElementById('game-container').appendChild(winMessage);
         }
     }
 
@@ -176,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         scramblePuzzle();
         startTimer();
         updateScore();
+        startButton.disabled = true;
     });
 
     stopButton.addEventListener('click', () => {
