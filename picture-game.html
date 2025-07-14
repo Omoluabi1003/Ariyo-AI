@@ -7,16 +7,38 @@
     <link rel="stylesheet" href="picture-game.css">
 </head>
 <body>
-    <div id="puzzle-container">
-        <div id="puzzle-grid"></div>
-        <div id="puzzle-controls">
-            <label for="difficulty">Difficulty:</label>
-            <select id="difficulty">
-                <option value="3">Easy (3x3)</option>
-                <option value="4">Medium (4x4)</option>
-                <option value="5">Hard (5x5)</option>
-            </select>
-            <button id="start-button">Start Game</button>
+    <div id="game-container">
+        <div id="instructions">
+            <h3>How to Play</h3>
+            <p>First, use the "Difficulty" and "Puzzle Name" dropdown selection menus to choose an image on which to work. When you click the Start button, the image will be sliced into 12 rectangles which will be scrambled, and one of the rectangles will be blank.</p>
+            <p>The goal of this puzzle is to unscramble the rectangles by successively moving non-blank rectangles into the blank rectangle. You can move any rectangle adjacent to the blank into the blank by clicking or tapping on the rectangle you want to move.</p>
+            <p>Click the Start button to scramble the picture and start the timer.</p>
+            <p>Your score at any time is the product of the number of squares correctly positioned times the "difficulty factor", which is:</p>
+            <ul>
+                <li>for level = Basic, difficulty factor = 1;</li>
+                <li>for level = Moderate, difficulty factor = 2;</li>
+                <li>for level = Difficult, difficulty factor = 3;</li>
+            </ul>
+            <p>In addition, if you correctly solve the puzzle, a bonus of 5 times the difficulty factor is added to your score. So a complete solution is worth 16 points for a Basic puzzle ((11 + 1 ) * 1 + 5 * 1), 34 points for a Moderate puzzle ((11 + 1 ) * 2 + 5 * 2), and 51 points for a Difficult puzzle ((11 + 1 ) * 3 + 5 * 3).</p>
+            <p>Press the Stop button when you wish to stop.</p>
+            <p>After pressing the Stop button, you can use the same picture again or choose another, and then press the Start button again to work another scramble puzzle.</p>
+        </div>
+        <div id="puzzle-container">
+            <div id="puzzle-grid"></div>
+            <div id="puzzle-controls">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty">
+                    <option value="1">Basic</option>
+                    <option value="2">Moderate</option>
+                    <option value="3">Difficult</option>
+                </select>
+                <label for="puzzle-name">Puzzle Name:</label>
+                <select id="puzzle-name"></select>
+                <button id="start-button">Start</button>
+                <button id="stop-button">Stop</button>
+                <div id="score">Score: 0</div>
+                <div id="timer">Time: 0s</div>
+            </div>
         </div>
     </div>
     <script src="picture-game.js"></script>
