@@ -7,20 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDisplay = document.getElementById('score');
     const timerDisplay = document.getElementById('timer');
 
-    const puzzles = {
-        "Basic": [
-            { name: "Zobo Drink", image: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/zobo.jpg" },
-            { name: "Naija Jollof", image: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/jollof.jpg" }
-        ],
-        "Moderate": [
-            { name: "Eyo Festival", image: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/eyo.jpg" },
-            { name: "Aso Oke", image: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/asooke.jpg" }
-        ],
-        "Difficult": [
-            { name: "Zuma Rock", image: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/zuma.jpg" },
-            { name: "Abuja Mosque", image: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/abuja-mosque.jpg" }
-        ]
-    };
+    const puzzles = [
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abuja%20City%20Gate.jfif",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abula.jfif",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Egusi%20%26%20Fufu.jfif",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Lagos%20traffic.jfif",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Maize.jfif",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Nigeria%20pix.jfif"
+    ];
 
     let difficultyFactor = 1;
     let puzzleImage = '';
@@ -29,17 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let timer;
     let time = 0;
-
-    function updatePuzzleNames() {
-        const difficulty = difficultySelect.options[difficultySelect.selectedIndex].text;
-        puzzleNameSelect.innerHTML = '';
-        puzzles[difficulty].forEach(puzzle => {
-            const option = document.createElement('option');
-            option.value = puzzle.image;
-            option.textContent = puzzle.name;
-            puzzleNameSelect.appendChild(option);
-        });
-    }
 
     function createPuzzle() {
         puzzleGrid.innerHTML = '';
@@ -136,11 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     difficultySelect.addEventListener('change', () => {
         difficultyFactor = parseInt(difficultySelect.value);
-        updatePuzzleNames();
     });
 
     startButton.addEventListener('click', () => {
-        puzzleImage = puzzleNameSelect.value;
+        puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
         createPuzzle();
         startTimer();
         updateScore();
@@ -149,6 +131,4 @@ document.addEventListener('DOMContentLoaded', () => {
     stopButton.addEventListener('click', () => {
         clearInterval(timer);
     });
-
-    updatePuzzleNames();
 });
