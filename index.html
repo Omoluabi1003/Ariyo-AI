@@ -539,6 +539,7 @@
       <button onclick="openAlbumList()">🎧 Choose An Album</button>
       <button onclick="openRadioList()">📻 Radio Stations</button>
       <button onclick="navigateToAbout()">ℹ️ About Us</button>
+      <button onclick="openPictureGame()">🖼️ Picture Game</button>
     </div>
     <div class="content" id="main-content">
       <h2>Select an option from the sidebar</h2>
@@ -672,6 +673,12 @@
     title="Sabi Bible Chatbot"
     src="https://interfaces.zapier.com/embed/cm7ve7fdl002jlclh8y1n6n1y?region=US&language=en-US&timezone=America/New_York">
   </zapier-interfaces-chatbot-embed>
+</div>
+
+<!-- Picture Game Container -->
+<div id="pictureGameContainer" class="chatbot-container">
+    <button class="popup-close" onclick="closePictureGame()">×</button>
+    <iframe src="picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
   <!-- Floating Watermarks -->
@@ -2246,6 +2253,16 @@ function toggleSabiBible() {
         }
       }
     });
+
+    function openPictureGame() {
+        const container = document.getElementById('pictureGameContainer');
+        container.style.display = 'block';
+    }
+
+    function closePictureGame() {
+        const container = document.getElementById('pictureGameContainer');
+        container.style.display = 'none';
+    }
 
     // Weekly Color Scheme Changer
     changeColorScheme();
