@@ -332,7 +332,6 @@
         right: -70px;
         transform: translateY(-50%);
         width: 80px;
-        height: 200px;
         background-color: rgba(0, 0, 0, 0.5);
         border-radius: 10px 0 0 10px;
         transition: right 0.3s ease-in-out;
@@ -2285,6 +2284,15 @@ function toggleSabiBible() {
 
     // Weekly Color Scheme Changer
     changeColorScheme();
+
+    // Dynamic Edge Panel Height
+    const edgePanelContent = document.querySelector('.edge-panel-content');
+    const icons = edgePanelContent.querySelectorAll('.chatbot-bubble-container, .sabi-bible-bubble-container, .picture-game-bubble-container');
+    const iconHeight = 50; // height of each icon
+    const iconSpacing = 20; // spacing between icons
+    const panelPadding = 20; // top and bottom padding of the panel
+    const panelHeight = (icons.length * iconHeight) + ((icons.length - 1) * iconSpacing) + (2 * panelPadding);
+    document.getElementById('edgePanel').style.height = `${panelHeight}px`;
   </script>
   <script src="color-scheme.js"></script>
 </body>

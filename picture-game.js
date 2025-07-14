@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const timerDisplay = document.getElementById('timer');
 
     const puzzles = [
-        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abuja%20City%20Gate.jfif",
-        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abula.jfif",
-        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Egusi%20%26%20Fufu.jfif",
-        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Lagos%20traffic.jfif",
-        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Maize.jfif",
-        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Nigeria%20pix.jfif"
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abuja%20City%20Gate.png",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Abula.png",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Lagos%20traffic.png",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Nigeria%20Pix.png",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Omoluabi%20Himself.png",
+        "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Omoluabi%20Radio.png"
     ];
 
     let difficultyFactor = 1;
