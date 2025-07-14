@@ -80,3 +80,9 @@
 #score, #timer {
     font-weight: bold;
 }
+
+#instructions {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #333;
+}
