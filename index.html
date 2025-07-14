@@ -1847,6 +1847,15 @@ function toggleShuffle() {
     /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
 const chatbotContainer = document.getElementById('chatbotContainer');
 const sabiBibleContainer = document.getElementById('sabiBibleContainer');
+const pictureGameContainer = document.getElementById('pictureGameContainer');
+const araPuzzleContainer = document.getElementById('araPuzzleContainer');
+
+function isAnyPanelOpen() {
+    return chatbotContainer.style.display === 'block' ||
+           sabiBibleContainer.style.display === 'block' ||
+           pictureGameContainer.style.display === 'block' ||
+           araPuzzleContainer.style.display === 'block';
+}
 
 // Spoof user as if dem dey America
 window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
@@ -1855,9 +1864,9 @@ console.log("US Spoof Active:", window.spoofedLocation);
 function toggleChatbot() {
     const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
     chatbotContainer.style.display = isHidden ? 'block' : 'none';
-    chatbotWindowOpen = isHidden;
-    if (isHidden) {
-        closeEdgePanel(); // Close edge panel when chatbot is opened
+    chatbotWindowOpen = isAnyPanelOpen();
+    if (chatbotWindowOpen) {
+        closeEdgePanel();
         clearInterval(autoPopOutInterval);
     } else {
         autoPopOutEdgePanel();
@@ -1867,9 +1876,9 @@ function toggleChatbot() {
 function toggleSabiBible() {
     const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
     sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
-    chatbotWindowOpen = isHidden;
-    if (isHidden) {
-        closeEdgePanel(); // Close edge panel when Sabi Bible is opened
+    chatbotWindowOpen = isAnyPanelOpen();
+    if (chatbotWindowOpen) {
+        closeEdgePanel();
         clearInterval(autoPopOutInterval);
     } else {
         autoPopOutEdgePanel();
@@ -1954,32 +1963,32 @@ function toggleSabiBible() {
     let autoPopOutInterval;
 
     function autoPopOutEdgePanel() {
-        if (chatbotWindowOpen) {
+        if (isAnyPanelOpen()) {
             clearInterval(autoPopOutInterval);
             return;
         }
 
         // Show after 15 seconds
         setTimeout(() => {
-            if (chatbotWindowOpen) return;
+            if (isAnyPanelOpen()) return;
             edgePanel.classList.add('visible');
             edgePanel.style.right = '0';
 
             // Retract after 30 seconds
             setTimeout(() => {
-                if (chatbotWindowOpen) return;
+                if (isAnyPanelOpen()) return;
                 closeEdgePanel();
             }, 30000);
         }, 15000);
 
         // Periodically pop out for new users
         autoPopOutInterval = setInterval(() => {
-            if (chatbotWindowOpen) return;
+            if (isAnyPanelOpen()) return;
             edgePanel.classList.add('visible');
             edgePanel.style.right = '0';
 
             setTimeout(() => {
-                if (chatbotWindowOpen) return;
+                if (isAnyPanelOpen()) return;
                 closeEdgePanel();
             }, 15000);
         }, 60000); // Every 60 seconds
@@ -2272,7 +2281,7 @@ function toggleSabiBible() {
     function openPictureGame() {
         const container = document.getElementById('pictureGameContainer');
         container.style.display = 'block';
-        chatbotWindowOpen = true;
+        chatbotWindowOpen = isAnyPanelOpen();
         closeEdgePanel();
         clearInterval(autoPopOutInterval);
     }
@@ -2280,14 +2289,14 @@ function toggleSabiBible() {
     function closePictureGame() {
         const container = document.getElementById('pictureGameContainer');
         container.style.display = 'none';
-        chatbotWindowOpen = false;
+        chatbotWindowOpen = isAnyPanelOpen();
         autoPopOutEdgePanel();
     }
 
     function openAraPuzzle() {
         const container = document.getElementById('araPuzzleContainer');
         container.style.display = 'block';
-        chatbotWindowOpen = true;
+        chatbotWindowOpen = isAnyPanelOpen();
         closeEdgePanel();
         clearInterval(autoPopOutInterval);
     }
@@ -2295,7 +2304,7 @@ function toggleSabiBible() {
     function closeAraPuzzle() {
         const container = document.getElementById('araPuzzleContainer');
         container.style.display = 'none';
-        chatbotWindowOpen = false;
+        chatbotWindowOpen = isAnyPanelOpen();
         autoPopOutEdgePanel();
     }
 
