@@ -1861,7 +1861,7 @@ function updateEdgePanelBehavior() {
     if (chatbotWindowOpen) {
         closeEdgePanel();
         clearInterval(autoPopOutInterval);
-    } else {
+    } else if (!edgePanel.classList.contains('visible')) {
         autoPopOutEdgePanel();
     }
 }
