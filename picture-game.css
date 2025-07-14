@@ -24,7 +24,7 @@
 .puzzle-tile {
     width: 100px;
     height: 100px;
-    border: 1px solid #ccc;
+    border: 1px solid #000;
     background-size: 400px 300px;
     cursor: pointer;
     position: relative;

@@ -197,16 +197,27 @@ document.addEventListener('DOMContentLoaded', () => {
         difficultyFactor = parseInt(difficultySelect.value);
     });
 
+    let gameStarted = false;
+
     startButton.addEventListener('click', () => {
-        scramblePuzzle();
-        startTimer();
-        updateScore();
-        startButton.disabled = true;
+        if (!gameStarted) {
+            gameStarted = true;
+            scramblePuzzle();
+            startTimer();
+            updateScore();
+            startButton.disabled = true;
+        }
     });
 
     stopButton.addEventListener('click', () => {
         clearInterval(timer);
         showOriginalImage();
+        gameStarted = false;
+        startButton.disabled = false;
+        score = 0;
+        time = 0;
+        scoreDisplay.textContent = `Score: ${score}`;
+        timerDisplay.textContent = `Time: ${time}s`;
     });
 
     puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
