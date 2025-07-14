@@ -1348,7 +1348,7 @@ function loadMoreStations(region) {
           document.getElementById('progressBar').style.display = 'none';
           console.log(`Stream ${title} can play (fallback)`);
 
-    updateMediaSession(); // ✅ Move it here
+    updateMediaSession();
 
           if (!isFirstPlay) {
             audioPlayer.play().catch(error => handlePlayError(error, title));
