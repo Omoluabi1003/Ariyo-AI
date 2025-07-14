@@ -379,7 +379,7 @@
     .tap-area.right {
         right: 0;
     }
-    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon {
+    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon, .ara-puzzle-float-icon {
       width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -649,6 +649,10 @@
         <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/jigsaw_8620725.png" alt="Picture Game Icon" class="picture-game-float-icon" />
         </div>
+        <!-- Ara Puzzle Floating Icon -->
+        <div class="ara-puzzle-bubble-container" role="button" aria-label="Open Ara Puzzle" onclick="openAraPuzzle()">
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/puzzle_15189171.png" alt="Ara Puzzle Icon" class="ara-puzzle-float-icon" />
+        </div>
     </div>
 </div>
 
@@ -682,6 +686,12 @@
 <div id="pictureGameContainer" class="chatbot-container">
     <button class="popup-close" onclick="closePictureGame()">×</button>
     <iframe src="picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<!-- Ara Puzzle Container -->
+<div id="araPuzzleContainer" class="chatbot-container">
+    <button class="popup-close" onclick="closeAraPuzzle()">×</button>
+    <iframe src="ara-puzzle.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
   <!-- Floating Watermarks -->
@@ -2264,6 +2274,16 @@ function toggleSabiBible() {
 
     function closePictureGame() {
         const container = document.getElementById('pictureGameContainer');
+        container.style.display = 'none';
+    }
+
+    function openAraPuzzle() {
+        const container = document.getElementById('araPuzzleContainer');
+        container.style.display = 'block';
+    }
+
+    function closeAraPuzzle() {
+        const container = document.getElementById('araPuzzleContainer');
         container.style.display = 'none';
     }
 
