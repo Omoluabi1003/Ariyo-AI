@@ -2184,9 +2184,7 @@ function toggleSabiBible() {
     });
 
     function showIosInstallBanner() {
-      if (isIOS() && !navigator.standalone) {
-        iosInstallBanner.style.display = 'block';
-      }
+      iosInstallBanner.style.display = 'block';
     }
 
     installBtn.onclick = () => {
@@ -2203,6 +2201,8 @@ function toggleSabiBible() {
     };
 
     function isIOS() {
+      console.log('navigator.platform:', navigator.platform);
+      console.log('navigator.userAgent:', navigator.userAgent);
       return [
         'iPad Simulator',
         'iPhone Simulator',
