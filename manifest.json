@@ -5,12 +5,27 @@
     {
       "src": "icons/Ariyo.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "512x512"
     },
     {
-      "src": "icons/Ariyo_AI.png",
+      "src": "icons/Ariyo-180x180.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "180x180"
+    },
+    {
+      "src": "icons/Ariyo-167x167.png",
+      "type": "image/png",
+      "sizes": "167x167"
+    },
+    {
+      "src": "icons/Ariyo-152x152.png",
+      "type": "image/png",
+      "sizes": "152x152"
+    },
+    {
+      "src": "icons/Ariyo-120x120.png",
+      "type": "image/png",
+      "sizes": "120x120"
     }
   ],
   "start_url": "/index.html",
