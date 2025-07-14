@@ -1564,6 +1564,7 @@ function loadMoreStations(region) {
           audioPlayer.play();
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
           manageVinylRotation();
+          updateMediaSession();
         }, { once: true });
       }
     });
@@ -1635,6 +1636,7 @@ function nextTrack() {
       manageVinylRotation();
     }, { once: true });
   }
+  updateMediaSession();
 }
 
 function previousTrack() {
@@ -1692,6 +1694,7 @@ function previousTrack() {
       manageVinylRotation();
     }, { once: true });
   }
+  updateMediaSession();
 }
 
     function openAlbumList() {
