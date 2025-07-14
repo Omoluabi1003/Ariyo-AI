@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let difficultyFactor = 1;
     let puzzleImage = '';
     let tiles = [];
-    let emptyTileIndex = 8;
+    let emptyTileIndex = 11;
     let score = 0;
     let timer;
     let time = 0;
@@ -36,19 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleGrid.appendChild(img);
     }
 
-    const shapes = [
-        'jigsaw-out-in-out-in', 'jigsaw-out-in-in-out', 'jigsaw-out-out-in-in',
-        'jigsaw-in-in-out-in', 'jigsaw-in-in-in-out', 'jigsaw-in-out-in-in',
-        'jigsaw-in-in-out-out', 'jigsaw-in-out-out-in', 'jigsaw-out-out-out-out'
-    ];
-
-    function generateJigsawShape(index) {
-        return shapes[index];
-    }
-
     function scramblePuzzle() {
         puzzleGrid.innerHTML = '';
         tiles = [];
+        const gridSize = Math.sqrt(tileCount);
+        puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, 100px)`;
+        puzzleGrid.style.gridTemplateRows = `repeat(${gridSize}, 100px)`;
         const tileNumbers = Array.from({ length: tileCount }, (_, i) => i);
 
         for (let i = tileNumbers.length - 1; i > 0; i--) {
@@ -61,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tile.classList.add('puzzle-tile');
             tile.dataset.index = tileNumbers[i];
             tile.draggable = true;
-
             if (tileNumbers[i] === emptyTileIndex) {
                 tile.classList.add('empty-tile');
             } else {
@@ -70,12 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const x = (tileNumbers[i] % gridSize) * (400 / gridSize);
                 const y = Math.floor(tileNumbers[i] / gridSize) * (300 / gridSize);
                 tile.style.backgroundPosition = `-${x}px -${y}px`;
-
-                // Add jigsaw shape
-                const shape = generateJigsawShape(tileNumbers[i]);
-                tile.classList.add(shape);
             }
-
             tiles.push(tile);
             puzzleGrid.appendChild(tile);
             tile.addEventListener('click', () => moveTile(i));
@@ -198,41 +185,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
-    let tileCount = 9;
+    let tileCount = 12;
 
     difficultySelect.addEventListener('change', () => {
         difficultyFactor = parseInt(difficultySelect.value);
         if (difficultyFactor === 1) {
-            tileCount = 9;
-        } else if (difficultyFactor === 2) {
             tileCount = 12;
-        } else {
+        } else if (difficultyFactor === 2) {
             tileCount = 16;
+        } else {
+            tileCount = 25;
         }
         emptyTileIndex = tileCount - 1;
     });
 
-    let gameStarted = false;
-
     startButton.addEventListener('click', () => {
-        if (!gameStarted) {
-            gameStarted = true;
-            scramblePuzzle();
-            startTimer();
-            updateScore();
-            startButton.disabled = true;
-        }
+        scramblePuzzle();
+        startTimer();
+        updateScore();
+        startButton.disabled = true;
     });
 
     stopButton.addEventListener('click', () => {
         clearInterval(timer);
         showOriginalImage();
-        gameStarted = false;
-        startButton.disabled = false;
-        score = 0;
-        time = 0;
-        scoreDisplay.textContent = `Score: ${score}`;
-        timerDisplay.textContent = `Time: ${time}s`;
     });
 
     puzzleImage = puzzles[Math.floor(Math.random() * puzzles.length)];
