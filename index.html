@@ -2123,6 +2123,7 @@ function toggleSabiBible() {
     // PWA Install Prompt
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
+        showIosInstallBanner();
         navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
           console.log('Service Worker registered with scope:', registration.scope);
         }).catch(function(error) {
@@ -2158,17 +2159,35 @@ function toggleSabiBible() {
     iosInstallBanner.style.display = 'none';
     installContainer.appendChild(iosInstallBanner);
 
+    const closeBannerBtn = document.createElement('button');
+    closeBannerBtn.innerHTML = '&times;';
+    closeBannerBtn.style.position = 'absolute';
+    closeBannerBtn.style.top = '0';
+    closeBannerBtn.style.right = '5px';
+    closeBannerBtn.style.background = 'none';
+    closeBannerBtn.style.border = 'none';
+    closeBannerBtn.style.color = 'white';
+    closeBannerBtn.style.fontSize = '20px';
+    closeBannerBtn.onclick = () => {
+      iosInstallBanner.style.display = 'none';
+    };
+    iosInstallBanner.appendChild(closeBannerBtn);
+
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      if (isIOS()) {
-        iosInstallBanner.style.display = 'block';
-      } else {
+      if (!isIOS()) {
         installBtn.style.display = 'block';
       }
       console.log('Install prompt available');
     });
+
+    function showIosInstallBanner() {
+      if (isIOS() && !navigator.standalone) {
+        iosInstallBanner.style.display = 'block';
+      }
+    }
 
     installBtn.onclick = () => {
       if (deferredPrompt) {
