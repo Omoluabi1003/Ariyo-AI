@@ -1,33 +1,41 @@
-const CACHE_NAME = 'ariyo-ai-cache-v2';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  'icons/Ariyo.png',
-  'icons/Ariyo_AI.png'
-];
+const CACHE_PREFIX = 'ariyo-ai-cache-v2';
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
+    fetch('/version.json')
+      .then(response => response.json())
+      .then(data => {
+        const CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
+        const urlsToCache = [
+          '/',
+          '/index.html',
+          '/manifest.json',
+          'icons/Ariyo.png',
+          'icons/Ariyo_AI.png'
+        ];
+        return caches.open(CACHE_NAME).then(cache => {
+          return cache.addAll(urlsToCache);
+        });
       })
   );
 });
 
 self.addEventListener('activate', event => {
-  var cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    fetch('/version.json')
+      .then(response => response.json())
+      .then(data => {
+        const CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
+        return caches.keys().then(cacheNames => {
+          return Promise.all(
+            cacheNames.map(cacheName => {
+              if (cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME) {
+                return caches.delete(cacheName);
+              }
+            })
+          );
+        });
+      })
   );
 });
 
