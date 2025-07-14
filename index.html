@@ -379,7 +379,7 @@
     .tap-area.right {
         right: 0;
     }
-    .chatbot-float-icon, .sabi-bible-float-icon {
+    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon {
       width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -539,7 +539,6 @@
       <button onclick="openAlbumList()">🎧 Choose An Album</button>
       <button onclick="openRadioList()">📻 Radio Stations</button>
       <button onclick="navigateToAbout()">ℹ️ About Us</button>
-      <button onclick="openPictureGame()">🖼️ Picture Game</button>
     </div>
     <div class="content" id="main-content">
       <h2>Select an option from the sidebar</h2>
@@ -645,6 +644,10 @@
         <!-- Sabi Bible Floating Icon & Comic Bubble -->
         <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+        </div>
+        <!-- Picture Game Floating Icon -->
+        <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
+            <img src="https://img.icons8.com/color/96/picture.png" alt="Picture Game Icon" class="picture-game-float-icon" />
         </div>
     </div>
 </div>
