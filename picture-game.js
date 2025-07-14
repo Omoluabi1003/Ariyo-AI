@@ -36,6 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleGrid.appendChild(img);
     }
 
+    function generateJigsawShape() {
+        const top = Math.random() > 0.5 ? 'in' : 'out';
+        const right = Math.random() > 0.5 ? 'in' : 'out';
+        const bottom = Math.random() > 0.5 ? 'in' : 'out';
+        const left = Math.random() > 0.5 ? 'in' : 'out';
+        return `jigsaw-${top}-${right}-${bottom}-${left}`;
+    }
+
     function scramblePuzzle() {
         puzzleGrid.innerHTML = '';
         tiles = [];
@@ -52,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tile.classList.add('puzzle-tile');
             tile.dataset.index = tileNumbers[i];
             tile.draggable = true;
+
             if (tileNumbers[i] === emptyTileIndex) {
                 tile.classList.add('empty-tile');
             } else {
@@ -59,7 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const x = (tileNumbers[i] % 4) * 100;
                 const y = Math.floor(tileNumbers[i] / 4) * 100;
                 tile.style.backgroundPosition = `-${x}px -${y}px`;
+
+                // Add jigsaw shape
+                const shape = generateJigsawShape();
+                tile.classList.add(shape);
             }
+
             tiles.push(tile);
             puzzleGrid.appendChild(tile);
             tile.addEventListener('click', () => moveTile(i));
