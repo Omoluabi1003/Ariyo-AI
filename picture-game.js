@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let difficultyFactor = 1;
     let puzzleImage = '';
     let tiles = [];
-    let emptyTileIndex = 11;
+    let emptyTileIndex = 8;
     let score = 0;
     let timer;
     let time = 0;
@@ -36,18 +36,19 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleGrid.appendChild(img);
     }
 
-    function generateJigsawShape() {
-        const top = Math.random() > 0.5 ? 'in' : 'out';
-        const right = Math.random() > 0.5 ? 'in' : 'out';
-        const bottom = Math.random() > 0.5 ? 'in' : 'out';
-        const left = Math.random() > 0.5 ? 'in' : 'out';
-        return `jigsaw-${top}-${right}-${bottom}-${left}`;
+    const shapes = [
+        'jigsaw-out-in-out-in', 'jigsaw-out-in-in-out', 'jigsaw-out-out-in-in',
+        'jigsaw-in-in-out-in', 'jigsaw-in-in-in-out', 'jigsaw-in-out-in-in',
+        'jigsaw-in-in-out-out', 'jigsaw-in-out-out-in', 'jigsaw-out-out-out-out'
+    ];
+
+    function generateJigsawShape(index) {
+        return shapes[index];
     }
 
     function scramblePuzzle() {
         puzzleGrid.innerHTML = '';
         tiles = [];
-        const tileCount = 12;
         const tileNumbers = Array.from({ length: tileCount }, (_, i) => i);
 
         for (let i = tileNumbers.length - 1; i > 0; i--) {
@@ -65,12 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 tile.classList.add('empty-tile');
             } else {
                 tile.style.backgroundImage = `url(${puzzleImage})`;
-                const x = (tileNumbers[i] % 4) * 100;
-                const y = Math.floor(tileNumbers[i] / 4) * 100;
+                const gridSize = Math.sqrt(tileCount);
+                const x = (tileNumbers[i] % gridSize) * (400 / gridSize);
+                const y = Math.floor(tileNumbers[i] / gridSize) * (300 / gridSize);
                 tile.style.backgroundPosition = `-${x}px -${y}px`;
 
                 // Add jigsaw shape
-                const shape = generateJigsawShape();
+                const shape = generateJigsawShape(tileNumbers[i]);
                 tile.classList.add(shape);
             }
 
@@ -86,10 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function moveTile(clickedIndex) {
         const emptyIndex = tiles.findIndex(tile => tile.classList.contains('empty-tile'));
-        const clickedRow = Math.floor(clickedIndex / 4);
-        const clickedCol = clickedIndex % 4;
-        const emptyRow = Math.floor(emptyIndex / 4);
-        const emptyCol = emptyIndex % 4;
+        const gridSize = Math.sqrt(tileCount);
+        const clickedRow = Math.floor(clickedIndex / gridSize);
+        const clickedCol = clickedIndex % gridSize;
+        const emptyRow = Math.floor(emptyIndex / gridSize);
+        const emptyCol = emptyIndex % gridSize;
 
         if ((clickedRow === emptyRow && Math.abs(clickedCol - emptyCol) === 1) ||
             (clickedCol === emptyCol && Math.abs(clickedRow - emptyRow) === 1)) {
@@ -131,16 +134,18 @@ document.addEventListener('DOMContentLoaded', () => {
             tile1.classList.remove('empty-tile');
             tile2.classList.add('empty-tile');
             tile1.style.backgroundImage = `url(${puzzleImage})`;
-            const x = (dataIndex1 % 4) * 100;
-            const y = Math.floor(dataIndex1 / 4) * 100;
+            const gridSize = Math.sqrt(tileCount);
+            const x = (dataIndex1 % gridSize) * (400 / gridSize);
+            const y = Math.floor(dataIndex1 / gridSize) * (300 / gridSize);
             tile1.style.backgroundPosition = `-${x}px -${y}px`;
             tile2.style.backgroundImage = 'none';
         } else {
             tile2.classList.remove('empty-tile');
             tile1.classList.add('empty-tile');
             tile2.style.backgroundImage = `url(${puzzleImage})`;
-            const x = (tile2.dataset.index % 4) * 100;
-            const y = Math.floor(tile2.dataset.index / 4) * 100;
+            const gridSize = Math.sqrt(tileCount);
+            const x = (tile2.dataset.index % gridSize) * (400 / gridSize);
+            const y = Math.floor(tile2.dataset.index / gridSize) * (300 / gridSize);
             tile2.style.backgroundPosition = `-${x}px -${y}px`;
             tile1.style.backgroundImage = 'none';
         }
@@ -193,8 +198,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+    let tileCount = 9;
+
     difficultySelect.addEventListener('change', () => {
         difficultyFactor = parseInt(difficultySelect.value);
+        if (difficultyFactor === 1) {
+            tileCount = 9;
+        } else if (difficultyFactor === 2) {
+            tileCount = 12;
+        } else {
+            tileCount = 16;
+        }
+        emptyTileIndex = tileCount - 1;
     });
 
     let gameStarted = false;
