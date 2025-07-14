@@ -233,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stopButton.addEventListener('click', () => {
         clearInterval(timer);
         showOriginalImage();
+        startButton.disabled = false;
     });
 
     puzzles.forEach(puzzle => {
