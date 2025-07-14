@@ -237,7 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     puzzles.forEach(puzzle => {
         const option = document.createElement('option');
-        const puzzleName = puzzle.split('/').pop().split('.')[0].replace(/%20/g, ' ');
+        let puzzleName = puzzle.split('/').pop().split('.')[0].replace(/%20/g, ' ');
+        if (puzzleName === 'Egusi %26 Fufu') {
+            puzzleName = 'Egusi & Fufu';
+        }
         option.value = puzzle;
         option.textContent = puzzleName;
         puzzleNameSelect.appendChild(option);
