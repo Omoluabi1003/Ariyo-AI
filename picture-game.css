@@ -14,7 +14,7 @@
     width: 40px;
     height: 40px;
     margin-right: 10px;
-    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png');
+    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg');
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -26,6 +26,8 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg');
+    background-size: cover;
 }
 
 #puzzle-container {
