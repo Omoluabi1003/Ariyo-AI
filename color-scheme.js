@@ -32,6 +32,7 @@ function changeColorScheme() {
       .retry-button { background: ${currentColor}; }
       .progress-bar div { background: ${currentColor}; }
       .install-btn { background: ${currentColor}; }
+      #start-button { background-color: ${currentColor}; }
     `;
     document.head.appendChild(style);
     document.querySelector('meta[name="theme-color"]').setAttribute('content', currentColor);
