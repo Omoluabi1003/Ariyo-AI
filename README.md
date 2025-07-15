@@ -22,7 +22,7 @@
 ## How to Use
 
 1. Clone the repository.
-2. Open the `index.html` file in your browser.
+2. Open the `index.html` file in your browser to see the welcome screen, then click "Enter" to go to the main application.
 3. Enjoy the music and other features!
 
 ## Contributing
