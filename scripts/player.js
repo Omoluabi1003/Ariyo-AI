@@ -439,7 +439,7 @@ function loadMoreStations(region) {
     seekBar.style.display = 'none'; // hide seekbar for radio
     radioProgressBar.style.display = 'block';
     // Animate the progress bar to show activity
-    radioProgressBarDiv.style.width = `${(currentTime % 10) * 10}%`;
+    radioProgressBarDiv.style.width = '100%';
     return;
   } else {
       radioProgressBar.style.display = 'none';
@@ -598,6 +598,9 @@ const volumeControl = document.getElementById('volumeControl');
 volumeControl.addEventListener('input', () => {
     audioPlayer.volume = volumeControl.value;
 });
+
+// Set initial volume
+audioPlayer.volume = volumeControl.value;
 
 function previousTrack() {
   // If a radio station is playing

@@ -493,6 +493,14 @@
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', () => {
         const searchTerm = searchInput.value.toLowerCase();
+        const trackListContainer = document.querySelector('.track-list');
+        trackListContainer.innerHTML = '';
+
+        if (searchTerm === '') {
+            closeTrackList();
+            return;
+        }
+
         const allTracks = [];
         albums.forEach((album, albumIndex) => {
             album.tracks.forEach((track, trackIndex) => {
@@ -502,12 +510,13 @@
             });
         });
 
-        const trackListContainer = document.querySelector('.track-list');
-        trackListContainer.innerHTML = '';
         allTracks.forEach(track => {
             const trackLink = document.createElement('a');
             trackLink.href = '#';
-            trackLink.onclick = () => selectTrack(track.src, track.title, track.originalTrackIndex);
+            trackLink.onclick = () => {
+                currentAlbumIndex = track.originalAlbumIndex;
+                selectTrack(track.src, track.title, track.originalTrackIndex);
+            };
             trackLink.textContent = `${track.title} - ${albums[track.originalAlbumIndex].name}`;
             trackListContainer.appendChild(trackLink);
         });
@@ -528,12 +537,15 @@
             title: trackInfo.textContent,
             album: albums[currentAlbumIndex].name
         };
-        if (!favorites.some(track => track.src === currentTrack.src)) {
+        const existingIndex = favorites.findIndex(track => track.src === currentTrack.src);
+        if (existingIndex === -1) {
             favorites.push(currentTrack);
             localStorage.setItem('favorites', JSON.stringify(favorites));
             alert('Added to favorites!');
         } else {
-            alert('This track is already in your favorites.');
+            favorites.splice(existingIndex, 1);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            alert('Removed from favorites!');
         }
     }
 
@@ -561,17 +573,21 @@
     const twitterShareButton = document.getElementById('twitter-share-button');
     const whatsappShareButton = document.getElementById('whatsapp-share-button');
 
+    function getShareableUrl() {
+        return `https://omoluabi1003.github.io/Ariyo-AI/main.html?track=${encodeURIComponent(trackInfo.textContent)}`;
+    }
+
     facebookShareButton.addEventListener('click', () => {
-        const url = `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`;
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${getShareableUrl()}`;
         window.open(url, '_blank');
     });
 
     twitterShareButton.addEventListener('click', () => {
-        const url = `https://twitter.com/intent/tweet?url=${window.location.href}&text=Check%20out%20this%20awesome%20music%20app!`;
+        const url = `https://twitter.com/intent/tweet?url=${getShareableUrl()}&text=Check%20out%20this%20awesome%20music%20app!`;
         window.open(url, '_blank');
     });
 
     whatsappShareButton.addEventListener('click', () => {
-        const url = `https://api.whatsapp.com/send?text=Check%20out%20this%20awesome%20music%20app!%20${window.location.href}`;
+        const url = `https.api.whatsapp.com/send?text=Check%20out%20this%20awesome%20music%20app!%20${getShareableUrl()}`;
         window.open(url, '_blank');
     });
