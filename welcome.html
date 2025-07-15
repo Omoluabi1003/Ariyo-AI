@@ -107,13 +107,26 @@
             });
         });
 
-        const tl = gsap.timeline({repeat: -1, repeatDelay: 1});
-        tl.fromTo("#step1", {opacity: 0}, {opacity: 1, duration: 1, delay: 0.5})
-          .to("#step1", {opacity: 0, duration: 1, delay: 1})
-          .fromTo("#step2", {opacity: 0}, {opacity: 1, duration: 1})
-          .to("#step2", {opacity: 0, duration: 1, delay: 1})
-          .fromTo("#step3", {opacity: 0}, {opacity: 1, duration: 1})
-          .to("#step3", {opacity: 0, duration: 1, delay: 1});
+        const steps = ['.tour-step'];
+        let currentStep = 0;
+
+        function showNextStep() {
+            gsap.to(steps[currentStep], {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    currentStep = (currentStep + 1) % steps.length;
+                    gsap.to(steps[currentStep], {
+                        opacity: 1,
+                        duration: 0.5,
+                        delay: 0.5
+                    });
+                }
+            });
+        }
+        gsap.set(".tour-step", { opacity: 0 });
+        gsap.set("#step1", { opacity: 1 });
+        setInterval(showNextStep, 3000);
 
         const audio = new Audio('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Holy%20Vibes%20Only.mp3');
         audio.play().catch(error => {
