@@ -145,9 +145,15 @@
         ];
         const audio = new Audio(sounds[Math.floor(Math.random() * sounds.length)]);
         audio.loop = true;
-        audio.play().catch(error => {
-            console.log("Autoplay was prevented:", error);
-        });
+
+        function playAudio() {
+            audio.play().catch(error => {
+                console.log("Autoplay was prevented:", error);
+            });
+            document.body.removeEventListener('click', playAudio);
+        }
+
+        document.body.addEventListener('click', playAudio);
         window.welcomeAudio = audio;
     </script>
 </body>
