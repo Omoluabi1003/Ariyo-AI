@@ -27,35 +27,37 @@
             border-radius: 15px;
         }
         h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: #00bcd4;
+            font-family: 'Georgia', serif;
         }
         p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .enter-button {
-            background: linear-gradient(135deg, #00bcd4, #009688);
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 25px;
-            font-size: 1.2rem;
+        .enter-icon {
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
+            width: 50px;
+            height: 50px;
+            transition: transform 0.3s ease-in-out;
         }
-        .enter-button:hover {
-            transform: scale(1.08);
-            box-shadow: 0px 4px 10px rgba(0, 188, 212, 0.6);
+        .enter-icon:hover {
+            transform: scale(1.1);
         }
         .tour-container {
-            margin-top: 1rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             gap: 1rem;
         }
+        .tour-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
         .tour-step {
-            font-size: 1.2rem;
+            font-size: 0.9rem;
+            font-family: 'Cursive', 'Brush Script MT', sans-serif;
         }
         .theme-selector {
             margin-top: 2rem;
@@ -91,12 +93,16 @@
         <h1>Welcome to Àríyò AI</h1>
         <p>Your smart Naija assistant.</p>
         <div class="tour-container">
-            <div class="tour-step" id="step1">🎧 Listen to Naija music</div>
-            <div class="tour-step" id="step2">🤖 Chat with our AI</div>
-            <div class="tour-step" id="step3">📖 Read the Sabi Bible</div>
-            <div class="tour-step" id="step4">🧩 Puzzle games available</div>
+            <div class="tour-column">
+                <div class="tour-step" id="step1">🎧 Listen to Naija music</div>
+                <div class="tour-step" id="step2">🤖 Chat with our AI</div>
+            </div>
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" alt="Enter" class="enter-icon" onclick="enterApp()">
+            <div class="tour-column">
+                <div class="tour-step" id="step3">📖 Read the Sabi Bible</div>
+                <div class="tour-step" id="step4">🧩 Puzzle games available</div>
+            </div>
         </div>
-        <button class="enter-button" onclick="enterApp()">Enter</button>
         <div class="theme-selector">
             <button class="theme-button" data-theme="default">Default</button>
             <button class="theme-button" data-theme="dark">Dark</button>
@@ -104,7 +110,7 @@
         </div>
     </div>
 
-    <audio id="welcomeAudio" src="Am grateful Lord.mp3" loop></audio>
+    <audio id="welcomeAudio" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Hail%20Mary.mp3" loop></audio>
 
     <script>
         function enterApp() {
@@ -115,27 +121,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('welcomeAudio');
-            const enterButton = document.querySelector('.enter-button');
-
-            const playPromise = audio.play();
-
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    // Autoplay started!
-                }).catch(error => {
-                    // Autoplay was prevented.
-                    // Show a "Play" button so the user can start playback manually.
-                    const playButton = document.createElement('button');
-                    playButton.textContent = 'Play Music';
-                    playButton.classList.add('enter-button');
-                    playButton.style.marginTop = '1rem';
-                    playButton.onclick = () => {
-                        audio.play();
-                        playButton.style.display = 'none';
-                    };
-                    enterButton.insertAdjacentElement('afterend', playButton);
-                });
-            }
+            audio.play().catch(error => {
+                console.log("Autoplay was prevented:", error);
+            });
         });
 
         document.querySelectorAll('.theme-button').forEach(button => {
