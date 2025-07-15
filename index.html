@@ -139,7 +139,11 @@
         gsap.set("#step1", { opacity: 1 });
         setInterval(showNextStep, 3000);
 
-        const audio = new Audio('https://bigsoundbank.com/UPLOAD/mp3/1428.mp3');
+        const sounds = [
+            'https://bigsoundbank.com/UPLOAD/mp3/0740.mp3', // Rain
+            'https://bigsoundbank.com/UPLOAD/mp3/0266.mp3'  // Ocean Waves
+        ];
+        const audio = new Audio(sounds[Math.floor(Math.random() * sounds.length)]);
         audio.loop = true;
         audio.play().catch(error => {
             console.log("Autoplay was prevented:", error);
