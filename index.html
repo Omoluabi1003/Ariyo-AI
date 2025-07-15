@@ -111,6 +111,9 @@
             <button class="theme-button" data-theme="dark">Dark</button>
             <button class="theme-button" data-theme="light">Light</button>
         </div>
+        <div id="speaker-container" style="position: absolute; top: 1rem; right: 1rem; cursor: pointer;">
+            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
+        </div>
     </div>
 
     <audio id="welcomeAudio" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Hail%20Mary.mp3" loop></audio>
@@ -124,23 +127,38 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('welcomeAudio');
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const speakerContainer = document.getElementById('speaker-container');
+            const speakerIcon = document.getElementById('speaker-icon');
 
-            if (isMobile) {
-                const playButton = document.createElement('button');
-                playButton.textContent = 'Play Music';
-                playButton.classList.add('theme-button'); // Re-use existing button style
-                playButton.style.marginTop = '1rem';
-                playButton.onclick = () => {
-                    audio.play();
-                    playButton.style.display = 'none';
-                };
-                const themeSelector = document.querySelector('.theme-selector');
-                themeSelector.insertAdjacentElement('afterend', playButton);
-            } else {
-                audio.play().catch(error => {
+            let isPlaying = false;
+
+            const playAudio = () => {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
+                }).catch(error => {
                     console.log("Autoplay was prevented:", error);
                 });
+            };
+
+            const pauseAudio = () => {
+                audio.pause();
+                isPlaying = false;
+                speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
+            };
+
+            speakerContainer.addEventListener('click', () => {
+                if (isPlaying) {
+                    pauseAudio();
+                } else {
+                    playAudio();
+                }
+            });
+
+            // Try to autoplay on desktop
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!isMobile) {
+                playAudio();
             }
         });
 
