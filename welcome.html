@@ -95,6 +95,9 @@
 
     <script>
         function enterApp() {
+            if (window.welcomeAudio) {
+                window.welcomeAudio.pause();
+            }
             window.location.href = 'index.html';
         }
 
@@ -126,11 +129,12 @@
         gsap.set("#step1", { opacity: 1 });
         setInterval(showNextStep, 3000);
 
-        const audio = new Audio('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Holy%20Vibes%20Only.mp3');
+        const audio = new Audio('https://bigsoundbank.com/UPLOAD/mp3/1428.mp3');
+        audio.loop = true;
         audio.play().catch(error => {
             console.log("Autoplay was prevented:", error);
         });
+        window.welcomeAudio = audio;
     </script>
-    <audio id="welcome-audio" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Holy%20Vibes%20Only.mp3" autoplay></audio>
 </body>
 </html>
