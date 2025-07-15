@@ -488,3 +488,90 @@
     const panelPadding = 20; // top and bottom padding of the panel
     const panelHeight = (icons.length * iconHeight) + ((icons.length - 1) * iconSpacing) + (2 * panelPadding);
     document.getElementById('edgePanel').style.height = `${panelHeight}px`;
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const allTracks = [];
+        albums.forEach((album, albumIndex) => {
+            album.tracks.forEach((track, trackIndex) => {
+                if (track.title.toLowerCase().includes(searchTerm) || album.name.toLowerCase().includes(searchTerm)) {
+                    allTracks.push({ ...track, originalAlbumIndex: albumIndex, originalTrackIndex: trackIndex });
+                }
+            });
+        });
+
+        const trackListContainer = document.querySelector('.track-list');
+        trackListContainer.innerHTML = '';
+        allTracks.forEach(track => {
+            const trackLink = document.createElement('a');
+            trackLink.href = '#';
+            trackLink.onclick = () => selectTrack(track.src, track.title, track.originalTrackIndex);
+            trackLink.textContent = `${track.title} - ${albums[track.originalAlbumIndex].name}`;
+            trackListContainer.appendChild(trackLink);
+        });
+
+        if (allTracks.length > 0) {
+            openTrackList();
+        } else {
+            closeTrackList();
+        }
+    });
+
+    // Favorites functionality
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+    function addToFavorites() {
+        const currentTrack = {
+            src: audioPlayer.src,
+            title: trackInfo.textContent,
+            album: albums[currentAlbumIndex].name
+        };
+        if (!favorites.some(track => track.src === currentTrack.src)) {
+            favorites.push(currentTrack);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            alert('Added to favorites!');
+        } else {
+            alert('This track is already in your favorites.');
+        }
+    }
+
+    function openFavoritesList() {
+        const favoritesListContainer = document.querySelector('.favorites-list');
+        favoritesListContainer.innerHTML = '';
+        favorites.forEach(track => {
+            const trackLink = document.createElement('a');
+            trackLink.href = '#';
+            trackLink.onclick = () => selectTrack(track.src, track.title, albums.findIndex(album => album.name === track.album));
+            trackLink.textContent = `${track.title} - ${track.album}`;
+            favoritesListContainer.appendChild(trackLink);
+        });
+        const modal = document.getElementById('favoritesModal');
+        modal.style.display = 'block';
+    }
+
+    function closeFavoritesList() {
+        const modal = document.getElementById('favoritesModal');
+        modal.style.display = 'none';
+    }
+
+    // Social media sharing
+    const facebookShareButton = document.getElementById('facebook-share-button');
+    const twitterShareButton = document.getElementById('twitter-share-button');
+    const whatsappShareButton = document.getElementById('whatsapp-share-button');
+
+    facebookShareButton.addEventListener('click', () => {
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`;
+        window.open(url, '_blank');
+    });
+
+    twitterShareButton.addEventListener('click', () => {
+        const url = `https://twitter.com/intent/tweet?url=${window.location.href}&text=Check%20out%20this%20awesome%20music%20app!`;
+        window.open(url, '_blank');
+    });
+
+    whatsappShareButton.addEventListener('click', () => {
+        const url = `https://api.whatsapp.com/send?text=Check%20out%20this%20awesome%20music%20app!%20${window.location.href}`;
+        window.open(url, '_blank');
+    });

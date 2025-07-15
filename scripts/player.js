@@ -430,12 +430,19 @@ function loadMoreStations(region) {
 
     function updateTrackTime() {
   const currentTime = audioPlayer.currentTime;
+  const radioProgressBar = document.getElementById('radioProgressBar');
+  const radioProgressBarDiv = radioProgressBar.querySelector('div');
 
   // 🔒 If it's a radio stream, don't format duration
   if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
     trackDuration.textContent = `${formatTime(currentTime)} / Live`;
     seekBar.style.display = 'none'; // hide seekbar for radio
+    radioProgressBar.style.display = 'block';
+    // Animate the progress bar to show activity
+    radioProgressBarDiv.style.width = `${(currentTime % 10) * 10}%`;
     return;
+  } else {
+      radioProgressBar.style.display = 'none';
   }
 
   const duration = audioPlayer.duration || 0;
@@ -586,6 +593,11 @@ function nextTrack() {
   }
   updateMediaSession();
 }
+
+const volumeControl = document.getElementById('volumeControl');
+volumeControl.addEventListener('input', () => {
+    audioPlayer.volume = volumeControl.value;
+});
 
 function previousTrack() {
   // If a radio station is playing
