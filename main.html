@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Àríyò AI">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <meta name="theme-color" content="#00bcd4" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/Ariyo.png">
+  <meta name="description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
+  <meta name="keywords" content="Àríyò AI, Naija AI, Nigerian music, AI chatbot, Sabi Bible, PWA, Omoluabi" />
+  <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
+  <meta property="og:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png" />
+  <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Àríyò AI - Smart Naija AI" />
+  <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png" />
+  <title>Àríyò AI - Smart Naija AI</title>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://omoluabi1003.github.io/Ariyo-AI/",
+    "name": "Àríyò AI",
+    "description": "Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://omoluabi1003.github.io/Ariyo-AI/?s={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
+
+  <!-- Animations & Chat -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script async type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"></script>
+
+
+  <style>
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+      background-color: #000;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-size: cover;
+      background-position: center;
+      transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+    }
+    a { text-decoration: none; }
+    .dark-mode { background-color: #121212; color: #ffffff; }
+    .header {
+      padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
+      text-align: center;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, rgba(0, 188, 212, 0.8), rgba(0, 150, 136, 0.8));
+      position: relative;
+    }
+    .share-button {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background-color: rgba(0, 123, 255, 0.7);
+      color: white;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+      }
+    }
+    .share-button:hover { background-color: rgba(0, 123, 255, 1); }
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 250px;
+      background: rgba(34, 34, 34, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      gap: 1rem;
+      border-radius: 15px;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+    }
+    .sidebar button {
+      background: linear-gradient(135deg, #00bcd4, #009688);
+      color: white;
+      padding: 0.8rem 1rem;
+      border: none;
+      border-radius: 25px;
+      width: 90%;
+      cursor: pointer;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      transition: all 0.3s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 48px;
+    }
+    .sidebar button:hover {
+      transform: scale(1.08);
+      box-shadow: 0px 4px 10px rgba(0, 188, 212, 0.6);
+    }
+    .content {
+      flex: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .music-player {
+      background: rgba(34, 34, 34, 0.7);
+      padding: 1rem;
+      text-align: center;
+      border-radius: 10px;
+      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+      position: fixed;
+      bottom: calc(1rem + env(safe-area-inset-bottom));
+      width: 100%;
+      max-width: 600px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+    }
+    .album-cover {
+      width: clamp(120px, 30vw, 200px);
+      height: clamp(120px, 30vw, 200px);
+      border-radius: 50%;
+      margin: 0.6rem auto;
+      display: block;
+      box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
+      transition: transform 0.3s ease-in-out;
+    }
+    .spin { animation: spin 3s linear infinite; }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-spinner {
+      display: none;
+      width: 30px;
+      height: 30px;
+      border: 4px solid #fff;
+      border-top: 4px solid #00bcd4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    .music-controls.icons-only {
+      margin-top: 0.6rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+    .music-controls.icons-only button {
+      background: #00bcd4;
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s;
+      min-width: 48px;
+      min-height: 48px;
+    }
+    .music-controls.icons-only button:hover { transform: scale(1.1); }
+    .track-info { margin-top: 0.6rem; font-size: clamp(1rem, 3vw, 1.2rem); }
+    .track-duration { font-size: clamp(0.8rem, 2vw, 0.9rem); margin-top: 0.3rem; }
+    .track-details { margin-top: 0.6rem; font-size: clamp(0.8rem, 2vw, 0.9rem); }
+    #streakInfo { color: #ff0000; } /* Bright red for Current Streak */
+    .dropdown {
+      width: 100%;
+      background: rgba(34,34,34,0.8);
+      color: white;
+      padding: 0.6rem;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 1rem;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 1.5rem;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: 10px;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+    .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
+    .track-list a, .album-list a, .radio-list a {
+      display: block;
+      padding: 0.8rem;
+      color: white;
+      text-decoration: none;
+      background-color: #333;
+      margin-bottom: 0.3rem;
+      border-radius: 5px;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+    }
+    .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: #00bcd4; }
+    .chatbot-container, .sabi-bible-container {
+      position: fixed;
+      bottom: calc(100px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 600px;
+      height: 70vh;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      background: white;
+      overflow: hidden;
+      display: none;
+      z-index: 101;
+      position: relative;
+    }
+    .chatbot-container zapier-interfaces-chatbot-embed,
+    .sabi-bible-container zapier-interfaces-chatbot-embed {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      background: #00bcd4;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1rem;
+      line-height: 24px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 102;
+    }
+    .popup-close:hover { background: #009688; }
+    .collapsible-container {
+        position: fixed;
+        bottom: calc(80px + env(safe-area-inset-bottom));
+        width: 150px;
+        transition: all 0.3s ease-in-out;
+        z-index: 1001;
+    }
+    .collapsible-container.left {
+        left: -100px;
+    }
+    .collapsible-container.right {
+        right: -100px;
+    }
+    .collapsible-container.visible.left {
+        left: 1rem;
+    }
+    .collapsible-container.visible.right {
+        right: 1rem;
+    }
+    .edge-panel {
+        position: fixed;
+        top: 50%;
+        right: -70px;
+        transform: translateY(-50%);
+        width: 80px;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 10px 0 0 10px;
+        transition: right 0.3s ease-in-out;
+        z-index: 1001;
+    }
+    .edge-panel.visible {
+        right: 0;
+    }
+    .edge-panel-handle {
+        position: absolute;
+        top: 50%;
+        left: -10px;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 100px;
+        background-color: rgba(255, 255, 255, 0.5);
+        border-radius: 10px 0 0 10px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .edge-panel-handle::before {
+        content: '🤖';
+        font-size: 1.2rem;
+    }
+    .edge-panel-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%;
+    }
+    .tap-area {
+        position: fixed;
+        bottom: 0;
+        width: 50px;
+        height: 100px;
+        z-index: 1000;
+    }
+    .tap-area.left {
+        left: 0;
+    }
+    .tap-area.right {
+        right: 0;
+    }
+    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .blinking-cursor {
+        animation: blink 1s infinite;
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    .chatbot-speech-bubble, .sabi-bible-speech-bubble {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        border: 1px solid #fff;
+        border-radius: 15px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.8rem;
+        padding: 0.5rem;
+        white-space: normal;
+        word-wrap: break-word;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        pointer-events: none;
+        z-index: 1;
+        max-width: 120px;
+        text-align: center;
+    }
+    .chatbot-speech-bubble::after, .sabi-bible-speech-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-top: 10px solid #ffffff;
+      box-shadow: -1px -1px 0 1px #000000;
+      transform: translateX(-50%);
+    }
+    .floating-watermarks {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 9999;
+    }
+    .watermark {
+      position: absolute;
+      font-size: clamp(1rem, 4vw, 2rem);
+      color: rgba(255, 255, 255, 0.5);
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+    @keyframes drift1 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(200vw, 200vh) rotate(360deg); }
+    }
+    @keyframes drift2 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-200vw, -200vh) rotate(-360deg); }
+    }
+    @keyframes drift3 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(200vw, -200vh) rotate(360deg); }
+    }
+    @keyframes drift4 {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-200vw, 200vh) rotate(-360deg); }
+    }
+    .drift1 { animation: drift1 30s linear infinite; }
+    .drift2 { animation: drift2 30s linear infinite; }
+    .drift3 { animation: drift3 30s linear infinite; }
+    .drift4 { animation: drift4 30s linear infinite; }
+    .retry-button {
+      background: #00bcd4;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .retry-button:hover { background: #009688; }
+    .progress-bar {
+      width: 90%;
+      height: 5px;
+      background: #555;
+      margin: 0.5rem auto;
+      border-radius: 5px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar div {
+      height: 100%;
+      background: #00bcd4;
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+        gap: 1rem;
+        border-radius: 0;
+        padding: 0.5rem;
+      }
+      .container { flex-direction: column; }
+      .content { padding-bottom: 15rem; }
+    }
+    @media (max-width: 480px) {
+      .sidebar button {
+        padding: 0.5rem;
+        min-width: auto;
+        font-size: 0.8rem;
+        width: 30%;
+      }
+      .music-player { bottom: env(safe-area-inset-bottom); padding: 0.5rem; border-radius: 0; }
+      .chatbot-bubble-container, .sabi-bible-bubble-container {
+        bottom: calc(15rem + env(safe-area-inset-bottom));
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="color-scheme.css">
+</head>
+
+<body>
+  <div class="header">
+    Welcome to Àríyò AI
+    <button class="share-button" aria-label="Share this page" onclick="shareContent()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <button onclick="openAlbumList()">🎧 Choose An Album</button>
+      <button onclick="openRadioList()">📻 Radio Stations</button>
+      <button onclick="navigateToAbout()">ℹ️ About Us</button>
+    </div>
+    <div class="content" id="main-content">
+      <h2>Select an option from the sidebar</h2>
+      <div id="newsContainer" class="news-container" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Music Player -->
+  <div class="music-player">
+    <h3>Music Player</h3>
+    <img
+      id="albumCover"
+      class="album-cover"
+      src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
+      alt="Album Cover"
+    />
+    <div id="loadingSpinner" class="loading-spinner"></div>
+    <div id="progressBar" class="progress-bar"><div></div></div>
+    <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
+    <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
+    <p class="track-details" id="trackYear">Release Year: 2025</p>
+    <p class="track-details" id="trackAlbum"></p> <!-- Added for album display -->
+    <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+    <p id="streakInfo" class="track-details">🔥 Current Streak: 0 days</p>
+    <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p> <!-- New shuffle status display -->
+    <input
+      type="range"
+      id="seekBar"
+      value="0"
+      min="0"
+      max="100"
+      step="1"
+      style="width: 90%; margin-top: 10px;"
+      aria-label="Seek bar for audio playback"
+    />
+    <button id="retryButton" class="retry-button" onclick="retryTrack()">Retry</button>
+    <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)">Download for Offline</button>
+    <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()">🎵 Choose A Track</div>
+    <div class="music-controls icons-only">
+      <button aria-label="Previous track" onclick="previousTrack()">⏮</button>
+      <button aria-label="Play" onclick="playMusic()">▶</button>
+      <button aria-label="Pause" onclick="pauseMusic()">⏸</button>
+      <button aria-label="Stop" onclick="stopMusic()">⏹</button>
+      <button aria-label="Next track" onclick="nextTrack()">⏭</button>
+      <button aria-label="Toggle shuffle" onclick="toggleShuffle()">🔀</button>
+    </div>
+  </div>
+
+  <!-- Modal for Album List -->
+  <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
+    <div class="modal-content">
+      <span class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</span>
+      <h3 id="albumModalTitle">Choose An Album</h3>
+      <div class="album-list">
+        <a href="#" onclick="selectAlbum(0)">Album 1: Kindness</a>
+        <a href="#" onclick="selectAlbum(1)">Album 2: Street Sense</a>
+        <a href="#" onclick="selectAlbum(2)">Album 3: Needs</a>
+        <a href="#" onclick="selectAlbum(3)">Album 4: Holy Vibes Only</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Track List -->
+  <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
+    <div class="modal-content">
+      <span class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</span>
+      <h3 id="trackModalTitle">Choose A Track</h3>
+      <div class="track-list">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+<!-- Modal for Radio Stations -->
+<div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
+  <div class="modal-content">
+    <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
+
+    <!-- Group: Nigeria -->
+    <h4>Nigeria</h4>
+    <div id="nigeria-stations" class="radio-list"></div>
+    <button onclick="loadMoreStations('nigeria')" style="margin: 1rem 0;">Load More Nigerian Stations</button>
+
+    <!-- Group: West Africa -->
+    <h4>West Africa</h4>
+    <div id="westAfrica-stations" class="radio-list"></div>
+    <button onclick="loadMoreStations('westAfrica')" style="margin: 1rem 0;">Load More West African Stations</button>
+
+    <!-- Group: International -->
+    <h4>International</h4>
+    <div id="international-stations" class="radio-list"></div>
+    <button onclick="loadMoreStations('international')" style="margin: 1rem 0;">Load More International Stations</button>
+  </div>
+</div>
+
+<div class="edge-panel" id="edgePanel">
+    <div class="edge-panel-handle"></div>
+    <div class="edge-panel-content">
+        <!-- Chatbot Floating Icon & Comic Bubble -->
+        <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
+        </div>
+        <!-- Sabi Bible Floating Icon & Comic Bubble -->
+        <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+        </div>
+        <!-- Picture Game Floating Icon -->
+        <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot Container -->
+<div class="chatbot-container" id="chatbotContainer">
+  <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
+  <zapier-interfaces-chatbot-embed
+    is-popup="false"
+    chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
+    height="100%"
+    width="100%"
+    title="Àríyò AI Chatbot"
+    src="https://interfaces.zapier.com/embed/cm7s2oyu2000b3vmuwcwkj9kn?region=US&language=en-US&timezone=America/New_York">
+  </zapier-interfaces-chatbot-embed>
+</div>
+
+<!-- Sabi Bible Container -->
+<div class="sabi-bible-container" id="sabiBibleContainer">
+  <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
+  <zapier-interfaces-chatbot-embed
+    is-popup="false"
+    chatbot-id="cm7ve7fdl002jlclh8y1n6n1y"
+    height="100%"
+    width="100%"
+    title="Sabi Bible Chatbot"
+    src="https://interfaces.zapier.com/embed/cm7ve7fdl002jlclh8y1n6n1y?region=US&language=en-US&timezone=America/New_York">
+  </zapier-interfaces-chatbot-embed>
+</div>
+
+<!-- Picture Game Container -->
+<div id="pictureGameContainer" class="chatbot-container">
+    <button class="popup-close" onclick="closePictureGame()">×</button>
+    <iframe src="picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+
+  <!-- Floating Watermarks -->
+  <div class="floating-watermarks">
+    <div class="watermark drift1" style="top: 10%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark drift2" style="top: 25%; left: 20%;">Omoluabi Productions</div>
+    <div class="watermark drift3" style="top: 40%; left: 10%;">Omoluabi Productions</div>
+    <div class="watermark drift4" style="top: 55%; left: 30%;">Omoluabi Productions</div>
+    <div class="watermark drift1" style="top: 70%; left: 15%;">Omoluabi Productions</div>
+    <div class="watermark drift2" style="top: 85%; left: 25%;">Omoluabi Productions</div>
+    <div class="watermark drift3" style="top: 20%; left: 50%;">Omoluabi Productions</div>
+    <div class="watermark drift4" style="top: 65%; left: 60%;">Omoluabi Productions</div>
+    <div class="watermark drift1" style="top: 30%; left: 70%;">Omoluabi Productions</div>
+    <div class="watermark drift2" style="top: 50%; left: 80%;">Omoluabi Productions</div>
+    <div class="watermark drift3" style="top: 15%; left: 85%;">Omoluabi Productions</div>
+    <div class="watermark drift4" style="top: 75%; left: 5%;">Omoluabi Productions</div>
+  </div>
+
+  <!-- 🎧 Now Playing Toast -->
+<div id="nowPlayingToast" style="
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  display: none;
+  z-index: 9999;
+  transition: all 0.4s ease;
+">Now playing</div>
+
+  <script>
+    /* SHARE BUTTON (Web Share API) */
+    function shareContent() {
+      if (navigator.share) {
+        navigator.share({
+          title: "Àríyò AI - Smart Naija AI",
+          text: "Check out this awesome page!",
+          url: window.location.href
+        }).catch((err) => console.error("Share failed:", err));
+      } else {
+        alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
+      }
+    }
+
+    /* NAVIGATE TO ABOUT PAGE & HOME */
+    let originalMainContentHTML = '';
+    let aboutButtonGlobal = null;
+    let originalAboutButtonText = '';
+    let originalAboutButtonOnClick;
+
+    async function navigateToAbout() {
+      const mainContent = document.getElementById('main-content');
+
+      if (!aboutButtonGlobal) {
+          const sidebarButtons = document.querySelectorAll('.sidebar button');
+          aboutButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
+          if (aboutButtonGlobal) {
+              originalAboutButtonText = aboutButtonGlobal.textContent;
+              originalAboutButtonOnClick = aboutButtonGlobal.onclick;
+          }
+      }
+
+      if (!mainContent.dataset.originalContentStored) {
+        originalMainContentHTML = mainContent.innerHTML;
+        mainContent.dataset.originalContentStored = 'true';
+      }
+
+      savePlayerState();
+
+      try {
+        const response = await fetch('about.html');
+        if (!response.ok) {
+          console.error('Failed to fetch about.html:', response.status);
+          mainContent.innerHTML = '<p>Error loading About page content.</p>';
+          return;
+        }
+        const aboutHtmlText = await response.text();
+        const parser = new DOMParser();
+        const aboutDoc = parser.parseFromString(aboutHtmlText, 'text/html');
+
+        const aboutPageActualContent = aboutDoc.body.innerHTML;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = aboutDoc.body.innerHTML;
+
+        const albumCoversDiv = tempDiv.querySelector('.album-covers');
+        if (albumCoversDiv) {
+          albumCoversDiv.innerHTML = '';
+          albums.forEach(album => {
+            const albumLink = document.createElement('a');
+            albumLink.href = album.external_url || '#';
+            if (album.external_url) {
+                albumLink.target = '_blank';
+            }
+
+            const img = document.createElement('img');
+            img.src = album.cover;
+            img.alt = album.name + " Album Cover";
+            img.title = album.name;
+
+            const nameParagraph = document.createElement('p');
+            nameParagraph.textContent = album.name;
+            nameParagraph.style.color = '#fff';
+            nameParagraph.style.fontSize = '0.8rem';
+            nameParagraph.style.marginTop = '0.5rem';
+
+            const albumContainer = document.createElement('div');
+            albumContainer.style.textAlign = 'center';
+            albumContainer.appendChild(img);
+            albumContainer.appendChild(nameParagraph);
+
+            albumLink.appendChild(albumContainer);
+            albumCoversDiv.appendChild(albumLink);
+          });
+        }
+
+        mainContent.innerHTML = tempDiv.innerHTML;
+
+
+        const oldStyles = document.getElementById('about-page-styles');
+        if (oldStyles) {
+          oldStyles.remove();
+        }
+        const styleElement = document.createElement('style');
+        styleElement.id = 'about-page-styles';
+        styleElement.textContent = aboutDoc.head.querySelector('style').textContent;
+        document.head.appendChild(styleElement);
+
+        let socialIconOverrideStyle = document.getElementById('social-icon-override-styles');
+        if (!socialIconOverrideStyle) {
+          socialIconOverrideStyle = document.createElement('style');
+          socialIconOverrideStyle.id = 'social-icon-override-styles';
+          document.head.appendChild(socialIconOverrideStyle);
+        }
+        socialIconOverrideStyle.textContent = `
+          #main-content .social-icons a img {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px; /* Optional: adjust border-radius if desired */
+            object-fit: cover;
+          }
+          @media (max-width: 768px) {
+            #main-content .social-icons a img {
+              width: 40px;
+              height: 40px;
+            }
+          }
+        `;
+
+        if (window.location.pathname !== '/about.html') {
+          history.pushState({ page: 'about' }, 'About Us', 'about.html');
+        }
+
+        if (aboutButtonGlobal) {
+          aboutButtonGlobal.textContent = '🎵 Back to Player';
+          aboutButtonGlobal.onclick = navigateToHome;
+        }
+        mainContent.style.position = 'relative';
+        mainContent.style.zIndex = '101';
+        mainContent.style.opacity = '1';
+
+      } catch (error) {
+        console.error('Error navigating to About page:', error);
+        mainContent.innerHTML = '<p>Error loading About page content.</p>';
+      }
+    }
+
+    function navigateToHome() {
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = '<div id="newsContainer" class="news-container" style="display: none;"></div>';
+
+
+      const aboutPageStyles = document.getElementById('about-page-styles');
+      if (aboutPageStyles) {
+        aboutPageStyles.remove();
+      }
+      const socialIconOverride = document.getElementById('social-icon-override-styles');
+      if (socialIconOverride) {
+        socialIconOverride.remove();
+      }
+
+      let currentPath = window.location.pathname;
+      if (currentPath.endsWith('/main.html')) currentPath = currentPath.substring(0, currentPath.length - 'main.html'.length);
+      if (currentPath.endsWith('/about.html')) {
+          history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
+      } else if (currentPath !== '/' && !currentPath.endsWith('/')) {
+           history.pushState({ page: 'home' }, 'Home', '/');
+      }
+
+      if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
+        aboutButtonGlobal.textContent = originalAboutButtonText;
+        aboutButtonGlobal.onclick = originalAboutButtonOnClick;
+      }
+
+      mainContent.style.zIndex = '';
+      mainContent.style.position = '';
+      gsap.to(mainContent, { opacity: 1, duration: 0.5 });
+    }
+
+    /* BACKGROUND CYCLER */
+    const backgrounds = [
+      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
+      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
+      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
+    ];
+    let currentBgIndex = 0;
+    document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+    setInterval(() => {
+      currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
+      document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+    }, 30000);
+
+    /* MUSIC PLAYER LOGIC */
+    const audioPlayer = new Audio();
+    audioPlayer.id = 'audioPlayer';
+    audioPlayer.preload = 'auto';
+    document.body.appendChild(audioPlayer);
+    const albumCover = document.getElementById('albumCover');
+    const trackInfo = document.getElementById('trackInfo');
+    const trackArtist = document.getElementById('trackArtist');
+    const trackYear = document.getElementById('trackYear');
+    const trackAlbum = document.getElementById('trackAlbum'); // Added for album display
+    const trackDuration = document.getElementById('trackDuration');
+    const seekBar = document.getElementById('seekBar');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const retryButton = document.getElementById('retryButton');
+    const cacheButton = document.getElementById('cacheButton'); // New cache button
+    const progressBar = document.getElementById('progressBar').querySelector('div');
+    const streakInfo = document.getElementById('streakInfo');
+    let shuffleMode = false; // True if any shuffle is active
+    let shuffleScope = 'off'; // 'off', 'album', 'all'
+    let isFirstPlay = true;
+    let lastTrackSrc = '';
+    let lastTrackTitle = '';
+    let lastTrackIndex = 0;
+
+    const albums = [
+      {
+        name: 'Kindness',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg',
+        tracks: [
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3', title: 'A Very Good Bad Guy v3' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Dem%20Wan%20Shut%20Me%20Up.mp3', title: 'Dem Wan Shut Me Up' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/EFCC.mp3', title: 'EFCC' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Emergency.mp3', title: 'Emergency' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Film%20Trick%20Election.mp3', title: 'Film Trick Election' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbas%20Gbos.mp3', title: 'Gbas Gbos' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20(Remastered).mp3', title: 'Kindness (Remastered)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Locked%20Away.mp3', title: 'Locked Away' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Multi%20choice%20palava.mp3', title: 'Multi choice palava' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20My%20Turn.mp3', title: 'Na My Turn' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem%20(Remastered).mp3', title: 'Ogoni Anthem (Remastered)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ogoni%20Anthem.mp3', title: 'Ogoni Anthem' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Rich%20Pauper.mp3', title: 'Rich Pauper' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Senator%20Natasha’s%20Whisper.mp3', title: 'Senator Natasha’s Whisper' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sharing%20Formula.mp3', title: 'Sharing Formula' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Show%20Of%20Shame%20v3%20(Remastered).mp3', title: 'Show Of Shame v3 (Remastered)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Subsidy.mp3', title: 'Subsidy' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Vex%20Money.mp3', title: 'Vex Money' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Working%20on%20myself.mp3', title: 'Working on myself' }
+        ]
+      },
+      {
+        name: 'Street Sense',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg',
+        tracks: [
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Na%20We%20Dey.mp3', title: 'Na We Dey' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/No%20Be%20My%20Story.mp3', title: 'No Be My Story' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Algorithm%20Of%20Life.mp3', title: 'Algorithm of life' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Babygirl.mp3', title: 'Babygirl' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ubuntu.mp3', title: 'Ubuntu' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Blood%20On%20The%20Lithium.mp3', title: 'Blood On The Lithium' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Oluwa%20You%20Too%20Good.mp3', title: 'Oluwa You Too Good' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Freedom%20of%20Speech.mp3', title: 'Freedom of Speech' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/E%20Get%20Why.mp3', title: 'E Get Why' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Am%20grateful%20Lord.mp3', title: 'Am grateful Lord' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Game%20Of%20Thrones.mp3', title: 'Game of Thrones' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Give%20and%20Take%20(Reciprocity%20in%20love).mp3', title: 'Give and Take (Reciprocity in love)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Midas%20Touch.mp3', title: 'Midas Touch' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20Youth;%20Rise.mp3', title: 'Naija Youth, Rise' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Party%20No%20Go%20Stop.mp3', title: 'Party No Go Stop' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Pigeonhole%20Gbedu.mp3', title: 'Pigeonhole Gbedu' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Queen%20Warrior.mp3', title: 'Queen Warrior' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Holy%20Vibes%20Only.mp3', title: 'Holy Vibes Only' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sengemenge.mp3', title: 'Sengemenge' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sowore.mp3', title: 'Sowore' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street%20Sense.mp3', title: 'Street Sense' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/VDM.mp3', title: 'VDM' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/We%20Are%20Not%20Doing%20That.mp3', title: 'We Are Not Doing That' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Oil%20Money.mp3', title: 'Oil Money' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Gbamsolutely.mp3', title: 'Gbamsolutely' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Mic%20No%20Be%20For%20Waist.mp3', title: 'Mic No Be For Waist' }
+        ]
+      },
+      {
+        name: 'Needs',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/FaithandB.jpg',
+        tracks: [
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Disappoint%20People%20Early.mp3', title: 'Disappoint People Early' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Faded%20Hues.mp3', title: 'Faded Hues' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/False%20Alarm.mp3', title: 'False Alarm' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Glorified%20Caterpillar.mp3', title: 'Glorified Caterpillar' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Hear%20the%20Earth%20Speak.mp3', title: 'Hear the Earth Speak' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Let%20Me%20Be%20Seen.mp3', title: 'Let Me Be Seen' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Little%20Things.mp3', title: 'Little Things' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Needs.mp3', title: 'Needs' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Not%20This%20Road.mp3', title: 'Not This Road' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Permitted%20Blessing.mp3', title: 'Permitted Blessing' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Right%20In%20Front.mp3', title: 'Right In Front' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Scaffolding.mp3', title: 'Scaffolding' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Stay%20Sincere.mp3', title: 'Stay Sincere' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Thank%20You%20For%20The%20Wound.mp3', title: 'Thank You For The Wound' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/The%20Weight%20You%20Carry.mp3', title: 'The Weight You Carry' }
+        ]
+      },
+      {
+        name: 'Holy Vibes Only',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Neo-Soul.jpg',
+        tracks: [
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Am%20grateful%20Lord%20%28Instrumental%29.mp3', title: 'Am grateful Lord (Instrumental)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Am%20grateful%20Lord.mp3', title: 'Am grateful Lord' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Holy%20Vibes%20Only%20%28Instrumental%29.mp3', title: 'Holy Vibes Only (Instrumental)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Holy%20Vibes%20Only.mp3', title: 'Holy Vibes Only' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Na%20So%20God%20Dey%20Do.mp3', title: 'Na So God Dey Do' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Na%20You.mp3', title: 'Na You' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Oil%20No%20Dry.mp3', title: 'Oil No Dry' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Oluwa%20You%20Too%20Good.mp3', title: 'Oluwa You Too Good' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Recognize%20Me%20%28Instrumental%29.mp3', title: 'Recognize Me (Instrumental)' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Recognize%20Me.mp3', title: 'Recognize Me' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Rotten%20Fruit.mp3', title: 'Rotten Fruit' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Still%20I%20Rise%20to%20Praise.mp3', title: 'Still I Rise to Praise' },
+          { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Testimony%20No%20Dey%20Finish.mp3', title: 'Testimony No Dey Finish' }
+        ]
+      }
+    ];
+
+    const radioStations = [
+      { name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Nigeria Info FM", location: "Lagos", url: "https://nigeriainfofmlagos993-atunwadigital.streamguys1.com/nigeriainfofmlagos993", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Lagos FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/2/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Brilla FM", location: "Lagos", url: "https://ice31.securenetsystems.net/BRILAMP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Vision FM", location: "Kaduna", url: "https://stream-172.zeno.fm/92mxpb1akhruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Mm14cGIxYWtocnV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImV5OWlMMlhEU1JLMHNyYnd0b3F4ckEiLCJpYXQiOjE3NDM5MTU4MzgsImV4cCI6MTc0MzkxNTg5OH0.5sHfe_ukTnT2Fdiy83NdYdU0da51JkZXBgFoJVhg8_I", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Fad FM", location: "Calabar", url: "https://radio.gotright.net/listen/fadfm/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "JMPBliss Radio", location: "Ibadan", url: "https://stream-173.zeno.fm/ty5h0ecgka0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJ0eTVoMGVjZ2thMHV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6InlRa2VIcE9aUV9TT2ZsZDJkWFhLZkEiLCJpYXQiOjE3NDQyMjQ1MjIsImV4cCI6MTc0NDIyNDU4Mn0.NE7xZDe19EjzpWN02xkt9XnorWH8FNdswwHdiih4dUI", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Wazobia FM", location: "Lagos", url: "https://wazobiafmlagos951-atunwadigital.streamguys1.com/wazobiafmlagos951", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Magic FM", location: "Aba", url: "https://radio.ifastekpanel.com:1565/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Inform Me Radio", location: "Nigeria", url: "https://stream-176.zeno.fm/ta1fke6sz1zuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJ0YTFma2U2c3oxenV2IiwiaG9zdCI6InN0cmVhbS0xNzYuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6ImlKY0pKbmZEVHlXOWNyZzJrSHV6X3ciLCJpYXQiOjE3NDQ3Njg5MzQsImV4cCI6MTc0NDc2ODk5NH0.80dAGY0KFczNyEb83ledkuxbeTscZSLM_H9XzWDkiX4", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Inspiration 92.3 FM", location: "Lagos", url: "https://inspiration923fm-atunwadigital.streamguys1.com/inspiration923fm", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Splash FM 105.5", location: "Ibadan", url: "http://edge.mixlr.com/channel/cfeki", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "The Beat 99.9 FM", location: "Lagos", url: "http://beatfmlagos.atunwadigital.streamguys1.com/beatfmlagos", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Fresh 107.9 FM", location: "Abeokuta", url: "https://stream-144.zeno.fm/7gs2681gqeruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3Z3MyNjgxZ3FlcnV2IiwiaG9zdCI6InN0cmVhbS0xNDQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im5nQmJkeTBjU3QtSlhMeG5QczVMUUEiLCJpYXQiOjE3NDM5MTMxNTksImV4cCI6MTc0MzkxMzIxOX0.bBtX4N1gdSrYDAPnoVAvA_OR42oPE3ceaGueOZW5dkg", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Faaji 106.5 FM", location: "Lagos", url: "http://streaming.faajifmradio.com:8000/faaji", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "EgbaAlake Radio", location: "Attleboro Falls, USA", url: "https://centova47.instainternet.com/proxy/egbaalak?mp=/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Ray Power FM", location: "Abuja", url: "https://streamlive2.hearthis.at:8080/9065169.ogg", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Jay 101.9 FM", location: "Jos", url: "https://stream2.rcast.net/69640/", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Apostolic Flame Radio", location: "Ibadan", url: "https://hoth.alonhosting.com:1695/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "FRCN Lagos Metro FM", location: "Abuja", url: "http://go.webgateready.com:7668/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Nigeria", location: "Abuja", url: "https://stream.radionigeria.gov.ng/live", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "NBS Solid 97.1 FM", location: "Nassarawa", url: "https://nbsradio1.radioca.st/;", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Vision Africa Radio", location: "Abia", url: "https://xstreamer.galcom.org:8443/VisionAfrica", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "ITMP Radio", location: "Florida", url: "http://uk4freenew.listen2myradio.com:32739/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Crest 106.1 FM", location: "Ondo", url: "https://stream-154.zeno.fm/9cgtkwg3teruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Y2d0a3dnM3RlcnV2IiwiaG9zdCI6InN0cmVhbS0xNTQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlI4MXQzdjhRUWhDQWdkODRsaWJtckEiLCJpYXQiOjE3NDM5MTI3NzQsImV4cCI6MTc0MzkxMjgzNH0.QiIm090_iZfI55MZu7WqKjm5inX-mmKanKQgGBBbA7w", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Eko FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/1/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Liveway Radio Network FM", location: "Lagos", url: "https://stream-173.zeno.fm/qc43ktn6n0quv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJxYzQza3RuNm4wcXV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImMtb0ZiQ3dtVE1hZUlEVU5YQ3BiVUEiLCJpYXQiOjE3NDM5MTMyODcsImV4cCI6MTc0MzkxMzM0N30.HVLieksgqvV_vsqRr9_rcDexkz6Lqeqeu7stKvuJr10", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Space FM", location: "Ibadan", url: "https://stream-175.zeno.fm/79hmhafteg0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3OWhtaGFmdGVnMHV2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IkFqako3a0doUllPcVB1cmY3RDJmN2ciLCJpYXQiOjE3NDM5MTM0NzUsImV4cCI6MTc0MzkxMzUzNX0.Ow_YytmLcyURU6d_ji4EvQ-4YuLvJjXATerfWMHO67o", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Comfort 95.1 FM", location: "Uyo", url: "https://a3.asurahosting.com:7770/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "AKBC Akwa Ibom Radio", location: "Uyo", url: "https://stream-175.zeno.fm/2ttc8yl6giztv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIydHRjOHlsNmdpenR2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlE5VFpTRXpOUzFTMVlHSHdxaW5sQWciLCJpYXQiOjE3NDM5MTM3NjgsImV4cCI6MTc0MzkxMzgyOH0.9X5nRAtcN_4Pv-z5uE6ukYrNEIcwW0gHTVuYUlxVCj4", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Amen Radio", location: "Lagos", url: "https://eu3.fastcast4u.com/proxy/amenradi?mp=/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Apala Radio", location: "Ibadan", url: "https://stream-172.zeno.fm/fqcszwwxra0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJmcWNzend3eHJhMHV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IjMtaGJNc2Z6UU82U1VKWlNHbExkcFEiLCJpYXQiOjE3NDQyMjUzMDYsImV4cCI6MTc0NDIyNTM2Nn0.wncuUShs9-mnbAj3ndGGS9qd1z6AHtBzJEgT9b7NZDY", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "WFM 91.77 Women Radio", location: "Lagos", url: "https://s28.myradiostream.com:11618/listen.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "RFI Haoussa", location: "Nigeria", url: "https://rfihaoussa96k.ice.infomaniak.ch/rfihaoussa-96k.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Tungba FM", location: "Lagos", url: "https://stream-173.zeno.fm/3vd633m7ctzuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIzdmQ2MzNtN2N0enV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im9QY19lN292UWFLdGUxSjFuNTI3M2ciLCJpYXQiOjE3NDM5MTQ0OTEsImV4cCI6MTc0MzkxNDU1MX0.UvA6Q0NuULFeRcHvqPJ9d68DeWz-0agoUBi8GDQWN0E", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Siren Songs", location: "Belgium", url: "https://sirensongs-mynoise.radioca.st/live", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Relax", location: "Ukraine", url: "https://online.radiorelax.ua/RadioRelax_Instrumental_HD", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Exclusively Kenny G", location: "Dubai", url: "https://2.mystreaming.net/er/kennyg/icecast.audio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Exclusively Jim Reeves", location: "Dubai", url: "https://nl4.mystreaming.net/er/jimreeves/icecast.audio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "247 Praise Radio", location: "Jacksonville, Florida", url: "https://streaming.radio.co/s6da23ac69/listen", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "NPR News", location: "Washington DC", url: "https://npr-ice.streamguys1.com/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Al Jazeera", location: "Qatar", url: "https://live-hls-audio-web-aje.getaj.net/VOICE-AJE/01.m3u8", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "CNN International", location: "Atlanta", url: "https://tunein.cdnstream1.com/3519_96.aac", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "BBC World Service", location: "London", url: "https://utulsa.streamguys1.com/KWGSHD3-MP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "BBC World Service", location: "West Africa", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_west_africa", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "BBC World Service", location: "South Asia", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_south_asia", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "BBC World Service", location: "Vermont", url: "https://vprbbc.streamguys1.com/vprbbc24.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Capital FM", location: "London", url: "https://media-ssl.musicradio.com/CapitalMP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "WNYC", location: "New York", url: "https://fm939.wnyc.org/wnycfm-tunein", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "RTE Radio 1", location: "Dublin", url: "https://icecast.rte.ie/radio1", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Virgin Radio UK", location: "London", url: "https://radio.virginradio.co.uk/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "WBEZ", location: "Chicago", url: "http://wbez.streamguys1.com/wbez128.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Talk Sport", location: "London", url: "https://radio.talksport.com/stream", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Talk Sport 2", location: "London", url: "https://radio.talksport.com/stream2", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Joy FM", location: "Accra", url: "http://provisioning.streamtheworld.com/pls/JOY_FM.pls", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "UBC Radio", location: "Kampala", url: "https://stream.ubc.go.ug/ubcradio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Black Information Network", location: "USA", url: "https://cloud.revma.ihrhls.com/zc8729?rj-org=n2db-e2&rj-ttl=5&rj-tok=AAABlmL2wq8ALLTq8zLJ1wWRdw", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" }
+    ];
+
+
+    let currentAlbumIndex = 0;
+    let currentTrackIndex = 0;
+    let currentRadioIndex = -1;
+
+    // Streak Logic
+    function updateStreak() {
+      const now = new Date();
+      const today = now.toDateString();
+      const streakData = JSON.parse(localStorage.getItem('ariyoStreak')) || { streak: 0, lastDate: null };
+
+      if (streakData.lastDate !== today) {
+        const lastDate = streakData.lastDate ? new Date(streakData.lastDate) : null;
+        if (lastDate) {
+          const diffTime = now - lastDate;
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          if (diffDays === 1) {
+            streakData.streak += 1;
+          } else if (diffDays > 1) {
+            streakData.streak = 1; // Reset if more than a day is missed
+          }
+        } else {
+          streakData.streak = 1; // First use
+        }
+        streakData.lastDate = today;
+        localStorage.setItem('ariyoStreak', JSON.stringify(streakData));
+      }
+
+      streakInfo.textContent = `🔥 Current Streak: ${streakData.streak} days`;
+      console.log(`Streak updated: ${streakData.streak} days`);
+    }
+
+    function savePlayerState() {
+      const playerState = {
+        albumIndex: currentAlbumIndex,
+        trackIndex: currentTrackIndex,
+        radioIndex: currentRadioIndex,
+        playbackPosition: audioPlayer.currentTime,
+        shuffleMode: shuffleMode,
+        shuffleScope: shuffleScope, // Save shuffleScope
+        timestamp: new Date().getTime()
+      };
+      localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
+      console.log('Player state saved:', playerState);
+    }
+
+    function loadPlayerState() {
+      const savedState = localStorage.getItem('ariyoPlayerState');
+      if (savedState) {
+        const playerState = JSON.parse(savedState);
+        const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
+        if (ageInHours < 24) {
+          // Ensure shuffleScope is loaded, default if not present in older saved states
+          playerState.shuffleScope = playerState.shuffleScope || 'off';
+          return playerState;
+        }
+      }
+      return null;
+    }
+
+    function updateTrackListModal() {
+      const trackListContainer = document.querySelector('.track-list');
+      trackListContainer.innerHTML = '';
+      albums[currentAlbumIndex].tracks.forEach((track, index) => {
+        const trackLink = document.createElement('a');
+        trackLink.href = '#';
+        trackLink.onclick = () => selectTrack(track.src, track.title, index);
+        trackLink.textContent = track.title;
+        trackListContainer.appendChild(trackLink);
+      });
+      console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
+    }
+
+    const stationsPerPage = 6;
+let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+
+// Region Classifier
+function classifyStation(station) {
+  const nigeriaLocations = ["Nigeria", "Lagos", "Ibadan", "Abuja", "Abeokuta", "Uyo", "Jos", "Kaduna", "Nassarawa", "Abia", "Ondo", "Calabar", "Aba"];
+  const westAfricaLocations = ["Accra", "Ghana", "West Africa"];
+
+  if (nigeriaLocations.includes(station.location)) return "nigeria";
+  if (westAfricaLocations.includes(station.location)) return "westAfrica";
+  return "international";
+}
+
+// Grouped Stations
+const groupedStations = { nigeria: [], westAfrica: [], international: [] };
+radioStations.forEach(station => {
+  const region = classifyStation(station);
+  groupedStations[region].push(station);
+});
+
+function updateRadioListModal() {
+  stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+
+  ["nigeria", "westAfrica", "international"].forEach(region => {
+    document.getElementById(`${region}-stations`).innerHTML = '';
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
+    loadMoreStations(region);
+  });
+
+  console.log("Grouped and displayed radio stations by region");
+}
+
+function loadMoreStations(region) {
+  const container = document.getElementById(`${region}-stations`);
+  const stations = groupedStations[region];
+  const start = stationDisplayCounts[region];
+  const end = start + stationsPerPage;
+
+  stations.slice(start, end).forEach((station, index) => {
+    const stationLink = document.createElement("a");
+    stationLink.href = "#";
+    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
+    stationLink.textContent = `${station.name} (${station.location})`;
+    container.appendChild(stationLink);
+  });
+
+  stationDisplayCounts[region] = end;
+
+  if (stationDisplayCounts[region] >= stations.length) {
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
+  }
+}
+
+    function selectAlbum(albumIndex) {
+      console.log(`Selecting album: ${albums[albumIndex].name}`);
+      currentAlbumIndex = albumIndex;
+      currentTrackIndex = 0;
+      currentRadioIndex = -1;
+      albumCover.src = albums[currentAlbumIndex].cover;
+      loadTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+      updateTrackListModal();
+      closeAlbumList();
+      savePlayerState();
+    }
+
+    function loadTrack(src, title, index) {
+      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      currentRadioIndex = -1;
+      audioPlayer.src = src;
+      audioPlayer.currentTime = 0;
+      trackInfo.textContent = title;
+      trackArtist.textContent = 'Artist: Omoluabi';
+      trackYear.textContent = 'Release Year: 2025';
+      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
+      stopMusic();
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      cacheButton.style.display = 'block'; // Show cache button for tracks
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
+    }
+
+    function selectTrack(src, title, index) {
+      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      currentRadioIndex = -1;
+      lastTrackSrc = src;
+      lastTrackTitle = title;
+      lastTrackIndex = index;
+      audioPlayer.src = src + '?t=' + new Date().getTime();
+      audioPlayer.currentTime = 0;
+      trackInfo.textContent = title;
+      trackArtist.textContent = 'Artist: Omoluabi';
+      trackYear.textContent = 'Release Year: 2025';
+      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
+      albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
+      closeTrackList();
+      stopMusic();
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      cacheButton.style.display = 'block'; // Show cache button
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
+      handleAudioLoad(src, title);
+      updateMediaSession();
+    }
+
+    function selectRadio(src, title, index, logo) {
+      console.log(`Selecting radio: ${title}`);
+      currentRadioIndex = index;
+      currentTrackIndex = -1;
+      lastTrackSrc = src;
+      lastTrackTitle = title;
+      lastTrackIndex = index;
+      audioPlayer.src = src;
+      audioPlayer.currentTime = 0;
+      trackInfo.textContent = title;
+      trackArtist.textContent = '';
+      trackYear.textContent = '';
+      trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
+      albumCover.src = logo;
+      closeRadioList();
+      stopMusic();
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      cacheButton.style.display = 'none'; // Hide cache button for radio
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
+      handleAudioLoad(src, title);
+      updateMediaSession();
+    }
+
+    function retryTrack() {
+      if (currentRadioIndex >= 0) {
+        selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
+      } else {
+        selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex);
+      }
+    }
+
+    function handleAudioLoad(src, title) {
+      const playTimeout = setTimeout(() => {
+        loadingSpinner.style.display = 'none';
+        albumCover.style.display = 'block';
+        document.getElementById('progressBar').style.display = 'none';
+        trackInfo.textContent = 'Error: Stream failed to load (timeout)';
+        retryButton.style.display = 'block';
+        console.error(`Timeout: ${title} failed to buffer within 4 seconds`);
+      }, 4000);
+
+      audioPlayer.addEventListener('progress', () => {
+        if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
+          const bufferedEnd = audioPlayer.buffered.end(0);
+          const duration = audioPlayer.duration;
+          progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
+        }
+      });
+
+      audioPlayer.addEventListener('canplaythrough', () => {
+        clearTimeout(playTimeout);
+        loadingSpinner.style.display = 'none';
+        albumCover.style.display = 'block';
+        document.getElementById('progressBar').style.display = 'none';
+        console.log(`Stream ${title} can play through`);
+        if (!isFirstPlay) {
+          audioPlayer.play().catch(error => handlePlayError(error, title));
+        }
+      }, { once: true });
+
+      audioPlayer.addEventListener('canplay', () => {
+        if (loadingSpinner.style.display === 'block') {
+          clearTimeout(playTimeout);
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          console.log(`Stream ${title} can play (fallback)`);
+
+    updateMediaSession();
+
+          if (!isFirstPlay) {
+            audioPlayer.play().catch(error => handlePlayError(error, title));
+          }
+        }
+      }, { once: true });
+
+      audioPlayer.addEventListener('error', () => {
+        clearTimeout(playTimeout);
+        loadingSpinner.style.display = 'none';
+        albumCover.style.display = 'block';
+        document.getElementById('progressBar').style.display = 'none';
+        fetch(audioPlayer.src)
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) trackInfo.textContent = data.error;
+          })
+          .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
+        retryButton.style.display = 'block';
+        console.error(`Audio error for ${title}:`, audioPlayer.error);
+        if (audioPlayer.error) {
+          console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
+        }
+      }, { once: true });
+
+      audioPlayer.load(); // Force load
+    }
+
+    function manageVinylRotation() {
+      if (!audioPlayer.paused && !audioPlayer.ended) {
+        albumCover.classList.add('spin');
+      } else {
+        albumCover.classList.remove('spin');
+      }
+    }
+
+    function playMusic() {
+      if (audioPlayer.src) {
+        loadingSpinner.style.display = 'block';
+        albumCover.style.display = 'none';
+        retryButton.style.display = 'none';
+        document.getElementById('progressBar').style.display = 'block';
+        progressBar.style.width = '0%';
+
+        const playTimeout = setTimeout(() => {
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          trackInfo.textContent = 'Error: Stream failed to load (timeout)';
+          retryButton.style.display = 'block';
+          console.error('Timeout: Stream failed to buffer within 4 seconds');
+        }, 4000);
+
+        audioPlayer.addEventListener('progress', () => {
+          if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
+            const bufferedEnd = audioPlayer.buffered.end(0);
+            const duration = audioPlayer.duration;
+            progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
+          }
+        });
+
+        audioPlayer.addEventListener('canplaythrough', () => {
+          clearTimeout(playTimeout);
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          console.log(`Stream ${trackInfo.textContent} can play through`);
+          attemptPlay();
+        }, { once: true });
+
+        audioPlayer.addEventListener('canplay', () => {
+          if (loadingSpinner.style.display === 'block') {
+            clearTimeout(playTimeout);
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            document.getElementById('progressBar').style.display = 'none';
+            console.log(`Stream ${trackInfo.textContent} can play (fallback)`);
+            attemptPlay();
+          }
+        }, { once: true });
+
+        audioPlayer.addEventListener('error', () => {
+          clearTimeout(playTimeout);
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          fetch(audioPlayer.src)
+            .then(res => res.json())
+            .then(data => {
+              if (data.error) trackInfo.textContent = data.error;
+            })
+            .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
+          retryButton.style.display = 'block';
+          console.error('Audio error:', audioPlayer.error);
+        }, { once: true });
+
+        audioPlayer.load(); // Force load
+      }
+    }
+
+    function attemptPlay() {
+      audioPlayer.play()
+        .then(() => {
+          manageVinylRotation();
+          audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          console.log(`Playing: ${trackInfo.textContent}`);
+          updateStreak();
+          savePlayerState();
+          gsap.fromTo(albumCover,
+            { scale: 1 },
+            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+          );
+          isFirstPlay = false;
+        })
+        .catch(error => handlePlayError(error, trackInfo.textContent));
+    }
+
+    function handlePlayError(error, title) {
+      loadingSpinner.style.display = 'none';
+      albumCover.style.display = 'block';
+      document.getElementById('progressBar').style.display = 'none';
+      retryButton.style.display = 'block';
+      console.error(`Error playing ${title}:`, error);
+      trackInfo.textContent = navigator.onLine ? 'Error playing stream' : 'Offline - Stream unavailable';
+    }
+
+    function pauseMusic() {
+      audioPlayer.pause();
+      manageVinylRotation();
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      console.log('Paused');
+      savePlayerState();
+    }
+
+    function stopMusic() {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      manageVinylRotation();
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      seekBar.value = 0;
+      trackDuration.textContent = '0:00 / 0:00';
+      console.log('Stopped');
+      savePlayerState();
+    }
+
+    function updateTrackTime() {
+  const currentTime = audioPlayer.currentTime;
+
+  // 🔒 If it's a radio stream, don't format duration
+  if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
+    trackDuration.textContent = `${formatTime(currentTime)} / Live`;
+    seekBar.style.display = 'none'; // hide seekbar for radio
+    return;
+  }
+
+  const duration = audioPlayer.duration || 0;
+
+  if (!isNaN(duration) && duration > 0) {
+    trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+    seekBar.value = (currentTime / duration) * 100;
+    seekBar.style.display = 'block';
+    savePlayerState();
+  } else {
+    trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+    seekBar.style.display = 'block';
+  }
+}
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+    }
+
+    function seekAudio(value) {
+      if (audioPlayer.duration && currentRadioIndex === -1) {
+        const newTime = (value / 100) * audioPlayer.duration;
+        audioPlayer.currentTime = newTime;
+        updateTrackTime();
+      }
+    }
+
+    seekBar.addEventListener('input', () => seekAudio(seekBar.value));
+    seekBar.addEventListener('touchstart', () => audioPlayer.pause(), { passive: true });
+    seekBar.addEventListener('touchend', () => {
+      seekAudio(seekBar.value);
+      if (!audioPlayer.paused) audioPlayer.play();
+    });
+
+    audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
+
+    audioPlayer.addEventListener('ended', () => {
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      manageVinylRotation();
+      if (currentRadioIndex === -1) { // Only if not playing a radio station
+        if (shuffleMode) {
+          if (shuffleScope === 'all') {
+            // Shuffle across all albums
+            const allTracks = [];
+            albums.forEach((album, albumIdx) => {
+              album.tracks.forEach((track, trackIdx) => {
+                allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+              });
+            });
+            if (allTracks.length > 0) {
+              const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+              currentAlbumIndex = randomTrackInfo.originalAlbumIndex; // Update currentAlbumIndex
+              selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+            }
+          } else { // shuffleScope === 'album'
+            const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+            selectTrack(
+              albums[currentAlbumIndex].tracks[randomIndex].src,
+              albums[currentAlbumIndex].tracks[randomIndex].title,
+              randomIndex
+            );
+          }
+        } else { // No shuffle
+          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
+          selectTrack(
+            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+            currentTrackIndex
+          );
+        }
+        audioPlayer.addEventListener('canplay', () => {
+          audioPlayer.play();
+          audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          manageVinylRotation();
+          updateMediaSession();
+        }, { once: true });
+      }
+    });
+
+    audioPlayer.addEventListener('play', manageVinylRotation);
+    audioPlayer.addEventListener('pause', manageVinylRotation);
+    audioPlayer.addEventListener('ended', manageVinylRotation);
+
+audioPlayer.addEventListener('playing', () => {
+  audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
+  audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
+  updateTrackTime();  // update UI instantly
+  manageVinylRotation(); // spin the album cover if needed
+  console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
+});
+
+function nextTrack() {
+  // If a radio station is playing
+  if (currentRadioIndex !== -1) {
+    if (shuffleMode) {
+      // Shuffle mode: select a random station
+      const randomIndex = Math.floor(Math.random() * radioStations.length);
+      const station = radioStations[randomIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, randomIndex, station.logo);
+    } else {
+      // Normal mode: select the next station
+      const nextIndex = (currentRadioIndex + 1) % radioStations.length;
+      const station = radioStations[nextIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, nextIndex, station.logo);
+    }
+  }
+  // If an album track is playing
+  else {
+    if (shuffleMode) {
+      if (shuffleScope === 'all') {
+        const allTracks = [];
+        albums.forEach((album, albumIdx) => {
+          album.tracks.forEach((track, trackIdx) => {
+            allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+          });
+        });
+        if (allTracks.length > 0) {
+          const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+          currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
+          selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+        }
+      } else { // shuffleScope === 'album'
+        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+        selectTrack(
+          albums[currentAlbumIndex].tracks[randomIndex].src,
+          albums[currentAlbumIndex].tracks[randomIndex].title,
+          randomIndex
+        );
+      }
+    } else { // No shuffle
+      currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+    }
+  }
+
+  // Autoplay if the player was already playing
+  if (!audioPlayer.paused) {
+    audioPlayer.addEventListener('canplay', () => {
+      audioPlayer.play();
+      manageVinylRotation();
+    }, { once: true });
+  }
+  updateMediaSession();
+}
+
+function previousTrack() {
+  // If a radio station is playing
+  if (currentRadioIndex !== -1) {
+    if (shuffleMode) {
+      // Shuffle mode: select a random station
+      const randomIndex = Math.floor(Math.random() * radioStations.length);
+      const station = radioStations[randomIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, randomIndex, station.logo);
+    } else {
+      // Normal mode: select the previous station
+      const prevIndex = (currentRadioIndex - 1 + radioStations.length) % radioStations.length;
+      const station = radioStations[prevIndex];
+      selectRadio(station.url, `${station.name} - ${station.location}`, prevIndex, station.logo);
+    }
+  }
+  // If an album track is playing
+  else {
+    if (shuffleMode) {
+      if (shuffleScope === 'all') {
+        const allTracks = [];
+        albums.forEach((album, albumIdx) => {
+          album.tracks.forEach((track, trackIdx) => {
+            allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
+          });
+        });
+        if (allTracks.length > 0) {
+          const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
+          currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
+          selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
+        }
+      } else { // shuffleScope === 'album'
+        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+        selectTrack(
+          albums[currentAlbumIndex].tracks[randomIndex].src,
+          albums[currentAlbumIndex].tracks[randomIndex].title,
+          randomIndex
+        );
+      }
+    } else { // No shuffle
+      currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
+      selectTrack(
+        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+        currentTrackIndex
+      );
+    }
+  }
+
+  // Autoplay if the player was already playing
+  if (!audioPlayer.paused) {
+    audioPlayer.addEventListener('canplay', () => {
+      audioPlayer.play();
+      manageVinylRotation();
+    }, { once: true });
+  }
+  updateMediaSession();
+}
+
+    function openAlbumList() {
+      const modal = document.getElementById('albumModal');
+      const modalContent = modal.querySelector('.modal-content');
+
+      modalContent.style.pointerEvents = 'none';
+      modal.style.display = 'block';
+
+      gsap.fromTo(modalContent,
+        { scale: 0.8, opacity: 0, y: 50 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+          onComplete: () => {
+            modalContent.style.pointerEvents = 'auto';
+            console.log('Album list animation complete, clicks enabled.');
+          }
+        }
+      );
+      console.log('Album list opened, animating...');
+    }
+
+    function closeAlbumList() {
+      const modal = document.getElementById('albumModal');
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
+        }
+      );
+      console.log('Album list closed');
+    }
+
+    function openTrackList() {
+      updateTrackListModal();
+      const modal = document.getElementById('trackModal');
+      modal.style.display = 'block';
+      gsap.fromTo(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50 },
+        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+      );
+      console.log('Track list opened');
+    }
+
+    function closeTrackList() {
+      const modal = document.getElementById('trackModal');
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
+        }
+      );
+      console.log('Track list closed');
+    }
+
+    function openRadioList() {
+      updateRadioListModal();
+      const modal = document.getElementById('radioModal');
+      const modalContent = modal.querySelector('.modal-content');
+
+      modalContent.style.pointerEvents = 'none';
+      modal.style.display = 'block';
+
+      gsap.fromTo(modalContent,
+        { scale: 0.8, opacity: 0, y: 50 },
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+          onComplete: () => {
+            modalContent.style.pointerEvents = 'auto';
+            console.log('Radio list animation complete, clicks enabled.');
+          }
+        }
+      );
+      console.log('Radio list opened, animating...');
+    }
+
+    function closeRadioList() {
+      const modal = document.getElementById('radioModal');
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
+        }
+      );
+      console.log('Radio list closed');
+    }
+
+function toggleShuffle() {
+  const shuffleBtn = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
+  const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+
+  // If we are in radio mode, shuffle only has on/off states
+  if (currentRadioIndex !== -1) {
+    shuffleMode = !shuffleMode;
+    if (shuffleMode) {
+      shuffleBtn.textContent = '🔀 Radio';
+      shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
+      console.log('Shuffle mode: Radio');
+    } else {
+      shuffleBtn.textContent = '🔀 Off';
+      shuffleStatusInfo.textContent = 'Shuffle: Off';
+      console.log('Shuffle mode: Off');
+    }
+  }
+  // If we are in album/track mode, cycle through off, album, all
+  else {
+    if (shuffleScope === 'off') {
+      shuffleScope = 'album';
+      shuffleMode = true;
+      shuffleBtn.textContent = '🔀 Album';
+      shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
+      console.log('Shuffle mode: Album');
+    } else if (shuffleScope === 'album') {
+      shuffleScope = 'all';
+      shuffleMode = true;
+      shuffleBtn.textContent = '🔀 All';
+      shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+      console.log('Shuffle mode: All');
+    } else { // shuffleScope === 'all'
+      shuffleScope = 'off';
+      shuffleMode = false;
+      shuffleBtn.textContent = '🔀 Off';
+      shuffleStatusInfo.textContent = 'Shuffle: Off';
+      console.log('Shuffle mode: Off');
+    }
+  }
+  savePlayerState();
+}
+
+    /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
+const chatbotContainer = document.getElementById('chatbotContainer');
+const sabiBibleContainer = document.getElementById('sabiBibleContainer');
+const pictureGameContainer = document.getElementById('pictureGameContainer');
+const araPuzzleContainer = document.getElementById('araPuzzleContainer');
+
+function isAnyPanelOpen() {
+    return chatbotContainer.style.display === 'block' ||
+           sabiBibleContainer.style.display === 'block' ||
+           pictureGameContainer.style.display === 'block' ||
+           araPuzzleContainer.style.display === 'block';
+}
+
+// Spoof user as if dem dey America
+window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
+console.log("US Spoof Active:", window.spoofedLocation);
+
+function updateEdgePanelBehavior() {
+    chatbotWindowOpen = isAnyPanelOpen();
+    if (chatbotWindowOpen) {
+        closeEdgePanel();
+        clearInterval(autoPopOutInterval);
+    } else if (!edgePanel.classList.contains('visible')) {
+        autoPopOutEdgePanel();
+    }
+}
+
+function toggleChatbot() {
+    const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
+    chatbotContainer.style.display = isHidden ? 'block' : 'none';
+    updateEdgePanelBehavior();
+}
+
+function toggleSabiBible() {
+    const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
+    sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+    updateEdgePanelBehavior();
+}
+
+
+    const collapsibleContainerLeft = document.getElementById('collapsibleContainerLeft');
+    const collapsibleContainerRight = document.getElementById('collapsibleContainerRight');
+
+    function toggleCollapsibleContainer(container) {
+        container.classList.toggle('visible');
+    }
+
+    let inactivityTimer;
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            collapsibleContainerLeft.classList.remove('visible');
+            collapsibleContainerRight.classList.remove('visible');
+        }, 45000);
+    }
+
+    const edgePanel = document.getElementById('edgePanel');
+    const edgePanelHandle = document.querySelector('.edge-panel-handle');
+    let isDragging = false;
+    let initialX;
+    let initialRight;
+
+    edgePanelHandle.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        initialX = e.clientX;
+        initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+        edgePanel.style.transition = 'none'; // Disable transition during drag
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const currentX = e.clientX;
+            const dx = currentX - initialX;
+            edgePanel.style.right = `${initialRight - dx}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            edgePanel.style.transition = 'right 0.3s ease-in-out'; // Re-enable transition
+            const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+            if (finalRight < -40) {
+                edgePanel.classList.remove('visible');
+                edgePanel.style.right = '-70px';
+            } else {
+                edgePanel.classList.add('visible');
+                edgePanel.style.right = '0';
+            }
+        }
+    });
+
+    edgePanelHandle.addEventListener('click', () => {
+        if (!isDragging) {
+            edgePanel.classList.toggle('visible');
+            if (edgePanel.classList.contains('visible')) {
+                edgePanel.style.right = '0';
+                initializeMap();
+            } else {
+                edgePanel.style.right = '-70px';
+            }
+        }
+    });
+
+    function closeEdgePanel() {
+        edgePanel.classList.remove('visible');
+        edgePanel.style.right = '-70px';
+    }
+
+
+
+    /* AUTO POP-OUT/RETRACT EDGE PANEL */
+    let chatbotWindowOpen = false;
+    let autoPopOutInterval;
+
+    function autoPopOutEdgePanel() {
+        updateEdgePanelBehavior();
+    }
+
+    /* DYNAMIC AUDIO CACHING */
+    function cacheTrackForOffline(trackUrl) {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'CACHE_TRACK',
+          url: trackUrl
+        });
+        console.log(`Requested caching for: ${trackUrl}`);
+      } else {
+        console.warn('Service worker not available for caching');
+        alert('Offline caching unavailable. Please try again later.');
+      }
+    }
+
+    // Listen for caching confirmation from service worker
+    navigator.serviceWorker.onmessage = (event) => {
+      if (event.data && event.data.type === 'TRACK_CACHED') {
+        console.log(`Track cached successfully: ${event.data.url}`);
+        alert(`Track cached for offline use: ${event.data.url.split('/').pop()}`);
+      }
+    };
+
+    /* MEDIA SESSION API */
+    function updateMediaSession() {
+      if ('mediaSession' in navigator) {
+        const track = currentRadioIndex === -1
+          ? albums[currentAlbumIndex].tracks[currentTrackIndex]
+          : radioStations[currentRadioIndex];
+        const artwork = currentRadioIndex === -1
+          ? albums[currentAlbumIndex].cover
+          : radioStations[currentRadioIndex].logo;
+
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
+          artist: currentRadioIndex === -1 ? 'Omoluabi' : '',
+          album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
+          artwork: [
+            { src: artwork, sizes: '96x96', type: 'image/jpeg' },
+            { src: artwork, sizes: '128x128', type: 'image/jpeg' },
+            { src: artwork, sizes: '192x192', type: 'image/jpeg' },
+            { src: artwork, sizes: '256x256', type: 'image/jpeg' },
+            { src: artwork, sizes: '384x384', type: 'image/jpeg' },
+            { src: artwork, sizes: '512x512', type: 'image/jpeg' }
+          ]
+        });
+
+        navigator.mediaSession.setActionHandler('play', playMusic);
+        navigator.mediaSession.setActionHandler('pause', pauseMusic);
+        navigator.mediaSession.setActionHandler('stop', stopMusic);
+        navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
+        navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
+
+        console.log('Media Session updated with artwork');
+      }
+    }
+
+    audioPlayer.addEventListener('timeupdate', () => {
+      if ('mediaSession' in navigator && audioPlayer.duration && currentRadioIndex === -1) {
+        navigator.mediaSession.setPositionState({
+          duration: audioPlayer.duration,
+          playbackRate: audioPlayer.playbackRate,
+          position: audioPlayer.currentTime
+        });
+      }
+    });
+
+    function initializePlayer() {
+      const savedState = loadPlayerState();
+      if (savedState) {
+        currentAlbumIndex = savedState.albumIndex;
+        currentTrackIndex = savedState.trackIndex;
+        currentRadioIndex = savedState.radioIndex;
+        // shuffleMode = savedState.shuffleMode; // This line is updated below
+        if (currentRadioIndex >= 0) {
+          const station = radioStations[currentRadioIndex];
+          albumCover.src = station.logo;
+          audioPlayer.src = station.url;
+          trackInfo.textContent = `${station.name} - ${station.location}`;
+          trackArtist.textContent = '';
+          trackYear.textContent = '';
+          trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
+          cacheButton.style.display = 'none'; // Hide for radio
+          audioPlayer.addEventListener('loadedmetadata', () => {
+            audioPlayer.currentTime = savedState.playbackPosition;
+            updateTrackTime();
+            manageVinylRotation();
+          }, { once: true });
+        } else {
+          albumCover.src = albums[currentAlbumIndex].cover;
+          const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
+          audioPlayer.src = track.src;
+          trackInfo.textContent = track.title;
+          trackArtist.textContent = 'Artist: Omoluabi';
+          trackYear.textContent = 'Release Year: 2025';
+           trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
+          cacheButton.style.display = 'block'; // Show for tracks
+          audioPlayer.addEventListener('loadedmetadata', () => {
+            audioPlayer.currentTime = savedState.playbackPosition;
+            updateTrackTime();
+            manageVinylRotation();
+          }, { once: true });
+        }
+        updateTrackListModal();
+        const controls = document.querySelector(".music-controls.icons-only");
+        // Updated section for shuffle button text:
+        const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
+        const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+
+        shuffleMode = savedState.shuffleMode;
+        shuffleScope = savedState.shuffleScope;
+
+        if (shuffleScope === 'album') {
+          shuffleBtn.textContent = '🔀 Album';
+          shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
+        } else if (shuffleScope === 'all') {
+          shuffleBtn.textContent = '🔀 All';
+          shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+        } else { // off
+          shuffleBtn.textContent = '🔀 Off';
+          shuffleStatusInfo.textContent = 'Shuffle: Off';
+        }
+        console.log('Player restored from saved state:', savedState);
+      } else {
+        // Default state for a new session if no saved state
+        shuffleScope = 'off';
+        shuffleMode = false;
+        document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
+        document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
+        selectAlbum(0);
+        console.log('No saved state found, initialized with default');
+      }
+      updateStreak();
+      updateMediaSession();
+    }
+
+    // GSAP Sidebar Button Animations
+    document.querySelectorAll('.sidebar button').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        gsap.to(button, { scale: 1.08, duration: 0.3, ease: "power2.out" });
+      });
+      button.addEventListener('mouseleave', () => {
+        gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
+      });
+      button.addEventListener('click', () => {
+        gsap.to(button, {
+          scale: 0.95,
+          duration: 0.1,
+          ease: "power1.in",
+          onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
+        });
+      });
+    });
+
+    // Initialize player
+    initializePlayer();
+    autoPopOutEdgePanel();
+
+    // Save state before unloading
+    window.addEventListener('beforeunload', savePlayerState);
+
+    // PWA Install Prompt
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        showIosInstallBanner();
+        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+        }).catch(function(error) {
+          console.log('Service worker registration failed:', error);
+        });
+      });
+    }
+
+    let deferredPrompt;
+    const installContainer = document.createElement('div');
+    installContainer.style.position = 'fixed';
+    installContainer.style.bottom = '20px';
+    installContainer.style.right = '20px';
+    installContainer.style.zIndex = '1000';
+    document.body.appendChild(installContainer);
+
+    const installBtn = document.createElement('button');
+    installBtn.textContent = 'Install Àríyò AI';
+    installBtn.style.background = '#00bcd4';
+    installBtn.style.color = 'white';
+    installBtn.style.padding = '10px 20px';
+    installBtn.style.border = 'none';
+    installBtn.style.borderRadius = '5px';
+    installBtn.style.display = 'none';
+    installContainer.appendChild(installBtn);
+
+    const iosInstallBanner = document.createElement('div');
+    iosInstallBanner.innerHTML = '<p>To install, tap the share button and then "Add to Home Screen".</p>';
+    iosInstallBanner.style.background = 'rgba(0,0,0,0.8)';
+    iosInstallBanner.style.color = 'white';
+    iosInstallBanner.style.padding = '10px';
+    iosInstallBanner.style.borderRadius = '5px';
+    iosInstallBanner.style.display = 'none';
+    installContainer.appendChild(iosInstallBanner);
+
+    const closeBannerBtn = document.createElement('button');
+    closeBannerBtn.innerHTML = '&times;';
+    closeBannerBtn.style.position = 'absolute';
+    closeBannerBtn.style.top = '0';
+    closeBannerBtn.style.right = '5px';
+    closeBannerBtn.style.background = 'none';
+    closeBannerBtn.style.border = 'none';
+    closeBannerBtn.style.color = 'white';
+    closeBannerBtn.style.fontSize = '20px';
+    closeBannerBtn.onclick = () => {
+      iosInstallBanner.style.display = 'none';
+    };
+    iosInstallBanner.appendChild(closeBannerBtn);
+
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!isIOS()) {
+        installBtn.style.display = 'block';
+      }
+      console.log('Install prompt available');
+    });
+
+    function showIosInstallBanner() {
+      if (isIOS() && !navigator.standalone) {
+        iosInstallBanner.style.display = 'block';
+      }
+    }
+
+    installBtn.onclick = () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User installed the app');
+          }
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        });
+      }
+    };
+
+    function isIOS() {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test( userAgent );
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+    });
+
+    // Handle visibility change to fix track time bar after sleep
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !audioPlayer.paused) {
+        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+        audioPlayer.addEventListener('timeupdate', updateTrackTime);
+        updateTrackTime();
+        console.log('Page visible, reattached timeupdate listener');
+      }
+    });
+
+    // Handle Browser Back/Forward Navigation for dynamically loaded content
+    window.addEventListener('popstate', (event) => {
+      const mainContent = document.getElementById('main-content');
+      const aboutPageStyles = document.getElementById('about-page-styles');
+
+      if (event.state && event.state.page) {
+        if (event.state.page === 'about') {
+          if (!aboutPageStyles || mainContent.innerHTML.includes('<h2>Select an option from the sidebar')) {
+            navigateToAbout();
+          }
+        } else if (event.state.page === 'home') {
+          if (aboutPageStyles) {
+            navigateToHome();
+          }
+        }
+      } else {
+        // Fallback for initial state or null state. If about page is showing, go home.
+        if (aboutPageStyles) {
+          navigateToHome();
+        }
+      }
+    });
+
+    function openPictureGame() {
+        const container = document.getElementById('pictureGameContainer');
+        container.style.display = 'block';
+        updateEdgePanelBehavior();
+    }
+
+    function closePictureGame() {
+        const container = document.getElementById('pictureGameContainer');
+        container.style.display = 'none';
+        updateEdgePanelBehavior();
+    }
+
+
+
+    // Weekly Color Scheme Changer
+    changeColorScheme();
+
+    // Dynamic Edge Panel Height
+    const edgePanelContent = document.querySelector('.edge-panel-content');
+    const icons = edgePanelContent.querySelectorAll('.chatbot-bubble-container, .sabi-bible-bubble-container, .picture-game-bubble-container');
+    const iconHeight = 50; // height of each icon
+    const iconSpacing = 20; // spacing between icons
+    const panelPadding = 20; // top and bottom padding of the panel
+    const panelHeight = (icons.length * iconHeight) + ((icons.length - 1) * iconSpacing) + (2 * panelPadding);
+    document.getElementById('edgePanel').style.height = `${panelHeight}px`;
+  </script>
+  <script src="color-scheme.js"></script>
+</body>
+</html>

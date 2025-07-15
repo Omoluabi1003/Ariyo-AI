@@ -8,7 +8,7 @@ self.addEventListener('install', event => {
         const CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
         const urlsToCache = [
           '/',
-          '/index.html',
+          '/main.html',
           '/manifest.json',
           'icons/Ariyo.png',
           'icons/Ariyo_AI.png'
