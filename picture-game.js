@@ -185,6 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
             clearInterval(timer);
             score += 5 * difficultyFactor;
             scoreDisplay.textContent = `Score: ${score}`;
+            const winSound = new Audio('win-sound.mp3');
+            winSound.play();
             const winMessage = document.createElement('div');
             winMessage.id = 'win-message';
             winMessage.textContent = 'You Win!';
