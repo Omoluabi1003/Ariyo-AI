@@ -11,7 +11,12 @@ self.addEventListener('install', event => {
           '/main.html',
           '/manifest.json',
           'icons/Ariyo.png',
-          'icons/Ariyo_AI.png'
+          'icons/Ariyo_AI.png',
+          'scripts/data.js',
+          'scripts/player.js',
+          'scripts/ui.js',
+          'scripts/main.js',
+          'color-scheme.js'
         ];
         return caches.open(CACHE_NAME).then(cache => {
           return cache.addAll(urlsToCache);
