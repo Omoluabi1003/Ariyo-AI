@@ -1,0 +1,35 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#welcome-container {
+    text-align: center;
+}
+
+#welcome-message {
+    font-size: 3em;
+    color: #333;
+    opacity: 0; /* Start with text hidden */
+}
+
+#enter-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0; /* Start with button hidden */
+}
+
+#enter-button:hover {
+    background-color: #45a049;
+}

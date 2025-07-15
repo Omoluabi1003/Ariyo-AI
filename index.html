@@ -523,6 +523,11 @@
     }
   </style>
   <link rel="stylesheet" href="color-scheme.css">
+  <script>
+    if (!localStorage.getItem('hasVisited')) {
+      window.location.href = 'welcome.html';
+    }
+  </script>
 </head>
 
 <body>
