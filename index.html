@@ -47,6 +47,20 @@
         .enter-icon:hover {
             transform: scale(1.1);
         }
+        .enter-icon.clicked {
+            animation: click-animation 0.3s;
+        }
+        @keyframes click-animation {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
         .tour-container {
             display: flex;
             justify-content: center;
@@ -120,9 +134,13 @@
 
     <script>
         function enterApp() {
+            const enterIcon = document.querySelector('.enter-icon');
+            enterIcon.classList.add('clicked');
             const audio = document.getElementById('welcomeAudio');
             audio.pause();
-            window.location.href = 'main.html';
+            setTimeout(() => {
+                window.location.href = 'main.html';
+            }, 300);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
