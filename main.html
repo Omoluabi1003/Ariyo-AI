@@ -871,7 +871,7 @@
       }
 
       let currentPath = window.location.pathname;
-      if (currentPath.endsWith('/index.html')) currentPath = currentPath.substring(0, currentPath.length - 'index.html'.length);
+      if (currentPath.endsWith('/main.html')) currentPath = currentPath.substring(0, currentPath.length - 'main.html'.length);
       if (currentPath.endsWith('/about.html')) {
           history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
       } else if (currentPath !== '/' && !currentPath.endsWith('/')) {
