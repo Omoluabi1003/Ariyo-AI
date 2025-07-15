@@ -122,9 +122,24 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('welcomeAudio');
-            audio.play().catch(error => {
-                console.log("Autoplay was prevented:", error);
-            });
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                const playButton = document.createElement('button');
+                playButton.textContent = 'Play Music';
+                playButton.classList.add('theme-button'); // Re-use existing button style
+                playButton.style.marginTop = '1rem';
+                playButton.onclick = () => {
+                    audio.play();
+                    playButton.style.display = 'none';
+                };
+                const themeSelector = document.querySelector('.theme-selector');
+                themeSelector.insertAdjacentElement('afterend', playButton);
+            } else {
+                audio.play().catch(error => {
+                    console.log("Autoplay was prevented:", error);
+                });
+            }
         });
 
         document.querySelectorAll('.theme-button').forEach(button => {
