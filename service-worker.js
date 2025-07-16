@@ -11,7 +11,6 @@ self.addEventListener('install', event => {
           '/main.html',
           '/manifest.json',
           'icons/Ariyo.png',
-          'icons/Ariyo_AI.png',
           'scripts/data.js',
           'scripts/player.js',
           'scripts/ui.js',
