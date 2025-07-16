@@ -439,7 +439,6 @@
       transform: translateX(-50%);
     }
     .floating-watermarks {
-      pointer-events: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -453,6 +452,7 @@
       font-size: clamp(1rem, 4vw, 2rem);
       color: rgba(255, 255, 255, 0.5);
       white-space: nowrap;
+      pointer-events: none;
     }
     .exploding-watermark span {
         display: inline-block;
@@ -699,21 +699,6 @@
 
   <!-- Floating Watermarks -->
   <div class="floating-watermarks">
-    <div id="nowPlayingToast" style="
-  position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.85);
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-  display: none;
-  z-index: 9999;
-  transition: all 0.4s ease;
-">Now playing</div>
     <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
     <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
     <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
