@@ -1,11 +1,12 @@
 const CACHE_PREFIX = 'ariyo-ai-cache-v2';
+let CACHE_NAME;
 
 self.addEventListener('install', event => {
   event.waitUntil(
     fetch('/version.json')
       .then(response => response.json())
       .then(data => {
-        const CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
+        CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
         const urlsToCache = [
           '/',
           '/main.html',
@@ -30,20 +31,15 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    fetch('/version.json')
-      .then(response => response.json())
-      .then(data => {
-        const CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
-        return caches.keys().then(cacheNames => {
-          return Promise.all(
-            cacheNames.map(cacheName => {
-              if (cacheName !== CACHE_NAME) {
-                return caches.delete(cacheName);
-              }
-            })
-          );
-        });
-      })
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
@@ -61,13 +57,16 @@ self.addEventListener('fetch', event => {
                             return response;
                         }
                         const responseToCache = response.clone();
-                        caches.open(CACHE_PREFIX + '-runtime')
+                        caches.open(CACHE_NAME + '-runtime')
                             .then(cache => {
                                 cache.put(event.request, responseToCache);
                             });
                         return response;
                     }
-                );
+                ).catch(error => {
+                    console.error('Fetch failed:', error);
+                    // You could return a custom offline page here
+                });
             })
     );
 });

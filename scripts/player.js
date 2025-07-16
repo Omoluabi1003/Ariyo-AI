@@ -70,12 +70,20 @@
     function loadPlayerState() {
       const savedState = localStorage.getItem('ariyoPlayerState');
       if (savedState) {
-        const playerState = JSON.parse(savedState);
-        const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
-        if (ageInHours < 24) {
-          // Ensure shuffleScope is loaded, default if not present in older saved states
-          playerState.shuffleScope = playerState.shuffleScope || 'off';
-          return playerState;
+        try {
+          const playerState = JSON.parse(savedState);
+          const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
+          if (ageInHours < 24) {
+            // Validate the saved state
+            if (playerState.albumIndex >= 0 && playerState.albumIndex < albums.length &&
+                playerState.trackIndex >= 0 && playerState.trackIndex < albums[playerState.albumIndex].tracks.length) {
+              playerState.shuffleScope = playerState.shuffleScope || 'off';
+              return playerState;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading player state:', error);
+          localStorage.removeItem('ariyoPlayerState');
         }
       }
       return null;
@@ -246,24 +254,30 @@ function selectTrack(src, title, index) {
     }
 
     function handleAudioLoad(src, title, isInitialLoad = true) {
+      // Remove all previous event listeners
+      audioPlayer.removeEventListener('progress', onProgress);
+      audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
+      audioPlayer.removeEventListener('canplay', onCanPlay);
+      audioPlayer.removeEventListener('error', onError);
+
       const playTimeout = setTimeout(() => {
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         trackInfo.textContent = 'Error: Stream failed to load (timeout)';
         retryButton.style.display = 'block';
-        console.error(`Timeout: ${title} failed to buffer within 4 seconds`);
-      }, 4000);
+        console.error(`Timeout: ${title} failed to buffer within 8 seconds`);
+      }, 8000);
 
-      audioPlayer.addEventListener('progress', () => {
+      function onProgress() {
         if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
           const bufferedEnd = audioPlayer.buffered.end(0);
           const duration = audioPlayer.duration;
           progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
         }
-      });
+      }
 
-      audioPlayer.addEventListener('canplaythrough', () => {
+      function onCanPlayThrough() {
         clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
@@ -272,41 +286,39 @@ function selectTrack(src, title, index) {
         if (!isInitialLoad) {
           attemptPlay();
         }
-      }, { once: true });
+      }
 
-      audioPlayer.addEventListener('canplay', () => {
+      function onCanPlay() {
         if (loadingSpinner.style.display === 'block') {
           clearTimeout(playTimeout);
           loadingSpinner.style.display = 'none';
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
           console.log(`Stream ${title} can play (fallback)`);
-
-    updateMediaSession();
-
+          updateMediaSession();
           if (!isInitialLoad) {
             attemptPlay();
           }
         }
-      }, { once: true });
+      }
 
-      audioPlayer.addEventListener('error', () => {
+      function onError() {
         clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
-        fetch(audioPlayer.src)
-          .then(res => res.json())
-          .then(data => {
-            if (data.error) trackInfo.textContent = data.error;
-          })
-          .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
+        trackInfo.textContent = 'Error: Unable to load stream.';
         retryButton.style.display = 'block';
         console.error(`Audio error for ${title}:`, audioPlayer.error);
         if (audioPlayer.error) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
-      }, { once: true });
+      }
+
+      audioPlayer.addEventListener('progress', onProgress);
+      audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
+      audioPlayer.addEventListener('canplay', onCanPlay, { once: true });
+      audioPlayer.addEventListener('error', onError, { once: true });
 
       audioPlayer.load(); // Force load
     }
