@@ -261,3 +261,15 @@ function showNowPlayingToast(trackTitle) {
     }});
   }, 3000);
 }
+
+function showNowPlayingToast(trackTitle) {
+  const toast = document.getElementById('nowPlayingToast');
+  toast.textContent = `Now playing: ${trackTitle}`;
+  toast.style.display = 'block';
+  gsap.fromTo(toast, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+  setTimeout(() => {
+    gsap.to(toast, { opacity: 0, y: -20, duration: 0.5, ease: "power2.in", onComplete: () => {
+      toast.style.display = 'none';
+    }});
+  }, 3000);
+}
