@@ -237,7 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     puzzleGrid.addEventListener('touchmove', (e) => {
         e.preventDefault();
-        handleMouseMove(e.touches[0]);
+        const touch = e.touches[0];
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (element) {
+            handleMouseMove({ target: element });
+        }
     });
     document.addEventListener('touchend', handleMouseUp);
 
