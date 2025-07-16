@@ -516,6 +516,7 @@
             trackLink.onclick = () => {
                 currentAlbumIndex = track.originalAlbumIndex;
                 selectTrack(track.src, track.title, track.originalTrackIndex);
+                closeTrackList();
             };
             trackLink.textContent = `${track.title} - ${albums[track.originalAlbumIndex].name}`;
             trackListContainer.appendChild(trackLink);
