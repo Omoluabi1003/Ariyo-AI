@@ -185,7 +185,7 @@ function selectTrack(src, title, index) {
       cacheButton.style.display = 'block'; // Show cache button
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      handleAudioLoad(src, title);
+      handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
     }
@@ -232,7 +232,7 @@ function selectTrack(src, title, index) {
       cacheButton.style.display = 'none'; // Hide cache button for radio
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      handleAudioLoad(src, title);
+      handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
     }
@@ -245,7 +245,7 @@ function selectTrack(src, title, index) {
       }
     }
 
-    function handleAudioLoad(src, title) {
+    function handleAudioLoad(src, title, isInitialLoad = true) {
       const playTimeout = setTimeout(() => {
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
@@ -269,8 +269,8 @@ function selectTrack(src, title, index) {
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         console.log(`Stream ${title} can play through`);
-        if (!isFirstPlay) {
-          audioPlayer.play().catch(error => handlePlayError(error, title));
+        if (!isInitialLoad) {
+          attemptPlay();
         }
       }, { once: true });
 
@@ -284,8 +284,8 @@ function selectTrack(src, title, index) {
 
     updateMediaSession();
 
-          if (!isFirstPlay) {
-            audioPlayer.play().catch(error => handlePlayError(error, title));
+          if (!isInitialLoad) {
+            attemptPlay();
           }
         }
       }, { once: true });
@@ -321,65 +321,7 @@ function selectTrack(src, title, index) {
 
     function playMusic() {
       if (audioPlayer.src) {
-        loadingSpinner.style.display = 'block';
-        albumCover.style.display = 'none';
-        retryButton.style.display = 'none';
-        document.getElementById('progressBar').style.display = 'block';
-        progressBar.style.width = '0%';
-
-        const playTimeout = setTimeout(() => {
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          trackInfo.textContent = 'Error: Stream failed to load (timeout)';
-          retryButton.style.display = 'block';
-          console.error('Timeout: Stream failed to buffer within 4 seconds');
-        }, 4000);
-
-        audioPlayer.addEventListener('progress', () => {
-          if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
-            const bufferedEnd = audioPlayer.buffered.end(0);
-            const duration = audioPlayer.duration;
-            progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
-          }
-        });
-
-        audioPlayer.addEventListener('canplaythrough', () => {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          console.log(`Stream ${trackInfo.textContent} can play through`);
-          attemptPlay();
-        }, { once: true });
-
-        audioPlayer.addEventListener('canplay', () => {
-          if (loadingSpinner.style.display === 'block') {
-            clearTimeout(playTimeout);
-            loadingSpinner.style.display = 'none';
-            albumCover.style.display = 'block';
-            document.getElementById('progressBar').style.display = 'none';
-            console.log(`Stream ${trackInfo.textContent} can play (fallback)`);
-            attemptPlay();
-          }
-        }, { once: true });
-
-        audioPlayer.addEventListener('error', () => {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          fetch(audioPlayer.src)
-            .then(res => res.json())
-            .then(data => {
-              if (data.error) trackInfo.textContent = data.error;
-            })
-            .catch(() => trackInfo.textContent = 'Error: Unable to load stream');
-          retryButton.style.display = 'block';
-          console.error('Audio error:', audioPlayer.error);
-        }, { once: true });
-
-        audioPlayer.load(); // Force load
+        handleAudioLoad(audioPlayer.src, trackInfo.textContent, false);
       }
     }
 

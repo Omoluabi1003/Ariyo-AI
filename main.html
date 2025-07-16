@@ -125,6 +125,7 @@
       border-radius: 15px;
       box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
     .sidebar button {
       background: linear-gradient(135deg, #00bcd4, #009688);
@@ -162,10 +163,13 @@
       position: fixed;
       bottom: calc(1rem + env(safe-area-inset-bottom));
       width: 100%;
-      max-width: 600px;
+      max-width: 800px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .album-cover {
       width: clamp(120px, 30vw, 200px);
@@ -500,6 +504,7 @@
         gap: 1rem;
         border-radius: 0;
         padding: 0.5rem;
+        flex-wrap: wrap;
       }
       .container { flex-direction: column; }
       .content { padding-bottom: 15rem; }
@@ -509,9 +514,12 @@
         padding: 0.5rem;
         min-width: auto;
         font-size: 0.8rem;
-        width: 30%;
+        width: 45%;
       }
       .music-player { bottom: env(safe-area-inset-bottom); padding: 0.5rem; border-radius: 0; }
+      .music-controls.icons-only {
+        flex-wrap: wrap;
+      }
       .chatbot-bubble-container, .sabi-bible-bubble-container {
         bottom: calc(15rem + env(safe-area-inset-bottom));
       }
