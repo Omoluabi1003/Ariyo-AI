@@ -471,17 +471,19 @@
     .drift2 { animation: drift2 30s linear infinite; }
     .drift3 { animation: drift3 30s linear infinite; }
     .drift4 { animation: drift4 30s linear infinite; }
-    .exploding-watermark {
-        animation: explode 2s ease-in-out infinite;
+    .exploding-watermark span {
+        display: inline-block;
+        animation: letter-explode 2s ease-in-out infinite;
+        animation-delay: calc(0.1s * var(--i));
     }
 
-    @keyframes explode {
+    @keyframes letter-explode {
         0% {
-            transform: scale(1);
+            transform: translate(0, 0) rotate(0);
             opacity: 1;
         }
         100% {
-            transform: scale(2) rotate(360deg);
+            transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5))) rotate(calc(360deg * var(--r)));
             opacity: 0;
         }
     }
@@ -751,5 +753,15 @@
   <script src="scripts/ui.js"></script>
   <script src="scripts/main.js"></script>
   <script src="color-scheme.js"></script>
+  <script>
+    document.querySelectorAll('.exploding-watermark').forEach(watermark => {
+        watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
+            const x = Math.random();
+            const y = Math.random();
+            const r = Math.random();
+            return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
+        }).join('');
+    });
+  </script>
 </body>
 </html>
