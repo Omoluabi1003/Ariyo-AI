@@ -528,6 +528,12 @@
 <body>
   <div class="header">
     Welcome to Àríyò AI
+    <input type="search" id="searchInput" placeholder="Search for music..." aria-label="Search for music">
+    <div class="social-share-buttons">
+        <a href="#" class="social-share-button" id="facebook-share-button" aria-label="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-share-button" id="twitter-share-button" aria-label="Share on Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="social-share-button" id="whatsapp-share-button" aria-label="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    </div>
   </div>
 
   <div class="container">
@@ -535,6 +541,7 @@
       <button onclick="openAlbumList()" aria-label="Choose an album">🎧 Choose An Album</button>
       <button onclick="openRadioList()" aria-label="Radio stations">📻 Radio Stations</button>
       <button onclick="navigateToAbout()" aria-label="About us">ℹ️ About Us</button>
+      <button onclick="openFavoritesList()" aria-label="Favorites">⭐ Favorites</button>
     </div>
     <div class="content" id="main-content">
       <h2>Select an option from the sidebar</h2>
@@ -580,6 +587,7 @@
       <button aria-label="Stop" onclick="stopMusic()" title="Stop">⏹</button>
       <button aria-label="Next track" onclick="nextTrack()" title="Next track">⏭</button>
       <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle">🔀</button>
+      <button onclick="addToFavorites()" aria-label="Add to favorites">⭐</button>
     </div>
   </div>
 
@@ -612,6 +620,17 @@
 <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
   <div class="modal-content">
     <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
+
+<!-- Modal for Favorites List -->
+<div id="favoritesModal" class="modal" role="dialog" aria-labelledby="favoritesModalTitle">
+    <div class="modal-content">
+        <span class="close" role="button" aria-label="Close favorites list" onclick="closeFavoritesList()">×</span>
+        <h3 id="favoritesModalTitle">Your Favorites</h3>
+        <div class="favorites-list">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
 
     <!-- Group: Nigeria -->
     <h4>Nigeria</h4>
