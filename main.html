@@ -471,6 +471,20 @@
     .drift2 { animation: drift2 30s linear infinite; }
     .drift3 { animation: drift3 30s linear infinite; }
     .drift4 { animation: drift4 30s linear infinite; }
+    .exploding-watermark {
+        animation: explode 2s ease-in-out infinite;
+    }
+
+    @keyframes explode {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(2) rotate(360deg);
+            opacity: 0;
+        }
+    }
     .retry-button {
       background: #00bcd4;
       color: white;
@@ -701,18 +715,18 @@
   z-index: 9999;
   transition: all 0.4s ease;
 ">Now playing</div>
-    <div class="watermark drift1" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-    <div class="watermark drift2" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-    <div class="watermark drift3" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-    <div class="watermark drift4" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-    <div class="watermark drift1" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-    <div class="watermark drift2" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-    <div class="watermark drift3" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-    <div class="watermark drift4" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-    <div class="watermark drift1" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-    <div class="watermark drift2" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-    <div class="watermark drift3" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-    <div class="watermark drift4" style="top: 75%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
   </div>
 
   <!-- 🎧 Now Playing Toast -->
