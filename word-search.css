@@ -69,15 +69,38 @@ body {
 }
 
 #word-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
     list-style-type: none;
-    padding: 0;
-    text-align: left;
+    text-align: center;
 }
 
 #word-list li {
     font-size: 1.2rem;
-    margin-bottom: 0.5rem;
     text-transform: uppercase;
+    background-color: #eee;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+}
+
+@media screen and (max-width: 600px) {
+    #puzzle-grid {
+        grid-template-columns: repeat(10, 30px);
+        grid-template-rows: repeat(10, 30px);
+    }
+
+    .grid-cell {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+
+    #word-list li {
+        font-size: 1rem;
+    }
 }
 
 #word-list li.found {

@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const categories = {
         technology: ['html', 'css', 'javascript', 'python', 'java', 'ruby', 'php', 'swift', 'kotlin', 'csharp'],
         medical: ['anatomy', 'biopsy', 'cancer', 'dementia', 'embolism', 'fibrosis', 'gastro', 'hospice', 'influenza', 'jaundice'],
-        science: ['astronomy', 'biology', 'chemistry', 'dynamics', 'ecology', 'fusion', 'geology', 'hydrology', 'isotopes', 'joule']
+        science: ['astronomy', 'biology', 'chemistry', 'dynamics', 'ecology', 'fusion', 'geology', 'hydrology', 'isotopes', 'joule'],
+        nigeria: ['abia', 'adamawa', 'akwaibom', 'anambra', 'bauchi', 'bayelsa', 'benue', 'borno', 'crossriver', 'delta', 'ebonyi', 'edo', 'ekiti', 'enugu', 'gombe', 'imo', 'jigawa', 'kaduna', 'kano', 'katsina', 'kebbi', 'kogi', 'kwara', 'lagos', 'nasarawa', 'niger', 'ogun', 'ondo', 'osun', 'oyo', 'plateau', 'rivers', 'sokoto', 'taraba', 'yobe', 'zamfara']
     };
 
     let words = [];
