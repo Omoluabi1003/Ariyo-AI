@@ -16,7 +16,10 @@ self.addEventListener('install', event => {
           'scripts/player.js',
           'scripts/ui.js',
           'scripts/main.js',
-          'color-scheme.js'
+          'color-scheme.js',
+          'word-search.html',
+          'word-search.css',
+          'word-search.js'
         ];
         return caches.open(CACHE_NAME).then(cache => {
           return cache.addAll(urlsToCache);
@@ -34,7 +37,7 @@ self.addEventListener('activate', event => {
         return caches.keys().then(cacheNames => {
           return Promise.all(
             cacheNames.map(cacheName => {
-              if (cacheName.startsWith(CACHE_PREFIX) && cacheName !== CACHE_NAME) {
+              if (cacheName !== CACHE_NAME) {
                 return caches.delete(cacheName);
               }
             })

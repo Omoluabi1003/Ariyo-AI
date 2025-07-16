@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css?family=Lobster&display=swap');
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+#game-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+#game-title {
+    font-family: 'Lobster', cursive;
+    font-size: 3rem;
+    color: #00bcd4;
+    text-shadow: 2px 2px 4px #000000;
+    margin-bottom: 20px;
+}
+
+#puzzle-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+#puzzle-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 35px);
+    grid-template-rows: repeat(10, 35px);
+    border: 2px solid #333;
+    background-color: #fff;
+}
+
+.grid-cell {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid #ddd;
+}
+
+.grid-cell.selected {
+    background-color: #00bcd4;
+    color: white;
+}
+
+.grid-cell.found {
+    background-color: #ffc107;
+    color: white;
+}
+
+#word-list {
+    list-style-type: none;
+    padding: 0;
+    text-align: left;
+}
+
+#word-list li {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+#word-list li.found {
+    text-decoration: line-through;
+    color: #aaa;
+}
+
+#game-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#start-button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#timer, #score {
+    font-weight: bold;
+    font-size: 1.2rem;
+}

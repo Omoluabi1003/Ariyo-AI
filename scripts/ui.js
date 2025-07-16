@@ -134,13 +134,13 @@ function toggleShuffle() {
 const chatbotContainer = document.getElementById('chatbotContainer');
 const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 const pictureGameContainer = document.getElementById('pictureGameContainer');
-const araPuzzleContainer = document.getElementById('araPuzzleContainer');
+const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
            sabiBibleContainer.style.display === 'block' ||
            pictureGameContainer.style.display === 'block' ||
-           araPuzzleContainer.style.display === 'block';
+           wordSearchGameContainer.style.display === 'block';
 }
 
 // Spoof user as if dem dey America
@@ -166,6 +166,28 @@ function toggleChatbot() {
 function toggleSabiBible() {
     const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
     sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+    updateEdgePanelBehavior();
+}
+
+function openPictureGame() {
+    pictureGameContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closePictureGame() {
+    pictureGameContainer.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openWordSearchGame() {
+    const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
+    wordSearchGameContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeWordSearchGame() {
+    const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
+    wordSearchGameContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
