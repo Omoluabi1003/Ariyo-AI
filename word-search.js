@@ -4,8 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const timerDisplay = document.getElementById('timer');
     const scoreDisplay = document.getElementById('score');
+    const categorySelect = document.createElement('select');
+    const categories = {
+        technology: ['html', 'css', 'javascript', 'python', 'java', 'ruby', 'php', 'swift', 'kotlin', 'csharp'],
+        medical: ['anatomy', 'biopsy', 'cancer', 'dementia', 'embolism', 'fibrosis', 'gastro', 'hospice', 'influenza', 'jaundice'],
+        science: ['astronomy', 'biology', 'chemistry', 'dynamics', 'ecology', 'fusion', 'geology', 'hydrology', 'isotopes', 'joule']
+    };
 
-    const words = ['html', 'css', 'javascript', 'python', 'java', 'ruby', 'php', 'swift', 'kotlin', 'csharp'];
+    let words = [];
     const gridSize = 10;
     let grid = [];
     let selectedCells = [];
@@ -13,6 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let timer;
     let time = 0;
+    let isDragging = false;
+
+    function setupCategorySelector() {
+        for (const category in categories) {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            categorySelect.appendChild(option);
+        }
+        document.getElementById('game-controls').insertBefore(categorySelect, startButton);
+        categorySelect.addEventListener('change', () => {
+            words = categories[categorySelect.value];
+            startGame();
+        });
+        words = categories[categorySelect.value];
+    }
 
     function initGrid() {
         grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
@@ -32,16 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const word of words) {
             let placed = false;
             while (!placed) {
-                const direction = Math.random() > 0.5 ? 'horizontal' : 'vertical';
+                const direction = Math.floor(Math.random() * 3); // 0: horizontal, 1: vertical, 2: diagonal
                 const row = Math.floor(Math.random() * gridSize);
                 const col = Math.floor(Math.random() * gridSize);
 
                 if (canPlaceWord(word, row, col, direction)) {
                     for (let i = 0; i < word.length; i++) {
-                        if (direction === 'horizontal') {
+                        if (direction === 0) {
                             grid[row][col + i] = word[i];
-                        } else {
+                        } else if (direction === 1) {
                             grid[row + i][col] = word[i];
+                        } else {
+                            grid[row + i][col + i] = word[i];
                         }
                     }
                     placed = true;
@@ -51,19 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function canPlaceWord(word, row, col, direction) {
-        if (direction === 'horizontal') {
+        if (direction === 0) {
             if (col + word.length > gridSize) return false;
             for (let i = 0; i < word.length; i++) {
-                if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) {
-                    return false;
-                }
+                if (grid[row][col + i] !== '' && grid[row][col + i] !== word[i]) return false;
             }
-        } else {
+        } else if (direction === 1) {
             if (row + word.length > gridSize) return false;
             for (let i = 0; i < word.length; i++) {
-                if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) {
-                    return false;
-                }
+                if (grid[row + i][col] !== '' && grid[row + i][col] !== word[i]) return false;
+            }
+        } else {
+            if (row + word.length > gridSize || col + word.length > gridSize) return false;
+            for (let i = 0; i < word.length; i++) {
+                if (grid[row + i][col + i] !== '' && grid[row + i][col + i] !== word[i]) return false;
             }
         }
         return true;
@@ -90,49 +115,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function handleCellClick(e) {
-        const cell = e.target;
-        if (!cell.classList.contains('grid-cell') || cell.classList.contains('found')) return;
-
-        cell.classList.toggle('selected');
-        const rowIndex = parseInt(cell.dataset.row);
-        const colIndex = parseInt(cell.dataset.col);
-
-        const selectedIndex = selectedCells.findIndex(c => c.row === rowIndex && c.col === colIndex);
-
-        if (selectedIndex > -1) {
-            selectedCells.splice(selectedIndex, 1);
-        } else {
-            selectedCells.push({ row: rowIndex, col: colIndex, cell });
+    function handleMouseDown(e) {
+        if (e.target.classList.contains('grid-cell')) {
+            isDragging = true;
+            selectedCells = [e.target];
+            e.target.classList.add('selected');
         }
+    }
 
-        checkWord();
+    function handleMouseMove(e) {
+        if (isDragging && e.target.classList.contains('grid-cell')) {
+            const currentCell = e.target;
+            if (!selectedCells.includes(currentCell)) {
+                selectedCells.push(currentCell);
+                currentCell.classList.add('selected');
+            }
+        }
+    }
+
+    function handleMouseUp() {
+        if (isDragging) {
+            isDragging = false;
+            checkWord();
+            selectedCells.forEach(cell => cell.classList.remove('selected'));
+            selectedCells = [];
+        }
     }
 
     function checkWord() {
-        if (selectedCells.length < 2) return;
-
         let selectedWord = '';
-        selectedCells.sort((a, b) => {
-            if (a.row !== b.row) {
-                return a.row - b.row;
-            }
-            return a.col - b.col;
-        });
-
         for (const cell of selectedCells) {
-            selectedWord += grid[cell.row][cell.col];
+            selectedWord += cell.textContent;
         }
 
         if (words.includes(selectedWord) && !foundWords.includes(selectedWord)) {
             foundWords.push(selectedWord);
             updateScore(selectedWord.length);
             markWordAsFound(selectedWord);
-            selectedCells.forEach(c => {
-                c.cell.classList.add('found');
-                c.cell.classList.remove('selected');
-            });
-            selectedCells = [];
+            selectedCells.forEach(cell => cell.classList.add('found'));
             if (foundWords.length === words.length) {
                 endGame();
             }
@@ -141,11 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             foundWords.push(reversedWord);
             updateScore(reversedWord.length);
             markWordAsFound(reversedWord);
-            selectedCells.forEach(c => {
-                c.cell.classList.add('found');
-                c.cell.classList.remove('selected');
-            });
-            selectedCells = [];
+            selectedCells.forEach(cell => cell.classList.add('found'));
             if (foundWords.length === words.length) {
                 endGame();
             }
@@ -187,11 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const interval = setInterval(function() {
             const timeLeft = animationEnd - Date.now();
-
             if (timeLeft <= 0) {
                 return clearInterval(interval);
             }
-
             const particleCount = 50 * (timeLeft / duration);
             confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
             confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
@@ -212,7 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     startButton.addEventListener('click', startGame);
-    puzzleGrid.addEventListener('click', handleCellClick);
+    puzzleGrid.addEventListener('mousedown', handleMouseDown);
+    puzzleGrid.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
 
+    setupCategorySelector();
     startGame();
 });
