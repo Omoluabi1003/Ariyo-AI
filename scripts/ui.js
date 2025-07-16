@@ -250,7 +250,6 @@ function closeWordSearchGame() {
             edgePanel.classList.toggle('visible');
             if (edgePanel.classList.contains('visible')) {
                 edgePanel.style.right = '0';
-                initializeMap();
             } else {
                 edgePanel.style.right = '-70px';
             }
