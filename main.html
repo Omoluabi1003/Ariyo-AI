@@ -528,15 +528,6 @@
 <body>
   <div class="header">
     Welcome to Àríyò AI
-    <input type="search" id="searchInput" placeholder="Search for music..." aria-label="Search for music">
-    <div class="social-share-buttons">
-        <a href="#" class="social-share-button" id="facebook-share-button" aria-label="Share on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="social-share-button" id="twitter-share-button" aria-label="Share on Twitter"><i class="fab fa-twitter"></i></a>
-        <a href="#" class="social-share-button" id="whatsapp-share-button" aria-label="Share on WhatsApp"><i class="fab fa-whatsapp"></i></a>
-    </div>
-    <button class="share-button" aria-label="Share this page" onclick="shareContent()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
-    </button>
   </div>
 
   <div class="container">
@@ -544,7 +535,6 @@
       <button onclick="openAlbumList()" aria-label="Choose an album">🎧 Choose An Album</button>
       <button onclick="openRadioList()" aria-label="Radio stations">📻 Radio Stations</button>
       <button onclick="navigateToAbout()" aria-label="About us">ℹ️ About Us</button>
-      <button onclick="openFavoritesList()" aria-label="Favorites">⭐ Favorites</button>
     </div>
     <div class="content" id="main-content">
       <h2>Select an option from the sidebar</h2>
@@ -563,7 +553,6 @@
     />
     <div id="loadingSpinner" class="loading-spinner"></div>
     <div id="progressBar" class="progress-bar"><div></div></div>
-    <div id="radioProgressBar" class="progress-bar" style="display: none;"><div></div></div>
     <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
@@ -591,8 +580,6 @@
       <button aria-label="Stop" onclick="stopMusic()" title="Stop">⏹</button>
       <button aria-label="Next track" onclick="nextTrack()" title="Next track">⏭</button>
       <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle">🔀</button>
-      <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1" aria-label="Volume control">
-      <button onclick="addToFavorites()" aria-label="Add to favorites">⭐</button>
     </div>
   </div>
 
@@ -625,17 +612,6 @@
 <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
   <div class="modal-content">
     <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
-
-<!-- Modal for Favorites List -->
-<div id="favoritesModal" class="modal" role="dialog" aria-labelledby="favoritesModalTitle">
-    <div class="modal-content">
-        <span class="close" role="button" aria-label="Close favorites list" onclick="closeFavoritesList()">×</span>
-        <h3 id="favoritesModalTitle">Your Favorites</h3>
-        <div class="favorites-list">
-            <!-- Dynamically populated -->
-        </div>
-    </div>
-</div>
 
     <!-- Group: Nigeria -->
     <h4>Nigeria</h4>
