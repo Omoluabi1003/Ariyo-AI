@@ -6,14 +6,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const scoreDisplay = document.getElementById('score');
     const categorySelect = document.createElement('select');
     const categories = {
-        technology: ['html', 'css', 'javascript', 'python', 'java', 'ruby', 'php', 'swift', 'kotlin', 'csharp'],
-        medical: ['anatomy', 'biopsy', 'cancer', 'dementia', 'embolism', 'fibrosis', 'gastro', 'hospice', 'influenza', 'jaundice'],
-        science: ['astronomy', 'biology', 'chemistry', 'dynamics', 'ecology', 'fusion', 'geology', 'hydrology', 'isotopes', 'joule'],
+        technology: ['algorithm', 'binary', 'compiler', 'database', 'ethernet', 'firewall', 'gigabyte', 'hardware', 'internet', 'javascript', 'keyboard', 'lan', 'malware', 'network', 'object', 'protocol', 'query', 'router', 'server', 'trojan', 'url', 'virtual', 'wireless', 'xml', 'yaml', 'zip'],
+        medical: ['anemia', 'bronchitis', 'cataract', 'diabetes', 'epilepsy', 'fracture', 'glaucoma', 'hepatitis', 'ibuprofen', 'jaundice', 'keloid', 'leukemia', 'migraine', 'narcolepsy', 'osteopathy', 'paralysis', 'quinine', 'rabies', 'scoliosis', 'tetanus', 'ulcer', 'vaccine', 'wart', 'xray', 'yeast', 'zika'],
+        science: ['ampere', 'boson', 'comet', 'doppler', 'electron', 'fossil', 'galaxy', 'hubble', 'inertia', 'joule', 'kelvin', 'laser', 'magnet', 'neutron', 'orbit', 'photon', 'quasar', 'radiation', 'supernova', 'tesla', 'uranium', 'velocity', 'wavelength', 'xenon', 'ylem', 'zodiac'],
         nigeria: ['abia', 'adamawa', 'akwaibom', 'anambra', 'bauchi', 'bayelsa', 'benue', 'borno', 'crossriver', 'delta', 'ebonyi', 'edo', 'ekiti', 'enugu', 'gombe', 'imo', 'jigawa', 'kaduna', 'kano', 'katsina', 'kebbi', 'kogi', 'kwara', 'lagos', 'nasarawa', 'niger', 'ogun', 'ondo', 'osun', 'oyo', 'plateau', 'rivers', 'sokoto', 'taraba', 'yobe', 'zamfara']
     };
 
     let words = [];
-    const gridSize = 10;
+    const gridSize = 12;
     let grid = [];
     let selectedCells = [];
     let foundWords = [];
@@ -230,6 +230,16 @@ document.addEventListener('DOMContentLoaded', () => {
     puzzleGrid.addEventListener('mousedown', handleMouseDown);
     puzzleGrid.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+
+    puzzleGrid.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleMouseDown(e.touches[0]);
+    });
+    puzzleGrid.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        handleMouseMove(e.touches[0]);
+    });
+    document.addEventListener('touchend', handleMouseUp);
 
     setupCategorySelector();
     startGame();
