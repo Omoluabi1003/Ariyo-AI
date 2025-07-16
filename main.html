@@ -532,6 +532,7 @@
     }
   </style>
   <link rel="stylesheet" href="color-scheme.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -564,8 +565,8 @@
       alt="Album Cover"
     />
     <div id="loadingSpinner" class="loading-spinner"></div>
-    <div id="progressBar" class="progress-bar"><div></div></div>
-    <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
+    <progress id="progressBar" class="progress-bar" value="0" max="100"></progress>
+    <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
     <p class="track-details" id="trackAlbum"></p> <!-- Added for album display -->
@@ -581,24 +582,26 @@
       step="1"
       style="width: 90%; margin-top: 10px;"
       aria-label="Seek bar for audio playback"
+      aria-controls="audioPlayer"
     />
-    <button id="retryButton" class="retry-button" onclick="retryTrack()">Retry</button>
-    <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)">Download for Offline</button>
-    <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()">🎵 Choose A Track</div>
+    <audio id="audioPlayer" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3"></audio>
+    <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
+    <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)" aria-label="Download track for offline playback">Download for Offline</button>
+    <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()" aria-haspopup="true" aria-expanded="false">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
-      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track">⏮</button>
-      <button aria-label="Play" onclick="playMusic()" title="Play">▶</button>
-      <button aria-label="Pause" onclick="pauseMusic()" title="Pause">⏸</button>
-      <button aria-label="Stop" onclick="stopMusic()" title="Stop">⏹</button>
-      <button aria-label="Next track" onclick="nextTrack()" title="Next track">⏭</button>
-      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle">🔀</button>
+      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer">⏮</button>
+      <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer">▶</button>
+      <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer">⏸</button>
+      <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer">⏹</button>
+      <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer">⏭</button>
+      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false">🔀</button>
     </div>
   </div>
 
   <!-- Modal for Album List -->
   <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
     <div class="modal-content">
-      <span class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</span>
+      <button class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</button>
       <h3 id="albumModalTitle">Choose An Album</h3>
       <div class="album-list">
         <a href="#" onclick="selectAlbum(0)">Album 1: Kindness</a>
@@ -612,7 +615,7 @@
   <!-- Modal for Track List -->
   <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
     <div class="modal-content">
-      <span class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</span>
+      <button class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</button>
       <h3 id="trackModalTitle">Choose A Track</h3>
       <div class="track-list">
         <!-- Dynamically populated -->
@@ -623,8 +626,7 @@
 <!-- Modal for Radio Stations -->
 <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
   <div class="modal-content">
-    <span class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</span>
-
+    <button class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</button>
     <!-- Group: Nigeria -->
     <h4>Nigeria</h4>
     <div id="nigeria-stations" class="radio-list"></div>
@@ -703,21 +705,6 @@
 </div>
 
 
-  <!-- Floating Watermarks -->
-  <div class="floating-watermarks">
-    <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
-  </div>
 
   <!-- 🎧 Now Playing Toast -->
 <div id="nowPlayingToast" style="
@@ -741,15 +728,5 @@
   <script src="scripts/ui.js"></script>
   <script src="scripts/main.js"></script>
   <script src="color-scheme.js"></script>
-  <script>
-    document.querySelectorAll('.exploding-watermark').forEach(watermark => {
-        watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
-            const x = Math.random();
-            const y = Math.random();
-            const r = Math.random();
-            return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
-        }).join('');
-    });
-  </script>
 </body>
 </html>
