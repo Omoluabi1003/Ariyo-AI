@@ -104,6 +104,57 @@
                 margin: 0.5rem 0;
             }
         }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        #speaker-icon {
+            animation: bounce 1s infinite;
+        }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        .ripple:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -128,7 +179,7 @@
         </div>
         <div style="font-size: 0.8rem; margin-top: 1rem; font-weight: bold;">Click the speaker icon for sound</div>
         <div id="speaker-container" style="position: absolute; top: 1rem; right: 1rem; cursor: pointer;">
-            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
+            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off ripple"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
         </div>
         <footer style="font-size: 0.7rem; margin-top: 2rem; color: #aaa;">
             <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank" style="color: #00bcd4;">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved.</p>
@@ -178,6 +229,22 @@
                 }
             });
         });
+
+        document.querySelectorAll('.ripple').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const x = e.clientX - e.target.offsetLeft;
+                const y = e.clientY - e.target.offsetTop;
+
+                const ripples = document.createElement('span');
+                ripples.style.left = x + 'px';
+                ripples.style.top = y + 'px';
+                button.appendChild(ripples);
+
+                setTimeout(() => {
+                    ripples.remove()
+                },1000);
+            })
+        })
 
         document.querySelectorAll('.theme-button').forEach(button => {
             button.addEventListener('click', () => {
