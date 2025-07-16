@@ -247,7 +247,21 @@ function toggleSabiBible() {
     let autoPopOutInterval;
 
     function autoPopOutEdgePanel() {
-        updateEdgePanelBehavior();
+        if (chatbotWindowOpen || edgePanel.classList.contains('visible')) return;
+
+        // Automatically pop out the panel shortly after page load
+        setTimeout(() => {
+            edgePanel.style.right = '0';
+            edgePanel.classList.add('visible');
+
+            // And retract it after a few seconds
+            setTimeout(() => {
+                if (!chatbotWindowOpen) { // Check again in case a panel was opened
+                    edgePanel.style.right = '-70px';
+                    edgePanel.classList.remove('visible');
+                }
+            }, 4000);
+        }, 2000);
     }
 
 function showNowPlayingToast(trackTitle) {
