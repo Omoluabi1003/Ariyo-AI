@@ -18,8 +18,12 @@
     let shuffleMode = false; // True if any shuffle is active
     let shuffleScope = 'off'; // 'off', 'album', 'all'
     let isFirstPlay = true;
+    let lastTrackSrc = '';
+    let lastTrackTitle = '';
+    let lastTrackIndex = 0;
 
     let currentAlbumIndex = 0;
+    let currentTrackIndex = 0;
     let currentRadioIndex = -1;
 
     // Streak Logic
@@ -157,6 +161,33 @@ function loadMoreStations(region) {
       updateTrackListModal();
       closeAlbumList();
       savePlayerState();
+    }
+
+function selectTrack(src, title, index) {
+      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      currentTrackIndex = index;
+      currentRadioIndex = -1;
+      lastTrackSrc = src;
+      lastTrackTitle = title;
+      lastTrackIndex = index;
+      audioPlayer.src = src + '?t=' + new Date().getTime();
+      audioPlayer.currentTime = 0;
+      trackInfo.textContent = title;
+      trackArtist.textContent = 'Artist: Omoluabi';
+      trackYear.textContent = 'Release Year: 2025';
+      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
+      albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
+      closeTrackList();
+      stopMusic();
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+      retryButton.style.display = 'none';
+      cacheButton.style.display = 'block'; // Show cache button
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
+      handleAudioLoad(src, title);
+      updateMediaSession();
+      showNowPlayingToast(title);
     }
 
     function loadTrack(src, title, index) {
