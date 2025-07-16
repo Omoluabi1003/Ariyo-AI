@@ -251,7 +251,7 @@ function toggleSabiBible() {
 
         // Automatically pop out the panel shortly after page load
         setTimeout(() => {
-            edgePanel.style.right = '0';
+            edgePanel.style.right = '-20px';
             edgePanel.classList.add('visible');
 
             // And retract it after a few seconds
@@ -260,7 +260,7 @@ function toggleSabiBible() {
                     edgePanel.style.right = '-70px';
                     edgePanel.classList.remove('visible');
                 }
-            }, 4000);
+            }, 5000);
         }, 2000);
     }
 
