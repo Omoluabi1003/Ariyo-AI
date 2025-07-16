@@ -312,6 +312,9 @@
       }
       updateStreak();
       updateMediaSession();
+      if (!savedState) {
+        selectAlbum(0);
+      }
     }
 
     // GSAP Sidebar Button Animations
