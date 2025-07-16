@@ -114,8 +114,17 @@
             }
         }
 
+        #speaker-container {
+            background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Speaker%20icon%202.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 48px;
+            height: 48px;
+        }
+
         #speaker-icon {
             animation: bounce 1s infinite;
+            opacity: 0;
         }
 
         .ripple {
@@ -211,7 +220,7 @@
         </div>
         <div style="font-size: 0.8rem; margin-top: 1rem; font-weight: bold;">Click the speaker icon for sound</div>
         <div id="speaker-container" style="position: absolute; top: 1rem; right: 1rem; cursor: pointer;">
-            <img id="speaker-icon" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Speaker%20icon%202.png" alt="Speaker Icon" width="32" height="32" class="ripple shockwave"/>
+            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off ripple shockwave"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
         </div>
         <footer style="font-size: 0.7rem; margin-top: 2rem; color: #aaa;">
             <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank" style="color: #00bcd4;">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved.</p>
