@@ -168,9 +168,9 @@
 
     /* BACKGROUND CYCLER */
     const backgrounds = [
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
+      'Naija AI.jpg',
+      'Naija AI2.jpg',
+      'Naija AI3.jpg'
     ];
     let currentBgIndex = 0;
     document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
