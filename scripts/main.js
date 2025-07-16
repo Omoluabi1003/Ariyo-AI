@@ -488,3 +488,8 @@
     const panelPadding = 20; // top and bottom padding of the panel
     const panelHeight = (icons.length * iconHeight) + ((icons.length - 1) * iconSpacing) + (2 * panelPadding);
     document.getElementById('edgePanel').style.height = `${panelHeight}px`;
+
+    // Add this to your main.js file
+    document.addEventListener('DOMContentLoaded', function() {
+        // Your other DOM-dependent code here
+    });
