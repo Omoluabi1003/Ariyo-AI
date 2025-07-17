@@ -195,7 +195,7 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 999;
+    z-index: 1001;
     left: 0;
     top: 0;
     width: 100%;
@@ -260,6 +260,7 @@ body {
         padding: 0.5rem;
         flex-wrap: wrap;
         margin-bottom: 20rem; /* Add margin to the bottom of the sidebar */
+        z-index: 1001;
     }
     .container {
         flex-direction: column;
