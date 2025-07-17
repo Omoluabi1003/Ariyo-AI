@@ -24,7 +24,11 @@ function openAlbumList() {
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
-      modal.style.display = 'none';
+      gsap.to(modal.querySelector('.modal-content'),
+        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
+          onComplete: () => { modal.style.display = 'none'; }
+        }
+      );
       console.log('Album list closed');
     }
 

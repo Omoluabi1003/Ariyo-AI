@@ -581,9 +581,11 @@ function switchTrack(direction) {
 function nextTrack() {
   switchTrack(1);
   showNowPlayingToast(trackInfo.textContent);
+  attemptPlay();
 }
 
 function previousTrack() {
   switchTrack(-1);
   showNowPlayingToast(trackInfo.textContent);
+  attemptPlay();
 }
