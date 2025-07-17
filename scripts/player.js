@@ -26,7 +26,7 @@
     const loadingSpinner = document.getElementById('loadingSpinner');
     const retryButton = document.getElementById('retryButton');
     const cacheButton = document.getElementById('cacheButton'); // New cache button
-    const progressBar = document.getElementById('progressBar').querySelector('div');
+    const progressBar = document.getElementById('progressBarFill');
     const streakInfo = document.getElementById('streakInfo');
     let shuffleMode = false; // True if any shuffle is active
     let shuffleScope = 'off'; // 'off', 'album', 'all'

@@ -496,7 +496,7 @@
     let currentVersion;
 
     function checkForUpdates() {
-        fetch('/version.json', { cache: 'no-cache' })
+        fetch('/version.json', { cache: 'no-store' })
             .then(response => response.json())
             .then(data => {
                 if (currentVersion && currentVersion !== data.version) {
