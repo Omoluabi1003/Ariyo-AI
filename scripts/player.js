@@ -534,10 +534,11 @@ function nextTrack() {
 
   // Autoplay if the player was already playing
   if (!audioPlayer.paused) {
-    audioPlayer.addEventListener('canplay', () => {
+    audioPlayer.addEventListener('canplay', function canPlayListener() {
       audioPlayer.play();
       manageVinylRotation();
-    }, { once: true });
+      audioPlayer.removeEventListener('canplay', canPlayListener);
+    });
   }
   updateMediaSession();
 }
@@ -593,10 +594,11 @@ function previousTrack() {
 
   // Autoplay if the player was already playing
   if (!audioPlayer.paused) {
-    audioPlayer.addEventListener('canplay', () => {
+    audioPlayer.addEventListener('canplay', function canPlayListener() {
       audioPlayer.play();
       manageVinylRotation();
-    }, { once: true });
+      audioPlayer.removeEventListener('canplay', canPlayListener);
+    });
   }
   updateMediaSession();
 }
