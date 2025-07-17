@@ -485,3 +485,27 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Your other DOM-dependent code here
     });
+
+    // Check for updates
+    let currentVersion;
+
+    function checkForUpdates() {
+        fetch('/version.json')
+            .then(response => response.json())
+            .then(data => {
+                if (currentVersion && currentVersion !== data.version) {
+                    // New version available, prompt user to update
+                    if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
+                        window.location.reload();
+                    }
+                }
+                currentVersion = data.version;
+            })
+            .catch(error => console.error('Error checking for updates:', error));
+    }
+
+    // Check for updates every 5 minutes
+    setInterval(checkForUpdates, 300000);
+
+    // Initial check
+    checkForUpdates();
