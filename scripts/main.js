@@ -466,29 +466,6 @@
       }
     });
 
-    function openPictureGame() {
-        const container = document.getElementById('pictureGameContainer');
-        container.style.display = 'block';
-        updateEdgePanelBehavior();
-    }
-
-    function closePictureGame() {
-        const container = document.getElementById('pictureGameContainer');
-        container.style.display = 'none';
-        updateEdgePanelBehavior();
-    }
-
-    function openWordSearchGame() {
-        const container = document.getElementById('wordSearchGameContainer');
-        container.style.display = 'block';
-        updateEdgePanelBehavior();
-    }
-
-    function closeWordSearchGame() {
-        const container = document.getElementById('wordSearchGameContainer');
-        container.style.display = 'none';
-        updateEdgePanelBehavior();
-    }
 
 
 
