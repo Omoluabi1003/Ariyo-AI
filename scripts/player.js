@@ -196,6 +196,7 @@ function loadMoreStations(region) {
       );
       updateTrackListModal();
       closeAlbumList();
+      openTrackList();
       savePlayerState();
       document.getElementById('main-content').innerHTML = '';
     }
@@ -272,6 +273,7 @@ function selectTrack(src, title, index) {
       handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
+      playMusic();
       document.getElementById('main-content').innerHTML = '';
     }
 
@@ -376,11 +378,13 @@ function selectTrack(src, title, index) {
           console.log(`Playing: ${trackInfo.textContent}`);
           updateStreak();
           savePlayerState();
-          gsap.fromTo(albumCover,
-            { scale: 1 },
-            { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
-          );
-          isFirstPlay = false;
+          if (isFirstPlay) {
+            gsap.fromTo(albumCover,
+              { scale: 1 },
+              { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
+            );
+            isFirstPlay = false;
+          }
         })
         .catch(error => handlePlayError(error, trackInfo.textContent));
     }
@@ -516,6 +520,9 @@ function selectTrack(src, title, index) {
             currentTrackIndex
           );
         }
+        setTimeout(() => {
+          playMusic();
+        }, 1000);
       }
     });
 
