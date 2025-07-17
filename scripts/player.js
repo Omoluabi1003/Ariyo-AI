@@ -1,5 +1,17 @@
 /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let isAudioContextResumed = false;
+
+    function resumeAudioContext() {
+        if (audioContext.state === 'suspended' && !isAudioContextResumed) {
+            audioContext.resume().then(() => {
+                isAudioContextResumed = true;
+                console.log('AudioContext resumed successfully.');
+            });
+        }
+    }
+
     audioPlayer.id = 'audioPlayer';
     audioPlayer.preload = 'auto';
     document.body.appendChild(audioPlayer);
@@ -201,10 +213,7 @@ function loadMoreStations(region) {
     }
 
 function selectTrack(src, title, index) {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
+      resumeAudioContext();
       console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
@@ -252,10 +261,7 @@ function selectTrack(src, title, index) {
 
 
     function selectRadio(src, title, index, logo) {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
+      resumeAudioContext();
       closeRadioList();
       console.log(`Selecting radio: ${title}`);
       currentRadioIndex = index;
