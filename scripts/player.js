@@ -225,6 +225,7 @@ function selectTrack(src, title, index) {
       handleAudioLoad(src, title, false);
       updateMediaSession();
       showNowPlayingToast(title);
+      playMusic();
     }
 
     function loadTrack(src, title, index) {
