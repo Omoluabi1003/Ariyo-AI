@@ -193,7 +193,7 @@ function selectTrack(src, title, index) {
       cacheButton.style.display = 'block'; // Show cache button
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      handleAudioLoad(src, title, true);
+      handleAudioLoad(src, title, false);
       updateMediaSession();
       showNowPlayingToast(title);
     }
