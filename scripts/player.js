@@ -247,6 +247,7 @@ function selectTrack(src, title, index) {
 
 
     function selectRadio(src, title, index, logo) {
+      closeRadioList();
       console.log(`Selecting radio: ${title}`);
       currentRadioIndex = index;
       currentTrackIndex = -1;
