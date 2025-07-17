@@ -235,7 +235,7 @@
     .modal {
       display: none;
       position: fixed;
-      z-index: 999;
+      z-index: 1100; /* Ensure modals appear above the music player */
       left: 0;
       top: 0;
       width: 100%;
@@ -285,7 +285,7 @@
       background: white;
       overflow: hidden;
       display: none;
-      z-index: 101;
+      z-index: 1101; /* Keep chatbot and Bible above the player */
       position: relative;
     }
     .chatbot-container zapier-interfaces-chatbot-embed,
@@ -506,6 +506,7 @@
         border-radius: 0;
         padding: 0.5rem;
         flex-wrap: wrap;
+        margin-bottom: 25rem; /* Ensure sidebar items remain visible above the player */
       }
       .container { flex-direction: column; }
       .content { padding-bottom: 15rem; }
