@@ -384,7 +384,29 @@ function selectTrack(src, title, index) {
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'block';
       console.error(`Error playing ${title}:`, error);
-      trackInfo.textContent = navigator.onLine ? 'Error playing stream' : 'Offline - Stream unavailable';
+
+      if (!navigator.onLine) {
+        trackInfo.textContent = 'Offline. Please check your connection.';
+        return;
+      }
+
+      switch (error.code) {
+        case MediaError.MEDIA_ERR_ABORTED:
+          trackInfo.textContent = 'Playback aborted.';
+          break;
+        case MediaError.MEDIA_ERR_NETWORK:
+          trackInfo.textContent = 'A network error occurred.';
+          break;
+        case MediaError.MEDIA_ERR_DECODE:
+          trackInfo.textContent = 'A decoding error occurred.';
+          break;
+        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          trackInfo.textContent = 'Audio format not supported.';
+          break;
+        default:
+          trackInfo.textContent = 'An unknown error occurred.';
+          break;
+      }
     }
 
     function pauseMusic() {
