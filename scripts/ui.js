@@ -24,11 +24,7 @@ function openAlbumList() {
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
-      gsap.to(modal.querySelector('.modal-content'),
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
-          onComplete: () => { modal.style.display = 'none'; }
-        }
-      );
+      modal.style.display = 'none';
       console.log('Album list closed');
     }
 
@@ -80,11 +76,7 @@ function openAlbumList() {
 
     function closeRadioList() {
       const modal = document.getElementById('radioModal');
-      gsap.to(modal.querySelector('.modal-content'),
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
-          onComplete: () => { modal.style.display = 'none'; }
-        }
-      );
+      modal.style.display = 'none';
       console.log('Radio list closed');
     }
 
@@ -289,10 +281,7 @@ function showNowPlayingToast(trackTitle) {
   const toast = document.getElementById('nowPlayingToast');
   toast.textContent = `Now playing: ${trackTitle}`;
   toast.style.display = 'block';
-  gsap.fromTo(toast, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
   setTimeout(() => {
-    gsap.to(toast, { opacity: 0, y: -20, duration: 0.5, ease: "power2.in", onComplete: () => {
-      toast.style.display = 'none';
-    }});
+    toast.style.display = 'none';
   }, 3000);
 }
