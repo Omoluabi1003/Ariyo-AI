@@ -465,12 +465,7 @@ function selectTrack(src, title, index) {
             currentTrackIndex
           );
         }
-        audioPlayer.addEventListener('canplay', () => {
-          audioPlayer.play();
-          audioPlayer.addEventListener('timeupdate', updateTrackTime);
-          manageVinylRotation();
-          updateMediaSession();
-        });
+        playMusic();
       }
     });
 
