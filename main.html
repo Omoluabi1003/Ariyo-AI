@@ -471,6 +471,29 @@
             opacity: 0;
         }
     }
+    .watermark {
+      position: absolute;
+      font-size: clamp(1rem, 4vw, 2rem);
+      color: rgba(255, 255, 255, 0.5);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .exploding-watermark span {
+        display: inline-block;
+        animation: letter-explode 2s ease-in-out infinite;
+        animation-delay: calc(0.1s * var(--i));
+    }
+
+    @keyframes letter-explode {
+        0% {
+            transform: translate(0, 0) rotate(0);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5))) rotate(calc(360deg * var(--r)));
+            opacity: 0;
+        }
+    }
     .retry-button {
       background: #00bcd4;
       color: white;
@@ -545,12 +568,11 @@
 
   <div class="container">
     <div class="sidebar">
-      <button onclick="openAlbumList()" aria-label="Choose an album">🎧 Choose An Album</button>
-      <button onclick="openRadioList()" aria-label="Radio stations">📻 Radio Stations</button>
-      <button onclick="navigateToAbout()" aria-label="About us">ℹ️ About Us</button>
+      <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">🎧 Choose An Album</button>
+      <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">📻 Radio Stations</button>
+      <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">ℹ️ About Us</button>
     </div>
     <div class="content" id="main-content">
-      <h2>Select an option from the sidebar</h2>
       <div id="newsContainer" class="news-container" style="display: none;"></div>
     </div>
   </div>
@@ -589,19 +611,19 @@
     <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)" aria-label="Download track for offline playback">Download for Offline</button>
     <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()" aria-haspopup="true" aria-expanded="false">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
-      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer">⏮</button>
-      <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer">▶</button>
-      <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer">⏸</button>
-      <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer">⏹</button>
-      <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer">⏭</button>
-      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false">🔀</button>
+      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
+      <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer" class="ripple shockwave">▶</button>
+      <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
+      <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
+      <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
+      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave">🔀</button>
     </div>
   </div>
 
   <!-- Modal for Album List -->
   <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
     <div class="modal-content">
-      <button class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</button>
+      <button class="close ripple shockwave" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</button>
       <h3 id="albumModalTitle">Choose An Album</h3>
       <div class="album-list">
         <a href="#" onclick="selectAlbum(0)">Album 1: Kindness</a>
@@ -615,7 +637,7 @@
   <!-- Modal for Track List -->
   <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
     <div class="modal-content">
-      <button class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</button>
+      <button class="close ripple shockwave" role="button" aria-label="Close track list" onclick="closeTrackList()">×</button>
       <h3 id="trackModalTitle">Choose A Track</h3>
       <div class="track-list">
         <!-- Dynamically populated -->
@@ -626,7 +648,7 @@
 <!-- Modal for Radio Stations -->
 <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
   <div class="modal-content">
-    <button class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</button>
+    <button class="close ripple shockwave" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</button>
     <!-- Group: Nigeria -->
     <h4>Nigeria</h4>
     <div id="nigeria-stations" class="radio-list"></div>
@@ -668,7 +690,7 @@
 
 <!-- Chatbot Container -->
 <div class="chatbot-container" id="chatbotContainer">
-  <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
+  <button class="popup-close ripple shockwave" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
   <zapier-interfaces-chatbot-embed
     is-popup="false"
     chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
@@ -681,7 +703,7 @@
 
 <!-- Sabi Bible Container -->
 <div class="sabi-bible-container" id="sabiBibleContainer">
-  <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
+  <button class="popup-close ripple shockwave" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
   <zapier-interfaces-chatbot-embed
     is-popup="false"
     chatbot-id="cm7ve7fdl002jlclh8y1n6n1y"
@@ -694,13 +716,13 @@
 
 <!-- Picture Game Container -->
 <div id="pictureGameContainer" class="chatbot-container">
-    <button class="popup-close" onclick="closePictureGame()">×</button>
+    <button class="popup-close ripple shockwave" onclick="closePictureGame()">×</button>
     <iframe src="picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Word Search Game Container -->
 <div id="wordSearchGameContainer" class="chatbot-container">
-    <button class="popup-close" onclick="closeWordSearchGame()">×</button>
+    <button class="popup-close ripple shockwave" onclick="closeWordSearchGame()">×</button>
     <iframe src="word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
