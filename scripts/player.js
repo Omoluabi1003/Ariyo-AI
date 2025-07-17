@@ -214,7 +214,6 @@ function selectTrack(src, title, index) {
       trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
       closeTrackList();
-      stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
@@ -475,6 +474,7 @@ function selectTrack(src, title, index) {
     audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
 
     audioPlayer.addEventListener('ended', () => {
+      console.log("Track ended, selecting next track...");
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
       if (currentRadioIndex === -1) { // Only if not playing a radio station
@@ -581,11 +581,9 @@ function switchTrack(direction) {
 function nextTrack() {
   switchTrack(1);
   showNowPlayingToast(trackInfo.textContent);
-  attemptPlay();
 }
 
 function previousTrack() {
   switchTrack(-1);
   showNowPlayingToast(trackInfo.textContent);
-  attemptPlay();
 }
