@@ -195,7 +195,7 @@ body {
 .modal {
     display: none;
     position: fixed;
-    z-index: 999;
+    z-index: 1100; /* Ensure modals appear above the music player */
     left: 0;
     top: 0;
     width: 100%;
