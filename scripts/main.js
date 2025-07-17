@@ -63,11 +63,9 @@
             }
 
             const img = document.createElement('img');
-            img.src = 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg'; // Placeholder
-            img.dataset.src = album.cover;
+            img.src = album.cover;
             img.alt = album.name + " Album Cover";
             img.title = album.name;
-            img.loading = 'lazy';
 
             const nameParagraph = document.createElement('p');
             nameParagraph.textContent = album.name;
@@ -83,22 +81,6 @@
             albumLink.appendChild(albumContainer);
             albumCoversDiv.appendChild(albumLink);
           });
-
-            const lazyImages = albumCoversDiv.querySelectorAll('img[loading="lazy"]');
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.removeAttribute('loading');
-                        observer.unobserve(img);
-                    }
-                });
-            });
-
-            lazyImages.forEach(img => {
-                observer.observe(img);
-            });
         }
 
         mainContent.innerHTML = tempDiv.innerHTML;

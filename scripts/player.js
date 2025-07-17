@@ -224,7 +224,6 @@ function selectTrack(src, title, index) {
       handleAudioLoad(src, title, false);
       updateMediaSession();
       showNowPlayingToast(title);
-      playMusic();
     }
 
     function loadTrack(src, title, index) {
@@ -273,7 +272,6 @@ function selectTrack(src, title, index) {
       updateMediaSession();
       showNowPlayingToast(title);
       document.getElementById('main-content').innerHTML = '';
-      playMusic();
     }
 
     function retryTrack() {
@@ -314,9 +312,7 @@ function selectTrack(src, title, index) {
         albumCover.style.display = 'block';
         document.getElementById('progressBar').style.display = 'none';
         console.log(`Stream ${title} can play through`);
-        if (!isInitialLoad) {
-          attemptPlay();
-        }
+        attemptPlay();
       }
 
       function onCanPlay() {
@@ -327,9 +323,7 @@ function selectTrack(src, title, index) {
           document.getElementById('progressBar').style.display = 'none';
           console.log(`Stream ${title} can play (fallback)`);
           updateMediaSession();
-          if (!isInitialLoad) {
-            attemptPlay();
-          }
+          attemptPlay();
         }
       }
 
@@ -363,9 +357,7 @@ function selectTrack(src, title, index) {
     }
 
     function playMusic() {
-      if (audioPlayer.src) {
-        handleAudioLoad(audioPlayer.src, trackInfo.textContent, false);
-      }
+      attemptPlay();
     }
 
     function attemptPlay() {
@@ -494,7 +486,6 @@ function selectTrack(src, title, index) {
             currentTrackIndex
           );
         }
-        playMusic();
       }
     });
 
