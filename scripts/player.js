@@ -1,8 +1,6 @@
 /* MUSIC PLAYER LOGIC */
-    const audioPlayer = new Audio();
-    audioPlayer.id = 'audioPlayer';
+    const audioPlayer = document.getElementById('audioPlayer'); // use existing element
     audioPlayer.preload = 'auto';
-    document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
@@ -194,6 +192,7 @@ function loadMoreStations(region) {
         albums[currentAlbumIndex].tracks[currentTrackIndex].title,
         currentTrackIndex
       );
+      closeAlbumList();
       updateTrackListModal();
       openTrackList();
       savePlayerState();
@@ -262,7 +261,6 @@ function selectTrack(src, title, index) {
       trackYear.textContent = '';
       trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
       albumCover.src = logo;
-      closeRadioList();
       stopMusic();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';

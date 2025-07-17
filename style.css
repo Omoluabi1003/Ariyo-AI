@@ -259,7 +259,7 @@ body {
         border-radius: 0;
         padding: 0.5rem;
         flex-wrap: wrap;
-        margin-bottom: 20rem; /* Add margin to the bottom of the sidebar */
+        margin-bottom: 25rem; /* Ensure sidebar items remain visible above the player */
     }
     .container {
         flex-direction: column;
