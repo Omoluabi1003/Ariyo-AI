@@ -478,6 +478,18 @@
         updateEdgePanelBehavior();
     }
 
+    function openWordSearchGame() {
+        const container = document.getElementById('wordSearchGameContainer');
+        container.style.display = 'block';
+        updateEdgePanelBehavior();
+    }
+
+    function closeWordSearchGame() {
+        const container = document.getElementById('wordSearchGameContainer');
+        container.style.display = 'none';
+        updateEdgePanelBehavior();
+    }
+
 
 
     // Weekly Color Scheme Changer
