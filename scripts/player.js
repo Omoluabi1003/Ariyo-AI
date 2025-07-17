@@ -1,5 +1,6 @@
 /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
+    audioPlayer.crossOrigin = "anonymous";
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
 
@@ -213,8 +214,9 @@ function loadMoreStations(region) {
     }
 
 function selectTrack(src, title, index) {
+      console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       resumeAudioContext();
-      console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
       lastTrackSrc = src;
@@ -261,9 +263,10 @@ function selectTrack(src, title, index) {
 
 
     function selectRadio(src, title, index, logo) {
+      console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       resumeAudioContext();
       closeRadioList();
-      console.log(`Selecting radio: ${title}`);
+      console.log(`[selectRadio] Selecting radio: ${title}`);
       currentRadioIndex = index;
       currentTrackIndex = -1;
       lastTrackSrc = src;
@@ -312,8 +315,8 @@ function selectTrack(src, title, index) {
         document.getElementById('progressBar').style.display = 'none';
         trackInfo.textContent = 'Error: Stream failed to load (timeout)';
         retryButton.style.display = 'block';
-        console.error(`Timeout: ${title} failed to buffer within 8 seconds`);
-      }, 8000);
+        console.error(`Timeout: ${title} failed to buffer within 5 seconds`);
+      }, 5000);
 
       function onProgress() {
         if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
@@ -382,11 +385,13 @@ function selectTrack(src, title, index) {
     }
 
     function attemptPlay() {
+      console.log('[attemptPlay] called');
       loadingSpinner.style.display = 'none';
       albumCover.style.display = 'block';
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
+          console.log('[attemptPlay] Playback started successfully.');
           manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
@@ -401,7 +406,7 @@ function selectTrack(src, title, index) {
             isFirstPlay = false;
           }
         }).catch(error => {
-          console.error(`Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
+          console.error(`[attemptPlay] Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
           handlePlayError(error, trackInfo.textContent);
         });
       }
