@@ -224,6 +224,7 @@ function selectTrack(src, title, index) {
       handleAudioLoad(src, title, false);
       updateMediaSession();
       showNowPlayingToast(title);
+      playMusic();
     }
 
     function loadTrack(src, title, index) {
@@ -272,6 +273,7 @@ function selectTrack(src, title, index) {
       updateMediaSession();
       showNowPlayingToast(title);
       document.getElementById('main-content').innerHTML = '';
+      playMusic();
     }
 
     function retryTrack() {
@@ -565,8 +567,10 @@ function switchTrack(direction) {
 
 function nextTrack() {
   switchTrack(1);
+  showNowPlayingToast(trackInfo.textContent);
 }
 
 function previousTrack() {
   switchTrack(-1);
+  showNowPlayingToast(trackInfo.textContent);
 }
