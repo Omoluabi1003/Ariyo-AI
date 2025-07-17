@@ -122,17 +122,27 @@ radioStations.forEach(station => {
   groupedStations[region].push(station);
 });
 
-function updateRadioListModal() {
-  stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+async function checkStreamStatus(url) {
+      try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        // no-cors means we can't access status, but we can see if we get a response
+        return 'online';
+      } catch (error) {
+        return 'offline';
+      }
+    }
 
-  ["nigeria", "westAfrica", "international"].forEach(region => {
-    document.getElementById(`${region}-stations`).innerHTML = '';
-    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
-    loadMoreStations(region);
-  });
+    function updateRadioListModal() {
+      stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
 
-  console.log("Grouped and displayed radio stations by region");
-}
+      ["nigeria", "westAfrica", "international"].forEach(region => {
+        document.getElementById(`${region}-stations`).innerHTML = '';
+        document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
+        loadMoreStations(region);
+      });
+
+      console.log("Grouped and displayed radio stations by region");
+    }
 
 function loadMoreStations(region) {
   const container = document.getElementById(`${region}-stations`);
@@ -144,7 +154,24 @@ function loadMoreStations(region) {
     const stationLink = document.createElement("a");
     stationLink.href = "#";
     stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
+
+    const statusSpan = document.createElement('span');
+    statusSpan.style.marginLeft = '10px';
+    statusSpan.textContent = ' (Checking...)';
+
+    checkStreamStatus(station.url).then(status => {
+        if (status === 'online') {
+            statusSpan.textContent = ' (Online)';
+            statusSpan.style.color = 'lightgreen';
+        } else {
+            statusSpan.textContent = ' (Offline)';
+            statusSpan.style.color = 'red';
+            stationLink.style.textDecoration = 'line-through';
+        }
+    });
+
     stationLink.textContent = `${station.name} (${station.location})`;
+    stationLink.appendChild(statusSpan);
     container.appendChild(stationLink);
   });
 
@@ -481,23 +508,18 @@ audioPlayer.addEventListener('playing', () => {
   console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
 });
 
-function nextTrack() {
-  // If a radio station is playing
+function switchTrack(direction) {
   if (currentRadioIndex !== -1) {
+    const stationCount = radioStations.length;
+    let newIndex;
     if (shuffleMode) {
-      // Shuffle mode: select a random station
-      const randomIndex = Math.floor(Math.random() * radioStations.length);
-      const station = radioStations[randomIndex];
-      selectRadio(station.url, `${station.name} - ${station.location}`, randomIndex, station.logo);
+      newIndex = Math.floor(Math.random() * stationCount);
     } else {
-      // Normal mode: select the next station
-      const nextIndex = (currentRadioIndex + 1) % radioStations.length;
-      const station = radioStations[nextIndex];
-      selectRadio(station.url, `${station.name} - ${station.location}`, nextIndex, station.logo);
+      newIndex = (currentRadioIndex + direction + stationCount) % stationCount;
     }
-  }
-  // If an album track is playing
-  else {
+    const station = radioStations[newIndex];
+    selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
+  } else {
     if (shuffleMode) {
       if (shuffleScope === 'all') {
         const allTracks = [];
@@ -512,15 +534,17 @@ function nextTrack() {
           selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
         }
       } else { // shuffleScope === 'album'
-        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
+        const trackCount = albums[currentAlbumIndex].tracks.length;
+        const newIndex = Math.floor(Math.random() * trackCount);
         selectTrack(
-          albums[currentAlbumIndex].tracks[randomIndex].src,
-          albums[currentAlbumIndex].tracks[randomIndex].title,
-          randomIndex
+          albums[currentAlbumIndex].tracks[newIndex].src,
+          albums[currentAlbumIndex].tracks[newIndex].title,
+          newIndex
         );
       }
     } else { // No shuffle
-      currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
+      const trackCount = albums[currentAlbumIndex].tracks.length;
+      currentTrackIndex = (currentTrackIndex + direction + trackCount) % trackCount;
       selectTrack(
         albums[currentAlbumIndex].tracks[currentTrackIndex].src,
         albums[currentAlbumIndex].tracks[currentTrackIndex].title,
@@ -529,7 +553,6 @@ function nextTrack() {
     }
   }
 
-  // Autoplay if the player was already playing
   if (!audioPlayer.paused) {
     audioPlayer.addEventListener('canplay', function canPlayListener() {
       audioPlayer.play();
@@ -540,62 +563,10 @@ function nextTrack() {
   updateMediaSession();
 }
 
+function nextTrack() {
+  switchTrack(1);
+}
 
 function previousTrack() {
-  // If a radio station is playing
-  if (currentRadioIndex !== -1) {
-    if (shuffleMode) {
-      // Shuffle mode: select a random station
-      const randomIndex = Math.floor(Math.random() * radioStations.length);
-      const station = radioStations[randomIndex];
-      selectRadio(station.url, `${station.name} - ${station.location}`, randomIndex, station.logo);
-    } else {
-      // Normal mode: select the previous station
-      const prevIndex = (currentRadioIndex - 1 + radioStations.length) % radioStations.length;
-      const station = radioStations[prevIndex];
-      selectRadio(station.url, `${station.name} - ${station.location}`, prevIndex, station.logo);
-    }
-  }
-  // If an album track is playing
-  else {
-    if (shuffleMode) {
-      if (shuffleScope === 'all') {
-        const allTracks = [];
-        albums.forEach((album, albumIdx) => {
-          album.tracks.forEach((track, trackIdx) => {
-            allTracks.push({ ...track, originalAlbumIndex: albumIdx, originalTrackIndex: trackIdx });
-          });
-        });
-        if (allTracks.length > 0) {
-          const randomTrackInfo = allTracks[Math.floor(Math.random() * allTracks.length)];
-          currentAlbumIndex = randomTrackInfo.originalAlbumIndex;
-          selectTrack(randomTrackInfo.src, randomTrackInfo.title, randomTrackInfo.originalTrackIndex);
-        }
-      } else { // shuffleScope === 'album'
-        const randomIndex = Math.floor(Math.random() * albums[currentAlbumIndex].tracks.length);
-        selectTrack(
-          albums[currentAlbumIndex].tracks[randomIndex].src,
-          albums[currentAlbumIndex].tracks[randomIndex].title,
-          randomIndex
-        );
-      }
-    } else { // No shuffle
-      currentTrackIndex = (currentTrackIndex - 1 + albums[currentAlbumIndex].tracks.length) % albums[currentAlbumIndex].tracks.length;
-      selectTrack(
-        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-        currentTrackIndex
-      );
-    }
-  }
-
-  // Autoplay if the player was already playing
-  if (!audioPlayer.paused) {
-    audioPlayer.addEventListener('canplay', function canPlayListener() {
-      audioPlayer.play();
-      manageVinylRotation();
-      audioPlayer.removeEventListener('canplay', canPlayListener);
-    });
-  }
-  updateMediaSession();
+  switchTrack(-1);
 }

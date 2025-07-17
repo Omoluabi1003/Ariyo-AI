@@ -69,3 +69,28 @@ self.addEventListener('fetch', event => {
             })
     );
 });
+
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'CACHE_TRACK') {
+    const trackUrl = event.data.url;
+    event.waitUntil(
+      caches.open(CACHE_NAME + '-tracks').then(cache => {
+        return cache.match(trackUrl).then(response => {
+          if (!response) {
+            return fetch(trackUrl).then(trackResponse => {
+              if (trackResponse.ok) {
+                return cache.put(trackUrl, trackResponse);
+              }
+            });
+          }
+        });
+      }).then(() => {
+        // Send a message back to the client that the track is cached
+        event.source.postMessage({
+          type: 'TRACK_CACHED',
+          url: trackUrl
+        });
+      })
+    );
+  }
+});
