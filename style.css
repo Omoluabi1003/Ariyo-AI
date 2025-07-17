@@ -259,12 +259,16 @@ body {
         border-radius: 0;
         padding: 0.5rem;
         flex-wrap: wrap;
+        margin-bottom: 20rem; /* Add margin to the bottom of the sidebar */
     }
     .container {
         flex-direction: column;
     }
     .content {
         padding-bottom: 15rem;
+    }
+    .music-player {
+        z-index: 1000; /* Ensure the music player is on top */
     }
 }
 
