@@ -337,6 +337,8 @@ function selectTrack(src, title, index) {
         if (audioPlayer.error) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
+        // Also log the album cover src to see if it's correct
+        console.error(`Album cover src: ${albumCover.src}`);
       }
 
       audioPlayer.addEventListener('progress', onProgress);
