@@ -1,4 +1,4 @@
-const CACHE_PREFIX = 'ariyo-ai-cache-v2';
+const CACHE_PREFIX = 'ariyo-ai-cache-v3';
 let CACHE_NAME;
 
 self.addEventListener('install', event => {
