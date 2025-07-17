@@ -195,7 +195,6 @@ function loadMoreStations(region) {
         currentTrackIndex
       );
       updateTrackListModal();
-      closeAlbumList();
       openTrackList();
       savePlayerState();
       document.getElementById('main-content').innerHTML = '';
