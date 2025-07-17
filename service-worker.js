@@ -9,6 +9,7 @@ self.addEventListener('install', event => {
         CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
         const urlsToCache = [
           '/',
+          '/index.html',
           '/main.html',
           '/manifest.json',
           'icons/Ariyo.png',
@@ -56,10 +57,15 @@ self.addEventListener('fetch', event => {
                             return response;
                         }
                         const responseToCache = response.clone();
-                        caches.open(CACHE_NAME + '-runtime')
-                            .then(cache => {
+                        // Limit cache size to avoid unbounded growth
+                        caches.open(CACHE_NAME + '-runtime').then(cache => {
+                            cache.keys().then(keys => {
+                                if (keys.length > 50) {
+                                    cache.delete(keys[0]);
+                                }
                                 cache.put(event.request, responseToCache);
                             });
+                        });
                         return response;
                     }
                 ).catch(error => {
