@@ -5,9 +5,12 @@ body {
     align-items: center;
 }
 
+#category-select {
+    margin: 0.5rem 0;
+}
+
 #game-board {
     display: grid;
-    grid-template-columns: repeat(10, 30px);
     grid-gap: 2px;
     border: 2px solid #333;
     padding: 5px;
