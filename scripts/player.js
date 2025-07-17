@@ -183,6 +183,7 @@ function loadMoreStations(region) {
 }
 
     function selectAlbum(albumIndex) {
+      console.log("selectAlbum called with index: ", albumIndex);
       console.log(`Selecting album: ${albums[albumIndex].name}`);
       currentAlbumIndex = albumIndex;
       currentTrackIndex = 0;
@@ -306,6 +307,7 @@ function selectTrack(src, title, index) {
       }
 
       function onCanPlayThrough() {
+        console.log("onCanPlayThrough called");
         clearTimeout(playTimeout);
         loadingSpinner.style.display = 'none';
         albumCover.style.display = 'block';
@@ -315,6 +317,7 @@ function selectTrack(src, title, index) {
       }
 
       function onCanPlay() {
+        console.log("onCanPlay called");
         if (loadingSpinner.style.display === 'block') {
           clearTimeout(playTimeout);
           loadingSpinner.style.display = 'none';
@@ -362,6 +365,8 @@ function selectTrack(src, title, index) {
     }
 
     function attemptPlay() {
+      loadingSpinner.style.display = 'none';
+      albumCover.style.display = 'block';
       audioPlayer.play()
         .then(() => {
           manageVinylRotation();
