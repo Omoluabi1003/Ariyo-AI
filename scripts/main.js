@@ -228,8 +228,8 @@
         navigator.mediaSession.setActionHandler('play', playMusic);
         navigator.mediaSession.setActionHandler('pause', pauseMusic);
         navigator.mediaSession.setActionHandler('stop', stopMusic);
-        navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
         navigator.mediaSession.setActionHandler('previoustrack', previousTrack);
+        navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
 
         console.log('Media Session updated with artwork');
       }
