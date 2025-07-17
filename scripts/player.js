@@ -169,6 +169,7 @@ function loadMoreStations(region) {
       updateTrackListModal();
       closeAlbumList();
       savePlayerState();
+      document.getElementById('main-content').innerHTML = '';
     }
 
 function selectTrack(src, title, index) {
@@ -243,6 +244,7 @@ function selectTrack(src, title, index) {
       handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
+      document.getElementById('main-content').innerHTML = '';
     }
 
     function retryTrack() {
@@ -468,7 +470,7 @@ function selectTrack(src, title, index) {
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
           manageVinylRotation();
           updateMediaSession();
-        }, { once: true });
+        });
       }
     });
 
