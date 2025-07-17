@@ -201,6 +201,10 @@ function loadMoreStations(region) {
     }
 
 function selectTrack(src, title, index) {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
       console.log(`Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
@@ -248,6 +252,10 @@ function selectTrack(src, title, index) {
 
 
     function selectRadio(src, title, index, logo) {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
       closeRadioList();
       console.log(`Selecting radio: ${title}`);
       currentRadioIndex = index;
@@ -370,8 +378,9 @@ function selectTrack(src, title, index) {
     function attemptPlay() {
       loadingSpinner.style.display = 'none';
       albumCover.style.display = 'block';
-      audioPlayer.play()
-        .then(() => {
+      const playPromise = audioPlayer.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
           manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
@@ -385,8 +394,11 @@ function selectTrack(src, title, index) {
             );
             isFirstPlay = false;
           }
-        })
-        .catch(error => handlePlayError(error, trackInfo.textContent));
+        }).catch(error => {
+          console.error(`Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
+          handlePlayError(error, trackInfo.textContent);
+        });
+      }
     }
 
     function handlePlayError(error, title) {
