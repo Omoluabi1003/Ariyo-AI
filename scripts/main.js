@@ -346,10 +346,16 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         showIosInstallBanner();
-        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-          console.log('Service Worker registered with scope:', registration.scope);
-        }).catch(function(error) {
-          console.log('Service worker registration failed:', error);
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        }).then(function() {
+          navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+            console.log('Service Worker registered with scope:', registration.scope);
+          }).catch(function(error) {
+            console.log('Service worker registration failed:', error);
+          });
         });
       });
     }
