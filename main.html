@@ -343,7 +343,7 @@
         background-color: rgba(0, 0, 0, 0.5);
         border-radius: 10px 0 0 10px;
         transition: right 0.3s ease-in-out;
-        z-index: 1002;
+        z-index: 10000;
     }
     .edge-panel.visible {
         right: 0;
@@ -568,7 +568,9 @@
       onerror="this.onerror=null;this.src='logo.jpg';"
     />
     <div id="loadingSpinner" class="loading-spinner"></div>
-    <progress id="progressBar" class="progress-bar" value="0" max="100"></progress>
+    <div id="progressBar" class="progress-bar">
+      <div id="progressBarFill"></div>
+    </div>
     <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
     <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
     <p class="track-details" id="trackYear">Release Year: 2025</p>
