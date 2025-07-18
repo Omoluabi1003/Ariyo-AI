@@ -164,18 +164,21 @@ body {
     transform: scale(1.1);
 }
 
+
 .track-info {
-    margin-top: 0.6rem;
+    margin-top: 0.3rem;
     font-size: clamp(1rem, 3vw, 1.2rem);
 }
 
+
 .track-duration {
     font-size: clamp(0.8rem, 2vw, 0.9rem);
-    margin-top: 0.3rem;
+    margin-top: 0.2rem;
 }
 
+
 .track-details {
-    margin-top: 0.6rem;
+    margin-top: 0.3rem;
     font-size: clamp(0.8rem, 2vw, 0.9rem);
 }
 
