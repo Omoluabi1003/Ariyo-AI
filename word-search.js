@@ -19,6 +19,12 @@ const categories = {
 let selectedCategory = Object.keys(categories)[0];
 let words = categories[selectedCategory];
 const gridSize = 15;
+
+function getCellSize() {
+    const maxSize = 30;
+    const available = Math.floor(window.innerWidth * 0.95);
+    return Math.min(maxSize, Math.floor(available / gridSize));
+}
 const board = [];
 const wordListElement = document.getElementById("word-list");
 let wordsInGame = [];
@@ -32,13 +38,17 @@ let startCol = 0;
 function createBoard() {
     const gameBoard = document.getElementById("game-board");
     gameBoard.innerHTML = "";
-    gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, 30px)`;
+    const cellSize = getCellSize();
+    gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
     board.length = 0;
     for (let i = 0; i < gridSize; i++) {
         const row = [];
         for (let j = 0; j < gridSize; j++) {
             const cell = document.createElement("div");
             cell.classList.add("cell");
+            cell.style.width = `${cellSize}px`;
+            cell.style.height = `${cellSize}px`;
+            cell.style.lineHeight = `${cellSize}px`;
             cell.dataset.row = i;
             cell.dataset.col = j;
             cell.addEventListener("mousedown", handleMouseDown);
@@ -234,6 +244,13 @@ function startGame() {
     populateWordList();
 }
 
+function resizeBoard() {
+    createBoard();
+    placeWords(wordsInGame);
+    fillEmptyCells();
+    populateWordList();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("category-select");
     for (const name of Object.keys(categories)) {
@@ -244,4 +261,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     select.addEventListener("change", startGame);
     startGame();
+});
+
+window.addEventListener("resize", () => {
+    resizeBoard();
 });
