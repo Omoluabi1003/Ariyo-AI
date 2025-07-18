@@ -1,31 +1,38 @@
 const categories = {
     "Programming": [
         "javascript", "html", "css", "python", "java",
-        "react", "node", "angular", "swift", "rust"
+        "react", "node", "angular", "swift", "rust",
+        "typescript", "go", "csharp", "kotlin", "php"
     ],
     "Fruits": [
         "apple", "banana", "mango", "orange", "grape",
-        "peach", "pear", "plum", "cherry", "lemon"
+        "peach", "pear", "plum", "cherry", "lemon",
+        "kiwi", "watermelon", "pineapple", "strawberry", "papaya"
     ],
     "Animals": [
         "lion", "tiger", "zebra", "eagle", "shark",
-        "bear", "whale", "giraffe", "rhino", "panda"
+        "bear", "whale", "giraffe", "rhino", "panda",
+        "elephant", "wolf", "kangaroo", "koala", "rabbit"
     ],
     "Colors": [
         "red", "blue", "green", "yellow", "purple",
-        "orange", "indigo", "violet", "brown", "pink"
+        "orange", "indigo", "violet", "brown", "pink",
+        "cyan", "magenta", "teal", "maroon", "turquoise"
     ],
     "Sports": [
         "football", "tennis", "cricket", "boxing", "hockey",
-        "rugby", "golf", "soccer", "curling", "skiing"
+        "rugby", "golf", "soccer", "curling", "skiing",
+        "baseball", "volleyball", "swimming", "cycling", "badminton"
     ],
     "Countries": [
         "nigeria", "ghana", "kenya", "egypt", "togo",
-        "brazil", "canada", "france", "china", "spain"
+        "brazil", "canada", "france", "china", "spain",
+        "germany", "italy", "japan", "mexico", "india"
     ],
     "Movies": [
         "avatar", "inception", "matrix", "titanic", "gladiator",
-        "godfather", "terminator", "rocky", "alien", "jaws"
+        "godfather", "terminator", "rocky", "alien", "jaws",
+        "avengers", "scarface", "psycho", "frozen", "joker"
     ],
     "Nigerian States": [
         "abia", "adamawa", "akwaibom", "anambra", "bauchi", "bayelsa",
@@ -361,6 +368,8 @@ document.addEventListener("DOMContentLoaded", () => {
         select.appendChild(option);
     }
     select.addEventListener("change", startGame);
+    const newBtn = document.getElementById("new-game-btn");
+    newBtn.addEventListener("click", startGame);
     startGame();
 });
 
