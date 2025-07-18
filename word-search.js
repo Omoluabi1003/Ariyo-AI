@@ -39,7 +39,11 @@ const categories = {
 
 let selectedCategory = Object.keys(categories)[0];
 let words = categories[selectedCategory];
-const gridSize = 15;
+let gridSize = window.innerWidth <= 480 ? 10 : 15;
+
+function updateGridSize() {
+    gridSize = window.innerWidth <= 480 ? 10 : 15;
+}
 
 function getCellSize() {
     const maxSize = 30;
@@ -298,6 +302,7 @@ function populateWordList() {
 }
 
 function startGame() {
+    updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
     wordsInGame = pickWords(words, 10);
@@ -309,6 +314,12 @@ function startGame() {
 }
 
 function resizeBoard() {
+    const newSize = window.innerWidth <= 480 ? 10 : 15;
+    if (newSize !== gridSize) {
+        gridSize = newSize;
+        startGame();
+        return;
+    }
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
