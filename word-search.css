@@ -51,8 +51,6 @@ body {
     padding: 5px;
     max-width: 95vw;
     overflow: auto;
-    aspect-ratio: 1 / 1;
-    width: 80vw;
 }
 
 .cell {

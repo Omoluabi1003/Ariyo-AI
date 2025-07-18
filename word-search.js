@@ -74,7 +74,11 @@ function createBoard() {
     lineCanvas = document.getElementById("line-canvas");
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
+    const boardSize = cellSize * gridSize;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
+    gameBoard.style.gridTemplateRows = `repeat(${gridSize}, ${cellSize}px)`;
+    gameBoard.style.width = `${boardSize}px`;
+    gameBoard.style.height = `${boardSize}px`;
     board.length = 0;
     for (let i = 0; i < gridSize; i++) {
         const row = [];
@@ -329,7 +333,11 @@ function resizeBoard() {
     }
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
+    const boardSize = cellSize * gridSize;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
+    gameBoard.style.gridTemplateRows = `repeat(${gridSize}, ${cellSize}px)`;
+    gameBoard.style.width = `${boardSize}px`;
+    gameBoard.style.height = `${boardSize}px`;
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
             const cell = board[i][j];
