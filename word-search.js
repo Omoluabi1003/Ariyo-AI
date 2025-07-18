@@ -291,14 +291,13 @@ function handlePointerMove(e) {
     if (direction === null) {
         const rowDiff = row - startRow;
         const colDiff = col - startCol;
-        if (rowDiff === 0) {
-            direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
-        } else if (colDiff === 0) {
-            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
-        } else if (Math.abs(rowDiff) === Math.abs(colDiff)) {
+        if (rowDiff === 0 && colDiff === 0) return;
+        if (Math.abs(rowDiff) === Math.abs(colDiff)) {
             direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: colDiff > 0 ? 1 : -1 };
+        } else if (Math.abs(rowDiff) > Math.abs(colDiff)) {
+            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
         } else {
-            return;
+            direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
         }
     }
 
@@ -386,10 +385,11 @@ function checkWin() {
 }
 
 function pickWords(wordList, maxWords = 20) {
-    if (wordList.length <= maxWords) {
-        return wordList;
+    const unique = [...new Set(wordList)];
+    if (unique.length <= maxWords) {
+        return unique;
     }
-    const shuffled = [...wordList].sort(() => 0.5 - Math.random());
+    const shuffled = [...unique].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, maxWords);
 }
 
@@ -421,7 +421,7 @@ function stopTimer() {
 function startGame() {
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
-    words = categories[selectedCategory];
+    words = [...new Set(categories[selectedCategory])];
     wordsInGame = pickWords(words, 20);
     foundWords = [];
     foundWordCells = {};
