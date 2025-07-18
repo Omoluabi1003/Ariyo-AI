@@ -3,36 +3,43 @@ const categories = {
         "javascript", "html", "css", "python", "java",
         "react", "node", "angular", "swift", "rust",
         "typescript", "go", "csharp", "kotlin", "php"
+        "django", "flask", "graphql", "redux", "docker"
     ],
     "Fruits": [
         "apple", "banana", "mango", "orange", "grape",
         "peach", "pear", "plum", "cherry", "lemon",
         "kiwi", "watermelon", "pineapple", "strawberry", "papaya"
+        "coconut", "blueberry", "raspberry", "apricot", "guava"
     ],
     "Animals": [
         "lion", "tiger", "zebra", "eagle", "shark",
         "bear", "whale", "giraffe", "rhino", "panda",
         "elephant", "wolf", "kangaroo", "koala", "rabbit"
+        "camel", "hippo", "fox", "dolphin", "otter"
     ],
     "Colors": [
         "red", "blue", "green", "yellow", "purple",
         "orange", "indigo", "violet", "brown", "pink",
         "cyan", "magenta", "teal", "maroon", "turquoise"
+        "beige", "salmon", "lime", "charcoal", "silver"
     ],
     "Sports": [
         "football", "tennis", "cricket", "boxing", "hockey",
         "rugby", "golf", "soccer", "curling", "skiing",
         "baseball", "volleyball", "swimming", "cycling", "badminton"
+        "archery", "rowing", "sailing", "surfing", "handball"
     ],
     "Countries": [
         "nigeria", "ghana", "kenya", "egypt", "togo",
         "brazil", "canada", "france", "china", "spain",
         "germany", "italy", "japan", "mexico", "india"
+        "russia", "uk", "usa", "argentina", "southafrica"
     ],
     "Movies": [
         "avatar", "inception", "matrix", "titanic", "gladiator",
         "godfather", "terminator", "rocky", "alien", "jaws",
         "avengers", "scarface", "psycho", "frozen", "joker"
+        "bond", "diehard", "godzilla", "heat", "shrek"
     ],
     "Nigerian States": [
         "abia", "adamawa", "akwaibom", "anambra", "bauchi", "bayelsa",
@@ -67,6 +74,8 @@ const board = [];
 const wordListElement = document.getElementById("word-list");
 let wordsInGame = [];
 let foundWords = [];
+let startTime = 0;
+let timerInterval;
 let selecting = false;
 let selectedCells = [];
 let direction = null;
@@ -111,48 +120,69 @@ function createBoard() {
 }
 
 function placeWords(wordList) {
+    const dirs = ["horizontal", "horizontalReverse", "vertical", "verticalReverse"];
     for (const word of wordList) {
         let placed = false;
-        while (!placed) {
-            const direction = Math.random() > 0.5 ? "horizontal" : "vertical";
-            const row = Math.floor(Math.random() * gridSize);
-            const col = Math.floor(Math.random() * gridSize);
+        let attempts = 0;
+        while (!placed && attempts < 100) {
+            const direction = dirs[Math.floor(Math.random() * dirs.length)];
+            let row = Math.floor(Math.random() * gridSize);
+            let col = Math.floor(Math.random() * gridSize);
+
+            if (direction === "horizontal" && col + word.length > gridSize) {
+                col = gridSize - word.length;
+            } else if (direction === "horizontalReverse" && col - word.length + 1 < 0) {
+                col = word.length - 1;
+            } else if (direction === "vertical" && row + word.length > gridSize) {
+                row = gridSize - word.length;
+            } else if (direction === "verticalReverse" && row - word.length + 1 < 0) {
+                row = word.length - 1;
+            }
 
             if (canPlace(word, row, col, direction)) {
                 for (let i = 0; i < word.length; i++) {
-                    let cell;
+                    let r = row;
+                    let c = col;
                     if (direction === "horizontal") {
-                        cell = board[row][col + i];
+                        c += i;
+                    } else if (direction === "horizontalReverse") {
+                        c -= i;
+                    } else if (direction === "vertical") {
+                        r += i;
                     } else {
-                        cell = board[row + i][col];
+                        r -= i;
                     }
+                    const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
                     cell.dataset.word = word;
                 }
                 placed = true;
             }
+            attempts++;
+        }
+        if (!placed) {
+            console.warn(`Could not place word: ${word}`);
         }
     }
 }
 
 function canPlace(word, row, col, direction) {
-    if (direction === "horizontal") {
-        if (col + word.length > gridSize) {
+    let dRow = 0;
+    let dCol = 0;
+    if (direction === "horizontal") dCol = 1;
+    else if (direction === "horizontalReverse") dCol = -1;
+    else if (direction === "vertical") dRow = 1;
+    else dRow = -1;
+
+    for (let i = 0; i < word.length; i++) {
+        const r = row + dRow * i;
+        const c = col + dCol * i;
+        if (r < 0 || r >= gridSize || c < 0 || c >= gridSize) {
             return false;
         }
-        for (let i = 0; i < word.length; i++) {
-            if (board[row][col + i].textContent !== "" && board[row][col + i].textContent !== word[i].toUpperCase()) {
-                return false;
-            }
-        }
-    } else {
-        if (row + word.length > gridSize) {
+        const cell = board[r][c];
+        if (cell.textContent !== "" && cell.textContent !== word[i].toUpperCase()) {
             return false;
-        }
-        for (let i = 0; i < word.length; i++) {
-            if (board[row + i][col].textContent !== "" && board[row + i][col].textContent !== word[i].toUpperCase()) {
-                return false;
-            }
         }
     }
     return true;
@@ -269,6 +299,8 @@ function markFound(word) {
 
 function checkWin() {
     if (foundWords.length === wordsInGame.length) {
+        stopTimer();
+        const totalTime = Math.floor((Date.now() - startTime) / 1000);
         const duration = 5000;
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -284,7 +316,7 @@ function checkWin() {
                 clearInterval(interval);
                 const msg = document.createElement("div");
                 msg.id = "win-message";
-                msg.textContent = "You Win!";
+                msg.textContent = `You Win in ${totalTime}s!`;
                 document.getElementById("board-container").appendChild(msg);
                 return;
             }
@@ -299,7 +331,7 @@ function checkWin() {
     }
 }
 
-function pickWords(wordList, maxWords = 10) {
+function pickWords(wordList, maxWords = 20) {
     if (wordList.length <= maxWords) {
         return wordList;
     }
@@ -317,12 +349,33 @@ function populateWordList() {
     });
 }
 
+function startTimer() {
+    const timerEl = document.getElementById("timer");
+    clearInterval(timerInterval);
+    startTime = Date.now();
+    timerEl.textContent = "Time: 0s";
+    timerInterval = setInterval(() => {
+        const t = Math.floor((Date.now() - startTime) / 1000);
+        timerEl.textContent = `Time: ${t}s`;
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
 function startGame() {
     updateGridSize();
+    const winMsg = document.getElementById("win-message");
+    if (winMsg) winMsg.remove();
+    if (lineCtx) {
+        lineCtx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
+    }
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
-    wordsInGame = pickWords(words, 10);
+    wordsInGame = pickWords(words, 20);
     foundWords = [];
+    startTimer();
     createBoard();
     placeWords(wordsInGame);
     fillEmptyCells();
@@ -373,16 +426,28 @@ function redrawLines() {
 
 document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("category-select");
+    const overlaySelect = document.getElementById("overlay-category-select");
     for (const name of Object.keys(categories)) {
-        const option = document.createElement("option");
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
+        const opt1 = document.createElement("option");
+        opt1.value = name;
+        opt1.textContent = name;
+        select.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = name;
+        opt2.textContent = name;
+        overlaySelect.appendChild(opt2);
     }
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
-    startGame();
+    const startOverlay = document.getElementById("start-overlay");
+    const startBtn = document.getElementById("start-btn");
+    startBtn.addEventListener("click", () => {
+        select.value = overlaySelect.value;
+        startOverlay.style.display = "none";
+        startGame();
+    });
 });
 
 let resizeTimeout;
