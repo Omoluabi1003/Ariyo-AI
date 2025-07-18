@@ -2,43 +2,43 @@ const categories = {
     "Programming": [
         "javascript", "html", "css", "python", "java",
         "react", "node", "angular", "swift", "rust",
-        "typescript", "go", "csharp", "kotlin", "php"
+        "typescript", "go", "csharp", "kotlin", "php",
         "django", "flask", "graphql", "redux", "docker"
     ],
     "Fruits": [
         "apple", "banana", "mango", "orange", "grape",
         "peach", "pear", "plum", "cherry", "lemon",
-        "kiwi", "watermelon", "pineapple", "strawberry", "papaya"
+        "kiwi", "watermelon", "pineapple", "strawberry", "papaya",
         "coconut", "blueberry", "raspberry", "apricot", "guava"
     ],
     "Animals": [
         "lion", "tiger", "zebra", "eagle", "shark",
         "bear", "whale", "giraffe", "rhino", "panda",
-        "elephant", "wolf", "kangaroo", "koala", "rabbit"
+        "elephant", "wolf", "kangaroo", "koala", "rabbit",
         "camel", "hippo", "fox", "dolphin", "otter"
     ],
     "Colors": [
         "red", "blue", "green", "yellow", "purple",
         "orange", "indigo", "violet", "brown", "pink",
-        "cyan", "magenta", "teal", "maroon", "turquoise"
+        "cyan", "magenta", "teal", "maroon", "turquoise",
         "beige", "salmon", "lime", "charcoal", "silver"
     ],
     "Sports": [
         "football", "tennis", "cricket", "boxing", "hockey",
         "rugby", "golf", "soccer", "curling", "skiing",
-        "baseball", "volleyball", "swimming", "cycling", "badminton"
+        "baseball", "volleyball", "swimming", "cycling", "badminton",
         "archery", "rowing", "sailing", "surfing", "handball"
     ],
     "Countries": [
         "nigeria", "ghana", "kenya", "egypt", "togo",
         "brazil", "canada", "france", "china", "spain",
-        "germany", "italy", "japan", "mexico", "india"
+        "germany", "italy", "japan", "mexico", "india",
         "russia", "uk", "usa", "argentina", "southafrica"
     ],
     "Movies": [
         "avatar", "inception", "matrix", "titanic", "gladiator",
         "godfather", "terminator", "rocky", "alien", "jaws",
-        "avengers", "scarface", "psycho", "frozen", "joker"
+        "avengers", "scarface", "psycho", "frozen", "joker",
         "bond", "diehard", "godzilla", "heat", "shrek"
     ],
     "Nigerian States": [
@@ -120,7 +120,16 @@ function createBoard() {
 }
 
 function placeWords(wordList) {
-    const dirs = ["horizontal", "horizontalReverse", "vertical", "verticalReverse"];
+    const dirs = [
+        "horizontal",
+        "horizontalReverse",
+        "vertical",
+        "verticalReverse",
+        "diagonalDown",
+        "diagonalDownReverse",
+        "diagonalUp",
+        "diagonalUpReverse"
+    ];
     for (const word of wordList) {
         let placed = false;
         while (!placed) {
@@ -136,6 +145,18 @@ function placeWords(wordList) {
                 row = gridSize - word.length;
             } else if (direction === "verticalReverse" && row - word.length + 1 < 0) {
                 row = word.length - 1;
+            } else if (direction === "diagonalDown" && (row + word.length > gridSize || col + word.length > gridSize)) {
+                row = gridSize - word.length;
+                col = Math.min(col, gridSize - word.length);
+            } else if (direction === "diagonalDownReverse" && (row - word.length + 1 < 0 || col - word.length + 1 < 0)) {
+                row = word.length - 1;
+                col = Math.max(col, word.length - 1);
+            } else if (direction === "diagonalUp" && (row - word.length + 1 < 0 || col + word.length > gridSize)) {
+                row = word.length - 1;
+                col = Math.min(col, gridSize - word.length);
+            } else if (direction === "diagonalUpReverse" && (row + word.length > gridSize || col - word.length + 1 < 0)) {
+                row = gridSize - word.length;
+                col = Math.max(col, word.length - 1);
             }
 
             if (canPlace(word, row, col, direction)) {
@@ -148,8 +169,20 @@ function placeWords(wordList) {
                         c -= i;
                     } else if (direction === "vertical") {
                         r += i;
-                    } else {
+                    } else if (direction === "verticalReverse") {
                         r -= i;
+                    } else if (direction === "diagonalDown") {
+                        r += i;
+                        c += i;
+                    } else if (direction === "diagonalDownReverse") {
+                        r -= i;
+                        c -= i;
+                    } else if (direction === "diagonalUp") {
+                        r -= i;
+                        c += i;
+                    } else if (direction === "diagonalUpReverse") {
+                        r += i;
+                        c -= i;
                     }
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
@@ -167,7 +200,19 @@ function canPlace(word, row, col, direction) {
     if (direction === "horizontal") dCol = 1;
     else if (direction === "horizontalReverse") dCol = -1;
     else if (direction === "vertical") dRow = 1;
-    else dRow = -1;
+    else if (direction === "verticalReverse") dRow = -1;
+    else if (direction === "diagonalDown") {
+        dRow = 1; dCol = 1;
+    }
+    else if (direction === "diagonalDownReverse") {
+        dRow = -1; dCol = -1;
+    }
+    else if (direction === "diagonalUp") {
+        dRow = -1; dCol = 1;
+    }
+    else if (direction === "diagonalUpReverse") {
+        dRow = 1; dCol = -1;
+    }
 
     for (let i = 0; i < word.length; i++) {
         const r = row + dRow * i;
@@ -236,19 +281,22 @@ function handlePointerMove(e) {
     if (selectedCells.includes(cell)) return;
 
     if (direction === null) {
-        if (row === startRow) {
-            direction = "horizontal";
-        } else if (col === startCol) {
-            direction = "vertical";
+        const rowDiff = row - startRow;
+        const colDiff = col - startCol;
+        if (rowDiff === 0) {
+            direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
+        } else if (colDiff === 0) {
+            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
+        } else if (Math.abs(rowDiff) === Math.abs(colDiff)) {
+            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: colDiff > 0 ? 1 : -1 };
         } else {
             return;
         }
     }
 
-    if (direction === "horizontal" && row === startRow && Math.abs(col - startCol) === selectedCells.length) {
-        selectedCells.push(cell);
-        cell.classList.add("selected");
-    } else if (direction === "vertical" && col === startCol && Math.abs(row - startRow) === selectedCells.length) {
+    const expectedRow = startRow + direction.dRow * selectedCells.length;
+    const expectedCol = startCol + direction.dCol * selectedCells.length;
+    if (row === expectedRow && col === expectedCol) {
         selectedCells.push(cell);
         cell.classList.add("selected");
     }
@@ -425,7 +473,6 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
-    startGame();
 });
 
 let resizeTimeout;
