@@ -49,13 +49,20 @@ body {
     touch-action: none;
 }
 
+#game-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
 #game-board {
     display: grid;
     grid-gap: 2px;
     border: 2px solid #333;
     padding: 5px;
     max-width: 95vw;
-    overflow: auto;
+    overflow: hidden;
     aspect-ratio: 1 / 1;
 }
 
@@ -70,6 +77,7 @@ body {
     cursor: pointer;
     user-select: none;
     touch-action: none;
+    font-size: 0.9rem;
 }
 
 .selected {
@@ -90,7 +98,7 @@ body {
     padding: 0.25rem 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 0.6rem;
 }
 
 #word-list li.found {
@@ -110,6 +118,10 @@ body {
 }
 
 @media (max-width: 480px) {
+    #game-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
     #game-board {
         max-width: 90vw;
     }
@@ -117,7 +129,7 @@ body {
         font-size: 0.8rem;
     }
     #word-list li {
-        font-size: 0.7rem;
+        font-size: 0.5rem;
     }
 }
 
