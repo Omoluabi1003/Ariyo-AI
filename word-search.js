@@ -75,16 +75,17 @@ function createBoard() {
             cell.style.lineHeight = `${cellSize}px`;
             cell.dataset.row = i;
             cell.dataset.col = j;
-            cell.addEventListener("mousedown", handleMouseDown);
-            cell.addEventListener("mouseover", handleMouseOver);
+            cell.addEventListener("pointerdown", handlePointerDown);
+            cell.addEventListener("pointerover", handlePointerOver);
             gameBoard.appendChild(cell);
             row.push(cell);
         }
         board.push(row);
     }
     // set canvas size after cells are created
-    lineCanvas.width = gameBoard.offsetWidth;
-    lineCanvas.height = gameBoard.offsetHeight;
+    const boardRect = gameBoard.getBoundingClientRect();
+    lineCanvas.width = boardRect.width;
+    lineCanvas.height = boardRect.height;
     lineCtx = lineCanvas.getContext("2d");
     lineCtx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
 }
@@ -166,7 +167,7 @@ function clearSelection() {
     selectedCells = [];
 }
 
-function handleMouseDown(e) {
+function handlePointerDown(e) {
     selecting = true;
     clearSelection();
     const cell = e.currentTarget;
@@ -177,7 +178,7 @@ function handleMouseDown(e) {
     cell.classList.add("selected");
 }
 
-function handleMouseOver(e) {
+function handlePointerOver(e) {
     if (!selecting) return;
     const cell = e.currentTarget;
     const row = parseInt(cell.dataset.row);
@@ -203,14 +204,14 @@ function handleMouseOver(e) {
     }
 }
 
-function handleMouseUp() {
+function handlePointerUp() {
     if (!selecting) return;
     selecting = false;
     checkSelectedWord();
     clearSelection();
 }
 
-document.addEventListener("mouseup", handleMouseUp);
+document.addEventListener("pointerup", handlePointerUp);
 
 function checkSelectedWord() {
     if (selectedCells.length === 0) return;
