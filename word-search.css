@@ -12,6 +12,7 @@ body {
 #board-container {
     position: relative;
     margin-bottom: 1rem;
+    touch-action: none;
 }
 
 #game-board {
@@ -28,6 +29,7 @@ body {
     border: 1px solid #ccc;
     cursor: pointer;
     user-select: none;
+    touch-action: none;
 }
 
 .selected {
