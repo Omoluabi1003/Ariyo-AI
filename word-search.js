@@ -1,11 +1,32 @@
 const categories = {
-    "Programming": ["javascript", "html", "css", "python", "java"],
-    "Fruits": ["apple", "banana", "mango", "orange", "grape"],
-    "Animals": ["lion", "tiger", "zebra", "eagle", "shark"],
-    "Colors": ["red", "blue", "green", "yellow", "purple"],
-    "Sports": ["football", "tennis", "cricket", "boxing", "hockey"],
-    "Countries": ["nigeria", "ghana", "kenya", "egypt", "togo"],
-    "Movies": ["avatar", "inception", "matrix", "titanic", "gladiator"],
+    "Programming": [
+        "javascript", "html", "css", "python", "java",
+        "react", "node", "angular", "swift", "rust"
+    ],
+    "Fruits": [
+        "apple", "banana", "mango", "orange", "grape",
+        "peach", "pear", "plum", "cherry", "lemon"
+    ],
+    "Animals": [
+        "lion", "tiger", "zebra", "eagle", "shark",
+        "bear", "whale", "giraffe", "rhino", "panda"
+    ],
+    "Colors": [
+        "red", "blue", "green", "yellow", "purple",
+        "orange", "indigo", "violet", "brown", "pink"
+    ],
+    "Sports": [
+        "football", "tennis", "cricket", "boxing", "hockey",
+        "rugby", "golf", "soccer", "curling", "skiing"
+    ],
+    "Countries": [
+        "nigeria", "ghana", "kenya", "egypt", "togo",
+        "brazil", "canada", "france", "china", "spain"
+    ],
+    "Movies": [
+        "avatar", "inception", "matrix", "titanic", "gladiator",
+        "godfather", "terminator", "rocky", "alien", "jaws"
+    ],
     "Nigerian States": [
         "abia", "adamawa", "akwaibom", "anambra", "bauchi", "bayelsa",
         "benue", "borno", "crossriver", "delta", "ebonyi", "edo",
@@ -34,9 +55,12 @@ let selectedCells = [];
 let direction = null;
 let startRow = 0;
 let startCol = 0;
+let lineCanvas;
+let lineCtx;
 
 function createBoard() {
     const gameBoard = document.getElementById("game-board");
+    lineCanvas = document.getElementById("line-canvas");
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -58,6 +82,11 @@ function createBoard() {
         }
         board.push(row);
     }
+    // set canvas size after cells are created
+    lineCanvas.width = gameBoard.offsetWidth;
+    lineCanvas.height = gameBoard.offsetHeight;
+    lineCtx = lineCanvas.getContext("2d");
+    lineCtx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
 }
 
 function placeWords(wordList) {
@@ -71,9 +100,9 @@ function placeWords(wordList) {
             if (canPlace(word, row, col, direction)) {
                 for (let i = 0; i < word.length; i++) {
                     if (direction === "horizontal") {
-                        board[row][col + i].textContent = word[i];
+                        board[row][col + i].textContent = word[i].toUpperCase();
                     } else {
-                        board[row + i][col].textContent = word[i];
+                        board[row + i][col].textContent = word[i].toUpperCase();
                     }
                 }
                 placed = true;
@@ -88,7 +117,7 @@ function canPlace(word, row, col, direction) {
             return false;
         }
         for (let i = 0; i < word.length; i++) {
-            if (board[row][col + i].textContent !== "" && board[row][col + i].textContent !== word[i]) {
+            if (board[row][col + i].textContent !== "" && board[row][col + i].textContent !== word[i].toUpperCase()) {
                 return false;
             }
         }
@@ -97,7 +126,7 @@ function canPlace(word, row, col, direction) {
             return false;
         }
         for (let i = 0; i < word.length; i++) {
-            if (board[row + i][col].textContent !== "" && board[row + i][col].textContent !== word[i]) {
+            if (board[row + i][col].textContent !== "" && board[row + i][col].textContent !== word[i].toUpperCase()) {
                 return false;
             }
         }
@@ -113,6 +142,23 @@ function fillEmptyCells() {
             }
         }
     }
+}
+
+function drawLine(cells) {
+    if (!lineCtx || cells.length === 0) return;
+    const boardRect = document.getElementById("game-board").getBoundingClientRect();
+    const startRect = cells[0].getBoundingClientRect();
+    const endRect = cells[cells.length - 1].getBoundingClientRect();
+    const startX = startRect.left - boardRect.left + startRect.width / 2;
+    const startY = startRect.top - boardRect.top + startRect.height / 2;
+    const endX = endRect.left - boardRect.left + endRect.width / 2;
+    const endY = endRect.top - boardRect.top + endRect.height / 2;
+    lineCtx.strokeStyle = "red";
+    lineCtx.lineWidth = 4;
+    lineCtx.beginPath();
+    lineCtx.moveTo(startX, startY);
+    lineCtx.lineTo(endX, endY);
+    lineCtx.stroke();
 }
 
 function clearSelection() {
@@ -181,6 +227,7 @@ function markFound(word) {
     if (foundWords.includes(word)) return;
     foundWords.push(word);
     selectedCells.forEach(c => c.classList.add("found"));
+    drawLine(selectedCells);
     const item = wordListElement.querySelector(`li[data-word="${word}"]`);
     if (item) item.classList.add("found");
     checkWin();
@@ -227,7 +274,7 @@ function populateWordList() {
     wordListElement.innerHTML = "";
     wordsInGame.forEach(w => {
         const li = document.createElement("li");
-        li.textContent = w;
+        li.textContent = w.toUpperCase();
         li.dataset.word = w;
         wordListElement.appendChild(li);
     });
@@ -236,7 +283,7 @@ function populateWordList() {
 function startGame() {
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
-    wordsInGame = pickWords(words);
+    wordsInGame = pickWords(words, 10);
     foundWords = [];
     createBoard();
     placeWords(wordsInGame);
