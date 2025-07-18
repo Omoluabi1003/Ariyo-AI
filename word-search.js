@@ -425,7 +425,12 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
-    startGame();
+    const startOverlay = document.getElementById("start-overlay");
+    const startBtn = document.getElementById("start-btn");
+    startBtn.addEventListener("click", () => {
+        startOverlay.style.display = "none";
+        startGame();
+    });
 });
 
 let resizeTimeout;
