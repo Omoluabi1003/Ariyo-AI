@@ -353,6 +353,10 @@ document.addEventListener("DOMContentLoaded", () => {
     startGame();
 });
 
+let resizeTimeout;
 window.addEventListener("resize", () => {
-    resizeBoard();
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        resizeBoard();
+    }, 100);
 });
