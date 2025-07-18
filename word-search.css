@@ -28,3 +28,34 @@ body {
 .selected {
     background-color: #ff0;
 }
+
+#word-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+#word-list li {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#word-list li.found {
+    background-color: lightgreen;
+    font-weight: bold;
+}
+
+.found {
+    background-color: lightgreen;
+}
+
+#win-message {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
