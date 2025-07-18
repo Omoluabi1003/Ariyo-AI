@@ -38,6 +38,11 @@ body {
     cursor: pointer;
 }
 
+#timer {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
 #board-container {
     position: relative;
     margin-bottom: 1rem;
@@ -85,6 +90,7 @@ body {
     padding: 0.25rem 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 0.9rem;
 }
 
 #word-list li.found {
@@ -109,6 +115,9 @@ body {
     }
     #word-list {
         font-size: 0.8rem;
+    }
+    #word-list li {
+        font-size: 0.7rem;
     }
 }
 
