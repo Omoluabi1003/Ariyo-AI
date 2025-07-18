@@ -54,7 +54,7 @@ function updateGridSize() {
 
 function getCellSize() {
     const maxSize = 30;
-    const available = Math.floor(window.innerWidth * 0.95);
+    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.95);
     return Math.min(maxSize, Math.floor(available / gridSize));
 }
 const board = [];
