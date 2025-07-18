@@ -74,6 +74,7 @@ const board = [];
 const wordListElement = document.getElementById("word-list");
 let wordsInGame = [];
 let foundWords = [];
+let foundWordCells = {};
 let startTime = 0;
 let timerInterval;
 let selecting = false;
@@ -187,7 +188,6 @@ function placeWords(wordList) {
                     }
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
-                    cell.dataset.word = word;
                     if (cell.dataset.words) {
                         const arr = cell.dataset.words.split(',');
                         if (!arr.includes(word)) {
@@ -288,8 +288,6 @@ function handlePointerMove(e) {
     if (!cell || !cell.classList.contains("cell")) return;
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
-    if (selectedCells.includes(cell)) return;
-
     if (direction === null) {
         const rowDiff = row - startRow;
         const colDiff = col - startCol;
@@ -304,11 +302,21 @@ function handlePointerMove(e) {
         }
     }
 
-    const expectedRow = startRow + direction.dRow * selectedCells.length;
-    const expectedCol = startCol + direction.dCol * selectedCells.length;
-    if (row === expectedRow && col === expectedCol) {
-        selectedCells.push(cell);
-        cell.classList.add("selected");
+    const rowDiff = row - startRow;
+    const colDiff = col - startCol;
+    if (direction.dRow !== 0 && rowDiff * direction.dRow < 0) return;
+    if (direction.dCol !== 0 && colDiff * direction.dCol < 0) return;
+    if (direction.dRow !== 0 && direction.dCol !== 0 && Math.abs(rowDiff) !== Math.abs(colDiff)) return;
+
+    const steps = Math.max(Math.abs(rowDiff), Math.abs(colDiff));
+    for (let i = selectedCells.length; i <= steps; i++) {
+        const r = startRow + direction.dRow * i;
+        const c = startCol + direction.dCol * i;
+        const nextCell = board[r][c];
+        if (!selectedCells.includes(nextCell)) {
+            selectedCells.push(nextCell);
+            nextCell.classList.add("selected");
+        }
     }
 }
 
@@ -326,25 +334,17 @@ function checkSelectedWord() {
     let word = selectedCells.map(c => c.textContent.toLowerCase()).join("");
     let reversed = word.split("").reverse().join("");
     if (wordsInGame.includes(word) && selectedCells.every(c => (c.dataset.words || "").split(',').includes(word))) {
-        markFound(word);
+        markFound(word, selectedCells.slice());
     } else if (wordsInGame.includes(reversed) && selectedCells.every(c => (c.dataset.words || "").split(',').includes(reversed))) {
-        markFound(reversed);
+        markFound(reversed, selectedCells.slice());
     }
 }
 
-function markFound(word) {
+function markFound(word, cells) {
     if (foundWords.includes(word)) return;
     foundWords.push(word);
-    const cells = [];
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            const words = (board[i][j].dataset.words || "").split(',');
-            if (words.includes(word)) {
-                board[i][j].classList.add("found");
-                cells.push(board[i][j]);
-            }
-        }
-    }
+    foundWordCells[word] = cells;
+    cells.forEach(c => c.classList.add("found"));
     drawLine(cells);
     const item = wordListElement.querySelector(`li[data-word="${word}"]`);
     if (item) item.classList.add("found");
@@ -424,6 +424,7 @@ function startGame() {
     words = categories[selectedCategory];
     wordsInGame = pickWords(words, 20);
     foundWords = [];
+    foundWordCells = {};
     startTimer();
     createBoard();
     placeWords(wordsInGame);
@@ -462,15 +463,7 @@ function resizeBoard() {
 
 function redrawLines() {
     for (const word of foundWords) {
-        const cells = [];
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-                const words = (board[i][j].dataset.words || "").split(',');
-                if (words.includes(word)) {
-                    cells.push(board[i][j]);
-                }
-            }
-        }
+        const cells = foundWordCells[word] || [];
         drawLine(cells);
     }
 }
