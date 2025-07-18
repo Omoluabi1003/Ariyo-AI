@@ -76,12 +76,12 @@ function createBoard() {
             cell.dataset.row = i;
             cell.dataset.col = j;
             cell.addEventListener("pointerdown", handlePointerDown);
-            cell.addEventListener("pointerover", handlePointerOver);
             gameBoard.appendChild(cell);
             row.push(cell);
         }
         board.push(row);
     }
+    gameBoard.addEventListener("pointermove", handlePointerMove);
     // set canvas size after cells are created
     const boardRect = gameBoard.getBoundingClientRect();
     lineCanvas.width = boardRect.width;
@@ -178,9 +178,11 @@ function handlePointerDown(e) {
     cell.classList.add("selected");
 }
 
-function handlePointerOver(e) {
+function handlePointerMove(e) {
+    if (e.buttons !== 1) selecting = false;
     if (!selecting) return;
-    const cell = e.currentTarget;
+    const cell = document.elementFromPoint(e.clientX, e.clientY);
+    if (!cell || !cell.classList.contains("cell")) return;
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
     if (selectedCells.includes(cell)) return;
