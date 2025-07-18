@@ -457,6 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
         option.textContent = name;
         select.appendChild(option);
     }
+    select.value = selectedCategory;
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
