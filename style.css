@@ -155,6 +155,8 @@ body {
     transition: transform 0.2s;
     min-width: 48px;
     min-height: 48px;
+    touch-action: manipulation;
+    pointer-events: auto;
 }
 
 .music-controls.icons-only button:hover {
