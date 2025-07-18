@@ -68,8 +68,22 @@ body {
     pointer-events: none;
 }
 
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
 #win-message {
-    margin-top: 1rem;
-    font-size: 1.5rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
     font-weight: bold;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    animation: blink 1s linear infinite;
 }
