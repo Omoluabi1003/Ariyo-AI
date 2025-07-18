@@ -59,6 +59,7 @@ let gridSize = window.innerWidth <= 480 ? 10 : 15;
 const GRID_GAP = 2; // must match CSS gap value
 const BOARD_PADDING = 5; // must match CSS padding
 const BOARD_BORDER = 2; // must match CSS border width
+const BOARD_SCALE = 0.8; // percentage of viewport used for board sizing
 
 function updateGridSize() {
     gridSize = window.innerWidth <= 480 ? 10 : 15;
@@ -66,7 +67,7 @@ function updateGridSize() {
 
 function getCellSize() {
     const maxSize = 30;
-    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.85);
+    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * BOARD_SCALE);
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     return Math.min(maxSize, Math.floor((available - extras) / gridSize));
 }
@@ -103,7 +104,7 @@ function createBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
-            cell.style.fontSize = `${Math.floor(cellSize * 0.6)}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.55)}px`;
             cell.dataset.row = i;
             cell.dataset.col = j;
             cell.addEventListener("pointerdown", handlePointerDown);
@@ -126,11 +127,7 @@ function placeWords(wordList) {
         "horizontal",
         "horizontalReverse",
         "vertical",
-        "verticalReverse",
-        "diagonalDown",
-        "diagonalDownReverse",
-        "diagonalUp",
-        "diagonalUpReverse"
+        "verticalReverse"
     ];
     for (const word of wordList) {
         let placed = false;
@@ -147,18 +144,6 @@ function placeWords(wordList) {
                 row = gridSize - word.length;
             } else if (direction === "verticalReverse" && row - word.length + 1 < 0) {
                 row = word.length - 1;
-            } else if (direction === "diagonalDown" && (row + word.length > gridSize || col + word.length > gridSize)) {
-                row = gridSize - word.length;
-                col = Math.min(col, gridSize - word.length);
-            } else if (direction === "diagonalDownReverse" && (row - word.length + 1 < 0 || col - word.length + 1 < 0)) {
-                row = word.length - 1;
-                col = Math.max(col, word.length - 1);
-            } else if (direction === "diagonalUp" && (row - word.length + 1 < 0 || col + word.length > gridSize)) {
-                row = word.length - 1;
-                col = Math.min(col, gridSize - word.length);
-            } else if (direction === "diagonalUpReverse" && (row + word.length > gridSize || col - word.length + 1 < 0)) {
-                row = gridSize - word.length;
-                col = Math.max(col, word.length - 1);
             }
 
             if (canPlace(word, row, col, direction)) {
@@ -173,18 +158,6 @@ function placeWords(wordList) {
                         r += i;
                     } else if (direction === "verticalReverse") {
                         r -= i;
-                    } else if (direction === "diagonalDown") {
-                        r += i;
-                        c += i;
-                    } else if (direction === "diagonalDownReverse") {
-                        r -= i;
-                        c -= i;
-                    } else if (direction === "diagonalUp") {
-                        r -= i;
-                        c += i;
-                    } else if (direction === "diagonalUpReverse") {
-                        r += i;
-                        c -= i;
                     }
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
@@ -211,18 +184,6 @@ function canPlace(word, row, col, direction) {
     else if (direction === "horizontalReverse") dCol = -1;
     else if (direction === "vertical") dRow = 1;
     else if (direction === "verticalReverse") dRow = -1;
-    else if (direction === "diagonalDown") {
-        dRow = 1; dCol = 1;
-    }
-    else if (direction === "diagonalDownReverse") {
-        dRow = -1; dCol = -1;
-    }
-    else if (direction === "diagonalUp") {
-        dRow = -1; dCol = 1;
-    }
-    else if (direction === "diagonalUpReverse") {
-        dRow = 1; dCol = -1;
-    }
 
     for (let i = 0; i < word.length; i++) {
         const r = row + dRow * i;
@@ -243,6 +204,78 @@ function fillEmptyCells() {
         for (let j = 0; j < gridSize; j++) {
             if (board[i][j].textContent === "") {
                 board[i][j].textContent = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            }
+        }
+    }
+}
+
+function randomLetterDifferent(current) {
+    let letter;
+    do {
+        letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    } while (letter === current);
+    return letter;
+}
+
+function removeDuplicateWords(wordList) {
+    for (const word of wordList) {
+        const occurrences = [];
+        const len = word.length;
+        // horizontal
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c <= gridSize - len; c++) {
+                let match = true;
+                for (let i = 0; i < len; i++) {
+                    if (board[r][c + i].textContent.toLowerCase() !== word[i]) {
+                        match = false; break;
+                    }
+                }
+                if (match) occurrences.push({ r, c, dir: 'h' });
+                // reverse
+                match = true;
+                for (let i = 0; i < len; i++) {
+                    if (board[r][c + len - 1 - i].textContent.toLowerCase() !== word[i]) {
+                        match = false; break;
+                    }
+                }
+                if (match) occurrences.push({ r, c: c + len - 1, dir: 'hr' });
+            }
+        }
+        // vertical
+        for (let c = 0; c < gridSize; c++) {
+            for (let r = 0; r <= gridSize - len; r++) {
+                let match = true;
+                for (let i = 0; i < len; i++) {
+                    if (board[r + i][c].textContent.toLowerCase() !== word[i]) {
+                        match = false; break;
+                    }
+                }
+                if (match) occurrences.push({ r, c, dir: 'v' });
+                // reverse
+                match = true;
+                for (let i = 0; i < len; i++) {
+                    if (board[r + len - 1 - i][c].textContent.toLowerCase() !== word[i]) {
+                        match = false; break;
+                    }
+                }
+                if (match) occurrences.push({ r: r + len - 1, c, dir: 'vr' });
+            }
+        }
+        for (let i = 1; i < occurrences.length; i++) {
+            const occ = occurrences[i];
+            const idx = Math.floor(Math.random() * len);
+            if (occ.dir === 'h') {
+                const cell = board[occ.r][occ.c + idx];
+                cell.textContent = randomLetterDifferent(cell.textContent);
+            } else if (occ.dir === 'hr') {
+                const cell = board[occ.r][occ.c - idx];
+                cell.textContent = randomLetterDifferent(cell.textContent);
+            } else if (occ.dir === 'v') {
+                const cell = board[occ.r + idx][occ.c];
+                cell.textContent = randomLetterDifferent(cell.textContent);
+            } else if (occ.dir === 'vr') {
+                const cell = board[occ.r - idx][occ.c];
+                cell.textContent = randomLetterDifferent(cell.textContent);
             }
         }
     }
@@ -292,9 +325,7 @@ function handlePointerMove(e) {
         const rowDiff = row - startRow;
         const colDiff = col - startCol;
         if (rowDiff === 0 && colDiff === 0) return;
-        if (Math.abs(rowDiff) === Math.abs(colDiff)) {
-            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: colDiff > 0 ? 1 : -1 };
-        } else if (Math.abs(rowDiff) > Math.abs(colDiff)) {
+        if (Math.abs(rowDiff) >= Math.abs(colDiff)) {
             direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
         } else {
             direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
@@ -305,7 +336,7 @@ function handlePointerMove(e) {
     const colDiff = col - startCol;
     if (direction.dRow !== 0 && rowDiff * direction.dRow < 0) return;
     if (direction.dCol !== 0 && colDiff * direction.dCol < 0) return;
-    if (direction.dRow !== 0 && direction.dCol !== 0 && Math.abs(rowDiff) !== Math.abs(colDiff)) return;
+    if (direction.dRow !== 0 && direction.dCol !== 0) return;
 
     const steps = Math.max(Math.abs(rowDiff), Math.abs(colDiff));
     for (let i = selectedCells.length; i <= steps; i++) {
@@ -429,6 +460,7 @@ function startGame() {
     createBoard();
     placeWords(wordsInGame);
     fillEmptyCells();
+    removeDuplicateWords(wordsInGame);
     populateWordList();
 }
 
@@ -451,7 +483,7 @@ function resizeBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
-            cell.style.fontSize = `${Math.floor(cellSize * 0.6)}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.55)}px`;
         }
     }
     const boardRect = gameBoard.getBoundingClientRect();
