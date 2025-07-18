@@ -3,25 +3,131 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    margin: 0;
+    background-color: #f0f0f0;
+    -webkit-text-size-adjust: 100%; /* Prevent font scaling on mobile */
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 95vw;
 }
 
 #game-board {
     display: grid;
-    grid-template-columns: repeat(10, 30px);
-    grid-gap: 2px;
-    border: 2px solid #333;
-    padding: 5px;
+    border: 3px solid #333;
+    background-color: #fff;
+    width: 100%;
+    /* Aspect ratio 1:1 */
+    height: auto;
+    padding-bottom: 100%;
+    position: relative;
 }
 
-.cell {
-    width: 30px;
-    height: 30px;
+#game-board .cell {
+    position: absolute;
     text-align: center;
-    line-height: 30px;
+    font-weight: bold;
     border: 1px solid #ccc;
     cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.selected {
-    background-color: #ff0;
+.cell.selected {
+    background-color: #fdd835; /* Yellow */
+}
+
+.cell.found {
+    background-color: #81c784; /* Green */
+    color: #fff;
+}
+
+#word-list-container {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    border: 2px solid #333;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+#word-list-container h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+#word-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+#word-list li {
+    padding: 5px;
+    font-size: 1.1em;
+    background-color: #eee;
+    border-radius: 5px;
+}
+
+#word-list li.found {
+    text-decoration: line-through;
+    color: #888;
+    background-color: #ddd;
+}
+
+#new-game {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    transition: background-color 0.3s;
+}
+
+#new-game:hover {
+    background-color: #0056b3;
+}
+
+/* Larger screens */
+@media (min-width: 600px) {
+    #game-container {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    #game-board {
+        width: 500px;
+        height: 500px;
+        padding-bottom: 0; /* Reset padding-bottom */
+    }
+
+    #word-list-container {
+        width: 200px;
+        margin-top: 0;
+    }
+
+    #word-list {
+        flex-direction: column;
+    }
 }

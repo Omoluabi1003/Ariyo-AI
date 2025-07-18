@@ -2,11 +2,19 @@
 <html>
 <head>
     <title>Word Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="word-search.css">
 </head>
 <body>
     <h1>Word Search</h1>
-    <div id="game-board"></div>
+    <div id="game-container">
+        <div id="game-board"></div>
+        <div id="word-list-container">
+            <h2>Words to Find</h2>
+            <ul id="word-list"></ul>
+        </div>
+    </div>
+    <button id="new-game">New Game</button>
     <script src="word-search.js"></script>
 </body>
 </html>
