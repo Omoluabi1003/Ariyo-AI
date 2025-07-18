@@ -49,10 +49,10 @@ body {
     grid-gap: 2px;
     border: 2px solid #333;
     padding: 5px;
-    max-width: 95vw;
+    max-width: 95vmin;
+    width: min(90vw, 90vh);
+    height: min(90vw, 90vh);
     overflow: auto;
-    width: 80vw;
-    aspect-ratio: 1 / 1;
 }
 
 .cell {

@@ -46,9 +46,9 @@
     border: 2px solid #333;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    width: 80vw;
+    width: min(90vw, 90vh, 400px);
+    height: calc(min(90vw, 90vh, 400px) * 0.75);
     max-width: 400px;
-    aspect-ratio: 4 / 3;
 }
 
 .puzzle-tile {
