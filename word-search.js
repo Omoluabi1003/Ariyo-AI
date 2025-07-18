@@ -188,6 +188,15 @@ function placeWords(wordList) {
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
                     cell.dataset.word = word;
+                    if (cell.dataset.words) {
+                        const arr = cell.dataset.words.split(',');
+                        if (!arr.includes(word)) {
+                            arr.push(word);
+                            cell.dataset.words = arr.join(',');
+                        }
+                    } else {
+                        cell.dataset.words = word;
+                    }
                 }
                 placed = true;
             }
@@ -316,9 +325,9 @@ function checkSelectedWord() {
     if (selectedCells.length === 0) return;
     let word = selectedCells.map(c => c.textContent.toLowerCase()).join("");
     let reversed = word.split("").reverse().join("");
-    if (wordsInGame.includes(word)) {
+    if (wordsInGame.includes(word) && selectedCells.every(c => (c.dataset.words || "").split(',').includes(word))) {
         markFound(word);
-    } else if (wordsInGame.includes(reversed)) {
+    } else if (wordsInGame.includes(reversed) && selectedCells.every(c => (c.dataset.words || "").split(',').includes(reversed))) {
         markFound(reversed);
     }
 }
@@ -329,7 +338,8 @@ function markFound(word) {
     const cells = [];
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
-            if (board[i][j].dataset.word === word) {
+            const words = (board[i][j].dataset.words || "").split(',');
+            if (words.includes(word)) {
                 board[i][j].classList.add("found");
                 cells.push(board[i][j]);
             }
@@ -455,7 +465,8 @@ function redrawLines() {
         const cells = [];
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
-                if (board[i][j].dataset.word === word) {
+                const words = (board[i][j].dataset.words || "").split(',');
+                if (words.includes(word)) {
                     cells.push(board[i][j]);
                 }
             }
