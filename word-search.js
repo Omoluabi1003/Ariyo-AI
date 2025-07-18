@@ -102,6 +102,7 @@ function createBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.6)}px`;
             cell.dataset.row = i;
             cell.dataset.col = j;
             cell.addEventListener("pointerdown", handlePointerDown);
@@ -439,6 +440,7 @@ function resizeBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.6)}px`;
         }
     }
     const boardRect = gameBoard.getBoundingClientRect();
