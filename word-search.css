@@ -68,6 +68,15 @@ body {
     pointer-events: none;
 }
 
+@media (max-width: 480px) {
+    #game-board {
+        max-width: 90vw;
+    }
+    #word-list {
+        font-size: 0.8rem;
+    }
+}
+
 @keyframes blink {
     50% {
         opacity: 0;
