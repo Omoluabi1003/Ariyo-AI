@@ -48,6 +48,11 @@ let selectedCategory = Object.keys(categories)[0];
 let words = categories[selectedCategory];
 let gridSize = window.innerWidth <= 480 ? 10 : 15;
 
+// Constants used for sizing calculations
+const GRID_GAP = 2; // must match CSS gap value
+const BOARD_PADDING = 5; // must match CSS padding
+const BOARD_BORDER = 2; // must match CSS border width
+
 function updateGridSize() {
     gridSize = window.innerWidth <= 480 ? 10 : 15;
 }
@@ -55,7 +60,8 @@ function updateGridSize() {
 function getCellSize() {
     const maxSize = 30;
     const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.95);
-    return Math.min(maxSize, Math.floor(available / gridSize));
+    const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
+    return Math.min(maxSize, Math.floor((available - extras) / gridSize));
 }
 const board = [];
 const wordListElement = document.getElementById("word-list");
@@ -74,7 +80,7 @@ function createBoard() {
     lineCanvas = document.getElementById("line-canvas");
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
-    const boardSize = cellSize * gridSize;
+    const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
     gameBoard.style.width = `${boardSize}px`;
     gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -332,7 +338,7 @@ function resizeBoard() {
     }
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
-    const boardSize = cellSize * gridSize;
+    const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
     gameBoard.style.width = `${boardSize}px`;
     gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
