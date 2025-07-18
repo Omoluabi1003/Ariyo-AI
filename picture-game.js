@@ -30,8 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleGrid.innerHTML = '';
         const img = document.createElement('img');
         img.src = puzzleImage;
-        img.style.width = '400px';
-        img.style.height = '300px';
+        const boardWidth = Math.min(window.innerWidth * 0.8, 400);
+        const boardHeight = boardWidth * 0.75;
+        puzzleGrid.style.width = `${boardWidth}px`;
+        puzzleGrid.style.height = `${boardHeight}px`;
+        img.style.width = `${boardWidth}px`;
+        img.style.height = `${boardHeight}px`;
         puzzleGrid.appendChild(img);
     }
 
@@ -39,12 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
         puzzleGrid.innerHTML = '';
         tiles = [];
         const gridSize = Math.sqrt(tileCount);
-        const tileWidth = 400 / gridSize;
-        const tileHeight = 300 / gridSize;
+        const boardWidth = Math.min(window.innerWidth * 0.8, 400);
+        const boardHeight = boardWidth * 0.75;
+        const tileWidth = boardWidth / gridSize;
+        const tileHeight = boardHeight / gridSize;
         puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, ${tileWidth}px)`;
         puzzleGrid.style.gridTemplateRows = `repeat(${gridSize}, ${tileHeight}px)`;
-        puzzleGrid.style.width = '400px';
-        puzzleGrid.style.height = '300px';
+        puzzleGrid.style.width = `${boardWidth}px`;
+        puzzleGrid.style.height = `${boardHeight}px`;
 
         let tileNumbers = Array.from({ length: tileCount - 1 }, (_, i) => i);
 
@@ -82,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tile.classList.add('empty-tile');
             } else {
                 tile.style.backgroundImage = `url(${puzzleImage})`;
-                tile.style.backgroundSize = `400px 300px`;
+                tile.style.backgroundSize = `${boardWidth}px ${boardHeight}px`;
                 const x = (tileNumbers[i] % gridSize) * tileWidth;
                 const y = Math.floor(tileNumbers[i] / gridSize) * tileHeight;
                 tile.style.backgroundPosition = `-${x}px -${y}px`;
@@ -142,8 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tile2.dataset.index = dataIndex1;
 
         const gridSize = Math.sqrt(tileCount);
-        const tileWidth = 400 / gridSize;
-        const tileHeight = 300 / gridSize;
+        const tileWidth = puzzleGrid.clientWidth / gridSize;
+        const tileHeight = puzzleGrid.clientHeight / gridSize;
 
         const emptyTile = document.querySelector('.empty-tile');
         const nonEmptyTile = tile1 === emptyTile ? tile2 : tile1;
