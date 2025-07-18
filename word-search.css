@@ -31,11 +31,20 @@ body {
     margin: 0.5rem 0;
 }
 
+#overlay-category-select {
+    margin: 0.5rem 0;
+}
+
 #new-game-btn {
     margin-bottom: 0.5rem;
     padding: 0.3rem 0.6rem;
     font-size: 1rem;
     cursor: pointer;
+}
+
+#timer {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
 }
 
 #board-container {
@@ -85,6 +94,7 @@ body {
     padding: 0.25rem 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 0.9rem;
 }
 
 #word-list li.found {
@@ -110,6 +120,9 @@ body {
     #word-list {
         font-size: 0.8rem;
     }
+    #word-list li {
+        font-size: 0.7rem;
+    }
 }
 
 @keyframes blink {
@@ -130,4 +143,20 @@ body {
     padding: 1rem 2rem;
     border-radius: 1rem;
     animation: blink 1s linear infinite;
+}
+
+#start-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #fff;
+    z-index: 100;
 }

@@ -8,9 +8,15 @@
 </head>
 <body>
     <h1 id="game-title">Ara Word Search</h1>
-    <label for="category-select">Choose a category:</label>
+    <div id="start-overlay">
+        <label for="overlay-category-select">Choose a category:</label>
+        <select id="overlay-category-select"></select>
+        <button id="start-btn">Start Game</button>
+    </div>
+    <label for="category-select" id="category-label">Choose a category:</label>
     <select id="category-select"></select>
     <button id="new-game-btn">New Game</button>
+    <div id="timer"></div>
     <div id="board-container">
         <div id="game-board"></div>
         <canvas id="line-canvas"></canvas>
