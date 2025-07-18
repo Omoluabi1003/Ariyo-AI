@@ -124,8 +124,7 @@
           aboutButtonGlobal.textContent = '🎵 Back to Player';
           aboutButtonGlobal.onclick = navigateToHome;
         }
-        mainContent.style.position = 'relative';
-        mainContent.style.zIndex = '101';
+        mainContent.classList.add('about-us-active');
         mainContent.style.opacity = '1';
 
       } catch (error) {
@@ -161,8 +160,7 @@
         aboutButtonGlobal.onclick = originalAboutButtonOnClick;
       }
 
-      mainContent.style.zIndex = '';
-      mainContent.style.position = '';
+      mainContent.classList.remove('about-us-active');
       gsap.to(mainContent, { opacity: 1, duration: 0.5 });
     }
 

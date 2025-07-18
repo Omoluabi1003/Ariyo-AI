@@ -1,4 +1,5 @@
 function openAlbumList() {
+      document.getElementById('main-content').classList.remove('about-us-active');
       const modal = document.getElementById('albumModal');
       const modalContent = modal.querySelector('.modal-content');
 
@@ -54,6 +55,7 @@ function openAlbumList() {
     }
 
     function openRadioList() {
+      document.getElementById('main-content').classList.remove('about-us-active');
       updateRadioListModal();
       const modal = document.getElementById('radioModal');
       const modalContent = modal.querySelector('.modal-content');
