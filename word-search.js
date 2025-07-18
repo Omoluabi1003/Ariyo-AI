@@ -100,11 +100,14 @@ function placeWords(wordList) {
 
             if (canPlace(word, row, col, direction)) {
                 for (let i = 0; i < word.length; i++) {
+                    let cell;
                     if (direction === "horizontal") {
-                        board[row][col + i].textContent = word[i].toUpperCase();
+                        cell = board[row][col + i];
                     } else {
-                        board[row + i][col].textContent = word[i].toUpperCase();
+                        cell = board[row + i][col];
                     }
+                    cell.textContent = word[i].toUpperCase();
+                    cell.dataset.word = word;
                 }
                 placed = true;
             }
@@ -229,8 +232,16 @@ function checkSelectedWord() {
 function markFound(word) {
     if (foundWords.includes(word)) return;
     foundWords.push(word);
-    selectedCells.forEach(c => c.classList.add("found"));
-    drawLine(selectedCells);
+    const cells = [];
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            if (board[i][j].dataset.word === word) {
+                board[i][j].classList.add("found");
+                cells.push(board[i][j]);
+            }
+        }
+    }
+    drawLine(cells);
     const item = wordListElement.querySelector(`li[data-word="${word}"]`);
     if (item) item.classList.add("found");
     checkWin();
@@ -298,10 +309,36 @@ function startGame() {
 }
 
 function resizeBoard() {
-    createBoard();
-    placeWords(wordsInGame);
-    fillEmptyCells();
-    populateWordList();
+    const gameBoard = document.getElementById("game-board");
+    const cellSize = getCellSize();
+    gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            const cell = board[i][j];
+            cell.style.width = `${cellSize}px`;
+            cell.style.height = `${cellSize}px`;
+            cell.style.lineHeight = `${cellSize}px`;
+        }
+    }
+    const boardRect = gameBoard.getBoundingClientRect();
+    lineCanvas.width = boardRect.width;
+    lineCanvas.height = boardRect.height;
+    lineCtx = lineCanvas.getContext("2d");
+    redrawLines();
+}
+
+function redrawLines() {
+    for (const word of foundWords) {
+        const cells = [];
+        for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++) {
+                if (board[i][j].dataset.word === word) {
+                    cells.push(board[i][j]);
+                }
+            }
+        }
+        drawLine(cells);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
