@@ -8,7 +8,10 @@
     <h1>Word Search</h1>
     <label for="category-select">Choose a category:</label>
     <select id="category-select"></select>
-    <div id="game-board"></div>
+    <div id="board-container">
+        <div id="game-board"></div>
+        <canvas id="line-canvas"></canvas>
+    </div>
     <ul id="word-list"></ul>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="word-search.js"></script>

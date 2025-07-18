@@ -9,20 +9,27 @@ body {
     margin: 0.5rem 0;
 }
 
+#board-container {
+    position: relative;
+    margin-bottom: 1rem;
+    touch-action: none;
+}
+
 #game-board {
     display: grid;
     grid-gap: 2px;
     border: 2px solid #333;
     padding: 5px;
+    max-width: 95vw;
+    overflow: auto;
 }
 
 .cell {
-    width: 30px;
-    height: 30px;
     text-align: center;
-    line-height: 30px;
     border: 1px solid #ccc;
     cursor: pointer;
+    user-select: none;
+    touch-action: none;
 }
 
 .selected {
@@ -52,6 +59,15 @@ body {
 
 .found {
     background-color: lightgreen;
+}
+
+#line-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
 }
 
 #win-message {
