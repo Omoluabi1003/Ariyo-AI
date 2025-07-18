@@ -50,6 +50,12 @@ function getCellSize() {
     const available = Math.floor(window.innerWidth * 0.95);
     return Math.min(maxSize, Math.floor(available / gridSize));
 }
+
+function randomizeCategoryWords() {
+    for (const key of Object.keys(categories)) {
+        categories[key] = categories[key].sort(() => Math.random() - 0.5);
+    }
+}
 const board = [];
 const wordListElement = document.getElementById("word-list");
 let wordsInGame = [];
@@ -303,6 +309,7 @@ function populateWordList() {
 
 function startGame() {
     updateGridSize();
+    randomizeCategoryWords();
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
     wordsInGame = pickWords(words, 10);
@@ -354,6 +361,7 @@ function redrawLines() {
 
 document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("category-select");
+    const newBtn = document.getElementById("new-game");
     for (const name of Object.keys(categories)) {
         const option = document.createElement("option");
         option.value = name;
@@ -361,6 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
         select.appendChild(option);
     }
     select.addEventListener("change", startGame);
+    newBtn.addEventListener("click", startGame);
     startGame();
 });
 

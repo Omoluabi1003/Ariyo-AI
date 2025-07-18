@@ -57,6 +57,12 @@ body {
     font-weight: bold;
 }
 
+#new-game {
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 1rem;
+}
+
 .found {
     background-color: lightgreen;
 }
