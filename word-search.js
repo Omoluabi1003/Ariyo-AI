@@ -254,13 +254,16 @@ function checkWin() {
                 const msg = document.createElement("div");
                 msg.id = "win-message";
                 msg.textContent = "You Win!";
-                document.body.appendChild(msg);
+                document.getElementById("board-container").appendChild(msg);
                 return;
             }
 
             const particleCount = 50 * (timeLeft / duration);
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            // school pride!
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#bb0000', '#ffffff'] }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#bb0000', '#ffffff'] }));
+            // balloons!
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.4, 0.6), y: Math.random() - 0.2 }, shapes: ['circle'] }));
         }, 250);
     }
 }
