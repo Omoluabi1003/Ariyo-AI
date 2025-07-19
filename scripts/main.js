@@ -335,16 +335,28 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         showIosInstallBanner();
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-          }
-        }).then(function() {
-          navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+        navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
+          .then(function(registration) {
             console.log('Service Worker registered with scope:', registration.scope);
+
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              });
+            });
           }).catch(function(error) {
             console.log('Service worker registration failed:', error);
           });
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
         });
       });
     }
