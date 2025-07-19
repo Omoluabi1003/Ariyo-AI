@@ -114,6 +114,7 @@ function createBoard() {
         }
         board.push(row);
     }
+    gameBoard.removeEventListener("pointermove", handlePointerMove);
     gameBoard.addEventListener("pointermove", handlePointerMove);
     // set canvas size after cells are created
     const boardRect = gameBoard.getBoundingClientRect();
