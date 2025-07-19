@@ -8,16 +8,18 @@
 </head>
 <body>
     <h1 id="game-title">Ara Word Search</h1>
-    <label for="category-select">Choose a category:</label>
-    <select id="category-select"></select>
-    <button id="new-game-btn">New Game</button>
-    <div id="timer"></div>
     <div id="game-wrapper">
         <div id="board-container">
             <div id="game-board"></div>
             <canvas id="line-canvas"></canvas>
         </div>
         <ul id="word-list"></ul>
+        <div id="controls">
+            <label for="category-select">Category:</label>
+            <select id="category-select"></select>
+            <button id="new-game-btn">New Game</button>
+            <div id="timer"></div>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="word-search.js"></script>

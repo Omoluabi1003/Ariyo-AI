@@ -59,7 +59,7 @@ let gridSize = window.innerWidth <= 480 ? 10 : 15;
 const GRID_GAP = 2; // must match CSS gap value
 const BOARD_PADDING = 5; // must match CSS padding
 const BOARD_BORDER = 2; // must match CSS border width
-const BOARD_SCALE = 0.9; // percentage of viewport used for board sizing
+const BOARD_SCALE = 0.8; // percentage of viewport used for board sizing
 
 function updateGridSize() {
     gridSize = window.innerWidth <= 480 ? 10 : 15;
@@ -511,6 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
+    startGame();
 });
 
 let resizeTimeout;
