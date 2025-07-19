@@ -92,7 +92,7 @@ function createBoard() {
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize + BOARD_PADDING * 2;
+    const containerSize = boardSize;
     gameBoard.style.width = `${containerSize}px`;
     gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -448,7 +448,7 @@ function stopTimer() {
 function startGame() {
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
-    words = [...new Set(categories[selectedCategory])];
+    words = [...new Set(categories[selectedCategory])].filter(w => w.length <= gridSize);
     wordsInGame = pickWords(words, 20);
     foundWords = [];
     foundWordCells = {};
@@ -470,7 +470,7 @@ function resizeBoard() {
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize + BOARD_PADDING * 2;
+    const containerSize = boardSize;
     gameBoard.style.width = `${containerSize}px`;
     gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
