@@ -249,7 +249,9 @@
         currentAlbumIndex = savedState.albumIndex;
         currentTrackIndex = savedState.trackIndex;
         currentRadioIndex = savedState.radioIndex;
-        // shuffleMode = savedState.shuffleMode; // This line is updated below
+        shuffleMode = savedState.shuffleMode;
+        shuffleScope = savedState.shuffleScope;
+
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
@@ -257,8 +259,8 @@
           trackInfo.textContent = `${station.name} - ${station.location}`;
           trackArtist.textContent = '';
           trackYear.textContent = '';
-          trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-          cacheButton.style.display = 'none'; // Hide for radio
+          trackAlbum.textContent = 'Radio Stream';
+          cacheButton.style.display = 'none';
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
             updateTrackTime();
@@ -271,8 +273,8 @@
           trackInfo.textContent = track.title;
           trackArtist.textContent = 'Artist: Omoluabi';
           trackYear.textContent = 'Release Year: 2025';
-           trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
-          cacheButton.style.display = 'block'; // Show for tracks
+          trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`;
+          cacheButton.style.display = 'block';
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
             updateTrackTime();
@@ -280,13 +282,8 @@
           }, { once: true });
         }
         updateTrackListModal();
-        const controls = document.querySelector(".music-controls.icons-only");
-        // Updated section for shuffle button text:
-        const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
+        const shuffleBtn = document.querySelector("button[aria-label='Toggle shuffle']");
         const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
-
-        shuffleMode = savedState.shuffleMode;
-        shuffleScope = savedState.shuffleScope;
 
         if (shuffleScope === 'album') {
           shuffleBtn.textContent = '🔀 Album';
@@ -294,25 +291,19 @@
         } else if (shuffleScope === 'all') {
           shuffleBtn.textContent = '🔀 All';
           shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
-        } else { // off
+        } else {
           shuffleBtn.textContent = '🔀 Off';
           shuffleStatusInfo.textContent = 'Shuffle: Off';
         }
-        console.log('Player restored from saved state:', savedState);
       } else {
-        // Default state for a new session if no saved state
         shuffleScope = 'off';
         shuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
-        document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
+        document.querySelector("button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
         selectAlbum(0);
-        console.log('No saved state found, initialized with default');
       }
       updateStreak();
       updateMediaSession();
-      if (!savedState) {
-        selectAlbum(0);
-      }
     }
 
     // GSAP Sidebar Button Animations
