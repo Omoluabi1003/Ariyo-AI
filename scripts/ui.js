@@ -181,6 +181,10 @@ function openWordSearchGame() {
     const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
     wordSearchGameContainer.style.display = 'block';
     updateEdgePanelBehavior();
+    const iframe = wordSearchGameContainer.querySelector('iframe');
+    if (iframe && iframe.contentWindow && typeof iframe.contentWindow.startGame === 'function') {
+        iframe.contentWindow.startGame();
+    }
 }
 
 function closeWordSearchGame() {
