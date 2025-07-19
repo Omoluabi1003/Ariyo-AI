@@ -219,64 +219,59 @@ function randomLetterDifferent(current) {
 }
 
 function removeDuplicateWords(wordList) {
-    for (const word of wordList) {
-        const occurrences = [];
+    const allWords = [...new Set(Object.values(categories).flat())];
+    const gridWords = new Set(wordList);
+
+    for (const word of allWords) {
+        if (gridWords.has(word)) continue;
         const len = word.length;
+        if (len < 3) continue;
+
         // horizontal
         for (let r = 0; r < gridSize; r++) {
             for (let c = 0; c <= gridSize - len; c++) {
-                let match = true;
+                let currentWord = '';
                 for (let i = 0; i < len; i++) {
-                    if (board[r][c + i].textContent.toLowerCase() !== word[i]) {
-                        match = false; break;
-                    }
+                    currentWord += board[r][c + i].textContent.toLowerCase();
                 }
-                if (match) occurrences.push({ r, c, dir: 'h' });
-                // reverse
-                match = true;
+                if (currentWord === word) {
+                    const idx = Math.floor(Math.random() * len);
+                    const cell = board[r][c + idx];
+                    cell.textContent = randomLetterDifferent(cell.textContent);
+                }
+                let reversedWord = '';
                 for (let i = 0; i < len; i++) {
-                    if (board[r][c + len - 1 - i].textContent.toLowerCase() !== word[i]) {
-                        match = false; break;
-                    }
+                    reversedWord += board[r][c + len - 1 - i].textContent.toLowerCase();
                 }
-                if (match) occurrences.push({ r, c: c + len - 1, dir: 'hr' });
+                if (reversedWord === word) {
+                    const idx = Math.floor(Math.random() * len);
+                    const cell = board[r][c + len - 1 - idx];
+                    cell.textContent = randomLetterDifferent(cell.textContent);
+                }
             }
         }
+
         // vertical
         for (let c = 0; c < gridSize; c++) {
             for (let r = 0; r <= gridSize - len; r++) {
-                let match = true;
+                let currentWord = '';
                 for (let i = 0; i < len; i++) {
-                    if (board[r + i][c].textContent.toLowerCase() !== word[i]) {
-                        match = false; break;
-                    }
+                    currentWord += board[r + i][c].textContent.toLowerCase();
                 }
-                if (match) occurrences.push({ r, c, dir: 'v' });
-                // reverse
-                match = true;
+                if (currentWord === word) {
+                    const idx = Math.floor(Math.random() * len);
+                    const cell = board[r + idx][c];
+                    cell.textContent = randomLetterDifferent(cell.textContent);
+                }
+                let reversedWord = '';
                 for (let i = 0; i < len; i++) {
-                    if (board[r + len - 1 - i][c].textContent.toLowerCase() !== word[i]) {
-                        match = false; break;
-                    }
+                    reversedWord += board[r + len - 1 - i][c].textContent.toLowerCase();
                 }
-                if (match) occurrences.push({ r: r + len - 1, c, dir: 'vr' });
-            }
-        }
-        for (let i = 1; i < occurrences.length; i++) {
-            const occ = occurrences[i];
-            const idx = Math.floor(Math.random() * len);
-            if (occ.dir === 'h') {
-                const cell = board[occ.r][occ.c + idx];
-                cell.textContent = randomLetterDifferent(cell.textContent);
-            } else if (occ.dir === 'hr') {
-                const cell = board[occ.r][occ.c - idx];
-                cell.textContent = randomLetterDifferent(cell.textContent);
-            } else if (occ.dir === 'v') {
-                const cell = board[occ.r + idx][occ.c];
-                cell.textContent = randomLetterDifferent(cell.textContent);
-            } else if (occ.dir === 'vr') {
-                const cell = board[occ.r - idx][occ.c];
-                cell.textContent = randomLetterDifferent(cell.textContent);
+                if (reversedWord === word) {
+                    const idx = Math.floor(Math.random() * len);
+                    const cell = board[r + len - 1 - idx][c];
+                    cell.textContent = randomLetterDifferent(cell.textContent);
+                }
             }
         }
     }
