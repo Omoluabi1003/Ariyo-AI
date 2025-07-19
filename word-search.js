@@ -92,7 +92,7 @@ function createBoard() {
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize + BOARD_PADDING * 2;
+    const containerSize = boardSize + BOARD_PADDING * 2 + BOARD_BORDER * 2;
     gameBoard.style.width = `${containerSize}px`;
     gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -235,18 +235,30 @@ function removeDuplicateWords(wordList) {
                     currentWord += board[r][c + i].textContent.toLowerCase();
                 }
                 if (currentWord === word) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r][c + idx];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
+                    const candidates = [];
+                    for (let i = 0; i < len; i++) {
+                        const cell = board[r][c + i];
+                        if (!cell.dataset.words) candidates.push(cell);
+                    }
+                    if (candidates.length) {
+                        const cell = candidates[Math.floor(Math.random() * candidates.length)];
+                        cell.textContent = randomLetterDifferent(cell.textContent);
+                    }
                 }
                 let reversedWord = '';
                 for (let i = 0; i < len; i++) {
                     reversedWord += board[r][c + len - 1 - i].textContent.toLowerCase();
                 }
                 if (reversedWord === word) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r][c + len - 1 - idx];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
+                    const candidates = [];
+                    for (let i = 0; i < len; i++) {
+                        const cell = board[r][c + len - 1 - i];
+                        if (!cell.dataset.words) candidates.push(cell);
+                    }
+                    if (candidates.length) {
+                        const cell = candidates[Math.floor(Math.random() * candidates.length)];
+                        cell.textContent = randomLetterDifferent(cell.textContent);
+                    }
                 }
             }
         }
@@ -259,18 +271,30 @@ function removeDuplicateWords(wordList) {
                     currentWord += board[r + i][c].textContent.toLowerCase();
                 }
                 if (currentWord === word) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r + idx][c];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
+                    const candidates = [];
+                    for (let i = 0; i < len; i++) {
+                        const cell = board[r + i][c];
+                        if (!cell.dataset.words) candidates.push(cell);
+                    }
+                    if (candidates.length) {
+                        const cell = candidates[Math.floor(Math.random() * candidates.length)];
+                        cell.textContent = randomLetterDifferent(cell.textContent);
+                    }
                 }
                 let reversedWord = '';
                 for (let i = 0; i < len; i++) {
                     reversedWord += board[r + len - 1 - i][c].textContent.toLowerCase();
                 }
                 if (reversedWord === word) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r + len - 1 - idx][c];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
+                    const candidates = [];
+                    for (let i = 0; i < len; i++) {
+                        const cell = board[r + len - 1 - i][c];
+                        if (!cell.dataset.words) candidates.push(cell);
+                    }
+                    if (candidates.length) {
+                        const cell = candidates[Math.floor(Math.random() * candidates.length)];
+                        cell.textContent = randomLetterDifferent(cell.textContent);
+                    }
                 }
             }
         }
@@ -448,7 +472,7 @@ function stopTimer() {
 function startGame() {
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
-    words = [...new Set(categories[selectedCategory])];
+    words = [...new Set(categories[selectedCategory])].filter(w => w.length <= gridSize);
     wordsInGame = pickWords(words, 20);
     foundWords = [];
     foundWordCells = {};
@@ -470,7 +494,7 @@ function resizeBoard() {
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize + BOARD_PADDING * 2;
+    const containerSize = boardSize + BOARD_PADDING * 2 + BOARD_BORDER * 2;
     gameBoard.style.width = `${containerSize}px`;
     gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
