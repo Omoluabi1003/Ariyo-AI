@@ -87,6 +87,7 @@ body {
 }
 
 .cell {
+    box-sizing: border-box;
     text-align: center;
     border: 1px solid #ccc;
     cursor: pointer;
