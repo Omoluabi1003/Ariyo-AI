@@ -1,5 +1,5 @@
 /* MUSIC PLAYER LOGIC */
-    const audioPlayer = new Audio();
+    const audioPlayer = document.getElementById('audioPlayer') || new Audio();
     audioPlayer.crossOrigin = "anonymous";
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
@@ -14,8 +14,10 @@
     }
 
     audioPlayer.id = 'audioPlayer';
-    audioPlayer.preload = 'auto';
-    document.body.appendChild(audioPlayer);
+    audioPlayer.preload = 'metadata';
+    if (!document.getElementById('audioPlayer')) {
+        document.body.appendChild(audioPlayer);
+    }
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
