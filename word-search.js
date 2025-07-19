@@ -226,6 +226,14 @@ function removeDuplicateWords(wordList) {
     const allWords = [...new Set(Object.values(categories).flat())];
     const gridWords = new Set(wordList);
 
+    function sequenceIsClear(r, c, len, dr, dc) {
+        for (let i = 0; i < len; i++) {
+            const cell = board[r + dr * i][c + dc * i];
+            if (cell.dataset.words) return false;
+        }
+        return true;
+    }
+
     for (const word of allWords) {
         if (gridWords.has(word)) continue;
         const len = word.length;
@@ -238,7 +246,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     currentWord += board[r][c + i].textContent.toLowerCase();
                 }
-                if (currentWord === word) {
+                if (currentWord === word && sequenceIsClear(r, c, len, 0, 1)) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r][c + idx];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -247,7 +255,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     reversedWord += board[r][c + len - 1 - i].textContent.toLowerCase();
                 }
-                if (reversedWord === word) {
+                if (reversedWord === word && sequenceIsClear(r, c, len, 0, 1)) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r][c + len - 1 - idx];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -262,7 +270,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     currentWord += board[r + i][c].textContent.toLowerCase();
                 }
-                if (currentWord === word) {
+                if (currentWord === word && sequenceIsClear(r, c, len, 1, 0)) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r + idx][c];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -271,7 +279,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     reversedWord += board[r + len - 1 - i][c].textContent.toLowerCase();
                 }
-                if (reversedWord === word) {
+                if (reversedWord === word && sequenceIsClear(r, c, len, 1, 0)) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r + len - 1 - idx][c];
                     cell.textContent = randomLetterDifferent(cell.textContent);
