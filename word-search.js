@@ -66,8 +66,12 @@ function updateGridSize() {
 }
 
 function getCellSize() {
+    const V_OFFSET = 150;
+    const H_OFFSET = 25;
     const maxSize = 30;
-    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * BOARD_SCALE);
+    const availableWidth = window.innerWidth - H_OFFSET;
+    const availableHeight = window.innerHeight - V_OFFSET;
+    const available = Math.floor(Math.min(availableWidth, availableHeight));
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     return Math.min(maxSize, Math.floor((available - extras) / gridSize));
 }
