@@ -3,15 +3,15 @@ let CACHE_NAME;
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    fetch('/version.json')
+    fetch('version.json', { cache: 'no-store' })
       .then(response => response.json())
       .then(data => {
         CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
         const urlsToCache = [
-          '/',
-          '/index.html',
-          '/main.html',
-          '/manifest.json',
+          './',
+          'index.html',
+          'main.html',
+          'manifest.json',
           'icons/Ariyo.png',
           'scripts/data.js',
           'scripts/player.js',
@@ -27,6 +27,7 @@ self.addEventListener('install', event => {
         });
       })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
@@ -77,6 +78,10 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
   if (event.data && event.data.type === 'CACHE_TRACK') {
     const trackUrl = event.data.url;
     event.waitUntil(
