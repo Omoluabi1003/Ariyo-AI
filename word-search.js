@@ -511,7 +511,6 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
-    startGame();
 });
 
 let resizeTimeout;
