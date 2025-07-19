@@ -181,6 +181,19 @@ function openWordSearchGame() {
     const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
     wordSearchGameContainer.style.display = 'block';
     updateEdgePanelBehavior();
+    const iframe = wordSearchGameContainer.querySelector('iframe');
+    if (!iframe) return;
+    const tryStart = () => {
+        if (iframe.contentWindow && typeof iframe.contentWindow.startGame === 'function') {
+            iframe.contentWindow.startGame();
+            iframe.removeEventListener('load', tryStart);
+        }
+    };
+    if (iframe.contentWindow && iframe.contentWindow.document.readyState === 'complete') {
+        tryStart();
+    } else {
+        iframe.addEventListener('load', tryStart);
+    }
 }
 
 function closeWordSearchGame() {

@@ -59,7 +59,7 @@ let gridSize = window.innerWidth <= 480 ? 10 : 15;
 const GRID_GAP = 2; // must match CSS gap value
 const BOARD_PADDING = 5; // must match CSS padding
 const BOARD_BORDER = 2; // must match CSS border width
-const BOARD_SCALE = 0.9; // percentage of viewport used for board sizing
+const BOARD_SCALE = 0.8; // percentage of viewport used for board sizing
 
 function updateGridSize() {
     gridSize = window.innerWidth <= 480 ? 10 : 15;
@@ -92,8 +92,9 @@ function createBoard() {
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    gameBoard.style.width = `${boardSize}px`;
-    gameBoard.style.height = `${boardSize}px`;
+    const containerSize = boardSize + BOARD_PADDING * 2;
+    gameBoard.style.width = `${containerSize}px`;
+    gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
     board.length = 0;
     for (let i = 0; i < gridSize; i++) {
@@ -474,8 +475,9 @@ function resizeBoard() {
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    gameBoard.style.width = `${boardSize}px`;
-    gameBoard.style.height = `${boardSize}px`;
+    const containerSize = boardSize + BOARD_PADDING * 2;
+    gameBoard.style.width = `${containerSize}px`;
+    gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
