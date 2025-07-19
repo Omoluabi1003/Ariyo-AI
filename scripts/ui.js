@@ -217,22 +217,21 @@ function closeWordSearchGame() {
     let initialX;
     let initialRight;
 
-    edgePanelHandle.addEventListener('mousedown', (e) => {
+    function startDrag(clientX) {
         isDragging = true;
-        initialX = e.clientX;
+        initialX = clientX;
         initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
         edgePanel.style.transition = 'none'; // Disable transition during drag
-    });
+    }
 
-    document.addEventListener('mousemove', (e) => {
+    function onDrag(clientX) {
         if (isDragging) {
-            const currentX = e.clientX;
-            const dx = currentX - initialX;
+            const dx = clientX - initialX;
             edgePanel.style.right = `${initialRight - dx}px`;
         }
-    });
+    }
 
-    document.addEventListener('mouseup', () => {
+    function endDrag() {
         if (isDragging) {
             isDragging = false;
             edgePanel.style.transition = 'right 0.3s ease-in-out'; // Re-enable transition
@@ -245,7 +244,22 @@ function closeWordSearchGame() {
                 edgePanel.style.right = '0';
             }
         }
+    }
+
+    edgePanelHandle.addEventListener('mousedown', (e) => startDrag(e.clientX));
+    edgePanelHandle.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        if (touch) startDrag(touch.clientX);
     });
+
+    document.addEventListener('mousemove', (e) => onDrag(e.clientX));
+    document.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        if (touch) onDrag(touch.clientX);
+    });
+
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
 
     edgePanelHandle.addEventListener('click', () => {
         if (!isDragging) {
