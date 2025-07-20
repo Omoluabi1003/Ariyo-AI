@@ -19,10 +19,16 @@
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
     ];
     let currentBgIndex = 0;
-    document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+    const backgroundCycler = document.getElementById('background-cycler');
+    backgroundCycler.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+
     setInterval(() => {
       currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
-      document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+      const newBg = new Image();
+      newBg.src = backgrounds[currentBgIndex];
+      newBg.onload = () => {
+        backgroundCycler.style.backgroundImage = `url(${newBg.src})`;
+      };
     }, 30000);
 
     /* DYNAMIC AUDIO CACHING */
