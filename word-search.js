@@ -59,19 +59,14 @@ let gridSize = window.innerWidth <= 480 ? 10 : 15;
 const GRID_GAP = 2; // must match CSS gap value
 const BOARD_PADDING = 5; // must match CSS padding
 const BOARD_BORDER = 2; // must match CSS border width
-const BOARD_SCALE = 0.8; // percentage of viewport used for board sizing
 
 function updateGridSize() {
     gridSize = window.innerWidth <= 480 ? 10 : 15;
 }
 
 function getCellSize() {
-    const V_OFFSET = 150;
-    const H_OFFSET = 25;
     const maxSize = 30;
-    const availableWidth = window.innerWidth - H_OFFSET;
-    const availableHeight = window.innerHeight - V_OFFSET;
-    const available = Math.floor(Math.min(availableWidth, availableHeight));
+    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.85);
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     return Math.min(maxSize, Math.floor((available - extras) / gridSize));
 }
@@ -79,10 +74,8 @@ const board = [];
 const wordListElement = document.getElementById("word-list");
 let wordsInGame = [];
 let foundWords = [];
-let foundWordCells = {};
 let startTime = 0;
 let timerInterval;
-let confettiInterval;
 let selecting = false;
 let selectedCells = [];
 let direction = null;
@@ -97,9 +90,8 @@ function createBoard() {
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize;
-    gameBoard.style.width = `${containerSize}px`;
-    gameBoard.style.height = `${containerSize}px`;
+    gameBoard.style.width = `${boardSize}px`;
+    gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
     board.length = 0;
     for (let i = 0; i < gridSize; i++) {
@@ -110,7 +102,6 @@ function createBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
-            cell.style.fontSize = `${Math.floor(cellSize * 0.55)}px`;
             cell.dataset.row = i;
             cell.dataset.col = j;
             cell.addEventListener("pointerdown", handlePointerDown);
@@ -133,7 +124,11 @@ function placeWords(wordList) {
         "horizontal",
         "horizontalReverse",
         "vertical",
-        "verticalReverse"
+        "verticalReverse",
+        "diagonalDown",
+        "diagonalDownReverse",
+        "diagonalUp",
+        "diagonalUpReverse"
     ];
     for (const word of wordList) {
         let placed = false;
@@ -150,6 +145,18 @@ function placeWords(wordList) {
                 row = gridSize - word.length;
             } else if (direction === "verticalReverse" && row - word.length + 1 < 0) {
                 row = word.length - 1;
+            } else if (direction === "diagonalDown" && (row + word.length > gridSize || col + word.length > gridSize)) {
+                row = gridSize - word.length;
+                col = Math.min(col, gridSize - word.length);
+            } else if (direction === "diagonalDownReverse" && (row - word.length + 1 < 0 || col - word.length + 1 < 0)) {
+                row = word.length - 1;
+                col = Math.max(col, word.length - 1);
+            } else if (direction === "diagonalUp" && (row - word.length + 1 < 0 || col + word.length > gridSize)) {
+                row = word.length - 1;
+                col = Math.min(col, gridSize - word.length);
+            } else if (direction === "diagonalUpReverse" && (row + word.length > gridSize || col - word.length + 1 < 0)) {
+                row = gridSize - word.length;
+                col = Math.max(col, word.length - 1);
             }
 
             if (canPlace(word, row, col, direction)) {
@@ -164,18 +171,22 @@ function placeWords(wordList) {
                         r += i;
                     } else if (direction === "verticalReverse") {
                         r -= i;
+                    } else if (direction === "diagonalDown") {
+                        r += i;
+                        c += i;
+                    } else if (direction === "diagonalDownReverse") {
+                        r -= i;
+                        c -= i;
+                    } else if (direction === "diagonalUp") {
+                        r -= i;
+                        c += i;
+                    } else if (direction === "diagonalUpReverse") {
+                        r += i;
+                        c -= i;
                     }
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
-                    if (cell.dataset.words) {
-                        const arr = cell.dataset.words.split(',');
-                        if (!arr.includes(word)) {
-                            arr.push(word);
-                            cell.dataset.words = arr.join(',');
-                        }
-                    } else {
-                        cell.dataset.words = word;
-                    }
+                    cell.dataset.word = word;
                 }
                 placed = true;
             }
@@ -190,6 +201,18 @@ function canPlace(word, row, col, direction) {
     else if (direction === "horizontalReverse") dCol = -1;
     else if (direction === "vertical") dRow = 1;
     else if (direction === "verticalReverse") dRow = -1;
+    else if (direction === "diagonalDown") {
+        dRow = 1; dCol = 1;
+    }
+    else if (direction === "diagonalDownReverse") {
+        dRow = -1; dCol = -1;
+    }
+    else if (direction === "diagonalUp") {
+        dRow = -1; dCol = 1;
+    }
+    else if (direction === "diagonalUpReverse") {
+        dRow = 1; dCol = -1;
+    }
 
     for (let i = 0; i < word.length; i++) {
         const r = row + dRow * i;
@@ -215,78 +238,17 @@ function fillEmptyCells() {
     }
 }
 
-function randomLetterDifferent(current) {
-    let letter;
-    do {
-        letter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-    } while (letter === current);
-    return letter;
-}
-
-function removeDuplicateWords(wordList) {
-    const allWords = [...new Set(Object.values(categories).flat())];
-    const gridWords = new Set(wordList);
-
-    function sequenceIsClear(r, c, len, dr, dc) {
-        for (let i = 0; i < len; i++) {
-            const cell = board[r + dr * i][c + dc * i];
-            if (cell.dataset.words) return false;
+function verifyWordPlacement(wordList) {
+    const counts = {};
+    for (const row of board) {
+        for (const cell of row) {
+            const w = cell.dataset.word;
+            if (w) counts[w] = (counts[w] || 0) + 1;
         }
-        return true;
     }
-
-    for (const word of allWords) {
-        if (gridWords.has(word)) continue;
-        const len = word.length;
-        if (len < 3) continue;
-
-        // horizontal
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c <= gridSize - len; c++) {
-                let currentWord = '';
-                for (let i = 0; i < len; i++) {
-                    currentWord += board[r][c + i].textContent.toLowerCase();
-                }
-                if (currentWord === word && sequenceIsClear(r, c, len, 0, 1)) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r][c + idx];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
-                }
-                let reversedWord = '';
-                for (let i = 0; i < len; i++) {
-                    reversedWord += board[r][c + len - 1 - i].textContent.toLowerCase();
-                }
-                if (reversedWord === word && sequenceIsClear(r, c, len, 0, 1)) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r][c + len - 1 - idx];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
-                }
-            }
-        }
-
-        // vertical
-        for (let c = 0; c < gridSize; c++) {
-            for (let r = 0; r <= gridSize - len; r++) {
-                let currentWord = '';
-                for (let i = 0; i < len; i++) {
-                    currentWord += board[r + i][c].textContent.toLowerCase();
-                }
-                if (currentWord === word && sequenceIsClear(r, c, len, 1, 0)) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r + idx][c];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
-                }
-                let reversedWord = '';
-                for (let i = 0; i < len; i++) {
-                    reversedWord += board[r + len - 1 - i][c].textContent.toLowerCase();
-                }
-                if (reversedWord === word && sequenceIsClear(r, c, len, 1, 0)) {
-                    const idx = Math.floor(Math.random() * len);
-                    const cell = board[r + len - 1 - idx][c];
-                    cell.textContent = randomLetterDifferent(cell.textContent);
-                }
-            }
-        }
+    const missing = wordList.filter(w => counts[w] !== w.length);
+    if (missing.length > 0) {
+        console.warn("Words not correctly placed:", missing);
     }
 }
 
@@ -330,32 +292,27 @@ function handlePointerMove(e) {
     if (!cell || !cell.classList.contains("cell")) return;
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
+    if (selectedCells.includes(cell)) return;
+
     if (direction === null) {
         const rowDiff = row - startRow;
         const colDiff = col - startCol;
-        if (rowDiff === 0 && colDiff === 0) return;
-        if (Math.abs(rowDiff) >= Math.abs(colDiff)) {
-            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
-        } else {
+        if (rowDiff === 0) {
             direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
+        } else if (colDiff === 0) {
+            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
+        } else if (Math.abs(rowDiff) === Math.abs(colDiff)) {
+            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: colDiff > 0 ? 1 : -1 };
+        } else {
+            return;
         }
     }
 
-    const rowDiff = row - startRow;
-    const colDiff = col - startCol;
-    if (direction.dRow !== 0 && rowDiff * direction.dRow < 0) return;
-    if (direction.dCol !== 0 && colDiff * direction.dCol < 0) return;
-    if (direction.dRow !== 0 && direction.dCol !== 0) return;
-
-    const steps = Math.max(Math.abs(rowDiff), Math.abs(colDiff));
-    for (let i = selectedCells.length; i <= steps; i++) {
-        const r = startRow + direction.dRow * i;
-        const c = startCol + direction.dCol * i;
-        const nextCell = board[r][c];
-        if (!selectedCells.includes(nextCell)) {
-            selectedCells.push(nextCell);
-            nextCell.classList.add("selected");
-        }
+    const expectedRow = startRow + direction.dRow * selectedCells.length;
+    const expectedCol = startCol + direction.dCol * selectedCells.length;
+    if (row === expectedRow && col === expectedCol) {
+        selectedCells.push(cell);
+        cell.classList.add("selected");
     }
 }
 
@@ -372,23 +329,29 @@ function checkSelectedWord() {
     if (selectedCells.length === 0) return;
     let word = selectedCells.map(c => c.textContent.toLowerCase()).join("");
     let reversed = word.split("").reverse().join("");
-    if (wordsInGame.includes(word) && selectedCells.every(c => (c.dataset.words || "").split(',').includes(word))) {
-        markFound(word, selectedCells.slice());
-    } else if (wordsInGame.includes(reversed) && selectedCells.every(c => (c.dataset.words || "").split(',').includes(reversed))) {
-        markFound(reversed, selectedCells.slice());
+    if (wordsInGame.includes(word)) {
+        markFound(word);
+    } else if (wordsInGame.includes(reversed)) {
+        markFound(reversed);
     }
 }
 
-function markFound(word, cells) {
+function markFound(word) {
     if (foundWords.includes(word)) return;
     foundWords.push(word);
-    foundWordCells[word] = cells;
-    cells.forEach(c => c.classList.add("found"));
+    const cells = [];
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            if (board[i][j].dataset.word === word) {
+                board[i][j].classList.add("found");
+                cells.push(board[i][j]);
+            }
+        }
+    }
     drawLine(cells);
     const item = wordListElement.querySelector(`li[data-word="${word}"]`);
     if (item) item.classList.add("found");
     checkWin();
-    saveGameState();
 }
 
 function checkWin() {
@@ -403,14 +366,14 @@ function checkWin() {
             return Math.random() * (max - min) + min;
         }
 
-        confettiInterval = setInterval(function() {
+        const interval = setInterval(function() {
             const timeLeft = animationEnd - Date.now();
 
             if (timeLeft <= 0) {
-                clearInterval(confettiInterval);
+                clearInterval(interval);
                 const msg = document.createElement("div");
                 msg.id = "win-message";
-                msg.textContent = `You Won in ${totalTime}s!`;
+                msg.textContent = `You Win in ${totalTime}s!`;
                 document.getElementById("board-container").appendChild(msg);
                 return;
             }
@@ -426,11 +389,10 @@ function checkWin() {
 }
 
 function pickWords(wordList, maxWords = 20) {
-    const unique = [...new Set(wordList)];
-    if (unique.length <= maxWords) {
-        return unique;
+    if (wordList.length <= maxWords) {
+        return wordList;
     }
-    const shuffled = [...unique].sort(() => 0.5 - Math.random());
+    const shuffled = [...wordList].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, maxWords);
 }
 
@@ -444,11 +406,11 @@ function populateWordList() {
     });
 }
 
-function startTimer(saved) {
+function startTimer() {
     const timerEl = document.getElementById("timer");
     clearInterval(timerInterval);
-    startTime = saved || Date.now();
-    timerEl.textContent = `Time: ${Math.floor((Date.now() - startTime) / 1000)}s`;
+    startTime = Date.now();
+    timerEl.textContent = "Time: 0s";
     timerInterval = setInterval(() => {
         const t = Math.floor((Date.now() - startTime) / 1000);
         timerEl.textContent = `Time: ${t}s`;
@@ -459,69 +421,18 @@ function stopTimer() {
     clearInterval(timerInterval);
 }
 
-function saveGameState() {
-    const letters = board.map(row => row.map(c => c.textContent));
-    const mapping = board.map(row => row.map(c => c.dataset.words || ""));
-    const cellIndices = {};
-    for (const [word, cells] of Object.entries(foundWordCells)) {
-        cellIndices[word] = cells.map(c => [parseInt(c.dataset.row), parseInt(c.dataset.col)]);
-    }
-    const state = {
-        selectedCategory,
-        gridSize,
-        wordsInGame,
-        letters,
-        mapping,
-        foundWords,
-        foundWordCells: cellIndices,
-        startTime
-    };
-    localStorage.setItem('wordSearchState', JSON.stringify(state));
-}
-
-function restoreGameState(state) {
-    selectedCategory = state.selectedCategory;
-    gridSize = state.gridSize;
-    wordsInGame = state.wordsInGame;
-    foundWords = state.foundWords || [];
-    foundWordCells = {};
-    startTimer(state.startTime);
-    createBoard();
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            const cell = board[i][j];
-            cell.textContent = state.letters[i][j];
-            if (state.mapping[i][j]) {
-                cell.dataset.words = state.mapping[i][j];
-            }
-        }
-    }
-    populateWordList();
-    for (const [word, coords] of Object.entries(state.foundWordCells || {})) {
-        const cells = coords.map(([r, c]) => board[r][c]);
-        cells.forEach(c => c.classList.add('found'));
-        foundWordCells[word] = cells;
-    }
-    redrawLines();
-}
-
 function startGame() {
-    clearInterval(confettiInterval);
-    const existing = document.getElementById("win-message");
-    if (existing) existing.remove();
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
-    words = [...new Set(categories[selectedCategory])].filter(w => w.length <= gridSize);
+    words = [...new Set(categories[selectedCategory])];
     wordsInGame = pickWords(words, 20);
     foundWords = [];
-    foundWordCells = {};
     startTimer();
     createBoard();
     placeWords(wordsInGame);
+    verifyWordPlacement(wordsInGame);
     fillEmptyCells();
-    removeDuplicateWords(wordsInGame);
     populateWordList();
-    saveGameState();
 }
 
 function resizeBoard() {
@@ -534,9 +445,8 @@ function resizeBoard() {
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize;
-    gameBoard.style.width = `${containerSize}px`;
-    gameBoard.style.height = `${containerSize}px`;
+    gameBoard.style.width = `${boardSize}px`;
+    gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
@@ -544,7 +454,6 @@ function resizeBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
-            cell.style.fontSize = `${Math.floor(cellSize * 0.55)}px`;
         }
     }
     const boardRect = gameBoard.getBoundingClientRect();
@@ -556,7 +465,14 @@ function resizeBoard() {
 
 function redrawLines() {
     for (const word of foundWords) {
-        const cells = foundWordCells[word] || [];
+        const cells = [];
+        for (let i = 0; i < gridSize; i++) {
+            for (let j = 0; j < gridSize; j++) {
+                if (board[i][j].dataset.word === word) {
+                    cells.push(board[i][j]);
+                }
+            }
+        }
         drawLine(cells);
     }
 }
@@ -571,19 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
-    newBtn.addEventListener("click", () => {
-        localStorage.removeItem('wordSearchState');
-        startGame();
-    });
-
-    const saved = localStorage.getItem('wordSearchState');
-    if (saved) {
-        const state = JSON.parse(saved);
-        select.value = state.selectedCategory;
-        restoreGameState(state);
-    } else {
-        startGame();
-    }
+    newBtn.addEventListener("click", startGame);
 });
 
 let resizeTimeout;
