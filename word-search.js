@@ -89,7 +89,8 @@ function createBoard() {
     lineCanvas = document.getElementById("line-canvas");
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
-    const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
+    const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1) +
+        (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     gameBoard.style.width = `${boardSize}px`;
     gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -452,7 +453,8 @@ function resizeBoard() {
     }
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
-    const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
+    const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1) +
+        (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     gameBoard.style.width = `${boardSize}px`;
     gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
