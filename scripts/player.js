@@ -137,15 +137,24 @@ radioStations.forEach(station => {
   groupedStations[region].push(station);
 });
 
+// Check if a radio stream is reachable. Add a timeout so the UI does not hang
+// when a station is unreachable. The fetch is aborted after a short period,
+// ensuring we never wait indefinitely on slow or offline stations.
 async function checkStreamStatus(url) {
-      try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        // no-cors means we can't access status, but we can see if we get a response
-        return 'online';
-      } catch (error) {
-        return 'offline';
-      }
-    }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+  try {
+    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+    clearTimeout(timeoutId);
+    // In `no-cors` mode we cannot read the status, but a resolved fetch means
+    // the request did not outright fail, so treat it as online.
+    return 'online';
+  } catch (error) {
+    clearTimeout(timeoutId);
+    return 'offline';
+  }
+}
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
