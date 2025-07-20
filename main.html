@@ -42,7 +42,7 @@
   </script>
 
   <!-- Fonts & Icons -->
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&amp;family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet" /> -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&amp;family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet" />
   <script src="scripts/fontawesome.min.js" defer></script>
 
   <!-- Animations & Chat -->
@@ -720,15 +720,15 @@
   <script src="scripts/main.js"></script>
   <script src="color-scheme.js"></script>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js').then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, err => {
-          console.log('ServiceWorker registration failed: ', err);
-        });
-      });
-    }
+    // if ('serviceWorker' in navigator) {
+    //   window.addEventListener('load', () => {
+    //     navigator.serviceWorker.register('./service-worker.js').then(registration => {
+    //       console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    //     }, err => {
+    //       console.log('ServiceWorker registration failed: ', err);
+    //     });
+    //   });
+    // }
   </script>
   <!-- Floating Watermarks -->
   <div class="floating-watermarks">
