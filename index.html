@@ -200,22 +200,13 @@
       font-size: clamp(1rem, 4vw, 2rem);
       color: rgba(255, 255, 255, 0.5);
       white-space: nowrap;
-    }
-    .exploding-watermark span {
-        display: inline-block;
-        animation: letter-explode 2s ease-in-out infinite;
-        animation-delay: calc(0.1s * var(--i));
+      opacity: 0;
+      animation: watermark-fade-in 6s ease-in-out forwards;
     }
 
-    @keyframes letter-explode {
-        0% {
-            transform: translate(0, 0) rotate(0);
-            opacity: 1;
-        }
-        100% {
-            transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5))) rotate(calc(360deg * var(--r)));
-            opacity: 0;
-        }
+    @keyframes watermark-fade-in {
+      from { opacity: 0; }
+      to { opacity: 0.5; }
     }
 
         @keyframes shockwave {
@@ -267,29 +258,12 @@
 
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
-      <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
+      <div class="watermark" style="top: 10%; left: 5%; animation-delay: 0s;">Omoluabi Productions</div>
+      <div class="watermark" style="top: 55%; left: 60%; animation-delay: 3s;">Omoluabi Productions</div>
+      <div class="watermark" style="top: 85%; left: 40%; animation-delay: 5s;">Omoluabi Productions</div>
     </div>
 
     <script>
-        document.querySelectorAll('.exploding-watermark').forEach(watermark => {
-            watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
-                const x = Math.random();
-                const y = Math.random();
-                const r = Math.random();
-                return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
-            }).join('');
-        });
 
         function enterApp() {
             const enterIcon = document.querySelector('.enter-icon');

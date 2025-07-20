@@ -467,12 +467,12 @@
       color: rgba(255, 255, 255, 0.5);
       white-space: nowrap;
       opacity: 0;
-      animation: watermark-fade 6s ease-in-out infinite;
+      animation: watermark-fade-in 6s ease-in-out forwards;
     }
 
-    @keyframes watermark-fade {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 0.5; }
+    @keyframes watermark-fade-in {
+      from { opacity: 0; }
+      to { opacity: 0.5; }
     }
     .retry-button {
       background: #00bcd4;
@@ -735,9 +735,6 @@
   <!-- Floating Watermarks -->
   <div class="floating-watermarks">
     <div class="watermark" style="top: 10%; left: 5%; animation-delay: 0s;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 40%; left: 20%; animation-delay: 2s;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 70%; left: 15%; animation-delay: 4s;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 25%; left: 70%; animation-delay: 1s;">Omoluabi Productions</div>
     <div class="watermark" style="top: 55%; left: 80%; animation-delay: 3s;">Omoluabi Productions</div>
     <div class="watermark" style="top: 85%; left: 50%; animation-delay: 5s;">Omoluabi Productions</div>
   </div>
