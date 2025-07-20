@@ -93,6 +93,7 @@ function createBoard() {
     gameBoard.style.width = `${boardSize}px`;
     gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
+    gameBoard.style.gridTemplateRows = `repeat(${gridSize}, ${cellSize}px)`;
     board.length = 0;
     for (let i = 0; i < gridSize; i++) {
         const row = [];
@@ -238,6 +239,26 @@ function fillEmptyCells() {
     }
 }
 
+function validateWordPlacement() {
+    const counts = {};
+    for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+            const w = board[i][j].dataset.word;
+            if (w) {
+                counts[w] = (counts[w] || 0) + 1;
+            }
+        }
+    }
+    for (const w of wordsInGame) {
+        const c = counts[w] || 0;
+        if (c !== w.length) {
+            console.warn(`Word '${w}' expected ${w.length} letters, found ${c}`);
+            return false;
+        }
+    }
+    return true;
+}
+
 function drawLine(cells) {
     if (!lineCtx || cells.length === 0) return;
     const boardRect = document.getElementById("game-board").getBoundingClientRect();
@@ -375,10 +396,11 @@ function checkWin() {
 }
 
 function pickWords(wordList, maxWords = 20) {
-    if (wordList.length <= maxWords) {
-        return wordList;
+    const unique = [...new Set(wordList)];
+    if (unique.length <= maxWords) {
+        return unique;
     }
-    const shuffled = [...wordList].sort(() => 0.5 - Math.random());
+    const shuffled = [...unique].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, maxWords);
 }
 
@@ -417,6 +439,7 @@ function startGame() {
     createBoard();
     placeWords(wordsInGame);
     fillEmptyCells();
+    validateWordPlacement();
     populateWordList();
 }
 
@@ -433,6 +456,7 @@ function resizeBoard() {
     gameBoard.style.width = `${boardSize}px`;
     gameBoard.style.height = `${boardSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
+    gameBoard.style.gridTemplateRows = `repeat(${gridSize}, ${cellSize}px)`;
     for (let i = 0; i < gridSize; i++) {
         for (let j = 0; j < gridSize; j++) {
             const cell = board[i][j];
