@@ -14,22 +14,30 @@
 
     /* BACKGROUND CYCLER */
     const backgrounds = [
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
+      'Naija AI.jpg',
+      'Naija AI2.jpg',
+      'Naija AI3.jpg'
     ];
     let currentBgIndex = 0;
     const backgroundCycler = document.getElementById('background-cycler');
-    backgroundCycler.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
 
-    setInterval(() => {
+    function preloadImages() {
+      for (const bg of backgrounds) {
+        const img = new Image();
+        img.src = bg;
+      }
+    }
+
+    function cycleBackground() {
       currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
-      const newBg = new Image();
-      newBg.src = backgrounds[currentBgIndex];
-      newBg.onload = () => {
-        backgroundCycler.style.backgroundImage = `url(${newBg.src})`;
-      };
-    }, 30000);
+      backgroundCycler.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+    }
+
+    if (backgroundCycler) {
+      preloadImages();
+      backgroundCycler.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+      setInterval(cycleBackground, 30000);
+    }
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
