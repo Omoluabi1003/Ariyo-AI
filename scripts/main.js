@@ -162,7 +162,6 @@
         shuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
         document.querySelector("button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
-        selectAlbum(0);
       }
       updateStreak();
       updateMediaSession();
@@ -225,6 +224,23 @@
         }
       }
     });
+
+    function clearCache() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+      caches.keys().then(keys => {
+        for (const key of keys) {
+          caches.delete(key);
+        }
+      });
+      alert('Cache cleared. The page will now reload.');
+      location.reload();
+    }
 
 
 
