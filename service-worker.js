@@ -3,7 +3,7 @@ let CACHE_NAME;
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    fetch('/version.json', { cache: 'no-store' })
+    fetch('/version.json')
       .then(response => response.json())
       .then(data => {
         CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
@@ -27,7 +27,6 @@ self.addEventListener('install', event => {
         });
       })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
@@ -78,10 +77,6 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-    return;
-  }
   if (event.data && event.data.type === 'CACHE_TRACK') {
     const trackUrl = event.data.url;
     event.waitUntil(
