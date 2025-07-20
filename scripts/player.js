@@ -137,23 +137,26 @@ radioStations.forEach(station => {
   groupedStations[region].push(station);
 });
 
-// Check if a radio stream is reachable. Add a timeout so the UI does not hang
-// when a station is unreachable. The fetch is aborted after a short period,
-// ensuring we never wait indefinitely on slow or offline stations.
-async function checkStreamStatus(url) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000);
+// Check if a radio stream is reachable without blocking the main thread.
+// This function returns a Promise that resolves with 'online' or 'offline'.
+function checkStreamStatus(url) {
+    return new Promise((resolve) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            controller.abort();
+            resolve('offline');
+        }, 3000);
 
-  try {
-    await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
-    clearTimeout(timeoutId);
-    // In `no-cors` mode we cannot read the status, but a resolved fetch means
-    // the request did not outright fail, so treat it as online.
-    return 'online';
-  } catch (error) {
-    clearTimeout(timeoutId);
-    return 'offline';
-  }
+        fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
+            .then(() => {
+                clearTimeout(timeoutId);
+                resolve('online');
+            })
+            .catch(() => {
+                clearTimeout(timeoutId);
+                resolve('offline');
+            });
+    });
 }
 
     function updateRadioListModal() {
@@ -169,41 +172,36 @@ async function checkStreamStatus(url) {
     }
 
 function loadMoreStations(region) {
-  const container = document.getElementById(`${region}-stations`);
-  const stations = groupedStations[region];
-  const start = stationDisplayCounts[region];
-  const end = start + stationsPerPage;
+    const container = document.getElementById(`${region}-stations`);
+    const stations = groupedStations[region];
+    const start = stationDisplayCounts[region];
+    const end = start + stationsPerPage;
 
-  stations.slice(start, end).forEach((station, index) => {
-    const stationLink = document.createElement("a");
-    stationLink.href = "#";
-    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
+    let stationsHtml = '';
 
-    const statusSpan = document.createElement('span');
-    statusSpan.style.marginLeft = '10px';
-    statusSpan.textContent = ' (Checking...)';
-
-    checkStreamStatus(station.url).then(status => {
-        if (status === 'online') {
-            statusSpan.textContent = ' (Online)';
-            statusSpan.style.color = 'lightgreen';
-        } else {
-            statusSpan.textContent = ' (Offline)';
-            statusSpan.style.color = 'red';
-            stationLink.style.textDecoration = 'line-through';
-        }
+    const promises = stations.slice(start, end).map((station, index) => {
+        return checkStreamStatus(station.url).then(status => {
+            const stationName = `${station.name} (${station.location})`;
+            const stationId = `station-${region}-${start + index}`;
+            let stationHtml;
+            if (status === 'online') {
+                stationHtml = `<a href="#" id="${stationId}" onclick="selectRadio('${station.url}', '${stationName}', ${start + index}, '${station.logo}')">${stationName} <span style="color: lightgreen;">(Online)</span></a>`;
+            } else {
+                stationHtml = `<a href="#" id="${stationId}" class="offline" style="text-decoration: line-through;">${stationName} <span style="color: red;">(Offline)</span></a>`;
+            }
+            return stationHtml;
+        });
     });
 
-    stationLink.textContent = `${station.name} (${station.location})`;
-    stationLink.appendChild(statusSpan);
-    container.appendChild(stationLink);
-  });
+    Promise.all(promises).then(htmlArray => {
+        container.innerHTML += htmlArray.join('');
+    });
 
-  stationDisplayCounts[region] = end;
+    stationDisplayCounts[region] = end;
 
-  if (stationDisplayCounts[region] >= stations.length) {
-    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
-  }
+    if (stationDisplayCounts[region] >= stations.length) {
+        document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
+    }
 }
 
     function selectAlbum(albumIndex) {
