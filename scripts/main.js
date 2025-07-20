@@ -67,21 +67,26 @@
         const track = currentRadioIndex === -1
           ? albums[currentAlbumIndex].tracks[currentTrackIndex]
           : radioStations[currentRadioIndex];
-        const artwork = currentRadioIndex === -1
+        let artworkSrc = currentRadioIndex === -1
           ? albums[currentAlbumIndex].cover
           : radioStations[currentRadioIndex].logo;
+
+        // If the artwork source is a relative path, construct a full URL
+        if (!artworkSrc.startsWith('http')) {
+          artworkSrc = `${window.location.origin}/${artworkSrc}`;
+        }
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
           artist: currentRadioIndex === -1 ? 'Omoluabi' : '',
           album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
           artwork: [
-            { src: artwork, sizes: '96x96', type: 'image/jpeg' },
-            { src: artwork, sizes: '128x128', type: 'image/jpeg' },
-            { src: artwork, sizes: '192x192', type: 'image/jpeg' },
-            { src: artwork, sizes: '256x256', type: 'image/jpeg' },
-            { src: artwork, sizes: '384x384', type: 'image/jpeg' },
-            { src: artwork, sizes: '512x512', type: 'image/jpeg' }
+            { src: artworkSrc, sizes: '96x96', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '128x128', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '192x192', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '256x256', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '384x384', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '512x512', type: 'image/jpeg' }
           ]
         });
 
@@ -225,23 +230,6 @@
       }
     });
 
-    function clearCache() {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-          }
-        });
-      }
-      caches.keys().then(keys => {
-        for (const key of keys) {
-          caches.delete(key);
-        }
-      });
-      alert('Cache cleared. The page will now reload.');
-      location.reload();
-    }
-
 
 
 
@@ -252,4 +240,3 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Your other DOM-dependent code here
     });
-

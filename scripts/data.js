@@ -1,161 +1,109 @@
 const albums = [
-      {
-        name: 'Kindness',
-        cover: 'Kindness Cover Art.jpg',
+    {
+        name: "Kindness",
+        cover: "Kindness Cover Art.jpg",
         tracks: [
-          { src: 'A Very Good Bad Guy v3.mp3', title: 'A Very Good Bad Guy v3' },
-          { src: 'Dem Wan Shut Me Up.mp3', title: 'Dem Wan Shut Me Up' },
-          { src: 'EFCC.mp3', title: 'EFCC' },
-          { src: 'Emergency.mp3', title: 'Emergency' },
-          { src: 'Film Trick Election.mp3', title: 'Film Trick Election' },
-          { src: 'Gbas Gbos.mp3', title: 'Gbas Gbos' },
-          { src: 'Kindness (Remastered).mp3', title: 'Kindness (Remastered)' },
-          { src: 'Locked Away.mp3', title: 'Locked Away' },
-          { src: 'Multi choice palava.mp3', title: 'Multi choice palava' },
-          { src: 'Na My Turn.mp3', title: 'Na My Turn' },
-          { src: 'Ogoni Anthem (Remastered).mp3', title: 'Ogoni Anthem (Remastered)' },
-          { src: 'Ogoni Anthem.mp3', title: 'Ogoni Anthem' },
-          { src: 'Rich Pauper.mp3', title: 'Rich Pauper' },
-          { src: 'Senator Natasha’s Whisper.mp3', title: 'Senator Natasha’s Whisper' },
-          { src: 'Sharing Formula.mp3', title: 'Sharing Formula' },
-          { src: 'Show Of Shame v3 (Remastered).mp3', title: 'Show Of Shame v3 (Remastered)' },
-          { src: 'Subsidy.mp3', title: 'Subsidy' },
-          { src: 'Vex Money.mp3', title: 'Vex Money' },
-          { src: 'Working on myself.mp3', title: 'Working on myself' }
+            {
+                title: "A Very Good Bad Guy v3",
+                src: "A Very Good Bad Guy v3.mp3"
+            },
+            {
+                title: "Kindness (Remastered)",
+                src: "Kindness (Remastered).mp3"
+            },
+            {
+                title: "Show Of Shame v3 (Remastered)",
+                src: "Show Of Shame v3 (Remastered).mp3"
+            },
+            {
+                title: "Ogoni Anthem (Remastered)",
+                src: "Ogoni Anthem (Remastered).mp3"
+            }
         ]
-      },
-      {
-        name: 'Street Sense',
-        cover: 'Street_Sense_Album_Cover.jpg',
+    },
+    {
+        name: "Street Sense",
+        cover: "Street_Sense_Album_Cover.jpg",
         tracks: [
-          { src: 'Na We Dey.mp3', title: 'Na We Dey' },
-          { src: 'No Be My Story.mp3', title: 'No Be My Story' },
-          { src: 'Algorithm Of Life.mp3', title: 'Algorithm of life' },
-          { src: 'Babygirl.mp3', title: 'Babygirl' },
-          { src: 'Ubuntu.mp3', title: 'Ubuntu' },
-          { src: 'Blood On The Lithium.mp3', title: 'Blood On The Lithium' },
-          { src: 'Oluwa You Too Good.mp3', title: 'Oluwa You Too Good' },
-          { src: 'Freedom of Speech.mp3', title: 'Freedom of Speech' },
-          { src: 'E Get Why.mp3', title: 'E Get Why' },
-          { src: 'Am grateful Lord.mp3', title: 'Am grateful Lord' },
-          { src: 'Game Of Thrones.mp3', title: 'Game of Thrones' },
-          { src: 'Give and Take (Reciprocity in love).mp3', title: 'Give and Take (Reciprocity in love)' },
-          { src: 'Midas Touch.mp3', title: 'Midas Touch' },
-          { src: 'Naija Youth; Rise.mp3', title: 'Naija Youth, Rise' },
-          { src: 'Party No Go Stop.mp3', title: 'Party No Go Stop' },
-          { src: 'Pigeonhole Gbedu.mp3', title: 'Pigeonhole Gbedu' },
-          { src: 'Queen Warrior.mp3', title: 'Queen Warrior' },
-          { src: 'Holy Vibes Only.mp3', title: 'Holy Vibes Only' },
-          { src: 'Sengemenge.mp3', title: 'Sengemenge' },
-          { src: 'Sowore.mp3', title: 'Sowore' },
-          { src: 'Street Sense.mp3', title: 'Street Sense' },
-          { src: 'VDM.mp3', title: 'VDM' },
-          { src: 'We Are Not Doing That.mp3', title: 'We Are Not Doing That' },
-          { src: 'Oil Money.mp3', title: 'Oil Money' },
-          { src: 'Gbamsolutely.mp3', title: 'Gbamsolutely' },
-          { src: 'Mic No Be For Waist.mp3', title: 'Mic No Be For Waist' }
+            {
+                title: "Street Sense",
+                src: "Street Sense.mp3"
+            },
+            {
+                title: "Gbamsolutely",
+                src: "Gbamsolutely.mp3"
+            },
+            {
+                title: "Na We Dey",
+                src: "Na We Dey.mp3"
+            },
+            {
+                title: "Gbas Gbos",
+                src: "Gbas Gbos.mp3"
+            },
+            {
+                title: "Sengemenge",
+                src: "Sengemenge.mp3"
+            }
         ]
-      },
-      {
-        name: 'Needs',
-        cover: 'FaithandB.jpg',
+    },
+    {
+        name: "Needs",
+        cover: "Banner.png",
         tracks: [
-          { src: 'Disappoint People Early.mp3', title: 'Disappoint People Early' },
-          { src: 'Faded Hues.mp3', title: 'Faded Hues' },
-          { src: 'False Alarm.mp3', title: 'False Alarm' },
-          { src: 'Glorified Caterpillar.mp3', title: 'Glorified Caterpillar' },
-          { src: 'Hear the Earth Speak.mp3', title: 'Hear the Earth Speak' },
-          { src: 'Let Me Be Seen.mp3', title: 'Let Me Be Seen' },
-          { src: 'Little Things.mp3', title: 'Little Things' },
-          { src: 'Needs.mp3', title: 'Needs' },
-          { src: 'Not This Road.mp3', title: 'Not This Road' },
-          { src: 'Permitted Blessing.mp3', title: 'Permitted Blessing' },
-          { src: 'Right In Front.mp3', title: 'Right In Front' },
-          { src: 'Scaffolding.mp3', title: 'Scaffolding' },
-          { src: 'Stay Sincere.mp3', title: 'Stay Sincere' },
-          { src: 'Thank You For The Wound.mp3', title: 'Thank You For The Wound' },
-          { src: 'The Weight You Carry.mp3', title: 'The Weight You Carry' }
+            {
+                title: "Subsidy",
+                src: "Subsidy.mp3"
+            },
+            {
+                title: "Oil Money",
+                src: "Oil Money.mp3"
+            },
+            {
+                title: "Vex Money",
+                src: "Vex Money.mp3"
+            },
+            {
+                title: "EFCC",
+                src: "EFCC.mp3"
+            },
+            {
+                title: "Multi choice palava",
+                src: "Multi choice palava.mp3"
+            }
         ]
-      },
-      {
-        name: 'Holy Vibes Only',
-        cover: 'Neo-Soul.jpg',
+    },
+    {
+        name: "Holy Vibes Only",
+        cover: "Holy Vibes Only.mp3",
         tracks: [
-          { src: 'Am grateful Lord (Instrumental).mp3', title: 'Am grateful Lord (Instrumental)' },
-          { src: 'Am grateful Lord.mp3', title: 'Am grateful Lord' },
-          { src: 'Holy Vibes Only (Instrumental).mp3', title: 'Holy Vibes Only (Instrumental)' },
-          { src: 'Holy Vibes Only.mp3', title: 'Holy Vibes Only' },
-          { src: 'Na So God Dey Do.mp3', title: 'Na So God Dey Do' },
-          { src: 'Na You.mp3', title: 'Na You' },
-          { src: 'Oil No Dry.mp3', title: 'Oil No Dry' },
-          { src: 'Oluwa You Too Good.mp3', title: 'Oluwa You Too Good' },
-          { src: 'Recognize Me (Instrumental).mp3', title: 'Recognize Me (Instrumental)' },
-          { src: 'Recognize Me.mp3', title: 'Recognize Me' },
-          { src: 'Rotten Fruit.mp3', title: 'Rotten Fruit' },
-          { src: 'Still I Rise to Praise.mp3', title: 'Still I Rise to Praise' },
-          { src: 'Testimony No Dey Finish.mp3', title: 'Testimony No Dey Finish' }
+            {
+                title: "Holy Vibes Only",
+                src: "Holy Vibes Only.mp3"
+            },
+            {
+                title: "Am grateful Lord",
+                src: "Am grateful Lord.mp3"
+            },
+            {
+                title: "Oluwa You Too Good",
+                src: "Oluwa You Too Good.mp3"
+            },
+            {
+                title: "Na My Turn",
+                src: "Na My Turn.mp3"
+            }
         ]
-      }
-    ];
+    }
+];
 
-    const radioStations = [
-      { name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: "logo.jpg" },
-      { name: "Nigeria Info FM", location: "Lagos", url: "https://nigeriainfofmlagos993-atunwadigital.streamguys1.com/nigeriainfofmlagos993", logo: "logo.jpg" },
-      { name: "Radio Lagos FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/2/live.mp3", logo: "logo.jpg" },
-      { name: "Brilla FM", location: "Lagos", url: "https://ice31.securenetsystems.net/BRILAMP3", logo: "logo.jpg" },
-      { name: "Vision FM", location: "Kaduna", url: "https://stream-172.zeno.fm/92mxpb1akhruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Mm14cGIxYWtocnV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImV5OWlMMlhEU1JLMHNyYnd0b3F4ckEiLCJpYXQiOjE3NDM5MTU4MzgsImV4cCI6MTc0MzkxNTg5OH0.5sHfe_ukTnT2Fdiy83NdYdU0da51JkZXBgFoJVhg8_I", logo: "logo.jpg" },
-      { name: "Fad FM", location: "Calabar", url: "https://radio.gotright.net/listen/fadfm/radio.mp3", logo: "logo.jpg" },
-      { name: "JMPBliss Radio", location: "Ibadan", url: "https://stream-173.zeno.fm/ty5h0ecgka0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJ0eTVoMGVjZ2thMHV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6InlRa2VIcE9aUV9TT2ZsZDJkWFhLZkEiLCJpYXQiOjE3NDQyMjQ1MiwImV4cCI6MTc0NDIyNDU4Mn0.NE7xZDe19EjzpWN02xkt9XnorWH8FNdswwHdiih4dUI", logo: "logo.jpg" },
-      { name: "Wazobia FM", location: "Lagos", url: "https://wazobiafmlagos951-atunwadigital.streamguys1.com/wazobiafmlagos951", logo: "logo.jpg" },
-      { name: "Magic FM", location: "Aba", url: "https://radio.ifastekpanel.com:1565/stream", logo: "logo.jpg" },
-      { name: "Inform Me Radio", location: "Nigeria", url: "https://stream-176.zeno.fm/ta1fke6sz1zuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJ0YTFma2U2c3oxenV2IiwiaG9zdCI6InN0cmVhbS0xNzYuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6ImlKY0pKbmZEVHlXOWNyZzJrSHV6X3ciLCJpYXQiOjE3NDQ3Njg5MzQsImV4cCI6MTc0NDc2ODk5NH0.80dAGY0KFczNyEb83ledkuxbeTscZSLM_H9XzWDkiX4", logo: "logo.jpg" },
-      { name: "Inspiration 92.3 FM", location: "Lagos", url: "https://inspiration923fm-atunwadigital.streamguys1.com/inspiration923fm", logo: "logo.jpg" },
-      { name: "Splash FM 105.5", location: "Ibadan", url: "http://edge.mixlr.com/channel/cfeki", logo: "logo.jpg" },
-      { name: "The Beat 99.9 FM", location: "Lagos", url: "http://beatfmlagos.atunwadigital.streamguys1.com/beatfmlagos", logo: "logo.jpg" },
-      { name: "Fresh 107.9 FM", location: "Abeokuta", url: "https://stream-144.zeno.fm/7gs2681gqeruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3Z3MyNjgxZ3FlcnV2IiwiaG9zdCI6InN0cmVhbS0xNDQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im5nQmJkeTBjU3QtSlhMeG5QczVMUUEiLCJpYXQiOjE3NDM5MTMxNTksImV4cCI6MTc0MzkxMzIxOX0.bBtX4N1gdSrYDAPnoVAvA_OR42oPE3ceaGueOZW5dkg", logo: "logo.jpg" },
-      { name: "Faaji 106.5 FM", location: "Lagos", url: "http://streaming.faajifmradio.com:8000/faaji", logo: "logo.jpg" },
-      { name: "EgbaAlake Radio", location: "Attleboro Falls, USA", url: "https://centova47.instainternet.com/proxy/egbaalak?mp=/stream", logo: "logo.jpg" },
-      { name: "Ray Power FM", location: "Abuja", url: "https://streamlive2.hearthis.at:8080/9065169.ogg", logo: "logo.jpg" },
-      { name: "Jay 101.9 FM", location: "Jos", url: "https://stream2.rcast.net/69640/", logo: "logo.jpg" },
-      { name: "Apostolic Flame Radio", location: "Ibadan", url: "https://hoth.alonhosting.com:1695/stream", logo: "logo.jpg" },
-      { name: "FRCN Lagos Metro FM", location: "Abuja", url: "http://go.webgateready.com:7668/;", logo: "logo.jpg" },
-      { name: "Radio Nigeria", location: "Abuja", url: "https://stream.radionigeria.gov.ng/live", logo: "logo.jpg" },
-      { name: "NBS Solid 97.1 FM", location: "Nassarawa", url: "https://nbsradio1.radioca.st/;", logo: "logo.jpg" },
-      { name: "Vision Africa Radio", location: "Abia", url: "https://xstreamer.galcom.org:8443/VisionAfrica", logo: "logo.jpg" },
-      { name: "ITMP Radio", location: "Florida", url: "http://uk4freenew.listen2myradio.com:32739/stream", logo: "logo.jpg" },
-      { name: "Crest 106.1 FM", location: "Ondo", url: "https://stream-154.zeno.fm/9cgtkwg3teruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Y2d0a3dnM3RlcnV2IiwiaG9zdCI6InN0cmVhbS0xNTQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlI4MXQzdjhRUWhDQWdkODRsaWJtckEiLCJpYXQiOjE3NDM5MTI3NzQsImV4cCI6MTc0MzkxMjgzNH0.QiIm090_iZfI55MZu7WqKjm5inX-mmKanKQgGBBbA7w", logo: "logo.jpg" },
-      { name: "Eko FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/1/live.mp3", logo: "logo.jpg" },
-      { name: "Liveway Radio Network FM", location: "Lagos", url: "https://stream-173.zeno.fm/qc43ktn6n0quv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJxYzQza3RuNm4wcXV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImMtb0ZiQ3dtVE1hZUlEVU5YQ3BiVUEiLCJpYXQiOjE3NDM5MTMyODcsImV4cCI6MTc0MzkxMzM0N30.HVLieksgqvV_vsqRr9_rcDexkz6Lqeqeu7stKvuJr10", logo: "logo.jpg" },
-      { name: "Radio Space FM", location: "Ibadan", url: "https://stream-175.zeno.fm/79hmhafteg0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI3OWhtaGFmdGVnMHV2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IkFqako3a0doUllPcVB1cmY3RDJmN2ciLCJpYXQiOjE3NDM5MTM0NzUsImV4cCI6MTc0MzkxMzUzNX0.Ow_YytmLcyURU6d_ji4EvQ-4YuLvJjXATerfWMHO67o", logo: "logo.jpg" },
-      { name: "Comfort 95.1 FM", location: "Uyo", url: "https://a3.asurahosting.com:7770/radio.mp3", logo: "logo.jpg" },
-      { name: "AKBC Akwa Ibom Radio", location: "Uyo", url: "https://stream-175.zeno.fm/2ttc8yl6giztv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIydHRjOHlsNmdpenR2IiwiaG9zdCI6InN0cmVhbS0xNzUuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlE5VFpTRXpOUzFTMVlHSHdxaW5sQWciLCJpYXQiOjE3NDM5MTM3NjgsImV4cCI6MTc0MzkxMzgyOH0.9X5nRAtcN_4Pv-z5uE6ukYrNEIcwW0gHTVuYUlxVCj4", logo: "logo.jpg" },
-      { name: "Amen Radio", location: "Lagos", url: "https://eu3.fastcast4u.com/proxy/amenradi?mp=/stream", logo: "logo.jpg" },
-      { name: "Apala Radio", location: "Ibadan", url: "https://stream-172.zeno.fm/fqcszwwxra0uv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJmcWNzend3eHJhMHV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6IjMtaGJNc2Z6UU82U1VKWlNHbExkcFEiLCJpYXQiOjE3NDQyMjUzMDYsImV4cCI6MTc0NDIyNTM2Nn0.wncuUShs9-mnbAj3ndGGS9qd1z6AHtBzJEgT9b7NZDY", logo: "logo.jpg" },
-      { name: "WFM 91.77 Women Radio", location: "Lagos", url: "https://s28.myradiostream.com:11618/listen.mp3", logo: "logo.jpg" },
-      { name: "RFI Haoussa", location: "Nigeria", url: "https://rfihaoussa96k.ice.infomaniak.ch/rfihaoussa-96k.mp3", logo: "logo.jpg" },
-      { name: "Tungba FM", location: "Lagos", url: "https://stream-173.zeno.fm/3vd633m7ctzuv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIzdmQ2MzNtN2N0enV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6Im9QY19lN292UWFLdGUxSjFuNTI3M2ciLCJpYXQiOjE3NDM5MTQ0OTEsImV4cCI6MTc0MzkxNDU1MX0.UvA6Q0NuULFeRcHvqPJ9d68DeWz-0agoUBi8GDQWN0E", logo: "logo.jpg" },
-      { name: "Siren Songs", location: "Belgium", url: "https://sirensongs-mynoise.radioca.st/live", logo: "logo.jpg" },
-      { name: "Radio Relax", location: "Ukraine", url: "https://online.radiorelax.ua/RadioRelax_Instrumental_HD", logo: "logo.jpg" },
-      { name: "Exclusively Kenny G", location: "Dubai", url: "https://2.mystreaming.net/er/kennyg/icecast.audio", logo: "logo.jpg" },
-      { name: "Exclusively Jim Reeves", location: "Dubai", url: "https://nl4.mystreaming.net/er/jimreeves/icecast.audio", logo: "logo.jpg" },
-      { name: "247 Praise Radio", location: "Jacksonville, Florida", url: "https://streaming.radio.co/s6da23ac69/listen", logo: "logo.jpg" },
-      { name: "NPR News", location: "Washington DC", url: "https://npr-ice.streamguys1.com/live.mp3", logo: "logo.jpg" },
-      { name: "Al Jazeera", location: "Qatar", url: "https://live-hls-audio-web-aje.getaj.net/VOICE-AJE/01.m3u8", logo: "logo.jpg" },
-      { name: "CNN International", location: "Atlanta", url: "https://tunein.cdnstream1.com/3519_96.aac", logo: "logo.jpg" },
-      { name: "BBC World Service", location: "London", url: "https://utulsa.streamguys1.com/KWGSHD3-MP3", logo: "logo.jpg" },
-      { name: "BBC World Service", location: "West Africa", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_west_africa", logo: "logo.jpg" },
-      { name: "BBC World Service", location: "South Asia", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service_south_asia", logo: "logo.jpg" },
-      { name: "BBC World Service", location: "Vermont", url: "https://vprbbc.streamguys1.com/vprbbc24.mp3", logo: "logo.jpg" },
-      { name: "Capital FM", location: "London", url: "https://media-ssl.musicradio.com/CapitalMP3", logo: "logo.jpg" },
-      { name: "WNYC", location: "New York", url: "https://fm939.wnyc.org/wnycfm-tunein", logo: "logo.jpg" },
-      { name: "RTE Radio 1", location: "Dublin", url: "https://icecast.rte.ie/radio1", logo: "logo.jpg" },
-      { name: "Virgin Radio UK", location: "London", url: "https://radio.virginradio.co.uk/stream", logo: "logo.jpg" },
-      { name: "WBEZ", location: "Chicago", url: "http://wbez.streamguys1.com/wbez128.mp3", logo: "logo.jpg" },
-      { name: "Talk Sport", location: "London", url: "https://radio.talksport.com/stream", logo: "logo.jpg" },
-      { name: "Talk Sport 2", location: "London", url: "https://radio.talksport.com/stream2", logo: "logo.jpg" },
-      { name: "Joy FM", location: "Accra", url: "http://provisioning.streamtheworld.com/pls/JOY_FM.pls", logo: "logo.jpg" },
-      { name: "UBC Radio", location: "Kampala", url: "https://stream.ubc.go.ug/ubcradio", logo: "logo.jpg" },
-      { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: "logo.jpg" },
-      { name: "Black Information Network", location: "USA", url: "https://cloud.revma.ihrhls.com/zc8729?rj-org=n2db-e2&rj-ttl=5&rj-tok=AAABlmL2wq8ALLTq8zLJ1wWRdw", logo: "logo.jpg" },
-      { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "logo.jpg" }
-    ];
+const radioStations = [
+  { name: "Cool FM", location: "Lagos", url: "https://coolfm-edge-02-gos.sharp-stream.com/coolfm_lagos_aac", logo: "Nigeria Pix.png" },
+  { name: "Wazobia FM", location: "Lagos", url: "https://wazobiafm-edge-01-gos.sharp-stream.com/wazobia_lagos_aac", logo: "Nigeria Pix.png" },
+  { name: "Soundcity Radio", location: "Lagos", url: "https://soundcity.stream.refreshed.co/sc985", logo: "Nigeria Pix.png" },
+  { name: "Splash FM", location: "Ibadan", url: "https://radio-edge-01.streamafrica.net/splashibadan", logo: "Nigeria Pix.png" },
+  { name: "Freedom Radio", location: "Kano", url: "https://freedomradionig.com/live-radio/", logo: "Nigeria Pix.png" },
+  { name: "Arewa Radio", location: "Kano", url: "https://arewaradio.com/live-radio/", logo: "Nigeria Pix.png" },
+  { name: "Joy FM", location: "Accra", url: "https://stream.zeno.fm/t3q5h7z1qtruv", logo: "Lagos traffic.png" },
+  { name: "BBC News", location: "International", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service", logo: "Abuja City Gate.png" }
+];
