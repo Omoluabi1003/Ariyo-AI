@@ -17,13 +17,13 @@
   <meta name="keywords" content="Àríyò AI, Naija AI, Nigerian music, AI chatbot, Sabi Bible, PWA, Omoluabi" />
   <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
   <meta property="og:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
-  <meta property="og:image" content="icons/Ariyo.png" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
   <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Àríyò AI - Smart Naija AI" />
   <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a 'Sabi Bible' mode." />
-  <meta name="twitter:image" content="icons/Ariyo.png" />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
   <title>Àríyò AI - Smart Naija AI</title>
 
   <script type="application/ld+json">
@@ -42,11 +42,11 @@
   </script>
 
   <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&amp;family=Montserrat:wght@400;700&amp;display=swap" rel="stylesheet" />
-  <script src="scripts/fontawesome.min.js" defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
 
   <!-- Animations & Chat -->
-  <script src="scripts/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
   <script async type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"></script>
 
 
@@ -92,6 +92,22 @@
       font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+      }
     }
     .share-button:hover { background-color: rgba(0, 123, 255, 1); }
     .container {
@@ -264,25 +280,20 @@
     }
     .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: #00bcd4; }
     .chatbot-container, .sabi-bible-container {
-        position: fixed;
-        bottom: calc(100px + env(safe-area-inset-bottom));
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 600px;
-        height: 70vh;
-        border-radius: 10px;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-        background: white;
-        overflow: hidden;
-        display: none;
-        z-index: 10001;
-        position: relative;
-    }
-    #wordSearchGameContainer {
-        height: 90vh;
-        bottom: auto;
-        top: 5vh;
+      position: fixed;
+      bottom: calc(100px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 600px;
+      height: 70vh;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      background: white;
+      overflow: hidden;
+      display: none;
+      z-index: 10001;
+      position: relative;
     }
     .chatbot-container zapier-interfaces-chatbot-embed,
     .sabi-bible-container zapier-interfaces-chatbot-embed {
@@ -366,12 +377,6 @@
         align-items: center;
         height: 100%;
     }
-    .edge-panel-title {
-        font-size: 0.7rem;
-        text-align: center;
-        color: #ffffff;
-        padding: 0.2rem;
-    }
     .tap-area {
         position: fixed;
         bottom: 0;
@@ -396,6 +401,11 @@
       0%   { transform: translateY(0px); }
       50%  { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
     .blinking-cursor {
         animation: blink 1s infinite;
@@ -451,13 +461,22 @@
       font-size: clamp(1rem, 4vw, 2rem);
       color: rgba(255, 255, 255, 0.5);
       white-space: nowrap;
-      opacity: 0;
-      animation: watermark-fade 6s ease-in-out forwards;
+    }
+    .exploding-watermark span {
+        display: inline-block;
+        animation: letter-explode 2s ease-in-out infinite;
+        animation-delay: calc(0.1s * var(--i));
     }
 
-    @keyframes watermark-fade {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 0.5; }
+    @keyframes letter-explode {
+        0% {
+            transform: translate(0, 0) rotate(0);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5))) rotate(calc(360deg * var(--r)));
+            opacity: 0;
+        }
     }
     .retry-button {
       background: #00bcd4;
@@ -524,7 +543,6 @@
 </head>
 
 <body>
-  <div id="background-cycler"></div>
   <div class="header">
     Welcome to Àríyò AI
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
@@ -534,9 +552,9 @@
 
   <div class="container">
     <div class="sidebar">
-      <button onclick="openAlbumList()" aria-label="Choose an album">🎧 Choose An Album</button>
-      <button onclick="openRadioList()" aria-label="Radio stations">📻 Radio Stations</button>
-      <button onclick="navigateToAbout()" aria-label="About us">ℹ️ About Us</button>
+      <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">🎧 Choose An Album</button>
+      <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">📻 Radio Stations</button>
+      <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">ℹ️ About Us</button>
     </div>
     <div class="content" id="main-content">
       <div id="newsContainer" class="news-container" style="display: none;"></div>
@@ -549,7 +567,7 @@
     <img
       id="albumCover"
       class="album-cover"
-      src="Kindness Cover Art.jpg"
+      src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
       alt="Album Cover"
       onerror="this.onerror=null;this.src='logo.jpg';"
     />
@@ -575,23 +593,24 @@
       aria-label="Seek bar for audio playback"
       aria-controls="audioPlayer"
     />
+    <audio id="audioPlayer" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/A%20Very%20Good%20Bad%20Guy%20v3.mp3"></audio>
     <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
     <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)" aria-label="Download track for offline playback">Download for Offline</button>
     <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()" aria-haspopup="true" aria-expanded="false">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
-      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer">⏮</button>
-      <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer">▶</button>
-      <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer">⏸</button>
-      <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer">⏹</button>
-      <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer">⏭</button>
-      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false">🔀</button>
+      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
+      <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer" class="ripple shockwave">▶</button>
+      <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
+      <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
+      <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
+      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave">🔀</button>
     </div>
   </div>
 
   <!-- Modal for Album List -->
   <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
     <div class="modal-content">
-      <button class="close" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</button>
+      <button class="close ripple shockwave" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</button>
       <h3 id="albumModalTitle">Choose An Album</h3>
       <div class="album-list">
         <a href="#" onclick="selectAlbum(0); closeAlbumList();">Album 1: Kindness</a>
@@ -605,7 +624,7 @@
   <!-- Modal for Track List -->
   <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
     <div class="modal-content">
-      <button class="close" role="button" aria-label="Close track list" onclick="closeTrackList()">×</button>
+      <button class="close ripple shockwave" role="button" aria-label="Close track list" onclick="closeTrackList()">×</button>
       <h3 id="trackModalTitle">Choose A Track</h3>
       <div class="track-list">
         <!-- Dynamically populated -->
@@ -616,7 +635,7 @@
 <!-- Modal for Radio Stations -->
 <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
   <div class="modal-content">
-    <button class="close" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</button>
+    <button class="close ripple shockwave" role="button" aria-label="Close radio list" onclick="closeRadioList()">×</button>
     <!-- Group: Nigeria -->
     <h4>Nigeria</h4>
     <div id="nigeria-stations" class="radio-list"></div>
@@ -637,18 +656,17 @@
 <div class="edge-panel" id="edgePanel">
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
-        <div class="edge-panel-title">Àríyò AI Chatbot by Zapier</div>
         <!-- Chatbot Floating Icon & Comic Bubble -->
         <div class="chatbot-bubble-container" role="button" aria-label="Open Chatbot" onclick="toggleChatbot()">
-          <img src="chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Chatbot Icon" class="chatbot-float-icon" />
         </div>
         <!-- Sabi Bible Floating Icon & Comic Bubble -->
         <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
-          <img src="Sabi Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
         </div>
         <!-- Picture Game Floating Icon -->
         <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
-            <img src="Ara icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
         </div>
         <!-- Word Search Game Floating Icon -->
         <div class="word-search-bubble-container" role="button" aria-label="Open Word Search Game" onclick="openWordSearchGame()">
@@ -659,39 +677,39 @@
 
 <!-- Chatbot Container -->
 <div class="chatbot-container" id="chatbotContainer">
-  <button class="popup-close" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
+  <button class="popup-close ripple shockwave" role="button" aria-label="Close Chatbot" onclick="toggleChatbot()">×</button>
   <zapier-interfaces-chatbot-embed
     is-popup="false"
     chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
     height="100%"
     width="100%"
     title="Àríyò AI Chatbot"
-    src="https://interfaces.zapier.com/embed/cm7s2oyu2000b3vmuwcwkj9kn?region=US&amp;language=en-US&amp;timezone=America/New_York">
+    src="https://interfaces.zapier.com/embed/cm7s2oyu2000b3vmuwcwkj9kn?region=US&language=en-US&timezone=America/New_York">
   </zapier-interfaces-chatbot-embed>
 </div>
 
 <!-- Sabi Bible Container -->
 <div class="sabi-bible-container" id="sabiBibleContainer">
-  <button class="popup-close" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
+  <button class="popup-close ripple shockwave" role="button" aria-label="Close Sabi Bible" onclick="toggleSabiBible()">×</button>
   <zapier-interfaces-chatbot-embed
     is-popup="false"
     chatbot-id="cm7ve7fdl002jlclh8y1n6n1y"
     height="100%"
     width="100%"
     title="Sabi Bible Chatbot"
-    src="https://interfaces.zapier.com/embed/cm7ve7fdl002jlclh8y1n6n1y?region=US&amp;language=en-US&amp;timezone=America/New_York">
+    src="https://interfaces.zapier.com/embed/cm7ve7fdl002jlclh8y1n6n1y?region=US&language=en-US&timezone=America/New_York">
   </zapier-interfaces-chatbot-embed>
 </div>
 
 <!-- Picture Game Container -->
 <div id="pictureGameContainer" class="chatbot-container">
-    <button class="popup-close" onclick="closePictureGame()">×</button>
+    <button class="popup-close ripple shockwave" onclick="closePictureGame()">×</button>
     <iframe src="picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Word Search Game Container -->
 <div id="wordSearchGameContainer" class="chatbot-container">
-    <button class="popup-close" onclick="closeWordSearchGame()">×</button>
+    <button class="popup-close ripple shockwave" onclick="closeWordSearchGame()">×</button>
     <iframe src="word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
@@ -719,22 +737,30 @@
   <script src="scripts/ui.js"></script>
   <script src="scripts/main.js"></script>
   <script src="color-scheme.js"></script>
-  <script>
-    // if ('serviceWorker' in navigator) {
-    //   window.addEventListener('load', () => {
-    //     navigator.serviceWorker.register('./service-worker.js').then(registration => {
-    //       console.log('ServiceWorker registration successful with scope: ', registration.scope);
-    //     }, err => {
-    //       console.log('ServiceWorker registration failed: ', err);
-    //     });
-    //   });
-    // }
-  </script>
   <!-- Floating Watermarks -->
   <div class="floating-watermarks">
-    <div class="watermark" style="top: 10%; left: 5%; animation-delay: 0s;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 55%; left: 60%; animation-delay: 3s;">Omoluabi Productions</div>
-    <div class="watermark" style="top: 85%; left: 40%; animation-delay: 5s;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
+    <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
   </div>
+  <script>
+    document.querySelectorAll('.exploding-watermark').forEach(watermark => {
+        watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
+            const x = Math.random();
+            const y = Math.random();
+            const r = Math.random();
+            return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
+        }).join('');
+    });
+  </script>
 </body>
 </html>
