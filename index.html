@@ -123,7 +123,7 @@
         }
 
         #speaker-icon {
-            animation: bounce 1s infinite;
+            animation: bounce 1s 3;
             width: 36px;
             height: 36px;
             fill: red;
@@ -185,38 +185,6 @@
             animation: shockwave 1s ease-out;
         }
 
-    .floating-watermarks {
-      pointer-events: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: 9999;
-    }
-    .watermark {
-      position: absolute;
-      font-size: clamp(1rem, 4vw, 2rem);
-      color: rgba(255, 255, 255, 0.5);
-      white-space: nowrap;
-    }
-    .exploding-watermark span {
-        display: inline-block;
-        animation: letter-explode 2s ease-in-out infinite;
-        animation-delay: calc(0.1s * var(--i));
-    }
-
-    @keyframes letter-explode {
-        0% {
-            transform: translate(0, 0) rotate(0);
-            opacity: 1;
-        }
-        100% {
-            transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5))) rotate(calc(360deg * var(--r)));
-            opacity: 0;
-        }
-    }
 
         @keyframes shockwave {
             0% {
@@ -265,31 +233,8 @@
 
     <audio id="welcomeAudio" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Hail%20Mary.mp3" loop></audio>
 
-    <!-- Floating Watermarks -->
-    <div class="floating-watermarks">
-      <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-      <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
-    </div>
 
     <script>
-        document.querySelectorAll('.exploding-watermark').forEach(watermark => {
-            watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
-                const x = Math.random();
-                const y = Math.random();
-                const r = Math.random();
-                return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
-            }).join('');
-        });
 
         function enterApp() {
             const enterIcon = document.querySelector('.enter-icon');
@@ -305,12 +250,6 @@
             const audio = document.getElementById('welcomeAudio');
             const speakerContainer = document.getElementById('speaker-container');
             const speakerIcon = document.getElementById('speaker-icon');
-
-            let isPlaying = false;
-
-            const playAudio = () => {
-                audio.play().then(() => {
-                    isPlaying = true;
                     speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
                 }).catch(error => {
                     console.log("Audio playback failed:", error);
