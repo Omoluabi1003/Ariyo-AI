@@ -1,5 +1,5 @@
 /* MUSIC PLAYER LOGIC */
-    const audioPlayer = document.getElementById('audioPlayer') || new Audio();
+    const audioPlayer = new Audio();
     audioPlayer.crossOrigin = "anonymous";
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
@@ -14,10 +14,8 @@
     }
 
     audioPlayer.id = 'audioPlayer';
-    audioPlayer.preload = 'metadata';
-    if (!document.getElementById('audioPlayer')) {
-        document.body.appendChild(audioPlayer);
-    }
+    audioPlayer.preload = 'auto';
+    document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
@@ -137,27 +135,15 @@ radioStations.forEach(station => {
   groupedStations[region].push(station);
 });
 
-// Check if a radio stream is reachable without blocking the main thread.
-// This function returns a Promise that resolves with 'online' or 'offline'.
-function checkStreamStatus(url) {
-    return new Promise((resolve) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-            resolve('offline');
-        }, 3000);
-
-        fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
-            .then(() => {
-                clearTimeout(timeoutId);
-                resolve('online');
-            })
-            .catch(() => {
-                clearTimeout(timeoutId);
-                resolve('offline');
-            });
-    });
-}
+async function checkStreamStatus(url) {
+      try {
+        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+        // no-cors means we can't access status, but we can see if we get a response
+        return 'online';
+      } catch (error) {
+        return 'offline';
+      }
+    }
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
@@ -172,36 +158,41 @@ function checkStreamStatus(url) {
     }
 
 function loadMoreStations(region) {
-    const container = document.getElementById(`${region}-stations`);
-    const stations = groupedStations[region];
-    const start = stationDisplayCounts[region];
-    const end = start + stationsPerPage;
+  const container = document.getElementById(`${region}-stations`);
+  const stations = groupedStations[region];
+  const start = stationDisplayCounts[region];
+  const end = start + stationsPerPage;
 
-    let stationsHtml = '';
+  stations.slice(start, end).forEach((station, index) => {
+    const stationLink = document.createElement("a");
+    stationLink.href = "#";
+    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
 
-    const promises = stations.slice(start, end).map((station, index) => {
-        return checkStreamStatus(station.url).then(status => {
-            const stationName = `${station.name} (${station.location})`;
-            const stationId = `station-${region}-${start + index}`;
-            let stationHtml;
-            if (status === 'online') {
-                stationHtml = `<a href="#" id="${stationId}" onclick="selectRadio('${station.url}', '${stationName}', ${start + index}, '${station.logo}')">${stationName} <span style="color: lightgreen;">(Online)</span></a>`;
-            } else {
-                stationHtml = `<a href="#" id="${stationId}" class="offline" style="text-decoration: line-through;">${stationName} <span style="color: red;">(Offline)</span></a>`;
-            }
-            return stationHtml;
-        });
+    const statusSpan = document.createElement('span');
+    statusSpan.style.marginLeft = '10px';
+    statusSpan.textContent = ' (Checking...)';
+
+    checkStreamStatus(station.url).then(status => {
+        if (status === 'online') {
+            statusSpan.textContent = ' (Online)';
+            statusSpan.style.color = 'lightgreen';
+        } else {
+            statusSpan.textContent = ' (Offline)';
+            statusSpan.style.color = 'red';
+            stationLink.style.textDecoration = 'line-through';
+        }
     });
 
-    Promise.all(promises).then(htmlArray => {
-        container.innerHTML += htmlArray.join('');
-    });
+    stationLink.textContent = `${station.name} (${station.location})`;
+    stationLink.appendChild(statusSpan);
+    container.appendChild(stationLink);
+  });
 
-    stationDisplayCounts[region] = end;
+  stationDisplayCounts[region] = end;
 
-    if (stationDisplayCounts[region] >= stations.length) {
-        document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
-    }
+  if (stationDisplayCounts[region] >= stations.length) {
+    document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'none';
+  }
 }
 
     function selectAlbum(albumIndex) {

@@ -50,7 +50,6 @@ body {
     justify-content: center;
     align-items: center;
     margin-top: 1rem;
-    width: 100%;
 }
 
 #controls label,
@@ -71,7 +70,6 @@ body {
     flex-wrap: wrap;
     gap: 1rem;
     justify-content: center;
-    align-items: flex-start;
 }
 
 #game-board {
@@ -89,7 +87,6 @@ body {
 }
 
 .cell {
-    box-sizing: border-box;
     text-align: center;
     border: 1px solid #ccc;
     cursor: pointer;
@@ -104,7 +101,7 @@ body {
 #word-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 0 1rem;
+    margin-top: 1rem;
     display: grid;
     grid-template-columns: repeat(2, max-content);
     gap: 0.25rem 0.5rem;
@@ -153,7 +150,6 @@ body {
     }
     #word-list {
         grid-template-columns: repeat(2, max-content);
-        margin: 1rem 0 0 0;
     }
     #word-list li {
         font-size: 0.5rem;
@@ -171,9 +167,11 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 1.5rem;
+    font-size: 3rem;
     font-weight: bold;
-    color: #ff4081;
-    text-shadow: 0 0 6px rgba(255, 64, 129, 0.7);
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 1rem 2rem;
+    border-radius: 1rem;
     animation: blink 1s linear infinite;
 }
