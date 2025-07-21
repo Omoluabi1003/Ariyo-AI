@@ -157,5 +157,6 @@ const albums = [
       { name: "UBC Radio", location: "Kampala", url: "https://stream.ubc.go.ug/ubcradio", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Black Information Network", location: "USA", url: "https://cloud.revma.ihrhls.com/zc8729?rj-org=n2db-e2&rj-ttl=5&rj-tok=AAABlmL2wq8ALLTq8zLJ1wWRdw", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-      { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" }
+      { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "SAfm (SABC News & Talk)", location: "South Africa", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SAFM.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" }
     ];
