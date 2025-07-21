@@ -79,7 +79,8 @@ body {
     grid-gap: 2px;
     border: 2px solid #333;
     padding: 5px;
-    overflow: visible;
+    max-width: 95vw;
+    overflow: hidden;
 }
 
 .cell {
@@ -114,7 +115,7 @@ body {
     padding: 0.25rem 0.4rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 0.5rem;
+    font-size: 0.6rem;
 }
 
 #word-list li.found {
@@ -155,7 +156,7 @@ body {
         margin: 1rem 0 0 0;
     }
     #word-list li {
-        font-size: 0.4rem;
+        font-size: 0.5rem;
     }
 }
 

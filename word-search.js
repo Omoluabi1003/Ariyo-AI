@@ -290,59 +290,6 @@ function removeDuplicateWords(wordList) {
     }
 }
 
-function ensureUniquePlacement(wordList) {
-    for (const word of wordList) {
-        const len = word.length;
-        let placedFound = false;
-        const clearExtra = (cells) => {
-            const idx = Math.floor(Math.random() * len);
-            const cell = cells[idx];
-            cell.textContent = randomLetterDifferent(cell.textContent);
-        };
-
-        const checkSeq = (cells) => {
-            const text = cells.map(c => c.textContent.toLowerCase()).join('');
-            if (text !== word) return false;
-            const datasetMatch = cells.every(c => (c.dataset.words || '').split(',').includes(word));
-            if (datasetMatch) {
-                if (placedFound) clearExtra(cells);
-                placedFound = true;
-            } else {
-                clearExtra(cells);
-            }
-            return true;
-        };
-
-        // horizontal and reverse
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c <= gridSize - len; c++) {
-                const forward = [];
-                const backward = [];
-                for (let i = 0; i < len; i++) {
-                    forward.push(board[r][c + i]);
-                    backward.push(board[r][c + len - 1 - i]);
-                }
-                checkSeq(forward);
-                checkSeq(backward);
-            }
-        }
-
-        // vertical and reverse
-        for (let c = 0; c < gridSize; c++) {
-            for (let r = 0; r <= gridSize - len; r++) {
-                const forward = [];
-                const backward = [];
-                for (let i = 0; i < len; i++) {
-                    forward.push(board[r + i][c]);
-                    backward.push(board[r + len - 1 - i][c]);
-                }
-                checkSeq(forward);
-                checkSeq(backward);
-            }
-        }
-    }
-}
-
 function drawLine(cells) {
     if (!lineCtx || cells.length === 0) return;
     const boardRect = document.getElementById("game-board").getBoundingClientRect();
@@ -550,7 +497,6 @@ function restoreGameState(state) {
         }
     }
     populateWordList();
-    ensureUniquePlacement(wordsInGame);
     for (const [word, coords] of Object.entries(state.foundWordCells || {})) {
         const cells = coords.map(([r, c]) => board[r][c]);
         cells.forEach(c => c.classList.add('found'));
@@ -574,7 +520,6 @@ function startGame() {
     placeWords(wordsInGame);
     fillEmptyCells();
     removeDuplicateWords(wordsInGame);
-    ensureUniquePlacement(wordsInGame);
     populateWordList();
     saveGameState();
 }
