@@ -41,6 +41,11 @@ const categories = {
         "avengers", "scarface", "psycho", "frozen", "joker",
         "bond", "diehard", "godzilla", "heat", "shrek"
     ],
+    "Omoluabi songs": [
+        "efcc", "emergency", "subsidy", "babygirl", "ubuntu",
+        "sengemenge", "sowore", "vdm", "gbamsolutely", "needs",
+        "scaffolding"
+    ],
     "Nigerian States": [
         "abia", "adamawa", "akwaibom", "anambra", "bauchi", "bayelsa",
         "benue", "borno", "crossriver", "delta", "ebonyi", "edo",
@@ -65,8 +70,8 @@ function updateGridSize() {
 }
 
 function getCellSize() {
-    const maxSize = 30;
-    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.85);
+    const maxSize = 24;
+    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * 0.8);
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     return Math.min(maxSize, Math.floor((available - extras) / gridSize));
 }
@@ -74,8 +79,10 @@ const board = [];
 const wordListElement = document.getElementById("word-list");
 let wordsInGame = [];
 let foundWords = [];
+let foundWordLines = {};
 let startTime = 0;
 let timerInterval;
+let winInterval;
 let selecting = false;
 let selectedCells = [];
 let direction = null;
@@ -104,6 +111,7 @@ function createBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.55)}px`;
             cell.dataset.row = i;
             cell.dataset.col = j;
             cell.addEventListener("pointerdown", handlePointerDown);
@@ -126,11 +134,7 @@ function placeWords(wordList) {
         "horizontal",
         "horizontalReverse",
         "vertical",
-        "verticalReverse",
-        "diagonalDown",
-        "diagonalDownReverse",
-        "diagonalUp",
-        "diagonalUpReverse"
+        "verticalReverse"
     ];
     for (const word of wordList) {
         let placed = false;
@@ -147,18 +151,6 @@ function placeWords(wordList) {
                 row = gridSize - word.length;
             } else if (direction === "verticalReverse" && row - word.length + 1 < 0) {
                 row = word.length - 1;
-            } else if (direction === "diagonalDown" && (row + word.length > gridSize || col + word.length > gridSize)) {
-                row = gridSize - word.length;
-                col = Math.min(col, gridSize - word.length);
-            } else if (direction === "diagonalDownReverse" && (row - word.length + 1 < 0 || col - word.length + 1 < 0)) {
-                row = word.length - 1;
-                col = Math.max(col, word.length - 1);
-            } else if (direction === "diagonalUp" && (row - word.length + 1 < 0 || col + word.length > gridSize)) {
-                row = word.length - 1;
-                col = Math.min(col, gridSize - word.length);
-            } else if (direction === "diagonalUpReverse" && (row + word.length > gridSize || col - word.length + 1 < 0)) {
-                row = gridSize - word.length;
-                col = Math.max(col, word.length - 1);
             }
 
             if (canPlace(word, row, col, direction)) {
@@ -173,18 +165,6 @@ function placeWords(wordList) {
                         r += i;
                     } else if (direction === "verticalReverse") {
                         r -= i;
-                    } else if (direction === "diagonalDown") {
-                        r += i;
-                        c += i;
-                    } else if (direction === "diagonalDownReverse") {
-                        r -= i;
-                        c -= i;
-                    } else if (direction === "diagonalUp") {
-                        r -= i;
-                        c += i;
-                    } else if (direction === "diagonalUpReverse") {
-                        r += i;
-                        c -= i;
                     }
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
@@ -203,18 +183,6 @@ function canPlace(word, row, col, direction) {
     else if (direction === "horizontalReverse") dCol = -1;
     else if (direction === "vertical") dRow = 1;
     else if (direction === "verticalReverse") dRow = -1;
-    else if (direction === "diagonalDown") {
-        dRow = 1; dCol = 1;
-    }
-    else if (direction === "diagonalDownReverse") {
-        dRow = -1; dCol = -1;
-    }
-    else if (direction === "diagonalUp") {
-        dRow = -1; dCol = 1;
-    }
-    else if (direction === "diagonalUpReverse") {
-        dRow = 1; dCol = -1;
-    }
 
     for (let i = 0; i < word.length; i++) {
         const r = row + dRow * i;
@@ -309,8 +277,6 @@ function handlePointerMove(e) {
             direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
         } else if (colDiff === 0) {
             direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
-        } else if (Math.abs(rowDiff) === Math.abs(colDiff)) {
-            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: colDiff > 0 ? 1 : -1 };
         } else {
             return;
         }
@@ -338,24 +304,17 @@ function checkSelectedWord() {
     let word = selectedCells.map(c => c.textContent.toLowerCase()).join("");
     let reversed = word.split("").reverse().join("");
     if (wordsInGame.includes(word)) {
-        markFound(word);
+        markFound(word, selectedCells.slice());
     } else if (wordsInGame.includes(reversed)) {
-        markFound(reversed);
+        markFound(reversed, selectedCells.slice().reverse());
     }
 }
 
-function markFound(word) {
+function markFound(word, cells) {
     if (foundWords.includes(word)) return;
     foundWords.push(word);
-    const cells = [];
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            if (board[i][j].dataset.word === word) {
-                board[i][j].classList.add("found");
-                cells.push(board[i][j]);
-            }
-        }
-    }
+    cells.forEach(c => c.classList.add("found"));
+    foundWordLines[word] = cells;
     drawLine(cells);
     const item = wordListElement.querySelector(`li[data-word="${word}"]`);
     if (item) item.classList.add("found");
@@ -374,11 +333,12 @@ function checkWin() {
             return Math.random() * (max - min) + min;
         }
 
-        const interval = setInterval(function() {
+        clearInterval(winInterval);
+        winInterval = setInterval(function() {
             const timeLeft = animationEnd - Date.now();
 
             if (timeLeft <= 0) {
-                clearInterval(interval);
+                clearInterval(winInterval);
                 const msg = document.createElement("div");
                 msg.id = "win-message";
                 msg.textContent = `You Win in ${totalTime}s!`;
@@ -431,11 +391,15 @@ function stopTimer() {
 }
 
 function startGame() {
+    const existing = document.getElementById("win-message");
+    if (existing) existing.remove();
+    clearInterval(winInterval);
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
     wordsInGame = pickWords(words, 20);
     foundWords = [];
+    foundWordLines = {};
     startTimer();
     createBoard();
     placeWords(wordsInGame);
@@ -465,6 +429,7 @@ function resizeBoard() {
             cell.style.width = `${cellSize}px`;
             cell.style.height = `${cellSize}px`;
             cell.style.lineHeight = `${cellSize}px`;
+            cell.style.fontSize = `${Math.floor(cellSize * 0.55)}px`;
         }
     }
     const boardRect = gameBoard.getBoundingClientRect();
@@ -475,16 +440,12 @@ function resizeBoard() {
 }
 
 function redrawLines() {
+    lineCtx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
     for (const word of foundWords) {
-        const cells = [];
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-                if (board[i][j].dataset.word === word) {
-                    cells.push(board[i][j]);
-                }
-            }
+        const cells = foundWordLines[word];
+        if (cells) {
+            drawLine(cells);
         }
-        drawLine(cells);
     }
 }
 
