@@ -11,171 +11,33 @@
       }
     }
 
-    /* NAVIGATE TO ABOUT PAGE & HOME */
-    let originalMainContentHTML = '';
-    let aboutButtonGlobal = null;
-    let originalAboutButtonText = '';
-    let originalAboutButtonOnClick;
-
-    async function navigateToAbout() {
-      const mainContent = document.getElementById('main-content');
-
-      if (!aboutButtonGlobal) {
-          const sidebarButtons = document.querySelectorAll('.sidebar button');
-          aboutButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
-          if (aboutButtonGlobal) {
-              originalAboutButtonText = aboutButtonGlobal.textContent;
-              originalAboutButtonOnClick = aboutButtonGlobal.onclick;
-          }
-      }
-
-      if (!mainContent.dataset.originalContentStored) {
-        originalMainContentHTML = mainContent.innerHTML;
-        mainContent.dataset.originalContentStored = 'true';
-      }
-
-      savePlayerState();
-
-      try {
-        const response = await fetch('about.html');
-        if (!response.ok) {
-          console.error('Failed to fetch about.html:', response.status);
-          mainContent.innerHTML = '<p>Error loading About page content.</p>';
-          return;
-        }
-        const aboutHtmlText = await response.text();
-        const parser = new DOMParser();
-        const aboutDoc = parser.parseFromString(aboutHtmlText, 'text/html');
-
-        const aboutPageActualContent = aboutDoc.body.innerHTML;
-
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = aboutDoc.body.innerHTML;
-
-        const albumCoversDiv = tempDiv.querySelector('.album-covers');
-        if (albumCoversDiv) {
-          albumCoversDiv.innerHTML = '';
-          albums.forEach(album => {
-            const albumLink = document.createElement('a');
-            albumLink.href = album.external_url || '#';
-            if (album.external_url) {
-                albumLink.target = '_blank';
-            }
-
-            const img = document.createElement('img');
-            img.src = album.cover;
-            img.alt = album.name + " Album Cover";
-            img.title = album.name;
-
-            const nameParagraph = document.createElement('p');
-            nameParagraph.textContent = album.name;
-            nameParagraph.style.color = '#fff';
-            nameParagraph.style.fontSize = '0.8rem';
-            nameParagraph.style.marginTop = '0.5rem';
-
-            const albumContainer = document.createElement('div');
-            albumContainer.style.textAlign = 'center';
-            albumContainer.appendChild(img);
-            albumContainer.appendChild(nameParagraph);
-
-            albumLink.appendChild(albumContainer);
-            albumCoversDiv.appendChild(albumLink);
-          });
-        }
-
-        mainContent.innerHTML = tempDiv.innerHTML;
-
-
-        const oldStyles = document.getElementById('about-page-styles');
-        if (oldStyles) {
-          oldStyles.remove();
-        }
-        const styleElement = document.createElement('style');
-        styleElement.id = 'about-page-styles';
-        styleElement.textContent = aboutDoc.head.querySelector('style').textContent;
-        document.head.appendChild(styleElement);
-
-        let socialIconOverrideStyle = document.getElementById('social-icon-override-styles');
-        if (!socialIconOverrideStyle) {
-          socialIconOverrideStyle = document.createElement('style');
-          socialIconOverrideStyle.id = 'social-icon-override-styles';
-          document.head.appendChild(socialIconOverrideStyle);
-        }
-        socialIconOverrideStyle.textContent = `
-          #main-content .social-icons a img {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px; /* Optional: adjust border-radius if desired */
-            object-fit: cover;
-          }
-          @media (max-width: 768px) {
-            #main-content .social-icons a img {
-              width: 40px;
-              height: 40px;
-            }
-          }
-        `;
-
-        if (window.location.pathname !== '/about.html') {
-          history.pushState({ page: 'about' }, 'About Us', 'about.html');
-        }
-
-        if (aboutButtonGlobal) {
-          aboutButtonGlobal.textContent = '🎵 Back to Player';
-          aboutButtonGlobal.onclick = navigateToHome;
-        }
-        mainContent.classList.add('about-us-active');
-        mainContent.style.opacity = '1';
-
-      } catch (error) {
-        console.error('Error navigating to About page:', error);
-        mainContent.innerHTML = '<p>Error loading About page content.</p>';
-      }
-    }
-
-    function navigateToHome() {
-      const mainContent = document.getElementById('main-content');
-      mainContent.innerHTML = '<div id="newsContainer" class="news-container" style="display: none;"></div>';
-
-
-      const aboutPageStyles = document.getElementById('about-page-styles');
-      if (aboutPageStyles) {
-        aboutPageStyles.remove();
-      }
-      const socialIconOverride = document.getElementById('social-icon-override-styles');
-      if (socialIconOverride) {
-        socialIconOverride.remove();
-      }
-
-      let currentPath = window.location.pathname;
-      if (currentPath.endsWith('/main.html')) currentPath = currentPath.substring(0, currentPath.length - 'main.html'.length);
-      if (currentPath.endsWith('/about.html')) {
-          history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
-      } else if (currentPath !== '/' && !currentPath.endsWith('/')) {
-           history.pushState({ page: 'home' }, 'Home', '/');
-      }
-
-      if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
-        aboutButtonGlobal.textContent = originalAboutButtonText;
-        aboutButtonGlobal.onclick = originalAboutButtonOnClick;
-      }
-
-      mainContent.classList.remove('about-us-active');
-      gsap.to(mainContent, { opacity: 1, duration: 0.5 });
-    }
 
     /* BACKGROUND CYCLER */
     const backgrounds = [
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
+      'Naija AI.jpg',
+      'Naija AI2.jpg',
+      'Naija AI3.jpg'
     ];
     let currentBgIndex = 0;
-    document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
-    setInterval(() => {
+    const backgroundCycler = document.getElementById('background-cycler');
+
+    function preloadImages() {
+      for (const bg of backgrounds) {
+        const img = new Image();
+        img.src = bg;
+      }
+    }
+
+    function cycleBackground() {
       currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
-      document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
-    }, 30000);
+      backgroundCycler.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+    }
+
+    if (backgroundCycler) {
+      preloadImages();
+      backgroundCycler.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+      setInterval(cycleBackground, 30000);
+    }
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
@@ -205,21 +67,26 @@
         const track = currentRadioIndex === -1
           ? albums[currentAlbumIndex].tracks[currentTrackIndex]
           : radioStations[currentRadioIndex];
-        const artwork = currentRadioIndex === -1
+        let artworkSrc = currentRadioIndex === -1
           ? albums[currentAlbumIndex].cover
           : radioStations[currentRadioIndex].logo;
+
+        // If the artwork source is a relative path, construct a full URL
+        if (!artworkSrc.startsWith('http')) {
+          artworkSrc = `${window.location.origin}/${artworkSrc}`;
+        }
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
           artist: currentRadioIndex === -1 ? 'Omoluabi' : '',
           album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
           artwork: [
-            { src: artwork, sizes: '96x96', type: 'image/jpeg' },
-            { src: artwork, sizes: '128x128', type: 'image/jpeg' },
-            { src: artwork, sizes: '192x192', type: 'image/jpeg' },
-            { src: artwork, sizes: '256x256', type: 'image/jpeg' },
-            { src: artwork, sizes: '384x384', type: 'image/jpeg' },
-            { src: artwork, sizes: '512x512', type: 'image/jpeg' }
+            { src: artworkSrc, sizes: '96x96', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '128x128', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '192x192', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '256x256', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '384x384', type: 'image/jpeg' },
+            { src: artworkSrc, sizes: '512x512', type: 'image/jpeg' }
           ]
         });
 
@@ -249,7 +116,9 @@
         currentAlbumIndex = savedState.albumIndex;
         currentTrackIndex = savedState.trackIndex;
         currentRadioIndex = savedState.radioIndex;
-        // shuffleMode = savedState.shuffleMode; // This line is updated below
+        shuffleMode = savedState.shuffleMode;
+        shuffleScope = savedState.shuffleScope;
+
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
@@ -257,8 +126,8 @@
           trackInfo.textContent = `${station.name} - ${station.location}`;
           trackArtist.textContent = '';
           trackYear.textContent = '';
-          trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-          cacheButton.style.display = 'none'; // Hide for radio
+          trackAlbum.textContent = 'Radio Stream';
+          cacheButton.style.display = 'none';
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
             updateTrackTime();
@@ -271,8 +140,8 @@
           trackInfo.textContent = track.title;
           trackArtist.textContent = 'Artist: Omoluabi';
           trackYear.textContent = 'Release Year: 2025';
-           trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
-          cacheButton.style.display = 'block'; // Show for tracks
+          trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`;
+          cacheButton.style.display = 'block';
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
             updateTrackTime();
@@ -280,13 +149,8 @@
           }, { once: true });
         }
         updateTrackListModal();
-        const controls = document.querySelector(".music-controls.icons-only");
-        // Updated section for shuffle button text:
-        const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
+        const shuffleBtn = document.querySelector("button[aria-label='Toggle shuffle']");
         const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
-
-        shuffleMode = savedState.shuffleMode;
-        shuffleScope = savedState.shuffleScope;
 
         if (shuffleScope === 'album') {
           shuffleBtn.textContent = '🔀 Album';
@@ -294,25 +158,18 @@
         } else if (shuffleScope === 'all') {
           shuffleBtn.textContent = '🔀 All';
           shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
-        } else { // off
+        } else {
           shuffleBtn.textContent = '🔀 Off';
           shuffleStatusInfo.textContent = 'Shuffle: Off';
         }
-        console.log('Player restored from saved state:', savedState);
       } else {
-        // Default state for a new session if no saved state
         shuffleScope = 'off';
         shuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
-        document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
-        selectAlbum(0);
-        console.log('No saved state found, initialized with default');
+        document.querySelector("button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
       }
       updateStreak();
       updateMediaSession();
-      if (!savedState) {
-        selectAlbum(0);
-      }
     }
 
     // GSAP Sidebar Button Animations
@@ -339,103 +196,6 @@
 
     // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
-
-    // PWA Install Prompt
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        showIosInstallBanner();
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-          }
-        }).then(function() {
-          navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-            console.log('Service Worker registered with scope:', registration.scope);
-          }).catch(function(error) {
-            console.log('Service worker registration failed:', error);
-          });
-        });
-      });
-    }
-
-    let deferredPrompt;
-    const installContainer = document.createElement('div');
-    installContainer.style.position = 'fixed';
-    installContainer.style.bottom = '20px';
-    installContainer.style.right = '20px';
-    installContainer.style.zIndex = '1000';
-    document.body.appendChild(installContainer);
-
-    const installBtn = document.createElement('button');
-    installBtn.textContent = 'Install Àríyò AI';
-    installBtn.style.background = '#00bcd4';
-    installBtn.style.color = 'white';
-    installBtn.style.padding = '10px 20px';
-    installBtn.style.border = 'none';
-    installBtn.style.borderRadius = '5px';
-    installBtn.style.display = 'none';
-    installContainer.appendChild(installBtn);
-
-    const iosInstallBanner = document.createElement('div');
-    iosInstallBanner.innerHTML = '<p>To install, tap the share button and then "Add to Home Screen".</p>';
-    iosInstallBanner.style.background = 'rgba(0,0,0,0.8)';
-    iosInstallBanner.style.color = 'white';
-    iosInstallBanner.style.padding = '10px';
-    iosInstallBanner.style.borderRadius = '5px';
-    iosInstallBanner.style.display = 'none';
-    installContainer.appendChild(iosInstallBanner);
-
-    const closeBannerBtn = document.createElement('button');
-    closeBannerBtn.innerHTML = '&times;';
-    closeBannerBtn.style.position = 'absolute';
-    closeBannerBtn.style.top = '0';
-    closeBannerBtn.style.right = '5px';
-    closeBannerBtn.style.background = 'none';
-    closeBannerBtn.style.border = 'none';
-    closeBannerBtn.style.color = 'white';
-    closeBannerBtn.style.fontSize = '20px';
-    closeBannerBtn.onclick = () => {
-      iosInstallBanner.style.display = 'none';
-    };
-    iosInstallBanner.appendChild(closeBannerBtn);
-
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      if (!isIOS()) {
-        installBtn.style.display = 'block';
-      }
-      console.log('Install prompt available');
-    });
-
-    function showIosInstallBanner() {
-      if (isIOS() && !navigator.standalone) {
-        iosInstallBanner.style.display = 'block';
-      }
-    }
-
-    installBtn.onclick = () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User installed the app');
-          }
-          deferredPrompt = null;
-          installBtn.style.display = 'none';
-        });
-      }
-    };
-
-    function isIOS() {
-      const userAgent = window.navigator.userAgent.toLowerCase();
-      return /iphone|ipad|ipod/.test( userAgent );
-    }
-
-    window.addEventListener('appinstalled', () => {
-      console.log('PWA was installed');
-    });
 
     // Handle visibility change to fix track time bar after sleep
     document.addEventListener('visibilitychange', () => {
@@ -476,40 +236,7 @@
     // Weekly Color Scheme Changer
     changeColorScheme();
 
-    // Dynamic Edge Panel Height
-    const edgePanelContent = document.querySelector('.edge-panel-content');
-    const icons = edgePanelContent.querySelectorAll('.chatbot-bubble-container, .sabi-bible-bubble-container, .picture-game-bubble-container, .word-search-bubble-container');
-    const iconHeight = 50; // height of each icon
-    const iconSpacing = 20; // spacing between icons
-    const panelPadding = 20; // top and bottom padding of the panel
-    const panelHeight = (icons.length * iconHeight) + ((icons.length - 1) * iconSpacing) + (2 * panelPadding);
-    document.getElementById('edgePanel').style.height = `${panelHeight}px`;
-
     // Add this to your main.js file
     document.addEventListener('DOMContentLoaded', function() {
         // Your other DOM-dependent code here
     });
-
-    // Check for updates
-    let currentVersion;
-
-    function checkForUpdates() {
-        fetch('/version.json', { cache: 'no-store' })
-            .then(response => response.json())
-            .then(data => {
-                if (currentVersion && currentVersion !== data.version) {
-                    // New version available, prompt user to update
-                    if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
-                        window.location.reload();
-                    }
-                }
-                currentVersion = data.version;
-            })
-            .catch(error => console.error('Error checking for updates:', error));
-    }
-
-    // Check for updates every 5 minutes
-    setInterval(checkForUpdates, 300000);
-
-    // Initial check
-    checkForUpdates();
