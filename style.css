@@ -14,21 +14,10 @@ img {
 body {
     font-family: 'Montserrat', sans-serif;
     color: #fff;
+    background-color: #000;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-}
-
-#background-cycler {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background-size: cover;
-    background-position: center;
-    transition: background-image 1s ease-in-out;
 }
 
 /* Header Styles */

@@ -66,12 +66,8 @@ function updateGridSize() {
 }
 
 function getCellSize() {
-    const V_OFFSET = 150;
-    const H_OFFSET = 25;
     const maxSize = 30;
-    const availableWidth = window.innerWidth - H_OFFSET;
-    const availableHeight = window.innerHeight - V_OFFSET;
-    const available = Math.floor(Math.min(availableWidth, availableHeight));
+    const available = Math.floor(Math.min(window.innerWidth, window.innerHeight) * BOARD_SCALE);
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
     return Math.min(maxSize, Math.floor((available - extras) / gridSize));
 }
@@ -82,7 +78,6 @@ let foundWords = [];
 let foundWordCells = {};
 let startTime = 0;
 let timerInterval;
-let confettiInterval;
 let selecting = false;
 let selectedCells = [];
 let direction = null;
@@ -97,7 +92,7 @@ function createBoard() {
     gameBoard.innerHTML = "";
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize;
+    const containerSize = boardSize + BOARD_PADDING * 2;
     gameBoard.style.width = `${containerSize}px`;
     gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -227,14 +222,6 @@ function removeDuplicateWords(wordList) {
     const allWords = [...new Set(Object.values(categories).flat())];
     const gridWords = new Set(wordList);
 
-    function sequenceIsClear(r, c, len, dr, dc) {
-        for (let i = 0; i < len; i++) {
-            const cell = board[r + dr * i][c + dc * i];
-            if (cell.dataset.words) return false;
-        }
-        return true;
-    }
-
     for (const word of allWords) {
         if (gridWords.has(word)) continue;
         const len = word.length;
@@ -247,7 +234,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     currentWord += board[r][c + i].textContent.toLowerCase();
                 }
-                if (currentWord === word && sequenceIsClear(r, c, len, 0, 1)) {
+                if (currentWord === word) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r][c + idx];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -256,7 +243,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     reversedWord += board[r][c + len - 1 - i].textContent.toLowerCase();
                 }
-                if (reversedWord === word && sequenceIsClear(r, c, len, 0, 1)) {
+                if (reversedWord === word) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r][c + len - 1 - idx];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -271,7 +258,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     currentWord += board[r + i][c].textContent.toLowerCase();
                 }
-                if (currentWord === word && sequenceIsClear(r, c, len, 1, 0)) {
+                if (currentWord === word) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r + idx][c];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -280,7 +267,7 @@ function removeDuplicateWords(wordList) {
                 for (let i = 0; i < len; i++) {
                     reversedWord += board[r + len - 1 - i][c].textContent.toLowerCase();
                 }
-                if (reversedWord === word && sequenceIsClear(r, c, len, 1, 0)) {
+                if (reversedWord === word) {
                     const idx = Math.floor(Math.random() * len);
                     const cell = board[r + len - 1 - idx][c];
                     cell.textContent = randomLetterDifferent(cell.textContent);
@@ -388,7 +375,6 @@ function markFound(word, cells) {
     const item = wordListElement.querySelector(`li[data-word="${word}"]`);
     if (item) item.classList.add("found");
     checkWin();
-    saveGameState();
 }
 
 function checkWin() {
@@ -403,14 +389,14 @@ function checkWin() {
             return Math.random() * (max - min) + min;
         }
 
-        confettiInterval = setInterval(function() {
+        const interval = setInterval(function() {
             const timeLeft = animationEnd - Date.now();
 
             if (timeLeft <= 0) {
-                clearInterval(confettiInterval);
+                clearInterval(interval);
                 const msg = document.createElement("div");
                 msg.id = "win-message";
-                msg.textContent = `You Won in ${totalTime}s!`;
+                msg.textContent = `You Win in ${totalTime}s!`;
                 document.getElementById("board-container").appendChild(msg);
                 return;
             }
@@ -444,11 +430,11 @@ function populateWordList() {
     });
 }
 
-function startTimer(saved) {
+function startTimer() {
     const timerEl = document.getElementById("timer");
     clearInterval(timerInterval);
-    startTime = saved || Date.now();
-    timerEl.textContent = `Time: ${Math.floor((Date.now() - startTime) / 1000)}s`;
+    startTime = Date.now();
+    timerEl.textContent = "Time: 0s";
     timerInterval = setInterval(() => {
         const t = Math.floor((Date.now() - startTime) / 1000);
         timerEl.textContent = `Time: ${t}s`;
@@ -459,59 +445,10 @@ function stopTimer() {
     clearInterval(timerInterval);
 }
 
-function saveGameState() {
-    const letters = board.map(row => row.map(c => c.textContent));
-    const mapping = board.map(row => row.map(c => c.dataset.words || ""));
-    const cellIndices = {};
-    for (const [word, cells] of Object.entries(foundWordCells)) {
-        cellIndices[word] = cells.map(c => [parseInt(c.dataset.row), parseInt(c.dataset.col)]);
-    }
-    const state = {
-        selectedCategory,
-        gridSize,
-        wordsInGame,
-        letters,
-        mapping,
-        foundWords,
-        foundWordCells: cellIndices,
-        startTime
-    };
-    localStorage.setItem('wordSearchState', JSON.stringify(state));
-}
-
-function restoreGameState(state) {
-    selectedCategory = state.selectedCategory;
-    gridSize = state.gridSize;
-    wordsInGame = state.wordsInGame;
-    foundWords = state.foundWords || [];
-    foundWordCells = {};
-    startTimer(state.startTime);
-    createBoard();
-    for (let i = 0; i < gridSize; i++) {
-        for (let j = 0; j < gridSize; j++) {
-            const cell = board[i][j];
-            cell.textContent = state.letters[i][j];
-            if (state.mapping[i][j]) {
-                cell.dataset.words = state.mapping[i][j];
-            }
-        }
-    }
-    populateWordList();
-    for (const [word, coords] of Object.entries(state.foundWordCells || {})) {
-        const cells = coords.map(([r, c]) => board[r][c]);
-        cells.forEach(c => c.classList.add('found'));
-        foundWordCells[word] = cells;
-    }
-    redrawLines();
-}
-
 function startGame() {
-    clearInterval(confettiInterval);
-    const existing = document.getElementById("win-message");
-    if (existing) existing.remove();
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
-    words = [...new Set(categories[selectedCategory])].filter(w => w.length <= gridSize);
+    words = [...new Set(categories[selectedCategory])];
     wordsInGame = pickWords(words, 20);
     foundWords = [];
     foundWordCells = {};
@@ -521,7 +458,6 @@ function startGame() {
     fillEmptyCells();
     removeDuplicateWords(wordsInGame);
     populateWordList();
-    saveGameState();
 }
 
 function resizeBoard() {
@@ -534,7 +470,7 @@ function resizeBoard() {
     const gameBoard = document.getElementById("game-board");
     const cellSize = getCellSize();
     const boardSize = cellSize * gridSize + GRID_GAP * (gridSize - 1);
-    const containerSize = boardSize;
+    const containerSize = boardSize + BOARD_PADDING * 2;
     gameBoard.style.width = `${containerSize}px`;
     gameBoard.style.height = `${containerSize}px`;
     gameBoard.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
@@ -571,19 +507,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
-    newBtn.addEventListener("click", () => {
-        localStorage.removeItem('wordSearchState');
-        startGame();
-    });
-
-    const saved = localStorage.getItem('wordSearchState');
-    if (saved) {
-        const state = JSON.parse(saved);
-        select.value = state.selectedCategory;
-        restoreGameState(state);
-    } else {
-        startGame();
-    }
+    newBtn.addEventListener("click", startGame);
 });
 
 let resizeTimeout;
