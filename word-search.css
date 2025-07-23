@@ -54,6 +54,7 @@ body {
     flex-wrap: wrap;
     gap: 1rem;
     justify-content: center;
+    align-items: flex-start;
 }
 
 #game-board {
@@ -62,8 +63,9 @@ body {
     border: 2px solid #333;
     padding: 5px;
     max-width: 95vw;
+    max-height: 80vh;
     overflow: hidden;
-    aspect-ratio: 1 / 1;
+    box-sizing: content-box;
 }
 
 .cell {
@@ -86,18 +88,19 @@ body {
 #word-list {
     list-style: none;
     padding: 0;
-    margin-top: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
+    margin: 0 0 0 0.5rem;
+    max-width: 180px;
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 0.4rem;
+    font-size: 0.7rem;
 }
 
 #word-list li {
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.4rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 0.7rem;
+    font-size: 0.55rem;
 }
 
 #word-list li.found {
@@ -117,18 +120,16 @@ body {
 }
 
 @media (max-width: 480px) {
-    #game-wrapper {
-        flex-direction: column;
-        align-items: center;
-    }
     #game-board {
-        max-width: 90vw;
+        max-width: 60vw;
     }
     #word-list {
-        font-size: 0.8rem;
+        margin-left: 0.5rem;
+        max-width: 35vw;
+        font-size: 0.65rem;
     }
     #word-list li {
-        font-size: 0.6rem;
+        font-size: 0.5rem;
     }
 }
 
