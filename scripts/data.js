@@ -101,7 +101,7 @@ const albums = [
     const radioStations = [
       { name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Nigeria Info FM", location: "Lagos", url: "https://nigeriainfofmlagos993-atunwadigital.streamguys1.com/nigeriainfofmlagos993", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
-      { name: "Radio Lagos FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/2/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
+      { name: "Radio Lagos FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/1/live.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Brilla FM", location: "Lagos", url: "https://ice31.securenetsystems.net/BRILAMP3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Vision FM", location: "Kaduna", url: "https://stream-172.zeno.fm/92mxpb1akhruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Mm14cGIxYWtocnV2IiwiaG9zdCI6InN0cmVhbS0xNzIuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImV5OWlMMlhEU1JLMHNyYnd0b3F4ckEiLCJpYXQiOjE3NDM5MTU4MzgsImV4cCI6MTc0MzkxNTg5OH0.5sHfe_ukTnT2Fdiy83NdYdU0da51JkZXBgFoJVhg8_I", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
       { name: "Fad FM", location: "Calabar", url: "https://radio.gotright.net/listen/fadfm/radio.mp3", logo: "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/logo.jpg" },
