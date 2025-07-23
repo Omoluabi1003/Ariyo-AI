@@ -127,11 +127,7 @@ function placeWords(wordList) {
         "horizontal",
         "horizontalReverse",
         "vertical",
-        "verticalReverse",
-        "diagonalDown",
-        "diagonalDownReverse",
-        "diagonalUp",
-        "diagonalUpReverse"
+        "verticalReverse"
     ];
     for (const word of wordList) {
         let placed = false;
@@ -148,18 +144,6 @@ function placeWords(wordList) {
                 row = gridSize - word.length;
             } else if (direction === "verticalReverse" && row - word.length + 1 < 0) {
                 row = word.length - 1;
-            } else if (direction === "diagonalDown" && (row + word.length > gridSize || col + word.length > gridSize)) {
-                row = gridSize - word.length;
-                col = Math.min(col, gridSize - word.length);
-            } else if (direction === "diagonalDownReverse" && (row - word.length + 1 < 0 || col - word.length + 1 < 0)) {
-                row = word.length - 1;
-                col = Math.max(col, word.length - 1);
-            } else if (direction === "diagonalUp" && (row - word.length + 1 < 0 || col + word.length > gridSize)) {
-                row = word.length - 1;
-                col = Math.min(col, gridSize - word.length);
-            } else if (direction === "diagonalUpReverse" && (row + word.length > gridSize || col - word.length + 1 < 0)) {
-                row = gridSize - word.length;
-                col = Math.max(col, word.length - 1);
             }
 
             if (canPlace(word, row, col, direction)) {
@@ -174,18 +158,6 @@ function placeWords(wordList) {
                         r += i;
                     } else if (direction === "verticalReverse") {
                         r -= i;
-                    } else if (direction === "diagonalDown") {
-                        r += i;
-                        c += i;
-                    } else if (direction === "diagonalDownReverse") {
-                        r -= i;
-                        c -= i;
-                    } else if (direction === "diagonalUp") {
-                        r -= i;
-                        c += i;
-                    } else if (direction === "diagonalUpReverse") {
-                        r += i;
-                        c -= i;
                     }
                     const cell = board[r][c];
                     cell.textContent = word[i].toUpperCase();
@@ -204,18 +176,6 @@ function canPlace(word, row, col, direction) {
     else if (direction === "horizontalReverse") dCol = -1;
     else if (direction === "vertical") dRow = 1;
     else if (direction === "verticalReverse") dRow = -1;
-    else if (direction === "diagonalDown") {
-        dRow = 1; dCol = 1;
-    }
-    else if (direction === "diagonalDownReverse") {
-        dRow = -1; dCol = -1;
-    }
-    else if (direction === "diagonalUp") {
-        dRow = -1; dCol = 1;
-    }
-    else if (direction === "diagonalUpReverse") {
-        dRow = 1; dCol = -1;
-    }
 
     for (let i = 0; i < word.length; i++) {
         const r = row + dRow * i;
@@ -290,8 +250,6 @@ function handlePointerMove(e) {
             direction = { dRow: 0, dCol: colDiff > 0 ? 1 : -1 };
         } else if (colDiff === 0) {
             direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: 0 };
-        } else if (Math.abs(rowDiff) === Math.abs(colDiff)) {
-            direction = { dRow: rowDiff > 0 ? 1 : -1, dCol: colDiff > 0 ? 1 : -1 };
         } else {
             return;
         }

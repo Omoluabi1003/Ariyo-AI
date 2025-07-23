@@ -29,18 +29,24 @@ body {
 
 #category-select {
     margin: 0.5rem 0;
+    font-size: 0.8rem;
+}
+
+label[for="category-select"] {
+    font-size: 0.8rem;
 }
 
 #new-game-btn {
     margin-bottom: 0.5rem;
     padding: 0.3rem 0.6rem;
-    font-size: 1rem;
+    font-size: 0.8rem;
     cursor: pointer;
 }
 
 #timer {
     margin-bottom: 0.5rem;
     font-weight: bold;
+    font-size: 0.8rem;
 }
 
 #board-container {
@@ -79,6 +85,7 @@ body {
     cursor: pointer;
     user-select: none;
     touch-action: none;
+    box-sizing: border-box;
 }
 
 .selected {
