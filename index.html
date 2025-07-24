@@ -36,7 +36,7 @@
         }
         h1 {
             font-size: 2.5rem;
-            color: #00bcd4;
+            color: var(--theme-color);
             font-family: 'Georgia', serif;
         }
         p {
@@ -87,7 +87,7 @@
         .theme-button {
             background: #fff;
             color: #000;
-            border: 2px solid #00bcd4;
+            border: 2px solid var(--theme-color);
             padding: 0.5rem 1rem;
             border-radius: 25px;
             cursor: pointer;
@@ -95,7 +95,7 @@
             transition: all 0.3s ease-in-out;
         }
         .theme-button:hover {
-            background: #00bcd4;
+            background: var(--theme-color);
             color: #fff;
         }
 
@@ -263,7 +263,7 @@
             <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off ripple shockwave"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
         </div>
         <footer style="font-size: 0.7rem; margin-top: 2rem; color: #aaa;">
-            <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank" style="color: #00bcd4;">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved.</p>
+            <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank" style="color: var(--theme-color);">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved.</p>
         </footer>
     </div>
 
@@ -374,5 +374,8 @@
         setInterval(showNextStep, 3000);
     </script>
     <script src="color-scheme.js"></script>
+    <script>
+        changeColorScheme();
+    </script>
 </body>
 </html>
