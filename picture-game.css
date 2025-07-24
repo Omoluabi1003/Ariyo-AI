@@ -2,9 +2,11 @@
 
 #game-title {
     font-family: 'Lobster', cursive;
-    font-size: 3rem;
-    color: var(--theme-color);
-    text-shadow: 2px 2px 4px #000000;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    background: linear-gradient(90deg, var(--theme-color), #1257ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
     margin-bottom: 20px;
     text-align: center;
 }
@@ -53,10 +55,17 @@
 }
 
 .puzzle-tile {
-    border: 1px solid #ccc;
+    border: 1px solid #666;
     box-sizing: border-box;
     background-size: 400px 300px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.puzzle-tile:active {
+    transform: scale(0.97);
 }
 
 .empty-tile {

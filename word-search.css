@@ -2,9 +2,11 @@
 
 #game-title {
     font-family: 'Lobster', cursive;
-    font-size: 3rem;
-    color: var(--theme-color);
-    text-shadow: 2px 2px 4px #000000;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    background: linear-gradient(90deg, var(--theme-color), #1257ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
     margin-bottom: 20px;
     text-align: center;
 }
@@ -81,15 +83,23 @@ label[for="category-select"] {
 
 .cell {
     text-align: center;
-    border: 1px solid #ccc;
+    border: 1px solid #444;
+    background-color: rgba(30, 144, 255, 0.2);
+    border-radius: 4px;
     cursor: pointer;
     user-select: none;
     touch-action: none;
     box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+
+.cell:hover {
+    background-color: rgba(30, 144, 255, 0.4);
 }
 
 .selected {
-    background-color: #ff0;
+    background-color: var(--theme-color);
+    color: #fff;
 }
 
 #word-list {
@@ -112,12 +122,14 @@ label[for="category-select"] {
 }
 
 #word-list li.found {
-    background-color: lightgreen;
+    background-color: var(--theme-color);
+    color: #fff;
     font-weight: bold;
 }
 
 .found {
-    background-color: lightgreen;
+    background-color: var(--theme-color);
+    color: #fff;
 }
 
 #line-canvas {
