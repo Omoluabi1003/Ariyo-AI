@@ -6,30 +6,9 @@ function changeColorScheme() {
         return;
     }
 
-    const lastColorChange = localStorage.getItem('lastColorChange');
-    const now = new Date().getTime();
-    const oneWeek = 7 * 24 * 60 * 60 * 1000;
-
-    if (!lastColorChange || (now - lastColorChange > oneWeek)) {
-        let newColor;
-        let recentColors = JSON.parse(localStorage.getItem('recentColors')) || [];
-        do {
-            newColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        } while (recentColors.includes(newColor));
-
-        recentColors.push(newColor);
-        if (recentColors.length > 8) {
-            recentColors.shift();
-        }
-        localStorage.setItem('recentColors', JSON.stringify(recentColors));
-        localStorage.setItem('lastColorChange', now);
-        localStorage.setItem('currentColor', newColor);
-    }
-
-    const currentColor = localStorage.getItem('currentColor');
-    if (currentColor) {
-        applyTheme('default', currentColor);
-    }
+    const currentColor = localStorage.getItem('currentColor') || '#6a5acd';
+    localStorage.setItem('currentColor', currentColor);
+    applyTheme('default', currentColor);
 }
 
 function applyTheme(theme, color) {
@@ -56,7 +35,7 @@ function applyTheme(theme, color) {
       `;
             break;
         default:
-            themeColor = color || '#00bcd4';
+            themeColor = color || '#6a5acd';
             break;
     }
 
