@@ -86,10 +86,14 @@ label[for="category-select"] {
     user-select: none;
     touch-action: none;
     box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease-in-out;
 }
 
 .selected {
-    background-color: #ff0;
+    background-color: var(--theme-color);
+    color: #fff;
 }
 
 #word-list {
@@ -112,12 +116,14 @@ label[for="category-select"] {
 }
 
 #word-list li.found {
-    background-color: lightgreen;
+    background-color: #c7e2ff;
     font-weight: bold;
+    border-color: var(--theme-color);
+    color: #000;
 }
 
 .found {
-    background-color: lightgreen;
+    background-color: #c7e2ff;
 }
 
 #line-canvas {

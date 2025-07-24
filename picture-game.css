@@ -57,10 +57,23 @@
     box-sizing: border-box;
     background-size: 400px 300px;
     cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease-in-out;
+}
+
+.puzzle-tile:active {
+    transform: scale(0.98);
 }
 
 .empty-tile {
-    background: #eee;
+    background: repeating-linear-gradient(
+        45deg,
+        #f0f0f0,
+        #f0f0f0 10px,
+        #e0e0e0 10px,
+        #e0e0e0 20px
+    );
 }
 
 #puzzle-controls {
