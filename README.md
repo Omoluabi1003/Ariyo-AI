@@ -1,33 +1,40 @@
 # Àríyò AI
 
-Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a "Sabi Bible" mode. The application is designed to be a Progressive Web App (PWA), allowing users to install it on their devices for a native-like experience.
+Àríyò AI is a progressive web application that streams original Nigerian music, lets you listen to live radio and includes simple games and a built‑in chatbot. The app works offline once installed and can be added to your mobile or desktop like a native application.
 
 ## Features
 
-- **Music Player:** Play a variety of Nigerian music from different albums.
-- **Chatbot:** Interact with an AI chatbot for assistance and entertainment.
-- **Sabi Bible Mode:** Access a special mode for spiritual content.
-- **PWA:** Install the application on your device for offline access and a native-like experience.
-- **Radio:** Listen to a variety of Nigerian and international radio stations.
+- **Music Player** – browse multiple albums and play songs.
+- **Radio Streaming** – tune in to several Nigerian and international stations.
+- **Chatbot** – get help or entertainment via the Zapier Interfaces chatbot.
+- **Sabi Bible Mode** – access inspirational Bible content with one click.
+- **Mini Games** – picture puzzle and word search games are included.
+- **Color Themes** – automatically cycles through color schemes or let users pick one.
+- **PWA Support** – install the app and enjoy offline playback through the service worker.
 
-## Technologies Used
+## Setup
 
-- HTML
-- CSS
-- JavaScript
-- [GSAP](https://greensock.com/gsap/) for animations
-- [Font Awesome](https://fontawesome.com/) for icons
-- [Zapier Interfaces](https://interfaces.zapier.com/) for the chatbot
+1. Clone this repository.
+2. Because a service worker is used, serve the files over HTTP instead of opening them directly. A simple option is Python's built‑in server:
 
-## How to Use
+   ```bash
+   python3 -m http.server
+   ```
 
-1. Clone the repository.
-2. Open the `index.html` file in your browser to see the welcome screen, then click "Enter" to go to `main.html`.
-3. Enjoy the music and other features!
+   Then visit `http://localhost:8000` in your browser.
+3. On the welcome screen (`index.html`), click **Enter** to open the main interface.
+
+## Usage
+
+- Select **Albums** to play tracks from the bundled albums.
+- Choose **Radio** to stream any of the available stations.
+- Use the floating icons for the **Chatbot**, **Sabi Bible**, **Picture Puzzle** or **Word Search**.
+- Share the app with friends through the Web Share button.
+- Install it from your browser's PWA prompt for an offline experience.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request with any improvements or new features.
+Contributions and suggestions are welcome! Feel free to open an issue or submit a pull request.
 
 ## License
 
