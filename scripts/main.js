@@ -368,7 +368,7 @@
 
     const installBtn = document.createElement('button');
     installBtn.textContent = 'Install Àríyò AI';
-    installBtn.style.background = '#00bcd4';
+    installBtn.style.background = '#6a0dad';
     installBtn.style.color = 'white';
     installBtn.style.padding = '10px 20px';
     installBtn.style.border = 'none';
