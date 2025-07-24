@@ -56,7 +56,7 @@ function applyTheme(theme, color) {
       `;
             break;
         default:
-            themeColor = color || '#00bcd4';
+            themeColor = color || '#ff5722';
             break;
     }
 

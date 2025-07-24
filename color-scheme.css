@@ -1,4 +1,4 @@
-:root { --theme-color: #00bcd4; } /* Default color */
+:root { --theme-color: #ff5722; } /* Default color */
 .header { background: linear-gradient(135deg, var(--theme-color), #000); }
 .sidebar button { background: linear-gradient(135deg, var(--theme-color), #333); }
 .music-controls.icons-only button { background: var(--theme-color); }
