@@ -147,11 +147,11 @@ label[for="category-select"] {
 
 @media (max-width: 480px) {
     #game-wrapper {
-        flex-direction: column;
-        align-items: center;
+        overflow-x: auto;
+        flex-wrap: nowrap;
     }
     #game-board {
-        max-width: 90vw;
+        max-width: 55vw;
     }
     #controls {
         margin: 0.5rem 0;
@@ -162,9 +162,10 @@ label[for="category-select"] {
         font-size: 0.65rem;
     }
     #word-list {
-        margin: 1rem 0 0 0;
+        margin: 1rem 0 0 0.5rem;
         grid-template-columns: repeat(2, auto);
         font-size: 0.55rem;
+        max-width: 40vw;
     }
     #word-list li {
         font-size: 0.5rem;
