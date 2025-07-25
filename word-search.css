@@ -2,15 +2,11 @@
 
 #game-title {
     font-family: 'Lobster', cursive;
-    font-size: clamp(2rem, 5vw, 3rem);
-    background: linear-gradient(45deg, var(--theme-color), #b39ddb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 3rem;
     color: var(--theme-color);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    margin: 1rem 0;
+    text-shadow: 2px 2px 4px #000000;
+    margin-bottom: 20px;
     text-align: center;
-    padding: 0.5rem;
 }
 
 #game-title::before {
@@ -31,27 +27,19 @@ body {
     align-items: center;
 }
 
-#controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
-    justify-content: center;
-    margin: 0.5rem 0;
-}
-
 #category-select {
-    margin: 0;
-    font-size: 0.7rem;
+    margin: 0.5rem 0;
+    font-size: 0.8rem;
 }
 
 label[for="category-select"] {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
 }
 
 #new-game-btn {
+    margin-bottom: 0.5rem;
     padding: 0.3rem 0.6rem;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     cursor: pointer;
 }
 
@@ -113,18 +101,18 @@ label[for="category-select"] {
     padding: 0;
     margin: 0 0 0 1rem;
     max-width: 200px;
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    gap: 0.3rem 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     justify-content: center;
-    font-size: 0.55rem;
+    font-size: 0.8rem;
 }
 
 #word-list li {
-    padding: 0.2rem 0.4rem;
+    padding: 0.25rem 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 0.55rem;
+    font-size: 0.6rem;
 }
 
 #word-list li.found {
@@ -147,28 +135,18 @@ label[for="category-select"] {
 
 @media (max-width: 480px) {
     #game-wrapper {
-        overflow-x: auto;
-        flex-wrap: nowrap;
+        flex-direction: column;
+        align-items: center;
     }
     #game-board {
-        max-width: 55vw;
-    }
-    #controls {
-        margin: 0.5rem 0;
-    }
-    #category-select,
-    label[for="category-select"],
-    #new-game-btn {
-        font-size: 0.65rem;
+        max-width: 90vw;
     }
     #word-list {
-        margin: 1rem 0 0 0.5rem;
-        grid-template-columns: repeat(2, auto);
-        font-size: 0.55rem;
-        max-width: 40vw;
+        margin: 1rem 0 0 0;
+        font-size: 0.8rem;
     }
     #word-list li {
-        font-size: 0.5rem;
+        font-size: 0.55rem;
     }
 }
 

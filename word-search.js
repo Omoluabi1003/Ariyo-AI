@@ -55,9 +55,6 @@ let selectedCategory = Object.keys(categories)[0];
 let words = categories[selectedCategory];
 let gridSize = window.innerWidth <= 480 ? 10 : 15;
 
-// Keep track of confetti so we can stop it when starting a new game
-let confettiInterval = null;
-
 // Constants used for sizing calculations
 const GRID_GAP = 2; // must match CSS gap value
 const BOARD_PADDING = 5; // must match CSS padding
@@ -69,8 +66,7 @@ function updateGridSize() {
 
 function getCellSize() {
     const maxSize = 24;
-    const widthRatio = window.innerWidth <= 480 ? 0.55 : 0.6;
-    const availableWidth = window.innerWidth * widthRatio;
+    const availableWidth = window.innerWidth * 0.6;
     const availableHeight = window.innerHeight * 0.8;
     const available = Math.floor(Math.min(availableWidth, availableHeight));
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
@@ -317,12 +313,11 @@ function checkWin() {
             return Math.random() * (max - min) + min;
         }
 
-        confettiInterval = setInterval(function() {
+        const interval = setInterval(function() {
             const timeLeft = animationEnd - Date.now();
 
             if (timeLeft <= 0) {
-                clearInterval(confettiInterval);
-                confettiInterval = null;
+                clearInterval(interval);
                 const msg = document.createElement("div");
                 msg.id = "win-message";
                 msg.textContent = `You Win in ${totalTime}s!`;
@@ -374,15 +369,6 @@ function stopTimer() {
 }
 
 function startGame() {
-    // Clear any ongoing confetti animation
-    if (confettiInterval) {
-        clearInterval(confettiInterval);
-        confettiInterval = null;
-    }
-    // Remove win message if present
-    const oldMsg = document.getElementById("win-message");
-    if (oldMsg) oldMsg.remove();
-
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
@@ -449,7 +435,6 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
-    startGame();
 });
 
 let resizeTimeout;
