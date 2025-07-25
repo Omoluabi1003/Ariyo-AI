@@ -2,11 +2,15 @@
 
 #game-title {
     font-family: 'Lobster', cursive;
-    font-size: 3rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+    background: linear-gradient(45deg, var(--theme-color), #b39ddb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     color: var(--theme-color);
-    text-shadow: 2px 2px 4px #000000;
-    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 1rem 0;
     text-align: center;
+    padding: 0.5rem;
 }
 
 #game-title::before {
@@ -105,12 +109,13 @@
 
 #instructions {
     margin-top: 20px;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
     color: #333;
     text-align: center;
     font-weight: bold;
+    line-height: 1.4;
     max-width: 400px;
-    padding: 0 20px;
+    padding: 0.5rem 20px;
 }
 
 @media screen and (max-width: 600px) {
