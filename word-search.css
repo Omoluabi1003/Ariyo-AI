@@ -31,19 +31,27 @@ body {
     align-items: center;
 }
 
-#category-select {
+#controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
     margin: 0.5rem 0;
-    font-size: 0.8rem;
+}
+
+#category-select {
+    margin: 0;
+    font-size: 0.7rem;
 }
 
 label[for="category-select"] {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 }
 
 #new-game-btn {
-    margin-bottom: 0.5rem;
     padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     cursor: pointer;
 }
 
@@ -144,6 +152,14 @@ label[for="category-select"] {
     }
     #game-board {
         max-width: 90vw;
+    }
+    #controls {
+        margin: 0.5rem 0;
+    }
+    #category-select,
+    label[for="category-select"],
+    #new-game-btn {
+        font-size: 0.65rem;
     }
     #word-list {
         margin: 1rem 0 0 0;
