@@ -55,6 +55,9 @@ let selectedCategory = Object.keys(categories)[0];
 let words = categories[selectedCategory];
 let gridSize = window.innerWidth <= 480 ? 10 : 15;
 
+// Keep track of confetti so we can stop it when starting a new game
+let confettiInterval = null;
+
 // Constants used for sizing calculations
 const GRID_GAP = 2; // must match CSS gap value
 const BOARD_PADDING = 5; // must match CSS padding
@@ -313,11 +316,12 @@ function checkWin() {
             return Math.random() * (max - min) + min;
         }
 
-        const interval = setInterval(function() {
+        confettiInterval = setInterval(function() {
             const timeLeft = animationEnd - Date.now();
 
             if (timeLeft <= 0) {
-                clearInterval(interval);
+                clearInterval(confettiInterval);
+                confettiInterval = null;
                 const msg = document.createElement("div");
                 msg.id = "win-message";
                 msg.textContent = `You Win in ${totalTime}s!`;
@@ -369,6 +373,15 @@ function stopTimer() {
 }
 
 function startGame() {
+    // Clear any ongoing confetti animation
+    if (confettiInterval) {
+        clearInterval(confettiInterval);
+        confettiInterval = null;
+    }
+    // Remove win message if present
+    const oldMsg = document.getElementById("win-message");
+    if (oldMsg) oldMsg.remove();
+
     updateGridSize();
     selectedCategory = document.getElementById("category-select").value;
     words = categories[selectedCategory];
