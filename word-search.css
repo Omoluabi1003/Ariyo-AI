@@ -2,11 +2,12 @@
 
 #game-title {
     font-family: 'Lobster', cursive;
-    font-size: 3rem;
+    font-size: clamp(2rem, 5vw, 2.5rem);
     color: var(--theme-color);
-    text-shadow: 2px 2px 4px #000000;
-    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    margin: 1rem 0;
     text-align: center;
+    letter-spacing: 0.05em;
 }
 
 #game-title::before {
