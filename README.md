@@ -1,6 +1,6 @@
 # Àríyò AI
 
-Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, a chatbot, and a "Sabi Bible" mode. The application is designed to be a Progressive Web App (PWA), allowing users to install it on their devices for a native-like experience.
+Àríyò AI is a web-based music player created by **Paul A.K. Iyogun** (also known as **Omoluabi**). It provides a unique and culturally-rich experience for users. The app features a curated selection of Nigerian music, a chatbot, and a "Sabi Bible" mode. It is designed as a Progressive Web App (PWA), allowing users to install it on their devices for a native-like experience.
 
 ## Features
 
@@ -32,3 +32,7 @@ Contributions are welcome! Please feel free to submit a pull request with any im
 ## License
 
 This project is licensed under the MIT License.
+
+---
+
+**SEO Keywords:** Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Nigerian music, Naija AI, AI chatbot, PWA
