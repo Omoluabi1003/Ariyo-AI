@@ -1,0 +1,119 @@
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg');
+    background-size: cover;
+    background-position: center;
+}
+.overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2rem;
+    border-radius: 15px;
+    position: relative;
+}
+h1 {
+    font-size: 2.5rem;
+    color: var(--theme-color);
+    font-family: 'Georgia', serif;
+}
+p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+.enter-icon {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    transition: transform 0.3s ease-in-out;
+}
+.enter-icon:hover {
+    transform: scale(1.1);
+}
+.enter-icon.clicked {
+    animation: click-animation 0.3s;
+}
+@keyframes click-animation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.tour-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+.tour-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.tour-step {
+    font-size: 0.9rem;
+    font-family: 'Cursive', 'Brush Script MT', sans-serif;
+}
+.theme-selector {
+    margin-top: 2rem;
+}
+.theme-button {
+    background: #fff;
+    color: #000;
+    border: 2px solid var(--theme-color);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    margin: 0 0.5rem;
+    transition: all 0.3s ease-in-out;
+}
+.theme-button:hover {
+    background: var(--theme-color);
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .tour-step {
+        display: block;
+        margin: 0.5rem 0;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+#speaker-container {
+    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/speaker.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 60px;
+    height: 60px;
+}
+
+#speaker-icon {
+    animation: bounce 1s infinite;
+    width: 36px;
+    height: 36px;
+    fill: red;
+    stroke: red;
+}
