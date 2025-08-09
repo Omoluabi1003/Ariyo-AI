@@ -11,7 +11,10 @@ self.addEventListener('install', event => {
           '/',
           '/index.html',
           '/main.html',
+          '/about.html',
           '/manifest.json',
+          'style.css',
+          'color-scheme.css',
           'icons/Ariyo.png',
           'scripts/data.js',
           'scripts/player.js',
@@ -20,7 +23,11 @@ self.addEventListener('install', event => {
           'color-scheme.js',
           'word-search.html',
           'word-search.css',
-          'word-search.js'
+          'word-search.js',
+          'picture-game.html',
+          'picture-game.css',
+          'picture-game.js',
+          'offline-audio.mp3'
         ];
         return caches.open(CACHE_NAME).then(cache => {
           return cache.addAll(urlsToCache);
