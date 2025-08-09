@@ -259,7 +259,7 @@
                 <div class="tour-step" id="step1">🎧 Listen to Naija music</div>
                 <div class="tour-step" id="step2">🤖 Chat with our AI</div>
             </div>
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter" class="enter-icon" onclick="enterApp()">
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter" class="enter-icon">
             <div class="tour-column">
                 <div class="tour-step" id="step3">📖 Read the Sabi Bible</div>
                 <div class="tour-step" id="step4">🧩 Puzzle games available</div>
@@ -318,6 +318,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const enterIcon = document.querySelector('.enter-icon');
+            enterIcon.addEventListener('click', enterApp);
+
             const audio = document.getElementById('welcomeAudio');
             const speakerContainer = document.getElementById('speaker-container');
             const speakerIcon = document.getElementById('speaker-icon');
