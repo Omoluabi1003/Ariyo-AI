@@ -136,13 +136,47 @@ radioStations.forEach(station => {
 });
 
 async function checkStreamStatus(url) {
-      try {
-        const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-        // no-cors means we can't access status, but we can see if we get a response
-        return 'online';
-      } catch (error) {
-        return 'offline';
-      }
+      return new Promise(resolve => {
+        const testAudio = document.createElement('audio');
+        let settled = false;
+
+        const cleanup = () => {
+          testAudio.removeEventListener('canplay', onCanPlay);
+          testAudio.removeEventListener('error', onError);
+          testAudio.src = '';
+        };
+
+        const onCanPlay = () => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve('online');
+          }
+        };
+
+        const onError = () => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve('offline');
+          }
+        };
+
+        testAudio.crossOrigin = 'anonymous';
+        testAudio.preload = 'auto';
+        testAudio.addEventListener('canplay', onCanPlay, { once: true });
+        testAudio.addEventListener('error', onError, { once: true });
+        testAudio.src = url;
+        testAudio.load();
+
+        setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve('offline');
+          }
+        }, 10000); // fallback timeout
+      });
     }
 
     function updateRadioListModal() {
@@ -173,12 +207,9 @@ function loadMoreStations(region) {
     statusSpan.textContent = ' (Checking...)';
 
     checkStreamStatus(station.url).then(status => {
-        if (status === 'online') {
-            statusSpan.textContent = ' (Online)';
-            statusSpan.style.color = 'lightgreen';
-        } else {
-            statusSpan.textContent = ' (Offline)';
-            statusSpan.style.color = 'red';
+        statusSpan.textContent = status === 'online' ? ' (Online)' : ' (Offline)';
+        statusSpan.style.color = status === 'online' ? 'lightgreen' : 'red';
+        if (status !== 'online') {
             stationLink.style.textDecoration = 'line-through';
         }
     });
