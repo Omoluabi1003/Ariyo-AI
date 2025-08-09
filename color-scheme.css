@@ -7,3 +7,4 @@
 .retry-button { background: var(--theme-color); }
 .progress-bar div { background: var(--theme-color); }
 .install-btn { background: var(--theme-color); }
+.radio-region-header { color: var(--theme-color); }

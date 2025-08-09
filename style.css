@@ -243,6 +243,13 @@ body {
     cursor: pointer;
 }
 
+/* Region headers in radio station modal */
+.radio-region-header {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    margin: 1rem 0 0.5rem;
+    color: var(--theme-color);
+}
+
 .track-list a,
 .album-list a,
 .radio-list a {
