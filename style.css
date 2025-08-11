@@ -53,6 +53,14 @@ body {
     flex-shrink: 0;
 }
 
+.sidebar .search-bar {
+    width: 90%;
+    padding: 0.6rem 1rem;
+    border-radius: 25px;
+    border: none;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
 .sidebar button {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     color: white;

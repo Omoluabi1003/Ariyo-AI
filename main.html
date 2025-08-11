@@ -557,6 +557,8 @@
 
   <div class="container">
     <div class="sidebar">
+      <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
+      <datalist id="searchSuggestions"></datalist>
       <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">🎧 Choose An Album</button>
       <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">📻 Radio Stations</button>
       <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">ℹ️ About Us</button>
