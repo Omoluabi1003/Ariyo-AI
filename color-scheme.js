@@ -8,29 +8,29 @@ function changeColorScheme() {
 
     const currentColor = localStorage.getItem('currentColor') || '#6a5acd';
     localStorage.setItem('currentColor', currentColor);
-    applyTheme('default', currentColor);
+    applyTheme('default', currentColor, currentColor, '#000');
 }
 
-function applyTheme(theme, color) {
+function applyTheme(theme, color, gradientStart, gradientEnd) {
     const style = document.createElement('style');
     let themeColor = color;
-    let gradientEnd = '#333';
-    let headerEnd = '#000';
+    let gradStart = gradientStart || themeColor || '#6a5acd';
+    let gradEnd = gradientEnd || '#000';
     let css = '';
 
     switch (theme) {
         case 'dark':
             themeColor = '#333333';
-            gradientEnd = '#555';
-            headerEnd = '#000';
+            gradStart = themeColor;
+            gradEnd = '#555';
             css = `
         body { background-color: #121212; color: #ffffff; }
       `;
             break;
         case 'light':
             themeColor = '#e0e0e0';
-            gradientEnd = '#ccc';
-            headerEnd = '#fff';
+            gradStart = themeColor;
+            gradEnd = '#ccc';
             css = `
         body { background-color: #f5f5f5; color: #000000; }
         .dark-mode { color: #000000; }
@@ -38,38 +38,38 @@ function applyTheme(theme, color) {
             break;
         case 'ocean':
             themeColor = '#1e90ff';
+            gradStart = themeColor;
+            gradEnd = '#01579b';
             css = `
         body { background-color: #e0f7fa; color: #000000; }
-        .header { background: linear-gradient(135deg, ${themeColor}, #01579b); }
-        .sidebar button { background: linear-gradient(135deg, ${themeColor}, #0288d1); }
       `;
             break;
         case 'forest':
             themeColor = '#228b22';
+            gradStart = themeColor;
+            gradEnd = '#1b5e20';
             css = `
         body { background-color: #e8f5e9; color: #000000; }
-        .header { background: linear-gradient(135deg, ${themeColor}, #1b5e20); }
-        .sidebar button { background: linear-gradient(135deg, ${themeColor}, #2e7d32); }
       `;
             break;
         case 'sunset':
             themeColor = '#ff7043';
+            gradStart = themeColor;
+            gradEnd = '#bf360c';
             css = `
         body { background-color: #fff3e0; color: #000000; }
-        .header { background: linear-gradient(135deg, ${themeColor}, #bf360c); }
-        .sidebar button { background: linear-gradient(135deg, ${themeColor}, #e64a19); }
       `;
             break;
         default:
             themeColor = color || '#6a5acd';
-            gradientEnd = '#333';
-            headerEnd = '#000';
+            gradStart = gradientStart || themeColor;
+            gradEnd = gradientEnd || '#000';
             break;
     }
 
     style.innerHTML = `
-    :root { --theme-color: ${themeColor}; --gradient-start: ${themeColor}; --gradient-end: ${gradientEnd}; }
-    .header { background: linear-gradient(135deg, ${themeColor}, ${headerEnd}); }
+    :root { --theme-color: ${themeColor}; --gradient-start: ${gradStart}; --gradient-end: ${gradEnd}; }
+    .header { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
     .sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
     .music-controls.icons-only button { background: ${themeColor}; }
     .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: ${themeColor}; }

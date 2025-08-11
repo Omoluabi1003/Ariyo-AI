@@ -28,7 +28,7 @@ body {
     font-weight: bold;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
-    background: linear-gradient(135deg, var(--theme-color), #000);
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     position: relative;
 }
 
