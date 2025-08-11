@@ -200,7 +200,8 @@ function loadMoreStations(region) {
   stations.slice(start, end).forEach((station, index) => {
     const stationLink = document.createElement("a");
     stationLink.href = "#";
-    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, index, station.logo);
+    const globalIndex = radioStations.indexOf(station);
+    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, globalIndex, station.logo);
 
     const statusSpan = document.createElement('span');
     statusSpan.style.marginLeft = '10px';
