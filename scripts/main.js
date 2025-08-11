@@ -381,6 +381,10 @@
 
     // PWA Install Prompt
     if ('serviceWorker' in navigator) {
+      // Reload the page when a new service worker activates
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
       window.addEventListener('load', function() {
         showIosInstallBanner();
         navigator.serviceWorker.getRegistrations().then(function(registrations) {

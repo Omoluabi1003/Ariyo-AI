@@ -2,6 +2,8 @@ const CACHE_PREFIX = 'ariyo-ai-cache-v3';
 let CACHE_NAME;
 
 self.addEventListener('install', event => {
+  // Activate this service worker immediately after installation
+  self.skipWaiting();
   event.waitUntil(
     fetch('/version.json')
       .then(response => response.json())
