@@ -1,6 +1,10 @@
-:root { --theme-color: #6a5acd; } /* Default color updated from cyan to slate blue */
+:root {
+  --theme-color: #6a5acd;
+  --gradient-start: var(--theme-color);
+  --gradient-end: #333;
+} /* Default color updated from cyan to slate blue */
 .header { background: linear-gradient(135deg, var(--theme-color), #000); }
-.sidebar button { background: linear-gradient(135deg, var(--theme-color), #333); }
+.sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
 .music-controls.icons-only button { background: var(--theme-color); }
 .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
 .popup-close { background: var(--theme-color); }
