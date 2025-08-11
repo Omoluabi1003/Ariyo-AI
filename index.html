@@ -46,6 +46,9 @@
             <button class="theme-button" data-theme="default">Default</button>
             <button class="theme-button" data-theme="dark">Dark</button>
             <button class="theme-button" data-theme="light">Light</button>
+            <button class="theme-button" data-theme="ocean">Ocean</button>
+            <button class="theme-button" data-theme="forest">Forest</button>
+            <button class="theme-button" data-theme="sunset">Sunset</button>
         </div>
         <div style="font-size: 0.8rem; margin-top: 1rem; font-weight: bold;">Click the speaker icon for sound</div>
         <div id="speaker-container" style="position: absolute; top: 1rem; right: 1rem; cursor: pointer;">
@@ -141,6 +144,7 @@
             button.addEventListener('click', () => {
                 const theme = button.dataset.theme;
                 localStorage.setItem('selectedTheme', theme);
+                applyTheme(theme);
             });
         });
 
