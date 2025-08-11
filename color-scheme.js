@@ -14,23 +14,25 @@ function changeColorScheme() {
 function applyTheme(theme, color) {
     const style = document.createElement('style');
     let themeColor = color;
+    let gradientEnd = '#333';
+    let headerEnd = '#000';
     let css = '';
 
     switch (theme) {
         case 'dark':
             themeColor = '#333333';
+            gradientEnd = '#555';
+            headerEnd = '#000';
             css = `
         body { background-color: #121212; color: #ffffff; }
-        .header { background: linear-gradient(135deg, ${themeColor}, #000); }
-        .sidebar button { background: linear-gradient(135deg, ${themeColor}, #555); }
       `;
             break;
         case 'light':
             themeColor = '#e0e0e0';
+            gradientEnd = '#ccc';
+            headerEnd = '#fff';
             css = `
         body { background-color: #f5f5f5; color: #000000; }
-        .header { background: linear-gradient(135deg, ${themeColor}, #fff); }
-        .sidebar button { background: linear-gradient(135deg, ${themeColor}, #ccc); }
         .dark-mode { color: #000000; }
       `;
             break;
@@ -60,13 +62,15 @@ function applyTheme(theme, color) {
             break;
         default:
             themeColor = color || '#6a5acd';
+            gradientEnd = '#333';
+            headerEnd = '#000';
             break;
     }
 
     style.innerHTML = `
-    :root { --theme-color: ${themeColor}; }
-    .header { background: linear-gradient(135deg, ${themeColor}, #000); }
-    .sidebar button { background: linear-gradient(135deg, ${themeColor}, #333); }
+    :root { --theme-color: ${themeColor}; --gradient-start: ${themeColor}; --gradient-end: ${gradientEnd}; }
+    .header { background: linear-gradient(135deg, ${themeColor}, ${headerEnd}); }
+    .sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
     .music-controls.icons-only button { background: ${themeColor}; }
     .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: ${themeColor}; }
     .popup-close { background: ${themeColor}; }
