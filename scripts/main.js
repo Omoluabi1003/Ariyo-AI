@@ -11,6 +11,45 @@
       }
     }
 
+    /* SEARCH BAR AUTO-COMPLETE */
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    const searchMap = {};
+
+    albums.forEach((album, albumIndex) => {
+      album.tracks.forEach((track, trackIndex) => {
+        const label = `${track.title} - ${album.name}`;
+        const option = document.createElement('option');
+        option.value = label;
+        searchSuggestions.appendChild(option);
+        searchMap[label.toLowerCase()] = { type: 'track', albumIndex, trackIndex };
+      });
+    });
+
+    radioStations.forEach((station, index) => {
+      const label = `${station.name} (${station.location})`;
+      const option = document.createElement('option');
+      option.value = label;
+      searchSuggestions.appendChild(option);
+      searchMap[label.toLowerCase()] = { type: 'radio', index };
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      const key = e.target.value.trim().toLowerCase();
+      const result = searchMap[key];
+      if (result) {
+        if (result.type === 'track') {
+          currentAlbumIndex = result.albumIndex;
+          const track = albums[result.albumIndex].tracks[result.trackIndex];
+          selectTrack(track.src, track.title, result.trackIndex);
+        } else if (result.type === 'radio') {
+          const station = radioStations[result.index];
+          selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
+        }
+        e.target.value = '';
+      }
+    });
+
     /* NAVIGATE TO ABOUT PAGE & HOME */
     let originalMainContentHTML = '';
     let aboutButtonGlobal = null;
