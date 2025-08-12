@@ -65,12 +65,14 @@ function updateGridSize() {
 }
 
 function getCellSize() {
-    const maxSize = 24;
-    const availableWidth = window.innerWidth * 0.6;
+    const maxSize = 32;
+    const minSize = 20;
+    const availableWidth = window.innerWidth * 0.9;
     const availableHeight = window.innerHeight * 0.8;
     const available = Math.floor(Math.min(availableWidth, availableHeight));
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
-    return Math.min(maxSize, Math.floor((available - extras) / gridSize));
+    const size = Math.floor((available - extras) / gridSize);
+    return Math.max(minSize, Math.min(maxSize, size));
 }
 const board = [];
 const wordListElement = document.getElementById("word-list");
