@@ -31,6 +31,9 @@ body {
     box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     position: relative;
+    color: #000;
+    -webkit-text-stroke: 1px #fff;
+    text-shadow: 0 0 2px #fff;
 }
 
 /* Container and Sidebar */
@@ -202,17 +205,32 @@ body {
     margin-top: 0.3rem;
     font-size: clamp(1rem, 3vw, 1.2rem);
     font-weight: bold; /* Improve legibility */
+    color: #000;
+    -webkit-text-stroke: 0.5px #fff;
+    text-shadow: 0 0 1px #fff;
 }
 
 .track-duration {
     font-size: clamp(0.8rem, 2vw, 0.9rem);
     margin-top: 0.2rem;
+    color: #000;
+    -webkit-text-stroke: 0.5px #fff;
+    text-shadow: 0 0 1px #fff;
 }
 
 .track-details {
     margin-top: 0.2rem;
     font-size: clamp(0.8rem, 2vw, 0.9rem);
     font-weight: bold; /* Improve legibility */
+    color: #000;
+    -webkit-text-stroke: 0.5px #fff;
+    text-shadow: 0 0 1px #fff;
+}
+
+.music-player h3 {
+    color: #000;
+    -webkit-text-stroke: 0.5px #fff;
+    text-shadow: 0 0 1px #fff;
 }
 
 #streakInfo {
