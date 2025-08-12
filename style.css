@@ -337,4 +337,7 @@ body {
     .music-controls.icons-only {
         flex-wrap: wrap;
     }
+    .modal-content {
+        width: 90%;
+    }
 }
