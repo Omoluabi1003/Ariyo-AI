@@ -3,6 +3,7 @@ body {
     font-family: 'Montserrat', sans-serif;
     background-color: #000;
     color: #fff;
+    text-shadow: 1px 1px 2px #000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -20,7 +21,7 @@ body {
 }
 h1 {
     font-size: 2.5rem;
-    color: var(--theme-color);
+    color: #fff;
     font-family: 'Montserrat', sans-serif;
 }
 p {
