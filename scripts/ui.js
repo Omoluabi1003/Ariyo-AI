@@ -285,9 +285,10 @@ function closeWordSearchGame() {
 
 function showNowPlayingToast(trackTitle) {
   const toast = document.getElementById('nowPlayingToast');
+  if (!toast) return;
   toast.textContent = `Now playing: ${trackTitle}`;
-  toast.style.display = 'block';
+  toast.classList.add('show');
   setTimeout(() => {
-    toast.style.display = 'none';
+    toast.classList.remove('show');
   }, 3000);
 }
