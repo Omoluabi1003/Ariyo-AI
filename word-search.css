@@ -1,13 +1,29 @@
-@import url('https://fonts.googleapis.com/css?family=Lobster&display=swap');
-
+/* Font and button styling */
 #game-title {
-    font-family: 'Lobster', cursive;
+    font-family: 'Montserrat', sans-serif;
     font-size: 3rem;
     color: var(--theme-color);
     text-shadow: 2px 2px 4px #000000;
     margin-bottom: 20px;
     text-align: center;
 }
+
+.dark-mode-toggle {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    background-color: var(--theme-color);
+    color: white;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover { background-color: var(--theme-color); }
 
 #game-title::before {
     content: '';
@@ -21,7 +37,7 @@
 }
 
 body {
-    font-family: sans-serif;
+    font-family: 'Montserrat', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;

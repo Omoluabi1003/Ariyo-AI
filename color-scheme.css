@@ -1,9 +1,14 @@
-/* Default color updated from cyan to slate blue */
+/* Sunset color scheme */
 :root {
-  --theme-color: #6a5acd;
+  --theme-color: #ff7043;
   --gradient-start: var(--theme-color);
-  --gradient-end: #000;
+  --gradient-end: #bf360c;
 }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
 .header { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
 .sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
 .music-controls.icons-only button { background: var(--theme-color); }
