@@ -69,7 +69,6 @@
       transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
     }
     a { text-decoration: none; }
-    .dark-mode { background-color: #121212; color: #ffffff; }
     .header {
       padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
       text-align: center;
@@ -95,21 +94,6 @@
       animation: pulse 2s infinite;
     }
 
-    .dark-mode-toggle {
-      position: absolute;
-      top: 0.5rem;
-      left: 0.5rem;
-      background-color: var(--theme-color);
-      color: white;
-      padding: 0.6rem;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .dark-mode-toggle:hover { background-color: var(--theme-color); }
 
     @keyframes pulse {
       0% {
@@ -566,7 +550,6 @@
 <body>
   <div class="header">
     Welcome to Àríyò AI
-    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle dark mode">🌓</button>
     <button class="share-button" aria-label="Share this page" onclick="shareContent()">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
     </button>
@@ -763,12 +746,12 @@
 
   <script src="scripts/data.js"></script>
   <script src="scripts/player.js"></script>
-  <script src="scripts/ui.js"></script>
-  <script src="color-scheme.js"></script>
-  <script src="scripts/main.js"></script>
-  <script>
-    document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
-  </script>
+    <script src="scripts/ui.js"></script>
+    <script src="color-scheme.js"></script>
+    <script src="scripts/main.js"></script>
+    <script>
+      changeColorScheme();
+    </script>
   <!-- Floating Watermarks -->
   <div class="floating-watermarks">
     <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>

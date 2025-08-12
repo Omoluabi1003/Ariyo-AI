@@ -51,20 +51,6 @@
       text-align: center;
       position: relative;
     }
-    .dark-mode-toggle {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      background-color: var(--theme-color);
-      color: white;
-      padding: 0.6rem;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .dark-mode-toggle:hover { background-color: var(--theme-color); }
     header h1 {
       margin: 0;
       font-size: 2.5rem;
@@ -171,7 +157,6 @@
 </head>
 <body>
   <header>
-    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle dark mode">🌓</button>
     <h1>Àríyò AI - About Us</h1>
   </header>
 
@@ -234,7 +219,6 @@
   <script src="color-scheme.js"></script>
   <script>
     changeColorScheme();
-    document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
   </script>
 </body>
 </html>
