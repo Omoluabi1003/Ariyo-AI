@@ -100,6 +100,18 @@
       border-radius: 12px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     }
+    .return-button {
+      position: sticky;
+      top: 10px;
+      background: var(--theme-color);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      z-index: 1000;
+      display: inline-block;
+    }
     section.album-section, section.social-section {
       background-color: #1a1a1a;
       padding: 3rem 2rem;
@@ -159,6 +171,8 @@
   <header>
     <h1>Àríyò AI - About Us</h1>
   </header>
+
+  <button class="return-button" onclick="if (typeof navigateToHome === 'function') { navigateToHome(); } else { window.location.href='main.html'; }">🎵 Back to Player</button>
 
   <section class="banner">
     <h2>Who We Be</h2>
