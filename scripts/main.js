@@ -382,21 +382,18 @@
     // PWA Install Prompt
     if ('serviceWorker' in navigator) {
       // Reload the page when a new service worker activates
+      let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
         window.location.reload();
       });
       window.addEventListener('load', function() {
         showIosInstallBanner();
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-          }
-        }).then(function() {
-          navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
-            console.log('Service Worker registered with scope:', registration.scope);
-          }).catch(function(error) {
-            console.log('Service worker registration failed:', error);
-          });
+        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+        }).catch(function(error) {
+          console.log('Service worker registration failed:', error);
         });
       });
     }
