@@ -18,17 +18,3 @@ body {
 .progress-bar div { background: var(--theme-color); }
 .install-btn { background: var(--theme-color); }
 .radio-region-header { color: var(--theme-color); }
-
-/* Ensure text remains legible regardless of theme colors */
-body,
-body * {
-  text-shadow:
-    -1px -1px 2px #000,
-    1px -1px 2px #000,
-    -1px 1px 2px #000,
-    1px 1px 2px #000,
-    -1px -1px 2px #fff,
-    1px -1px 2px #fff,
-    -1px 1px 2px #fff,
-    1px 1px 2px #fff;
-}
