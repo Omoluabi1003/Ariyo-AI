@@ -1,70 +1,26 @@
 function changeColorScheme() {
-    const selectedTheme = localStorage.getItem('selectedTheme');
-
-    if (selectedTheme) {
-        applyTheme(selectedTheme);
-        return;
-    }
-
-    const currentColor = localStorage.getItem('currentColor') || '#6a5acd';
-    localStorage.setItem('currentColor', currentColor);
-    applyTheme('default', currentColor, currentColor, '#000');
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    applyTheme(darkMode ? 'dark' : 'sunset');
 }
 
-function applyTheme(theme, color, gradientStart, gradientEnd) {
-    const style = document.createElement('style');
-    let themeColor = color;
-    let gradStart = gradientStart || themeColor || '#6a5acd';
-    let gradEnd = gradientEnd || '#000';
+function toggleDarkMode() {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    localStorage.setItem('darkMode', (!darkMode).toString());
+    applyTheme(!darkMode ? 'dark' : 'sunset');
+}
+
+function applyTheme(mode) {
+    const themeColor = '#ff7043';
+    const gradStart = themeColor;
+    const gradEnd = '#bf360c';
+    const style = document.getElementById('theme-style') || document.createElement('style');
+    style.id = 'theme-style';
     let css = '';
 
-    switch (theme) {
-        case 'dark':
-            themeColor = '#333333';
-            gradStart = themeColor;
-            gradEnd = '#555';
-            css = `
-        body { background-color: #121212; color: #ffffff; }
-      `;
-            break;
-        case 'light':
-            themeColor = '#e0e0e0';
-            gradStart = themeColor;
-            gradEnd = '#ccc';
-            css = `
-        body { background-color: #f5f5f5; color: #000000; }
-        .dark-mode { color: #000000; }
-      `;
-            break;
-        case 'ocean':
-            themeColor = '#1e90ff';
-            gradStart = themeColor;
-            gradEnd = '#01579b';
-            css = `
-        body { background-color: #e0f7fa; color: #000000; }
-      `;
-            break;
-        case 'forest':
-            themeColor = '#228b22';
-            gradStart = themeColor;
-            gradEnd = '#1b5e20';
-            css = `
-        body { background-color: #e8f5e9; color: #000000; }
-      `;
-            break;
-        case 'sunset':
-            themeColor = '#ff7043';
-            gradStart = themeColor;
-            gradEnd = '#bf360c';
-            css = `
-        body { background-color: #fff3e0; color: #000000; }
-      `;
-            break;
-        default:
-            themeColor = color || '#6a5acd';
-            gradStart = gradientStart || themeColor;
-            gradEnd = gradientEnd || '#000';
-            break;
+    if (mode === 'dark') {
+        css = `body { background-color: #121212; color: #ffffff; }`;
+    } else {
+        css = `body { background-color: #fff3e0; color: #000000; }`;
     }
 
     style.innerHTML = `
@@ -81,5 +37,9 @@ function applyTheme(theme, color, gradientStart, gradientEnd) {
     ${css}
   `;
     document.head.appendChild(style);
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+        metaTheme.setAttribute('content', themeColor);
+    }
 }
+

@@ -11,10 +11,12 @@
   <meta name="description" content="Play the Ara picture puzzle game from Àríyò AI by Paul Iyogun (Omoluabi)." />
   <meta name="keywords" content="Paul Iyogun, Omoluabi, Ariyo AI, picture puzzle game, Naija AI" />
   <title>Picture Puzzle Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="picture-game.css">
 </head>
 <body>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle dark mode">🌓</button>
     <div id="game-container">
         <h1 id="game-title">Ara Puzzle</h1>
         <div id="puzzle-container">
@@ -43,6 +45,7 @@
     <script src="color-scheme.js"></script>
     <script>
         changeColorScheme();
+        document.getElementById('dark-mode-toggle').addEventListener('click', toggleDarkMode);
     </script>
     <footer>
         <p>&copy; 2024 Omoluabi</p>
