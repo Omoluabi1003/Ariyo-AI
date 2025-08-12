@@ -538,6 +538,13 @@
             .then(response => response.json())
             .then(data => {
                 if (currentVersion && currentVersion !== data.version) {
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistration().then(reg => {
+                            if (reg) {
+                                reg.update();
+                            }
+                        });
+                    }
                     // New version available, prompt user to update
                     if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
                         window.location.reload();

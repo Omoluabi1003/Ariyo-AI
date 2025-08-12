@@ -5,7 +5,7 @@ self.addEventListener('install', event => {
   // Activate this service worker immediately after installation
   self.skipWaiting();
   event.waitUntil(
-    fetch('/version.json')
+    fetch('/version.json', { cache: 'no-store' })
       .then(response => response.json())
       .then(data => {
         CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
