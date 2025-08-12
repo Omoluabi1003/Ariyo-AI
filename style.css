@@ -201,6 +201,7 @@ body {
 .track-info {
     margin-top: 0.3rem;
     font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: bold; /* Improve legibility */
 }
 
 .track-duration {
@@ -211,6 +212,7 @@ body {
 .track-details {
     margin-top: 0.2rem;
     font-size: clamp(0.8rem, 2vw, 0.9rem);
+    font-weight: bold; /* Improve legibility */
 }
 
 #streakInfo {
@@ -244,12 +246,12 @@ body {
 
 .modal-content {
     background-color: #fefefe;
-    margin: 10% auto;
+    margin: 15% auto; /* Increased top margin to avoid header overlap */
     padding: 1.5rem;
     border: 1px solid #888;
-    width: 90%;
-    max-width: 600px;
-    max-height: 80vh;
+    width: 80%; /* Reduce width */
+    max-width: 500px; /* Reduce max width */
+    max-height: 70vh; /* Reduce height */
     overflow-y: auto;
     border-radius: 10px;
 }
