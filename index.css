@@ -16,16 +16,24 @@ body {
     background-size: cover;
     background-position: center;
 }
+
 .overlay {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 2rem;
     border-radius: 15px;
     position: relative;
+    color: #fff; /* Ensure overlay text is white */
 }
+
+h1, p, .tour-step, footer {
+    color: #fff; /* Explicit white text for index page */
+}
+
 h1 {
     font-size: 2.5rem;
     font-family: 'Montserrat', sans-serif;
 }
+
 p {
     font-size: 1rem;
     margin-bottom: 1.5rem;
