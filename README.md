@@ -29,6 +29,16 @@
 
 Contributions are welcome! Please feel free to submit a pull request with any improvements or new features.
 
+## Running Tests
+
+This project does not yet include automated tests. You can run the placeholder test script with:
+
+```bash
+npm test
+```
+
+The command currently prints "No tests yet".
+
 ## License
 
 This project is licensed under the MIT License.
