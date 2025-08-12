@@ -3,7 +3,10 @@ body {
     font-family: 'Montserrat', sans-serif;
     background-color: #000;
     color: #fff;
-    text-shadow: 1px 1px 2px #000;
+    text-shadow: -1px -1px 0 #000,
+                 1px -1px 0 #000,
+                 -1px 1px 0 #000,
+                 1px 1px 0 #000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,12 +24,15 @@ body {
 }
 h1 {
     font-size: 2.5rem;
-    color: #fff;
     font-family: 'Montserrat', sans-serif;
 }
 p {
     font-size: 1rem;
     margin-bottom: 1.5rem;
+}
+
+a {
+    color: #fff;
 }
 .enter-icon {
     cursor: pointer;
