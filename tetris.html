@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <link rel="apple-touch-icon" href="icons/Ariyo.png" />
+    <meta name="description" content="Play a simple Tetris game in Àríyò AI by Paul Iyogun (Omoluabi)." />
+    <meta name="keywords" content="Paul Iyogun, Omoluabi, Ariyo AI, Tetris game, Naija AI" />
+    <title>Tetris Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="color-scheme.css" />
+    <link rel="stylesheet" href="tetris.css" />
+    <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+    <div id="game-container">
+        <h1 id="game-title">Tetris</h1>
+        <div id="play-area">
+            <canvas id="tetris" width="200" height="400" aria-label="Tetris play field"></canvas>
+            <div id="side-panel">
+                <div id="score">Score: 0</div>
+                <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
+                <div id="controls">
+                    <button id="left" aria-label="Move left">&#9664;</button>
+                    <button id="rotate" aria-label="Rotate piece">&#8635;</button>
+                    <button id="right" aria-label="Move right">&#9654;</button>
+                    <button id="down" aria-label="Drop piece">&#9660;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="color-scheme.js"></script>
+    <script src="tetris.js"></script>
+    <footer>
+        <p>&copy; 2024 Omoluabi</p>
+    </footer>
+</body>
+</html>
