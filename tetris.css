@@ -1,0 +1,106 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, var(--background-color, #000), #111);
+    color: var(--text-color, #fff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+    height: 100vh;
+}
+
+#game-title {
+    margin-top: 20px;
+    font-size: 2rem;
+}
+
+#tetris {
+    border: 2px solid var(--theme-color, #00f);
+    background: #000;
+    margin-top: 10px;
+}
+
+#game-wrapper {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 10px;
+}
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#next-title {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+#next {
+    border: 2px solid var(--theme-color, #00f);
+    background: #000;
+    margin-top: 10px;
+}
+
+#score {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.control-row {
+    display: flex;
+    gap: 10px;
+}
+
+#controls button {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: var(--theme-color, #00f);
+    color: var(--background-color, #000);
+    font-size: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+
+#controls button.wide {
+    width: 150px;
+    border-radius: 30px;
+}
+
+#controls button:active {
+    transform: scale(0.95);
+}
+
+footer {
+    margin-top: auto;
+    padding: 10px;
+}
+
+@media (max-width: 600px) {
+    #game-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    #sidebar {
+        flex-direction: row;
+        gap: 20px;
+        margin-top: 10px;
+    }
+    #next-title {
+        align-self: center;
+    }
+}
