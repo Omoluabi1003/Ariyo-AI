@@ -55,6 +55,7 @@
     let aboutButtonGlobal = null;
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
+    let currentVersion;
 
     async function navigateToAbout() {
       const mainContent = document.getElementById('main-content');
@@ -388,9 +389,19 @@
         refreshing = true;
         window.location.reload();
       });
-      window.addEventListener('load', function() {
+      window.addEventListener('load', async function() {
         showIosInstallBanner();
-        navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+        let version = '';
+        try {
+          const res = await fetch('/version.json', { cache: 'no-store' });
+          const data = await res.json();
+          version = data.version;
+          currentVersion = version;
+        } catch (err) {
+          console.error('Failed to fetch version for SW registration:', err);
+        }
+        const swUrl = version ? `/service-worker.js?v=${version}` : '/service-worker.js';
+        navigator.serviceWorker.register(swUrl).then(function(registration) {
           console.log('Service Worker registered with scope:', registration.scope);
         }).catch(function(error) {
           console.log('Service worker registration failed:', error);
@@ -531,21 +542,14 @@
     });
 
     // Check for updates
-    let currentVersion;
-
     function checkForUpdates() {
         fetch('/version.json', { cache: 'no-store' })
             .then(response => response.json())
             .then(data => {
                 if (currentVersion && currentVersion !== data.version) {
                     if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.getRegistration().then(reg => {
-                            if (reg) {
-                                reg.update();
-                            }
-                        });
+                        navigator.serviceWorker.register(`/service-worker.js?v=${data.version}`);
                     }
-                    // New version available, prompt user to update
                     if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
                         window.location.reload();
                     }
