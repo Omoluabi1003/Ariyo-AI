@@ -29,6 +29,11 @@ self.addEventListener('install', event => {
           'picture-game.html',
           'picture-game.css',
           'picture-game.js',
+          'tetris.html',
+          'tetris.css',
+          'tetris.js',
+          'tetris-color-scheme.css',
+          'tetris-color-scheme.js',
           'offline-audio.mp3'
         ];
         return caches.open(CACHE_NAME).then(cache => {
