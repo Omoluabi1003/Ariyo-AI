@@ -398,7 +398,7 @@
     .tap-area.right {
         right: 0;
     }
-    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon, .tetris-float-icon {
+    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon {
       width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -704,10 +704,6 @@
         <div class="word-search-bubble-container" role="button" aria-label="Open Word Search Game" onclick="openWordSearchGame()">
             <img src="https://img.icons8.com/color/96/search.png" alt="Word Search Game Icon" class="picture-game-float-icon" />
         </div>
-        <!-- Tetris Game Floating Icon -->
-        <div class="tetris-bubble-container" role="button" aria-label="Open Tetris Game" onclick="openTetrisGame()">
-            <img src="https://img.icons8.com/color/96/joystick.png" alt="Tetris Game Icon" class="tetris-float-icon" />
-        </div>
     </div>
 </div>
 
@@ -752,15 +748,6 @@
     <h3 id="wordSearchGameTitle" class="modal-title">Word Search Game</h3>
     <iframe src="word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
-
-<!-- Tetris Game Container -->
-<div id="tetrisGameContainer" class="chatbot-container" role="dialog" aria-labelledby="tetrisGameTitle">
-    <button class="popup-close ripple shockwave" onclick="closeTetrisGame()">×</button>
-    <h3 id="tetrisGameTitle" class="modal-title">Tetris</h3>
-    <iframe src="tetris.html" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
-
-
 
 <!-- 🎧 Now Playing Toast -->
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
