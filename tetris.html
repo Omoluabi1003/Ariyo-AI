@@ -21,22 +21,23 @@
         <div id="game-wrapper">
             <canvas id="tetris" width="200" height="400" aria-label="Tetris play field"></canvas>
             <div id="sidebar">
+                <img id="sidebar-icon" src="icons/Ariyo.png" alt="Ariyo icon" />
                 <h2 id="next-title">Next</h2>
                 <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
                 <div id="score" aria-live="polite" role="status">Score: 0</div>
-            </div>
-        </div>
-        <div id="controls">
-            <div class="control-row">
-                <button id="btn-rotate" aria-label="Rotate piece">⟳</button>
-            </div>
-            <div class="control-row">
-                <button id="btn-left" aria-label="Move left">◀</button>
-                <button id="btn-down" aria-label="Soft drop">▼</button>
-                <button id="btn-right" aria-label="Move right">▶</button>
-            </div>
-            <div class="control-row">
-                <button id="btn-drop" class="wide" aria-label="Hard drop">⤓</button>
+                <div id="controls">
+                    <div class="control-row">
+                        <button id="btn-rotate" aria-label="Rotate piece">⟳</button>
+                    </div>
+                    <div class="control-row">
+                        <button id="btn-left" aria-label="Move left">◀</button>
+                        <button id="btn-down" aria-label="Soft drop">▼</button>
+                        <button id="btn-right" aria-label="Move right">▶</button>
+                    </div>
+                    <div class="control-row">
+                        <button id="btn-drop" class="wide" aria-label="Hard drop">⤓</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
