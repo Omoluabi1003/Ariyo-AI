@@ -130,6 +130,21 @@ function playerDrop() {
     dropCounter = 0;
 }
 
+function hardDrop() {
+    while (true) {
+        player.pos.y++;
+        if (collide(arena, player)) {
+            player.pos.y--;
+            merge(arena, player);
+            playerReset();
+            arenaSweep();
+            updateScore();
+            dropCounter = 0;
+            break;
+        }
+    }
+}
+
 function playerMove(dir) {
     player.pos.x += dir;
     if (collide(arena, player)) {
@@ -184,14 +199,20 @@ function updateScore() {
 }
 
 document.addEventListener('keydown', event => {
-    if (event.key === 'ArrowLeft') {
+    const { key, code } = event;
+    if (key.startsWith('Arrow') || code === 'Space') {
+        event.preventDefault();
+    }
+    if (key === 'ArrowLeft') {
         playerMove(-1);
-    } else if (event.key === 'ArrowRight') {
+    } else if (key === 'ArrowRight') {
         playerMove(1);
-    } else if (event.key === 'ArrowDown') {
+    } else if (key === 'ArrowDown') {
         playerDrop();
-    } else if (event.key === 'ArrowUp') {
+    } else if (key === 'ArrowUp') {
         playerRotate(1);
+    } else if (code === 'Space') {
+        hardDrop();
     }
 });
 
