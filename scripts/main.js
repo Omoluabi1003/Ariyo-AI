@@ -17,6 +17,12 @@
     const searchMap = {};
 
     albums.forEach((album, albumIndex) => {
+      const albumLabel = `Album ${albumIndex + 1}: ${album.name}`;
+      const albumOption = document.createElement('option');
+      albumOption.value = albumLabel;
+      searchSuggestions.appendChild(albumOption);
+      searchMap[albumLabel.toLowerCase()] = { type: 'album', albumIndex };
+
       album.tracks.forEach((track, trackIndex) => {
         const label = `${track.title} - ${album.name}`;
         const option = document.createElement('option');
@@ -45,6 +51,8 @@
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];
           selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
+        } else if (result.type === 'album') {
+          selectAlbum(result.albumIndex);
         }
         e.target.value = '';
       }
