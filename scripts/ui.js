@@ -1,7 +1,22 @@
+function populateAlbumList() {
+  const albumList = document.querySelector('.album-list');
+  if (!albumList) return;
+  albumList.innerHTML = '';
+  albums.forEach((album, index) => {
+    const link = document.createElement('a');
+    link.href = '#';
+    link.onclick = () => { selectAlbum(index); closeAlbumList(); };
+    link.textContent = `Album ${index + 1}: ${album.name}`;
+    albumList.appendChild(link);
+  });
+}
+
 function openAlbumList() {
       document.getElementById('main-content').classList.remove('about-us-active');
       const modal = document.getElementById('albumModal');
       const modalContent = modal.querySelector('.modal-content');
+
+      populateAlbumList();
 
       modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
