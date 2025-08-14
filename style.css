@@ -351,6 +351,13 @@ body {
     }
     .music-player {
         z-index: 1000; /* Ensure the music player is on top */
+        left: 0;
+        transform: none;
+        width: 100%;
+    }
+    .album-cover {
+        width: clamp(80px, 40vw, 120px);
+        height: clamp(80px, 40vw, 120px);
     }
 }
 
