@@ -99,7 +99,7 @@ body {
 
 /* Music Player */
 .music-player {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.7);
     padding: 1rem;
     text-align: center;
     border-radius: 10px;
@@ -116,6 +116,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: #fff;
+    text-shadow: none;
 }
 
 .about-us-active {
@@ -205,32 +207,24 @@ body {
     margin-top: 0.3rem;
     font-size: clamp(1rem, 3vw, 1.2rem);
     font-weight: bold; /* Improve legibility */
-    color: #000;
-    -webkit-text-stroke: 0.5px #fff;
-    text-shadow: 0 0 1px #fff;
+    color: #fff;
 }
 
 .track-duration {
     font-size: clamp(0.8rem, 2vw, 0.9rem);
     margin-top: 0.2rem;
-    color: #000;
-    -webkit-text-stroke: 0.5px #fff;
-    text-shadow: 0 0 1px #fff;
+    color: #fff;
 }
 
 .track-details {
     margin-top: 0.2rem;
     font-size: clamp(0.8rem, 2vw, 0.9rem);
     font-weight: bold; /* Improve legibility */
-    color: #000;
-    -webkit-text-stroke: 0.5px #fff;
-    text-shadow: 0 0 1px #fff;
+    color: #fff;
 }
 
 .music-player h3 {
-    color: #000;
-    -webkit-text-stroke: 0.5px #fff;
-    text-shadow: 0 0 1px #fff;
+    color: #fff;
 }
 
 #streakInfo {
