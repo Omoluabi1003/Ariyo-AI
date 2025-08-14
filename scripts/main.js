@@ -210,12 +210,34 @@
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
       'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
     ];
+
+    // Preload background images to prevent flashing
+    const preloadedBackgrounds = backgrounds.map(src => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+
     let currentBgIndex = 0;
     document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
-    setInterval(() => {
-      currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
-      document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
-    }, 30000);
+
+    const changeBackground = () => {
+      const nextIndex = (currentBgIndex + 1) % backgrounds.length;
+      const nextImage = preloadedBackgrounds[nextIndex];
+
+      const applyBackground = () => {
+        document.body.style.backgroundImage = `url(${backgrounds[nextIndex]})`;
+        currentBgIndex = nextIndex;
+      };
+
+      if (nextImage.complete) {
+        applyBackground();
+      } else {
+        nextImage.onload = applyBackground;
+      }
+    };
+
+    setInterval(changeBackground, 30000);
 
     /* DYNAMIC AUDIO CACHING */
     function cacheTrackForOffline(trackUrl) {
