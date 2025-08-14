@@ -198,6 +198,8 @@ function playerRotate(dir) {
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
+let animationId;
+let isRunning = false;
 
 function update(time = 0) {
     const deltaTime = time - lastTime;
@@ -207,11 +209,38 @@ function update(time = 0) {
         playerDrop();
     }
     draw();
-    requestAnimationFrame(update);
+    if (isRunning) {
+        animationId = requestAnimationFrame(update);
+    }
 }
 
 function updateScore() {
     document.getElementById('score').innerText = `Score: ${player.score}`;
+}
+
+function startGame() {
+    if (!isRunning) {
+        isRunning = true;
+        lastTime = 0;
+        dropCounter = 0;
+        animationId = requestAnimationFrame(update);
+    }
+}
+
+function stopGame() {
+    if (isRunning) {
+        isRunning = false;
+        cancelAnimationFrame(animationId);
+    }
+}
+
+function refreshGame() {
+    arena.forEach(row => row.fill(0));
+    player.score = 0;
+    playerReset();
+    dropCounter = 0;
+    updateScore();
+    draw();
 }
 
 document.addEventListener('keydown', event => {
@@ -238,6 +267,9 @@ document.addEventListener('keydown', event => {
     ['btn-down', playerDrop],
     ['btn-rotate', () => playerRotate(1)],
     ['btn-drop', hardDrop],
+    ['btn-start', startGame],
+    ['btn-stop', stopGame],
+    ['btn-refresh', refreshGame],
 ].forEach(([id, fn]) => {
     const btn = document.getElementById(id);
     ['click', 'touchstart'].forEach(evt => {
@@ -272,4 +304,4 @@ let nextPiece = createPiece(pieces[(pieces.length * Math.random()) | 0]);
 
 playerReset();
 updateScore();
-update();
+startGame();

@@ -7,7 +7,7 @@ body {
     align-items: center;
     justify-content: flex-start;
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 #game-title {
@@ -93,15 +93,29 @@ footer {
 
 @media (max-width: 600px) {
     #game-wrapper {
-        flex-direction: row;
-        align-items: flex-start;
-    }
-    #sidebar {
         flex-direction: column;
-        gap: 10px;
-        margin-top: 0;
+        align-items: center;
     }
-    #next-title {
-        align-self: center;
-    }
+}
+#game-container {
+    position: relative;
+}
+
+#action-buttons {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 3px;
+}
+
+#action-buttons button {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    background: var(--theme-color, #00f);
+    color: var(--background-color, #000);
+    font-size: 0.8rem;
+    cursor: pointer;
 }
