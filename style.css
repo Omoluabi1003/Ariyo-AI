@@ -317,6 +317,12 @@ body {
     font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
+.album-list img {
+    width: 100%;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
 .track-list a:hover,
 .album-list a:hover,
 .radio-list a:hover {

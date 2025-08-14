@@ -6,10 +6,21 @@ function populateAlbumList() {
     const link = document.createElement('a');
     link.href = '#';
     link.onclick = () => { selectAlbum(index); closeAlbumList(); };
-    link.textContent = `Album ${index + 1}: ${album.name}`;
+
+    const img = document.createElement('img');
+    img.src = album.cover;
+    img.alt = `${album.name} Album Cover`;
+
+    const name = document.createElement('p');
+    name.textContent = `Album ${index + 1}: ${album.name}`;
+
+    link.appendChild(img);
+    link.appendChild(name);
     albumList.appendChild(link);
   });
 }
+
+document.addEventListener('DOMContentLoaded', populateAlbumList);
 
 function openAlbumList() {
       document.getElementById('main-content').classList.remove('about-us-active');
