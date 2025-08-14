@@ -8,18 +8,23 @@
     <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
     <meta name="apple-touch-fullscreen" content="yes" />
     <link rel="apple-touch-icon" href="icons/Ariyo.png" />
-    <meta name="description" content="Play a simple Tetris game in Àríyò AI by Paul Iyogun (Omoluabi)." />
-    <meta name="keywords" content="Paul Iyogun, Omoluabi, Ariyo AI, Tetris game, Naija AI" />
-    <title>Tetris Game</title>
+    <meta name="description" content="Play a simple Omoluabi Tetris game in Àríyò AI by Paul Iyogun (Omoluabi)." />
+    <meta name="keywords" content="Paul Iyogun, Omoluabi, Ariyo AI, Omoluabi Tetris game, Naija AI" />
+    <title>Omoluabi Tetris Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="tetris-color-scheme.css" />
     <link rel="stylesheet" href="tetris.css" />
 </head>
 <body>
     <div id="game-container">
-        <h1 id="game-title">Tetris</h1>
+        <div id="action-buttons">
+            <button id="btn-start" aria-label="Start game">▶</button>
+            <button id="btn-stop" aria-label="Stop game">■</button>
+            <button id="btn-refresh" aria-label="Refresh game">↻</button>
+        </div>
+        <h1 id="game-title">Omoluabi Tetris</h1>
         <div id="game-wrapper">
-            <canvas id="tetris" width="200" height="400" aria-label="Tetris play field"></canvas>
+            <canvas id="tetris" width="200" height="400" aria-label="Omoluabi Tetris play field"></canvas>
             <div id="sidebar">
                 <h2 id="next-title">Next</h2>
                 <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
