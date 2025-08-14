@@ -284,6 +284,23 @@
     });
 
     function initializePlayer() {
+      const params = new URLSearchParams(window.location.search);
+      const albumParam = params.get('album');
+      const trackParam = params.get('track');
+      if (albumParam !== null && trackParam !== null) {
+        const albumIndex = parseInt(albumParam, 10);
+        const trackIndex = parseInt(trackParam, 10);
+        if (!isNaN(albumIndex) && albumIndex >= 0 && albumIndex < albums.length) {
+          const album = albums[albumIndex];
+          if (!isNaN(trackIndex) && trackIndex >= 0 && trackIndex < album.tracks.length) {
+            currentAlbumIndex = albumIndex;
+            updateTrackListModal();
+            selectTrack(album.tracks[trackIndex].src, album.tracks[trackIndex].title, trackIndex);
+            return;
+          }
+        }
+      }
+
       const savedState = loadPlayerState();
       if (savedState) {
         currentAlbumIndex = savedState.albumIndex;

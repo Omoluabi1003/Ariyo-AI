@@ -251,6 +251,10 @@ function selectTrack(src, title, index) {
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
+      const params = new URLSearchParams(window.location.search);
+      params.set('album', currentAlbumIndex);
+      params.set('track', index);
+      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
@@ -301,6 +305,11 @@ function selectTrack(src, title, index) {
       console.log(`[selectRadio] Selecting radio: ${title}`);
       currentRadioIndex = index;
       currentTrackIndex = -1;
+      const params = new URLSearchParams(window.location.search);
+      params.delete('album');
+      params.delete('track');
+      const newQuery = params.toString();
+      window.history.replaceState({}, '', `${window.location.pathname}${newQuery ? '?' + newQuery : ''}`);
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
