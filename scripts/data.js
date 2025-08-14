@@ -96,6 +96,36 @@ const albums = [
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Still%20I%20Rise%20to%20Praise.mp3', title: 'Still I Rise to Praise' },
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Testimony%20No%20Dey%20Finish.mp3', title: 'Testimony No Dey Finish' }
         ]
+      },
+      {
+        name: 'Terms Of Agreement',
+        cover: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/TOA%20Album%20Art.png',
+        tracks: [
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/419.mp3', title: '419' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Adimula%20Global.mp3', title: 'Adimula Global' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Africa%20Song.mp3', title: 'Africa Song' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Alujo%20For%20The%20Most%20High.mp3', title: 'Alujo For The Most High' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/As%20E%20Dey%20Hot.mp3', title: 'As E Dey Hot' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Bleaching.mp3', title: 'Bleaching' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Breaking%20Altars.mp3', title: 'Breaking Altars' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Buried%20Gold.mp3', title: 'Buried Gold' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Chained%20Headspace.mp3', title: 'Chained Headspace' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Coalition%20Of%20Confusion.mp3', title: 'Coalition Of Confusion' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Divine%20Twin.mp3', title: 'Divine Twin' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Fathers%20That%20Left.mp3', title: 'Fathers That Left' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/GMO%20Seeds.mp3', title: 'GMO Seeds' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Hail%20Mary.mp3', title: 'Hail Mary' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/More%20Stars%20Online.mp3', title: 'More Stars Online' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Nigeria.mp3', title: 'Nigeria' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Oga%20Jesus.mp3', title: 'Oga Jesus' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Omo%20Oba.mp3', title: 'Omo Oba' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Our%20Fada.mp3', title: 'Our Fada' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Parrot.mp3', title: 'Parrot' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Rigged%20Game.mp3', title: 'Rigged Game' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Starvation%20Trap.mp3', title: 'Starvation Trap' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/Terms%20Of%20Agreement.mp3', title: 'Terms Of Agreement' },
+            { src: 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/The%20Shoulders%20We%20Stand%20On.mp3', title: 'The Shoulders We Stand On' }
+        ]
       }
     ];
 
