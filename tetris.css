@@ -1,6 +1,9 @@
 body {
     font-family: 'Montserrat', sans-serif;
-    background: linear-gradient(135deg, var(--background-color, #000), #111);
+    background: radial-gradient(circle at top left, #222, var(--background-color, #000))
+                no-repeat fixed,
+                linear-gradient(135deg, var(--background-color, #000), #111);
+    background-blend-mode: overlay;
     color: var(--text-color, #fff);
     display: flex;
     flex-direction: column;
@@ -13,12 +16,15 @@ body {
 #game-title {
     margin-top: 20px;
     font-size: 2rem;
+    text-shadow: 0 0 10px var(--theme-color, #00f);
 }
 
 #tetris {
     border: 2px solid var(--theme-color, #00f);
     background: #000;
     margin-top: 10px;
+    border-radius: 4px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 10px var(--theme-color, #00f);
 }
 
 #game-wrapper {
@@ -32,7 +38,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #next-title {
@@ -40,20 +50,32 @@ body {
     font-size: 1.2rem;
 }
 
+#next-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #next {
     border: 2px solid var(--theme-color, #00f);
     background: #000;
-    margin-top: 10px;
+    width: 40px;
+    height: 40px;
+    margin-top: 5px;
+    border-radius: 4px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
 
 #score {
     margin-top: 10px;
     font-size: 1.2rem;
     font-weight: bold;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
 }
 
 #controls {
-    margin-top: 20px;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -70,16 +92,21 @@ body {
     height: 40px;
     border: none;
     border-radius: 50%;
-    background: var(--theme-color, #00f);
+    background: linear-gradient(145deg, var(--theme-color, #00f), #0022ff);
     color: var(--background-color, #000);
     font-size: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.3);
     cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
 #controls button.wide {
     width: 100px;
     border-radius: 20px;
+}
+
+#controls button:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), 0 0 10px var(--theme-color, #00f);
 }
 
 #controls button:active {
@@ -91,14 +118,14 @@ footer {
     padding: 10px;
 }
 
-@media (max-width: 600px) {
-    #game-wrapper {
-        flex-direction: column;
-        align-items: center;
-    }
-}
 #game-container {
     position: relative;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
 }
 
 #action-buttons {

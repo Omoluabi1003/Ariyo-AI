@@ -26,9 +26,6 @@
         <div id="game-wrapper">
             <canvas id="tetris" width="200" height="400" aria-label="Omoluabi Tetris play field"></canvas>
             <div id="sidebar">
-                <h2 id="next-title">Next</h2>
-                <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
-                <div id="score" aria-live="polite" role="status">Score: 0</div>
                 <div id="controls">
                     <div class="control-row">
                         <button id="btn-rotate" aria-label="Rotate piece">⟳</button>
@@ -42,6 +39,11 @@
                         <button id="btn-drop" class="wide" aria-label="Hard drop">⤓</button>
                     </div>
                 </div>
+                <div id="next-wrapper">
+                    <h2 id="next-title">Next</h2>
+                    <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
+                </div>
+                <div id="score" aria-live="polite" role="status">Score: 0</div>
             </div>
         </div>
     </div>
