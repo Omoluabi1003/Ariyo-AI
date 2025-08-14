@@ -1,4 +1,5 @@
 const BASE_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/';
+const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/';
 const albums = [
       {
         name: 'Kindness',
@@ -95,6 +96,36 @@ const albums = [
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Rotten%20Fruit.mp3', title: 'Rotten Fruit' },
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Still%20I%20Rise%20to%20Praise.mp3', title: 'Still I Rise to Praise' },
           { src: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/Testimony%20No%20Dey%20Finish.mp3', title: 'Testimony No Dey Finish' }
+        ]
+      },
+      {
+        name: 'Terms Of Agreement',
+        cover: `${TOA_URL}TOA%20Album%20Art.png`,
+        tracks: [
+          { src: `${TOA_URL}419.mp3`, title: '419' },
+          { src: `${TOA_URL}Adimula%20Global.mp3`, title: 'Adimula Global' },
+          { src: `${TOA_URL}Africa%20Song.mp3`, title: 'Africa Song' },
+          { src: `${TOA_URL}Alujo%20For%20The%20Most%20High.mp3`, title: 'Alujo For The Most High' },
+          { src: `${TOA_URL}As%20E%20Dey%20Hot.mp3`, title: 'As E Dey Hot' },
+          { src: `${TOA_URL}Bleaching.mp3`, title: 'Bleaching' },
+          { src: `${TOA_URL}Breaking%20Altars.mp3`, title: 'Breaking Altars' },
+          { src: `${TOA_URL}Buried%20Gold.mp3`, title: 'Buried Gold' },
+          { src: `${TOA_URL}Chained%20Headspace.mp3`, title: 'Chained Headspace' },
+          { src: `${TOA_URL}Coalition%20Of%20Confusion.mp3`, title: 'Coalition Of Confusion' },
+          { src: `${TOA_URL}Divine%20Twin.mp3`, title: 'Divine Twin' },
+          { src: `${TOA_URL}Fathers%20That%20Left.mp3`, title: 'Fathers That Left' },
+          { src: `${TOA_URL}GMO%20Seeds.mp3`, title: 'GMO Seeds' },
+          { src: `${TOA_URL}Hail%20Mary.mp3`, title: 'Hail Mary' },
+          { src: `${TOA_URL}More%20Stars%20Online.mp3`, title: 'More Stars Online' },
+          { src: `${TOA_URL}Nigeria.mp3`, title: 'Nigeria' },
+          { src: `${TOA_URL}Oga%20Jesus.mp3`, title: 'Oga Jesus' },
+          { src: `${TOA_URL}Omo%20Oba.mp3`, title: 'Omo Oba' },
+          { src: `${TOA_URL}Our%20Fada.mp3`, title: 'Our Fada' },
+          { src: `${TOA_URL}Parrot.mp3`, title: 'Parrot' },
+          { src: `${TOA_URL}Rigged%20Game.mp3`, title: 'Rigged Game' },
+          { src: `${TOA_URL}Starvation%20Trap.mp3`, title: 'Starvation Trap' },
+          { src: `${TOA_URL}Terms%20Of%20Agreement.mp3`, title: 'Terms Of Agreement' },
+          { src: `${TOA_URL}The%20Shoulders%20We%20Stand%20On.mp3`, title: 'The Shoulders We Stand On' }
         ]
       }
     ];
