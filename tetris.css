@@ -129,11 +129,10 @@ footer {
 }
 
 #action-buttons {
-    position: absolute;
-    top: 5px;
-    right: 5px;
     display: flex;
-    gap: 3px;
+    gap: 5px;
+    margin-top: 5px;
+    justify-content: center;
 }
 
 #action-buttons button {
