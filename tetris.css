@@ -132,6 +132,14 @@ footer {
     justify-content: center;
 }
 
+#controls .action-btn {
+    width: 80px;
+    height: 35px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
 #btn-start {
     background: linear-gradient(145deg, #28a745, #218838);
     color: #fff;
