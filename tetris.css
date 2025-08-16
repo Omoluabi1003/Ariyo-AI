@@ -120,7 +120,7 @@ footer {
 
 #game-container {
     position: relative;
-    margin-top: 60px;
+    margin-top: 40px;
     padding: 20px;
     border-radius: 12px;
     background: rgba(0, 0, 0, 0.4);
@@ -130,4 +130,19 @@ footer {
 
 .action-buttons {
     justify-content: center;
+}
+
+#btn-start {
+    background: linear-gradient(145deg, #28a745, #218838);
+    color: #fff;
+}
+
+#btn-stop {
+    background: linear-gradient(145deg, #dc3545, #c82333);
+    color: #fff;
+}
+
+#btn-refresh {
+    background: linear-gradient(145deg, #ffc107, #e0a800);
+    color: #000;
 }
