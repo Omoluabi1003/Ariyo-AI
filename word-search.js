@@ -32,7 +32,8 @@ const startBtn = document.getElementById('start');
 let gridEl;
 let wordListEl;
 let words = [];
-let isMouseDown = false;
+// Track pointer state (works for mouse, touch, pen)
+let isPointerDown = false;
 let startCell = null;
 let currentPath = [];
 let foundWords = new Set();
@@ -70,7 +71,7 @@ function startGame() {
   const category = categorySelect.value || Object.keys(categories)[0];
   gameContainer.innerHTML = '';
   foundWords = new Set();
-  isMouseDown = false;
+  isPointerDown = false;
   startCell = null;
   currentPath = [];
 
@@ -107,8 +108,9 @@ function startGame() {
   });
   gameContainer.insertBefore(gridEl, wordListEl);
 
-  gridEl.addEventListener('mousedown', handleMouseDown);
-  gridEl.addEventListener('mouseover', handleMouseOver);
+  // Use pointer events to support both mouse and touch interactions
+  gridEl.addEventListener('pointerdown', handlePointerDown);
+  gridEl.addEventListener('pointermove', handlePointerMove);
 }
 
 function clearSelection() {
@@ -163,31 +165,34 @@ function checkSelection() {
   }
 }
 
-function handleMouseDown(e) {
+function handlePointerDown(e) {
   if (!e.target.classList.contains('cell')) return;
-  isMouseDown = true;
+  isPointerDown = true;
   startCell = e.target;
   currentPath = [startCell];
   startCell.classList.add('selected');
+  // Prevent default to avoid scrolling on touch devices
+  e.preventDefault();
 }
 
-function handleMouseOver(e) {
-  if (!isMouseDown || !e.target.classList.contains('cell')) return;
+function handlePointerMove(e) {
+  if (!isPointerDown || !e.target.classList.contains('cell')) return;
   const path = getPath(startCell, e.target);
   if (!path) return;
   clearSelection();
   currentPath = path;
   currentPath.forEach((cell) => cell.classList.add('selected'));
+  e.preventDefault();
 }
 
-function handleMouseUp() {
-  if (!isMouseDown) return;
-  isMouseDown = false;
+function handlePointerUp() {
+  if (!isPointerDown) return;
+  isPointerDown = false;
   checkSelection();
   clearSelection();
 }
 
-document.addEventListener('mouseup', handleMouseUp);
+document.addEventListener('pointerup', handlePointerUp);
 startBtn.addEventListener('click', startGame);
 categorySelect.addEventListener('change', startGame);
 window.addEventListener('resize', () => {
