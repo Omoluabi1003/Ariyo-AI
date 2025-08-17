@@ -1,4 +1,9 @@
+:root {
+  --cell-size: 30px;
+}
+
 body {
+  margin: 0;
   font-family: 'Arial', sans-serif;
   padding: 1rem;
   background: linear-gradient(135deg, #f0f4ff, #d9e4ff);
@@ -26,21 +31,23 @@ button {
   gap: 1rem;
   align-items: flex-start;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(var(--grid-size), 30px);
-  grid-auto-rows: 30px;
+  grid-template-columns: repeat(var(--grid-size), var(--cell-size));
+  grid-auto-rows: var(--cell-size);
   gap: 2px;
   background: #fff;
   border: 2px solid #4a90e2;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
 }
 
 .cell {
-  width: 30px;
-  height: 30px;
+  width: var(--cell-size);
+  height: var(--cell-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,21 +64,23 @@ button {
 }
 
 .cell.found {
-  background: #4caf50;
-  color: #fff;
+  background: #ffe0e0;
+  color: red;
   text-decoration: line-through;
-  text-decoration-color: #fff;
+  text-decoration-color: red;
 }
 
 .word-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 4px 8px;
+  font-size: 0.6rem;
   background: rgba(255, 255, 255, 0.8);
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .word-list .word {

@@ -1,13 +1,30 @@
 import { generateGrid } from './word-search-grid.js';
 
 const categories = {
-  Fruits: ['BANANA', 'MANGO', 'ORANGE', 'PAWPAW', 'GUAVA'],
-  Animals: ['ZEBRA', 'LION', 'GOAT', 'SNAKE', 'ELEPHANT'],
-  Technology: ['PYTHON', 'REACT', 'CODE'],
-  'Nigerian States': ['LAGOS', 'KANO', 'ENUGU', 'ABIA', 'BENUE', 'DELTA', 'KWARA', 'ONDO', 'OSUN', 'KATSINA']
+  Fruits: [
+    'BANANA', 'MANGO', 'ORANGE', 'PAWPAW', 'GUAVA',
+    'PINEAPPLE', 'APPLE', 'GRAPE', 'PEACH', 'PLUM',
+    'APRICOT', 'KIWI'
+  ],
+  Animals: [
+    'ZEBRA', 'LION', 'GOAT', 'SNAKE', 'ELEPHANT',
+    'GIRAFFE', 'CHEETAH', 'HIPPO', 'MONKEY', 'PANTHER',
+    'HYENA', 'RABBIT'
+  ],
+  Technology: [
+    'PYTHON', 'REACT', 'CODE', 'COMPUTER', 'INTERNET',
+    'ALGORITHM', 'ROBOT', 'AI', 'JAVA', 'NODE',
+    'SERVER', 'APP'
+  ],
+  'Nigerian States': [
+    'LAGOS', 'KANO', 'ENUGU', 'ABIA', 'BENUE', 'DELTA',
+    'KWARA', 'ONDO', 'OSUN', 'KATSINA', 'BAYELSA',
+    'JIGAWA', 'KOGI', 'EKITI', 'OGUN', 'ANAMBRA',
+    'EDO', 'IMO', 'SOKOTO', 'TARABA'
+  ]
 };
 
-const gridSize = 12;
+const gridSize = 15;
 const gameContainer = document.getElementById('game');
 const categorySelect = document.getElementById('category');
 const startBtn = document.getElementById('start');
@@ -19,6 +36,12 @@ let isMouseDown = false;
 let startCell = null;
 let currentPath = [];
 let foundWords = new Set();
+
+function setCellSize() {
+  const dimension = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+  const size = Math.max(20, Math.floor(dimension / gridSize));
+  document.documentElement.style.setProperty('--cell-size', `${size}px`);
+}
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -47,6 +70,8 @@ function startGame() {
 
   words = categories[category].map((w) => w.toUpperCase());
   shuffle(words);
+
+  setCellSize();
 
   const grid = generateGrid(words, gridSize);
 
@@ -128,6 +153,9 @@ function checkSelection() {
     foundWords.add(match);
     const wEl = document.getElementById(`word-${match}`);
     if (wEl) wEl.classList.add('found');
+    if (foundWords.size === words.length && window.confetti) {
+      window.confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+    }
   }
 }
 
@@ -158,6 +186,7 @@ function handleMouseUp() {
 document.addEventListener('mouseup', handleMouseUp);
 startBtn.addEventListener('click', startGame);
 categorySelect.addEventListener('change', startGame);
+window.addEventListener('resize', setCellSize);
 
 populateCategories();
 startGame();
