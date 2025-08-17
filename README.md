@@ -9,7 +9,7 @@
 - **Sabi Bible Mode:** Access a special mode for spiritual content.
 - **PWA:** Install the application on your device for offline access and a native-like experience.
 - **Radio:** Listen to a variety of Nigerian and international radio stations.
-- **Games:** Play mini-games like Picture Game, Word Search, and Omoluabi Tetris.
+- **Games:** Play mini-games like Picture Game and Omoluabi Tetris.
 - **Shareable Links:** Copy or share a URL that opens the app to a specific track.
 
 ## Technologies Used
