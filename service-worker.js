@@ -31,6 +31,10 @@ self.addEventListener('install', event => {
           'tetris.js',
           'tetris-color-scheme.css',
           'tetris-color-scheme.js',
+          'word-search.html',
+          'word-search.css',
+          'word-search.js',
+          'word-search-grid.js',
           'offline-audio.mp3'
         ];
         return caches.open(CACHE_NAME).then(cache => {
