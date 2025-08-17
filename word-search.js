@@ -38,10 +38,16 @@ let currentPath = [];
 let foundWords = new Set();
 
 function setCellSize() {
-  const dimension = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+  const parentWidth = gameContainer.parentElement.clientWidth;
+  const gap = parseInt(getComputedStyle(gameContainer).gap, 10) || 0;
+  const listWidth = wordListEl ? wordListEl.offsetWidth : 0;
+  const availableWidth = parentWidth - listWidth - gap;
+  const availableHeight = window.innerHeight;
+  const dimension = Math.min(availableWidth, availableHeight) * 0.95;
   const size = Math.max(20, Math.floor(dimension / gridSize));
   document.documentElement.style.setProperty('--cell-size', `${size}px`);
 }
+
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -71,16 +77,24 @@ function startGame() {
   words = categories[category].map((w) => w.toUpperCase());
   shuffle(words);
 
-  setCellSize();
-
   const grid = generateGrid(words, gridSize);
 
-  gridEl = document.createElement('div');
   wordListEl = document.createElement('div');
-  gridEl.className = 'grid';
   wordListEl.className = 'word-list';
-  gridEl.style.setProperty('--grid-size', gridSize);
+  words.forEach((word) => {
+    const wEl = document.createElement('div');
+    wEl.textContent = word;
+    wEl.id = `word-${word}`;
+    wEl.className = 'word';
+    wordListEl.appendChild(wEl);
+  });
+  gameContainer.appendChild(wordListEl);
 
+  setCellSize();
+
+  gridEl = document.createElement('div');
+  gridEl.className = 'grid';
+  gridEl.style.setProperty('--grid-size', gridSize);
   grid.forEach((row, r) => {
     row.forEach((letter, c) => {
       const cell = document.createElement('div');
@@ -91,17 +105,7 @@ function startGame() {
       gridEl.appendChild(cell);
     });
   });
-
-  words.forEach((word) => {
-    const wEl = document.createElement('div');
-    wEl.textContent = word;
-    wEl.id = `word-${word}`;
-    wEl.className = 'word';
-    wordListEl.appendChild(wEl);
-  });
-
-  gameContainer.appendChild(gridEl);
-  gameContainer.appendChild(wordListEl);
+  gameContainer.insertBefore(gridEl, wordListEl);
 
   gridEl.addEventListener('mousedown', handleMouseDown);
   gridEl.addEventListener('mouseover', handleMouseOver);
@@ -186,7 +190,9 @@ function handleMouseUp() {
 document.addEventListener('mouseup', handleMouseUp);
 startBtn.addEventListener('click', startGame);
 categorySelect.addEventListener('change', startGame);
-window.addEventListener('resize', setCellSize);
+window.addEventListener('resize', () => {
+  if (words.length) setCellSize();
+});
 
 populateCategories();
 startGame();
