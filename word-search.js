@@ -66,8 +66,8 @@ function updateGridSize() {
 
 function getCellSize() {
     const maxSize = 32;
-    const minSize = 20;
-    const availableWidth = window.innerWidth * 0.9;
+    const minSize = 16;
+    const availableWidth = window.innerWidth <= 480 ? window.innerWidth - 120 : window.innerWidth * 0.9;
     const availableHeight = window.innerHeight * 0.8;
     const available = Math.floor(Math.min(availableWidth, availableHeight));
     const extras = (GRID_GAP * (gridSize - 1)) + (BOARD_PADDING * 2) + (BOARD_BORDER * 2);
@@ -437,6 +437,7 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", startGame);
     const newBtn = document.getElementById("new-game-btn");
     newBtn.addEventListener("click", startGame);
+    startGame();
 });
 
 let resizeTimeout;

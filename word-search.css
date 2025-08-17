@@ -56,7 +56,7 @@ label[for="category-select"] {
 
 #game-wrapper {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 1rem;
     justify-content: center;
     align-items: flex-start;
@@ -101,20 +101,19 @@ label[for="category-select"] {
 #word-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 0 1rem;
-    max-width: 200px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-    font-size: 0.8rem;
+    margin: 0 0 0 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.25rem 0.5rem;
+    font-size: 0.55rem;
 }
 
 #word-list li {
-    padding: 0.25rem 0.5rem;
+    padding: 0.1rem 0.25rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 0.6rem;
+    font-size: inherit;
+    text-align: center;
 }
 
 #word-list li.found {
@@ -139,19 +138,8 @@ label[for="category-select"] {
 }
 
 @media (max-width: 480px) {
-    #game-wrapper {
-        flex-direction: column;
-        align-items: center;
-    }
     #game-board {
         max-width: 100vw;
-    }
-    #word-list {
-        margin: 1rem 0 0 0;
-        font-size: 0.8rem;
-    }
-    #word-list li {
-        font-size: 0.55rem;
     }
 }
 
