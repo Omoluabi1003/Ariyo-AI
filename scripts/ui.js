@@ -159,12 +159,14 @@ const chatbotContainer = document.getElementById('chatbotContainer');
 const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 const pictureGameContainer = document.getElementById('pictureGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
+const wordSearchContainer = document.getElementById('wordSearchContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
            sabiBibleContainer.style.display === 'block' ||
            pictureGameContainer.style.display === 'block' ||
-           tetrisGameContainer.style.display === 'block';
+           tetrisGameContainer.style.display === 'block' ||
+           wordSearchContainer.style.display === 'block';
 }
 
 // Spoof user as if dem dey America
@@ -210,6 +212,16 @@ function openTetrisGame() {
 
 function closeTetrisGame() {
     tetrisGameContainer.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openWordSearchGame() {
+    wordSearchContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeWordSearchGame() {
+    wordSearchContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
