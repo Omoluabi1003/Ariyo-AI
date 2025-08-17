@@ -158,14 +158,12 @@ function toggleShuffle() {
 const chatbotContainer = document.getElementById('chatbotContainer');
 const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 const pictureGameContainer = document.getElementById('pictureGameContainer');
-const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
            sabiBibleContainer.style.display === 'block' ||
            pictureGameContainer.style.display === 'block' ||
-           wordSearchGameContainer.style.display === 'block' ||
            tetrisGameContainer.style.display === 'block';
 }
 
@@ -202,18 +200,6 @@ function openPictureGame() {
 
 function closePictureGame() {
     pictureGameContainer.style.display = 'none';
-    updateEdgePanelBehavior();
-}
-
-function openWordSearchGame() {
-    const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
-    wordSearchGameContainer.style.display = 'block';
-    updateEdgePanelBehavior();
-}
-
-function closeWordSearchGame() {
-    const wordSearchGameContainer = document.getElementById('wordSearchGameContainer');
-    wordSearchGameContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
