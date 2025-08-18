@@ -27,7 +27,6 @@
     const retryButton = document.getElementById('retryButton');
     const cacheButton = document.getElementById('cacheButton'); // New cache button
     const progressBar = document.getElementById('progressBarFill');
-    const streakInfo = document.getElementById('streakInfo');
     let shuffleMode = false; // True if any shuffle is active
     let shuffleScope = 'off'; // 'off', 'album', 'all'
     let isFirstPlay = true;
@@ -38,33 +37,6 @@
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
     let currentRadioIndex = -1;
-
-    // Streak Logic
-    function updateStreak() {
-      const now = new Date();
-      const today = now.toDateString();
-      const streakData = JSON.parse(localStorage.getItem('ariyoStreak')) || { streak: 0, lastDate: null };
-
-      if (streakData.lastDate !== today) {
-        const lastDate = streakData.lastDate ? new Date(streakData.lastDate) : null;
-        if (lastDate) {
-          const diffTime = now - lastDate;
-          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          if (diffDays === 1) {
-            streakData.streak += 1;
-          } else if (diffDays > 1) {
-            streakData.streak = 1; // Reset if more than a day is missed
-          }
-        } else {
-          streakData.streak = 1; // First use
-        }
-        streakData.lastDate = today;
-        localStorage.setItem('ariyoStreak', JSON.stringify(streakData));
-      }
-
-      streakInfo.textContent = `🔥 Current Streak: ${streakData.streak} days`;
-      console.log(`Streak updated: ${streakData.streak} days`);
-    }
 
     function savePlayerState() {
       const playerState = {
@@ -437,7 +409,6 @@ function selectTrack(src, title, index) {
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
           console.log(`Playing: ${trackInfo.textContent}`);
-          updateStreak();
           savePlayerState();
           if (isFirstPlay) {
             gsap.fromTo(albumCover,

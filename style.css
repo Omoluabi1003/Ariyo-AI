@@ -227,10 +227,6 @@ body {
     color: #fff;
 }
 
-#streakInfo {
-    color: #ff0000; /* Bright red for Current Streak */
-}
-
 .dropdown {
     width: 100%;
     background: rgba(34,34,34,0.8);
@@ -259,7 +255,7 @@ body {
 
 .modal-content {
     background-color: #222;
-    margin: 5% auto; /* Raise modal vertically for more viewable area */
+    margin: 2% auto; /* Raise modal vertically for more viewable area */
     padding: 1.5rem;
     border: 1px solid #888;
     width: 80%; /* Reduce width */
