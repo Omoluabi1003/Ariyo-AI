@@ -182,12 +182,23 @@ function handlePointerDown(e) {
 }
 
 function handlePointerMove(e) {
-  if (!isPointerDown || !e.target.classList.contains('cell')) return;
-  const path = getPath(startCell, e.target);
+  if (!isPointerDown) return;
+
+  // When pointer capture is active, the event target can be the grid
+  // instead of the individual cell. Use the pointer coordinates to
+  // determine the actual cell under the pointer.
+  let cell = e.target;
+  if (!cell.classList.contains('cell')) {
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (!el || !el.classList.contains('cell')) return;
+    cell = el;
+  }
+
+  const path = getPath(startCell, cell);
   if (!path) return;
   clearSelection();
   currentPath = path;
-  currentPath.forEach((cell) => cell.classList.add('selected'));
+  currentPath.forEach((c) => c.classList.add('selected'));
   e.preventDefault();
 }
 
