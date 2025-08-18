@@ -590,7 +590,7 @@
       <datalist id="searchSuggestions"></datalist>
       <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">🎧 Choose An Album</button>
       <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">📻 Radio Stations</button>
-      <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">ℹ️ About Us</button>
+      <button onclick="openAboutModal()" aria-label="About us" class="ripple shockwave">ℹ️ About Us</button>
     </div>
     <div class="content" id="main-content">
       <div id="newsContainer" class="news-container" style="display: none;"></div>
@@ -759,6 +759,13 @@
     <button class="popup-close ripple shockwave" onclick="closeWordSearchGame()">×</button>
     <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
     <iframe src="word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<!-- About Us Container -->
+<div id="aboutModalContainer" class="chatbot-container" role="dialog" aria-labelledby="aboutModalTitle">
+    <button class="popup-close ripple shockwave" onclick="closeAboutModal()" aria-label="Close About Us">×</button>
+    <h3 id="aboutModalTitle" class="modal-title">About Us</h3>
+    <iframe src="about.html" title="About Us" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- 🎧 Now Playing Toast -->
