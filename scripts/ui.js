@@ -198,6 +198,10 @@ function toggleSabiBible() {
 }
 
 function openAboutModal() {
+    const iframe = aboutModalContainer.querySelector('iframe');
+    if (iframe) {
+        iframe.src = 'about.html';
+    }
     aboutModalContainer.style.display = 'block';
     updateEdgePanelBehavior();
 }
