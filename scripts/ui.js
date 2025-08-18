@@ -160,13 +160,15 @@ const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 const pictureGameContainer = document.getElementById('pictureGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
+const aboutModalContainer = document.getElementById('aboutModalContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
            sabiBibleContainer.style.display === 'block' ||
            pictureGameContainer.style.display === 'block' ||
            tetrisGameContainer.style.display === 'block' ||
-           wordSearchContainer.style.display === 'block';
+           wordSearchContainer.style.display === 'block' ||
+           aboutModalContainer.style.display === 'block';
 }
 
 // Spoof user as if dem dey America
@@ -192,6 +194,16 @@ function toggleChatbot() {
 function toggleSabiBible() {
     const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
     sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
+    updateEdgePanelBehavior();
+}
+
+function openAboutModal() {
+    aboutModalContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeAboutModal() {
+    aboutModalContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
