@@ -111,6 +111,9 @@ function startGame() {
   // Use pointer events to support both mouse and touch interactions
   gridEl.addEventListener('pointerdown', handlePointerDown);
   gridEl.addEventListener('pointermove', handlePointerMove);
+  gridEl.addEventListener('pointerup', handlePointerUp);
+  gridEl.addEventListener('pointerleave', handlePointerUp);
+  gridEl.addEventListener('pointercancel', handlePointerUp);
 }
 
 function clearSelection() {
@@ -171,6 +174,9 @@ function handlePointerDown(e) {
   startCell = e.target;
   currentPath = [startCell];
   startCell.classList.add('selected');
+  if (gridEl) {
+    gridEl.setPointerCapture(e.pointerId);
+  }
   // Prevent default to avoid scrolling on touch devices
   e.preventDefault();
 }
@@ -185,9 +191,16 @@ function handlePointerMove(e) {
   e.preventDefault();
 }
 
-function handlePointerUp() {
+function handlePointerUp(e) {
   if (!isPointerDown) return;
   isPointerDown = false;
+  if (gridEl && e && e.pointerId !== undefined) {
+    try {
+      gridEl.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  }
   checkSelection();
   clearSelection();
 }
