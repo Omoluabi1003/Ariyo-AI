@@ -128,14 +128,14 @@
       flex-wrap: wrap;
       gap: 1.5rem;
     }
-    .album-covers a img, .social-icons a img {
+    .album-covers img, .social-icons a img {
       width: 120px;
       height: 120px;
       object-fit: cover;
       border-radius: 10px;
       transition: transform 0.3s ease;
     }
-    .album-covers a img:hover, .social-icons a img:hover {
+    .album-covers img:hover, .social-icons a img:hover {
       transform: scale(1.1);
     }
     footer {
@@ -156,7 +156,7 @@
       .about-text p {
         font-size: 0.95rem;
       }
-      .album-covers a img,
+      .album-covers img,
       .social-icons a img {
         width: 100px;
         height: 100px;
@@ -172,7 +172,7 @@
     <h1>Àríyò AI - About Us</h1>
   </header>
 
-  <button class="return-button" onclick="if (typeof navigateToHome === 'function') { navigateToHome(); } else { window.location.href='main.html'; }">🎵 Back to Player</button>
+  <button class="return-button" onclick="if (parent && parent.closeAboutModal) { parent.closeAboutModal(); } else { window.location.href='main.html'; }">🎵 Back to Player</button>
 
   <section class="banner">
     <h2>Who We Be</h2>
@@ -203,17 +203,7 @@
 
   <section class="album-section">
     <h4>Our Music Albums</h4>
-    <div class="album-covers">
-      <a href="https://open.spotify.com/album/4C4Bl9SuOnZDCBvhjT4KJN?si=v33T0FNzTg2P9Nthd_NwAA" target="_blank">
-        <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg" alt="Kindness Album">
-      </a>
-      <a href="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg" target="_blank">
-        <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Street_Sense_Album_Cover.jpg" alt="Street Sense Album">
-      </a>
-      <a href="https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/TOA%20Album%20Art.png" target="_blank">
-        <img src="https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/TOA%20Album%20Art.png" alt="Terms Of Agreement Album">
-      </a>
-    </div>
+    <div class="album-covers"></div>
   </section>
 
   <section class="social-section">
@@ -234,8 +224,30 @@
     &copy; <script>document.write(new Date().getFullYear())</script> Omoluabi Productions. All rights reserved.
   </footer>
   <script src="color-scheme.js"></script>
+  <script src="scripts/data.js"></script>
   <script>
     changeColorScheme();
+
+    const albumCoversDiv = document.querySelector('.album-covers');
+    albumCoversDiv.innerHTML = '';
+    albums.forEach(album => {
+      const container = document.createElement('div');
+      container.style.textAlign = 'center';
+
+      const img = document.createElement('img');
+      img.src = album.cover;
+      img.alt = album.name + ' Album Cover';
+
+      const p = document.createElement('p');
+      p.textContent = `${album.name} (${album.tracks.length} tracks)`;
+      p.style.color = '#fff';
+      p.style.fontSize = '0.8rem';
+      p.style.marginTop = '0.5rem';
+
+      container.appendChild(img);
+      container.appendChild(p);
+      albumCoversDiv.appendChild(container);
+    });
   </script>
   <script src="prevent-zoom.js"></script>
 </body>
