@@ -395,7 +395,6 @@
         selectAlbum(0);
         console.log('No saved state found, initialized with default');
       }
-      updateStreak();
       updateMediaSession();
       if (!savedState) {
         selectAlbum(0);
