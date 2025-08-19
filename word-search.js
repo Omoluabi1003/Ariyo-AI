@@ -1,5 +1,3 @@
-import { generateGrid } from './word-search-grid.js';
-
 const categories = {
   Fruits: [
     'BANANA', 'MANGO', 'ORANGE', 'PAWPAW', 'GUAVA',
