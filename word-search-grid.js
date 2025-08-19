@@ -1,13 +1,13 @@
-export const directions = [
+const directions = [
   { dr: 0, dc: 1 },
   { dr: 0, dc: -1 },
   { dr: 1, dc: 0 },
   { dr: -1, dc: 0 }
 ];
 
-export function generateGrid(words, gridSize = 12) {
+function generateGrid(words, gridSize = 12) {
   const upperWords = words.map((w) => w.toUpperCase());
-  const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(""));
+  const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill("") );
 
   for (const word of upperWords) {
     let placed = false;
@@ -55,3 +55,5 @@ function placeWord(grid, word, row, col, dir) {
     grid[r][c] = word[i];
   }
 }
+
+window.generateGrid = generateGrid;
