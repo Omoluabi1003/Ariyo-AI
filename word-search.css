@@ -72,10 +72,17 @@ button {
   text-decoration-color: red;
 }
 
+
+/*
+ * Display the list of words in two vertical columns so that long lists
+ * don't run off the bottom of the screen.  The previous grid layout
+ * arranged words row by row which could still grow very tall on small
+ * screens.  Using CSS multi-column layout keeps the height compact while
+ * allowing the words to flow into a second column automatically.
+ */
 .word-list {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 4px 8px;
+  column-count: 2;
+  column-gap: 8px;
   font-size: 0.6rem;
   background: rgba(255, 255, 255, 0.8);
   padding: 1rem;
@@ -86,7 +93,9 @@ button {
 }
 
 .word-list .word {
+  display: block;
   text-transform: uppercase;
+  break-inside: avoid;
 }
 
 .word-list .found {

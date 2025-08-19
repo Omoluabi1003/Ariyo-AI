@@ -35,6 +35,7 @@ let isPointerDown = false;
 let startCell = null;
 let currentPath = [];
 let foundWords = new Set();
+let confettiInterval = null;
 
 function setCellSize() {
   const parentWidth = gameContainer.parentElement.clientWidth;
@@ -67,6 +68,16 @@ function populateCategories() {
 
 function startGame() {
   const category = categorySelect.value || Object.keys(categories)[0];
+
+  // Stop any ongoing confetti from a previous game
+  if (confettiInterval) {
+    clearInterval(confettiInterval);
+    confettiInterval = null;
+  }
+  if (window.confetti && typeof window.confetti.reset === 'function') {
+    window.confetti.reset();
+  }
+
   gameContainer.innerHTML = '';
   foundWords = new Set();
   isPointerDown = false;
@@ -161,7 +172,14 @@ function checkSelection() {
     const wEl = document.getElementById(`word-${match}`);
     if (wEl) wEl.classList.add('found');
     if (foundWords.size === words.length && window.confetti) {
-      window.confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+      // Celebrate with a short burst of confetti
+      confettiInterval = setInterval(() => {
+        window.confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+      }, 300);
+      setTimeout(() => {
+        clearInterval(confettiInterval);
+        confettiInterval = null;
+      }, 2000);
     }
   }
 }
