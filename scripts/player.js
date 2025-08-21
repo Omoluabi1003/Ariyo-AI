@@ -81,8 +81,25 @@
         const trackLink = document.createElement('a');
         trackLink.href = '#';
         trackLink.onclick = () => selectTrack(track.src, track.title, index);
-        trackLink.textContent = track.title;
+
+        // Use cached duration if available, otherwise fetch it
+        const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
+        trackLink.textContent = `${track.title}${displayDuration}`;
         trackListContainer.appendChild(trackLink);
+
+        if (!track.duration) {
+          const tempAudio = new Audio();
+          tempAudio.preload = 'metadata';
+          tempAudio.crossOrigin = 'anonymous';
+          tempAudio.src = track.src;
+          tempAudio.addEventListener('loadedmetadata', () => {
+            track.duration = tempAudio.duration;
+            trackLink.textContent = `${track.title} (${formatTime(track.duration)})`;
+          });
+          tempAudio.addEventListener('error', () => {
+            trackLink.textContent = `${track.title} (N/A)`;
+          });
+        }
       });
       console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
     }
