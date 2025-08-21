@@ -1,3 +1,21 @@
+function calculateAlbumDuration(album) {
+  const promises = album.tracks.map(track => {
+    if (track.duration) return Promise.resolve(track.duration);
+    return new Promise(resolve => {
+      const tempAudio = new Audio();
+      tempAudio.preload = 'metadata';
+      tempAudio.crossOrigin = 'anonymous';
+      tempAudio.src = track.src;
+      tempAudio.addEventListener('loadedmetadata', () => {
+        track.duration = tempAudio.duration;
+        resolve(track.duration);
+      });
+      tempAudio.addEventListener('error', () => resolve(0));
+    });
+  });
+  return Promise.all(promises).then(durations => durations.reduce((a, b) => a + b, 0));
+}
+
 function populateAlbumList() {
   const albumList = document.querySelector('.album-list');
   if (!albumList) return;
@@ -14,9 +32,22 @@ function populateAlbumList() {
     const name = document.createElement('p');
     name.textContent = `Album ${index + 1}: ${album.name}`;
 
+    const durationEl = document.createElement('p');
+    durationEl.className = 'album-duration';
+    durationEl.textContent = 'Duration: …';
+
     link.appendChild(img);
     link.appendChild(name);
+    link.appendChild(durationEl);
     albumList.appendChild(link);
+
+    calculateAlbumDuration(album)
+      .then(total => {
+        durationEl.textContent = `Duration: ${formatTime(total)}`;
+      })
+      .catch(() => {
+        durationEl.textContent = 'Duration: N/A';
+      });
   });
 }
 
