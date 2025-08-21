@@ -26,6 +26,7 @@ const gridSize = 15;
 const gameContainer = document.getElementById('game');
 const categorySelect = document.getElementById('category');
 const startBtn = document.getElementById('start');
+const timerEl = document.getElementById('timer');
 
 let gridEl;
 let wordListEl;
@@ -36,6 +37,23 @@ let startCell = null;
 let currentPath = [];
 let foundWords = new Set();
 let confettiInterval = null;
+let timerInterval = null;
+let startTime = null;
+
+function updateTimer() {
+  if (!startTime) return;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const seconds = String(elapsed % 60).padStart(2, '0');
+  timerEl.textContent = `${minutes}:${seconds}`;
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
 
 function setCellSize() {
   const parentWidth = gameContainer.parentElement.clientWidth;
@@ -83,6 +101,10 @@ function startGame() {
   isPointerDown = false;
   startCell = null;
   currentPath = [];
+  stopTimer();
+  startTime = Date.now();
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
 
   words = categories[category].map((w) => w.toUpperCase());
   shuffle(words);
@@ -171,15 +193,18 @@ function checkSelection() {
     foundWords.add(match);
     const wEl = document.getElementById(`word-${match}`);
     if (wEl) wEl.classList.add('found');
-    if (foundWords.size === words.length && window.confetti) {
-      // Celebrate with a short burst of confetti
-      confettiInterval = setInterval(() => {
-        window.confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-      }, 300);
-      setTimeout(() => {
-        clearInterval(confettiInterval);
-        confettiInterval = null;
-      }, 2000);
+    if (foundWords.size === words.length) {
+      stopTimer();
+      if (window.confetti) {
+        // Celebrate with a short burst of confetti
+        confettiInterval = setInterval(() => {
+          window.confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }, 300);
+        setTimeout(() => {
+          clearInterval(confettiInterval);
+          confettiInterval = null;
+        }, 2000);
+      }
     }
   }
 }
