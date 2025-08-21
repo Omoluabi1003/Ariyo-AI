@@ -313,6 +313,12 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.album-duration {
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    margin-top: 0.2rem;
+    color: #ccc;
+}
+
 .track-list a:hover,
 .album-list a:hover,
 .radio-list a:hover {
