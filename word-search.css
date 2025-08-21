@@ -36,6 +36,12 @@ button {
   cursor: pointer;
 }
 
+.timer {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
 .game-container {
   display: flex;
   gap: 1rem;
