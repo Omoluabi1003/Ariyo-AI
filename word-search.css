@@ -11,6 +11,16 @@ body {
   text-align: center;
 }
 
+h1 {
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+
+#instructions {
+  font-size: 0.5rem;
+  margin: 0;
+}
+
 .controls {
   margin-bottom: 1rem;
 }
@@ -74,18 +84,19 @@ button {
 
 
 /*
- * Display the word list in two horizontal columns. Grid layout fills
- * words row by row so that each row shows two words side-by-side. This
- * keeps the list compact and preserves natural reading order while
- * maintaining a small but legible font size.
+ * Display the word list in two vertical columns. The grid fills
+ * from top to bottom so the left column holds the first six words and
+ * the right column the next six, matching a west-to-east reading
+ * order. Fonts are intentionally tiny to keep the list compact.
  */
 .word-list {
   display: grid;
-  grid-auto-flow: row;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(6, max-content);
   grid-template-columns: repeat(2, max-content);
   column-gap: 1rem;
   row-gap: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.5rem;
   background: rgba(255, 255, 255, 0.8);
   padding: 1rem;
   border-radius: 8px;
