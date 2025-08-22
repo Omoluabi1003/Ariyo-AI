@@ -10,9 +10,9 @@ const categories = {
     'HYENA', 'RABBIT'
   ],
   Technology: [
-    'PYTHON', 'REACT', 'CODE', 'COMPUTER', 'INTERNET',
-    'ALGORITHM', 'ROBOT', 'AI', 'JAVA', 'NODE',
-    'SERVER', 'APP'
+    'PYTHON', 'REACT', 'GRAPHQL', 'JAVASCRIPT', 'TYPESCRIPT',
+    'RUST', 'GO', 'SWIFT', 'JAVA', 'NODEJS',
+    'RUBY', 'PHP'
   ],
   'Nigerian States': [
     'LAGOS', 'KANO', 'ENUGU', 'ABIA', 'BENUE', 'DELTA',
