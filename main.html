@@ -410,10 +410,21 @@
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       animation: float 3s ease-in-out infinite;
     }
+    .chess-float-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      animation: float 3s ease-in-out infinite, glow 2s ease-in-out infinite;
+      box-shadow: 0 0 5px #00f8ff, 0 0 15px #0051ff;
+    }
     @keyframes float {
       0%   { transform: translateY(0px); }
       50%  { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
+    }
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 5px #00f8ff, 0 0 15px #0051ff; }
+      50% { box-shadow: 0 0 20px #00f8ff, 0 0 30px #0051ff; }
     }
     @keyframes pulse {
       0% { transform: scale(1); }
@@ -710,7 +721,7 @@
         </div>
         <!-- Omoluabi Chess Floating Icon -->
         <div class="chess-bubble-container" role="button" aria-label="Open Omoluabi Chess" onclick="openChessGame()">
-            <img src="icons/chess.svg" alt="Omoluabi Chess Game Icon" class="picture-game-float-icon" />
+            <img src="icons/chess.svg" alt="Omoluabi Chess Game Icon" class="chess-float-icon" />
         </div>
     </div>
 </div>
@@ -768,7 +779,7 @@
 <div id="chessGameContainer" class="chatbot-container" role="dialog" aria-labelledby="chessGameTitle">
     <button class="popup-close ripple shockwave" onclick="closeChessGame()">×</button>
     <h3 id="chessGameTitle" class="modal-title">Omoluabi Chess</h3>
-    <iframe src="https://omoluabi1003.github.io/Omoluabi-Chess/" style="width: 100%; height: 100%; border: none;"></iframe>
+    <iframe src="chess.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- About Us Container -->

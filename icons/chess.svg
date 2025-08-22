@@ -1,6 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-  <rect x="24" y="8" width="48" height="16" fill="#000"/>
-  <rect x="24" y="24" width="48" height="16" fill="#000"/>
-  <rect x="32" y="40" width="32" height="32" fill="#000"/>
-  <rect x="20" y="72" width="56" height="16" fill="#000"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f8ff" />
+      <stop offset="100%" stop-color="#0072ff" />
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+      <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="100" height="100" rx="15" fill="#0a0a0a" />
+  <path d="M30 80 L70 80 L70 70 L60 60 L65 40 L55 20 L40 20 L35 35 L45 40 L30 55 Z" fill="url(#grad)" filter="url(#glow)"/>
 </svg>
