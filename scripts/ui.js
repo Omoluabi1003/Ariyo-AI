@@ -191,16 +191,16 @@ const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 const pictureGameContainer = document.getElementById('pictureGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
-const chessGameContainer = document.getElementById('chessGameContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
 
 function isAnyPanelOpen() {
+    const chessGameContainer = document.getElementById('chessGameContainer');
     return chatbotContainer.style.display === 'block' ||
            sabiBibleContainer.style.display === 'block' ||
            pictureGameContainer.style.display === 'block' ||
            tetrisGameContainer.style.display === 'block' ||
            wordSearchContainer.style.display === 'block' ||
-           chessGameContainer.style.display === 'block' ||
+           (chessGameContainer && chessGameContainer.style.display === 'block') ||
            aboutModalContainer.style.display === 'block';
 }
 
@@ -275,11 +275,21 @@ function closeWordSearchGame() {
 }
 
 function openChessGame() {
+    const chessGameContainer = document.getElementById('chessGameContainer');
+    if (!chessGameContainer) {
+        console.error('chessGameContainer element not found');
+        return;
+    }
     chessGameContainer.style.display = 'block';
     updateEdgePanelBehavior();
 }
 
 function closeChessGame() {
+    const chessGameContainer = document.getElementById('chessGameContainer');
+    if (!chessGameContainer) {
+        console.error('chessGameContainer element not found');
+        return;
+    }
     chessGameContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
