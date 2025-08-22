@@ -1,6 +1,6 @@
 # Omoluabi Production Catalogue
 
-![Omoluabi Productions Logo](logo.jpg)
+![Omoluabi Productions Logo](Logo.jpg)
 
 - [Watchman](https://suno.com/s/9usky5oWSoGQGKcc)
 - [Ọmọlúàbí](https://suno.com/s/x2bQklbUkff82SYs)
