@@ -1,4 +1,4 @@
-/* SHARE BUTTON (Web Share API) */
+    /* SHARE BUTTON (Web Share API) */
     function shareContent() {
       if (navigator.share) {
         navigator.share({
@@ -9,6 +9,14 @@
       } else {
         alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
       }
+    }
+
+    /* Utility to create URL-friendly slugs */
+    function slugify(str) {
+      return str
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
     }
 
     /* SEARCH BAR AUTO-COMPLETE */
@@ -317,12 +325,12 @@
       const params = new URLSearchParams(window.location.search);
       const albumParam = params.get('album');
       const trackParam = params.get('track');
-      if (albumParam !== null && trackParam !== null) {
-        const albumIndex = parseInt(albumParam, 10);
-        const trackIndex = parseInt(trackParam, 10);
-        if (!isNaN(albumIndex) && albumIndex >= 0 && albumIndex < albums.length) {
+      if (albumParam && trackParam) {
+        const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
+        if (albumIndex !== -1) {
           const album = albums[albumIndex];
-          if (!isNaN(trackIndex) && trackIndex >= 0 && trackIndex < album.tracks.length) {
+          const trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackParam);
+          if (trackIndex !== -1) {
             currentAlbumIndex = albumIndex;
             updateTrackListModal();
             selectTrack(album.tracks[trackIndex].src, album.tracks[trackIndex].title, trackIndex);
