@@ -13,3 +13,4 @@
 - [Fore-runner’s Map](https://suno.com/s/vYSWq1n8Y6JkMwAb)
 - [No Look Down](https://suno.com/s/IBdo5IxyXR5Xm3Hi)
 - [Wonder's Breeze](https://suno.com/s/BSACk85GTIjp1YAm)
+- [Covenant Of Isolation](https://suno.com/s/EnZJCry311OUE38x)
