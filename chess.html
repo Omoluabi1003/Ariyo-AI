@@ -19,7 +19,12 @@
     <div id="chess-app">
         <div id="board" aria-label="Omoluabi Chess board"></div>
         <div id="status" role="status" aria-live="polite"></div>
-        <button id="resetBtn" aria-label="Reset game">Reset</button>
+        <div id="controls">
+            <button id="resetBtn" aria-label="Reset game">Reset</button>
+            <button id="undoBtn" aria-label="Undo last move">Undo</button>
+            <button id="pgnBtn" aria-label="Export PGN">Export PGN</button>
+        </div>
+        <pre id="history" aria-label="Move history"></pre>
     </div>
     <script src="libs/chess.min.js"></script>
     <script src="libs/chessboard.min.js"></script>

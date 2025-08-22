@@ -14,7 +14,7 @@ body {
 }
 
 #board {
-    width: 320px;
+    width: min(90vmin, 500px);
     margin: 0 auto;
     box-shadow: 0 0 20px #00f8ff;
     border: 2px solid #00f8ff;
@@ -51,4 +51,21 @@ body {
 #resetBtn:hover {
     background: #00f8ff;
     color: #000;
+}
+
+#controls {
+    margin-top: 15px;
+}
+
+#history {
+    margin-top: 15px;
+    white-space: pre-wrap;
+}
+
+.highlight-move {
+    background: #00f8ff55 !important;
+}
+
+.last-move {
+    background: #ffff0055 !important;
 }
