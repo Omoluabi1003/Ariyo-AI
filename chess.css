@@ -13,6 +13,12 @@ body {
     text-align: center;
 }
 
+#player-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
 #board {
     width: min(90vmin, 500px);
     margin: 0 auto;

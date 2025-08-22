@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
             highlightSquare(source, 'last-move');
             highlightSquare(target, 'last-move');
             updateStatus();
+
+            // If playing against computer, make a move for black
+            window.setTimeout(makeRandomMove, 250);
         },
         onSnapEnd: () => board.position(game.fen()),
         onMouseoverSquare: (square, piece) => {
@@ -37,6 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function removeHighlights(className) {
         boardEl.querySelectorAll(`.${className}`).forEach(el => el.classList.remove(className));
+    }
+
+    function makeRandomMove() {
+        if (game.game_over() || game.turn() === 'w') return;
+        const moves = game.moves();
+        if (moves.length === 0) return;
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        const result = game.move(move);
+        board.position(game.fen());
+        highlightSquare(result.from, 'last-move');
+        highlightSquare(result.to, 'last-move');
+        updateStatus();
     }
 
     function updateStatus() {
