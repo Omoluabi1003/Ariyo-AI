@@ -241,8 +241,8 @@ function selectTrack(src, title, index) {
       currentTrackIndex = index;
       currentRadioIndex = -1;
       const params = new URLSearchParams(window.location.search);
-      params.set('album', currentAlbumIndex);
-      params.set('track', index);
+      params.set('album', slugify(albums[currentAlbumIndex].name));
+      params.set('track', slugify(title));
       window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
       lastTrackSrc = src;
       lastTrackTitle = title;
