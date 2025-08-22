@@ -143,7 +143,17 @@ const albums = [
             { src: 'https://cdn1.suno.ai/7356371a-b8f7-470a-87a3-dbe5c2916f72.mp3', title: 'Fore-runner’s Map' },
             { src: 'https://cdn1.suno.ai/5ad4f8bc-4cef-4ad4-b847-c4f1b8147445.mp3', title: 'No Look Down' },
             { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: 'Wonder\'s Breeze' },
-            { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' }
+            { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
+            { src: 'https://cdn1.suno.ai/57a24cc6-ab05-447a-91ab-008321e9fc6a.mp3', title: 'Ghostwriter' },
+            { src: 'https://cdn1.suno.ai/c84b1a3e-b364-41d3-be5f-8e3b2273eb96.mp3', title: 'A Wa Good Gan' },
+            { src: 'https://cdn1.suno.ai/ce45202a-56e3-4d86-b185-3aa741aac131.mp3', title: 'Stir Am Well' },
+            { src: 'https://cdn1.suno.ai/d58c70e0-b330-4cda-8ee5-afd65f874d39.mp3', title: 'Talk Wey Bend (Obfuscation)' },
+            { src: 'https://cdn1.suno.ai/dbb44f28-64a1-49bb-bcbf-b5460c29ccd4.mp3', title: 'Belong Wahala' },
+            { src: 'https://cdn1.suno.ai/19c15d58-c776-4f1c-9ef7-3bb7890b26bb.mp3', title: 'Habatically' },
+            { src: 'https://cdn1.suno.ai/c6bb53b4-def2-4a68-bfaf-35f7f6dd7810.mp3', title: 'Party No Go Stop (Instrumental)' },
+            { src: `${BASE_URL}Blood%20On%20The%20Lithium.mp3`, title: 'Blood On The Lithium' },
+            { src: `${BASE_URL}No%20Be%20My%20Story.mp3`, title: 'No Be My Story' },
+            { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' }
         ]
       },
     ];
