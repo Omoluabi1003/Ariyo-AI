@@ -143,9 +143,18 @@ const albums = [
             { src: 'https://cdn1.suno.ai/7356371a-b8f7-470a-87a3-dbe5c2916f72.mp3', title: 'Fore-runner’s Map' },
             { src: 'https://cdn1.suno.ai/5ad4f8bc-4cef-4ad4-b847-c4f1b8147445.mp3', title: 'No Look Down' },
             { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: 'Wonder\'s Breeze' }
-          ]
-        },
+        ]
+      },
     ];
+
+// Shuffle albums so they appear in a random order on each page load
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+shuffle(albums);
 
     const radioStations = [
       { name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: `${BASE_URL}Logo.jpg` },
