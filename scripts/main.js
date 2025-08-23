@@ -1,5 +1,5 @@
     /* SHARE BUTTON (Web Share API) */
-    function shareContent() {
+    async function shareContent() {
       const baseUrl = `${window.location.origin}${window.location.pathname}`;
       let shareUrl = window.location.href;
       let shareTitle = "Àríyò AI - Smart Naija AI";
@@ -14,6 +14,27 @@
         showQRCode(shareUrl, track.title);
       } else {
         showQRCode(shareUrl, shareTitle);
+      }
+
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+
+      if (navigator.canShare) {
+        try {
+          const response = await fetch(qrCodeUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'qr-code.png', { type: 'image/png' });
+
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: shareTitle,
+              text: `${shareText} ${shareUrl}`,
+              files: [file]
+            });
+            return;
+          }
+        } catch (err) {
+          console.error('QR share failed:', err);
+        }
       }
 
       if (navigator.share) {
