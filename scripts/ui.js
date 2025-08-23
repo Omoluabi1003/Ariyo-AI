@@ -194,13 +194,11 @@ const wordSearchContainer = document.getElementById('wordSearchContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
 
 function isAnyPanelOpen() {
-    const chessGameContainer = document.getElementById('chessGameContainer');
     return chatbotContainer.style.display === 'block' ||
            sabiBibleContainer.style.display === 'block' ||
            pictureGameContainer.style.display === 'block' ||
            tetrisGameContainer.style.display === 'block' ||
            wordSearchContainer.style.display === 'block' ||
-           (chessGameContainer && chessGameContainer.style.display === 'block') ||
            aboutModalContainer.style.display === 'block';
 }
 
@@ -274,21 +272,6 @@ function closeWordSearchGame() {
     updateEdgePanelBehavior();
 }
 
-function openChessGame() {
-    const chessGameContainer = document.getElementById('chessGameContainer');
-    if (chessGameContainer) {
-        chessGameContainer.style.display = 'block';
-        updateEdgePanelBehavior();
-    }
-}
-
-function closeChessGame() {
-    const chessGameContainer = document.getElementById('chessGameContainer');
-    if (chessGameContainer) {
-        chessGameContainer.style.display = 'none';
-        updateEdgePanelBehavior();
-    }
-}
 
 
     const collapsibleContainerLeft = document.getElementById('collapsibleContainerLeft');
