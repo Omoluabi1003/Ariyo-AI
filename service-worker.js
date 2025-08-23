@@ -35,12 +35,6 @@ self.addEventListener('install', event => {
           'word-search.css',
           'word-search.js',
           'word-search-grid.js',
-          'chess.html',
-          'chess.css',
-          'chess.js',
-          'libs/chess.min.js',
-          'libs/chessboard.min.js',
-          'libs/chessboard.min.css',
           'offline-audio.mp3'
         ];
         return caches.open(CACHE_NAME).then(cache => {
