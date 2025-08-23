@@ -307,15 +307,37 @@ body {
     font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
+/* Use flex layout with smaller thumbnails for album list */
+.album-list a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .album-list img {
-    width: 100%;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
     border-radius: 5px;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.album-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.album-info p {
+    margin: 0;
+}
+
+.album-info .album-duration {
+    margin-top: 0.2rem;
 }
 
 .album-duration {
     font-size: clamp(0.8rem, 2vw, 0.9rem);
-    margin-top: 0.2rem;
     color: #ccc;
 }
 

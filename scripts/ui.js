@@ -36,9 +36,13 @@ function populateAlbumList() {
     durationEl.className = 'album-duration';
     durationEl.textContent = 'Duration: …';
 
+    const info = document.createElement('div');
+    info.className = 'album-info';
+    info.appendChild(name);
+    info.appendChild(durationEl);
+
     link.appendChild(img);
-    link.appendChild(name);
-    link.appendChild(durationEl);
+    link.appendChild(info);
     albumList.appendChild(link);
 
     calculateAlbumDuration(album)
