@@ -41,6 +41,10 @@ npm test
 
 The command currently prints "No tests yet".
 
+## Utilities
+
+- `user_tracker.py`: example script that stores basic user information in a local SQLite database.
+
 ## License
 
 This project is licensed under the MIT License.
