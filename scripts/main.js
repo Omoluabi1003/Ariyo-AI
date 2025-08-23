@@ -1,14 +1,44 @@
     /* SHARE BUTTON (Web Share API) */
     function shareContent() {
+      const baseUrl = `${window.location.origin}${window.location.pathname}`;
+      let shareUrl = window.location.href;
+      let shareTitle = "Àríyò AI - Smart Naija AI";
+      let shareText = "Check out this awesome page!";
+
+      if (typeof currentAlbumIndex !== 'undefined' && currentRadioIndex === -1) {
+        const album = albums[currentAlbumIndex];
+        const track = album.tracks[currentTrackIndex];
+        shareUrl = `${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`;
+        shareTitle = `Listening to ${track.title}`;
+        shareText = `I'm listening to ${track.title} on Àríyò AI!`;
+        showQRCode(shareUrl, track.title);
+      } else {
+        showQRCode(shareUrl, shareTitle);
+      }
+
       if (navigator.share) {
         navigator.share({
-          title: "Àríyò AI - Smart Naija AI",
-          text: "Check out this awesome page!",
-          url: window.location.href
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl
         }).catch((err) => console.error("Share failed:", err));
       } else {
         alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
       }
+    }
+
+    function showQRCode(url, title) {
+      const modal = document.getElementById('qrModal');
+      const img = document.getElementById('qrImage');
+      const trackName = document.getElementById('qrTrackName');
+      trackName.textContent = title;
+      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      modal.classList.add('active');
+    }
+
+    function closeQRModal() {
+      const modal = document.getElementById('qrModal');
+      modal.classList.remove('active');
     }
 
     /* Utility to create URL-friendly slugs */
