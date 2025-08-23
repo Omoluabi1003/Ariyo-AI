@@ -1,14 +1,18 @@
+    function ensureProtocol(url) {
+      return /^(https?:)\/\//i.test(url) ? url : `https://${url}`;
+    }
+
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
       const baseUrl = `${window.location.origin}${window.location.pathname}`;
-      let shareUrl = window.location.href;
+      let shareUrl = ensureProtocol(window.location.href);
       let shareTitle = "Àríyò AI - Smart Naija AI";
       let shareText = "Check out this awesome page!";
 
       if (typeof currentAlbumIndex !== 'undefined' && currentRadioIndex === -1) {
         const album = albums[currentAlbumIndex];
         const track = album.tracks[currentTrackIndex];
-        shareUrl = `${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`;
+        shareUrl = ensureProtocol(`${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`);
         shareTitle = `Listening to ${track.title}`;
         shareText = `I'm listening to ${track.title} on Àríyò AI!`;
         showQRCode(shareUrl, track.title);
@@ -53,7 +57,8 @@
       const img = document.getElementById('qrImage');
       const trackName = document.getElementById('qrTrackName');
       trackName.textContent = title;
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      const fullUrl = ensureProtocol(url);
+      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
       modal.classList.add('active');
     }
 
