@@ -153,7 +153,8 @@ const albums = [
             { src: 'https://cdn1.suno.ai/c6bb53b4-def2-4a68-bfaf-35f7f6dd7810.mp3', title: 'Party No Go Stop (Instrumental)' },
             { src: `${BASE_URL}Blood%20On%20The%20Lithium.mp3`, title: 'Blood On The Lithium' },
             { src: `${BASE_URL}No%20Be%20My%20Story.mp3`, title: 'No Be My Story' },
-            { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' }
+            { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' },
+            { src: 'https://cdn1.suno.ai/e70059ca-398f-481e-9a71-6338fcfb9a1d.mp3', title: 'The Distance' }
         ]
       },
     ];
