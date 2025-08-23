@@ -1,18 +1,20 @@
-    function ensureProtocol(url) {
-      return /^(https?:)\/\//i.test(url) ? url : `https://${url}`;
+    function ensureHttps(url) {
+      return url.startsWith('https://')
+        ? url
+        : `https://${url.replace(/^https?:\/\//i, '')}`;
     }
 
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
       const baseUrl = `${window.location.origin}${window.location.pathname}`;
-      let shareUrl = ensureProtocol(window.location.href);
+      let shareUrl = ensureHttps(window.location.href);
       let shareTitle = "Àríyò AI - Smart Naija AI";
       let shareText = "Check out this awesome page!";
 
       if (typeof currentAlbumIndex !== 'undefined' && currentRadioIndex === -1) {
         const album = albums[currentAlbumIndex];
         const track = album.tracks[currentTrackIndex];
-        shareUrl = ensureProtocol(`${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`);
+        shareUrl = ensureHttps(`${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`);
         shareTitle = `Listening to ${track.title}`;
         shareText = `I'm listening to ${track.title} on Àríyò AI!`;
         showQRCode(shareUrl, track.title);
@@ -44,7 +46,7 @@
       if (navigator.share) {
         navigator.share({
           title: shareTitle,
-          text: shareText,
+          text: `${shareText} ${shareUrl}`,
           url: shareUrl
         }).catch((err) => console.error("Share failed:", err));
       } else {
@@ -57,7 +59,7 @@
       const img = document.getElementById('qrImage');
       const trackName = document.getElementById('qrTrackName');
       trackName.textContent = title;
-      const fullUrl = ensureProtocol(url);
+      const fullUrl = ensureHttps(url);
       img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
       modal.classList.add('active');
     }
