@@ -119,7 +119,9 @@ function computerMove() {
   }
   if (col === null) {
     if (skillLevel >= 3) {
-      col = minimaxMove(4);
+      const empties = board.flat().filter(v => v === 0).length;
+      const depth = empties <= 14 ? 6 : 4;
+      col = minimaxMove(depth);
     } else {
       const availableCols = [];
       for (let c = 0; c < COLS; c++) if (board[0][c] === 0) availableCols.push(c);
@@ -201,10 +203,28 @@ function minimax(depth, maximizingPlayer, alpha, beta) {
 
 function evaluateBoard() {
   let score = 0;
+  const center = Math.floor(COLS / 2);
+  const centerArray = board.map(r => r[center]);
+  score += centerArray.filter(v => v === PLAYER2).length * 3;
+
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      if (board[r][c] === PLAYER2) score += scorePosition(r, c, PLAYER2);
-      else if (board[r][c] === PLAYER1) score -= scorePosition(r, c, PLAYER1);
+      if (c + 3 < COLS) {
+        const window = board[r].slice(c, c + 4);
+        score += evaluateWindow(window);
+      }
+      if (r + 3 < ROWS) {
+        const window = [board[r][c], board[r + 1][c], board[r + 2][c], board[r + 3][c]];
+        score += evaluateWindow(window);
+      }
+      if (r + 3 < ROWS && c + 3 < COLS) {
+        const window = [board[r][c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]];
+        score += evaluateWindow(window);
+      }
+      if (r + 3 < ROWS && c - 3 >= 0) {
+        const window = [board[r][c], board[r + 1][c - 1], board[r + 2][c - 2], board[r + 3][c - 3]];
+        score += evaluateWindow(window);
+      }
     }
   }
   return score;
@@ -230,39 +250,17 @@ function checkTerminal() {
   return getAvailableCols().length === 0 ? 0 : null;
 }
 
-function scorePosition(r, c, player) {
+function evaluateWindow(window) {
   let score = 0;
-  const center = Math.floor(COLS / 2);
-  if (c === center) score += 3;
-  const dirs = [
-    [0, 1],
-    [1, 0],
-    [1, 1],
-    [1, -1]
-  ];
-  for (const [dr, dc] of dirs) {
-    let count = 1;
-    let openEnds = 0;
-    for (const dir of [-1, 1]) {
-      let nr = r + dr * dir;
-      let nc = c + dc * dir;
-      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
-        if (board[nr][nc] === player) {
-          count++;
-        } else if (board[nr][nc] === 0) {
-          openEnds++;
-          break;
-        } else {
-          break;
-        }
-        nr += dr * dir;
-        nc += dc * dir;
-      }
-    }
-    if (count >= 4) score += 100;
-    else if (count === 3 && openEnds > 0) score += 5;
-    else if (count === 2 && openEnds > 0) score += 2;
-  }
+  const aiCount = window.filter(v => v === PLAYER2).length;
+  const oppCount = window.filter(v => v === PLAYER1).length;
+  const emptyCount = window.filter(v => v === 0).length;
+
+  if (aiCount === 4) score += 100;
+  else if (aiCount === 3 && emptyCount === 1) score += 5;
+  else if (aiCount === 2 && emptyCount === 2) score += 2;
+
+  if (oppCount === 3 && emptyCount === 1) score -= 4;
   return score;
 }
 
