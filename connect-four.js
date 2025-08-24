@@ -1,7 +1,9 @@
 const ROWS = 6;
 const COLS = 7;
+const HUMAN = 1;
+const AI = 2;
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-let currentPlayer = 1; // 1 = red, 2 = yellow
+let currentPlayer = HUMAN;
 let gameActive = true;
 
 const boardDiv = document.getElementById('board');
@@ -24,26 +26,62 @@ function createBoard() {
 }
 
 function handleClick(e) {
-  if (!gameActive) return;
+  if (!gameActive || currentPlayer !== HUMAN) return;
   const col = parseInt(e.target.dataset.col);
+  if (makeMove(col, HUMAN) && gameActive) {
+    currentPlayer = AI;
+    updateMessage();
+    setTimeout(computerMove, 500);
+  }
+}
+
+function makeMove(col, player) {
   for (let r = ROWS - 1; r >= 0; r--) {
     if (board[r][col] === 0) {
-      board[r][col] = currentPlayer;
+      board[r][col] = player;
       const cell = boardDiv.querySelector(`[data-row="${r}"][data-col="${col}"]`);
-      cell.classList.add(currentPlayer === 1 ? 'red' : 'yellow');
+      cell.classList.add(player === HUMAN ? 'red' : 'yellow');
       if (checkWinner(r, col)) {
-        messageDiv.textContent = `${currentPlayer === 1 ? 'Red' : 'Yellow'} wins!`;
+        messageDiv.textContent = player === HUMAN ? 'You win!' : 'Ara wins!';
         gameActive = false;
       } else if (board.flat().every(v => v !== 0)) {
         messageDiv.textContent = "It's a draw!";
         gameActive = false;
-      } else {
-        currentPlayer = currentPlayer === 1 ? 2 : 1;
-        updateMessage();
       }
-      break;
+      return true;
     }
   }
+  return false;
+}
+
+function computerMove() {
+  if (!gameActive) return;
+  let col = findWinningMove(AI);
+  if (col === null) col = findWinningMove(HUMAN);
+  if (col === null) {
+    const availableCols = [];
+    for (let c = 0; c < COLS; c++) if (board[0][c] === 0) availableCols.push(c);
+    col = availableCols[Math.floor(Math.random() * availableCols.length)];
+  }
+  if (makeMove(col, AI) && gameActive) {
+    currentPlayer = HUMAN;
+    updateMessage();
+  }
+}
+
+function findWinningMove(player) {
+  for (let c = 0; c < COLS; c++) {
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (board[r][c] === 0) {
+        board[r][c] = player;
+        const win = checkWinner(r, c);
+        board[r][c] = 0;
+        if (win) return c;
+        break;
+      }
+    }
+  }
+  return null;
 }
 
 function countDirection(r, c, dr, dc) {
@@ -69,12 +107,12 @@ function checkWinner(r, c) {
 }
 
 function updateMessage() {
-  messageDiv.textContent = `${currentPlayer === 1 ? 'Red' : 'Yellow'}'s turn`;
+  messageDiv.textContent = currentPlayer === HUMAN ? "Your turn" : "Ara's turn";
 }
 
 function resetGame() {
   board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-  currentPlayer = 1;
+  currentPlayer = HUMAN;
   gameActive = true;
   createBoard();
 }
@@ -82,3 +120,4 @@ function resetGame() {
 resetBtn.addEventListener('click', resetGame);
 
 createBoard();
+
