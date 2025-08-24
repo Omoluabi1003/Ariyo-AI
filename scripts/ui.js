@@ -197,7 +197,7 @@ const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
 const connectFourContainer = document.getElementById('connectFourContainer');
-const wizznicContainer = document.getElementById('wizznicContainer');
+const araWizznicContainer = document.getElementById('araWizznicContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
@@ -206,7 +206,7 @@ function isAnyPanelOpen() {
            tetrisGameContainer.style.display === 'block' ||
            wordSearchContainer.style.display === 'block' ||
            connectFourContainer.style.display === 'block' ||
-           wizznicContainer.style.display === 'block' ||
+           araWizznicContainer.style.display === 'block' ||
            aboutModalContainer.style.display === 'block';
 }
 
@@ -290,13 +290,13 @@ function closeConnectFourGame() {
     updateEdgePanelBehavior();
 }
 
-function openWizznicGame() {
-    wizznicContainer.style.display = 'block';
+function openAraWizznicGame() {
+    araWizznicContainer.style.display = 'block';
     updateEdgePanelBehavior();
 }
 
-function closeWizznicGame() {
-    wizznicContainer.style.display = 'none';
+function closeAraWizznicGame() {
+    araWizznicContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
