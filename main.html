@@ -676,6 +676,7 @@
       <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
       <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave">🔀</button>
     </div>
+    <div id="waveform"></div>
   </div>
 
   <!-- Modal for Album List -->
@@ -830,6 +831,7 @@
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
 
   <script src="scripts/data.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js"></script>
     <script src="scripts/player.js"></script>
       <script src="scripts/ui.js"></script>
       <script src="color-scheme.js"></script>

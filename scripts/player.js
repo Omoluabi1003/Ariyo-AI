@@ -16,6 +16,17 @@
     audioPlayer.id = 'audioPlayer';
     audioPlayer.preload = 'auto';
     document.body.appendChild(audioPlayer);
+    const wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: '#ccc',
+        progressColor: getComputedStyle(document.documentElement).getPropertyValue('--theme-color') || '#ff7043',
+        responsive: true,
+        height: 80,
+        backend: 'MediaElement',
+        media: audioPlayer
+    });
+    audioPlayer.addEventListener('play', () => wavesurfer.play());
+    audioPlayer.addEventListener('pause', () => wavesurfer.pause());
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
@@ -247,8 +258,10 @@ function selectTrack(src, title, index) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      audioPlayer.src = src + '?t=' + new Date().getTime();
+      const waveSrc = src + '?t=' + new Date().getTime();
+      audioPlayer.src = waveSrc;
       audioPlayer.currentTime = 0;
+      wavesurfer.load(waveSrc);
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
       trackYear.textContent = 'Release Year: 2025';
