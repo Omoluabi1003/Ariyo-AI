@@ -24,6 +24,14 @@ body {
   margin: 0 0 10px;
 }
 
+#controls {
+  margin-bottom: 10px;
+}
+
+#mode {
+  margin-left: 5px;
+}
+
 #board {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

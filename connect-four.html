@@ -18,6 +18,13 @@
     <div id="game-container">
         <h1 id="game-title">Ara Connect-4</h1>
         <p id="rules">First to connect four in a row (horizontal, vertical, or diagonal) wins.</p>
+        <div id="controls">
+            <label for="mode">Play mode:</label>
+            <select id="mode">
+                <option value="ai">Vs Ara</option>
+                <option value="2p">Two Players</option>
+            </select>
+        </div>
         <div id="board" aria-label="Ara Connect-4 board"></div>
         <div id="message" aria-live="polite"></div>
         <button id="reset">Reset</button>
