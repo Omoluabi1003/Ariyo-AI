@@ -120,6 +120,22 @@ body {
     text-shadow: none;
 }
 
+#waveform {
+    width: 90%;
+    margin: 1rem auto;
+}
+
+@media (prefers-color-scheme: dark) {
+    #waveform {
+        background-color: #222;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    #waveform {
+        background-color: #f0f0f0;
+    }
+}
 .about-us-active {
     position: relative;
     z-index: 1001;
