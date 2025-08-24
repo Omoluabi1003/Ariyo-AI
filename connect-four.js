@@ -16,8 +16,34 @@ const modeSelect = document.getElementById('mode');
 
 function celebrate() {
   if (window.confetti) {
-    window.confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    const end = Date.now() + 3000;
+    (function frame() {
+      window.confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+      window.confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    })();
   }
+  playTrumpet();
+}
+
+function playTrumpet() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const freqs = [440, 554.37, 659.25];
+  freqs.forEach(freq => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.2);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 1.2);
+  });
 }
 
 function createBoard() {
@@ -66,7 +92,7 @@ function makeMove(col, player) {
         messageDiv.textContent = isVsAI
           ? player === PLAYER1
             ? 'You win!'
-            : 'Ara wins!'
+            : 'Omoluabi wins!'
           : player === PLAYER1
             ? 'Player 1 wins!'
             : 'Player 2 wins!';
@@ -216,7 +242,7 @@ function adjustSkill(playerWon) {
 function updateMessage() {
   if (!gameActive) return;
   if (isVsAI) {
-    messageDiv.textContent = currentPlayer === PLAYER1 ? "Your turn" : "Ara's turn";
+    messageDiv.textContent = currentPlayer === PLAYER1 ? "Your turn" : "Omoluabi's turn";
   } else {
     messageDiv.textContent = currentPlayer === PLAYER1 ? "Player 1's turn" : "Player 2's turn";
   }
