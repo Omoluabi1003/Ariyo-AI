@@ -19,6 +19,11 @@ body {
   box-sizing: border-box;
 }
 
+#rules {
+  font-size: clamp(0.6rem, 2vw, 0.8rem);
+  margin: 0 0 10px;
+}
+
 #board {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

@@ -10,6 +10,12 @@ const boardDiv = document.getElementById('board');
 const messageDiv = document.getElementById('message');
 const resetBtn = document.getElementById('reset');
 
+function celebrate() {
+  if (window.confetti) {
+    window.confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+  }
+}
+
 function createBoard() {
   boardDiv.innerHTML = '';
   for (let r = 0; r < ROWS; r++) {
@@ -44,6 +50,7 @@ function makeMove(col, player) {
       if (checkWinner(r, col)) {
         messageDiv.textContent = player === HUMAN ? 'You win!' : 'Ara wins!';
         gameActive = false;
+        if (player === HUMAN) celebrate();
       } else if (board.flat().every(v => v !== 0)) {
         messageDiv.textContent = "It's a draw!";
         gameActive = false;
@@ -111,6 +118,9 @@ function updateMessage() {
 }
 
 function resetGame() {
+  if (window.confetti && typeof window.confetti.reset === 'function') {
+    window.confetti.reset();
+  }
   board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   currentPlayer = HUMAN;
   gameActive = true;
