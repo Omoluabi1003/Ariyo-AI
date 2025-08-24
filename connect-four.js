@@ -119,7 +119,7 @@ function computerMove() {
   }
   if (col === null) {
     if (skillLevel >= 3) {
-      col = bestMove(PLAYER2);
+      col = minimaxMove(4);
     } else {
       const availableCols = [];
       for (let c = 0; c < COLS; c++) if (board[0][c] === 0) availableCols.push(c);
@@ -147,28 +147,87 @@ function findWinningMove(player) {
   return null;
 }
 
-function bestMove(player) {
+function minimaxMove(depth) {
   let bestScore = -Infinity;
   let bestCol = null;
-  for (let c = 0; c < COLS; c++) {
-    if (board[0][c] !== 0) continue;
-    for (let r = ROWS - 1; r >= 0; r--) {
-      if (board[r][c] === 0) {
-        board[r][c] = player;
-        const score = scorePosition(r, c, player);
-        board[r][c] = 0;
-        if (score > bestScore) {
-          bestScore = score;
-          bestCol = c;
-        }
-        break;
-      }
+  const availableCols = getAvailableCols();
+  for (const c of availableCols) {
+    const r = getNextOpenRow(c);
+    board[r][c] = PLAYER2;
+    const score = minimax(depth - 1, false, -Infinity, Infinity);
+    board[r][c] = 0;
+    if (score > bestScore) {
+      bestScore = score;
+      bestCol = c;
     }
   }
-  if (bestCol !== null) return bestCol;
-  const availableCols = [];
-  for (let c = 0; c < COLS; c++) if (board[0][c] === 0) availableCols.push(c);
-  return availableCols[Math.floor(Math.random() * availableCols.length)];
+  return bestCol !== null ? bestCol : availableCols[Math.floor(Math.random() * availableCols.length)];
+}
+
+function minimax(depth, maximizingPlayer, alpha, beta) {
+  const terminal = checkTerminal();
+  if (depth === 0 || terminal !== null) {
+    if (terminal === PLAYER2) return 100000;
+    if (terminal === PLAYER1) return -100000;
+    return evaluateBoard();
+  }
+  const availableCols = getAvailableCols();
+  if (maximizingPlayer) {
+    let value = -Infinity;
+    for (const c of availableCols) {
+      const r = getNextOpenRow(c);
+      board[r][c] = PLAYER2;
+      const score = minimax(depth - 1, false, alpha, beta);
+      board[r][c] = 0;
+      value = Math.max(value, score);
+      alpha = Math.max(alpha, value);
+      if (alpha >= beta) break;
+    }
+    return value;
+  } else {
+    let value = Infinity;
+    for (const c of availableCols) {
+      const r = getNextOpenRow(c);
+      board[r][c] = PLAYER1;
+      const score = minimax(depth - 1, true, alpha, beta);
+      board[r][c] = 0;
+      value = Math.min(value, score);
+      beta = Math.min(beta, value);
+      if (alpha >= beta) break;
+    }
+    return value;
+  }
+}
+
+function evaluateBoard() {
+  let score = 0;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c] === PLAYER2) score += scorePosition(r, c, PLAYER2);
+      else if (board[r][c] === PLAYER1) score -= scorePosition(r, c, PLAYER1);
+    }
+  }
+  return score;
+}
+
+function getAvailableCols() {
+  const cols = [];
+  for (let c = 0; c < COLS; c++) if (board[0][c] === 0) cols.push(c);
+  return cols;
+}
+
+function getNextOpenRow(col) {
+  for (let r = ROWS - 1; r >= 0; r--) if (board[r][col] === 0) return r;
+  return -1;
+}
+
+function checkTerminal() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c] !== 0 && checkWinner(r, c)) return board[r][c];
+    }
+  }
+  return getAvailableCols().length === 0 ? 0 : null;
 }
 
 function scorePosition(r, c, player) {
