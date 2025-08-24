@@ -168,6 +168,13 @@ function shuffle(array) {
 }
 shuffle(albums);
 
+// Add LRC lyric file paths for each track
+albums.forEach(album => {
+  album.tracks.forEach(track => {
+    track.lrc = track.src.replace(/\.mp3$/, '.lrc');
+  });
+});
+
     const radioStations = [
       { name: "Agidigbo 88.7 FM", location: "Ibadan", url: "https://agidigbostream.com.ng/radio/8000/radio.mp3", logo: `${BASE_URL}Logo.jpg` },
       { name: "Nigeria Info FM", location: "Lagos", url: "https://nigeriainfofmlagos993-atunwadigital.streamguys1.com/nigeriainfofmlagos993", logo: `${BASE_URL}Logo.jpg` },

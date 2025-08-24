@@ -27,6 +27,8 @@
     const retryButton = document.getElementById('retryButton');
     const cacheButton = document.getElementById('cacheButton'); // New cache button
     const progressBar = document.getElementById('progressBarFill');
+    const lyricsContainer = document.getElementById('lyrics');
+    let lyricLines = [];
     let shuffleMode = false; // True if any shuffle is active
     let shuffleScope = 'off'; // 'off', 'album', 'all'
     let isFirstPlay = true;
@@ -72,6 +74,51 @@
         }
       }
       return null;
+    }
+
+    function loadLyrics(url) {
+      lyricLines = [];
+      lyricsContainer.innerHTML = '';
+      if (!url) return;
+      fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          try {
+            const parser = new Lyric(text);
+            lyricLines = parser.lines || [];
+            lyricsContainer.innerHTML = lyricLines.map(l => `<p>${l.txt}</p>`).join('');
+          } catch (e) {
+            console.error('Lyric parse error:', e);
+          }
+        })
+        .catch(() => {
+          lyricsContainer.innerHTML = '';
+        });
+    }
+
+    function highlightLyric(currentTime) {
+      if (!lyricLines.length) return;
+      const currentMs = currentTime * 1000;
+      let active = 0;
+      for (let i = 0; i < lyricLines.length; i++) {
+        if (currentMs >= lyricLines[i].time) {
+          active = i;
+        } else {
+          break;
+        }
+      }
+      const lines = lyricsContainer.getElementsByTagName('p');
+      for (let i = 0; i < lines.length; i++) {
+        lines[i].classList.toggle('active', i === active);
+      }
+    }
+
+    function toggleLyrics() {
+      if (lyricsContainer.style.display === 'none' || !lyricsContainer.style.display) {
+        lyricsContainer.style.display = 'block';
+      } else {
+        lyricsContainer.style.display = 'none';
+      }
     }
 
     function updateTrackListModal() {
@@ -254,6 +301,7 @@ function selectTrack(src, title, index) {
       trackYear.textContent = 'Release Year: 2025';
       trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
+      loadLyrics(albums[currentAlbumIndex].tracks[currentTrackIndex].lrc);
       closeTrackList();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
@@ -284,6 +332,7 @@ function selectTrack(src, title, index) {
       cacheButton.style.display = 'block'; // Show cache button for tracks
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
+      loadLyrics(albums[currentAlbumIndex].tracks[currentTrackIndex].lrc);
     }
 
 
@@ -309,6 +358,8 @@ function selectTrack(src, title, index) {
       trackYear.textContent = '';
       trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
       albumCover.src = logo;
+      lyricsContainer.innerHTML = '';
+      lyricLines = [];
       closeRadioList();
       stopMusic();
       loadingSpinner.style.display = 'block';
@@ -512,6 +563,7 @@ function selectTrack(src, title, index) {
     trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
     seekBar.style.display = 'block';
   }
+  highlightLyric(currentTime);
 }
 
     function formatTime(seconds) {
