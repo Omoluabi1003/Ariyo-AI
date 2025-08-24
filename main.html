@@ -315,6 +315,13 @@
       box-sizing: border-box;
       bottom: calc(40px + env(safe-area-inset-bottom));
     }
+    #connectFourContainer {
+      height: calc(100vh - (140px + env(safe-area-inset-bottom)));
+      overflow-y: auto;
+      padding-top: 20px;
+      box-sizing: border-box;
+      bottom: calc(40px + env(safe-area-inset-bottom));
+    }
     .popup-close {
       position: absolute;
       top: 10px;
@@ -738,6 +745,10 @@
         <div class="word-search-bubble-container" role="button" aria-label="Open Omoluabi Word Search" onclick="openWordSearchGame()">
             <img src="icons/word-search.svg" alt="Omoluabi Word Search Game Icon" class="picture-game-float-icon" />
         </div>
+        <!-- Omoluabi Connect Four Floating Icon -->
+        <div class="connect-four-bubble-container" role="button" aria-label="Open Omoluabi Connect Four" onclick="openConnectFourGame()">
+            <img src="icons/connect-four.svg" alt="Omoluabi Connect Four Game Icon" class="picture-game-float-icon" />
+        </div>
     </div>
 </div>
 
@@ -788,6 +799,13 @@
     <button class="popup-close ripple shockwave" onclick="closeWordSearchGame()">×</button>
     <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
     <iframe src="word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<!-- Omoluabi Connect Four Container -->
+<div id="connectFourContainer" class="chatbot-container" role="dialog" aria-labelledby="connectFourTitle">
+    <button class="popup-close ripple shockwave" onclick="closeConnectFourGame()">×</button>
+    <h3 id="connectFourTitle" class="modal-title">Omoluabi Connect Four</h3>
+    <iframe src="connect-four.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- About Us Container -->
