@@ -738,6 +738,10 @@
         <div class="word-search-bubble-container" role="button" aria-label="Open Omoluabi Word Search" onclick="openWordSearchGame()">
             <img src="icons/word-search.svg" alt="Omoluabi Word Search Game Icon" class="picture-game-float-icon" />
         </div>
+        <!-- Ara Chess Floating Icon -->
+        <div class="chess-bubble-container" role="button" aria-label="Open Ara Chess" onclick="openChessGame()">
+            <img src="icons/chess.svg" alt="Ara Chess Game Icon" class="picture-game-float-icon" />
+        </div>
     </div>
 </div>
 
@@ -788,6 +792,13 @@
     <button class="popup-close ripple shockwave" onclick="closeWordSearchGame()">×</button>
     <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
     <iframe src="word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<!-- Ara Chess Container -->
+<div id="chessGameContainer" class="chatbot-container" role="dialog" aria-labelledby="chessGameTitle">
+    <button class="popup-close ripple shockwave" onclick="closeChessGame()">×</button>
+    <h3 id="chessGameTitle" class="modal-title">Ara Chess</h3>
+    <iframe src="chess.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- About Us Container -->
