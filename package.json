@@ -5,6 +5,10 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "lyric-parser": "^1.0.1"
+    "lyric-parser": "^1.0.1",
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0"
   }
 }
