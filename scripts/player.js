@@ -312,7 +312,7 @@ function selectTrack(src, title, index) {
       lastTrackIndex = index;
       audioPlayer.src = src + '?t=' + new Date().getTime();
       if (wavesurfer) {
-        wavesurfer.load(audioPlayer);
+        wavesurfer.load(audioPlayer.src);
       }
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
@@ -340,7 +340,7 @@ function selectTrack(src, title, index) {
       currentRadioIndex = -1;
       audioPlayer.src = src;
       if (wavesurfer) {
-        wavesurfer.load(audioPlayer);
+        wavesurfer.load(audioPlayer.src);
       }
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
@@ -375,7 +375,7 @@ function selectTrack(src, title, index) {
       lastTrackIndex = index;
       audioPlayer.src = src;
       if (wavesurfer) {
-        wavesurfer.load(audioPlayer);
+        wavesurfer.load(audioPlayer.src);
       }
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
