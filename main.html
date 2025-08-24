@@ -229,6 +229,9 @@
     .music-controls.icons-only button:hover { transform: scale(1.1); }
     .track-info { margin-top: 0.6rem; font-size: clamp(1rem, 3vw, 1.2rem); }
     .track-duration { font-size: clamp(0.8rem, 2vw, 0.9rem); margin-top: 0.3rem; }
+    #lyrics { margin-top: 0.6rem; max-height: 200px; overflow-y: auto; text-align: center; display: none; }
+    #lyrics p { margin: 0.2rem 0; }
+    #lyrics p.active { color: var(--theme-color); font-weight: bold; }
     .track-details { margin-top: 0.6rem; font-size: clamp(0.8rem, 2vw, 0.9rem); }
     .dropdown {
       width: 100%;
@@ -667,6 +670,8 @@
     />
     <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
     <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)" aria-label="Download track for offline playback">Download for Offline</button>
+    <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
+    <div id="lyrics"></div>
     <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()" aria-haspopup="true" aria-expanded="false">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
       <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
@@ -830,7 +835,8 @@
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
 
   <script src="scripts/data.js"></script>
-    <script src="scripts/player.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
+  <script src="scripts/player.js"></script>
       <script src="scripts/ui.js"></script>
       <script src="color-scheme.js"></script>
       <script src="scripts/main.js"></script>
