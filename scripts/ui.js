@@ -196,6 +196,7 @@ const pictureGameContainer = document.getElementById('pictureGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
+const chessGameContainer = document.getElementById('chessGameContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
@@ -203,6 +204,7 @@ function isAnyPanelOpen() {
            pictureGameContainer.style.display === 'block' ||
            tetrisGameContainer.style.display === 'block' ||
            wordSearchContainer.style.display === 'block' ||
+           chessGameContainer.style.display === 'block' ||
            aboutModalContainer.style.display === 'block';
 }
 
@@ -273,6 +275,16 @@ function openWordSearchGame() {
 
 function closeWordSearchGame() {
     wordSearchContainer.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openChessGame() {
+    chessGameContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeChessGame() {
+    chessGameContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
