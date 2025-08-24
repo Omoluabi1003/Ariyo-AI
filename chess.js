@@ -1,21 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
   const game = new Chess();
-  const board = Chessboard('board', {
+  let board = null;
+
+  function onDragStart(source, piece) {
+    if (game.game_over() ||
+        (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+      return false;
+    }
+  }
+
+  function onDrop(source, target) {
+    const move = game.move({ from: source, to: target, promotion: 'q' });
+    if (move === null) return 'snapback';
+  }
+
+  function onSnapEnd() {
+    board.position(game.fen());
+  }
+
+  const config = {
     draggable: true,
     position: 'start',
-    onDragStart: function (source, piece) {
-      if (game.game_over() ||
-          (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
-        return false;
-      }
-    },
-    onDrop: function (source, target) {
-      const move = game.move({ from: source, to: target, promotion: 'q' });
-      if (move === null) return 'snapback';
-    },
-    onSnapEnd: function () {
-      board.position(game.fen());
-    }
-  });
+    onDragStart: onDragStart,
+    onDrop: onDrop,
+    onSnapEnd: onSnapEnd
+  };
+
+  board = Chessboard('board', config);
 });
