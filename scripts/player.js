@@ -27,14 +27,30 @@
     const retryButton = document.getElementById('retryButton');
     const cacheButton = document.getElementById('cacheButton'); // New cache button
     const progressBar = document.getElementById('progressBarFill');
-    const lyricsContainer = document.getElementById('lyrics');
-    let lyricLines = [];
-    let shuffleMode = false; // True if any shuffle is active
-    let shuffleScope = 'off'; // 'off', 'album', 'all'
-    let isFirstPlay = true;
-    let lastTrackSrc = '';
-    let lastTrackTitle = '';
-    let lastTrackIndex = 0;
+const lyricsContainer = document.getElementById('lyrics');
+let lyricLines = [];
+let shuffleMode = false; // True if any shuffle is active
+let shuffleScope = 'off'; // 'off', 'album', 'all'
+let isFirstPlay = true;
+let lastTrackSrc = '';
+let lastTrackTitle = '';
+let lastTrackIndex = 0;
+
+    const waveformContainer = document.getElementById('waveform');
+    let wavesurfer;
+    if (waveformContainer && window.WaveSurfer) {
+      const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const waveColor = isDark ? '#888' : '#555';
+      const progressColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-color') || '#ff7043';
+      wavesurfer = WaveSurfer.create({
+        container: waveformContainer,
+        waveColor: waveColor,
+        progressColor: progressColor.trim(),
+        height: 80,
+        cursorWidth: 0,
+        media: audioPlayer,
+      });
+    }
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -295,6 +311,9 @@ function selectTrack(src, title, index) {
       lastTrackTitle = title;
       lastTrackIndex = index;
       audioPlayer.src = src + '?t=' + new Date().getTime();
+      if (wavesurfer) {
+        wavesurfer.load(audioPlayer);
+      }
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
@@ -320,6 +339,9 @@ function selectTrack(src, title, index) {
       currentTrackIndex = index;
       currentRadioIndex = -1;
       audioPlayer.src = src;
+      if (wavesurfer) {
+        wavesurfer.load(audioPlayer);
+      }
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = 'Artist: Omoluabi';
@@ -352,6 +374,9 @@ function selectTrack(src, title, index) {
       lastTrackTitle = title;
       lastTrackIndex = index;
       audioPlayer.src = src;
+      if (wavesurfer) {
+        wavesurfer.load(audioPlayer);
+      }
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
