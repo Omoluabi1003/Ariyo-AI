@@ -2,6 +2,10 @@
   "name": "ariyo-ai",
   "version": "1.0.0",
   "scripts": {
-    "test": "echo \"No tests yet\""
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "playwright": "^1.55.0"
   }
 }
