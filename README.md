@@ -9,7 +9,12 @@
 - **Sabi Bible Mode:** Access a special mode for spiritual content.
 - **PWA:** Install the application on your device for offline access and a native-like experience.
 - **Radio:** Listen to a variety of Nigerian and international radio stations.
-- **Games:** Play mini-games like Picture Game, Omoluabi Tetris, Word Search, and Ara Connect-4.
+- **Games:** Play mini-games like Picture Game, Omoluabi Tetris, Word Search, Ara Connect-4, and Wizznic Puzzle.
+  - Picture Game
+  - Omoluabi Tetris
+  - Omoluabi Word Search
+  - Ara Connect-4
+  - Wizznic Puzzle
 - **Shareable Links:** Copy or share a URL that opens the app to a specific track (e.g., `main.html?album=kindness&track=locked-away`).
 
 ## Technologies Used

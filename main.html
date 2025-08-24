@@ -749,6 +749,10 @@
         <div class="connect-four-bubble-container" role="button" aria-label="Open Ara Connect-4" onclick="openConnectFourGame()">
             <img src="icons/connect-four.svg" alt="Ara Connect-4 Game Icon" class="picture-game-float-icon" />
         </div>
+        <!-- Wizznic Floating Icon -->
+        <div class="wizznic-bubble-container" role="button" aria-label="Open Wizznic Puzzle" onclick="openWizznicGame()">
+            <img src="icons/wizznic.svg" alt="Wizznic Puzzle Game Icon" class="picture-game-float-icon" />
+        </div>
     </div>
 </div>
 
@@ -806,6 +810,13 @@
     <button class="popup-close ripple shockwave" onclick="closeConnectFourGame()">×</button>
     <h3 id="connectFourTitle" class="modal-title">Ara Connect-4</h3>
     <iframe src="connect-four.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<!-- Wizznic Puzzle Container -->
+<div id="wizznicContainer" class="chatbot-container" role="dialog" aria-labelledby="wizznicTitle">
+    <button class="popup-close ripple shockwave" onclick="closeWizznicGame()">×</button>
+    <h3 id="wizznicTitle" class="modal-title">Wizznic Puzzle</h3>
+    <iframe src="wizznic.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- About Us Container -->
