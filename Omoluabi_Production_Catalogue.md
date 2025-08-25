@@ -25,3 +25,4 @@
 - [No Be My Story](https://suno.com/s/iMWJBndE9509dw8Z)
 - [Na We Dey](https://suno.com/s/bOd4eDFLqNrpfhAA)
 - [The Distance](https://suno.com/s/r3iSeIjGnUhXBYYP)
+- [Stand With Truth](https://suno.com/song/ab26a763-cba1-4426-9bf0-8117d0602684)
