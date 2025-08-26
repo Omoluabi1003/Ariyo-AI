@@ -61,7 +61,7 @@ const albums = [
       {
         name: 'Dirty Dancing (Original Soundtrack from the Vestron Motion Picture)',
         artist: 'Various Artists',
-        cover: 'https://upload.wikimedia.org/wikipedia/en/9/90/DirtyDancingSoundtrack.jpg',
+        cover: `${BASE_URL}Dirty%20Dancing.jpg`,
         tracks: [
           { src: 'https://drive.google.com/uc?export=download&id=10Sj4C9EjL_oTC5BrUEO124F3IIJIIUJi', title: "(I've Had) The Time Of My Life" },
           { src: 'https://drive.google.com/uc?export=download&id=15OZoamtswdbYjhjKpvUcQ3HK0MXq0_mQ', title: 'Be My Baby' },
