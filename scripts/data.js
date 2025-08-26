@@ -59,6 +59,25 @@ const albums = [
         ]
       },
       {
+        name: 'Dirty Dancing (Original Soundtrack from the Vestron Motion Picture)',
+        artist: 'Various Artists',
+        cover: 'https://upload.wikimedia.org/wikipedia/en/9/90/DirtyDancingSoundtrack.jpg',
+        tracks: [
+          { src: 'https://drive.google.com/uc?export=download&id=10Sj4C9EjL_oTC5BrUEO124F3IIJIIUJi', title: "(I've Had) The Time Of My Life" },
+          { src: 'https://drive.google.com/uc?export=download&id=15OZoamtswdbYjhjKpvUcQ3HK0MXq0_mQ', title: 'Be My Baby' },
+          { src: 'https://drive.google.com/uc?export=download&id=1VUl5XVXi5jjszQKFzMpSBvFCQrjDMs7j', title: "She's Like The Wind" },
+          { src: 'https://drive.google.com/uc?export=download&id=1JU2aOZt3mnj_wIa4Tzt6r57EkPQu5U7j', title: 'Hungry Eyes' },
+          { src: 'https://drive.google.com/uc?export=download&id=1fmZvd26VVRuON_KpsyCJLrY9CxwctUmc', title: 'Stay' },
+          { src: 'https://drive.google.com/uc?export=download&id=1PUecCtvYXO5jy8IYiPN7olDWnno39hHl', title: 'Yes' },
+          { src: 'https://drive.google.com/uc?export=download&id=1pau2Z86nwxk9ystblR1kbAF901EtuKLi', title: "You Don't Own Me" },
+          { src: 'https://drive.google.com/uc?export=download&id=1Tmb0pfUsx9HUVmTLppIpuxeuQGLIS64P', title: 'Hey Baby' },
+          { src: 'https://drive.google.com/uc?export=download&id=1N8gGmzP_vXIYCB9_AgifNLiZWK3rUNg0', title: 'Overload' },
+          { src: 'https://drive.google.com/uc?export=download&id=1kdywx21VMHJQ0SUEfEZa66-pxPxxv2GW', title: 'Love Is Strange' },
+          { src: 'https://drive.google.com/uc?export=download&id=1ttGd5IDKcmr5xkfKqFWI0Own18Q3zOE0', title: 'Where Are You Tonight?' },
+          { src: 'https://drive.google.com/uc?export=download&id=1Aba8QhFHZhgfbxDouD9ZwkCZvqJveXaM', title: 'In The Still Of The Night' }
+        ]
+      },
+      {
         name: 'Needs',
         cover: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/FaithandB.jpg',
         tracks: [

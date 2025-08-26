@@ -296,7 +296,7 @@ function selectTrack(src, title, index) {
       lastTrackIndex = index;
       audioPlayer.src = src + '?t=' + new Date().getTime();      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
-      trackArtist.textContent = 'Artist: Omoluabi';
+      trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       trackYear.textContent = 'Release Year: 2025';
       trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
@@ -320,7 +320,7 @@ function selectTrack(src, title, index) {
       currentRadioIndex = -1;
       audioPlayer.src = src;      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
-      trackArtist.textContent = 'Artist: Omoluabi';
+      trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       trackYear.textContent = 'Release Year: 2025';
       trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       stopMusic();

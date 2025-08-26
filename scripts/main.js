@@ -347,7 +347,7 @@
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
-          artist: currentRadioIndex === -1 ? 'Omoluabi' : '',
+          artist: currentRadioIndex === -1 ? (albums[currentAlbumIndex].artist || 'Omoluabi') : '',
           album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
           artwork: [
             { src: artwork, sizes: '96x96', type: 'image/jpeg' },
@@ -422,7 +422,7 @@
           const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
           audioPlayer.src = track.src;
           trackInfo.textContent = track.title;
-          trackArtist.textContent = 'Artist: Omoluabi';
+          trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
           trackYear.textContent = 'Release Year: 2025';
            trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
           cacheButton.style.display = 'block'; // Show for tracks
