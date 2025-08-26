@@ -60,26 +60,6 @@ const albums = [
         ]
       },
       {
-        name: 'Dirty Dancing (Original Soundtrack from the Vestron Motion Picture)',
-        artist: 'Various Artists',
-        cover: `${BASE_URL}Dirty%20Dancing.jpg`,
-        tracks: [
-          { src: `${DRIVE_URL}10Sj4C9EjL_oTC5BrUEO124F3IIJIIUJi`, title: "(I've Had) The Time Of My Life" },
-          { src: `${DRIVE_URL}15OZoamtswdbYjhjKpvUcQ3HK0MXq0_mQ`, title: 'Be My Baby' },
-          { src: `${DRIVE_URL}1VUl5XVXi5jjszQKFzMpSBvFCQrjDMs7j`, title: "She's Like The Wind" },
-          { src: `${DRIVE_URL}1JU2aOZt3mnj_wIa4Tzt6r57EkPQu5U7j`, title: 'Hungry Eyes' },
-          { src: `${DRIVE_URL}1fmZvd26VVRuON_KpsyCJLrY9CxwctUmc`, title: 'Stay' },
-          { src: `${DRIVE_URL}1PUecCtvYXO5jy8IYiPN7olDWnno39hHl`, title: 'Yes' },
-          { src: `${DRIVE_URL}1pau2Z86nwxk9ystblR1kbAF901EtuKLi`, title: "You Don't Own Me" },
-          { src: `${DRIVE_URL}1Tmb0pfUsx9HUVmTLppIpuxeuQGLIS64P`, title: 'Hey Baby' },
-          { src: `${DRIVE_URL}1N8gGmzP_vXIYCB9_AgifNLiZWK3rUNg0`, title: 'Overload' },
-          { src: `${DRIVE_URL}1kdywx21VMHJQ0SUEfEZa66-pxPxxv2GW`, title: 'Love Is Strange' },
-          { src: `${DRIVE_URL}1ttGd5IDKcmr5xkfKqFWI0Own18Q3zOE0`, title: 'Where Are You Tonight?' },
-          { src: `${DRIVE_URL}1Aba8QhFHZhgfbxDouD9ZwkCZvqJveXaM`, title: 'In The Still Of The Night' },
-          { src: `https://example.com/new-track.mp3`, title: 'This is a new track' }
-        ]
-      },
-      {
         name: 'Needs',
         cover: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/FaithandB.jpg',
         tracks: [
