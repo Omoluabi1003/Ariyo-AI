@@ -60,7 +60,7 @@ const albums = [
         ]
       },
       {
-        name: 'Dirty Dancing (Original Soundtrack from the Vestron Motion Picture)',
+        name: 'Dirty Dancing- Original Soundtrack From The Vestron Motion Picture',
         artist: 'Various Artists',
         cover: `${BASE_URL}Dirty%20Dancing.jpg`,
         tracks: [
@@ -75,8 +75,7 @@ const albums = [
           { src: `${DRIVE_URL}1N8gGmzP_vXIYCB9_AgifNLiZWK3rUNg0`, title: 'Overload' },
           { src: `${DRIVE_URL}1kdywx21VMHJQ0SUEfEZa66-pxPxxv2GW`, title: 'Love Is Strange' },
           { src: `${DRIVE_URL}1ttGd5IDKcmr5xkfKqFWI0Own18Q3zOE0`, title: 'Where Are You Tonight?' },
-          { src: `${DRIVE_URL}1Aba8QhFHZhgfbxDouD9ZwkCZvqJveXaM`, title: 'In The Still Of The Night' },
-          { src: `https://example.com/new-track.mp3`, title: 'This is a new track' }
+          { src: `${DRIVE_URL}1Aba8QhFHZhgfbxDouD9ZwkCZvqJveXaM`, title: 'In The Still Of The Night' }
         ]
       },
       {
