@@ -1,6 +1,18 @@
 /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
-    audioPlayer.crossOrigin = "anonymous";
+    function setCrossOrigin(element, url) {
+        try {
+            const host = new URL(url, window.location.origin).hostname;
+            const corsAllowedHosts = ['raw.githubusercontent.com', 'drive.google.com'];
+            if (corsAllowedHosts.some(h => host.endsWith(h))) {
+                element.crossOrigin = 'anonymous';
+            } else {
+                element.removeAttribute('crossorigin');
+            }
+        } catch (e) {
+            element.removeAttribute('crossorigin');
+        }
+    }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
 
@@ -143,7 +155,7 @@ let lastTrackIndex = 0;
         if (!track.duration) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
-          tempAudio.crossOrigin = 'anonymous';
+          setCrossOrigin(tempAudio, track.src);
           tempAudio.src = track.src;
           tempAudio.addEventListener('loadedmetadata', () => {
             track.duration = tempAudio.duration;
@@ -204,7 +216,7 @@ async function checkStreamStatus(url) {
           }
         };
 
-        testAudio.crossOrigin = 'anonymous';
+        setCrossOrigin(testAudio, url);
         testAudio.preload = 'auto';
         testAudio.addEventListener('canplay', onCanPlay, { once: true });
         testAudio.addEventListener('error', onError, { once: true });
@@ -302,6 +314,7 @@ function selectTrack(src, title, index) {
       lastTrackIndex = index;
       const urlHost = new URL(src, window.location.origin).hostname;
       const isSunoHosted = urlHost.includes('suno');
+      setCrossOrigin(audioPlayer, src);
       audioPlayer.src = isSunoHosted ? src : `${src}?t=${Date.now()}`;
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
@@ -327,7 +340,9 @@ function selectTrack(src, title, index) {
       console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
-      audioPlayer.src = src;      audioPlayer.currentTime = 0;
+      setCrossOrigin(audioPlayer, src);
+      audioPlayer.src = src;
+      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       trackYear.textContent = 'Release Year: 2025';
@@ -358,7 +373,9 @@ function selectTrack(src, title, index) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      audioPlayer.src = src;      audioPlayer.currentTime = 0;
+      setCrossOrigin(audioPlayer, src);
+      audioPlayer.src = src;
+      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
