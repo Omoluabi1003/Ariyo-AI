@@ -163,7 +163,7 @@ const albums = [
             { src: 'https://cdn1.suno.ai/a5a8c49a-6871-40b6-9054-36c81ed8be90.mp3', title: 'Pastor or Hustler' },
             { src: 'https://cdn1.suno.ai/7356371a-b8f7-470a-87a3-dbe5c2916f72.mp3', title: 'Fore-runner’s Map' },
             { src: 'https://cdn1.suno.ai/5ad4f8bc-4cef-4ad4-b847-c4f1b8147445.mp3', title: 'No Look Down' },
-            { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: 'Wonder\'s Breeze' },
+            { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" },
             { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
             { src: 'https://cdn1.suno.ai/57a24cc6-ab05-447a-91ab-008321e9fc6a.mp3', title: 'Ghostwriter' },
             { src: 'https://cdn1.suno.ai/c84b1a3e-b364-41d3-be5f-8e3b2273eb96.mp3', title: 'A Wa Good Gan' },
