@@ -1,6 +1,5 @@
 /* MUSIC PLAYER LOGIC */
     const audioPlayer = new Audio();
-    audioPlayer.crossOrigin = "anonymous";
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
 
@@ -16,6 +15,16 @@
     audioPlayer.id = 'audioPlayer';
     audioPlayer.preload = 'auto';
     document.body.appendChild(audioPlayer);
+
+    function setAudioSource(src) {
+      if (src.includes('drive.google.com')) {
+        audioPlayer.removeAttribute('crossOrigin');
+      } else {
+        audioPlayer.crossOrigin = 'anonymous';
+      }
+      audioPlayer.src = src;
+      audioPlayer.currentTime = 0;
+    }
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
@@ -135,7 +144,7 @@ let lastTrackIndex = 0;
           selectTrack(track.src, track.title, index);
         });
 
-        // Use cached duration if available, otherwise fetch it
+        // Use cached duration if available, otherwise attempt to fetch it
         const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
         trackLink.textContent = `${track.title}${displayDuration}`;
         trackListContainer.appendChild(trackLink);
@@ -143,14 +152,16 @@ let lastTrackIndex = 0;
         if (!track.duration) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
-          tempAudio.crossOrigin = 'anonymous';
+          if (!track.src.includes('drive.google.com')) {
+            tempAudio.crossOrigin = 'anonymous';
+          }
           tempAudio.src = track.src;
           tempAudio.addEventListener('loadedmetadata', () => {
             track.duration = tempAudio.duration;
             trackLink.textContent = `${track.title} (${formatTime(track.duration)})`;
           });
           tempAudio.addEventListener('error', () => {
-            trackLink.textContent = `${track.title} (N/A)`;
+            trackLink.textContent = track.title;
           });
         }
       });
@@ -204,7 +215,6 @@ async function checkStreamStatus(url) {
           }
         };
 
-        testAudio.crossOrigin = 'anonymous';
         testAudio.preload = 'auto';
         testAudio.addEventListener('canplay', onCanPlay, { once: true });
         testAudio.addEventListener('error', onError, { once: true });
@@ -300,7 +310,7 @@ function selectTrack(src, title, index) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      audioPlayer.src = src + '?t=' + new Date().getTime();      audioPlayer.currentTime = 0;
+      setAudioSource(src + '?t=' + new Date().getTime());
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       trackYear.textContent = 'Release Year: 2025';
@@ -324,7 +334,7 @@ function selectTrack(src, title, index) {
       console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
-      audioPlayer.src = src;      audioPlayer.currentTime = 0;
+      setAudioSource(src);
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       trackYear.textContent = 'Release Year: 2025';
@@ -355,7 +365,7 @@ function selectTrack(src, title, index) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      audioPlayer.src = src;      audioPlayer.currentTime = 0;
+      setAudioSource(src);
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
