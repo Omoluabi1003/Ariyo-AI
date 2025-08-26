@@ -123,11 +123,17 @@ let lastTrackIndex = 0;
 
     function updateTrackListModal() {
       const trackListContainer = document.querySelector('.track-list');
+      const trackModalTitle = document.getElementById('trackModalTitle');
+      trackModalTitle.textContent = albums[currentAlbumIndex].name;
       trackListContainer.innerHTML = '';
       albums[currentAlbumIndex].tracks.forEach((track, index) => {
         const trackLink = document.createElement('a');
-        trackLink.href = '#';
-        trackLink.onclick = () => selectTrack(track.src, track.title, index);
+        trackLink.href = track.src;
+        trackLink.target = '_blank';
+        trackLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          selectTrack(track.src, track.title, index);
+        });
 
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
