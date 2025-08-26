@@ -300,7 +300,10 @@ function selectTrack(src, title, index) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      audioPlayer.src = src + '?t=' + new Date().getTime();      audioPlayer.currentTime = 0;
+      const urlHost = new URL(src, window.location.origin).hostname;
+      const isSunoHosted = urlHost.includes('suno');
+      audioPlayer.src = isSunoHosted ? src : `${src}?t=${Date.now()}`;
+      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       trackYear.textContent = 'Release Year: 2025';
