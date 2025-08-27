@@ -60,7 +60,7 @@ const albums = [
         ]
       },
       {
-        name: 'Dirty Dancing- Original Soundtrack From The Vestron Motion Picture',
+        name: 'Dirty Dancing',
         artist: 'Various Artists',
         cover: `${BASE_URL}Dirty%20Dancing.jpg`,
         releaseYear: 1987,
