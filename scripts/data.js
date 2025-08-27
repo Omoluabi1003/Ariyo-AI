@@ -176,7 +176,8 @@ const albums = [
             { src: `${BASE_URL}No%20Be%20My%20Story.mp3`, title: 'No Be My Story' },
             { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' },
             { src: 'https://cdn1.suno.ai/e70059ca-398f-481e-9a71-6338fcfb9a1d.mp3', title: 'The Distance' },
-            { src: 'https://cdn1.suno.ai/ab26a763-cba1-4426-9bf0-8117d0602684.mp3', title: 'Stand With Truth' }
+            { src: 'https://cdn1.suno.ai/ab26a763-cba1-4426-9bf0-8117d0602684.mp3', title: 'Stand With Truth' },
+            { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' }
         ]
       },
     ];
