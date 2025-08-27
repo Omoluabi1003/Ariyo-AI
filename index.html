@@ -28,7 +28,6 @@
     <link rel="apple-touch-icon" href="icons/Ariyo.png">
 </head>
 <body>
-    <div class="news-banner">Mark your calendar—my next album, TERMS OF AGREEMENT, drops on September 5, 2025. Can’t wait for you to hear what’s coming. Stay tuned!</div>
     <div class="overlay">
         <h1>Welcome to Àríyò AI</h1>
         <p>Your smart Naija assistant.</p>
@@ -69,6 +68,8 @@
       <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
       <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
     </div>
+
+    <div id="news-banner" class="news-banner"></div>
 
     <script>
         document.querySelectorAll('.exploding-watermark').forEach(watermark => {
@@ -154,6 +155,23 @@
         gsap.set(steps, { opacity: 0 });
         gsap.set(steps[0], { opacity: 1 });
         setInterval(showNextStep, 3000);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const banner = document.getElementById('news-banner');
+            const text = "Mark your calendar—my next album, TERMS OF AGREEMENT, drops on September 5, 2025. Can’t wait for you to hear what’s coming. Stay tuned!";
+            let index = 0;
+
+            function type() {
+                if (index < text.length) {
+                    banner.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(type, 50);
+                }
+            }
+
+            type();
+        });
     </script>
     <script src="color-scheme.js"></script>
     <script>
