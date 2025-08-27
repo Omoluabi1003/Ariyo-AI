@@ -1,11 +1,11 @@
 :root {
     --background-color: #000;
     --text-color: #fff;
-    --theme-color: #00f;
+    --theme-color: #1565c0;
 }
 
 body.light {
     --background-color: #fff;
     --text-color: #000;
-    --theme-color: #0066ff;
+    --theme-color: #1e88e5;
 }
