@@ -167,6 +167,12 @@
                     banner.textContent += text.charAt(index);
                     index++;
                     setTimeout(type, 50);
+                } else {
+                    setTimeout(() => {
+                        banner.textContent = '';
+                        index = 0;
+                        type();
+                    }, 2000);
                 }
             }
 
