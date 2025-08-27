@@ -423,8 +423,9 @@
           audioPlayer.src = track.src;
           trackInfo.textContent = track.title;
           trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
-          trackYear.textContent = 'Release Year: 2025';
-           trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
+          const year = albums[currentAlbumIndex].releaseYear || 2025;
+          trackYear.textContent = `Release Year: ${year}`;
+          trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
           cacheButton.style.display = 'block'; // Show for tracks
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;

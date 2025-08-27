@@ -319,7 +319,8 @@ function selectTrack(src, title, index) {
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
-      trackYear.textContent = 'Release Year: 2025';
+      const year = albums[currentAlbumIndex].releaseYear || 2025;
+      trackYear.textContent = `Release Year: ${year}`;
       trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
       loadLyrics(albums[currentAlbumIndex].tracks[currentTrackIndex].lrc);
@@ -345,7 +346,8 @@ function selectTrack(src, title, index) {
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
-      trackYear.textContent = 'Release Year: 2025';
+      const year = albums[currentAlbumIndex].releaseYear || 2025;
+      trackYear.textContent = `Release Year: ${year}`;
       trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
       stopMusic();
       loadingSpinner.style.display = 'block';
