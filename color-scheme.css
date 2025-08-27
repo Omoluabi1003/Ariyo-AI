@@ -1,8 +1,8 @@
-/* Sunset color scheme */
+/* Professional blue color scheme */
 :root {
-  --theme-color: #ff7043;
+  --theme-color: #1565c0;
   --gradient-start: var(--theme-color);
-  --gradient-end: #bf360c;
+  --gradient-end: #003c8f;
 }
 
 body {
