@@ -624,6 +624,18 @@
     </button>
   </div>
 
+  <p class="tagline">Your smart Naija assistant.</p>
+  <div class="tour-container">
+    <div class="tour-column">
+      <div class="tour-step" id="step1">🎧 Listen to Naija music</div>
+      <div class="tour-step" id="step2">🤖 Chat with Ariyo AI</div>
+    </div>
+    <div class="tour-column">
+      <div class="tour-step" id="step3">📖 Read the Sabi Bible</div>
+      <div class="tour-step" id="step4">🧩 Puzzle games available</div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="sidebar">
       <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
@@ -843,6 +855,23 @@
       <script>
         changeColorScheme();
       </script>
+  <script>
+    const steps = ["#step1", "#step2", "#step3", "#step4"];
+    let currentStep = 0;
+    function showNextStep() {
+      gsap.to(steps[currentStep], {
+        opacity: 0,
+        duration: 0.5,
+        onComplete: () => {
+          currentStep = (currentStep + 1) % steps.length;
+          gsap.to(steps[currentStep], { opacity: 1, duration: 0.5, delay: 0.5 });
+        }
+      });
+    }
+    gsap.set(steps, { opacity: 0 });
+    gsap.set(steps[0], { opacity: 1 });
+    setInterval(showNextStep, 3000);
+  </script>
     <script src="user-tracking.js"></script>
     <script src="prevent-zoom.js"></script>
     <!-- Floating Watermarks -->
