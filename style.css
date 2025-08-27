@@ -36,6 +36,39 @@ body {
     text-shadow: 0 0 2px #fff;
 }
 
+/* Welcome Feature List */
+.tagline {
+    text-align: center;
+    font-size: 1rem;
+    margin: 0.5rem 0;
+}
+
+.tour-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tour-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.tour-step {
+    font-size: 0.9rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+@media (max-width: 768px) {
+    .tour-step {
+        display: block;
+        margin: 0.5rem 0;
+    }
+}
+
 /* Container and Sidebar */
 .container {
     display: flex;
