@@ -1,8 +1,8 @@
-/* Professional blue color scheme */
+/* Vibrant purple color scheme */
 :root {
-  --theme-color: #1565c0;
+  --theme-color: #8e44ad;
   --gradient-start: var(--theme-color);
-  --gradient-end: #003c8f;
+  --gradient-end: #4a148c;
 }
 
 body {

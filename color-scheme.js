@@ -3,9 +3,9 @@ function changeColorScheme() {
 }
 
 function applyTheme() {
-    const themeColor = '#1565c0';
+    const themeColor = '#8e44ad';
     const gradStart = themeColor;
-    const gradEnd = '#003c8f';
+    const gradEnd = '#4a148c';
     const style = document.getElementById('theme-style') || document.createElement('style');
     style.id = 'theme-style';
     style.innerHTML = `
@@ -19,7 +19,7 @@ function applyTheme() {
     .progress-bar div { background: ${themeColor}; }
     .install-btn { background: ${themeColor}; }
     #start-button { background-color: ${themeColor}; }
-    body { background-color: #e3f2fd; color: #000000; }
+    body { background-color: #f3e5f5; color: #000000; }
   `;
     document.head.appendChild(style);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
