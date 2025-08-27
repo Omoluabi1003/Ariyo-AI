@@ -63,6 +63,7 @@ const albums = [
         name: 'Dirty Dancing- Original Soundtrack From The Vestron Motion Picture',
         artist: 'Various Artists',
         cover: `${BASE_URL}Dirty%20Dancing.jpg`,
+        releaseYear: 1987,
         tracks: [
           { src: `${DD_URL}01%20The%20Time%20Of%20My%20Life.mp3`, title: "(I've Had) The Time Of My Life" },
           { src: `${DD_URL}02%20Be%20My%20Baby.mp3`, title: 'Be My Baby' },
