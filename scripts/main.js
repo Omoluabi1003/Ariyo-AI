@@ -672,8 +672,8 @@
             .catch(error => console.error('Error checking for updates:', error));
     }
 
-    // Check for updates every 5 minutes
-    setInterval(checkForUpdates, 300000);
+    // Check for updates every 30 seconds for faster syncing
+    setInterval(checkForUpdates, 30000);
 
     // Initial check
     checkForUpdates();
