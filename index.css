@@ -47,6 +47,26 @@ body {
     50%, 100% { opacity: 0; }
 }
 
+.countdown {
+    text-align: center;
+    margin: 0.5rem 0;
+    font-size: clamp(1rem, 4vw, 1.8rem);
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.countdown.red-on-black {
+    color: #ff0000;
+    background-color: #000;
+}
+
+.countdown.black-on-red {
+    color: #000;
+    background-color: #ff0000;
+}
+
 .overlay {
     background-color: rgba(0, 0, 0, 0.7);
     padding: 2rem;
