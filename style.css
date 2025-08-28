@@ -54,9 +54,12 @@ body {
 .countdown {
     text-align: center;
     margin: 0.5rem 0;
-    font-size: clamp(0.9rem, 2vw, 1rem);
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
     font-family: 'Roboto', sans-serif;
-    color: #fff;
+    color: #000;
+    -webkit-text-stroke: 1px #fff;
+    text-shadow: 0 0 3px #fff;
+    font-weight: bold;
 }
 
 /* Header Styles */
