@@ -624,8 +624,6 @@
     </button>
   </div>
 
-  <div id="countdown" class="countdown red-on-black"></div>
-
   <div class="container">
     <div class="sidebar">
       <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
@@ -878,8 +876,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       const banner = document.getElementById('news-banner');
       const messages = [
-        "Mark your calendar—my next album, TERMS OF AGREEMENT, drops on September 5, 2025.",
-        "Can't wait for you to hear what's coming. Stay tuned!"
+        "September 5th, 2025, SET THE DATE.",
+        "TERMS OF AGREEMENT ALBUM RELEASE"
       ];
       let messageIndex = 0;
       let charIndex = 0;
@@ -901,29 +899,6 @@
       }
 
       type();
-
-      const countdownEl = document.getElementById('countdown');
-      const releaseDate = new Date('2025-09-05T00:00:00');
-
-      function updateCountdown() {
-        const now = new Date();
-        const diff = releaseDate - now;
-
-        if (diff <= 0) {
-          countdownEl.textContent = 'TERMS OF AGREEMENT is out now!';
-          return;
-        }
-
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-
-        countdownEl.textContent = `TERMS OF AGREEMENT drops in ${days}d ${hours}h ${minutes}m ${seconds}s`;
-      }
-
-      updateCountdown();
-      setInterval(updateCountdown, 1000);
     });
   </script>
 </body>
