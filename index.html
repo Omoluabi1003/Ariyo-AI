@@ -70,8 +70,6 @@
       <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
     </div>
 
-    <div id="news-banner" class="news-banner"></div>
-
     <script>
         document.querySelectorAll('.exploding-watermark').forEach(watermark => {
             watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
@@ -159,26 +157,6 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const banner = document.getElementById('news-banner');
-            const text = "Mark your calendar—my next album, TERMS OF AGREEMENT, drops on September 5, 2025. Can’t wait for you to hear what’s coming. Stay tuned!";
-            let index = 0;
-
-            function type() {
-                if (index < text.length) {
-                    banner.textContent += text.charAt(index);
-                    index++;
-                    setTimeout(type, 50);
-                } else {
-                    setTimeout(() => {
-                        banner.textContent = '';
-                        index = 0;
-                        type();
-                    }, 2000);
-                }
-            }
-
-            type();
-
             const countdownEl = document.getElementById('countdown');
             const releaseDate = new Date('2025-09-05T00:00:00');
 

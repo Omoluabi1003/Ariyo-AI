@@ -17,36 +17,6 @@ body {
     background-position: center;
 }
 
-.news-banner {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #6a5acd;
-    color: #fff;
-    text-align: center;
-    padding: 0.3rem clamp(0.5rem, 2vw, 1rem);
-    font-size: clamp(0.8rem, 2vw, 1rem);
-    z-index: 10000;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.news-banner::after {
-    content: '';
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    background: #fff;
-    margin-left: 2px;
-    animation: blink 0.8s steps(1, end) infinite;
-}
-
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    50%, 100% { opacity: 0; }
-}
-
 .countdown {
     text-align: center;
     margin: 0.5rem 0;
