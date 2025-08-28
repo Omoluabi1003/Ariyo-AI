@@ -56,10 +56,20 @@ body {
     margin: 0.5rem 0;
     font-size: clamp(1.5rem, 5vw, 2.5rem);
     font-family: 'Roboto', sans-serif;
-    color: #000;
-    -webkit-text-stroke: 1px #fff;
-    text-shadow: 0 0 3px #fff;
     font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Variants for countdown color schemes */
+.countdown.red-on-black {
+    color: #ff0000;
+    background-color: #000;
+}
+
+.countdown.black-on-red {
+    color: #000;
+    background-color: #ff0000;
 }
 
 /* Header Styles */
