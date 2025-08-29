@@ -28,3 +28,4 @@
 - [Stand With Truth](https://suno.com/song/ab26a763-cba1-4426-9bf0-8117d0602684)
 - [Tears Of Love](https://suno.com/s/AKAf49gfXYlFr8IH)
 - [Raising Boys](https://suno.com/s/kzukeTGerRCfKifD)
+- [Destiny No Dey Wait](https://suno.com/s/pvsxGhWcbBIEhfl8)
