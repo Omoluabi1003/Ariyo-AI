@@ -138,7 +138,18 @@ let lastTrackIndex = 0;
       const trackModalTitle = document.getElementById('trackModalTitle');
       trackModalTitle.textContent = albums[currentAlbumIndex].name;
       trackListContainer.innerHTML = '';
-      albums[currentAlbumIndex].tracks.forEach((track, index) => {
+
+      // Build an array of track indices and shuffle it for non-Dirty Dancing albums
+      let trackIndices = albums[currentAlbumIndex].tracks.map((_, i) => i);
+      if (albums[currentAlbumIndex].name !== 'Dirty Dancing') {
+        for (let i = trackIndices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
+        }
+      }
+
+      trackIndices.forEach(index => {
+        const track = albums[currentAlbumIndex].tracks[index];
         const trackLink = document.createElement('a');
         trackLink.href = track.src;
         trackLink.target = '_blank';
