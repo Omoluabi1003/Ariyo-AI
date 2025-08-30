@@ -179,11 +179,12 @@ body {
 
 .music-player h3 {
     margin: 0.3rem 0;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
 }
 
 .album-cover {
-    width: clamp(120px, 30vw, 200px);
-    height: clamp(120px, 30vw, 200px);
+    width: clamp(100px, 25vw, 180px);
+    height: clamp(100px, 25vw, 180px);
     border-radius: 50%;
     margin: 0.5rem auto;
     display: block;
@@ -257,20 +258,20 @@ body {
 
 .track-info {
     margin-top: 0.3rem;
-    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
     font-weight: bold; /* Improve legibility */
     color: #fff;
 }
 
 .track-duration {
-    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
     margin-top: 0.2rem;
     color: #fff;
 }
 
 .track-details {
     margin-top: 0.2rem;
-    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem);
     font-weight: bold; /* Improve legibility */
     color: #fff;
 }
@@ -288,7 +289,7 @@ body {
     cursor: pointer;
     text-align: center;
     margin-top: 1rem;
-    font-size: clamp(0.9rem, 2vw, 1rem);
+    font-size: clamp(0.8rem, 1.8vw, 0.9rem);
 }
 
 /* Modals */
@@ -426,8 +427,8 @@ body {
         width: 100%;
     }
     .album-cover {
-        width: clamp(80px, 40vw, 120px);
-        height: clamp(80px, 40vw, 120px);
+        width: clamp(70px, 30vw, 100px);
+        height: clamp(70px, 30vw, 100px);
     }
 }
 
