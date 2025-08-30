@@ -29,4 +29,4 @@
 - [Tears Of Love](https://suno.com/s/AKAf49gfXYlFr8IH)
 - [Raising Boys](https://suno.com/s/kzukeTGerRCfKifD)
 - [Destiny No Dey Wait](https://suno.com/s/pvsxGhWcbBIEhfl8)
-- [Pass The Baton](https://suno.com/s/IZsBebWDYgvGvV7r)
+- [Pass The Baton](https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3)
