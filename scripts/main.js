@@ -452,6 +452,7 @@
           shuffleBtn.textContent = '🔀 Off';
           shuffleStatusInfo.textContent = 'Shuffle: Off';
         }
+        buildShuffleQueue();
         console.log('Player restored from saved state:', savedState);
       } else {
         // Default state for a new session if no saved state
@@ -459,6 +460,7 @@
         shuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
         document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
+        buildShuffleQueue();
         selectAlbum(0);
         console.log('No saved state found, initialized with default');
       }

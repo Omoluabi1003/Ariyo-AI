@@ -154,6 +154,8 @@ function toggleShuffle() {
   // If we are in radio mode, shuffle only has on/off states
   if (currentRadioIndex !== -1) {
     shuffleMode = !shuffleMode;
+    shuffleQueue = [];
+    updateNextTrackInfo();
     if (shuffleMode) {
       shuffleBtn.textContent = '🔀 Radio';
       shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
@@ -172,18 +174,22 @@ function toggleShuffle() {
       shuffleBtn.textContent = '🔀 Album';
       shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
       console.log('Shuffle mode: Album');
+      buildShuffleQueue();
     } else if (shuffleScope === 'album') {
       shuffleScope = 'all';
       shuffleMode = true;
       shuffleBtn.textContent = '🔀 All';
       shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
       console.log('Shuffle mode: All');
+      buildShuffleQueue();
     } else { // shuffleScope === 'all'
       shuffleScope = 'off';
       shuffleMode = false;
       shuffleBtn.textContent = '🔀 Off';
       shuffleStatusInfo.textContent = 'Shuffle: Off';
       console.log('Shuffle mode: Off');
+      shuffleQueue = [];
+      updateNextTrackInfo();
     }
   }
   savePlayerState();
