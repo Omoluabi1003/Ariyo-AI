@@ -179,7 +179,8 @@ const albums = [
             { src: 'https://cdn1.suno.ai/ab26a763-cba1-4426-9bf0-8117d0602684.mp3', title: 'Stand With Truth' },
             { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
             { src: 'https://cdn1.suno.ai/c48de9b1-a68b-4889-b43b-243da2d54bc0.mp3', title: 'Raising Boys' },
-            { src: 'https://cdn1.suno.ai/f7f72dd2-12cd-4568-b831-f745973fa063.mp3', title: 'Destiny No Dey Wait' }
+            { src: 'https://cdn1.suno.ai/f7f72dd2-12cd-4568-b831-f745973fa063.mp3', title: 'Destiny No Dey Wait' },
+            { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' }
         ]
       },
     ];
