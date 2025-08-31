@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Menstrual, Ovulation, and Fertile Window Calculator</title>
+<meta name="color-scheme" content="light dark" />
+<style>
+  :root{
+    --bg: #0f1320;
+    --card: #151a2e;
+    --muted: #96a0b5;
+    --text: #eef2ff;
+    --accent: #5b8cff;
+    --accent-2:#8bd9ff;
+    --ok:#42c38b;
+    --warn:#ffb84d;
+    --bad:#ff6b6b;
+    --period:#f87171;
+    --ovulation:#22c55e;
+    --fertile:#facc15;
+    --fertile-weak:#fde68a;
+    --safe:#94a3b8;
+    --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f5f7fb; --card:#ffffff; --text:#0b1220; --muted:#475569;
+      --shadow: 0 10px 25px rgba(11,18,32,0.08);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    background: radial-gradient(1200px 600px at 70% -10%, #1a2142 0%, var(--bg) 45%);
+    color:var(--text);
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:28px 16px 64px}
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+  }
+  .logo{
+    width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: var(--shadow); display:grid; place-items:center; color:white; font-weight:800;
+  }
+  h1{font-size: clamp(22px, 3vw, 28px); margin:0}
+  .subtitle{color:var(--muted); font-size:13px}
+  .grid{
+    display:grid; gap:16px;
+    grid-template-columns: 1.2fr 1fr;
+  }
+  @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+  .card{
+    background:var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding:18px;
+    border:1px solid rgba(255,255,255,0.04);
+  }
+  .card h2{margin:0 0 10px; font-size:18px}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+  label{display:block; font-weight:600; margin-bottom:6px}
+  input[type="date"], input[type="number"], select{
+    background:#0e1326; color:var(--text); border:1px solid #263055; border-radius:10px; padding:10px 12px; min-width:180px;
+  }
+  @media (prefers-color-scheme: light){
+    input[type="date"], input[type="number"], select{background:#f5f7fb; border-color:#e6e9f2; color:var(--text)}
+  }
+  .btn{
+    appearance:none; border:0; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer;
+    background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#051027; box-shadow: var(--shadow);
+  }
+  .btn.secondary{background:#263055; color:#d6e1ff}
+  .btn.ghost{background:transparent; border:1px dashed #3b466f; color:var(--text)}
+  .list{margin-top:12px}
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:#1b2346; border:1px solid #2a3566; border-radius:999px; margin:6px 8px 0 0; font-size:13px;
+  }
+  .pill button{all:unset; cursor:pointer; color:#ffb4b4; font-weight:800}
+  .help{font-size:12px; color:var(--muted)}
+  .metrics{display:grid; gap:12px; grid-template-columns: repeat(2, 1fr)}
+  @media (max-width:700px){ .metrics{grid-template-columns:1fr} }
+  .kpi{
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0));
+    border:1px solid #2a3566; border-radius:12px; padding:14px;
+  }
+  .kpi .label{color:var(--muted); font-size:12px}
+  .kpi .value{font-size:22px; font-weight:800; margin-top:4px}
+  .badge{display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; margin-left:8px}
+  .ok{background:rgba(66,195,139,0.2); color:var(--ok); border:1px solid rgba(66,195,139,0.4)}
+  .warn{background:rgba(255,184,77,0.2); color:var(--warn); border:1px solid rgba(255,184,77,0.5)}
+  .bad{background:rgba(255,107,107,0.25); color:var(--bad); border:1px solid rgba(255,107,107,0.5)}
+  .calendar{
+    margin-top:12px; display:grid; gap:10px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width:1100px){ .calendar{grid-template-columns:1fr} }
+  .month{border:1px solid #2a3566; border-radius:12px; padding:10px}
+  .month h3{font-size:15px; margin:0 0 8px}
+  .wkhead, .week{display:grid; grid-template-columns: repeat(7, 1fr); gap:2px}
+  .wkhead div{font-size:11px; text-align:center; color:var(--muted); padding:4px 0}
+  .day{
+    position:relative; display:grid; place-items:center; aspect-ratio: 1/1; border-radius:8px; font-size:13px; user-select:none;
+    border:1px solid transparent;
+  }
+  .day.muted{opacity:0.45}
+  .legend{display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:10px}
+  .key{display:flex; align-items:center; gap:6px}
+  .swatch{width:12px; height:12px; border-radius:3px; border:1px solid rgba(0,0,0,0.2)}
+  .fertile-0{background:#fff7cc; border-color:#ede0a1}
+  .fertile-1{background:#fde68a; border-color:#e7cf66}
+  .fertile-2{background:#facc15; border-color:#caa80f}
+  .fertile-3{background:#f59e0b; border-color:#d27f07}
+  .ovul{background: var(--ovulation); color:#05230f; border-color:#1fa355}
+  .period{background: var(--period); color:#3b0707; border-color:#cf6b6b}
+  .safe{outline:1px dashed #3b466f}
+  .today{border:1px dashed var(--accent)}
+  .ovulMark{position:absolute; right:4px; top:4px; font-size:11px}
+  details{margin-top:10px}
+  details summary{cursor:pointer; color:var(--muted)}
+  .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+  footer{margin-top:22px; color:var(--muted); font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">◷</div>
+      <div>
+        <h1>Cycle Precision by Omoluabi</h1>
+        <div class="subtitle">Menstrual, ovulation, and fertile window estimates with variance aware confidence</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Inputs</h2>
+      <div class="row">
+        <div>
+          <label for="dateInput">Period start date</label>
+          <input id="dateInput" type="date" />
+        </div>
+        <button id="addDate" class="btn" type="button">Add date</button>
+        <button id="clearDates" class="btn secondary" type="button">Clear all</button>
+      </div>
+      <div class="help">Enter at least 3 historical period start dates. Best practice is 6 to 12 recent cycles.</div>
+      <div id="dateList" class="list"></div>
+
+      <hr style="border:none; border-top:1px solid #2a3566; margin:16px 0" />
+
+      <div class="row">
+        <div>
+          <label for="luteal">Luteal length in days</label>
+          <input id="luteal" type="number" min="11" max="17" value="14" />
+          <div class="help">Default 14. Allowed range is 11 to 17.</div>
+        </div>
+        <div>
+          <label for="periodLen">Typical period length</label>
+          <input id="periodLen" type="number" min="1" max="10" value="5" />
+          <div class="help">Used to draw the predicted period days.</div>
+        </div>
+        <div>
+          <label for="precisionMode">Precision mode</label>
+          <select id="precisionMode">
+            <option value="on" selected>On - require 6 cycles for safe day labels</option>
+            <option value="off">Off</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button id="calc" class="btn" type="button">Calculate</button>
+        <button id="exportICS" class="btn ghost" type="button">Export iCal</button>
+      </div>
+
+      <details>
+        <summary>What happens under the hood</summary>
+        <div class="help" style="margin-top:8px">
+          We compute cycle lengths from consecutive period starts. We remove outliers with a 10 percent trim based on the distribution.
+          We weight recent cycles more heavily, compute a weighted mean and a median, then blend them for a robust estimate.
+          Standard deviation drives a confidence score and widens the fertile window when variance grows.
+          Ovulation is predicted as next period start minus luteal length. Fertile window is ovulation minus 5 days through ovulation day, widened by variance.
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>Key metrics</h2>
+      <div class="metrics">
+        <div class="kpi">
+          <div class="label">Predicted next period start</div>
+          <div class="value" id="kpiNext">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Predicted ovulation</div>
+          <div class="value" id="kpiOvul">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Fertile window</div>
+          <div class="value" id="kpiWindow">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Cycle length estimate</div>
+          <div class="value" id="kpiCycle">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Confidence</div>
+          <div class="value" id="kpiConf">—</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Variance</div>
+          <div class="value" id="kpiVar">—</div>
+        </div>
+      </div>
+      <div id="status" class="help" style="margin-top:10px"></div>
+      <div id="alerts" style="margin-top:10px"></div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Calendar view</h2>
+    <div class="calendar" id="calWrap"></div>
+    <div class="legend">
+      <div class="key"><span class="swatch fertile-0"></span> low fertility</div>
+      <div class="key"><span class="swatch fertile-2"></span> rising fertility</div>
+      <div class="key"><span class="swatch fertile-3"></span> peak zone</div>
+      <div class="key"><span class="swatch" style="background:var(--ovulation)"></span> ovulation</div>
+      <div class="key"><span class="swatch" style="background:var(--period)"></span> predicted period</div>
+      <div class="key"><span class="swatch" style="background:transparent; outline:1px dashed #3b466f"></span> safe day</div>
+      <div class="key"><span class="swatch" style="background:transparent; border:1px dashed var(--accent)"></span> today</div>
+    </div>
+  </section>
+
+  <footer>
+    Built for clarity and control. Store is local to your device. Educational estimates only, not contraception or medical advice.
+  </footer>
+</div>
+
+<script>
+(function(){
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const dateInput = $('#dateInput');
+  const addBtn = $('#addDate');
+  const clearBtn = $('#clearDates');
+  const dateList = $('#dateList');
+  const lutealEl = $('#luteal');
+  const periodLenEl = $('#periodLen');
+  const precisionEl = $('#precisionMode');
+  const calcBtn = $('#calc');
+  const exportBtn = $('#exportICS');
+  const kpiNext = $('#kpiNext'), kpiOvul = $('#kpiOvul'), kpiWindow = $('#kpiWindow'),
+        kpiCycle = $('#kpiCycle'), kpiConf = $('#kpiConf'), kpiVar = $('#kpiVar');
+  const statusEl = $('#status'), alertsEl = $('#alerts'), calWrap = $('#calWrap');
+
+  const LS_KEY = 'omoluabi_cycle_starts_v1';
+  let starts = loadDates();
+
+  function toDateOnly(d){
+    // normalize to local midnight to avoid DST drift
+    const nd = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return nd;
+  }
+  function parseLocalDate(str){
+    if(!str) return null;
+    const [y,m,dd] = str.split('-').map(Number);
+    return new Date(y, (m-1), dd);
+  }
+  function fmt(d){
+    return d ? d.toLocaleDateString(undefined, { weekday:'short', year:'numeric', month:'short', day:'numeric' }) : '—';
+  }
+  function fmtShort(d){
+    return d ? d.toLocaleDateString(undefined, { month:'short', day:'numeric' }) : '—';
+  }
+  function addDays(d, n){
+    const nd = new Date(d); nd.setDate(nd.getDate()+n); return nd;
+  }
+  function diffDays(a,b){
+    const MS = 24*60*60*1000;
+    return Math.round( (toDateOnly(a) - toDateOnly(b)) / MS );
+  }
+  function uniqSortedDates(arr){
+    const keys = new Set(arr.map(d=>toDateOnly(d).getTime()));
+    const uniq = Array.from(keys).map(ms=>new Date(ms));
+    uniq.sort((a,b)=>a-b);
+    return uniq;
+  }
+  function saveDates(){ localStorage.setItem(LS_KEY, JSON.stringify(starts.map(d=>d.toISOString().slice(0,10)))); }
+  function loadDates(){
+    try{
+      const raw = JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+      const ds = raw.map(s=>parseLocalDate(s)).filter(Boolean);
+      return uniqSortedDates(ds);
+    }catch{ return []; }
+  }
+  function renderDates(){
+    dateList.innerHTML = '';
+    starts.forEach((d,i)=>{
+      const pill = document.createElement('span');
+      pill.className='pill';
+      pill.innerHTML = `<span>Start: <strong>${fmt(d)}</strong></span> <button title="Remove" data-i="${i}">×</button>`;
+      dateList.appendChild(pill);
+    });
+    dateList.onclick = (e)=>{
+      const i = e.target.getAttribute('data-i');
+      if(i!=null){
+        starts.splice(Number(i),1);
+        starts = uniqSortedDates(starts);
+        saveDates(); renderDates();
+      }
+    };
+  }
+  renderDates();
+
+  addBtn.onclick = ()=>{
+    const d = parseLocalDate(dateInput.value);
+    if(!d){ alert('Select a valid date'); return; }
+    starts.push(d);
+    starts = uniqSortedDates(starts);
+    saveDates(); renderDates();
+    dateInput.value='';
+  };
+  clearBtn.onclick = ()=>{
+    if(confirm('Remove all saved dates on this device')){
+      starts = []; saveDates(); renderDates(); resetKPIs(); calWrap.innerHTML='';
+    }
+  };
+
+  function resetKPIs(){
+    [kpiNext,kpiOvul,kpiWindow,kpiCycle,kpiConf,kpiVar].forEach(el=>el.textContent='—');
+    statusEl.textContent=''; alertsEl.innerHTML='';
+  }
+
+  calcBtn.onclick = calculate;
+  exportBtn.onclick = exportICS;
+
+  function calculate(){
+    resetKPIs();
+    if(starts.length < 3){
+      statusEl.textContent = 'Add at least 3 period starts for a usable estimate. Six or more is better.';
+      drawCalendar(); return;
+    }
+    const luteal = clamp(parseInt(lutealEl.value||'14',10), 11, 17);
+    lutealEl.value = String(luteal);
+    const periodLen = clamp(parseInt(periodLenEl.value||'5',10), 1, 10);
+    periodLenEl.value = String(periodLen);
+
+    // cycle lengths from consecutive starts, in days
+    const diffsChrono = [];
+    for(let i=1;i<starts.length;i++){
+      const d = diffDays(starts[i], starts[i-1]);
+      if(d>0) diffsChrono.push({len:d, idx:i}); // keep index for recency weighting
+    }
+    if(diffsChrono.length===0){ statusEl.textContent='Need at least two consecutive starts'; drawCalendar(); return; }
+
+    // Trim outliers based on distribution
+    const sortedLens = diffsChrono.map(x=>x.len).slice().sort((a,b)=>a-b);
+    const n = sortedLens.length;
+    const k = Math.floor(n*0.10); // 10 percent
+    const trimmedSorted = sortedLens.slice(k, n-k || n); // guard when n small
+    const lowCut = trimmedSorted.length ? trimmedSorted[0] : sortedLens[0];
+    const highCut = trimmedSorted.length ? trimmedSorted[trimmedSorted.length-1] : sortedLens[sortedLens.length-1];
+    const trimmed = diffsChrono.filter(x => x.len>=lowCut && x.len<=highCut);
+
+    // Recency weights on chronological order
+    const m = trimmed.length;
+    const weights = trimmed.map((_,i)=> i+1 ); // older small, recent large
+    const wSum = weights.reduce((a,b)=>a+b,0);
+    const wMean = trimmed.reduce((acc,x,i)=> acc + x.len*weights[i], 0) / (wSum||1);
+
+    // Median of trimmed distribution
+    const lensT = trimmed.map(x=>x.len).slice().sort((a,b)=>a-b);
+    const median = lensT.length%2 ? lensT[(lensT.length-1)/2] : (lensT[lensT.length/2-1]+lensT[lensT.length/2])/2;
+
+    // Robust blend
+    const robustCycle = Math.round( (0.6*wMean + 0.4*median) );
+
+    // Standard deviation on trimmed values
+    const meanT = lensT.reduce((a,b)=>a+b,0)/(lensT.length||1);
+    const stdev = Math.sqrt( lensT.reduce((s,x)=>s+Math.pow(x-meanT,2),0) / Math.max(1,lensT.length-1) );
+    const cv = meanT ? (stdev/meanT) : 0;
+
+    // Confidence score and badge
+    let confScore = Math.max(0, Math.min(100, 100 - (stdev*12) - (starts.length<6 ? 10 : 0)));
+    confScore = Math.round(confScore);
+    const confLabel = confScore>=75 ? 'High' : confScore>=50 ? 'Medium' : 'Low';
+    const badgeClass = confScore>=75 ? 'ok' : confScore>=50 ? 'warn' : 'bad';
+
+    // Predicted next period and ovulation
+    const lastStart = starts[starts.length-1];
+    const predNext = addDays(lastStart, robustCycle);
+    const ovulation = addDays(predNext, -luteal);
+
+    // Variance aware fertile window
+    const widenLeft = Math.min(3, Math.ceil(stdev/2));
+    const widenRight = Math.min(2, Math.ceil(stdev/3));
+    const fertileStart = addDays(ovulation, -(5 + widenLeft));
+    const fertileEnd = addDays(ovulation, 0 + widenRight);
+    const possibleFertileEnd = addDays(ovulation, 1 + widenRight);
+
+    // KPIs
+    kpiNext.textContent = fmt(predNext);
+    kpiOvul.textContent = fmt(ovulation);
+    kpiWindow.textContent = `${fmtShort(fertileStart)} to ${fmtShort(fertileEnd)}`;
+    kpiCycle.textContent = `${robustCycle} days`;
+    kpiConf.innerHTML = `${confScore}% <span class="badge ${badgeClass}">${confLabel}</span>`;
+    kpiVar.textContent = `σ ${stdev.toFixed(1)} days, CV ${(cv*100).toFixed(1)}%`;
+
+    // Alerts and guardrails
+    const alerts = [];
+    const anyShort = lensT.some(x=>x<21), anyLong = lensT.some(x=>x>35);
+    if(anyShort || anyLong){
+      alerts.push(tag('div', `Cycle lengths outside 21 to 35 days detected. Interpret predictions conservatively.`, 'badge warn'));
+    }
+    if(starts.length<6 && precisionEl.value==='on'){
+      alerts.push(tag('div', `Precision mode active with fewer than 6 cycles. Safe day labels are muted.`, 'badge warn'));
+    }
+    alertsEl.innerHTML = alerts.join('') || '';
+
+    // Draw three months calendar centered around prediction
+    drawCalendar({predNext, ovulation, fertileStart, fertileEnd, possibleFertileEnd, periodLen, starts, confScore, precision: precisionEl.value==='on'});
+  }
+
+  function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+
+  function tag(el, txt, cls){ return `<span class="${cls||''}">${txt}</span>`; }
+
+  function dayKey(d){ return d.toISOString().slice(0,10); }
+
+  function rangeDays(a,b){
+    const out=[]; let cur=toDateOnly(a);
+    while(cur<=b){ out.push(new Date(cur)); cur=addDays(cur,1); }
+    return out;
+  }
+
+  function drawCalendar(ctx){
+    calWrap.innerHTML='';
+    const now = toDateOnly(new Date());
+    const base = ctx?.ovulation || now;
+    const months = [];
+    // previous, current, next months around base
+    const first = new Date(base.getFullYear(), base.getMonth()-1, 1);
+    for(let i=0;i<3;i++){
+      const d = new Date(first.getFullYear(), first.getMonth()+i, 1);
+      months.push({y:d.getFullYear(), m:d.getMonth()});
+    }
+
+    months.forEach(({y,m})=>{
+      const box = document.createElement('div');
+      box.className='month';
+      const title = new Date(y,m,1).toLocaleDateString(undefined, { month:'long', year:'numeric' });
+      box.innerHTML = `<h3>${title}</h3>
+        <div class="wkhead">
+          ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div>${d}</div>`).join('')}
+        </div>
+        <div class="week"></div>
+      `;
+      const grid = box.querySelector('.week');
+
+      // Build day cells
+      const firstDay = new Date(y,m,1);
+      const startOffset = firstDay.getDay();
+      const lastDate = new Date(y, m+1, 0).getDate();
+      const cells = [];
+
+      // previous month blanks
+      for(let i=0;i<startOffset;i++) cells.push(null);
+      for(let d=1; d<=lastDate; d++){
+        cells.push(new Date(y,m,d));
+      }
+      // pad to full weeks
+      while(cells.length%7!==0) cells.push(null);
+
+      cells.forEach(cd=>{
+        const cell = document.createElement('div');
+        cell.className='day';
+        if(!cd){ cell.classList.add('muted'); grid.appendChild(cell); return; }
+        cell.textContent = cd.getDate();
+
+        if(ctx){
+          // annotate classes
+          const {predNext, ovulation, fertileStart, fertileEnd, possibleFertileEnd, periodLen, confScore, precision} = ctx;
+
+          // predicted period days
+          const pStart = toDateOnly(predNext);
+          const pEnd = addDays(pStart, periodLen-1);
+          if(cd>=pStart && cd<=pEnd){ cell.classList.add('period'); }
+
+          // fertile gradient
+          if(cd>=fertileStart && cd<=possibleFertileEnd){
+            const daysFromOvul = Math.abs(diffDays(cd, ovulation));
+            // 0 near ovulation, 6 far
+            const level = daysFromOvul>=6 ? 0 : daysFromOvul>=4 ? 1 : daysFromOvul>=2 ? 2 : 3;
+            cell.classList.add(`fertile-${level}`);
+          }
+          // ovulation marker
+          if(dayKey(cd)===dayKey(ovulation)){
+            cell.classList.add('ovul');
+            const star = document.createElement('div'); star.className='ovulMark'; star.textContent='★';
+            cell.appendChild(star);
+          }
+
+          // safe day outline
+          const safeEligible = !(cd>=fertileStart && cd<=addDays(ovulation,1));
+          const pastPeriod = cd>=addDays(predNext, periodLen); // after predicted bleed
+          if(safeEligible && pastPeriod){
+            if(precision){
+              // mute safe label until at least 6 cycles and decent confidence
+              if(starts.length>=6 && confScore>=60) cell.classList.add('safe');
+            }else{
+              cell.classList.add('safe');
+            }
+          }
+        }
+
+        if(dayKey(cd)===dayKey(now)) cell.classList.add('today');
+        grid.appendChild(cell);
+      });
+
+      calWrap.appendChild(box);
+    });
+  }
+
+  function exportICS(){
+    // Requires a recent calculation to have populated KPIs
+    const textNext = kpiNext.textContent;
+    const textOvul = kpiOvul.textContent;
+    if(textNext==='—' || textOvul==='—'){
+      alert('Run Calculate before exporting iCal'); return;
+    }
+    // parse back via Date to get ISO
+    const nextDate = new Date(textNext);
+    const ovulDate = new Date(textOvul);
+
+    const events = [
+      {
+        summary:'Predicted Period Start',
+        dt: nextDate,
+        durationDays: 1,
+        description:'Predicted start of next period. Educational estimate only.'
+      },
+      {
+        summary:'Predicted Ovulation',
+        dt: ovulDate,
+        durationDays: 1,
+        description:'Predicted ovulation day based on luteal length.'
+      }
+    ];
+    const ics = buildICS(events);
+    const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'cycle-precision.ics';
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function toICSDate(d){
+    // floating date, all day
+    const y=d.getFullYear(), m=pad2(d.getMonth()+1), da=pad2(d.getDate());
+    return `${y}${m}${da}`;
+  }
+  function buildICS(events){
+    const now = new Date();
+    const stamp = `${now.getUTCFullYear()}${pad2(now.getUTCMonth()+1)}${pad2(now.getUTCDate())}T${pad2(now.getUTCHours())}${pad2(now.getUTCMinutes())}${pad2(now.getUTCSeconds())}Z`;
+    let out = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Omoluabi//Cycle Precision//EN\r\nCALSCALE:GREGORIAN\r\n';
+    events.forEach((ev,i)=>{
+      const dtStart = toICSDate(ev.dt);
+      const dtEnd = toICSDate(addDays(ev.dt, ev.durationDays));
+      out += 'BEGIN:VEVENT\r\n';
+      out += `UID:cp-${dtStart}-${i}@omoluabi\r\n`;
+      out += `DTSTAMP:${stamp}\r\n`;
+      out += `DTSTART;VALUE=DATE:${dtStart}\r\n`;
+      out += `DTEND;VALUE=DATE:${dtEnd}\r\n`;
+      out += `SUMMARY:${escapeICS(ev.summary)}\r\n`;
+      out += `DESCRIPTION:${escapeICS(ev.description)}\r\n`;
+      out += 'END:VEVENT\r\n';
+    });
+    out += 'END:VCALENDAR\r\n';
+    return out;
+  }
+  function escapeICS(s){
+    // Escape backslashes first to prevent double-escaping other characters
+    return String(s)
+      .replace(/\\/g, '\\\\')
+      .replace(/,/g, '\\,')
+      .replace(/;/g, '\\;')
+      .replace(/\n/g, '\\n');
+  }
+
+  // Initial calendar
+  drawCalendar();
+
+  // Small convenience: set date input to today by default
+  dateInput.valueAsDate = new Date();
+})();
+</script>
+</body>
+</html>
