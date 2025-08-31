@@ -644,7 +644,7 @@
 
     // Dynamic Edge Panel Height
     const edgePanelContent = document.querySelector('.edge-panel-content');
-    const icons = edgePanelContent.querySelectorAll('.chatbot-bubble-container, .sabi-bible-bubble-container, .picture-game-bubble-container, .tetris-bubble-container, .word-search-bubble-container, .connect-four-bubble-container');
+    const icons = edgePanelContent.querySelectorAll('.chatbot-bubble-container, .sabi-bible-bubble-container, .picture-game-bubble-container, .tetris-bubble-container, .word-search-bubble-container, .connect-four-bubble-container, .cycle-precision-bubble-container');
     const iconHeight = 50; // height of each icon
     const iconSpacing = 20; // spacing between icons
     const panelPadding = 20; // top and bottom padding of the panel

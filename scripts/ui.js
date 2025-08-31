@@ -203,6 +203,7 @@ const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
 const connectFourContainer = document.getElementById('connectFourContainer');
+const cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
 
 function isAnyPanelOpen() {
     return chatbotContainer.style.display === 'block' ||
@@ -211,6 +212,7 @@ function isAnyPanelOpen() {
            tetrisGameContainer.style.display === 'block' ||
            wordSearchContainer.style.display === 'block' ||
            connectFourContainer.style.display === 'block' ||
+           cyclePrecisionContainer.style.display === 'block' ||
            aboutModalContainer.style.display === 'block';
 }
 
@@ -291,6 +293,16 @@ function openConnectFourGame() {
 
 function closeConnectFourGame() {
     connectFourContainer.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openCyclePrecision() {
+    cyclePrecisionContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeCyclePrecision() {
+    cyclePrecisionContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
