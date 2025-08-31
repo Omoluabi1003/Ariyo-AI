@@ -583,7 +583,14 @@
     out += 'END:VCALENDAR\r\n';
     return out;
   }
-  function escapeICS(s){ return String(s).replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n'); }
+  function escapeICS(s){
+    // Escape backslashes first to prevent double-escaping other characters
+    return String(s)
+      .replace(/\\/g, '\\\\')
+      .replace(/,/g, '\\,')
+      .replace(/;/g, '\\;')
+      .replace(/\n/g, '\\n');
+  }
 
   // Initial calendar
   drawCalendar();
