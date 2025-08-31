@@ -556,6 +556,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
 
     function attemptPlay() {
       console.log('[attemptPlay] called');
+      resumeAudioContext();
       loadingSpinner.style.display = 'none';
       albumCover.style.display = 'block';
       const playPromise = audioPlayer.play();
