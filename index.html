@@ -123,6 +123,23 @@
                     playAudio();
                 }
             });
+
+            // Attempt to keep audio playing even when the page is hidden
+            document.addEventListener('visibilitychange', () => {
+                if (isPlaying && document.visibilityState === 'hidden') {
+                    audio.play().catch(error => {
+                        console.log('Background playback prevented:', error);
+                    });
+                }
+            });
+
+            audio.addEventListener('pause', () => {
+                if (isPlaying && document.visibilityState === 'hidden') {
+                    audio.play().catch(error => {
+                        console.log('Background playback prevented:', error);
+                    });
+                }
+            });
         });
 
         document.querySelectorAll('.shockwave').forEach(button => {
