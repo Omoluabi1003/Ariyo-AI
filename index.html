@@ -43,7 +43,7 @@
                 <div class="tour-step" id="step4">🧩 Puzzle games available</div>
             </div>
         </div>
-        <div style="font-size: 0.8rem; margin-top: 1rem; font-weight: bold;">Click the speaker icon for sound</div>
+         <div style="font-size: 0.8rem; margin-top: 1rem; font-weight: bold;">Use the speaker icon to toggle sound</div>
         <p style="font-size: 0.8rem; margin-top: 0.5rem;">Edge panel offers quick access to Ariyo AI, Sabi Bible, Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.</p>
         <div id="speaker-container" style="position: absolute; top: 1rem; right: 1rem; cursor: pointer;">
             <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off ripple shockwave"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
@@ -53,7 +53,7 @@
         </footer>
     </div>
 
-    <audio id="welcomeAudio" src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Hail%20Mary.mp3" loop></audio>
+     <audio id="welcomeAudio" loop autoplay></audio>
 
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
@@ -91,56 +91,69 @@
             }, 300);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const enterIcon = document.querySelector('.enter-icon');
-            enterIcon.addEventListener('click', enterApp);
+          document.addEventListener('DOMContentLoaded', () => {
+              const enterIcon = document.querySelector('.enter-icon');
+              enterIcon.addEventListener('click', enterApp);
 
-            const audio = document.getElementById('welcomeAudio');
-            const speakerContainer = document.getElementById('speaker-container');
-            const speakerIcon = document.getElementById('speaker-icon');
+              const audio = document.getElementById('welcomeAudio');
+              const speakerContainer = document.getElementById('speaker-container');
+              const speakerIcon = document.getElementById('speaker-icon');
 
-            let isPlaying = false;
+              let isPlaying = false;
 
-            const playAudio = () => {
-                audio.play().then(() => {
-                    isPlaying = true;
-                    speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
-                }).catch(error => {
-                    console.log("Audio playback failed:", error);
-                });
-            };
+              const tracks = [
+                  { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
+                  { src: 'https://cdn1.suno.ai/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
+                  { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
+                  { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
+                  { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
+                  { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" }
+              ];
 
-            const pauseAudio = () => {
-                audio.pause();
-                isPlaying = false;
-                speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
-            };
+              const playAudio = () => {
+                  audio.play().then(() => {
+                      isPlaying = true;
+                      speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
+                  }).catch(error => {
+                      console.log("Audio playback failed:", error);
+                  });
+              };
 
-            speakerContainer.addEventListener('click', () => {
-                if (isPlaying) {
-                    pauseAudio();
-                } else {
-                    playAudio();
-                }
-            });
+              const pauseAudio = () => {
+                  audio.pause();
+                  isPlaying = false;
+                  speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
+              };
 
-            // Attempt to keep audio playing even when the page is hidden
-            document.addEventListener('visibilitychange', () => {
-                if (isPlaying && document.visibilityState === 'hidden') {
-                    audio.play().catch(error => {
-                        console.log('Background playback prevented:', error);
-                    });
-                }
-            });
+              const randomTrack = tracks[Math.floor(Math.random() * tracks.length)];
+              audio.src = randomTrack.src;
+              playAudio();
 
-            audio.addEventListener('pause', () => {
-                if (isPlaying && document.visibilityState === 'hidden') {
-                    audio.play().catch(error => {
-                        console.log('Background playback prevented:', error);
-                    });
-                }
-            });
-        });
+              speakerContainer.addEventListener('click', () => {
+                  if (isPlaying) {
+                      pauseAudio();
+                  } else {
+                      playAudio();
+                  }
+              });
+
+              // Attempt to keep audio playing even when the page is hidden
+              document.addEventListener('visibilitychange', () => {
+                  if (isPlaying && document.visibilityState === 'hidden') {
+                      audio.play().catch(error => {
+                          console.log('Background playback prevented:', error);
+                      });
+                  }
+              });
+
+              audio.addEventListener('pause', () => {
+                  if (isPlaying && document.visibilityState === 'hidden') {
+                      audio.play().catch(error => {
+                          console.log('Background playback prevented:', error);
+                      });
+                  }
+              });
+          });
 
         document.querySelectorAll('.shockwave').forEach(button => {
             button.addEventListener('click', () => {
