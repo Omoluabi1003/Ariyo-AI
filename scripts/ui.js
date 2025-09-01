@@ -166,7 +166,7 @@ function toggleShuffle() {
       console.log('Shuffle mode: Off');
     }
   }
-  // If we are in album/track mode, cycle through off, album, all
+  // If we are in album/track mode, cycle through off, album, all, repeat one
   else {
     if (shuffleScope === 'off') {
       shuffleScope = 'album';
@@ -182,7 +182,15 @@ function toggleShuffle() {
       shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
       console.log('Shuffle mode: All');
       buildShuffleQueue();
-    } else { // shuffleScope === 'all'
+    } else if (shuffleScope === 'all') {
+      shuffleScope = 'repeat';
+      shuffleMode = false;
+      shuffleBtn.textContent = '🔂 One';
+      shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
+      console.log('Repeat mode: Single Track');
+      shuffleQueue = [];
+      updateNextTrackInfo();
+    } else { // shuffleScope === 'repeat'
       shuffleScope = 'off';
       shuffleMode = false;
       shuffleBtn.textContent = '🔀 Off';
