@@ -448,6 +448,10 @@
         } else if (shuffleScope === 'all') {
           shuffleBtn.textContent = '🔀 All';
           shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+        } else if (shuffleScope === 'repeat') {
+          shuffleMode = false;
+          shuffleBtn.textContent = '🔂 One';
+          shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
         } else { // off
           shuffleBtn.textContent = '🔀 Off';
           shuffleStatusInfo.textContent = 'Shuffle: Off';

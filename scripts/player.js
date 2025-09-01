@@ -42,7 +42,7 @@
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
-let shuffleScope = 'off'; // 'off', 'album', 'all'
+let shuffleScope = 'off'; // 'off', 'album', 'all', 'repeat'
 let isFirstPlay = true;
 let lastTrackSrc = '';
 let lastTrackTitle = '';
@@ -684,7 +684,14 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
       if (currentRadioIndex === -1) { // Only if not playing a radio station
-        if (shuffleMode) {
+        if (shuffleScope === 'repeat') {
+          selectTrack(
+            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+            currentTrackIndex,
+            false
+          );
+        } else if (shuffleMode) {
           if (shuffleQueue.length === 0) {
             buildShuffleQueue();
           }
