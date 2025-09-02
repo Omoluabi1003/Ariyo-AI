@@ -112,6 +112,7 @@ function openAlbumList() {
           onComplete: () => { modal.style.display = 'none'; }
         }
       );
+      pendingAlbumIndex = null;
       console.log('Track list closed');
     }
 
