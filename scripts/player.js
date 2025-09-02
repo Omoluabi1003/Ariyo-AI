@@ -52,6 +52,7 @@ let lastTrackIndex = 0;
     let currentTrackIndex = 0;
     let currentRadioIndex = -1;
     let shuffleQueue = [];
+    let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 
     function updateNextTrackInfo() {
       const nextInfo = document.getElementById('nextTrackInfo');
@@ -182,14 +183,15 @@ let lastTrackIndex = 0;
     }
 
     function updateTrackListModal() {
+      const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
-      trackModalTitle.textContent = albums[currentAlbumIndex].name;
+      trackModalTitle.textContent = albums[albumIndex].name;
       trackListContainer.innerHTML = '';
 
       // Build an array of track indices and shuffle it for non-Dirty Dancing albums
-      let trackIndices = albums[currentAlbumIndex].tracks.map((_, i) => i);
-      if (albums[currentAlbumIndex].name !== 'Dirty Dancing') {
+      let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
+      if (albums[albumIndex].name !== 'Dirty Dancing') {
         for (let i = trackIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
@@ -197,12 +199,14 @@ let lastTrackIndex = 0;
       }
 
       trackIndices.forEach(index => {
-        const track = albums[currentAlbumIndex].tracks[index];
+        const track = albums[albumIndex].tracks[index];
         const trackLink = document.createElement('a');
         trackLink.href = track.src;
         trackLink.target = '_blank';
         trackLink.addEventListener('click', (e) => {
           e.preventDefault();
+          currentAlbumIndex = albumIndex;
+          pendingAlbumIndex = null;
           selectTrack(track.src, track.title, index);
         });
 
@@ -225,7 +229,7 @@ let lastTrackIndex = 0;
           });
         }
       });
-      console.log(`Track list updated for album: ${albums[currentAlbumIndex].name}`);
+      console.log(`Track list updated for album: ${albums[albumIndex].name}`);
     }
 
     const stationsPerPage = 6;
@@ -343,18 +347,10 @@ function loadMoreStations(region) {
     function selectAlbum(albumIndex) {
       console.log("selectAlbum called with index: ", albumIndex);
       console.log(`Selecting album: ${albums[albumIndex].name}`);
-      currentAlbumIndex = albumIndex;
-      currentTrackIndex = 0;
+      pendingAlbumIndex = albumIndex;
       currentRadioIndex = -1;
-      albumCover.src = albums[currentAlbumIndex].cover;
-      loadTrack(
-        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-        currentTrackIndex
-      );
       updateTrackListModal();
       openTrackList();
-      savePlayerState();
       document.getElementById('main-content').innerHTML = '';
     }
 
