@@ -11,10 +11,26 @@ document.addEventListener('DOMContentLoaded', () => {
     'Naija AI6.png'
   ];
   let current = 0;
-  function changeBackground() {
-    document.body.style.backgroundImage = `url('${images[current]}')`;
-    current = (current + 1) % images.length;
+
+  // Preload images to avoid flashes between transitions
+  images.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+
+  function scheduleNextChange() {
+    // Randomly change background every 30-40 seconds
+    const delay = 30000 + Math.random() * 10000;
+    setTimeout(changeBackground, delay);
   }
-  changeBackground();
-  setInterval(changeBackground, 10000);
+
+  function changeBackground() {
+    current = (current + 1) % images.length;
+    document.body.style.backgroundImage = `url('${images[current]}')`;
+    scheduleNextChange();
+  }
+
+  // Set initial background and start rotation
+  document.body.style.backgroundImage = `url('${images[current]}')`;
+  scheduleNextChange();
 });
