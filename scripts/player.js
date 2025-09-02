@@ -472,6 +472,15 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       }
     }
 
+    function retryTrackWithDelay() {
+      trackInfo.textContent = 'Retrying...';
+      loadingSpinner.style.display = 'block';
+      albumCover.style.display = 'none';
+      document.getElementById('progressBar').style.display = 'none';
+      retryButton.style.display = 'none';
+      setTimeout(retryTrack, 3000);
+    }
+
     function handleAudioLoad(src, title, isInitialLoad = true) {
       // Remove all previous event listeners
       audioPlayer.removeEventListener('progress', onProgress);
@@ -480,12 +489,8 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       audioPlayer.removeEventListener('error', onError);
 
       const playTimeout = setTimeout(() => {
-        loadingSpinner.style.display = 'none';
-        albumCover.style.display = 'block';
-        document.getElementById('progressBar').style.display = 'none';
-        trackInfo.textContent = 'Error: Stream failed to load (timeout)';
-        retryButton.style.display = 'block';
-        console.error(`Timeout: ${title} failed to buffer within 5 seconds`);
+        console.warn(`Timeout: ${title} failed to buffer within 5 seconds, retrying...`);
+        retryTrackWithDelay();
       }, 5000);
 
       function onProgress() {
@@ -521,17 +526,13 @@ function selectTrack(src, title, index, rebuildQueue = true) {
 
       function onError() {
         clearTimeout(playTimeout);
-        loadingSpinner.style.display = 'none';
-        albumCover.style.display = 'block';
-        document.getElementById('progressBar').style.display = 'none';
-        trackInfo.textContent = 'Error: Unable to load stream.';
-        retryButton.style.display = 'block';
         console.error(`Audio error for ${title}:`, audioPlayer.error);
         if (audioPlayer.error) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
         // Also log the album cover src to see if it's correct
         console.error(`Album cover src: ${albumCover.src}`);
+        retryTrackWithDelay();
       }
 
       audioPlayer.addEventListener('progress', onProgress);
