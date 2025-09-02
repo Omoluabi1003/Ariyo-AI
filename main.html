@@ -300,7 +300,7 @@
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       background: white;
-      overflow: hidden;
+      overflow-y: auto;
       display: none;
       z-index: 10001;
     }
@@ -326,9 +326,11 @@
       bottom: calc(40px + env(safe-area-inset-bottom));
     }
     .popup-close {
-      position: absolute;
+      position: sticky;
       top: 10px;
-      right: 10px;
+      margin-left: auto;
+      margin-right: 10px;
+      display: block;
       width: 24px;
       height: 24px;
       background: var(--theme-color);
@@ -737,7 +739,7 @@
         </div>
         <!-- Sabi Bible Floating Icon & Comic Bubble -->
         <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="toggleSabiBible()">
-          <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
+          <img src="Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
         </div>
         <!-- Picture Game Floating Icon -->
         <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
