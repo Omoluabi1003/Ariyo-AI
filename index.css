@@ -13,9 +13,6 @@ body {
     height: 100vh;
     text-align: center;
     position: relative;
-    background-image: url('Naija AI1.png');
-    background-size: cover;
-    background-position: center;
     transition: background-color 0.5s ease-in-out;
 }
 
@@ -172,9 +169,21 @@ a {
     }
 }
 
-/* Layers used for rotating background images */
-.background-layer {
+/* Fullscreen background container */
+#background-container {
     position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Individual background layers */
+.bg-image {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -184,6 +193,10 @@ a {
     background-position: center center;
     opacity: 0;
     transition: opacity 2s ease-in-out;
-    z-index: 0;
-    pointer-events: none;
+}
+
+/* Initial visible layer */
+#bg1 {
+    opacity: 1;
+    background-image: url('Naija AI1.png');
 }

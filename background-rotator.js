@@ -1,6 +1,3 @@
-// Displays a single background image for index and main pages.
-// The image changes monthly, cycling through six options.
-
 document.addEventListener('DOMContentLoaded', () => {
   const images = [
     'Naija AI1.png',
@@ -11,20 +8,41 @@ document.addEventListener('DOMContentLoaded', () => {
     'Naija AI6.png'
   ];
 
-  const positions = {
-    'Naija AI4.png': 'center 20%',
-    'Naija AI5.png': 'center 20%',
-    'Naija AI6.png': 'center 20%'
-  };
+  // Preload images to avoid flashes during transitions
+  images.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
 
-  const month = new Date().getMonth();
-  const selectedImage = images[month % images.length];
+  const bg1 = document.getElementById('bg1');
+  const bg2 = document.getElementById('bg2');
+  if (!bg1 || !bg2) return; // Only run on pages with the background container
 
-  const layer = document.createElement('div');
-  layer.className = 'background-layer';
-  layer.style.backgroundImage = `url('${selectedImage}')`;
-  layer.style.backgroundPosition = positions[selectedImage] || 'center center';
-  layer.style.opacity = '1';
+  const layers = [bg1, bg2];
+  let activeIndex = 0; // index of currently visible layer
+  let imageIndex = 0;  // index in images array
 
-  document.body.prepend(layer);
+  // Initialize first image
+  layers[activeIndex].style.backgroundImage = `url('${images[imageIndex]}')`;
+  layers[activeIndex].style.opacity = 1;
+
+  function switchBackground() {
+    // Next image index
+    imageIndex = (imageIndex + 1) % images.length;
+    const nextLayerIndex = 1 - activeIndex;
+    const nextLayer = layers[nextLayerIndex];
+    const currentLayer = layers[activeIndex];
+
+    // Set next image and trigger cross fade
+    nextLayer.style.backgroundImage = `url('${images[imageIndex]}')`;
+    nextLayer.style.opacity = 1;
+    currentLayer.style.opacity = 0;
+
+    // Swap active layer
+    activeIndex = nextLayerIndex;
+  }
+
+  // Change background every 2 minutes
+  setInterval(switchBackground, 120000);
 });
+
