@@ -122,8 +122,7 @@
     }
     .sidebar {
       width: 250px;
-      background: rgba(34, 34, 34, 0.9);
-      backdrop-filter: blur(10px);
+      background: transparent;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -631,9 +630,9 @@
     <div class="sidebar">
       <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
       <datalist id="searchSuggestions"></datalist>
-      <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">🎧 Choose An Album</button>
-      <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">📻 Radio Stations</button>
-      <button onclick="openAboutModal()" aria-label="About us" class="ripple shockwave">ℹ️ About Us</button>
+      <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave"><i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album</button>
+      <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave"><i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations</button>
+      <button onclick="openAboutModal()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
     </div>
     <div class="content" id="main-content">
       <div id="newsContainer" class="news-container" style="display: none;"></div>
