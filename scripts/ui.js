@@ -216,7 +216,7 @@ const wordSearchContainer = document.getElementById('wordSearchContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
 const connectFourContainer = document.getElementById('connectFourContainer');
 const cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
-const chatbotEmbed = document.getElementById('chatbotEmbed');
+const chatbotContainer = document.getElementById('chatbotContainer');
 
 function isAnyPanelOpen() {
     return pictureGameContainer.style.display === 'block' ||
@@ -224,6 +224,7 @@ function isAnyPanelOpen() {
            wordSearchContainer.style.display === 'block' ||
            connectFourContainer.style.display === 'block' ||
            cyclePrecisionContainer.style.display === 'block' ||
+           chatbotContainer.style.display === 'block' ||
            aboutModalContainer.style.display === 'block';
 }
 
@@ -232,7 +233,7 @@ window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-
 console.log("US Spoof Active:", window.spoofedLocation);
 
 function updateEdgePanelBehavior() {
-    chatbotWindowOpen = isAnyPanelOpen() || chatbotWindowOpen;
+    chatbotWindowOpen = isAnyPanelOpen();
     if (chatbotWindowOpen) {
         closeEdgePanel();
         clearInterval(autoPopOutInterval);
@@ -252,6 +253,16 @@ function openAboutModal() {
 
 function closeAboutModal() {
     aboutModalContainer.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openChatbot() {
+    chatbotContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeChatbot() {
+    chatbotContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
@@ -382,18 +393,6 @@ function closeCyclePrecision() {
     /* AUTO POP-OUT/RETRACT EDGE PANEL */
     let chatbotWindowOpen = false;
     let autoPopOutInterval;
-
-    if (chatbotEmbed) {
-        chatbotEmbed.addEventListener('open', () => {
-            chatbotWindowOpen = true;
-            closeEdgePanel();
-            clearInterval(autoPopOutInterval);
-        });
-        chatbotEmbed.addEventListener('close', () => {
-            chatbotWindowOpen = false;
-            updateEdgePanelBehavior();
-        });
-    }
 
     function autoPopOutEdgePanel() {
         if (chatbotWindowOpen || edgePanel.classList.contains('visible')) return;
