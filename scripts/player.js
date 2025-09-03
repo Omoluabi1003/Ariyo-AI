@@ -21,12 +21,19 @@
             audioContext.resume().then(() => {
                 isAudioContextResumed = true;
                 console.log('AudioContext resumed successfully.');
-            });
+            }).catch(err => console.error('AudioContext resume failed:', err));
         }
     }
 
+    ['click', 'touchstart', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, resumeAudioContext, { once: true, passive: true });
+    });
+
     audioPlayer.id = 'audioPlayer';
     audioPlayer.preload = 'auto';
+    audioPlayer.volume = 1;
+    audioPlayer.muted = false;
+    audioPlayer.setAttribute('playsinline', '');
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
