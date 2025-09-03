@@ -3,9 +3,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const images = [
-    'Naija AI.jpg',
-    'Naija AI2.jpg',
-    'Naija AI3.jpg',
+    'Naija AI1.png',
+    'Naija AI2.png',
+    'Naija AI3.png',
     'Naija AI4.png',
     'Naija AI5.png',
     'Naija AI6.png'
