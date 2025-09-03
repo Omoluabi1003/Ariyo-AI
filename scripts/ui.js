@@ -244,6 +244,15 @@ function openChatbot() {
     const embed = document.getElementById('chatbotEmbed');
     if (embed) {
         embed.open();
+        chatbotWindowOpen = true;
+        closeEdgePanel();
+        clearInterval(autoPopOutInterval);
+        const onClose = () => {
+            chatbotWindowOpen = false;
+            updateEdgePanelBehavior();
+            embed.removeEventListener('close', onClose);
+        };
+        embed.addEventListener('close', onClose);
     }
 }
 
@@ -251,6 +260,15 @@ function openSabiBible() {
     const embed = document.getElementById('sabiBibleEmbed');
     if (embed) {
         embed.open();
+        chatbotWindowOpen = true;
+        closeEdgePanel();
+        clearInterval(autoPopOutInterval);
+        const onClose = () => {
+            chatbotWindowOpen = false;
+            updateEdgePanelBehavior();
+            embed.removeEventListener('close', onClose);
+        };
+        embed.addEventListener('close', onClose);
     }
 }
 
