@@ -65,9 +65,9 @@ function savePlaylist() {
   localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(albums[playlistAlbumIndex].tracks));
 }
 
-function addCurrentTrackToPlaylist() {
-  if (currentAlbumIndex === playlistAlbumIndex || currentTrackIndex < 0) return;
-  const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
+function addTrackToPlaylistByIndex(albumIndex, trackIndex) {
+  if (albumIndex === playlistAlbumIndex || trackIndex < 0) return;
+  const track = albums[albumIndex].tracks[trackIndex];
   const playlist = albums[playlistAlbumIndex].tracks;
   if (!playlist.some(t => t.src === track.src)) {
     const trackToAdd = { ...track };
@@ -81,6 +81,10 @@ function addCurrentTrackToPlaylist() {
       updateTrackListModal();
     }
   }
+}
+
+function addCurrentTrackToPlaylist() {
+  addTrackToPlaylistByIndex(currentAlbumIndex, currentTrackIndex);
 }
 
 function removeTrackFromPlaylist(index) {
@@ -250,11 +254,11 @@ function removeTrackFromPlaylist(index) {
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
 
-        let trackLink;
+        let titleSpan;
         if (albumIndex === playlistAlbumIndex) {
           const item = document.createElement('div');
           item.className = 'track-item';
-          const titleSpan = document.createElement('span');
+          titleSpan = document.createElement('span');
           titleSpan.textContent = `${track.title}${displayDuration}`;
           item.appendChild(titleSpan);
           item.addEventListener('click', () => {
@@ -271,17 +275,25 @@ function removeTrackFromPlaylist(index) {
           item.appendChild(removeBtn);
           trackListContainer.appendChild(item);
         } else {
-          const trackLink = document.createElement('a');
-          trackLink.href = track.src;
-          trackLink.target = '_blank';
-          trackLink.addEventListener('click', (e) => {
-            e.preventDefault();
+          const item = document.createElement('div');
+          item.className = 'track-item';
+          titleSpan = document.createElement('span');
+          titleSpan.textContent = `${track.title}${displayDuration}`;
+          item.appendChild(titleSpan);
+          item.addEventListener('click', () => {
             currentAlbumIndex = albumIndex;
             pendingAlbumIndex = null;
             selectTrack(track.src, track.title, index);
           });
-          trackLink.textContent = `${track.title}${displayDuration}`;
-          trackListContainer.appendChild(trackLink);
+          const addBtn = document.createElement('button');
+          addBtn.textContent = '➕';
+          addBtn.setAttribute('aria-label', 'Add to playlist');
+          addBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addTrackToPlaylistByIndex(albumIndex, index);
+          });
+          item.appendChild(addBtn);
+          trackListContainer.appendChild(item);
         }
 
         if (!track.duration) {
@@ -293,16 +305,16 @@ function removeTrackFromPlaylist(index) {
             track.duration = tempAudio.duration;
             if (albumIndex === playlistAlbumIndex) {
               updateTrackListModal();
-            } else if (trackLink) {
-              trackLink.textContent = `${track.title} (${formatTime(track.duration)})`;
+            } else if (titleSpan) {
+              titleSpan.textContent = `${track.title} (${formatTime(track.duration)})`;
             }
           });
           tempAudio.addEventListener('error', () => {
             track.duration = 0;
             if (albumIndex === playlistAlbumIndex) {
               updateTrackListModal();
-            } else if (trackLink) {
-              trackLink.textContent = `${track.title} (N/A)`;
+            } else if (titleSpan) {
+              titleSpan.textContent = `${track.title} (N/A)`;
             }
           });
         }
