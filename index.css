@@ -12,6 +12,7 @@ body {
     align-items: center;
     height: 100vh;
     text-align: center;
+    position: relative;
     background-image: url('Naija AI1.png');
     background-size: cover;
     background-position: center;
@@ -183,6 +184,6 @@ a {
     background-position: center center;
     opacity: 0;
     transition: opacity 2s ease-in-out;
-    z-index: -2;
+    z-index: -1;
     pointer-events: none;
 }
