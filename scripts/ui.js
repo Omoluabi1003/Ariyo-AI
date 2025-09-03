@@ -116,6 +116,11 @@ function openAlbumList() {
       console.log('Track list closed');
     }
 
+    function openPlaylist() {
+      pendingAlbumIndex = playlistAlbumIndex;
+      openTrackList();
+    }
+
     function openRadioList() {
       document.getElementById('main-content').classList.remove('about-us-active');
       updateRadioListModal();

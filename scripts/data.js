@@ -176,6 +176,26 @@ function shuffle(array) {
 }
 shuffle(albums);
 
+const PLAYLIST_STORAGE_KEY = 'userPlaylist';
+
+function loadUserPlaylist() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PLAYLIST_STORAGE_KEY)) || [];
+    stored.forEach(track => {
+      if (!track.lrc) {
+        track.lrc = track.src.replace(/\.mp3$/, '.lrc');
+      }
+    });
+    albums.push({ name: 'My Playlist', cover: `${BASE_URL}Logo.jpg`, tracks: stored });
+    window.playlistAlbumIndex = albums.length - 1;
+  } catch (e) {
+    albums.push({ name: 'My Playlist', cover: `${BASE_URL}Logo.jpg`, tracks: [] });
+    window.playlistAlbumIndex = albums.length - 1;
+  }
+}
+
+loadUserPlaylist();
+
 // Add LRC lyric file paths for each track
 albums.forEach(album => {
   album.tracks.forEach(track => {

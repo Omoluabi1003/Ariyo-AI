@@ -13,7 +13,7 @@ function applyTheme() {
     .header { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
     .sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
     .music-controls.icons-only button { background: ${themeColor}; }
-    .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: ${themeColor}; }
+    .track-list a:hover, .track-list .track-item:hover, .album-list a:hover, .radio-list a:hover { background-color: ${themeColor}; }
     .popup-close { background: ${themeColor}; }
     .retry-button { background: ${themeColor}; }
     .progress-bar div { background: ${themeColor}; }
