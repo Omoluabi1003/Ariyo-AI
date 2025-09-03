@@ -74,16 +74,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const hiddenLayer = layers[1 - activeLayer];
       hiddenLayer.style.backgroundImage = `url('${nextInfo.img.src}')`;
       hiddenLayer.style.backgroundPosition = positions[nextInfo.src] || 'center center';
-      hiddenLayer.style.opacity = '1';
-      layers[activeLayer].style.opacity = '0';
 
-      activeLayer = 1 - activeLayer;
-      current = nextIndex;
-      if (current === 0) {
-        // Reshuffle for the next cycle
-        shuffleArray(images);
-      }
-      scheduleNextChange();
+      // Start the cross-fade on the next animation frame so the
+      // browser has time to apply the new background image. This
+      // prevents a momentary flash of the page's background color.
+      requestAnimationFrame(() => {
+        hiddenLayer.style.opacity = '1';
+        layers[activeLayer].style.opacity = '0';
+
+        activeLayer = 1 - activeLayer;
+        current = nextIndex;
+        if (current === 0) {
+          // Reshuffle for the next cycle
+          shuffleArray(images);
+        }
+        scheduleNextChange();
+      });
     };
 
     // If the image has already loaded, switch immediately.
