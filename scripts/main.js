@@ -313,28 +313,6 @@
 
     setInterval(changeBackground, 30000);
 
-    /* DYNAMIC AUDIO CACHING */
-    function cacheTrackForOffline(trackUrl) {
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'CACHE_TRACK',
-          url: trackUrl
-        });
-        console.log(`Requested caching for: ${trackUrl}`);
-      } else {
-        console.warn('Service worker not available for caching');
-        alert('Offline caching unavailable. Please try again later.');
-      }
-    }
-
-    // Listen for caching confirmation from service worker
-    navigator.serviceWorker.onmessage = (event) => {
-      if (event.data && event.data.type === 'TRACK_CACHED') {
-        console.log(`Track cached successfully: ${event.data.url}`);
-        alert(`Track cached for offline use: ${event.data.url.split('/').pop()}`);
-      }
-    };
-
     /* MEDIA SESSION API */
     function updateMediaSession() {
       if ('mediaSession' in navigator) {
@@ -411,7 +389,6 @@
           trackArtist.textContent = '';
           trackYear.textContent = '';
           trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-          cacheButton.style.display = 'none'; // Hide for radio
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
             updateTrackTime();
@@ -420,13 +397,16 @@
         } else {
           albumCover.src = albums[currentAlbumIndex].cover;
           const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          audioPlayer.src = track.src;
+          fetch(track.src)
+            .then(r => r.blob())
+            .then(b => {
+              audioPlayer.src = URL.createObjectURL(b);
+            });
           trackInfo.textContent = track.title;
           trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
           const year = albums[currentAlbumIndex].releaseYear || 2025;
           trackYear.textContent = `Release Year: ${year}`;
           trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
-          cacheButton.style.display = 'block'; // Show for tracks
           audioPlayer.addEventListener('loadedmetadata', () => {
             audioPlayer.currentTime = savedState.playbackPosition;
             updateTrackTime();
