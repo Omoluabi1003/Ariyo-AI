@@ -2,19 +2,24 @@
 // Images are located in the project root
 
 document.addEventListener('DOMContentLoaded', () => {
+  // List of background images. Images will be shuffled so the
+  // rotation order is different on every page load.
   const images = [
-    'Naija AI1.png',
-    'Naija AI2.png',
-    'Naija AI3.png',
-    'Naija AI4.png',
-    'Naija AI5.png',
-    'Naija AI6.png'
+    { src: 'Naija AI1.png' },
+    { src: 'Naija AI2.png' },
+    { src: 'Naija AI3.png' },
+    { src: 'Naija AI4.png' },
+    { src: 'Naija AI5.png' },
+    { src: 'Naija AI6.png' }
   ];
+
+  // Optional custom positions for specific images
   const positions = {
     'Naija AI4.png': 'center 20%',
     'Naija AI5.png': 'center 20%',
     'Naija AI6.png': 'center 20%'
   };
+
   let current = 0;
 
   function shuffleArray(array) {
@@ -24,14 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Preload images and keep references so they stay in memory. This
+  // prevents the browser from showing a white flash while it waits for
+  // the next background image to download.
+  images.forEach(image => {
+    const img = new Image();
+    img.src = image.src;
+    image.img = img;
+  });
+
   // Shuffle images to avoid a definite order
   shuffleArray(images);
-
-  // Preload images to avoid flashes between transitions
-  images.forEach(src => {
-    const img = new Image();
-    img.src = src;
-  });
 
   function scheduleNextChange() {
     // Randomly change background every 30-40 seconds
@@ -41,23 +49,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applyBackground() {
     const currentImage = images[current];
-    document.body.style.backgroundImage = `url('${currentImage}')`;
+    document.body.style.backgroundImage = `url('${currentImage.img.src}')`;
     document.body.style.backgroundRepeat = 'no-repeat';
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition =
-      positions[currentImage] || 'center center';
+      positions[currentImage.src] || 'center center';
   }
 
   function changeBackground() {
-    current = (current + 1) % images.length;
-    if (current === 0) {
-      shuffleArray(images);
+    const nextIndex = (current + 1) % images.length;
+    const nextImage = images[nextIndex].img;
+
+    const setBackground = () => {
+      current = nextIndex;
+      if (current === 0) {
+        // Reshuffle for the next cycle
+        shuffleArray(images);
+      }
+      applyBackground();
+      scheduleNextChange();
+    };
+
+    // If the image has already loaded, switch immediately.
+    // Otherwise wait for it to load before switching backgrounds.
+    if (nextImage.complete) {
+      setBackground();
+    } else {
+      nextImage.onload = setBackground;
     }
-    applyBackground();
-    scheduleNextChange();
   }
 
-  // Set initial background and start rotation
-  applyBackground();
-  scheduleNextChange();
+  // Set the initial background once the first image has loaded and
+  // start the rotation schedule.
+  const firstImage = images[0].img;
+  if (firstImage.complete) {
+    applyBackground();
+    scheduleNextChange();
+  } else {
+    firstImage.onload = () => {
+      applyBackground();
+      scheduleNextChange();
+    };
+  }
 });
