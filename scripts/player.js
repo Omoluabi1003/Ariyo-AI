@@ -62,7 +62,7 @@ let shuffleQueue = [];
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 
 function savePlaylist() {
-  localStorage.setItem('userPlaylist', JSON.stringify(albums[playlistAlbumIndex].tracks));
+  localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(albums[playlistAlbumIndex].tracks));
 }
 
 function addCurrentTrackToPlaylist() {
@@ -70,7 +70,11 @@ function addCurrentTrackToPlaylist() {
   const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
   const playlist = albums[playlistAlbumIndex].tracks;
   if (!playlist.some(t => t.src === track.src)) {
-    playlist.push({ ...track });
+    const trackToAdd = { ...track };
+    if (!trackToAdd.lrc) {
+      trackToAdd.lrc = trackToAdd.src.replace(/\.mp3$/, '.lrc');
+    }
+    playlist.push(trackToAdd);
     savePlaylist();
     alert('Track added to playlist!');
     if (pendingAlbumIndex === playlistAlbumIndex) {
@@ -84,6 +88,14 @@ function removeTrackFromPlaylist(index) {
   if (index >= 0 && index < playlist.length) {
     playlist.splice(index, 1);
     savePlaylist();
+    if (currentAlbumIndex === playlistAlbumIndex) {
+      if (index < currentTrackIndex) {
+        currentTrackIndex--;
+      } else if (index === currentTrackIndex) {
+        stopMusic();
+        currentTrackIndex = -1;
+      }
+    }
     updateTrackListModal();
   }
 }
