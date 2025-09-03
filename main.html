@@ -300,6 +300,22 @@
         border: none;
         border-radius: 10px;
       }
+
+    /* Position chatbot button so it doesn't cover shuffle control */
+    #chatbotEmbed {
+      position: fixed;
+      bottom: calc(1rem + env(safe-area-inset-bottom));
+      right: 1rem;
+      z-index: 10001;
+    }
+
+    /* On smaller screens move the chatbot button to the left */
+    @media (max-width: 768px) {
+      #chatbotEmbed {
+        left: 1rem;
+        right: auto;
+      }
+    }
     #tetrisGameContainer {
       height: calc(100vh - (140px + env(safe-area-inset-bottom)));
       overflow-y: auto;
