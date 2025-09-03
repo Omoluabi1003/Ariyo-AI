@@ -210,8 +210,6 @@ function toggleShuffle() {
 }
 
     /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
-const chatbotContainer = document.getElementById('chatbotContainer');
-const sabiBibleContainer = document.getElementById('sabiBibleContainer');
 const pictureGameContainer = document.getElementById('pictureGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
@@ -220,9 +218,7 @@ const connectFourContainer = document.getElementById('connectFourContainer');
 const cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
 
 function isAnyPanelOpen() {
-    return chatbotContainer.style.display === 'block' ||
-           sabiBibleContainer.style.display === 'block' ||
-           pictureGameContainer.style.display === 'block' ||
+    return pictureGameContainer.style.display === 'block' ||
            tetrisGameContainer.style.display === 'block' ||
            wordSearchContainer.style.display === 'block' ||
            connectFourContainer.style.display === 'block' ||
@@ -244,16 +240,18 @@ function updateEdgePanelBehavior() {
     }
 }
 
-function toggleChatbot() {
-    const isHidden = chatbotContainer.style.display === 'none' || !chatbotContainer.style.display;
-    chatbotContainer.style.display = isHidden ? 'block' : 'none';
-    updateEdgePanelBehavior();
+function openChatbot() {
+    const embed = document.getElementById('chatbotEmbed');
+    if (embed) {
+        embed.open();
+    }
 }
 
-function toggleSabiBible() {
-    const isHidden = sabiBibleContainer.style.display === 'none' || !sabiBibleContainer.style.display;
-    sabiBibleContainer.style.display = isHidden ? 'block' : 'none';
-    updateEdgePanelBehavior();
+function openSabiBible() {
+    const embed = document.getElementById('sabiBibleEmbed');
+    if (embed) {
+        embed.open();
+    }
 }
 
 function openAboutModal() {
