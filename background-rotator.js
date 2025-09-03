@@ -22,15 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let current = 0;
 
-  // Two overlaying layers are used so that the next background image
-  // can fade in on top of the current one. This prevents a white flash
-  // from appearing between image transitions.
+  // Two overlaying layers are used so that the current background can
+  // fade away and reveal the next image without any flashes in between.
+  let activeLayer = 0;
   const layers = [document.createElement('div'), document.createElement('div')];
-  layers.forEach(layer => {
+  layers.forEach((layer, index) => {
     layer.className = 'background-layer';
+    layer.style.zIndex = index === activeLayer ? '-1' : '-2';
     document.body.appendChild(layer);
   });
-  let activeLayer = 0;
 
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -71,29 +71,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextInfo = images[nextIndex];
 
     const setBackground = () => {
-      const hiddenLayer = layers[1 - activeLayer];
-      hiddenLayer.style.backgroundImage = `url('${nextInfo.img.src}')`;
-      hiddenLayer.style.backgroundPosition = positions[nextInfo.src] || 'center center';
+      const topLayer = layers[activeLayer];
+      const bottomLayer = layers[1 - activeLayer];
 
-      // Start the cross-fade on the next animation frame so the
-      // browser has time to apply the new background image. This
-      // prevents a momentary flash of the page's background color.
+      // Prepare the next image on the bottom layer and show it instantly
+      bottomLayer.style.transition = 'none';
+      bottomLayer.style.backgroundImage = `url('${nextInfo.img.src}')`;
+      bottomLayer.style.backgroundPosition = positions[nextInfo.src] || 'center center';
+      bottomLayer.style.opacity = '1';
+      bottomLayer.offsetHeight; // force reflow
+      bottomLayer.style.transition = '';
+
+      // Fade out the current top layer to reveal the next image
       requestAnimationFrame(() => {
-        hiddenLayer.style.opacity = '1';
-        layers[activeLayer].style.opacity = '0';
+        topLayer.style.opacity = '0';
+        topLayer.addEventListener('transitionend', () => {
+          bottomLayer.style.zIndex = '-1';
+          topLayer.style.zIndex = '-2';
 
-        activeLayer = 1 - activeLayer;
-        current = nextIndex;
-        if (current === 0) {
-          // Reshuffle for the next cycle
-          shuffleArray(images);
-        }
-        scheduleNextChange();
+          activeLayer = 1 - activeLayer;
+          current = nextIndex;
+          if (current === 0) {
+            shuffleArray(images);
+          }
+          scheduleNextChange();
+        }, { once: true });
       });
     };
 
-    // If the image has already loaded, switch immediately.
-    // Otherwise wait for it to load before switching backgrounds.
     if (nextInfo.img.complete) {
       setBackground();
     } else {
