@@ -22,6 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let current = 0;
 
+  // Two overlaying layers are used so that the next background image
+  // can fade in on top of the current one. This prevents a white flash
+  // from appearing between image transitions.
+  const layers = [document.createElement('div'), document.createElement('div')];
+  layers.forEach(layer => {
+    layer.className = 'background-layer';
+    document.body.appendChild(layer);
+  });
+  let activeLayer = 0;
+
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -48,34 +58,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyBackground() {
-    const currentImage = images[current];
-    document.body.style.backgroundImage = `url('${currentImage.img.src}')`;
-    document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition =
-      positions[currentImage.src] || 'center center';
+    const imgInfo = images[current];
+    const layer = layers[activeLayer];
+    layer.style.backgroundImage = `url('${imgInfo.img.src}')`;
+    layer.style.backgroundPosition = positions[imgInfo.src] || 'center center';
+    layer.style.opacity = '1';
+    layers[1 - activeLayer].style.opacity = '0';
   }
 
   function changeBackground() {
     const nextIndex = (current + 1) % images.length;
-    const nextImage = images[nextIndex].img;
+    const nextInfo = images[nextIndex];
 
     const setBackground = () => {
+      const hiddenLayer = layers[1 - activeLayer];
+      hiddenLayer.style.backgroundImage = `url('${nextInfo.img.src}')`;
+      hiddenLayer.style.backgroundPosition = positions[nextInfo.src] || 'center center';
+      hiddenLayer.style.opacity = '1';
+      layers[activeLayer].style.opacity = '0';
+
+      activeLayer = 1 - activeLayer;
       current = nextIndex;
       if (current === 0) {
         // Reshuffle for the next cycle
         shuffleArray(images);
       }
-      applyBackground();
       scheduleNextChange();
     };
 
     // If the image has already loaded, switch immediately.
     // Otherwise wait for it to load before switching backgrounds.
-    if (nextImage.complete) {
+    if (nextInfo.img.complete) {
       setBackground();
     } else {
-      nextImage.onload = setBackground;
+      nextInfo.img.onload = setBackground;
     }
   }
 
