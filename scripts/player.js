@@ -196,13 +196,11 @@ let lastTrackIndex = 0;
       trackModalTitle.textContent = albums[albumIndex].name;
       trackListContainer.innerHTML = '';
 
-      // Build an array of track indices and shuffle it for non-Dirty Dancing albums
+      // Build an array of track indices and shuffle them
       let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
-      if (albums[albumIndex].name !== 'Dirty Dancing') {
-        for (let i = trackIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
-        }
+      for (let i = trackIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
       }
 
       trackIndices.forEach(index => {

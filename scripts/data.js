@@ -1,6 +1,5 @@
 const BASE_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/';
 const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/';
-const DD_URL = 'https://raw.githubusercontent.com/Omoluabi1003/DD/main/';
 const albums = [
       {
         name: 'Kindness',
@@ -57,26 +56,6 @@ const albums = [
           { src: `${BASE_URL}Oil%20Money.mp3`, title: 'Oil Money' },
           { src: `${BASE_URL}Gbamsolutely.mp3`, title: 'Gbamsolutely' },
           { src: `${BASE_URL}Mic%20No%20Be%20For%20Waist.mp3`, title: 'Mic No Be For Waist' }
-        ]
-      },
-      {
-        name: 'Dirty Dancing',
-        artist: 'Various Artists',
-        cover: `${BASE_URL}Dirty%20Dancing.jpg`,
-        releaseYear: 1987,
-        tracks: [
-          { src: `${DD_URL}01%20The%20Time%20Of%20My%20Life.mp3`, title: "(I've Had) The Time Of My Life" },
-          { src: `${DD_URL}02%20Be%20My%20Baby.mp3`, title: 'Be My Baby' },
-          { src: `${DD_URL}03%20She_s%20Like%20The%20Wind.mp3`, title: "She's Like The Wind" },
-          { src: `${DD_URL}04%20Hungry%20Eyes.mp3`, title: 'Hungry Eyes' },
-          { src: `${DD_URL}05%20Stay.mp3`, title: 'Stay' },
-          { src: `${DD_URL}06%20Yes.mp3`, title: 'Yes' },
-          { src: `${DD_URL}07%20You%20Don_t%20Own%20Me.mp3`, title: "You Don't Own Me" },
-          { src: `${DD_URL}08%20Hey%20Baby.mp3`, title: 'Hey Baby' },
-          { src: `${DD_URL}09%20Overload.mp3`, title: 'Overload' },
-          { src: `${DD_URL}10%20Love%20Is%20Strange.mp3`, title: 'Love Is Strange' },
-          { src: `${DD_URL}11%20Where%20Are%20You%20Tonight-.mp3`, title: 'Where Are You Tonight?' },
-          { src: `${DD_URL}12%20In%20The%20Still%20Of%20The%20Night.mp3`, title: 'In The Still Of The Night' }
         ]
       },
       {
