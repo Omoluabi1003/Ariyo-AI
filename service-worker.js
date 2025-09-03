@@ -34,8 +34,7 @@ self.addEventListener('install', event => {
           'word-search.html',
           'word-search.css',
           'word-search.js',
-          'word-search-grid.js',
-          'offline-audio.mp3'
+          'word-search-grid.js'
         ];
         return caches.open(CACHE_NAME).then(cache => {
           return cache.addAll(urlsToCache);
@@ -59,6 +58,9 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+    if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
+        return;
+    }
     event.respondWith(
         caches.match(event.request)
             .then(response => {
@@ -91,27 +93,3 @@ self.addEventListener('fetch', event => {
     );
 });
 
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'CACHE_TRACK') {
-    const trackUrl = event.data.url;
-    event.waitUntil(
-      caches.open(CACHE_NAME + '-tracks').then(cache => {
-        return cache.match(trackUrl).then(response => {
-          if (!response) {
-            return fetch(trackUrl).then(trackResponse => {
-              if (trackResponse.ok) {
-                return cache.put(trackUrl, trackResponse);
-              }
-            });
-          }
-        });
-      }).then(() => {
-        // Send a message back to the client that the track is cached
-        event.source.postMessage({
-          type: 'TRACK_CACHED',
-          url: trackUrl
-        });
-      })
-    );
-  }
-});

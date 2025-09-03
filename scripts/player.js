@@ -34,6 +34,8 @@
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
+    audioPlayer.setAttribute('controlsList', 'nodownload');
+    audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
     const trackInfo = document.getElementById('trackInfo');
@@ -44,7 +46,6 @@
     const seekBar = document.getElementById('seekBar');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const retryButton = document.getElementById('retryButton');
-    const cacheButton = document.getElementById('cacheButton'); // New cache button
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
@@ -460,8 +461,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       const urlHost = new URL(src, window.location.origin).hostname;
       const isSunoHosted = urlHost.includes('suno');
       setCrossOrigin(audioPlayer, src);
-      audioPlayer.src = isSunoHosted ? src : `${src}?t=${Date.now()}`;
-      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       const year = albums[currentAlbumIndex].releaseYear || 2025;
@@ -473,40 +472,29 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'block'; // Show cache button
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      handleAudioLoad(src, title, false);
-      updateMediaSession();
-      showNowPlayingToast(title);
-      if (shuffleMode && rebuildQueue) {
-        buildShuffleQueue();
-      }
-      playMusic();
+      const fetchUrl = isSunoHosted ? src : `${src}?t=${Date.now()}`;
+      fetch(fetchUrl)
+        .then(r => r.blob())
+        .then(b => {
+          const objectUrl = URL.createObjectURL(b);
+          audioPlayer.src = objectUrl;
+          audioPlayer.currentTime = 0;
+          handleAudioLoad(objectUrl, title, false);
+          updateMediaSession();
+          showNowPlayingToast(title);
+          if (shuffleMode && rebuildQueue) {
+            buildShuffleQueue();
+          }
+          playMusic();
+        })
+        .catch(err => {
+          console.error('Error fetching track:', err);
+          retryButton.style.display = 'block';
+          loadingSpinner.style.display = 'none';
+        });
     }
-
-    function loadTrack(src, title, index) {
-      console.log(`Loading track: ${title} from album: ${albums[currentAlbumIndex].name}`);
-      currentTrackIndex = index;
-      currentRadioIndex = -1;
-      setCrossOrigin(audioPlayer, src);
-      audioPlayer.src = src;
-      audioPlayer.currentTime = 0;
-      trackInfo.textContent = title;
-      trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
-      const year = albums[currentAlbumIndex].releaseYear || 2025;
-      trackYear.textContent = `Release Year: ${year}`;
-      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
-      stopMusic();
-      loadingSpinner.style.display = 'block';
-      albumCover.style.display = 'none';
-      retryButton.style.display = 'none';
-      cacheButton.style.display = 'block'; // Show cache button for tracks
-      document.getElementById('progressBar').style.display = 'block';
-      progressBar.style.width = '0%';
-      loadLyrics(albums[currentAlbumIndex].tracks[currentTrackIndex].lrc);
-    }
-
 
     function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
@@ -540,7 +528,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      cacheButton.style.display = 'none'; // Hide cache button for radio
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       handleAudioLoad(src, title, true);
