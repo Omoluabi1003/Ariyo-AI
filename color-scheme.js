@@ -19,7 +19,6 @@ function applyTheme() {
     .progress-bar div { background: ${themeColor}; }
     .install-btn { background: ${themeColor}; }
     #start-button { background-color: ${themeColor}; }
-    body { background-color: #f3e5f5; color: #000000; }
   `;
     document.head.appendChild(style);
     const metaTheme = document.querySelector('meta[name="theme-color"]');
