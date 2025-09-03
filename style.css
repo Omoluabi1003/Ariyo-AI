@@ -464,6 +464,7 @@ body {
     background-repeat: no-repeat;
     background-position: center center;
     opacity: 0;
-    transition: opacity 1s ease-in-out;
-    z-index: -1;
+    transition: opacity 2s ease-in-out;
+    z-index: -2;
+    pointer-events: none;
 }
