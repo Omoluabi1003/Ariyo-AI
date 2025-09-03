@@ -57,9 +57,36 @@ let lastTrackIndex = 0;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
-    let currentRadioIndex = -1;
-    let shuffleQueue = [];
-    let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
+let currentRadioIndex = -1;
+let shuffleQueue = [];
+let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
+
+function savePlaylist() {
+  localStorage.setItem('userPlaylist', JSON.stringify(albums[playlistAlbumIndex].tracks));
+}
+
+function addCurrentTrackToPlaylist() {
+  if (currentAlbumIndex === playlistAlbumIndex || currentTrackIndex < 0) return;
+  const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
+  const playlist = albums[playlistAlbumIndex].tracks;
+  if (!playlist.some(t => t.src === track.src)) {
+    playlist.push({ ...track });
+    savePlaylist();
+    alert('Track added to playlist!');
+    if (pendingAlbumIndex === playlistAlbumIndex) {
+      updateTrackListModal();
+    }
+  }
+}
+
+function removeTrackFromPlaylist(index) {
+  const playlist = albums[playlistAlbumIndex].tracks;
+  if (index >= 0 && index < playlist.length) {
+    playlist.splice(index, 1);
+    savePlaylist();
+    updateTrackListModal();
+  }
+}
 
     function updateNextTrackInfo() {
       const nextInfo = document.getElementById('nextTrackInfo');
@@ -196,29 +223,54 @@ let lastTrackIndex = 0;
       trackModalTitle.textContent = albums[albumIndex].name;
       trackListContainer.innerHTML = '';
 
-      // Build an array of track indices and shuffle them
+      // Build an array of track indices and shuffle them (except for playlist)
       let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
-      for (let i = trackIndices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
+      if (albumIndex !== playlistAlbumIndex) {
+        for (let i = trackIndices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
+        }
       }
 
       trackIndices.forEach(index => {
         const track = albums[albumIndex].tracks[index];
-        const trackLink = document.createElement('a');
-        trackLink.href = track.src;
-        trackLink.target = '_blank';
-        trackLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          currentAlbumIndex = albumIndex;
-          pendingAlbumIndex = null;
-          selectTrack(track.src, track.title, index);
-        });
 
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
-        trackLink.textContent = `${track.title}${displayDuration}`;
-        trackListContainer.appendChild(trackLink);
+
+        let trackLink;
+        if (albumIndex === playlistAlbumIndex) {
+          const item = document.createElement('div');
+          item.className = 'track-item';
+          const titleSpan = document.createElement('span');
+          titleSpan.textContent = `${track.title}${displayDuration}`;
+          item.appendChild(titleSpan);
+          item.addEventListener('click', () => {
+            currentAlbumIndex = albumIndex;
+            pendingAlbumIndex = null;
+            selectTrack(track.src, track.title, index);
+          });
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = '✖';
+          removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeTrackFromPlaylist(index);
+          });
+          item.appendChild(removeBtn);
+          trackListContainer.appendChild(item);
+        } else {
+          const trackLink = document.createElement('a');
+          trackLink.href = track.src;
+          trackLink.target = '_blank';
+          trackLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentAlbumIndex = albumIndex;
+            pendingAlbumIndex = null;
+            selectTrack(track.src, track.title, index);
+          });
+          trackLink.textContent = `${track.title}${displayDuration}`;
+          trackListContainer.appendChild(trackLink);
+        }
 
         if (!track.duration) {
           const tempAudio = new Audio();
@@ -227,10 +279,19 @@ let lastTrackIndex = 0;
           tempAudio.src = track.src;
           tempAudio.addEventListener('loadedmetadata', () => {
             track.duration = tempAudio.duration;
-            trackLink.textContent = `${track.title} (${formatTime(track.duration)})`;
+            if (albumIndex === playlistAlbumIndex) {
+              updateTrackListModal();
+            } else if (trackLink) {
+              trackLink.textContent = `${track.title} (${formatTime(track.duration)})`;
+            }
           });
           tempAudio.addEventListener('error', () => {
-            trackLink.textContent = `${track.title} (N/A)`;
+            track.duration = 0;
+            if (albumIndex === playlistAlbumIndex) {
+              updateTrackListModal();
+            } else if (trackLink) {
+              trackLink.textContent = `${track.title} (N/A)`;
+            }
           });
         }
       });

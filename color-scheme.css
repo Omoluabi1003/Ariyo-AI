@@ -12,7 +12,7 @@ body {
 .header { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
 .sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
 .music-controls.icons-only button { background: var(--theme-color); }
-.track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
+.track-list a:hover, .track-list .track-item:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
 .popup-close { background: var(--theme-color); }
 .retry-button { background: var(--theme-color); }
 .progress-bar div { background: var(--theme-color); }

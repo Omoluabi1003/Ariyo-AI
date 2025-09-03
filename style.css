@@ -401,6 +401,27 @@ body {
     animation: gradient-glow 1.5s infinite alternate;
 }
 
+.track-list .track-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem;
+    color: white;
+    background-color: #333;
+    margin-bottom: 0.3rem;
+    border-radius: 5px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.track-list .track-item:hover {
+    background-color: var(--theme-color);
+    animation: gradient-glow 1.5s infinite alternate;
+}
+
+.track-list .track-item button {
+    margin-left: 1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
