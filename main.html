@@ -13,16 +13,16 @@
   <meta name="theme-color" content="#6a5acd" />
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/Ariyo.png">
-  <meta name="description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, the Ariyo AI assistant, and a 'Sabi Bible' mode." />
-  <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Naija AI, Nigerian music, AI chatbot, Sabi Bible, PWA" />
+  <meta name="description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
+  <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Naija AI, Nigerian music, AI chatbot, PWA" />
   <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
-  <meta property="og:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, the Ariyo AI assistant, and a 'Sabi Bible' mode." />
+  <meta property="og:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
   <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
   <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Àríyò AI - Smart Naija AI" />
-  <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, the Ariyo AI assistant, and a 'Sabi Bible' mode." />
+  <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
   <title>Àríyò AI - Smart Naija AI</title>
 
@@ -32,7 +32,7 @@
     "@type": "WebSite",
     "url": "https://omoluabi1003.github.io/Ariyo-AI/",
     "name": "Àríyò AI",
-    "description": "Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music, the Ariyo AI assistant, and a 'Sabi Bible' mode.",
+      "description": "Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://omoluabi1003.github.io/Ariyo-AI/?s={search_term_string}",
@@ -278,7 +278,7 @@
       font-size: clamp(0.9rem, 2vw, 1rem);
     }
     .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
-    .chatbot-container, .sabi-bible-container, #aboutModalContainer {
+      .chatbot-container, #aboutModalContainer {
       position: fixed;
       bottom: calc(80px + env(safe-area-inset-bottom));
       left: 50%;
@@ -293,14 +293,13 @@
       display: none;
       z-index: 10001;
     }
-    .chatbot-container zapier-interfaces-chatbot-embed,
-    .sabi-bible-container zapier-interfaces-chatbot-embed {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 10px;
-    }
+      .chatbot-container zapier-interfaces-chatbot-embed {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 10px;
+      }
     #tetrisGameContainer {
       height: calc(100vh - (140px + env(safe-area-inset-bottom)));
       overflow-y: auto;
@@ -405,7 +404,7 @@
     .tap-area.right {
         right: 0;
     }
-    .chatbot-float-icon, .sabi-bible-float-icon, .picture-game-float-icon, .cycle-precision-float-icon {
+      .chatbot-float-icon, .picture-game-float-icon, .cycle-precision-float-icon {
       width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -429,7 +428,7 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0; }
     }
-    .chatbot-speech-bubble, .sabi-bible-speech-bubble {
+    .chatbot-speech-bubble {
         position: absolute;
         bottom: 100%;
         left: 50%;
@@ -449,7 +448,7 @@
         max-width: 120px;
         text-align: center;
     }
-    .chatbot-speech-bubble::after, .sabi-bible-speech-bubble::after {
+    .chatbot-speech-bubble::after {
       content: "";
       position: absolute;
       bottom: -20px;
@@ -548,7 +547,7 @@
       .music-controls.icons-only {
         flex-wrap: wrap;
       }
-      .chatbot-bubble-container, .sabi-bible-bubble-container {
+      .chatbot-bubble-container {
         bottom: calc(15rem + env(safe-area-inset-bottom));
       }
     }
@@ -728,10 +727,6 @@
         <div class="chatbot-bubble-container" role="button" aria-label="Open Ariyo AI" onclick="openChatbot()">
           <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/chatbot.png" alt="Ariyo AI Icon" class="chatbot-float-icon" />
         </div>
-        <!-- Sabi Bible Floating Icon & Comic Bubble -->
-        <div class="sabi-bible-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="openSabiBible()">
-          <img src="Sabi%20Bible.png" alt="Sabi Bible Icon" class="sabi-bible-float-icon" />
-        </div>
         <!-- Picture Game Floating Icon -->
         <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
@@ -757,7 +752,6 @@
 
 <!-- Chatbot Embeds -->
 <zapier-interfaces-chatbot-embed id='chatbotEmbed' is-popup='true' chatbot-id='cm7s2oyu2000b3vmuwcwkj9kn'></zapier-interfaces-chatbot-embed>
-<zapier-interfaces-chatbot-embed id='sabiBibleEmbed' is-popup='true' chatbot-id='cm7ve7fdl002jlclh8y1n6n1y'></zapier-interfaces-chatbot-embed>
 
 <!-- Picture Game Container -->
 <div id="pictureGameContainer" class="chatbot-container" role="dialog" aria-labelledby="pictureGameTitle">
