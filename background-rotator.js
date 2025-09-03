@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const images = [
+  const allImages = [
     'Naija AI1.png',
     'Naija AI2.png',
     'Naija AI3.png',
@@ -7,6 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     'Naija AI5.png',
     'Naija AI6.png'
   ];
+
+  // Select three random images on each load
+  const images = allImages
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
 
   // Preload images to avoid flashes during transitions
   images.forEach(src => {
