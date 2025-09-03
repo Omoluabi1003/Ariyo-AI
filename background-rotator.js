@@ -26,5 +26,5 @@ document.addEventListener('DOMContentLoaded', () => {
   layer.style.backgroundPosition = positions[selectedImage] || 'center center';
   layer.style.opacity = '1';
 
-  document.body.appendChild(layer);
+  document.body.prepend(layer);
 });
