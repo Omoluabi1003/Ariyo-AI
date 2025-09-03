@@ -280,9 +280,9 @@
 
     /* BACKGROUND CYCLER */
     const backgrounds = [
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.jpg',
-      'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI3.jpg'
+      'Naija AI1.png',
+      'Naija AI2.png',
+      'Naija AI3.png'
     ];
 
     // Preload background images to prevent flashing
@@ -293,14 +293,14 @@
     });
 
     let currentBgIndex = 0;
-    document.body.style.backgroundImage = `url(${backgrounds[currentBgIndex]})`;
+    document.body.style.backgroundImage = `url('${backgrounds[currentBgIndex]}')`;
 
     const changeBackground = () => {
       const nextIndex = (currentBgIndex + 1) % backgrounds.length;
       const nextImage = preloadedBackgrounds[nextIndex];
 
       const applyBackground = () => {
-        document.body.style.backgroundImage = `url(${backgrounds[nextIndex]})`;
+        document.body.style.backgroundImage = `url('${backgrounds[nextIndex]}')`;
         currentBgIndex = nextIndex;
       };
 
