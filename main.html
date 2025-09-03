@@ -47,7 +47,6 @@
 
   <!-- Animations & Chat -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
-  <script async type='module' src='https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js'></script>
 
 
   <style>
@@ -294,7 +293,7 @@
       display: none;
       z-index: 10001;
     }
-      .chatbot-container zapier-interfaces-chatbot-embed {
+      .chatbot-container iframe {
         display: block;
         width: 100%;
         height: 100%;
@@ -302,21 +301,6 @@
         border-radius: 10px;
       }
 
-    /* Position chatbot button so it doesn't cover shuffle control */
-    #chatbotEmbed {
-      position: fixed;
-      bottom: calc(1rem + env(safe-area-inset-bottom));
-      right: 1rem;
-      z-index: 10001;
-    }
-
-    /* On smaller screens move the chatbot button to the left */
-    @media (max-width: 768px) {
-      #chatbotEmbed {
-        left: 1rem;
-        right: auto;
-      }
-    }
     #tetrisGameContainer {
       height: calc(100vh - (140px + env(safe-area-inset-bottom)));
       overflow-y: auto;
@@ -737,6 +721,10 @@
 <div class="edge-panel" id="edgePanel">
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
+        <!-- Ariyo AI Floating Icon -->
+        <div class="chatbot-bubble-container" role="button" aria-label="Open Ariyo AI" onclick="openChatbot()">
+            <img src="chatbot.png" alt="Ariyo AI Icon" class="picture-game-float-icon" />
+        </div>
         <!-- Picture Game Floating Icon -->
         <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
@@ -760,8 +748,12 @@
     </div>
 </div>
 
-<!-- Chatbot Embeds -->
-<zapier-interfaces-chatbot-embed id='chatbotEmbed' is-popup='true' chatbot-id='cm7s2oyu2000b3vmuwcwkj9kn'></zapier-interfaces-chatbot-embed>
+<!-- Ariyo AI Chatbot Container -->
+<div id="chatbotContainer" class="chatbot-container" role="dialog" aria-labelledby="chatbotTitle">
+    <button class="popup-close ripple shockwave" onclick="closeChatbot()">×</button>
+    <h3 id="chatbotTitle" class="modal-title">Ariyo AI</h3>
+    <iframe src='https://interfaces.zapier.com/embed/chatbot/cm7s2oyu2000b3vmuwcwkj9kn' allow='clipboard-write *' style="border: none; width: 100%; height: 100%;"></iframe>
+</div>
 
 <!-- Picture Game Container -->
 <div id="pictureGameContainer" class="chatbot-container" role="dialog" aria-labelledby="pictureGameTitle">
