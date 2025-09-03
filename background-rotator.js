@@ -10,8 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     'Naija AI5.png',
     'Naija AI6.png'
   ];
-
-  const zoomedImages = ['Naija AI4.png', 'Naija AI5.png', 'Naija AI6.png'];
+  const positions = {
+    'Naija AI4.png': 'center 20%',
+    'Naija AI5.png': 'center 20%',
+    'Naija AI6.png': 'center 20%'
+  };
   let current = 0;
 
   function shuffleArray(array) {
@@ -40,8 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentImage = images[current];
     document.body.style.backgroundImage = `url('${currentImage}')`;
     document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundSize =
-      zoomedImages.includes(currentImage) ? 'contain' : 'cover';
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition =
+      positions[currentImage] || 'center center';
   }
 
   function changeBackground() {
