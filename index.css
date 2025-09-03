@@ -184,6 +184,6 @@ a {
     background-position: center center;
     opacity: 0;
     transition: opacity 2s ease-in-out;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
 }
