@@ -8,7 +8,7 @@
 - **Ariyo AI:** Interact with the Ariyo AI assistant for assistance and entertainment.
 - **PWA:** Install the application on your device for offline access and a native-like experience.
 - **Radio:** Listen to a variety of Nigerian and international radio stations.
-- **Edge Panel:** Quick-access icons for Ariyo AI, Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.
+- **Edge Panel:** Quick-access icons for Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.
 - **Games:** Play mini-games like Picture Game, Omoluabi Tetris, Word Search, and Ara Connect-4.
   - Picture Game
   - Omoluabi Tetris
