@@ -216,6 +216,7 @@ const wordSearchContainer = document.getElementById('wordSearchContainer');
 const aboutModalContainer = document.getElementById('aboutModalContainer');
 const connectFourContainer = document.getElementById('connectFourContainer');
 const cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
+const chatbotEmbed = document.getElementById('chatbotEmbed');
 
 function isAnyPanelOpen() {
     return pictureGameContainer.style.display === 'block' ||
@@ -231,7 +232,7 @@ window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-
 console.log("US Spoof Active:", window.spoofedLocation);
 
 function updateEdgePanelBehavior() {
-    chatbotWindowOpen = isAnyPanelOpen();
+    chatbotWindowOpen = isAnyPanelOpen() || chatbotWindowOpen;
     if (chatbotWindowOpen) {
         closeEdgePanel();
         clearInterval(autoPopOutInterval);
@@ -239,23 +240,6 @@ function updateEdgePanelBehavior() {
         autoPopOutEdgePanel();
     }
 }
-
-function openChatbot() {
-    const embed = document.getElementById('chatbotEmbed');
-    if (embed) {
-        embed.open();
-        chatbotWindowOpen = true;
-        closeEdgePanel();
-        clearInterval(autoPopOutInterval);
-        const onClose = () => {
-            chatbotWindowOpen = false;
-            updateEdgePanelBehavior();
-            embed.removeEventListener('close', onClose);
-        };
-        embed.addEventListener('close', onClose);
-    }
-}
-
 
 function openAboutModal() {
     const iframe = aboutModalContainer.querySelector('iframe');
@@ -398,6 +382,18 @@ function closeCyclePrecision() {
     /* AUTO POP-OUT/RETRACT EDGE PANEL */
     let chatbotWindowOpen = false;
     let autoPopOutInterval;
+
+    if (chatbotEmbed) {
+        chatbotEmbed.addEventListener('open', () => {
+            chatbotWindowOpen = true;
+            closeEdgePanel();
+            clearInterval(autoPopOutInterval);
+        });
+        chatbotEmbed.addEventListener('close', () => {
+            chatbotWindowOpen = false;
+            updateEdgePanelBehavior();
+        });
+    }
 
     function autoPopOutEdgePanel() {
         if (chatbotWindowOpen || edgePanel.classList.contains('visible')) return;
