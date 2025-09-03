@@ -161,7 +161,8 @@ const albums = [
             { src: 'https://cdn1.suno.ai/f7f72dd2-12cd-4568-b831-f745973fa063.mp3', title: 'Destiny No Dey Wait' },
             { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
             { src: 'https://cdn1.suno.ai/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
-            { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" }
+            { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
+            { src: 'https://cdn1.suno.ai/473edd61-d1ba-4bad-8014-7302cd1a9b71.mp3', title: 'Same Ni' }
         ]
       },
     ];
