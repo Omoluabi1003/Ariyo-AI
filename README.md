@@ -1,15 +1,14 @@
 # Àríyò AI
 
-Àríyò AI is a web-based music player created by **Paul A.K. Iyogun** (also known as **Omoluabi**). It provides a unique and culturally-rich experience for users. The app features a curated selection of Nigerian music, the Ariyo AI assistant, and a "Sabi Bible" mode. It is designed as a Progressive Web App (PWA), allowing users to install it on their devices for a native-like experience.
+Àríyò AI is a web-based music player created by **Paul A.K. Iyogun** (also known as **Omoluabi**). It provides a unique and culturally-rich experience for users. The app features a curated selection of Nigerian music and the Ariyo AI assistant. It is designed as a Progressive Web App (PWA), allowing users to install it on their devices for a native-like experience.
 
 ## Features
 
 - **Music Player:** Play a variety of Nigerian music from different albums.
 - **Ariyo AI:** Interact with the Ariyo AI assistant for assistance and entertainment.
-- **Sabi Bible Mode:** Access a special mode for spiritual content.
 - **PWA:** Install the application on your device for offline access and a native-like experience.
 - **Radio:** Listen to a variety of Nigerian and international radio stations.
-- **Edge Panel:** Quick-access icons for Ariyo AI, Sabi Bible, Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.
+- **Edge Panel:** Quick-access icons for Ariyo AI, Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.
 - **Games:** Play mini-games like Picture Game, Omoluabi Tetris, Word Search, and Ara Connect-4.
   - Picture Game
   - Omoluabi Tetris

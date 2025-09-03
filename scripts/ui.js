@@ -209,7 +209,7 @@ function toggleShuffle() {
   savePlayerState();
 }
 
-    /* CHATBOT & SABI BIBLE TOGGLE WITH US SPOOFING */
+    /* CHATBOT TOGGLE WITH US SPOOFING */
 const pictureGameContainer = document.getElementById('pictureGameContainer');
 const tetrisGameContainer = document.getElementById('tetrisGameContainer');
 const wordSearchContainer = document.getElementById('wordSearchContainer');
@@ -256,21 +256,6 @@ function openChatbot() {
     }
 }
 
-function openSabiBible() {
-    const embed = document.getElementById('sabiBibleEmbed');
-    if (embed) {
-        embed.open();
-        chatbotWindowOpen = true;
-        closeEdgePanel();
-        clearInterval(autoPopOutInterval);
-        const onClose = () => {
-            chatbotWindowOpen = false;
-            updateEdgePanelBehavior();
-            embed.removeEventListener('close', onClose);
-        };
-        embed.addEventListener('close', onClose);
-    }
-}
 
 function openAboutModal() {
     const iframe = aboutModalContainer.querySelector('iframe');
