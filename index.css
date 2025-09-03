@@ -37,7 +37,7 @@ body {
 }
 
 .overlay {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.1);
     padding: 2rem;
     border-radius: 15px;
     position: relative;
