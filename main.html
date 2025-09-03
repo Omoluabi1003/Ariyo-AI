@@ -233,17 +233,6 @@
     #lyrics p { margin: 0.2rem 0; }
     #lyrics p.active { color: var(--theme-color); font-weight: bold; }
     .track-details { margin-top: 0.6rem; font-size: clamp(0.7rem, 1.8vw, 0.8rem); }
-    .dropdown {
-      width: 100%;
-      background: rgba(34,34,34,0.8);
-      color: white;
-      padding: 0.6rem;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-      margin-top: 1rem;
-      font-size: clamp(0.8rem, 1.8vw, 0.9rem);
-    }
     .modal {
       display: none;
       position: fixed;
@@ -631,6 +620,7 @@
       <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
       <datalist id="searchSuggestions"></datalist>
       <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave"><i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album</button>
+      <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave"><i class="fas fa-music" aria-hidden="true"></i> Choose A Track</button>
       <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave"><i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations</button>
       <button onclick="openAboutModal()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
     </div>
@@ -675,7 +665,6 @@
     <button id="cacheButton" class="retry-button" onclick="cacheTrackForOffline(albums[currentAlbumIndex].tracks[currentTrackIndex].src)" aria-label="Download track for offline playback">Download for Offline</button>
     <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
     <div id="lyrics"></div>
-    <div class="dropdown" role="button" aria-label="Choose a track" onclick="openTrackList()" aria-haspopup="true" aria-expanded="false">🎵 Choose A Track</div>
     <div class="music-controls icons-only">
       <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
       <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer" class="ripple shockwave">▶</button>
