@@ -10,7 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
     'Naija AI5.png',
     'Naija AI6.png'
   ];
+
+  const zoomedImages = ['Naija AI4.png', 'Naija AI5.png', 'Naija AI6.png'];
   let current = 0;
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  // Shuffle images to avoid a definite order
+  shuffleArray(images);
 
   // Preload images to avoid flashes between transitions
   images.forEach(src => {
@@ -24,13 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(changeBackground, delay);
   }
 
+  function applyBackground() {
+    const currentImage = images[current];
+    document.body.style.backgroundImage = `url('${currentImage}')`;
+    document.body.style.backgroundRepeat = 'no-repeat';
+    document.body.style.backgroundSize =
+      zoomedImages.includes(currentImage) ? 'contain' : 'cover';
+  }
+
   function changeBackground() {
     current = (current + 1) % images.length;
-    document.body.style.backgroundImage = `url('${images[current]}')`;
+    if (current === 0) {
+      shuffleArray(images);
+    }
+    applyBackground();
     scheduleNextChange();
   }
 
   // Set initial background and start rotation
-  document.body.style.backgroundImage = `url('${images[current]}')`;
+  applyBackground();
   scheduleNextChange();
 });
