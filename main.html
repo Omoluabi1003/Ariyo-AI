@@ -388,9 +388,10 @@
     .edge-panel-content {
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
+        justify-content: flex-start;
         align-items: center;
-        height: 100%;
+        gap: 10px;
+        padding: 10px 0;
     }
     .tap-area {
         position: fixed;
@@ -721,8 +722,12 @@
 <div class="edge-panel" id="edgePanel">
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
+        <!-- Ariyo AI Floating Icon -->
+        <div class="chatbot-bubble-container" role="button" aria-label="Open Ariyo AI" onclick="openAriyoChatbot()">
+            <img src="icons/Ariyo.png" alt="Ariyo AI Icon" class="picture-game-float-icon" />
+        </div>
         <!-- Sabi Bible Floating Icon -->
-        <div class="chatbot-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="openChatbot()">
+        <div class="chatbot-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="openSabiBible()">
             <img src="icons/sabi-bible.png" alt="Sabi Bible Icon" class="picture-game-float-icon" />
         </div>
         <!-- Picture Game Floating Icon -->
@@ -748,11 +753,18 @@
     </div>
 </div>
 
+<!-- Ariyo AI Chatbot Container -->
+<div id="ariyoChatbotContainer" class="chatbot-container" role="dialog" aria-labelledby="ariyoChatbotTitle">
+    <button class="popup-close ripple shockwave" onclick="closeAriyoChatbot()">×</button>
+    <h3 id="ariyoChatbotTitle" class="modal-title">Àríyò AI</h3>
+    <iframe src="ariyo-ai-chat.html" style="border: none; width: 100%; height: 100%;"></iframe>
+</div>
+
 <!-- Sabi Bible Chatbot Container -->
-<div id="chatbotContainer" class="chatbot-container" role="dialog" aria-labelledby="chatbotTitle">
-    <button class="popup-close ripple shockwave" onclick="closeChatbot()">×</button>
-    <h3 id="chatbotTitle" class="modal-title">Sabi Bible</h3>
-    <iframe src='https://interfaces.zapier.com/embed/chatbot/cm7ve7fdl002jlclh8y1n6n1y' allow='clipboard-write *' style="border: none; width: 100%; height: 100%;"></iframe>
+<div id="sabiBibleContainer" class="chatbot-container" role="dialog" aria-labelledby="sabiBibleTitle">
+    <button class="popup-close ripple shockwave" onclick="closeSabiBible()">×</button>
+    <h3 id="sabiBibleTitle" class="modal-title">Sabi Bible</h3>
+    <iframe src="sabi-bible.html" style="border: none; width: 100%; height: 100%;"></iframe>
 </div>
 
 <!-- Picture Game Container -->
