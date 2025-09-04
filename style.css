@@ -257,6 +257,50 @@ body {
     transform: none;
 }
 
+/* Futuristic play button styling */
+.music-controls.icons-only .play-button {
+    position: relative;
+    background: radial-gradient(circle, var(--theme-color) 0%, #000 70%);
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--theme-color), 0 0 20px var(--theme-color) inset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+.music-controls.icons-only .play-button::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-35%, -50%);
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 18px solid #fff;
+}
+
+.music-controls.icons-only .play-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--theme-color), 0 0 40px var(--theme-color) inset;
+}
+
+@keyframes pulseGlow {
+    from {
+        box-shadow: 0 0 10px var(--theme-color), 0 0 20px var(--theme-color) inset;
+    }
+    to {
+        box-shadow: 0 0 20px var(--theme-color), 0 0 40px var(--theme-color) inset;
+    }
+}
+
 .track-info {
     margin-top: 0.3rem;
     font-size: clamp(0.9rem, 2.5vw, 1.1rem);
