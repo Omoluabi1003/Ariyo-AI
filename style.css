@@ -234,18 +234,17 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 0.6rem;
-    padding-right: 4rem; /* Space for Zapier icon */
 }
 
 .music-controls.icons-only button {
-    background: var(--theme-color);
-    color: white;
-    border: none;
+    background: transparent;
+    color: var(--theme-color);
+    border: 2px solid var(--theme-color);
     padding: 0.8rem;
     border-radius: 25px;
     cursor: pointer;
     font-size: 0.9rem;
-    transition: transform 0.2s;
+    transition: background-color 0.2s, color 0.2s;
     min-width: 48px;
     min-height: 48px;
     touch-action: manipulation;
@@ -253,7 +252,6 @@ body {
 }
 
 .music-controls.icons-only button:hover {
-    transform: scale(1.1);
     animation: gradient-glow 1.5s infinite alternate;
 }
 
