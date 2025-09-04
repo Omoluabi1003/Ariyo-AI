@@ -216,7 +216,8 @@ let pictureGameContainer,
     aboutModalContainer,
     connectFourContainer,
     cyclePrecisionContainer,
-    chatbotContainer;
+    ariyoChatbotContainer,
+    sabiBibleContainer;
 
 document.addEventListener('DOMContentLoaded', () => {
     pictureGameContainer = document.getElementById('pictureGameContainer');
@@ -225,7 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
     aboutModalContainer = document.getElementById('aboutModalContainer');
     connectFourContainer = document.getElementById('connectFourContainer');
     cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
-    chatbotContainer = document.getElementById('chatbotContainer');
+    ariyoChatbotContainer = document.getElementById('ariyoChatbotContainer');
+    sabiBibleContainer = document.getElementById('sabiBibleContainer');
 });
 
 function isAnyPanelOpen() {
@@ -235,7 +237,8 @@ function isAnyPanelOpen() {
         wordSearchContainer,
         connectFourContainer,
         cyclePrecisionContainer,
-        chatbotContainer,
+        ariyoChatbotContainer,
+        sabiBibleContainer,
         aboutModalContainer
     ].some(el => el && el.style.display === 'block');
 }
@@ -268,13 +271,23 @@ function closeAboutModal() {
     updateEdgePanelBehavior();
 }
 
-function openChatbot() {
-    chatbotContainer.style.display = 'block';
+function openAriyoChatbot() {
+    ariyoChatbotContainer.style.display = 'block';
     updateEdgePanelBehavior();
 }
 
-function closeChatbot() {
-    chatbotContainer.style.display = 'none';
+function closeAriyoChatbot() {
+    ariyoChatbotContainer.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openSabiBible() {
+    sabiBibleContainer.style.display = 'block';
+    updateEdgePanelBehavior();
+}
+
+function closeSabiBible() {
+    sabiBibleContainer.style.display = 'none';
     updateEdgePanelBehavior();
 }
 
