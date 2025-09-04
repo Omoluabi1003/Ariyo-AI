@@ -422,16 +422,16 @@
         shuffleMode = savedState.shuffleMode;
         shuffleScope = savedState.shuffleScope;
 
-        if (shuffleScope === 'album') {
+        if (shuffleScope === 'repeat') {
+          shuffleMode = false;
+          shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
+          shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
+        } else if (shuffleScope === 'album') {
           shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
           shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
         } else if (shuffleScope === 'all') {
           shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
           shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
-        } else if (shuffleScope === 'repeat') {
-          shuffleMode = false;
-          shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
-          shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
         } else { // off
           shuffleBtn.innerHTML = '🔀';
           shuffleStatusInfo.textContent = 'Shuffle: Off';
