@@ -257,6 +257,19 @@ body {
     transform: none;
 }
 
+.music-controls.icons-only .shuffle-button {
+    font-size: 1rem;
+}
+
+.music-controls.icons-only .shuffle-button .shuffle-indicator {
+    font-weight: bold;
+    color: var(--theme-color);
+    text-shadow: -1px -1px 0 #fff,
+                 1px -1px 0 #fff,
+                 -1px 1px 0 #fff,
+                 1px 1px 0 #fff;
+}
+
 /* Futuristic play button styling */
 .music-controls.icons-only .play-button {
     position: relative;
