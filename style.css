@@ -232,27 +232,29 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.6rem;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    padding: 0;
 }
 
 .music-controls.icons-only button {
     background: transparent;
     color: var(--theme-color);
     border: 2px solid var(--theme-color);
-    padding: 0.8rem;
-    border-radius: 25px;
+    padding: 0;
+    border-radius: 15px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     transition: background-color 0.2s, color 0.2s;
-    min-width: 48px;
-    min-height: 48px;
+    min-width: 40px;
+    min-height: 40px;
     touch-action: manipulation;
     pointer-events: auto;
 }
 
 .music-controls.icons-only button:hover {
     animation: gradient-glow 1.5s infinite alternate;
+    transform: none;
 }
 
 .track-info {
@@ -466,7 +468,7 @@ body {
         max-width: 100%;
     }
     .music-controls.icons-only {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
     }
     .modal-content {
         width: 90%;
