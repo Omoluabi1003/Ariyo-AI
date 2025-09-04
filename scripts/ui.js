@@ -163,11 +163,11 @@ function toggleShuffle() {
     shuffleQueue = [];
     updateNextTrackInfo();
     if (shuffleMode) {
-      shuffleBtn.textContent = '🔀 Radio';
+      shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
       console.log('Shuffle mode: Radio');
     } else {
-      shuffleBtn.textContent = '🔀 Off';
+      shuffleBtn.innerHTML = '🔀';
       shuffleStatusInfo.textContent = 'Shuffle: Off';
       console.log('Shuffle mode: Off');
     }
@@ -177,21 +177,21 @@ function toggleShuffle() {
     if (shuffleScope === 'off') {
       shuffleScope = 'album';
       shuffleMode = true;
-      shuffleBtn.textContent = '🔀 Album';
+      shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
       console.log('Shuffle mode: Album');
       buildShuffleQueue();
     } else if (shuffleScope === 'album') {
       shuffleScope = 'all';
       shuffleMode = true;
-      shuffleBtn.textContent = '🔀 All';
+      shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
       console.log('Shuffle mode: All');
       buildShuffleQueue();
     } else if (shuffleScope === 'all') {
       shuffleScope = 'repeat';
       shuffleMode = false;
-      shuffleBtn.textContent = '🔂 One';
+      shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
       shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
       console.log('Repeat mode: Single Track');
       shuffleQueue = [];
@@ -199,7 +199,7 @@ function toggleShuffle() {
     } else { // shuffleScope === 'repeat'
       shuffleScope = 'off';
       shuffleMode = false;
-      shuffleBtn.textContent = '🔀 Off';
+      shuffleBtn.innerHTML = '🔀';
       shuffleStatusInfo.textContent = 'Shuffle: Off';
       console.log('Shuffle mode: Off');
       shuffleQueue = [];

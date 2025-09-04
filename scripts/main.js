@@ -423,17 +423,17 @@
         shuffleScope = savedState.shuffleScope;
 
         if (shuffleScope === 'album') {
-          shuffleBtn.textContent = '🔀 Album';
+          shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
           shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
         } else if (shuffleScope === 'all') {
-          shuffleBtn.textContent = '🔀 All';
+          shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
           shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
         } else if (shuffleScope === 'repeat') {
           shuffleMode = false;
-          shuffleBtn.textContent = '🔂 One';
+          shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
           shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
         } else { // off
-          shuffleBtn.textContent = '🔀 Off';
+          shuffleBtn.innerHTML = '🔀';
           shuffleStatusInfo.textContent = 'Shuffle: Off';
         }
         buildShuffleQueue();
@@ -443,7 +443,7 @@
         shuffleScope = 'off';
         shuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
-        document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").textContent = '🔀 Off';
+        document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").innerHTML = '🔀';
         buildShuffleQueue();
         selectAlbum(0);
         console.log('No saved state found, initialized with default');
