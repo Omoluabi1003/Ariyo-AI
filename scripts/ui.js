@@ -209,23 +209,35 @@ function toggleShuffle() {
   savePlayerState();
 }
 
-    /* CHATBOT TOGGLE WITH US SPOOFING */
-const pictureGameContainer = document.getElementById('pictureGameContainer');
-const tetrisGameContainer = document.getElementById('tetrisGameContainer');
-const wordSearchContainer = document.getElementById('wordSearchContainer');
-const aboutModalContainer = document.getElementById('aboutModalContainer');
-const connectFourContainer = document.getElementById('connectFourContainer');
-const cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
-const chatbotContainer = document.getElementById('chatbotContainer');
+/* CHATBOT TOGGLE WITH US SPOOFING */
+let pictureGameContainer,
+    tetrisGameContainer,
+    wordSearchContainer,
+    aboutModalContainer,
+    connectFourContainer,
+    cyclePrecisionContainer,
+    chatbotContainer;
+
+document.addEventListener('DOMContentLoaded', () => {
+    pictureGameContainer = document.getElementById('pictureGameContainer');
+    tetrisGameContainer = document.getElementById('tetrisGameContainer');
+    wordSearchContainer = document.getElementById('wordSearchContainer');
+    aboutModalContainer = document.getElementById('aboutModalContainer');
+    connectFourContainer = document.getElementById('connectFourContainer');
+    cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
+    chatbotContainer = document.getElementById('chatbotContainer');
+});
 
 function isAnyPanelOpen() {
-    return pictureGameContainer.style.display === 'block' ||
-           tetrisGameContainer.style.display === 'block' ||
-           wordSearchContainer.style.display === 'block' ||
-           connectFourContainer.style.display === 'block' ||
-           cyclePrecisionContainer.style.display === 'block' ||
-           chatbotContainer.style.display === 'block' ||
-           aboutModalContainer.style.display === 'block';
+    return [
+        pictureGameContainer,
+        tetrisGameContainer,
+        wordSearchContainer,
+        connectFourContainer,
+        cyclePrecisionContainer,
+        chatbotContainer,
+        aboutModalContainer
+    ].some(el => el && el.style.display === 'block');
 }
 
 // Spoof user as if dem dey America
