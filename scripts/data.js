@@ -186,10 +186,10 @@ function loadUserPlaylist() {
         track.lrc = track.src.replace(/\.mp3$/, '.lrc');
       }
     });
-    albums.push({ name: 'My Playlist', cover: `${BASE_URL}Logo.jpg`, tracks: stored });
+    albums.push({ name: 'My Playlist', cover: `${BASE_URL}Playlist.jpg`, tracks: stored });
     window.playlistAlbumIndex = albums.length - 1;
   } catch (e) {
-    albums.push({ name: 'My Playlist', cover: `${BASE_URL}Logo.jpg`, tracks: [] });
+    albums.push({ name: 'My Playlist', cover: `${BASE_URL}Playlist.jpg`, tracks: [] });
     window.playlistAlbumIndex = albums.length - 1;
   }
 }
