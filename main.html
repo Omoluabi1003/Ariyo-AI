@@ -798,8 +798,6 @@
 <!-- 🎧 Now Playing Toast -->
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
 
-  <div id="news-banner" class="news-banner"></div>
-
   <script src="scripts/data.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
   <script src="scripts/player.js"></script>
@@ -834,35 +832,6 @@
             const r = Math.random();
             return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
         }).join('');
-    });
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const banner = document.getElementById('news-banner');
-      const messages = [
-        "September 5th, 2025, SET THE DATE.",
-        "TERMS OF AGREEMENT ALBUM RELEASE"
-      ];
-      let messageIndex = 0;
-      let charIndex = 0;
-
-      function type() {
-        const text = messages[messageIndex];
-        if (charIndex < text.length) {
-          banner.textContent += text.charAt(charIndex);
-          charIndex++;
-          setTimeout(type, 50);
-        } else {
-          setTimeout(() => {
-            banner.textContent = '';
-            charIndex = 0;
-            messageIndex = (messageIndex + 1) % messages.length;
-            type();
-          }, 2000);
-        }
-      }
-
-      type();
     });
   </script>
 </body>
