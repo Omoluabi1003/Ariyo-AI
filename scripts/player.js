@@ -487,7 +487,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
           if (shuffleMode && rebuildQueue) {
             buildShuffleQueue();
           }
-          playMusic();
         })
         .catch(err => {
           console.error('Error fetching track:', err);
@@ -533,7 +532,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
-      playMusic();
       document.getElementById('main-content').innerHTML = '';
     }
 
@@ -562,9 +560,9 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       audioPlayer.removeEventListener('error', onError);
 
       const playTimeout = setTimeout(() => {
-        console.warn(`Timeout: ${title} failed to buffer within 5 seconds, retrying...`);
+        console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
         retryTrackWithDelay();
-      }, 5000);
+      }, 15000);
 
       function onProgress() {
         if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
@@ -682,7 +680,12 @@ function selectTrack(src, title, index, rebuildQueue = true) {
           trackInfo.textContent = 'Audio format not supported.';
           break;
         default:
-          trackInfo.textContent = 'An unknown error occurred.';
+          // Handle cases where error.code is undefined (e.g. DOMException from play())
+          if (error.name === 'NotAllowedError') {
+            trackInfo.textContent = 'Playback was blocked. Please interact with the page.';
+          } else {
+            trackInfo.textContent = 'Playback failed. Please try again.';
+          }
           break;
       }
     }
@@ -783,9 +786,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
             currentTrackIndex
           );
         }
-        setTimeout(() => {
-          playMusic();
-        }, 1000);
       }
     });
 
