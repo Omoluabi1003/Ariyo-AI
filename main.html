@@ -300,10 +300,9 @@
       bottom: calc(40px + env(safe-area-inset-bottom));
     }
     .popup-close {
-      position: sticky;
-      top: 10px;
-      margin-left: auto;
-      margin-right: 10px;
+      position: fixed;
+      top: calc(10px + env(safe-area-inset-top));
+      right: 10px;
       display: block;
       width: 24px;
       height: 24px;
@@ -314,8 +313,9 @@
       font-size: 1rem;
       line-height: 24px;
       text-align: center;
-      cursor: pointer;
+      cursor: move;
       z-index: 102;
+      touch-action: none;
     }
     .popup-close:hover { background: var(--theme-color); }
     .collapsible-container {

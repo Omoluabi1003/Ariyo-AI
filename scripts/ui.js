@@ -243,11 +243,20 @@ function isAnyPanelOpen() {
     ].some(el => el && el.style.display === 'block');
 }
 
+function resetCloseButtonsPosition() {
+    document.querySelectorAll('.popup-close').forEach(btn => {
+        btn.style.top = 'calc(10px + env(safe-area-inset-top))';
+        btn.style.right = '10px';
+        btn.style.left = 'auto';
+    });
+}
+
 // Spoof user as if dem dey America
 window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
 console.log("US Spoof Active:", window.spoofedLocation);
 
 function updateEdgePanelBehavior() {
+    resetCloseButtonsPosition();
     chatbotWindowOpen = isAnyPanelOpen();
     if (chatbotWindowOpen) {
         closeEdgePanel();
@@ -446,3 +455,66 @@ function showNowPlayingToast(trackTitle) {
     toast.classList.remove('show');
   }, 3000);
 }
+
+function enableDraggableCloseButtons() {
+    const buttons = document.querySelectorAll('.popup-close');
+    buttons.forEach(btn => {
+        const originalClick = btn.onclick;
+        btn.style.touchAction = 'none';
+        btn.onclick = function(e) {
+            if (btn.dataset.dragging === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                btn.dataset.dragging = 'false';
+                return;
+            }
+            if (originalClick) {
+                originalClick.call(btn, e);
+            }
+        };
+
+        function startDrag(e) {
+            e.preventDefault();
+            const rect = btn.getBoundingClientRect();
+            const startX = (e.touches ? e.touches[0].clientX : e.clientX);
+            const startY = (e.touches ? e.touches[0].clientY : e.clientY);
+            const offsetX = startX - rect.left;
+            const offsetY = startY - rect.top;
+            let moved = false;
+
+            function move(ev) {
+                const clientX = (ev.touches ? ev.touches[0].clientX : ev.clientX);
+                const clientY = (ev.touches ? ev.touches[0].clientY : ev.clientY);
+                let left = clientX - offsetX;
+                let top = clientY - offsetY;
+                left = Math.max(0, Math.min(window.innerWidth - rect.width, left));
+                top = Math.max(0, Math.min(window.innerHeight - rect.height, top));
+                btn.style.left = left + 'px';
+                btn.style.top = top + 'px';
+                btn.style.right = 'auto';
+                moved = true;
+            }
+
+            function end() {
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('mouseup', end);
+                document.removeEventListener('touchmove', move);
+                document.removeEventListener('touchend', end);
+                if (moved) {
+                    btn.dataset.dragging = 'true';
+                    setTimeout(() => { btn.dataset.dragging = 'false'; }, 0);
+                }
+            }
+
+            document.addEventListener('mousemove', move);
+            document.addEventListener('mouseup', end);
+            document.addEventListener('touchmove', move);
+            document.addEventListener('touchend', end);
+        }
+
+        btn.addEventListener('mousedown', startDrag);
+        btn.addEventListener('touchstart', startDrag, { passive: false });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', enableDraggableCloseButtons);
