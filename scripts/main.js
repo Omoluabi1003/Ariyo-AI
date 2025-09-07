@@ -502,6 +502,13 @@
         const swUrl = version ? `/service-worker.js?v=${version}` : '/service-worker.js';
         navigator.serviceWorker.register(swUrl).then(function(registration) {
           console.log('Service Worker registered with scope:', registration.scope);
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(reg => {
+              if (reg.scope !== registration.scope) {
+                reg.unregister();
+              }
+            });
+          });
         }).catch(function(error) {
           console.log('Service worker registration failed:', error);
         });
@@ -647,7 +654,15 @@
             .then(data => {
                 if (currentVersion && currentVersion !== data.version) {
                     if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register(`/service-worker.js?v=${data.version}`);
+                        navigator.serviceWorker.register(`/service-worker.js?v=${data.version}`).then(registration => {
+                            navigator.serviceWorker.getRegistrations().then(registrations => {
+                                registrations.forEach(reg => {
+                                    if (reg.scope !== registration.scope) {
+                                        reg.unregister();
+                                    }
+                                });
+                            });
+                        });
                     }
                     if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
                         window.location.reload();
