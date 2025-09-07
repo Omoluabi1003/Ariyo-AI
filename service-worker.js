@@ -1,4 +1,5 @@
-const CACHE_PREFIX = 'ariyo-ai-cache-v5';
+// Bump cache prefix to force clients to refresh old caches
+const CACHE_PREFIX = 'ariyo-ai-cache-v6';
 let CACHE_NAME;
 
 self.addEventListener('install', event => {
@@ -56,12 +57,18 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    if (event.request.url.includes('/icons/') || event.request.url.includes('manifest.json')) {
+    const url = new URL(event.request.url);
+
+    // Always fetch manifest and icon assets from the network to avoid stale installs
+    if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
+        event.respondWith(fetch(event.request, { cache: 'no-store' }));
         return;
     }
+
     if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
         return;
     }
+
     event.respondWith(
         caches.match(event.request)
             .then(response => {
