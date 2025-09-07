@@ -1,4 +1,4 @@
-const CACHE_PREFIX = 'ariyo-ai-cache-v4';
+const CACHE_PREFIX = 'ariyo-ai-cache-v5';
 let CACHE_NAME;
 
 self.addEventListener('install', event => {
@@ -14,7 +14,6 @@ self.addEventListener('install', event => {
           '/index.html',
           '/main.html',
           '/about.html',
-          '/manifest.json',
           'style.css',
           'color-scheme.css',
           'scripts/data.js',
@@ -57,7 +56,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    if (event.request.url.includes('/icons/')) {
+    if (event.request.url.includes('/icons/') || event.request.url.includes('manifest.json')) {
         return;
     }
     if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
