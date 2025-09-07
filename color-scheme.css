@@ -1,8 +1,8 @@
-/* Vibrant purple color scheme */
+/* Vibrant gold color scheme */
 :root {
-  --theme-color: #8e44ad;
+  --theme-color: #FFD700;
   --gradient-start: var(--theme-color);
-  --gradient-end: #4a148c;
+  --gradient-end: #B8860B;
 }
 
 body {
