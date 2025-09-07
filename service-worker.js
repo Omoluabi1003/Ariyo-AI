@@ -17,7 +17,6 @@ self.addEventListener('install', event => {
           '/manifest.json',
           'style.css',
           'color-scheme.css',
-          'icons/Ariyo.png',
           'scripts/data.js',
           'scripts/player.js',
           'scripts/ui.js',
@@ -58,6 +57,9 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+    if (event.request.url.includes('/icons/')) {
+        return;
+    }
     if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
         return;
     }
