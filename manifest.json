@@ -4,32 +4,32 @@
   "id": "/",
   "icons": [
     {
-      "src": "icons/Ariyo.png",
+      "src": "icons/Ariyo.png?v=2",
       "type": "image/png",
       "sizes": "512x512"
     },
     {
-      "src": "icons/Ariyo-180x180.png",
+      "src": "icons/Ariyo-180x180.png?v=2",
       "type": "image/png",
       "sizes": "180x180"
     },
     {
-      "src": "icons/Ariyo-167x167.png",
+      "src": "icons/Ariyo-167x167.png?v=2",
       "type": "image/png",
       "sizes": "167x167"
     },
     {
-      "src": "icons/Ariyo-152x152.png",
+      "src": "icons/Ariyo-152x152.png?v=2",
       "type": "image/png",
       "sizes": "152x152"
     },
     {
-      "src": "icons/Ariyo-120x120.png",
+      "src": "icons/Ariyo-120x120.png?v=2",
       "type": "image/png",
       "sizes": "120x120"
     }
   ],
-  "start_url": "/index.html",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "theme_color": "#FFD700",
