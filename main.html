@@ -227,21 +227,26 @@
       height: 100%;
       overflow: auto;
       background-color: rgba(0,0,0,0.4);
+      padding-top: 70px; /* Push modal below header */
+      box-sizing: border-box;
     }
     .modal-content {
       background-color: #fefefe;
-      margin: 2% auto;
+      margin: 0 auto;
       padding: 1.5rem;
       border: 1px solid #888;
       width: 90%;
       max-width: 600px;
-      max-height: 80vh;
+      max-height: calc(100vh - 120px);
       overflow-y: auto;
       border-radius: 10px;
     }
     @media (max-width: 768px) {
+      .modal {
+        padding-top: 80px; /* Extra space on smaller screens */
+      }
       .modal-content {
-        margin: 15% auto; /* Lower modal on smaller screens */
+        max-height: calc(100vh - 140px);
       }
     }
     .modal-title {
