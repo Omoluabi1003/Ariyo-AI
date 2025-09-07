@@ -378,6 +378,12 @@ body {
     position: relative; /* Needed for sticky elements inside */
 }
 
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 15% auto; /* Lower modal on smaller screens */
+    }
+}
+
 
 .close {
     color: #aaa;
