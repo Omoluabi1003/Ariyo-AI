@@ -274,7 +274,7 @@
     .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
       .chatbot-container, #aboutModalContainer {
       position: fixed;
-      top: 0;
+      top: 70px;
       bottom: calc(80px + env(safe-area-inset-bottom));
       left: 50%;
       transform: translateX(-50%);
@@ -286,6 +286,11 @@
       overflow-y: auto;
       display: none;
       z-index: 10001;
+    }
+    @media (max-width: 768px) {
+      .chatbot-container, #aboutModalContainer {
+        top: 80px;
+      }
     }
       .chatbot-container iframe {
         display: block;
