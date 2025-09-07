@@ -1,6 +1,7 @@
 {
   "short_name": "Àríyò AI",
   "name": "Àríyò AI - Smart Naija AI",
+  "id": "/",
   "icons": [
     {
       "src": "icons/Ariyo.png",
@@ -29,6 +30,7 @@
     }
   ],
   "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#FFD700",
   "background_color": "#000000"
