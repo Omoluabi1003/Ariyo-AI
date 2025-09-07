@@ -361,17 +361,19 @@ body {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.4);
+    padding-top: 70px; /* Push modal below header */
+    box-sizing: border-box;
 }
 
 
 .modal-content {
     background-color: #222;
-    margin: 2% auto; /* Raise modal vertically for more viewable area */
+    margin: 0 auto; /* Center horizontally while allowing top padding to control offset */
     padding: 1.5rem;
     border: 1px solid #888;
     width: 80%; /* Reduce width */
     max-width: 500px; /* Reduce max width */
-    max-height: 80vh; /* Increase height for better scrolling */
+    max-height: calc(100vh - 120px); /* Ensure full modal fits within viewport */
     overflow-y: auto;
     border-radius: 10px;
     color: #fff;
@@ -379,8 +381,12 @@ body {
 }
 
 @media (max-width: 768px) {
+    .modal {
+        padding-top: 80px; /* Extra space on smaller screens */
+    }
     .modal-content {
-        margin: 15% auto; /* Lower modal on smaller screens */
+        width: 90%;
+        max-height: calc(100vh - 140px); /* Keep modal fully visible on mobile */
     }
 }
 

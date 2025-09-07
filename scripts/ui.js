@@ -64,7 +64,6 @@ function openAlbumList() {
 
       populateAlbumList();
 
-      modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
 
       gsap.fromTo(modalContent,
@@ -74,11 +73,7 @@ function openAlbumList() {
           opacity: 1,
           y: 0,
           duration: 0.5,
-          ease: "power2.out",
-          onComplete: () => {
-            modalContent.style.pointerEvents = 'auto';
-            console.log('Album list animation complete, clicks enabled.');
-          }
+          ease: "power2.out"
         }
       );
       console.log('Album list opened, animating...');
@@ -127,7 +122,6 @@ function openAlbumList() {
       const modal = document.getElementById('radioModal');
       const modalContent = modal.querySelector('.modal-content');
 
-      modalContent.style.pointerEvents = 'none';
       modal.style.display = 'block';
 
       gsap.fromTo(modalContent,
@@ -137,11 +131,7 @@ function openAlbumList() {
           opacity: 1,
           y: 0,
           duration: 0.5,
-          ease: "power2.out",
-          onComplete: () => {
-            modalContent.style.pointerEvents = 'auto';
-            console.log('Radio list animation complete, clicks enabled.');
-          }
+          ease: "power2.out"
         }
       );
       console.log('Radio list opened, animating...');
