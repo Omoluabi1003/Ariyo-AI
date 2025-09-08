@@ -3,9 +3,9 @@ function changeColorScheme() {
 }
 
 function applyTheme() {
-    const themeColor = '#FFD700';
+    const themeColor = '#4169E1';
     const gradStart = themeColor;
-    const gradEnd = '#B8860B';
+    const gradEnd = '#27408B';
     const style = document.getElementById('theme-style') || document.createElement('style');
     style.id = 'theme-style';
     style.innerHTML = `
