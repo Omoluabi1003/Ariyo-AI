@@ -1,8 +1,8 @@
-/* Vibrant gold color scheme */
+/* Vibrant royal blue color scheme */
 :root {
-  --theme-color: #FFD700;
+  --theme-color: #4169E1;
   --gradient-start: var(--theme-color);
-  --gradient-end: #B8860B;
+  --gradient-end: #27408B;
 }
 
 body {
