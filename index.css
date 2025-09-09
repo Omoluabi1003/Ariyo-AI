@@ -201,3 +201,19 @@ a {
     opacity: 1;
     background-image: url('Naija AI1.png');
 }
+
+#timer-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #ff0000;
+    z-index: 10000;
+}
+
+#timer-progress {
+    width: 100%;
+    height: 100%;
+    background-color: #4169E1;
+}
