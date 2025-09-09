@@ -83,7 +83,10 @@
             }).join('');
         });
 
+        let autoEnterTimeout;
+
         function enterApp() {
+            clearTimeout(autoEnterTimeout);
             const enterIcon = document.querySelector('.enter-icon');
             enterIcon.classList.add('clicked');
             const audio = document.getElementById('welcomeAudio');
@@ -138,6 +141,9 @@
                       playAudio();
                   }
               });
+
+              const delay = (Math.random() * 15000) + 45000;
+              autoEnterTimeout = setTimeout(enterApp, delay);
 
               // Attempt to keep audio playing even when the page is hidden
               document.addEventListener('visibilitychange', () => {
