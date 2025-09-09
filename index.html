@@ -28,6 +28,7 @@
     <link rel="apple-touch-icon" href="icons/Ariyo.png">
 </head>
 <body>
+    <div id="timer-bar"><div id="timer-progress"></div></div>
     <div id="background-container">
         <div id="bg1" class="bg-image"></div>
         <div id="bg2" class="bg-image"></div>
@@ -84,9 +85,11 @@
         });
 
         let autoEnterTimeout;
+        let countdownEndTimeout;
 
         function enterApp() {
             clearTimeout(autoEnterTimeout);
+            clearTimeout(countdownEndTimeout);
             const enterIcon = document.querySelector('.enter-icon');
             enterIcon.classList.add('clicked');
             const audio = document.getElementById('welcomeAudio');
@@ -142,8 +145,16 @@
                   }
               });
 
-              const delay = (Math.random() * 15000) + 45000;
-              autoEnterTimeout = setTimeout(enterApp, delay);
+              const timerProgress = document.getElementById('timer-progress');
+              const countdownDuration = 10; // seconds
+              timerProgress.style.transition = `width ${countdownDuration}s linear`;
+              setTimeout(() => {
+                  timerProgress.style.width = '0%';
+              }, 100);
+
+              countdownEndTimeout = setTimeout(() => {
+                  autoEnterTimeout = setTimeout(enterApp, 3000);
+              }, countdownDuration * 1000);
 
               // Attempt to keep audio playing even when the page is hidden
               document.addEventListener('visibilitychange', () => {
