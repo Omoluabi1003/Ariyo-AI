@@ -6,17 +6,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const viewport = document.querySelector('meta[name="viewport"]');
     if (!viewport) return;
 
-    const lockZoom = () => {
+    const applyViewport = () => {
       viewport.setAttribute(
         'content',
-        'width=device-width, initial-scale=1, viewport-fit=cover'
+        'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover'
       );
     };
 
-    lockZoom();
+    const resetZoom = () => {
+      applyViewport();
+      const parent = viewport.parentNode;
+      parent.removeChild(viewport);
+      parent.appendChild(viewport);
+    };
+
+    resetZoom();
     window.addEventListener('orientationchange', () => {
-      // Reapply the viewport settings after orientation change to avoid zoom
-      setTimeout(lockZoom, 200);
+      setTimeout(resetZoom, 200);
     });
   }
 });
