@@ -1,3 +1,7 @@
+:root {
+    --app-height: 100vh;
+}
+
 body {
     margin: 0;
     font-family: 'Montserrat', sans-serif;
@@ -10,7 +14,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: var(--app-height, 100vh);
+    padding: calc(env(safe-area-inset-top) + 1.5rem) clamp(1.25rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 1.5rem);
+    box-sizing: border-box;
     text-align: center;
     position: relative;
     transition: background-color 0.5s ease-in-out;
@@ -38,11 +44,12 @@ body {
 
 .overlay {
     background-color: rgba(0, 0, 0, 0.1);
-    padding: 2rem;
+    padding: clamp(1.25rem, 5vw, 2.25rem);
     border-radius: 15px;
     position: relative;
     z-index: 1;
     color: #fff; /* Ensure overlay text is white */
+    max-width: min(90vw, 640px);
 }
 
 h1, p, .tour-step, footer {
@@ -101,6 +108,26 @@ a {
     font-family: 'Montserrat', sans-serif;
 }
 
+.hint-text {
+    font-size: clamp(0.75rem, 2.4vw, 0.9rem);
+    margin-top: clamp(0.5rem, 2.5vw, 1rem);
+    font-weight: 700;
+}
+
+.hint-subtext {
+    font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+    margin-top: clamp(0.4rem, 2vw, 0.75rem);
+}
+
+.footer-note {
+    font-size: clamp(0.65rem, 2vw, 0.8rem);
+    margin-top: clamp(0.75rem, 3vw, 1.5rem);
+}
+
+.footer-note p {
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2rem;
@@ -108,6 +135,26 @@ a {
     .tour-step {
         display: block;
         margin: 0.5rem 0;
+    }
+}
+
+@media (max-height: 700px) {
+    body {
+        padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 3vw, 1.5rem) calc(env(safe-area-inset-bottom) + 1rem);
+    }
+    .overlay {
+        padding: clamp(1rem, 4vw, 1.75rem);
+    }
+    h1 {
+        font-size: clamp(1.75rem, 6vw, 2.1rem);
+    }
+    .tour-container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .enter-icon {
+        width: 42px;
+        height: 42px;
     }
 }
 
@@ -121,11 +168,15 @@ a {
 }
 
 #speaker-container {
+    position: absolute;
+    z-index: 2;
     background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/speaker.png');
     background-size: contain;
     background-repeat: no-repeat;
     width: 60px;
     height: 60px;
+    top: calc(env(safe-area-inset-top) + 0.75rem);
+    right: calc(env(safe-area-inset-right) + 0.75rem);
 }
 
 #speaker-icon {

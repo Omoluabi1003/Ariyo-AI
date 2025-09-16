@@ -9,6 +9,9 @@ body {
   justify-content: center;
   align-items: center;
   background-color: #f0f0f0;
+  min-height: var(--app-height, 100vh);
+  padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 1rem);
+  box-sizing: border-box;
 }
 
 #game-container {
