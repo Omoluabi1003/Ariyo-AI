@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Ariyo AI Chatbot</title>
   <script async type='module' src='https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js'></script>
+  <script src="viewport-height.js" defer></script>
   <style>
     html, body {
       height: 100%;
@@ -12,11 +13,11 @@
     }
     body {
       display: flex;
-      min-height: 100vh;
+      min-height: var(--app-height, 100vh);
     }
     zapier-interfaces-chatbot-embed {
       flex: 1;
-      height: 100vh;
+      height: var(--app-height, 100vh);
       width: 100%;
     }
   </style>

@@ -373,7 +373,7 @@ body {
     border: 1px solid #888;
     width: 80%; /* Reduce width */
     max-width: 500px; /* Reduce max width */
-    max-height: calc(100vh - 120px); /* Ensure full modal fits within viewport */
+    max-height: calc(var(--app-height, 100vh) - 120px); /* Ensure full modal fits within viewport */
     overflow-y: auto;
     border-radius: 10px;
     color: #fff;
@@ -386,7 +386,7 @@ body {
     }
     .modal-content {
         width: 90%;
-        max-height: calc(100vh - 140px); /* Keep modal fully visible on mobile */
+        max-height: calc(var(--app-height, 100vh) - 140px); /* Keep modal fully visible on mobile */
     }
 }
 

@@ -1,4 +1,15 @@
 /* Font and button styling */
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: var(--app-height, 100vh);
+    padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 1rem);
+    box-sizing: border-box;
+    background: #f0f0f0;
+}
+
 #game-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 3rem;
@@ -21,7 +32,7 @@
 
 #game-container {
     width: 100%;
-    min-height: 100vh;
+    min-height: var(--app-height, 100vh);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,7 +41,7 @@
     background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
     background-size: 60px 60px;
     background-position: 0 0, 30px 30px;
-    padding: 5vh 0;
+    padding: calc(var(--app-height, 100vh) * 0.05) 0;
 }
 
 #puzzle-container {
