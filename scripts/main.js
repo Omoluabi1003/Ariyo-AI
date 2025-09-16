@@ -590,8 +590,22 @@
       return /iphone|ipad|ipod/.test( userAgent );
     }
 
-    window.addEventListener('appinstalled', () => {
+    window.addEventListener('appinstalled', async () => {
       console.log('PWA was installed');
+      // Unregister any other service workers to prevent orphaned installs
+      if ('serviceWorker' in navigator) {
+        try {
+          const current = await navigator.serviceWorker.getRegistration();
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          registrations.forEach(reg => {
+            if (!current || reg.scope !== current.scope) {
+              reg.unregister();
+            }
+          });
+        } catch (err) {
+          console.error('Failed to clean up old service workers:', err);
+        }
+      }
     });
 
     // Handle visibility change to fix track time bar after sleep
