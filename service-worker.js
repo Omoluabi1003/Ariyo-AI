@@ -1,5 +1,5 @@
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v7';
+const CACHE_PREFIX = 'ariyo-ai-cache-v8';
 let CACHE_NAME;
 
 self.addEventListener('install', event => {
