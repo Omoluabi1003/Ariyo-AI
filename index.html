@@ -35,20 +35,41 @@
         <div id="bg2" class="bg-image"></div>
     </div>
     <div class="overlay">
-        <h1>Welcome to Àríyò AI</h1>
-        <p>Your smart Naija assistant.</p>
-        <div class="tour-container">
-            <div class="tour-column">
-                <div class="tour-step" id="step1">🎧 Listen to Naija music</div>
-                <div class="tour-step" id="step2">🤖 Chat with Ariyo AI</div>
-            </div>
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter" class="enter-icon">
-            <div class="tour-column">
-                <div class="tour-step" id="step3">🧩 Puzzle games available</div>
-            </div>
+        <div class="hero-header">
+            <p class="hero-label">Omoluabi Productions</p>
+            <h1>Welcome to Àríyò AI</h1>
+            <p class="hero-subtitle">A refined Naija assistant blending soulful music, playful puzzles, and conversational AI—beautifully tuned for browsers and installed PWAs alike.</p>
         </div>
-         <div class="hint-text">Use the speaker icon to toggle sound</div>
-        <p class="hint-subtext">Edge panel offers quick access to Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.</p>
+        <div class="cta-row">
+            <div class="cta-copy">
+                <p class="cta-text">Step into a curated universe of sound, stories, and games crafted for every screen.</p>
+            </div>
+            <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
+                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter Àríyò AI" class="enter-icon">
+                <span class="enter-label">Launch experience</span>
+            </button>
+        </div>
+        <div class="feature-grid">
+            <article class="feature-card tour-step" id="step1">
+                <span class="feature-icon" aria-hidden="true">🎧</span>
+                <h2 class="feature-title">Stream Naija vibes</h2>
+                <p class="feature-copy">Dive into handcrafted Nigerian playlists that set the tone for every mood.</p>
+            </article>
+            <article class="feature-card tour-step" id="step2">
+                <span class="feature-icon" aria-hidden="true">🤖</span>
+                <h2 class="feature-title">Chat with Àríyò</h2>
+                <p class="feature-copy">Discover music insights, cultural stories, and personalized guidance with our AI host.</p>
+            </article>
+            <article class="feature-card tour-step" id="step3">
+                <span class="feature-icon" aria-hidden="true">🧩</span>
+                <h2 class="feature-title">Play &amp; challenge</h2>
+                <p class="feature-copy">Swap between puzzles like Omoluabi Tetris, Word Search, Ara Connect-4, and more.</p>
+            </article>
+        </div>
+        <div class="experience-hints">
+            <div class="hint-text">Use the speaker icon to toggle sound</div>
+            <p class="hint-subtext">Edge panel offers quick access to Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.</p>
+        </div>
         <div id="speaker-container" style="position: absolute; cursor: pointer;">
             <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off ripple shockwave"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
         </div>
@@ -92,7 +113,13 @@
             clearTimeout(autoEnterTimeout);
             clearTimeout(countdownEndTimeout);
             const enterIcon = document.querySelector('.enter-icon');
-            enterIcon.classList.add('clicked');
+            const enterButton = document.querySelector('.enter-button');
+            if (enterButton) {
+                enterButton.classList.add('clicked');
+            }
+            if (enterIcon) {
+                enterIcon.classList.add('clicked');
+            }
             const audio = document.getElementById('welcomeAudio');
             audio.pause();
             setTimeout(() => {
@@ -102,7 +129,18 @@
 
           document.addEventListener('DOMContentLoaded', () => {
               const enterIcon = document.querySelector('.enter-icon');
-              enterIcon.addEventListener('click', enterApp);
+              const enterButton = document.querySelector('.enter-button');
+              if (enterButton) {
+                  enterButton.addEventListener('click', enterApp);
+                  enterButton.addEventListener('keydown', (event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          enterApp();
+                      }
+                  });
+              } else if (enterIcon) {
+                  enterIcon.addEventListener('click', enterApp);
+              }
 
               const audio = document.getElementById('welcomeAudio');
               const speakerContainer = document.getElementById('speaker-container');
@@ -188,23 +226,28 @@
         const steps = ["#step1", "#step2", "#step3"];
         let currentStep = 0;
 
-        function showNextStep() {
-            gsap.to(steps[currentStep], {
-                opacity: 0,
-                duration: 0.5,
-                onComplete: () => {
-                    currentStep = (currentStep + 1) % steps.length;
-                    gsap.to(steps[currentStep], {
-                        opacity: 1,
-                        duration: 0.5,
-                        delay: 0.5
-                    });
+        function highlightStep(index) {
+            steps.forEach((selector, stepIndex) => {
+                const element = document.querySelector(selector);
+                if (!element) {
+                    return;
                 }
+                const isActive = stepIndex === index;
+                element.classList.toggle('feature-active', isActive);
+                gsap.to(element, {
+                    opacity: isActive ? 1 : 0.6,
+                    scale: isActive ? 1.02 : 1,
+                    duration: 0.6,
+                    ease: 'power2.out'
+                });
             });
         }
-        gsap.set(steps, { opacity: 0 });
-        gsap.set(steps[0], { opacity: 1 });
-        setInterval(showNextStep, 3000);
+
+        highlightStep(currentStep);
+        setInterval(() => {
+            currentStep = (currentStep + 1) % steps.length;
+            highlightStep(currentStep);
+        }, 3000);
     </script>
     <script src="background-rotator.js"></script>
     <script src="color-scheme.js"></script>
