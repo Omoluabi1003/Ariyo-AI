@@ -11,12 +11,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: var(--app-height, 100vh);
     min-height: var(--app-height, 100vh);
-    padding: calc(env(safe-area-inset-top) + 1.5rem) clamp(1.25rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 1.5rem);
+    --body-padding-block: clamp(1rem, 3vh, 2rem);
+    padding: calc(env(safe-area-inset-top) + var(--body-padding-block)) clamp(1.25rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + var(--body-padding-block));
     box-sizing: border-box;
     text-align: center;
     position: relative;
     transition: background-color 0.5s ease-in-out;
+    overflow: hidden;
 }
 
 .countdown {
@@ -43,18 +46,35 @@ body {
 .overlay {
     background: rgba(8, 14, 32, 0.65);
     backdrop-filter: blur(18px);
-    padding: clamp(1.5rem, 5vw, 2.75rem);
+    padding: clamp(1.25rem, 4vw, 2.5rem);
     border-radius: 24px;
     position: relative;
     z-index: 1;
     color: #f7f9ff;
-    max-width: min(92vw, 760px);
+    width: min(92vw, 760px);
+    max-width: 100%;
+    height: 100%;
+    max-height: calc(var(--app-height, 100vh) - (env(safe-area-inset-top) + env(safe-area-inset-bottom) + 2 * var(--body-padding-block)));
     text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
     box-shadow: 0 35px 70px rgba(0, 0, 0, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+}
+
+.overlay-layout {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: clamp(1rem, 2.5vh, 2rem);
+    height: 100%;
+    min-height: 0;
+}
+
+.main-stack {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: clamp(1rem, 2vh, 1.5rem);
+    min-height: 0;
 }
 
 h1, p, .feature-card, footer {
@@ -100,7 +120,8 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: clamp(1rem, 3vw, 2rem);
+    gap: clamp(0.85rem, 3vw, 1.75rem);
+    flex-wrap: wrap;
 }
 
 .cta-copy {
@@ -168,17 +189,20 @@ a {
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(0.85rem, 2.5vw, 1.5rem);
+    gap: clamp(0.75rem, 2.2vw, 1.35rem);
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: stretch;
+    min-height: 0;
 }
 
 .feature-card {
     background: rgba(20, 32, 64, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 18px;
-    padding: clamp(1rem, 3vw, 1.35rem);
+    padding: clamp(0.85rem, 2.5vw, 1.25rem);
     display: flex;
     flex-direction: column;
-    gap: 0.65rem;
+    gap: 0.5rem;
     box-shadow: 0 20px 35px rgba(0, 0, 0, 0.35);
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     opacity: 0.82;
@@ -210,7 +234,7 @@ a {
 .experience-hints {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.3rem;
 }
 
 .hint-text {
@@ -235,10 +259,6 @@ a {
 }
 
 @media (max-width: 768px) {
-    .overlay {
-        text-align: center;
-        align-items: center;
-    }
     .hero-header {
         align-items: center;
     }
@@ -253,25 +273,60 @@ a {
     }
 }
 
-@media (max-height: 700px) {
+@media (max-height: 760px) {
+    h1 {
+        font-size: clamp(1.85rem, 5vw, 2.3rem);
+    }
+    .hero-subtitle {
+        font-size: clamp(0.95rem, 2.3vw, 1.05rem);
+    }
+    .cta-text {
+        font-size: clamp(0.9rem, 2.1vw, 1rem);
+    }
+    .feature-title {
+        font-size: clamp(0.95rem, 2.4vw, 1rem);
+    }
+    .feature-copy {
+        font-size: 0.82rem;
+    }
+}
+
+@media (max-height: 680px) {
     body {
-        padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 3vw, 1.5rem) calc(env(safe-area-inset-bottom) + 1rem);
+        --body-padding-block: clamp(0.75rem, 2.5vh, 1.5rem);
     }
     .overlay {
         padding: clamp(1rem, 4vw, 1.75rem);
     }
-    h1 {
-        font-size: clamp(1.75rem, 6vw, 2.1rem);
+    .hero-label {
+        letter-spacing: 0.3rem;
     }
-    .cta-row {
-        flex-direction: column;
+    .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .feature-card {
+        padding: clamp(0.75rem, 2vw, 1rem);
+    }
+}
+
+@media (max-height: 600px) {
+    .overlay-layout {
+        gap: clamp(0.75rem, 2vh, 1.25rem);
+    }
+    .main-stack {
+        gap: clamp(0.75rem, 1.8vh, 1.25rem);
+    }
+    .hero-subtitle,
+    .cta-text,
+    .hint-subtext {
+        font-size: clamp(0.85rem, 2vw, 0.95rem);
     }
     .feature-grid {
         grid-template-columns: 1fr;
     }
     .enter-icon {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
     }
 }
 
