@@ -64,7 +64,7 @@ function openAlbumList() {
 
       populateAlbumList();
 
-      modal.style.display = 'block';
+      modal.style.display = 'flex';
 
       gsap.fromTo(modalContent,
         { scale: 0.8, opacity: 0, y: 50 },
@@ -92,7 +92,7 @@ function openAlbumList() {
     function openTrackList() {
       updateTrackListModal();
       const modal = document.getElementById('trackModal');
-      modal.style.display = 'block';
+      modal.style.display = 'flex';
       gsap.fromTo(modal.querySelector('.modal-content'),
         { scale: 0.8, opacity: 0, y: 50 },
         { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
@@ -122,7 +122,7 @@ function openAlbumList() {
       const modal = document.getElementById('radioModal');
       const modalContent = modal.querySelector('.modal-content');
 
-      modal.style.display = 'block';
+      modal.style.display = 'flex';
 
       gsap.fromTo(modalContent,
         { scale: 0.8, opacity: 0, y: 50 },
