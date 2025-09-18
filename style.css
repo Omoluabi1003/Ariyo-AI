@@ -22,6 +22,11 @@ body {
     text-shadow: 1px 1px 2px #000;
 }
 
+:root {
+    --modal-block-padding: clamp(1rem, 4vh, 2.5rem);
+    --modal-inline-padding: clamp(1rem, 6vw, 3rem);
+}
+
 .news-banner {
     position: fixed;
     bottom: 0;
@@ -355,38 +360,41 @@ body {
     display: none;
     position: fixed;
     z-index: 1001;
-    left: 0;
-    top: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.4);
-    padding-top: 70px; /* Push modal below header */
     box-sizing: border-box;
+    padding: var(--modal-block-padding) var(--modal-inline-padding);
+    align-items: stretch;
+    justify-content: center;
 }
 
 
 .modal-content {
     background-color: #222;
-    margin: 0 auto; /* Center horizontally while allowing top padding to control offset */
+    margin: 0;
     padding: 1.5rem;
     border: 1px solid #888;
-    width: 80%; /* Reduce width */
-    max-width: 500px; /* Reduce max width */
-    max-height: calc(var(--app-height, 100vh) - 120px); /* Ensure full modal fits within viewport */
+    width: min(100%, 520px);
+    max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
     overflow-y: auto;
     border-radius: 10px;
     color: #fff;
     position: relative; /* Needed for sticky elements inside */
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
 }
 
 @media (max-width: 768px) {
     .modal {
-        padding-top: 80px; /* Extra space on smaller screens */
+        padding: var(--modal-block-padding) clamp(0.75rem, 5vw, 1.5rem);
     }
     .modal-content {
-        width: 90%;
-        max-height: calc(var(--app-height, 100vh) - 140px); /* Keep modal fully visible on mobile */
+        width: 100%;
+        max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
     }
 }
 
