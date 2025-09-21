@@ -1,59 +1,133 @@
 // Bump cache prefix to force clients to refresh old caches
 const CACHE_PREFIX = 'ariyo-ai-cache-v8';
 let CACHE_NAME;
+let RUNTIME_CACHE_NAME;
+
+const CORE_ASSETS = [
+  '/',
+  '/index.html',
+  '/main.html',
+  '/about.html',
+  'style.css',
+  'color-scheme.css',
+  'scripts/data.js',
+  'scripts/player.js',
+  'scripts/ui.js',
+  'scripts/main.js',
+  'color-scheme.js',
+  'viewport-height.js',
+  'picture-game.html',
+  'picture-game.css',
+  'picture-game.js',
+  'tetris.html',
+  'tetris.css',
+  'tetris.js',
+  'tetris-color-scheme.css',
+  'tetris-color-scheme.js',
+  'word-search.html',
+  'word-search.css',
+  'word-search.js',
+  'word-search-grid.js'
+];
+
+function setCacheNames(version) {
+  CACHE_NAME = `${CACHE_PREFIX}-${version}`;
+  RUNTIME_CACHE_NAME = `${CACHE_NAME}-runtime`;
+}
+
+async function initializeCacheNamesFromExistingCaches() {
+  if (CACHE_NAME && RUNTIME_CACHE_NAME) {
+    return;
+  }
+
+  const cacheNames = await caches.keys();
+  const primaryCache = cacheNames
+    .filter(name => name.startsWith(`${CACHE_PREFIX}-`) && !name.endsWith('-runtime'))
+    .sort()
+    .pop();
+
+  if (primaryCache) {
+    CACHE_NAME = primaryCache;
+    RUNTIME_CACHE_NAME = `${CACHE_NAME}-runtime`;
+  }
+}
+
+function ensureFallbackCacheNames() {
+  if (!CACHE_NAME) {
+    CACHE_NAME = `${CACHE_PREFIX}-unknown`;
+  }
+  if (!RUNTIME_CACHE_NAME) {
+    RUNTIME_CACHE_NAME = `${CACHE_NAME}-runtime`;
+  }
+}
+
+const cacheNameReady = initializeCacheNamesFromExistingCaches();
+
+async function openRuntimeCache() {
+  await cacheNameReady;
+  if (!RUNTIME_CACHE_NAME) {
+    ensureFallbackCacheNames();
+  }
+  return caches.open(RUNTIME_CACHE_NAME);
+}
+
+async function limitCacheSize(cache) {
+  const keys = await cache.keys();
+  if (keys.length > 50) {
+    await cache.delete(keys[0]);
+    return limitCacheSize(cache);
+  }
+}
 
 self.addEventListener('install', event => {
   // Activate this service worker immediately after installation
   self.skipWaiting();
   event.waitUntil(
-    fetch('/version.json', { cache: 'no-store' })
-      .then(response => response.json())
-      .then(data => {
-        CACHE_NAME = `${CACHE_PREFIX}-${data.version}`;
-        const urlsToCache = [
-          '/',
-          '/index.html',
-          '/main.html',
-          '/about.html',
-          'style.css',
-          'color-scheme.css',
-          'scripts/data.js',
-          'scripts/player.js',
-          'scripts/ui.js',
-          'scripts/main.js',
-          'color-scheme.js',
-          'viewport-height.js',
-          'picture-game.html',
-          'picture-game.css',
-          'picture-game.js',
-          'tetris.html',
-          'tetris.css',
-          'tetris.js',
-          'tetris-color-scheme.css',
-          'tetris-color-scheme.js',
-          'word-search.html',
-          'word-search.css',
-          'word-search.js',
-          'word-search-grid.js'
-        ];
-        return caches.open(CACHE_NAME).then(cache => {
-          return cache.addAll(urlsToCache);
-        });
-      })
+    (async () => {
+      try {
+        const response = await fetch('/version.json', { cache: 'no-store' });
+        const data = await response.json();
+        setCacheNames(data.version);
+      } catch (error) {
+        console.error('Failed to fetch version during install:', error);
+        await cacheNameReady;
+        ensureFallbackCacheNames();
+      }
+
+      const cache = await caches.open(CACHE_NAME);
+      return cache.addAll(CORE_ASSETS);
+    })()
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
+    (async () => {
+      await cacheNameReady;
+
+      if (!CACHE_NAME) {
+        try {
+          const response = await fetch('/version.json', { cache: 'no-store' });
+          const data = await response.json();
+          setCacheNames(data.version);
+        } catch (error) {
+          console.error('Failed to refresh version during activate:', error);
+          ensureFallbackCacheNames();
+        }
+      }
+
+      const cachesToKeep = new Set([CACHE_NAME, RUNTIME_CACHE_NAME]);
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames.map(name => {
+          if (!cachesToKeep.has(name)) {
+            return caches.delete(name);
           }
         })
       );
-    }).then(() => self.clients.claim())
+
+      return self.clients.claim();
+    })()
   );
 });
 
@@ -70,35 +144,55 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
+    event.respondWith((async () => {
+        await cacheNameReady;
+
+        if (!CACHE_NAME) {
+            try {
+                const response = await fetch('/version.json', { cache: 'no-store' });
+                const data = await response.json();
+                setCacheNames(data.version);
+            } catch (error) {
+                console.error('Failed to establish cache name during fetch:', error);
+                ensureFallbackCacheNames();
+            }
+        }
+
+        if (event.request.mode === 'navigate') {
+            try {
+                const networkResponse = await fetch(event.request);
+                const cache = await caches.open(CACHE_NAME);
+                cache.put(event.request, networkResponse.clone());
+                return networkResponse;
+            } catch (error) {
+                const cachedResponse = await caches.match(event.request);
+                if (cachedResponse) {
+                    return cachedResponse;
                 }
-                const fetchRequest = event.request.clone();
-                return fetch(fetchRequest).then(
-                    response => {
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-                        const responseToCache = response.clone();
-                        // Limit cache size to avoid unbounded growth
-                        caches.open(CACHE_NAME + '-runtime').then(cache => {
-                            cache.keys().then(keys => {
-                                if (keys.length > 50) {
-                                    cache.delete(keys[0]);
-                                }
-                                cache.put(event.request, responseToCache);
-                            });
-                        });
-                        return response;
-                    }
-                ).catch(error => {
-                    console.error('Fetch failed:', error);
-                    // You could return a custom offline page here
-                });
-            })
-    );
+                return caches.match('/index.html');
+            }
+        }
+
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+
+        try {
+            const networkResponse = await fetch(event.request);
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                const runtimeCache = await openRuntimeCache();
+                await limitCacheSize(runtimeCache);
+                await runtimeCache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+        } catch (error) {
+            console.error('Fetch failed:', error);
+            const fallbackResponse = await caches.match('/index.html');
+            if (fallbackResponse) {
+                return fallbackResponse;
+            }
+        }
+    })());
 });
 
