@@ -1,8 +1,8 @@
-/* Vibrant royal blue color scheme */
+/* Lagos Sunset warm gradient theme */
 :root {
-  --theme-color: #4169E1;
-  --gradient-start: var(--theme-color);
-  --gradient-end: #27408B;
+  --theme-color: #F97316;
+  --gradient-start: #F97316;
+  --gradient-end: #C026D3;
 }
 
 body {
