@@ -48,6 +48,9 @@
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
     const turntableNeedle = document.getElementById('turntableNeedle');
+    if (turntableNeedle && !turntableNeedle.classList.contains('settled')) {
+      turntableNeedle.classList.add('settled');
+    }
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
@@ -624,6 +627,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
 function setNeedleEngaged(engaged) {
   if (!turntableNeedle) return;
   turntableNeedle.classList.toggle('engaged', engaged);
+  turntableNeedle.classList.toggle('settled', !engaged);
 }
 
     function manageVinylRotation() {
@@ -645,6 +649,7 @@ function setNeedleEngaged(engaged) {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
+          setNeedleEngaged(true);
           manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
@@ -804,6 +809,11 @@ function setNeedleEngaged(engaged) {
     audioPlayer.addEventListener('play', manageVinylRotation);
     audioPlayer.addEventListener('pause', manageVinylRotation);
     audioPlayer.addEventListener('ended', manageVinylRotation);
+    ['abort', 'emptied', 'stalled', 'suspend', 'waiting'].forEach(evt => {
+      audioPlayer.addEventListener(evt, () => setNeedleEngaged(false));
+    });
+    audioPlayer.addEventListener('seeking', () => setNeedleEngaged(false));
+    audioPlayer.addEventListener('loadstart', () => setNeedleEngaged(false));
 
 audioPlayer.addEventListener('playing', () => {
   audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener

@@ -634,16 +634,26 @@
   <!-- Music Player -->
   <div class="music-player">
     <h3>Music Player</h3>
-    <div class="turntable">
-      <img
-        id="albumCover"
-        class="album-cover"
-        src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-        alt="Album Cover"
-        onerror="this.onerror=null;this.src='Logo.jpg';"
-      />
-      <div class="turntable-needle" id="turntableNeedle" aria-hidden="true">
-        <div class="needle-hinge" aria-hidden="true"></div>
+    <div class="turntable-wrapper">
+      <div class="turntable">
+        <img
+          id="albumCover"
+          class="album-cover"
+          src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
+          alt="Album Cover"
+          onerror="this.onerror=null;this.src='Logo.jpg';"
+        />
+        <span class="turntable-center" aria-hidden="true"></span>
+      </div>
+      <div class="tonearm settled" id="turntableNeedle" aria-hidden="true">
+        <div class="tonearm-hinge" aria-hidden="true">
+          <span class="tonearm-screw" aria-hidden="true"></span>
+        </div>
+        <div class="tonearm-arm" aria-hidden="true"></div>
+        <div class="tonearm-head" aria-hidden="true">
+          <span class="tonearm-shell" aria-hidden="true"></span>
+          <span class="tonearm-stylus" aria-hidden="true"></span>
+        </div>
       </div>
     </div>
     <div id="loadingSpinner" class="loading-spinner"></div>

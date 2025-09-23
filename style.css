@@ -187,89 +187,153 @@ body {
     font-size: clamp(1rem, 2.5vw, 1.3rem);
 }
 
-.turntable {
-    --turntable-size: clamp(100px, 25vw, 180px);
+.turntable-wrapper {
+    --plinth-size: clamp(170px, 36vw, 260px);
     position: relative;
-    width: var(--turntable-size);
-    height: var(--turntable-size);
-    margin: 0.5rem auto;
+    width: var(--plinth-size);
+    margin: clamp(0.5rem, 2vw, 1rem) auto;
+    padding: clamp(14px, 2.6vw, 20px);
+    border-radius: clamp(22px, 4vw, 28px);
+    background: linear-gradient(145deg, rgba(35,35,35,0.92), rgba(5,5,5,0.85));
+    box-shadow: 0 20px 45px rgba(0,0,0,0.55), inset 0 1px 10px rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.turntable {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12), rgba(0,0,0,0.82) 70%);
+    box-shadow: inset 0 18px 32px rgba(0,0,0,0.55);
+}
+
 .turntable::before {
     content: "";
     position: absolute;
-    inset: 8%;
+    inset: -6%;
     border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 60%);
-    box-shadow: inset 0 0 18px rgba(0,0,0,0.45);
+    background: linear-gradient(140deg, rgba(255,255,255,0.12), rgba(0,0,0,0.92));
+    box-shadow: inset 0 12px 24px rgba(0,0,0,0.65);
     z-index: 0;
 }
 
 .album-cover {
-    width: 100%;
-    height: 100%;
+    width: 86%;
+    height: 86%;
     border-radius: 50%;
     display: block;
-    box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
-    transition: transform 0.3s ease-in-out;
+    object-fit: cover;
+    box-shadow: inset 0 0 14px rgba(0,0,0,0.55), 0 10px 22px rgba(0,0,0,0.4);
+    transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
     z-index: 1;
 }
 
-.turntable-needle {
+.turntable-center {
     position: absolute;
-    top: -18%;
-    right: -18%;
-    width: 70%;
-    height: 70%;
-    transform-origin: 12% 12%;
-    transform: rotate(-32deg);
-    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.6s ease;
-    pointer-events: none;
+    width: 16%;
+    height: 16%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.32), rgba(16,16,16,0.95));
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 0 6px rgba(255,255,255,0.2);
     z-index: 2;
 }
 
-.turntable-needle::before {
-    content: "";
+.tonearm {
     position: absolute;
-    top: 6%;
-    left: 28%;
-    width: 10px;
-    height: 68%;
-    background: linear-gradient(180deg, #dcdcdc 0%, #8f8f8f 40%, #c5c5c5 100%);
-    border-radius: 12px;
-    box-shadow: 0 6px 8px rgba(0,0,0,0.35);
-}
-
-.turntable-needle::after {
-    content: "";
-    position: absolute;
-    bottom: 6%;
-    left: 21%;
-    width: 28px;
-    height: 36px;
-    background: linear-gradient(160deg, #111, #2e2e2e 60%, #4a4a4a);
-    border-radius: 10px 10px 4px 4px;
-    box-shadow: inset 0 0 6px rgba(255,255,255,0.18);
-}
-
-.needle-hinge {
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 40% 40%, #f5f5f5, #b7b7b7 65%, #8a8a8a);
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 4px 6px rgba(0,0,0,0.4);
+    top: -14%;
+    right: -10%;
+    width: clamp(58%, 30vw, 72%);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    transform-origin: 12% 20%;
+    transform: rotate(-32deg);
+    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.6s ease;
     z-index: 3;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
 }
 
-.turntable-needle.engaged {
+.tonearm.engaged {
     transform: rotate(6deg);
-    filter: drop-shadow(0 12px 20px rgba(0,0,0,0.45));
+    filter: drop-shadow(0 18px 28px rgba(0,0,0,0.55));
+}
+
+.tonearm.settled {
+    filter: drop-shadow(0 8px 14px rgba(0,0,0,0.35));
+}
+
+.tonearm-hinge {
+    position: relative;
+    width: clamp(28px, 8vw, 38px);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #f6f6f6, #bcbcbc 65%, #8f8f8f);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.45);
+    display: grid;
+    place-items: center;
+}
+
+.tonearm-screw {
+    width: 45%;
+    height: 45%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 40%, #d9d9d9, #7a7a7a);
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.5);
+}
+
+.tonearm-arm {
+    flex: 1;
+    height: clamp(9px, 2.1vw, 14px);
+    margin: 0 clamp(8px, 2.4vw, 14px);
+    border-radius: clamp(6px, 2vw, 12px);
+    background: linear-gradient(90deg, #dadada 0%, #8d8d8d 45%, #d4d4d4 100%);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.3), 0 6px 12px rgba(0,0,0,0.35);
+    position: relative;
+}
+
+.tonearm-arm::after {
+    content: "";
+    position: absolute;
+    inset: 30% 18%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(255,255,255,0.35), transparent);
+    opacity: 0.8;
+}
+
+.tonearm-head {
+    position: relative;
+    width: clamp(34px, 10vw, 48px);
+    height: clamp(40px, 12vw, 62px);
+    border-radius: 45% 45% 35% 35%;
+    background: linear-gradient(160deg, #111, #2f2f2f 55%, #525252);
+    box-shadow: inset 0 0 12px rgba(255,255,255,0.16), 0 8px 16px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: clamp(6px, 1.8vw, 10px);
+}
+
+.tonearm-shell {
+    width: 60%;
+    height: clamp(6px, 1.6vw, 10px);
+    border-radius: 10px;
+    background: linear-gradient(180deg, #3a3a3a, #141414);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.2);
+}
+
+.tonearm-stylus {
+    position: absolute;
+    bottom: clamp(-24px, -6vw, -12px);
+    width: clamp(5px, 1.2vw, 7px);
+    height: clamp(14px, 3.6vw, 20px);
+    border-radius: 50% 50% 40% 40%;
+    background: linear-gradient(180deg, #c63c37, #721d1a);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
 }
 
 .spin {
@@ -600,8 +664,14 @@ body {
         transform: none;
         width: 100%;
     }
-    .turntable {
-        --turntable-size: clamp(70px, 30vw, 100px);
+    .turntable-wrapper {
+        width: clamp(140px, 60vw, 200px);
+        padding: clamp(10px, 3vw, 16px);
+    }
+    .tonearm {
+        right: -14%;
+        top: -18%;
+        width: clamp(68%, 52vw, 92%);
     }
 }
 
@@ -617,6 +687,14 @@ body {
         padding: 0.5rem;
         border-radius: 0;
         max-width: 100%;
+    }
+    .turntable-wrapper {
+        width: clamp(130px, 68vw, 180px);
+        padding: clamp(8px, 4vw, 12px);
+    }
+    .tonearm {
+        top: -22%;
+        right: -18%;
     }
     .music-controls.icons-only {
         flex-wrap: nowrap;
