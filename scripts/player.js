@@ -624,6 +624,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
 function setNeedleEngaged(engaged) {
   if (!turntableNeedle) return;
   turntableNeedle.classList.toggle('engaged', engaged);
+  turntableNeedle.dataset.state = engaged ? 'engaged' : 'resting';
 }
 
     function manageVinylRotation() {
@@ -705,6 +706,7 @@ function setNeedleEngaged(engaged) {
     function pauseMusic() {
       audioPlayer.pause();
       manageVinylRotation();
+      setNeedleEngaged(false);
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       console.log('Paused');
       savePlayerState();
@@ -714,6 +716,7 @@ function setNeedleEngaged(engaged) {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       manageVinylRotation();
+      setNeedleEngaged(false);
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       seekBar.value = 0;
       trackDuration.textContent = '0:00 / 0:00';
@@ -804,6 +807,15 @@ function setNeedleEngaged(engaged) {
     audioPlayer.addEventListener('play', manageVinylRotation);
     audioPlayer.addEventListener('pause', manageVinylRotation);
     audioPlayer.addEventListener('ended', manageVinylRotation);
+
+    ['waiting', 'stalled', 'suspend', 'emptied', 'abort'].forEach(eventType => {
+      audioPlayer.addEventListener(eventType, () => {
+        setNeedleEngaged(false);
+        if (albumCover) {
+          albumCover.classList.remove('spin');
+        }
+      });
+    });
 
 audioPlayer.addEventListener('playing', () => {
   audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
