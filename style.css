@@ -272,22 +272,24 @@ body {
 
 .turntable-needle {
     position: absolute;
-    --needle-rest-angle: -28deg;
-    --needle-engaged-angle: -6deg;
+    --needle-rest-angle: -30deg;
+    --needle-entry-angle: -14deg;
+    --needle-inner-angle: 8deg;
+    --needle-angle: var(--needle-rest-angle);
     top: calc(var(--turntable-size) * -0.14);
     right: calc(var(--turntable-size) * -0.12);
     width: calc(var(--turntable-size) * 0.9);
     height: calc(var(--turntable-size) * 0.9);
     transform-origin: 18% 12%;
-    transform: rotate(var(--needle-rest-angle));
+    transform: rotate(var(--needle-angle));
     transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.6s ease;
     pointer-events: none;
     z-index: 8;
     filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
-    --tonearm-thickness: clamp(9px, calc(var(--turntable-size) * 0.05), 16px);
-    --tonearm-offset: clamp(24px, calc(var(--turntable-size) * 0.17), 42px);
-    --headshell-width: clamp(40px, calc(var(--turntable-size) * 0.2), 62px);
-    --headshell-height: clamp(50px, calc(var(--turntable-size) * 0.27), 78px);
+    --tonearm-thickness: clamp(6px, calc(var(--turntable-size) * 0.035), 12px);
+    --tonearm-offset: clamp(22px, calc(var(--turntable-size) * 0.16), 38px);
+    --headshell-width: clamp(34px, calc(var(--turntable-size) * 0.16), 52px);
+    --headshell-height: clamp(42px, calc(var(--turntable-size) * 0.22), 64px);
 }
 
 .needle-hinge {
@@ -324,11 +326,11 @@ body {
     left: calc(var(--tonearm-thickness) * -1.35);
     top: 50%;
     transform: translateY(-50%);
-    width: calc(var(--tonearm-thickness) * 1.9);
-    height: calc(var(--tonearm-thickness) * 1.6);
-    border-radius: calc(var(--tonearm-thickness) * 0.9);
-    background: radial-gradient(circle at 40% 40%, #fdfdfd 0%, #cfcfcf 60%, #8f8f8f 100%);
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4), 0 8px 12px rgba(0, 0, 0, 0.45);
+    width: calc(var(--tonearm-thickness) * 2.1);
+    height: calc(var(--tonearm-thickness) * 1.8);
+    border-radius: calc(var(--tonearm-thickness) * 0.95);
+    background: radial-gradient(circle at 40% 40%, #fdfdfd 0%, #cdcdcd 55%, #7f7f7f 100%);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.35), 0 8px 12px rgba(0, 0, 0, 0.45);
 }
 
 .tonearm-tube {
@@ -336,8 +338,8 @@ body {
     flex: 1;
     height: 100%;
     border-radius: var(--tonearm-thickness);
-    background: linear-gradient(90deg, #a7a7a7 0%, #f1f1f1 35%, #b9b9b9 100%);
-    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.35), 0 6px 12px rgba(0, 0, 0, 0.45);
+    background: linear-gradient(90deg, #9d9d9d 0%, #f0f0f0 40%, #b6b6b6 100%);
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.4), 0 5px 11px rgba(0, 0, 0, 0.38);
 }
 
 .tonearm-tube::after {
@@ -355,26 +357,26 @@ body {
     right: clamp(6px, calc(var(--turntable-size) * 0.05), 18px);
     width: var(--headshell-width);
     height: var(--headshell-height);
-    border-radius: 14px 14px 6px 6px;
-    background: linear-gradient(160deg, #111 0%, #2e2e2e 60%, #525252 100%);
-    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.18), 0 12px 24px rgba(0, 0, 0, 0.55);
+    border-radius: 12px 12px 6px 6px;
+    background: linear-gradient(165deg, #0c0c0c 0%, #272727 55%, #4a4a4a 100%);
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.16), 0 10px 22px rgba(0, 0, 0, 0.52);
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    padding-bottom: clamp(8px, calc(var(--turntable-size) * 0.04), 14px);
+    padding-bottom: clamp(6px, calc(var(--turntable-size) * 0.035), 12px);
 }
 
 .tonearm-headshell::before {
     content: "";
     position: absolute;
-    top: clamp(6px, calc(var(--turntable-size) * 0.03), 14px);
+    top: clamp(5px, calc(var(--turntable-size) * 0.026), 12px);
     left: 50%;
     transform: translateX(-50%);
-    width: 75%;
-    height: clamp(12px, calc(var(--turntable-size) * 0.05), 22px);
-    border-radius: 10px;
-    background: linear-gradient(160deg, #2f2f2f 0%, #0d0d0d 100%);
-    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.12);
+    width: 72%;
+    height: clamp(10px, calc(var(--turntable-size) * 0.042), 18px);
+    border-radius: 8px;
+    background: linear-gradient(160deg, #2f2f2f 0%, #121212 100%);
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.12);
 }
 
 .tonearm-head {
@@ -383,11 +385,11 @@ body {
 
 .tonearm-needle-tip {
     position: relative;
-    width: clamp(5px, calc(var(--turntable-size) * 0.018), 9px);
-    height: clamp(16px, calc(var(--turntable-size) * 0.072), 24px);
-    background: linear-gradient(180deg, #f3f3f3 0%, #c8c8c8 60%, #6f6f6f 100%);
-    border-radius: 3px;
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.55);
+    width: clamp(3px, calc(var(--turntable-size) * 0.012), 6px);
+    height: clamp(14px, calc(var(--turntable-size) * 0.06), 22px);
+    background: linear-gradient(180deg, #f3f3f3 0%, #cbcbcb 55%, #676767 100%);
+    border-radius: 2px;
+    box-shadow: 0 5px 9px rgba(0, 0, 0, 0.5);
 }
 
 .tonearm-needle-tip::after {
@@ -396,15 +398,15 @@ body {
     bottom: -5px;
     left: 50%;
     transform: translateX(-50%);
-    width: 2px;
+    width: 1.6px;
     height: 7px;
-    background: linear-gradient(180deg, #dedede 0%, #8a8a8a 100%);
+    background: linear-gradient(180deg, #dedede 0%, #878787 100%);
     border-radius: 1px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.42);
 }
 
 .turntable-needle.engaged {
-    transform: rotate(var(--needle-engaged-angle));
+    --needle-angle: var(--needle-entry-angle);
     filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
 }
 
