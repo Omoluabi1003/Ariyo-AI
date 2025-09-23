@@ -47,54 +47,6 @@
     const loadingSpinner = document.getElementById('loadingSpinner');
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
-    const turntableNeedle = document.getElementById('turntableNeedle');
-let cachedNeedleAngles = null;
-
-function refreshNeedleAngles() {
-  if (!turntableNeedle) return null;
-  const computed = getComputedStyle(turntableNeedle);
-  const parseAngle = (variable, fallback) => {
-    const value = computed.getPropertyValue(variable);
-    const parsed = parseFloat(value);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
-  cachedNeedleAngles = {
-    rest: parseAngle('--needle-rest-angle', -30),
-    entry: parseAngle('--needle-entry-angle', -14),
-    inner: parseAngle('--needle-inner-angle', 8)
-  };
-  return cachedNeedleAngles;
-}
-
-function getNeedleAngles() {
-  return cachedNeedleAngles || refreshNeedleAngles();
-}
-
-function updateNeedleProgress(progress = 0) {
-  if (!turntableNeedle) return;
-  const angles = getNeedleAngles();
-  if (!angles) return;
-  const clamped = Math.min(Math.max(progress, 0), 1);
-  const target = angles.entry + (angles.inner - angles.entry) * clamped;
-  turntableNeedle.style.setProperty('--needle-angle', `${target}deg`);
-}
-
-function resetNeedleAngle() {
-  if (!turntableNeedle) return;
-  const angles = getNeedleAngles();
-  if (!angles) return;
-  turntableNeedle.style.setProperty('--needle-angle', `${angles.rest}deg`);
-}
-
-if (turntableNeedle) {
-  resetNeedleAngle();
-  window.addEventListener('resize', () => {
-    cachedNeedleAngles = null;
-    if (turntableNeedle.dataset.state !== 'engaged') {
-      resetNeedleAngle();
-    }
-  });
-}
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
@@ -522,7 +474,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      setNeedleEngaged(false);
       albumCover.classList.remove('spin');
       const fetchUrl = isSunoHosted ? src : `${src}?t=${Date.now()}`;
       fetch(fetchUrl)
@@ -579,7 +530,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      setNeedleEngaged(false);
       albumCover.classList.remove('spin');
       handleAudioLoad(src, title, true);
       updateMediaSession();
@@ -601,7 +551,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'none';
-      setNeedleEngaged(false);
       albumCover.classList.remove('spin');
       setTimeout(retryTrack, 3000);
     }
@@ -668,21 +617,9 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       audioPlayer.load(); // Force load
     }
 
-function setNeedleEngaged(engaged) {
-  if (!turntableNeedle) return;
-  turntableNeedle.classList.toggle('engaged', engaged);
-  turntableNeedle.dataset.state = engaged ? 'engaged' : 'resting';
-  if (engaged) {
-    updateNeedleProgress(0);
-  } else {
-    resetNeedleAngle();
-  }
-}
-
     function manageVinylRotation() {
       const shouldSpin = !audioPlayer.paused && !audioPlayer.ended;
       albumCover.classList.toggle('spin', shouldSpin);
-      setNeedleEngaged(shouldSpin);
     }
 
     function playMusic() {
@@ -722,7 +659,6 @@ function setNeedleEngaged(engaged) {
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'block';
-      setNeedleEngaged(false);
       albumCover.classList.remove('spin');
       console.error(`Error playing ${title}:`, error);
 
@@ -758,7 +694,6 @@ function setNeedleEngaged(engaged) {
     function pauseMusic() {
       audioPlayer.pause();
       manageVinylRotation();
-      setNeedleEngaged(false);
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       console.log('Paused');
       savePlayerState();
@@ -768,7 +703,6 @@ function setNeedleEngaged(engaged) {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       manageVinylRotation();
-      setNeedleEngaged(false);
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       seekBar.value = 0;
       trackDuration.textContent = '0:00 / 0:00';
@@ -793,15 +727,9 @@ function setNeedleEngaged(engaged) {
     seekBar.value = (currentTime / duration) * 100;
     seekBar.style.display = 'block';
     savePlayerState();
-    if (turntableNeedle && turntableNeedle.dataset.state === 'engaged') {
-      updateNeedleProgress(currentTime / duration);
-    }
   } else {
     trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
     seekBar.style.display = 'block';
-    if (turntableNeedle && turntableNeedle.dataset.state === 'engaged') {
-      updateNeedleProgress(0);
-    }
   }
   highlightLyric(currentTime);
 }
@@ -865,15 +793,6 @@ function setNeedleEngaged(engaged) {
     audioPlayer.addEventListener('play', manageVinylRotation);
     audioPlayer.addEventListener('pause', manageVinylRotation);
     audioPlayer.addEventListener('ended', manageVinylRotation);
-
-    ['waiting', 'stalled', 'suspend', 'emptied', 'abort'].forEach(eventType => {
-      audioPlayer.addEventListener(eventType, () => {
-        setNeedleEngaged(false);
-        if (albumCover) {
-          albumCover.classList.remove('spin');
-        }
-      });
-    });
 
 audioPlayer.addEventListener('playing', () => {
   audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
