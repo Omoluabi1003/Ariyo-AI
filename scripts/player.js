@@ -48,6 +48,53 @@
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
     const turntableNeedle = document.getElementById('turntableNeedle');
+let cachedNeedleAngles = null;
+
+function refreshNeedleAngles() {
+  if (!turntableNeedle) return null;
+  const computed = getComputedStyle(turntableNeedle);
+  const parseAngle = (variable, fallback) => {
+    const value = computed.getPropertyValue(variable);
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+  cachedNeedleAngles = {
+    rest: parseAngle('--needle-rest-angle', -30),
+    entry: parseAngle('--needle-entry-angle', -14),
+    inner: parseAngle('--needle-inner-angle', 8)
+  };
+  return cachedNeedleAngles;
+}
+
+function getNeedleAngles() {
+  return cachedNeedleAngles || refreshNeedleAngles();
+}
+
+function updateNeedleProgress(progress = 0) {
+  if (!turntableNeedle) return;
+  const angles = getNeedleAngles();
+  if (!angles) return;
+  const clamped = Math.min(Math.max(progress, 0), 1);
+  const target = angles.entry + (angles.inner - angles.entry) * clamped;
+  turntableNeedle.style.setProperty('--needle-angle', `${target}deg`);
+}
+
+function resetNeedleAngle() {
+  if (!turntableNeedle) return;
+  const angles = getNeedleAngles();
+  if (!angles) return;
+  turntableNeedle.style.setProperty('--needle-angle', `${angles.rest}deg`);
+}
+
+if (turntableNeedle) {
+  resetNeedleAngle();
+  window.addEventListener('resize', () => {
+    cachedNeedleAngles = null;
+    if (turntableNeedle.dataset.state !== 'engaged') {
+      resetNeedleAngle();
+    }
+  });
+}
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
@@ -625,6 +672,11 @@ function setNeedleEngaged(engaged) {
   if (!turntableNeedle) return;
   turntableNeedle.classList.toggle('engaged', engaged);
   turntableNeedle.dataset.state = engaged ? 'engaged' : 'resting';
+  if (engaged) {
+    updateNeedleProgress(0);
+  } else {
+    resetNeedleAngle();
+  }
 }
 
     function manageVinylRotation() {
@@ -741,9 +793,15 @@ function setNeedleEngaged(engaged) {
     seekBar.value = (currentTime / duration) * 100;
     seekBar.style.display = 'block';
     savePlayerState();
+    if (turntableNeedle && turntableNeedle.dataset.state === 'engaged') {
+      updateNeedleProgress(currentTime / duration);
+    }
   } else {
     trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
     seekBar.style.display = 'block';
+    if (turntableNeedle && turntableNeedle.dataset.state === 'engaged') {
+      updateNeedleProgress(0);
+    }
   }
   highlightLyric(currentTime);
 }
