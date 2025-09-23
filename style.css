@@ -272,20 +272,22 @@ body {
 
 .turntable-needle {
     position: absolute;
-    top: calc(var(--turntable-size) * -0.18);
-    right: calc(var(--turntable-size) * -0.18);
-    width: calc(var(--turntable-size) * 1.05);
-    height: calc(var(--turntable-size) * 1.05);
-    transform-origin: 16% 14%;
-    transform: rotate(-34deg);
+    --needle-rest-angle: -28deg;
+    --needle-engaged-angle: -6deg;
+    top: calc(var(--turntable-size) * -0.14);
+    right: calc(var(--turntable-size) * -0.12);
+    width: calc(var(--turntable-size) * 0.9);
+    height: calc(var(--turntable-size) * 0.9);
+    transform-origin: 18% 12%;
+    transform: rotate(var(--needle-rest-angle));
     transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.6s ease;
     pointer-events: none;
     z-index: 8;
     filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
-    --tonearm-thickness: clamp(10px, calc(var(--turntable-size) * 0.06), 18px);
-    --tonearm-offset: clamp(26px, calc(var(--turntable-size) * 0.18), 46px);
-    --headshell-width: clamp(44px, calc(var(--turntable-size) * 0.22), 68px);
-    --headshell-height: clamp(58px, calc(var(--turntable-size) * 0.3), 86px);
+    --tonearm-thickness: clamp(9px, calc(var(--turntable-size) * 0.05), 16px);
+    --tonearm-offset: clamp(24px, calc(var(--turntable-size) * 0.17), 42px);
+    --headshell-width: clamp(40px, calc(var(--turntable-size) * 0.2), 62px);
+    --headshell-height: clamp(50px, calc(var(--turntable-size) * 0.27), 78px);
 }
 
 .needle-hinge {
@@ -381,8 +383,8 @@ body {
 
 .tonearm-needle-tip {
     position: relative;
-    width: clamp(6px, calc(var(--turntable-size) * 0.02), 10px);
-    height: clamp(18px, calc(var(--turntable-size) * 0.08), 26px);
+    width: clamp(5px, calc(var(--turntable-size) * 0.018), 9px);
+    height: clamp(16px, calc(var(--turntable-size) * 0.072), 24px);
     background: linear-gradient(180deg, #f3f3f3 0%, #c8c8c8 60%, #6f6f6f 100%);
     border-radius: 3px;
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.55);
@@ -391,18 +393,18 @@ body {
 .tonearm-needle-tip::after {
     content: "";
     position: absolute;
-    bottom: -6px;
+    bottom: -5px;
     left: 50%;
     transform: translateX(-50%);
     width: 2px;
-    height: 8px;
+    height: 7px;
     background: linear-gradient(180deg, #dedede 0%, #8a8a8a 100%);
     border-radius: 1px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 }
 
 .turntable-needle.engaged {
-    transform: rotate(6deg);
+    transform: rotate(var(--needle-engaged-angle));
     filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.5));
 }
 
@@ -737,6 +739,10 @@ body {
     .turntable-wrapper {
         --turntable-size: clamp(120px, 48vw, 170px);
     }
+    .turntable-needle {
+        top: calc(var(--turntable-size) * -0.16);
+        right: calc(var(--turntable-size) * -0.14);
+    }
 }
 
 @media (max-width: 480px) {
@@ -759,8 +765,10 @@ body {
         --turntable-size: clamp(100px, 60vw, 140px);
     }
     .turntable-needle {
-        top: calc(var(--turntable-size) * -0.22);
-        right: calc(var(--turntable-size) * -0.22);
+        top: calc(var(--turntable-size) * -0.18);
+        right: calc(var(--turntable-size) * -0.18);
+        width: calc(var(--turntable-size) * 0.96);
+        height: calc(var(--turntable-size) * 0.96);
     }
     .modal-content {
         width: 90%;
