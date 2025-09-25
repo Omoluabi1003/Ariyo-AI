@@ -31,6 +31,16 @@
 2. Open the `index.html` file in your browser to see the welcome screen, then click "Enter" to go to `main.html`.
 3. Enjoy the music and other features!
 
+## Project Structure
+
+- `apps/` – Self-contained experiences such as the mini-games, chatbots, and tools that open from the edge panel. Each app keeps its HTML, CSS, and JavaScript together for easier maintenance.
+- `scripts/` – Core player logic, data definitions, and UI helpers that power `main.html`.
+- `icons/`, `img/`, and media files – Visual assets used across the experience.
+- Root HTML files (`index.html`, `main.html`, `about.html`) – Primary entry points for the PWA shell.
+- `docs/` – Additional documentation about the architecture and organization of the project.
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a deeper dive into how the pieces fit together.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request with any improvements or new features.
