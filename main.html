@@ -731,31 +731,31 @@
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
         <!-- Ariyo AI Floating Icon -->
-        <div class="chatbot-bubble-container" role="button" aria-label="Open Ariyo AI" onclick="openAriyoChatbot()">
+        <div class="chatbot-bubble-container edge-panel-launcher" role="button" aria-label="Open Ariyo AI" aria-controls="ariyoChatbotContainer" tabindex="0" data-open-target="ariyoChatbotContainer">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI Icon" class="picture-game-float-icon" />
         </div>
         <!-- Sabi Bible Floating Icon -->
-        <div class="chatbot-bubble-container" role="button" aria-label="Open Sabi Bible" onclick="openSabiBible()">
+        <div class="chatbot-bubble-container edge-panel-launcher" role="button" aria-label="Open Sabi Bible" aria-controls="sabiBibleContainer" tabindex="0" data-open-target="sabiBibleContainer">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible Icon" class="picture-game-float-icon" />
         </div>
         <!-- Picture Game Floating Icon -->
-        <div class="picture-game-bubble-container" role="button" aria-label="Open Picture Game" onclick="openPictureGame()">
+        <div class="picture-game-bubble-container edge-panel-launcher" role="button" aria-label="Open Picture Game" aria-controls="pictureGameContainer" tabindex="0" data-open-target="pictureGameContainer">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
         </div>
         <!-- Omoluabi Tetris Floating Icon -->
-        <div class="tetris-bubble-container" role="button" aria-label="Open Omoluabi Tetris" onclick="openTetrisGame()">
+        <div class="tetris-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Tetris" aria-controls="tetrisGameContainer" tabindex="0" data-open-target="tetrisGameContainer">
             <img src="icons/tetris.svg" alt="Omoluabi Tetris Game Icon" class="picture-game-float-icon" />
         </div>
         <!-- Omoluabi Word Search Floating Icon -->
-        <div class="word-search-bubble-container" role="button" aria-label="Open Omoluabi Word Search" onclick="openWordSearchGame()">
+        <div class="word-search-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Word Search" aria-controls="wordSearchContainer" tabindex="0" data-open-target="wordSearchContainer">
             <img src="icons/word-search.svg" alt="Omoluabi Word Search Game Icon" class="picture-game-float-icon" />
         </div>
         <!-- Ara Connect-4 Floating Icon -->
-        <div class="connect-four-bubble-container" role="button" aria-label="Open Ara Connect-4" onclick="openConnectFourGame()">
+        <div class="connect-four-bubble-container edge-panel-launcher" role="button" aria-label="Open Ara Connect-4" aria-controls="connectFourContainer" tabindex="0" data-open-target="connectFourContainer">
             <img src="icons/connect-four.svg" alt="Ara Connect-4 Game Icon" class="picture-game-float-icon" />
         </div>
         <!-- Cycle Precision Floating Icon -->
-        <div class="cycle-precision-bubble-container" role="button" aria-label="Open Cycle Precision" onclick="openCyclePrecision()">
+        <div class="cycle-precision-bubble-container edge-panel-launcher" role="button" aria-label="Open Cycle Precision" aria-controls="cyclePrecisionContainer" tabindex="0" data-open-target="cyclePrecisionContainer">
             <img src="icons/blood.svg" alt="Cycle Precision Icon" class="cycle-precision-float-icon" />
         </div>
     </div>
@@ -763,49 +763,49 @@
 
 <!-- Ariyo AI Chatbot Container -->
 <div id="ariyoChatbotContainer" class="chatbot-container" role="dialog" aria-labelledby="ariyoChatbotTitle">
-    <button class="popup-close ripple shockwave" onclick="closeAriyoChatbot()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="ariyoChatbotContainer" aria-label="Close Ariyo AI">×</button>
     <h3 id="ariyoChatbotTitle" class="modal-title">Àríyò AI</h3>
     <iframe src="apps/ariyo-ai-chat/ariyo-ai-chat.html" style="border: none; width: 100%; height: 100%;"></iframe>
 </div>
 
 <!-- Sabi Bible Chatbot Container -->
 <div id="sabiBibleContainer" class="chatbot-container" role="dialog" aria-labelledby="sabiBibleTitle">
-    <button class="popup-close ripple shockwave" onclick="closeSabiBible()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="sabiBibleContainer" aria-label="Close Sabi Bible">×</button>
     <h3 id="sabiBibleTitle" class="modal-title">Sabi Bible</h3>
     <iframe src="apps/sabi-bible/sabi-bible.html" style="border: none; width: 100%; height: 100%;"></iframe>
 </div>
 
 <!-- Picture Game Container -->
 <div id="pictureGameContainer" class="chatbot-container" role="dialog" aria-labelledby="pictureGameTitle">
-    <button class="popup-close ripple shockwave" onclick="closePictureGame()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="pictureGameContainer" aria-label="Close Picture Game">×</button>
     <h3 id="pictureGameTitle" class="modal-title">Picture Game</h3>
     <iframe src="apps/picture-game/picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Omoluabi Tetris Container -->
 <div id="tetrisGameContainer" class="chatbot-container" role="dialog" aria-labelledby="tetrisGameTitle">
-    <button class="popup-close ripple shockwave" onclick="closeTetrisGame()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="tetrisGameContainer" aria-label="Close Omoluabi Tetris">×</button>
     <h3 id="tetrisGameTitle" class="modal-title">Omoluabi Tetris</h3>
     <iframe src="apps/tetris/tetris.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Omoluabi Word Search Container -->
 <div id="wordSearchContainer" class="chatbot-container" role="dialog" aria-labelledby="wordSearchTitle">
-    <button class="popup-close ripple shockwave" onclick="closeWordSearchGame()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="wordSearchContainer" aria-label="Close Omoluabi Word Search">×</button>
     <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
     <iframe src="apps/word-search/word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Ara Connect-4 Container -->
 <div id="connectFourContainer" class="chatbot-container" role="dialog" aria-labelledby="connectFourTitle">
-    <button class="popup-close ripple shockwave" onclick="closeConnectFourGame()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="connectFourContainer" aria-label="Close Ara Connect-4">×</button>
     <h3 id="connectFourTitle" class="modal-title">Ara Connect-4</h3>
     <iframe src="apps/connect-four/connect-four.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Cycle Precision Container -->
 <div id="cyclePrecisionContainer" class="chatbot-container" role="dialog" aria-labelledby="cyclePrecisionTitle">
-    <button class="popup-close ripple shockwave" onclick="closeCyclePrecision()">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="cyclePrecisionContainer" aria-label="Close Cycle Precision">×</button>
     <h3 id="cyclePrecisionTitle" class="modal-title">Cycle Precision</h3>
     <iframe src="apps/cycle-precision/cycle-precision.html" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
@@ -813,7 +813,7 @@
 
 <!-- About Us Container -->
 <div id="aboutModalContainer" class="chatbot-container" role="dialog" aria-labelledby="aboutModalTitle">
-    <button class="popup-close ripple shockwave" onclick="closeAboutModal()" aria-label="Close About Us">×</button>
+    <button class="popup-close ripple shockwave" data-close-target="aboutModalContainer" aria-label="Close About Us">×</button>
     <h3 id="aboutModalTitle" class="modal-title">About Us</h3>
     <iframe src="about.html" title="About Us" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
