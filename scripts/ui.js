@@ -200,37 +200,60 @@ function toggleShuffle() {
 }
 
 /* CHATBOT TOGGLE WITH US SPOOFING */
-let pictureGameContainer,
-    tetrisGameContainer,
-    wordSearchContainer,
-    aboutModalContainer,
-    connectFourContainer,
-    cyclePrecisionContainer,
-    ariyoChatbotContainer,
-    sabiBibleContainer;
+const PANEL_IDS = [
+    'ariyoChatbotContainer',
+    'sabiBibleContainer',
+    'pictureGameContainer',
+    'tetrisGameContainer',
+    'wordSearchContainer',
+    'connectFourContainer',
+    'cyclePrecisionContainer',
+    'aboutModalContainer'
+];
+
+const panelRegistry = {};
+
+function getPanelElement(id) {
+    if (!panelRegistry[id]) {
+        panelRegistry[id] = document.getElementById(id) || null;
+    }
+    return panelRegistry[id];
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    pictureGameContainer = document.getElementById('pictureGameContainer');
-    tetrisGameContainer = document.getElementById('tetrisGameContainer');
-    wordSearchContainer = document.getElementById('wordSearchContainer');
-    aboutModalContainer = document.getElementById('aboutModalContainer');
-    connectFourContainer = document.getElementById('connectFourContainer');
-    cyclePrecisionContainer = document.getElementById('cyclePrecisionContainer');
-    ariyoChatbotContainer = document.getElementById('ariyoChatbotContainer');
-    sabiBibleContainer = document.getElementById('sabiBibleContainer');
+    PANEL_IDS.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            panelRegistry[id] = element;
+        }
+    });
+
+    document.querySelectorAll('[data-open-target]').forEach(trigger => {
+        const targetId = trigger.getAttribute('data-open-target');
+        if (!targetId) return;
+
+        trigger.addEventListener('click', () => openPanel(targetId));
+        trigger.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openPanel(targetId);
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-close-target]').forEach(trigger => {
+        const targetId = trigger.getAttribute('data-close-target');
+        if (!targetId) return;
+
+        trigger.addEventListener('click', () => closePanel(targetId));
+    });
 });
 
 function isAnyPanelOpen() {
-    return [
-        pictureGameContainer,
-        tetrisGameContainer,
-        wordSearchContainer,
-        connectFourContainer,
-        cyclePrecisionContainer,
-        ariyoChatbotContainer,
-        sabiBibleContainer,
-        aboutModalContainer
-    ].some(el => el && el.style.display === 'block');
+    return PANEL_IDS.some(id => {
+        const panel = getPanelElement(id);
+        return panel && panel.style.display === 'block';
+    });
 }
 
 function resetCloseButtonsPosition() {
@@ -256,88 +279,91 @@ function updateEdgePanelBehavior() {
     }
 }
 
-function openAboutModal() {
-    const iframe = aboutModalContainer.querySelector('iframe');
-    if (iframe) {
-        iframe.src = 'about.html';
+function openPanel(targetId) {
+    const panel = getPanelElement(targetId);
+    if (!panel) return;
+
+    if (targetId === 'aboutModalContainer') {
+        const iframe = panel.querySelector('iframe');
+        if (iframe) {
+            iframe.src = 'about.html';
+        }
     }
-    aboutModalContainer.style.display = 'block';
+
+    panel.style.display = 'block';
     updateEdgePanelBehavior();
+}
+
+function closePanel(targetId) {
+    const panel = getPanelElement(targetId);
+    if (!panel) return;
+
+    panel.style.display = 'none';
+    updateEdgePanelBehavior();
+}
+
+function openAboutModal() {
+    openPanel('aboutModalContainer');
 }
 
 function closeAboutModal() {
-    aboutModalContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('aboutModalContainer');
 }
 
 function openAriyoChatbot() {
-    ariyoChatbotContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('ariyoChatbotContainer');
 }
 
 function closeAriyoChatbot() {
-    ariyoChatbotContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('ariyoChatbotContainer');
 }
 
 function openSabiBible() {
-    sabiBibleContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('sabiBibleContainer');
 }
 
 function closeSabiBible() {
-    sabiBibleContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('sabiBibleContainer');
 }
 
 function openPictureGame() {
-    pictureGameContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('pictureGameContainer');
 }
 
 function closePictureGame() {
-    pictureGameContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('pictureGameContainer');
 }
 
 function openTetrisGame() {
-    tetrisGameContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('tetrisGameContainer');
 }
 
 function closeTetrisGame() {
-    tetrisGameContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('tetrisGameContainer');
 }
 
 function openWordSearchGame() {
-    wordSearchContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('wordSearchContainer');
 }
 
 function closeWordSearchGame() {
-    wordSearchContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('wordSearchContainer');
 }
 
 function openConnectFourGame() {
-    connectFourContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('connectFourContainer');
 }
 
 function closeConnectFourGame() {
-    connectFourContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('connectFourContainer');
 }
 
 function openCyclePrecision() {
-    cyclePrecisionContainer.style.display = 'block';
-    updateEdgePanelBehavior();
+    openPanel('cyclePrecisionContainer');
 }
 
 function closeCyclePrecision() {
-    cyclePrecisionContainer.style.display = 'none';
-    updateEdgePanelBehavior();
+    closePanel('cyclePrecisionContainer');
 }
 
 
