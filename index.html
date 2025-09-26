@@ -107,11 +107,9 @@
         });
 
         let autoEnterTimeout;
-        let countdownEndTimeout;
 
         function enterApp() {
             clearTimeout(autoEnterTimeout);
-            clearTimeout(countdownEndTimeout);
             const enterIcon = document.querySelector('.enter-icon');
             const enterButton = document.querySelector('.enter-button');
             if (enterButton) {
@@ -147,6 +145,7 @@
               const speakerIcon = document.getElementById('speaker-icon');
 
               let isPlaying = false;
+              let userPaused = false;
 
               const tracks = [
                   { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
@@ -157,47 +156,149 @@
                   { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" }
               ];
 
-              const playAudio = () => {
+              const fallbackTrack = { src: 'offline-audio.mp3', title: 'Offline Vibes' };
+              let currentTrackIndex = Math.floor(Math.random() * tracks.length);
+              let usingFallback = false;
+              let reconnectInterval = null;
+
+              const updateSpeakerIcon = (playing) => {
+                  if (playing) {
+                      speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
+                  } else {
+                      speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
+                  }
+              };
+
+              const clearReconnectInterval = () => {
+                  if (reconnectInterval) {
+                      clearInterval(reconnectInterval);
+                      reconnectInterval = null;
+                  }
+              };
+
+              const playAudio = (force = false) => {
+                  if (userPaused && !force) {
+                      return;
+                  }
                   audio.play().then(() => {
                       isPlaying = true;
-                      speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
+                      userPaused = false;
+                      updateSpeakerIcon(true);
                   }).catch(error => {
                       console.log("Audio playback failed:", error);
                   });
               };
 
-              const pauseAudio = () => {
+              const pauseAudio = (manual = false) => {
                   audio.pause();
+                  if (manual) {
+                      userPaused = true;
+                  }
                   isPlaying = false;
-                  speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
+                  updateSpeakerIcon(false);
               };
 
-              const randomTrack = tracks[Math.floor(Math.random() * tracks.length)];
-              audio.src = randomTrack.src;
-              playAudio();
+              const loadTrack = (index, force = false) => {
+                  usingFallback = false;
+                  currentTrackIndex = index;
+                  audio.src = tracks[currentTrackIndex].src;
+                  audio.load();
+                  playAudio(force);
+              };
+
+              const playFallback = (force = false) => {
+                  usingFallback = true;
+                  audio.src = fallbackTrack.src;
+                  audio.load();
+                  playAudio(force);
+              };
+
+              const attemptReconnect = (force = false) => {
+                  if (!navigator.onLine) {
+                      return;
+                  }
+                  clearReconnectInterval();
+                  if (usingFallback || audio.src !== tracks[currentTrackIndex].src) {
+                      loadTrack(currentTrackIndex, force);
+                  } else {
+                      playAudio(force);
+                  }
+              };
+
+              const scheduleReconnect = () => {
+                  if (reconnectInterval) {
+                      return;
+                  }
+                  reconnectInterval = setInterval(() => {
+                      if (navigator.onLine && !userPaused) {
+                          attemptReconnect(true);
+                      }
+                  }, 5000);
+              };
+
+              const handlePlaybackError = () => {
+                  if (userPaused) {
+                      return;
+                  }
+                  if (!navigator.onLine) {
+                      scheduleReconnect();
+                      if (!usingFallback) {
+                          playFallback();
+                      }
+                  } else {
+                      setTimeout(() => loadTrack(currentTrackIndex, true), 3000);
+                  }
+              };
+
+              loadTrack(currentTrackIndex, true);
 
               speakerContainer.addEventListener('click', () => {
                   if (isPlaying) {
-                      pauseAudio();
+                      pauseAudio(true);
                   } else {
-                      playAudio();
+                      if (usingFallback && navigator.onLine) {
+                          attemptReconnect(true);
+                      } else if (usingFallback) {
+                          playFallback(true);
+                      } else {
+                          loadTrack(currentTrackIndex, true);
+                      }
                   }
               });
 
+              window.addEventListener('offline', () => {
+                  scheduleReconnect();
+                  if (!usingFallback) {
+                      playFallback();
+                  }
+              });
+
+              window.addEventListener('online', () => {
+                  if (userPaused) {
+                      usingFallback = false;
+                      clearReconnectInterval();
+                      audio.src = tracks[currentTrackIndex].src;
+                      audio.load();
+                      return;
+                  }
+                  attemptReconnect(true);
+              });
+
+              audio.addEventListener('error', handlePlaybackError);
+              audio.addEventListener('stalled', handlePlaybackError);
+
               const timerProgress = document.getElementById('timer-progress');
-              const countdownDuration = 10; // seconds
-              timerProgress.style.transition = `width ${countdownDuration}s linear`;
+              const autoEnterDelay = 105000; // milliseconds
+              timerProgress.style.transition = `width ${autoEnterDelay}ms linear`;
               setTimeout(() => {
                   timerProgress.style.width = '0%';
               }, 100);
 
-              countdownEndTimeout = setTimeout(() => {
-                  autoEnterTimeout = setTimeout(enterApp, 3000);
-              }, countdownDuration * 1000);
+              autoEnterTimeout = setTimeout(enterApp, autoEnterDelay);
 
               // Attempt to keep audio playing even when the page is hidden
               document.addEventListener('visibilitychange', () => {
-                  if (isPlaying && document.visibilityState === 'hidden') {
+                  if (!userPaused && isPlaying && document.visibilityState === 'hidden') {
                       audio.play().catch(error => {
                           console.log('Background playback prevented:', error);
                       });
@@ -205,7 +306,7 @@
               });
 
               audio.addEventListener('pause', () => {
-                  if (isPlaying && document.visibilityState === 'hidden') {
+                  if (!userPaused && isPlaying && document.visibilityState === 'hidden') {
                       audio.play().catch(error => {
                           console.log('Background playback prevented:', error);
                       });
