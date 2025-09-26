@@ -38,6 +38,7 @@
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
+    const turntable = document.querySelector('.turntable');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
@@ -474,7 +475,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      albumCover.classList.remove('spin');
+      setTurntableSpin(false);
       const fetchUrl = isSunoHosted ? src : `${src}?t=${Date.now()}`;
       fetch(fetchUrl)
         .then(r => r.blob())
@@ -530,7 +531,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
-      albumCover.classList.remove('spin');
+      setTurntableSpin(false);
       handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
@@ -551,7 +552,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'none';
-      albumCover.classList.remove('spin');
+      setTurntableSpin(false);
       setTimeout(retryTrack, 3000);
     }
 
@@ -617,9 +618,19 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       audioPlayer.load(); // Force load
     }
 
+    function setTurntableSpin(isSpinning) {
+      albumCover.classList.remove('spin');
+      if (!turntable) return;
+      if (isSpinning) {
+        turntable.classList.add('spin');
+      } else {
+        turntable.classList.remove('spin');
+      }
+    }
+
     function manageVinylRotation() {
       const shouldSpin = !audioPlayer.paused && !audioPlayer.ended;
-      albumCover.classList.toggle('spin', shouldSpin);
+      setTurntableSpin(shouldSpin);
     }
 
     function playMusic() {
@@ -659,7 +670,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'block';
-      albumCover.classList.remove('spin');
+      setTurntableSpin(false);
       console.error(`Error playing ${title}:`, error);
 
       if (!navigator.onLine) {
@@ -798,7 +809,7 @@ audioPlayer.addEventListener('playing', () => {
   audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
   audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
   updateTrackTime();  // update UI instantly
-  manageVinylRotation(); // spin the album cover if needed
+  manageVinylRotation(); // spin the turntable if needed
   console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
 });
 
