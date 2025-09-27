@@ -41,6 +41,11 @@
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a deeper dive into how the pieces fit together.
 
+## Development Requirements
+
+- [Node.js](https://nodejs.org/) (tested with v22.19.0)
+- [npm](https://www.npmjs.com/) v11.6.1 or later
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request with any improvements or new features.
