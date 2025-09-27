@@ -164,7 +164,8 @@ const albums = [
             { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
             { src: 'https://cdn1.suno.ai/473edd61-d1ba-4bad-8014-7302cd1a9b71.mp3', title: 'Same Ni' },
             { src: 'https://cdn1.suno.ai/553eefd4-54ba-4b73-ba02-4df85bfb5bb0.mp3', title: 'Envy' },
-            { src: 'https://cdn1.suno.ai/6af3b681-f3e6-4e84-85c7-9a2ad5f14e44.mp3', title: 'Echoes Of Ice' }
+            { src: 'https://cdn1.suno.ai/6af3b681-f3e6-4e84-85c7-9a2ad5f14e44.mp3', title: 'Echoes Of Ice' },
+            { src: 'https://cdn1.suno.ai/e9562054-31e2-4195-ab30-cbe2902193f8.mp3', title: 'Wisdom Moves' }
         ]
       },
     ];
