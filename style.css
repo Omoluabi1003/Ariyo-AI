@@ -443,6 +443,7 @@ body {
     padding: 1.5rem;
     border: 1px solid #888;
     width: min(100%, 520px);
+    height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
     max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
     overflow-y: auto;
     border-radius: 10px;
@@ -459,6 +460,7 @@ body {
     }
     .modal-content {
         width: 100%;
+        height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
         max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
     }
 }
