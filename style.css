@@ -219,7 +219,7 @@ body {
 }
 
 .turntable-disc {
-    --album-size: 46%;
+    --album-size: 100%;
     position: relative;
     width: 86%;
     aspect-ratio: 1 / 1;
@@ -275,8 +275,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
-    border: 3px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    border: none;
     z-index: 3;
     transition: transform 0.3s ease-in-out;
 }
