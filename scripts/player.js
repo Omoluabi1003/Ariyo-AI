@@ -38,7 +38,7 @@
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     document.body.appendChild(audioPlayer);
     const albumCover = document.getElementById('albumCover');
-    const turntable = document.querySelector('.turntable');
+    const turntableDisc = document.querySelector('.turntable-disc');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
@@ -620,11 +620,10 @@ function selectTrack(src, title, index, rebuildQueue = true) {
 
     function setTurntableSpin(isSpinning) {
       albumCover.classList.remove('spin');
-      if (!turntable) return;
+      if (!turntableDisc) return;
+      turntableDisc.classList.remove('spin');
       if (isSpinning) {
-        turntable.classList.add('spin');
-      } else {
-        turntable.classList.remove('spin');
+        turntableDisc.classList.add('spin');
       }
     }
 
