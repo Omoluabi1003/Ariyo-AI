@@ -639,15 +639,18 @@
     <h3>Music Player</h3>
     <div class="turntable-wrapper">
       <div class="turntable">
+        <div class="turntable-disc">
+          <span class="turntable-grooves" aria-hidden="true"></span>
+          <img
+            id="albumCover"
+            class="album-cover"
+            src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
+            alt="Album Cover"
+            onerror="this.onerror=null;this.src='Logo.jpg';"
+          />
+          <span class="turntable-label" aria-hidden="true"></span>
+        </div>
         <span class="turntable-sheen" aria-hidden="true"></span>
-        <img
-          id="albumCover"
-          class="album-cover"
-          src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-          alt="Album Cover"
-          onerror="this.onerror=null;this.src='Logo.jpg';"
-        />
-        <span class="turntable-grooves" aria-hidden="true"></span>
       </div>
     </div>
     <div id="loadingSpinner" class="loading-spinner"></div>
