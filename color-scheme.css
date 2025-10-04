@@ -1,8 +1,8 @@
-/* Lagos Sunset warm gradient theme */
+/* Atlantic Dawn cool gradient theme */
 :root {
-  --theme-color: #F97316;
-  --gradient-start: #F97316;
-  --gradient-end: #C026D3;
+  --theme-color: #0EA5E9;
+  --gradient-start: #0EA5E9;
+  --gradient-end: #6366F1;
 }
 
 body {
