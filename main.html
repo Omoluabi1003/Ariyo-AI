@@ -527,24 +527,34 @@
       transition: width 0.2s ease;
     }
     @media (max-width: 768px) {
-      .sidebar {
-        width: 100%;
+      .container {
         flex-direction: row;
-        justify-content: center;
-        gap: 1rem;
-        border-radius: 0;
-        padding: 0.5rem;
-        flex-wrap: wrap;
+        align-items: stretch;
       }
-      .container { flex-direction: column; }
-      .content { padding-bottom: 15rem; }
+      .sidebar {
+        width: clamp(170px, 38vw, 220px);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        border-radius: 12px;
+        padding: 0.75rem 0.5rem;
+      }
+      .sidebar button {
+        width: 100%;
+        min-width: unset;
+      }
+      .content {
+        padding-bottom: 6rem;
+      }
     }
     @media (max-width: 480px) {
-      .sidebar button {
+      .sidebar {
+        width: clamp(150px, 42vw, 200px);
         padding: 0.5rem;
-        min-width: auto;
+      }
+      .sidebar button {
+        padding: 0.55rem 0.4rem;
         font-size: 0.8rem;
-        width: 45%;
       }
       .music-player {
         bottom: 0;
