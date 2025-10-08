@@ -63,6 +63,162 @@ let currentRadioIndex = -1;
 let shuffleQueue = [];
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 
+const networkRecoveryState = {
+  active: false,
+  intervalId: null,
+  attemptFn: null,
+  wasPlaying: false,
+  resumeTime: 0,
+  source: null
+};
+
+function cancelNetworkRecovery() {
+  if (networkRecoveryState.intervalId) {
+    clearInterval(networkRecoveryState.intervalId);
+    networkRecoveryState.intervalId = null;
+  }
+  networkRecoveryState.active = false;
+  networkRecoveryState.attemptFn = null;
+  networkRecoveryState.source = null;
+  networkRecoveryState.wasPlaying = false;
+  networkRecoveryState.resumeTime = 0;
+}
+
+function captureCurrentSource() {
+  if (!lastTrackSrc) return null;
+  if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
+    return {
+      type: 'radio',
+      index: currentRadioIndex,
+      src: lastTrackSrc,
+      title: lastTrackTitle
+    };
+  }
+  if (
+    currentAlbumIndex >= 0 &&
+    albums[currentAlbumIndex] &&
+    currentTrackIndex >= 0 &&
+    albums[currentAlbumIndex].tracks[currentTrackIndex]
+  ) {
+    return {
+      type: 'track',
+      albumIndex: currentAlbumIndex,
+      trackIndex: currentTrackIndex,
+      src: lastTrackSrc,
+      title: lastTrackTitle
+    };
+  }
+  return null;
+}
+
+function finishNetworkRecovery() {
+  if (networkRecoveryState.intervalId) {
+    clearInterval(networkRecoveryState.intervalId);
+    networkRecoveryState.intervalId = null;
+  }
+  networkRecoveryState.active = false;
+  networkRecoveryState.attemptFn = null;
+  networkRecoveryState.source = null;
+  networkRecoveryState.wasPlaying = false;
+  networkRecoveryState.resumeTime = 0;
+}
+
+function appendCacheBuster(url) {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}reconnect=${Date.now()}`;
+}
+
+async function attemptNetworkResume() {
+  const source = networkRecoveryState.source;
+  if (!source) return false;
+
+  return new Promise(async resolve => {
+    let resolved = false;
+    const resolveOnce = value => {
+      if (resolved) return;
+      resolved = true;
+      resolve(value);
+    };
+
+    if (source.type === 'radio') {
+      setCrossOrigin(audioPlayer, source.src);
+      const reloadSrc = appendCacheBuster(source.src);
+      audioPlayer.src = reloadSrc;
+      audioPlayer.currentTime = 0;
+      handleAudioLoad(reloadSrc, source.title, true, {
+        silent: true,
+        autoPlay: networkRecoveryState.wasPlaying,
+        resumeTime: 0,
+        onReady: () => resolveOnce(true),
+        onError: () => resolveOnce(false)
+      });
+      return;
+    }
+
+    try {
+      const album = albums[source.albumIndex];
+      if (!album) return resolveOnce(false);
+      const track = album.tracks[source.trackIndex];
+      if (!track) return resolveOnce(false);
+
+      const urlHost = new URL(track.src, window.location.origin).hostname;
+      const isSunoHosted = urlHost.includes('suno');
+      const fetchUrl = isSunoHosted ? track.src : `${track.src}?t=${Date.now()}`;
+      const response = await fetch(fetchUrl, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Status ${response.status}`);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      audioPlayer.src = objectUrl;
+      handleAudioLoad(objectUrl, track.title, false, {
+        silent: true,
+        autoPlay: networkRecoveryState.wasPlaying,
+        resumeTime: networkRecoveryState.resumeTime,
+        onReady: () => resolveOnce(true),
+        onError: () => resolveOnce(false)
+      });
+    } catch (error) {
+      console.error('Failed to fetch track during recovery:', error);
+      resolveOnce(false);
+    }
+  });
+}
+
+function startNetworkRecovery(reason = 'network') {
+  if (networkRecoveryState.active) return;
+
+  const source = captureCurrentSource();
+  if (!source) return;
+
+  networkRecoveryState.active = true;
+  networkRecoveryState.wasPlaying = !audioPlayer.paused && !audioPlayer.ended;
+  networkRecoveryState.resumeTime = currentRadioIndex === -1 ? audioPlayer.currentTime || 0 : 0;
+  networkRecoveryState.source = source;
+  retryButton.style.display = 'none';
+  loadingSpinner.style.display = 'none';
+  document.getElementById('progressBar').style.display = 'none';
+  console.log(`Starting network recovery due to: ${reason}`);
+
+  const attemptReconnect = async () => {
+    if (!networkRecoveryState.active) return;
+    if (!navigator.onLine) {
+      console.log('Waiting for network connection to return...');
+      return;
+    }
+
+    const success = await attemptNetworkResume();
+    if (success) {
+      console.log('Network recovery successful.');
+      finishNetworkRecovery();
+    } else {
+      console.log('Network recovery attempt failed, will retry.');
+    }
+  };
+
+  networkRecoveryState.attemptFn = attemptReconnect;
+  attemptReconnect();
+  networkRecoveryState.intervalId = setInterval(attemptReconnect, 7000);
+}
+
 function savePlaylist() {
   localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(albums[playlistAlbumIndex].tracks));
 }
@@ -448,6 +604,7 @@ function loadMoreStations(region) {
 
 function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
+      cancelNetworkRecovery();
       resumeAudioContext();
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
@@ -497,8 +654,9 @@ function selectTrack(src, title, index, rebuildQueue = true) {
         });
     }
 
-    function selectRadio(src, title, index, logo) {
+function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
+      cancelNetworkRecovery();
       resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
@@ -556,17 +714,35 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       setTimeout(retryTrack, 3000);
     }
 
-    function handleAudioLoad(src, title, isInitialLoad = true) {
+    function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
+      const {
+        silent = false,
+        autoPlay = true,
+        resumeTime = null,
+        onReady = null,
+        onError: onErrorCallback = null
+      } = options;
+
       // Remove all previous event listeners
       audioPlayer.removeEventListener('progress', onProgress);
       audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
       audioPlayer.removeEventListener('canplay', onCanPlay);
       audioPlayer.removeEventListener('error', onError);
 
-      const playTimeout = setTimeout(() => {
-        console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
-        retryTrackWithDelay();
-      }, 15000);
+      let playTimeout = null;
+      if (!silent) {
+        playTimeout = setTimeout(() => {
+          console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
+          retryTrackWithDelay();
+        }, 15000);
+      }
+
+      const clearPlayTimeout = () => {
+        if (playTimeout) {
+          clearTimeout(playTimeout);
+          playTimeout = null;
+        }
+      };
 
       function onProgress() {
         if (audioPlayer.buffered.length > 0 && audioPlayer.duration) {
@@ -576,38 +752,76 @@ function selectTrack(src, title, index, rebuildQueue = true) {
         }
       }
 
+      let readyHandled = false;
+
+      const handleReady = () => {
+        if (readyHandled) return;
+        readyHandled = true;
+        if (resumeTime != null && !isNaN(resumeTime)) {
+          try {
+            audioPlayer.currentTime = resumeTime;
+          } catch (err) {
+            console.warn('Failed to restore playback position:', err);
+          }
+        }
+        updateMediaSession();
+        if (autoPlay) {
+          attemptPlay();
+        } else {
+          manageVinylRotation();
+        }
+        if (typeof onReady === 'function') {
+          onReady();
+        }
+      };
+
       function onCanPlayThrough() {
         console.log("onCanPlayThrough called");
-        clearTimeout(playTimeout);
-        loadingSpinner.style.display = 'none';
-        albumCover.style.display = 'block';
-        document.getElementById('progressBar').style.display = 'none';
-        console.log(`Stream ${title} can play through`);
-        attemptPlay();
+        clearPlayTimeout();
+        if (!silent) {
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+          console.log(`Stream ${title} can play through`);
+        }
+        handleReady();
       }
 
       function onCanPlay() {
         console.log("onCanPlay called");
-        if (loadingSpinner.style.display === 'block') {
-          clearTimeout(playTimeout);
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          console.log(`Stream ${title} can play (fallback)`);
-          updateMediaSession();
-          attemptPlay();
+        if (silent || loadingSpinner.style.display === 'block') {
+          clearPlayTimeout();
+          if (!silent) {
+            loadingSpinner.style.display = 'none';
+            albumCover.style.display = 'block';
+            document.getElementById('progressBar').style.display = 'none';
+            console.log(`Stream ${title} can play (fallback)`);
+          }
+          handleReady();
         }
       }
 
       function onError() {
-        clearTimeout(playTimeout);
+        clearPlayTimeout();
         console.error(`Audio error for ${title}:`, audioPlayer.error);
         if (audioPlayer.error) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
-        // Also log the album cover src to see if it's correct
         console.error(`Album cover src: ${albumCover.src}`);
-        retryTrackWithDelay();
+
+        if (!navigator.onLine || (audioPlayer.error && audioPlayer.error.code === MediaError.MEDIA_ERR_NETWORK)) {
+          startNetworkRecovery('load-error');
+          if (typeof onErrorCallback === 'function') {
+            onErrorCallback();
+          }
+          return;
+        }
+
+        if (!silent) {
+          retryTrackWithDelay();
+        } else if (typeof onErrorCallback === 'function') {
+          onErrorCallback();
+        }
       }
 
       audioPlayer.addEventListener('progress', onProgress);
@@ -668,14 +882,15 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       loadingSpinner.style.display = 'none';
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
-      retryButton.style.display = 'block';
       setTurntableSpin(false);
       console.error(`Error playing ${title}:`, error);
 
-      if (!navigator.onLine) {
-        trackInfo.textContent = 'Offline. Please check your connection.';
+      if (!navigator.onLine || (error && error.code === MediaError.MEDIA_ERR_NETWORK)) {
+        startNetworkRecovery('play-error');
         return;
       }
+
+      retryButton.style.display = 'block';
 
       switch (error.code) {
         case MediaError.MEDIA_ERR_ABORTED:
@@ -702,6 +917,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
     }
 
     function pauseMusic() {
+      cancelNetworkRecovery();
       audioPlayer.pause();
       manageVinylRotation();
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
@@ -710,6 +926,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
     }
 
     function stopMusic() {
+      cancelNetworkRecovery();
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
       manageVinylRotation();
@@ -811,6 +1028,29 @@ audioPlayer.addEventListener('playing', () => {
   manageVinylRotation(); // spin the turntable if needed
   console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
 });
+
+function handleNetworkEvent(event) {
+  if (networkRecoveryState.active) return;
+  if (audioPlayer.paused) return;
+  if (!navigator.onLine) {
+    startNetworkRecovery(event.type);
+  }
+}
+
+window.addEventListener('offline', () => {
+  if (!audioPlayer.paused) {
+    startNetworkRecovery('offline-event');
+  }
+});
+window.addEventListener('online', () => {
+  if (networkRecoveryState.active && typeof networkRecoveryState.attemptFn === 'function') {
+    networkRecoveryState.attemptFn();
+  }
+});
+
+audioPlayer.addEventListener('stalled', handleNetworkEvent);
+audioPlayer.addEventListener('suspend', handleNetworkEvent);
+audioPlayer.addEventListener('waiting', handleNetworkEvent);
 
 function switchTrack(direction) {
   if (currentRadioIndex !== -1) {
