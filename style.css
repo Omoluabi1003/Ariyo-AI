@@ -514,6 +514,90 @@ body {
     flex: 1 1 auto;
 }
 
+.latest-tracks-banner {
+    border: 1px solid var(--theme-color);
+    background: rgba(14, 165, 233, 0.12);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: none;
+    gap: 0.75rem;
+}
+
+.latest-tracks-banner:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+}
+
+.latest-tracks-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.latest-tracks-badge {
+    background: var(--theme-color);
+    color: #000;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+    font-size: clamp(0.65rem, 2vw, 0.75rem);
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+
+.latest-tracks-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.latest-tracks-title {
+    margin: 0;
+    font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--theme-color);
+}
+
+.latest-tracks-copy {
+    margin: 0;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    color: #e0f4ff;
+}
+
+.latest-tracks-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.latest-track-button {
+    background: var(--theme-color);
+    border: none;
+    color: #000;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.latest-track-button:hover,
+.latest-track-button:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.5);
+    outline: none;
+}
+
+.latest-track-button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
     .modal {
         padding: var(--modal-block-padding) clamp(0.75rem, 5vw, 1.5rem);
@@ -584,6 +668,20 @@ body {
 .album-info {
     display: flex;
     flex-direction: column;
+}
+
+.album-new-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--theme-color);
+    color: #000;
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+    font-size: clamp(0.65rem, 2vw, 0.75rem);
+    font-weight: 700;
+    margin-left: 0.4rem;
+    box-shadow: 0 0 8px rgba(14, 165, 233, 0.45);
 }
 
 .album-info p {

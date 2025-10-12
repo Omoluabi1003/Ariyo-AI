@@ -31,6 +31,13 @@ function populateAlbumList() {
 
     const name = document.createElement('p');
     name.textContent = `Album ${index + 1}: ${album.name}`;
+    if (typeof latestTracks !== 'undefined' && latestTracks.some(track => track.albumName === album.name)) {
+      const badge = document.createElement('span');
+      badge.className = 'album-new-badge';
+      badge.textContent = 'NEW';
+      badge.title = 'Contains freshly added tracks';
+      name.appendChild(badge);
+    }
 
     const durationEl = document.createElement('p');
     durationEl.className = 'album-duration';
