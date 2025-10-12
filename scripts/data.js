@@ -135,6 +135,7 @@ const albums = [
             { src: 'https://cdn1.suno.ai/5c17dd10-1770-467a-947a-db773c72ec78.mp3', title: 'Watchman' },
             { src: 'https://cdn1.suno.ai/fb1daddf-1de4-4164-bb9d-113f9639d732.mp3', title: 'Ọmọlúàbí' },
             { src: 'https://cdn1.suno.ai/d3ec2b0a-6062-417f-a62c-4d746f7f4f57.mp3', title: 'Take The Risk' },
+            { src: 'https://cdn1.suno.ai/08a939af-4823-4054-bef6-1b8420857d9c.mp3', title: 'Home That Looks Safe' },
             { src: 'https://cdn1.suno.ai/d5669af3-5caf-49e2-aca4-47fbc73a6d25.mp3', title: 'TikTok' },
             { src: 'https://cdn1.suno.ai/800b9280-4389-47f6-b20d-6aa7dd3298ad.mp3', title: 'Something Is About To Happen' },
             { src: 'https://cdn1.suno.ai/160aa857-a65f-4f60-9217-6045b2091183.mp3', title: 'Haters' },
@@ -169,6 +170,15 @@ const albums = [
         ]
       },
     ];
+
+const latestTracks = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Home That Looks Safe',
+    src: 'https://cdn1.suno.ai/08a939af-4823-4054-bef6-1b8420857d9c.mp3',
+    addedOn: '2024-05-06'
+  }
+];
 
 // Shuffle albums so they appear in a random order on each page load
 function shuffle(array) {

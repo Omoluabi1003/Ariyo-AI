@@ -397,6 +397,51 @@ function removeTrackFromPlaylist(index) {
       trackModalTitle.textContent = albums[albumIndex].name;
       trackListContainer.innerHTML = '';
 
+      const banner = document.getElementById('latestTracksBanner');
+      const bannerCopy = document.getElementById('latestTracksCopy');
+      const bannerActions = document.getElementById('latestTracksActions');
+      if (banner && bannerCopy && bannerActions) {
+        bannerActions.innerHTML = '';
+        if (Array.isArray(latestTracks) && latestTracks.length) {
+          const albumName = albums[albumIndex].name;
+          const albumHighlights = latestTracks.filter(track => track.albumName === albumName);
+          const announcementList = (albumHighlights.length ? albumHighlights : latestTracks)
+            .map(track => `“${track.title}”${albumHighlights.length ? '' : ` (${track.albumName})`}`)
+            .join(', ');
+          const intro = albumHighlights.length ? `New in ${albumName}` : 'Latest arrivals across Àríyò AI';
+          bannerCopy.textContent = `${intro}: ${announcementList}. Tap a button below to play instantly.`;
+          latestTracks.forEach(track => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'latest-track-button';
+            button.textContent = `▶ Play “${track.title}”`;
+            button.setAttribute('aria-label', `Play the latest track ${track.title}`);
+            button.addEventListener('click', () => {
+              const albumIdx = albums.findIndex(album => album.name === track.albumName);
+              if (albumIdx === -1) {
+                return;
+              }
+              const trackIdx = albums[albumIdx].tracks.findIndex(albumTrack => albumTrack.title === track.title && albumTrack.src === track.src);
+              if (trackIdx === -1) {
+                pendingAlbumIndex = albumIdx;
+                currentAlbumIndex = albumIdx;
+                updateTrackListModal();
+                return;
+              }
+              currentAlbumIndex = albumIdx;
+              pendingAlbumIndex = null;
+              selectTrack(albums[albumIdx].tracks[trackIdx].src, albums[albumIdx].tracks[trackIdx].title, trackIdx);
+            });
+            bannerActions.appendChild(button);
+          });
+          banner.hidden = false;
+        } else {
+          banner.hidden = true;
+          bannerCopy.textContent = '';
+          bannerActions.innerHTML = '';
+        }
+      }
+
       // Build an array of track indices and shuffle them (except for playlist)
       let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
       if (albumIndex !== playlistAlbumIndex) {
