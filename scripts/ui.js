@@ -215,6 +215,7 @@ const PANEL_IDS = [
     'wordSearchContainer',
     'connectFourContainer',
     'cyclePrecisionContainer',
+    'youtubeModalContainer',
     'aboutModalContainer'
 ];
 
