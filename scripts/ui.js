@@ -240,11 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetId = trigger.getAttribute('data-open-target');
         if (!targetId) return;
 
-        trigger.addEventListener('click', () => openPanel(targetId));
+        trigger.addEventListener('click', () => openPanel(targetId, trigger));
         trigger.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                openPanel(targetId);
+                openPanel(targetId, trigger);
             }
         });
     });
@@ -287,7 +287,34 @@ function updateEdgePanelBehavior() {
     }
 }
 
-function openPanel(targetId) {
+function syncPanelSource(panel, trigger) {
+    if (!panel) return;
+
+    const iframe = panel.querySelector('iframe');
+    if (!iframe) return;
+
+    let desiredSrc = null;
+
+    if (trigger) {
+        desiredSrc = trigger.getAttribute('data-open-src');
+    }
+
+    if (!desiredSrc) {
+        desiredSrc = iframe.getAttribute('data-default-src');
+    }
+
+    if (!desiredSrc) return;
+
+    const loadedSrc = iframe.getAttribute('data-loaded-src') || iframe.getAttribute('src') || '';
+    if (loadedSrc !== desiredSrc) {
+        iframe.setAttribute('src', desiredSrc);
+        iframe.setAttribute('data-loaded-src', desiredSrc);
+    } else if (!iframe.hasAttribute('data-loaded-src') && loadedSrc) {
+        iframe.setAttribute('data-loaded-src', loadedSrc);
+    }
+}
+
+function openPanel(targetId, trigger = null) {
     const panel = getPanelElement(targetId);
     if (!panel) return;
 
@@ -297,6 +324,8 @@ function openPanel(targetId) {
             iframe.src = 'about.html';
         }
     }
+
+    syncPanelSource(panel, trigger);
 
     panel.style.display = 'block';
     updateEdgePanelBehavior();
