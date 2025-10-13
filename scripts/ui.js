@@ -221,6 +221,39 @@ const PANEL_IDS = [
 
 const panelRegistry = {};
 
+const PANEL_LOAD_CONFIG = {
+    ariyoChatbotContainer: {
+        loadingMessage: 'Connecting to Àríyò AI…',
+        errorMessage: 'Àríyò AI couldn’t start. Please check your internet connection and try again.',
+        errorMessages: {
+            'component-unavailable': 'Àríyò AI is taking too long to respond. Please retry in a few moments.',
+            'missing-embed': 'We couldn’t initialise the Àríyò AI chat window. Try again.',
+            'unsupported-browser': 'This browser version doesn’t support the chatbot embed. Please upgrade or switch browsers.'
+        },
+        handshake: true
+    },
+    sabiBibleContainer: {
+        loadingMessage: 'Opening Sabi Bible…',
+        errorMessage: 'Sabi Bible couldn’t load. Check your internet connection and try again.',
+        errorMessages: {
+            'component-unavailable': 'Sabi Bible is still waking up. Tap retry in a few seconds.',
+            'missing-embed': 'We couldn’t initialise Sabi Bible. Please retry.',
+            'unsupported-browser': 'Your browser version can’t render Sabi Bible. Please update it or try a different one.'
+        },
+        handshake: true
+    },
+    youtubeModalContainer: {
+        loadingMessage: 'Loading Omoluabi Paul on YouTube…',
+        errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
+        supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
+        supportLinkLabel: 'Open channel on YouTube'
+    }
+};
+
+const panelStates = {};
+const panelLoadTimers = {};
+const panelOverlays = {};
+
 function getPanelElement(id) {
     if (!panelRegistry[id]) {
         panelRegistry[id] = document.getElementById(id) || null;
@@ -228,11 +261,204 @@ function getPanelElement(id) {
     return panelRegistry[id];
 }
 
+function initializePanelLoadTracking(panelId) {
+    const config = PANEL_LOAD_CONFIG[panelId];
+    if (!config) return;
+
+    const panel = getPanelElement(panelId);
+    if (!panel) return;
+
+    const iframe = panel.querySelector('iframe');
+    if (!iframe) return;
+
+    ensurePanelOverlay(panelId);
+
+    if (config.handshake) {
+        return;
+    }
+
+    if (!iframe.dataset.panelLoadTracked) {
+        iframe.addEventListener('load', () => {
+            handlePanelReady(panelId);
+        });
+        iframe.addEventListener('error', () => {
+            handlePanelError(panelId);
+        });
+        iframe.dataset.panelLoadTracked = 'true';
+    }
+}
+
+function ensurePanelOverlay(panelId) {
+    const config = PANEL_LOAD_CONFIG[panelId];
+    if (!config) return null;
+
+    if (panelOverlays[panelId]) {
+        return panelOverlays[panelId];
+    }
+
+    const panel = getPanelElement(panelId);
+    if (!panel) return null;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'panel-status-overlay';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'polite');
+
+    const spinner = document.createElement('div');
+    spinner.className = 'panel-status-spinner';
+    spinner.setAttribute('aria-hidden', 'true');
+    overlay.appendChild(spinner);
+
+    const message = document.createElement('p');
+    message.className = 'panel-status-message';
+    overlay.appendChild(message);
+
+    const actions = document.createElement('div');
+    actions.className = 'panel-status-actions';
+
+    const retryButton = document.createElement('button');
+    retryButton.type = 'button';
+    retryButton.className = 'retry-button panel-status-retry';
+    retryButton.textContent = 'Retry';
+    retryButton.addEventListener('click', () => {
+        reloadPanel(panelId);
+    });
+    actions.appendChild(retryButton);
+
+    if (config.supportLink) {
+        const supportLink = document.createElement('a');
+        supportLink.href = config.supportLink;
+        supportLink.target = '_blank';
+        supportLink.rel = 'noopener noreferrer';
+        supportLink.className = 'panel-status-link';
+        supportLink.textContent = config.supportLinkLabel || 'Open in new tab';
+        actions.appendChild(supportLink);
+    }
+
+    overlay.appendChild(actions);
+    panel.appendChild(overlay);
+    panelOverlays[panelId] = overlay;
+
+    return overlay;
+}
+
+function setPanelState(panelId, state, reason = null) {
+    const config = PANEL_LOAD_CONFIG[panelId];
+    if (!config) return;
+
+    const overlay = ensurePanelOverlay(panelId);
+    if (!overlay) return;
+
+    panelStates[panelId] = state;
+
+    const message = overlay.querySelector('.panel-status-message');
+    const spinner = overlay.querySelector('.panel-status-spinner');
+    const actions = overlay.querySelector('.panel-status-actions');
+
+    overlay.classList.remove('loading', 'error', 'visible');
+
+    if (state === 'loading') {
+        spinner.style.display = '';
+        actions.style.display = 'none';
+        message.textContent = config.loadingMessage || 'Loading…';
+        overlay.classList.add('visible', 'loading');
+    } else if (state === 'error') {
+        const errorMessage = (reason && config.errorMessages && config.errorMessages[reason]) || config.errorMessage || 'Something went wrong. Please try again.';
+        message.textContent = errorMessage;
+        spinner.style.display = 'none';
+        actions.style.display = 'flex';
+        overlay.classList.add('visible', 'error');
+    } else {
+        spinner.style.display = 'none';
+        actions.style.display = 'none';
+    }
+
+    if (state !== 'ready') {
+        overlay.classList.add('visible');
+    }
+
+    if (state === 'ready') {
+        overlay.classList.remove('visible');
+    }
+}
+
+function startPanelTimeout(panelId) {
+    const config = PANEL_LOAD_CONFIG[panelId];
+    if (!config) return;
+
+    clearTimeout(panelLoadTimers[panelId]);
+    panelLoadTimers[panelId] = setTimeout(() => {
+        if (panelStates[panelId] !== 'ready') {
+            setPanelState(panelId, 'error', 'component-unavailable');
+        }
+    }, config.timeout || 10000);
+}
+
+function clearPanelTimeout(panelId) {
+    if (panelLoadTimers[panelId]) {
+        clearTimeout(panelLoadTimers[panelId]);
+        delete panelLoadTimers[panelId];
+    }
+}
+
+function reloadPanel(panelId) {
+    const panel = getPanelElement(panelId);
+    if (!panel) return;
+
+    const iframe = panel.querySelector('iframe');
+    if (!iframe) return;
+
+    try {
+        if (iframe.contentWindow && typeof iframe.contentWindow.location.reload === 'function') {
+            iframe.contentWindow.location.reload();
+        } else {
+            const src = iframe.getAttribute('data-default-src') || iframe.getAttribute('src');
+            if (src) {
+                iframe.setAttribute('src', src);
+            }
+        }
+    } catch (error) {
+        const src = iframe.getAttribute('data-default-src') || iframe.getAttribute('src');
+        if (src) {
+            iframe.setAttribute('src', src);
+        }
+    }
+
+    setPanelState(panelId, 'loading');
+    startPanelTimeout(panelId);
+}
+
+function beginPanelLoad(panelId) {
+    const config = PANEL_LOAD_CONFIG[panelId];
+    if (!config) return;
+
+    if (panelStates[panelId] === 'ready') {
+        setPanelState(panelId, 'ready');
+        return;
+    }
+
+    setPanelState(panelId, 'loading');
+    startPanelTimeout(panelId);
+}
+
+function handlePanelReady(panelId) {
+    if (!PANEL_LOAD_CONFIG[panelId]) return;
+    clearPanelTimeout(panelId);
+    setPanelState(panelId, 'ready');
+}
+
+function handlePanelError(panelId, reason) {
+    if (!PANEL_LOAD_CONFIG[panelId]) return;
+    clearPanelTimeout(panelId);
+    setPanelState(panelId, 'error', reason);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     PANEL_IDS.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
             panelRegistry[id] = element;
+            initializePanelLoadTracking(id);
         }
     });
 
@@ -255,6 +481,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         trigger.addEventListener('click', () => closePanel(targetId));
     });
+});
+
+window.addEventListener('message', (event) => {
+    const sameOrigin = !event.origin || event.origin === 'null' || event.origin === window.location.origin;
+    if (!sameOrigin) return;
+
+    const data = event.data;
+    if (!data || data.source !== 'edge-panel-app' || !data.panelId) return;
+
+    if (data.status === 'ready') {
+        handlePanelReady(data.panelId);
+    } else if (data.status === 'error') {
+        handlePanelError(data.panelId, data.reason || data.detail || null);
+    }
 });
 
 function isAnyPanelOpen() {
@@ -326,6 +566,7 @@ function openPanel(targetId, trigger = null) {
     }
 
     syncPanelSource(panel, trigger);
+    beginPanelLoad(targetId);
 
     panel.style.display = 'block';
     updateEdgePanelBehavior();
@@ -336,6 +577,7 @@ function closePanel(targetId) {
     if (!panel) return;
 
     panel.style.display = 'none';
+    clearPanelTimeout(targetId);
     updateEdgePanelBehavior();
 }
 

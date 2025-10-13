@@ -24,5 +24,65 @@
 </head>
 <body>
   <zapier-interfaces-chatbot-embed is-popup='false' chatbot-id='cm7s2oyu2000b3vmuwcwkj9kn'></zapier-interfaces-chatbot-embed>
+  <script>
+    (function () {
+      const PANEL_ID = 'ariyoChatbotContainer';
+      const SOURCE = 'edge-panel-app';
+
+      const targetOrigin = (() => {
+        try {
+          if (document.referrer) {
+            return new URL(document.referrer).origin;
+          }
+          if (window.location && window.location.origin) {
+            return window.location.origin;
+          }
+        } catch (error) {
+          /* ignore and fall back to wildcard */
+        }
+        return '*';
+      })();
+
+      function postStatus(status, reason) {
+        if (!window.parent || window.parent === window) return;
+        const payload = { source: SOURCE, panelId: PANEL_ID, status };
+        if (reason) {
+          payload.reason = reason;
+        }
+        window.parent.postMessage(payload, targetOrigin);
+      }
+
+      function monitorEmbed() {
+        if (!window.customElements || typeof window.customElements.whenDefined !== 'function') {
+          postStatus('error', 'unsupported-browser');
+          return;
+        }
+
+        let readyTimeout = setTimeout(() => {
+          if (!window.customElements.get('zapier-interfaces-chatbot-embed')) {
+            postStatus('error', 'component-unavailable');
+          }
+        }, 10000);
+
+        window.customElements.whenDefined('zapier-interfaces-chatbot-embed').then(() => {
+          clearTimeout(readyTimeout);
+          const embed = document.querySelector('zapier-interfaces-chatbot-embed');
+          if (embed) {
+            postStatus('ready');
+          } else {
+            postStatus('error', 'missing-embed');
+          }
+        }).catch(() => {
+          postStatus('error', 'component-unavailable');
+        });
+      }
+
+      if (document.readyState === 'complete') {
+        monitorEmbed();
+      } else {
+        window.addEventListener('load', monitorEmbed, { once: true });
+      }
+    })();
+  </script>
 </body>
 </html>
