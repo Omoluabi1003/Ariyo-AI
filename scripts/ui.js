@@ -216,6 +216,7 @@ const PANEL_IDS = [
     'connectFourContainer',
     'cyclePrecisionContainer',
     'youtubeModalContainer',
+    'tiktokModalContainer',
     'aboutModalContainer'
 ];
 
@@ -247,6 +248,12 @@ const PANEL_LOAD_CONFIG = {
         errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
         supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
         supportLinkLabel: 'Open channel on YouTube'
+    },
+    tiktokModalContainer: {
+        loadingMessage: 'Loading Omoluabi Paul on TikTok…',
+        errorMessage: 'TikTok wouldn’t load inside Àríyò AI. Please retry or open the full profile.',
+        supportLink: 'https://www.tiktok.com/@omoluabi1003',
+        supportLinkLabel: 'Open profile on TikTok'
     }
 };
 
