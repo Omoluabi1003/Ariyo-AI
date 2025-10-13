@@ -27,7 +27,7 @@ body {
     --modal-inline-padding: clamp(1rem, 6vw, 3rem);
 }
 
-.news-banner {
+.news-banner { 
     position: fixed;
     bottom: 0;
     left: 0;
@@ -40,6 +40,69 @@ body {
     z-index: 10000;
     white-space: nowrap;
     overflow: hidden;
+}
+
+/* Edge panel app loading feedback */
+.chatbot-container .panel-status-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 16, 34, 0.85);
+    color: #fff;
+    padding: 1.5rem;
+    border-radius: inherit;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+    gap: 1rem;
+    z-index: 101;
+    backdrop-filter: blur(6px);
+    pointer-events: auto;
+}
+
+.chatbot-container .panel-status-overlay.visible {
+    display: flex;
+}
+
+.chatbot-container .panel-status-overlay .panel-status-spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.35);
+    border-top-color: var(--theme-color);
+    animation: panel-status-spin 1s linear infinite;
+}
+
+.chatbot-container .panel-status-overlay.loading .panel-status-actions {
+    display: none;
+}
+
+.chatbot-container .panel-status-overlay.error .panel-status-spinner {
+    display: none;
+}
+
+.chatbot-container .panel-status-overlay .panel-status-actions {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.chatbot-container .panel-status-overlay.error .panel-status-actions {
+    display: flex;
+}
+
+.chatbot-container .panel-status-overlay .panel-status-link {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+@keyframes panel-status-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .news-banner::after {
