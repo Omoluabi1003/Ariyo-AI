@@ -166,12 +166,19 @@ const albums = [
             { src: 'https://cdn1.suno.ai/473edd61-d1ba-4bad-8014-7302cd1a9b71.mp3', title: 'Same Ni' },
             { src: 'https://cdn1.suno.ai/553eefd4-54ba-4b73-ba02-4df85bfb5bb0.mp3', title: 'Envy' },
             { src: 'https://cdn1.suno.ai/6af3b681-f3e6-4e84-85c7-9a2ad5f14e44.mp3', title: 'Echoes Of Ice' },
-            { src: 'https://cdn1.suno.ai/e9562054-31e2-4195-ab30-cbe2902193f8.mp3', title: 'Wisdom Moves' }
+            { src: 'https://cdn1.suno.ai/e9562054-31e2-4195-ab30-cbe2902193f8.mp3', title: 'Wisdom Moves' },
+            { src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3', title: 'Bread Crumb Effect' }
         ]
       },
     ];
 
 const latestTracks = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Bread Crumb Effect',
+    src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3',
+    addedOn: '2024-05-09'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Home That Looks Safe',
