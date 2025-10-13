@@ -634,13 +634,19 @@
     changeColorScheme();
 
     // Dynamic Edge Panel Height
+    const edgePanel = document.getElementById('edgePanel');
     const edgePanelContent = document.querySelector('.edge-panel-content');
-    const icons = edgePanelContent.querySelectorAll('.chatbot-bubble-container, .picture-game-bubble-container, .tetris-bubble-container, .word-search-bubble-container, .connect-four-bubble-container, .cycle-precision-bubble-container');
-    const iconHeight = 40; // height of each icon matches CSS
-    const iconSpacing = 10; // spacing between icons matches CSS gap
-    const panelPadding = 20; // top and bottom padding of the panel
-    const panelHeight = (icons.length * iconHeight) + ((icons.length - 1) * iconSpacing) + (2 * panelPadding);
-    document.getElementById('edgePanel').style.height = `${panelHeight}px`;
+    if (edgePanel && edgePanelContent) {
+        const icons = edgePanelContent.querySelectorAll('.edge-panel-launcher');
+        const iconHeight = 40; // height of each icon matches CSS
+        const iconSpacing = 10; // spacing between icons matches CSS gap
+        const panelPadding = 20; // top and bottom padding of the panel
+        const iconCount = icons.length;
+        if (iconCount > 0) {
+            const panelHeight = (iconCount * iconHeight) + ((iconCount - 1) * iconSpacing) + (2 * panelPadding);
+            edgePanel.style.height = `${panelHeight}px`;
+        }
+    }
 
     // Add this to your main.js file
     document.addEventListener('DOMContentLoaded', function() {

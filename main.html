@@ -418,6 +418,55 @@
       border-radius: 50%;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       animation: float 3s ease-in-out infinite;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+    .youtube-embed-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+    .youtube-frame {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .youtube-modal-note {
+      margin: 1rem auto 0.5rem;
+      max-width: 520px;
+      text-align: center;
+      color: #333;
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+      line-height: 1.5;
+    }
+    .youtube-modal-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0 1.5rem 1.5rem;
+    }
+    .youtube-modal-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.4rem;
+      background: var(--theme-color);
+      color: #fff;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .youtube-modal-link:hover,
+    .youtube-modal-link:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
     @keyframes float {
       0%   { transform: translateY(0px); }
@@ -765,6 +814,10 @@
         <div class="chatbot-bubble-container edge-panel-launcher" role="button" aria-label="Open Sabi Bible" aria-controls="sabiBibleContainer" tabindex="0" data-open-target="sabiBibleContainer">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible Icon" class="picture-game-float-icon" />
         </div>
+        <!-- Omoluabi YouTube Floating Icon -->
+        <div class="youtube-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Paul's YouTube" aria-controls="youtubeModalContainer" tabindex="0" data-open-target="youtubeModalContainer">
+            <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube Channel" class="picture-game-float-icon" />
+        </div>
         <!-- Picture Game Floating Icon -->
         <div class="picture-game-bubble-container edge-panel-launcher" role="button" aria-label="Open Picture Game" aria-controls="pictureGameContainer" tabindex="0" data-open-target="pictureGameContainer">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
@@ -785,6 +838,29 @@
         <div class="cycle-precision-bubble-container edge-panel-launcher" role="button" aria-label="Open Cycle Precision" aria-controls="cyclePrecisionContainer" tabindex="0" data-open-target="cyclePrecisionContainer">
             <img src="icons/blood.svg" alt="Cycle Precision Icon" class="cycle-precision-float-icon" />
         </div>
+    </div>
+</div>
+
+<!-- Omoluabi Paul YouTube Container -->
+<div id="youtubeModalContainer" class="chatbot-container" role="dialog" aria-labelledby="youtubeModalTitle">
+    <button class="popup-close ripple shockwave" data-close-target="youtubeModalContainer" aria-label="Close Omoluabi Paul's YouTube">×</button>
+    <h3 id="youtubeModalTitle" class="modal-title">Omoluabi Paul on YouTube</h3>
+    <div class="youtube-embed-wrapper">
+        <iframe
+            class="youtube-frame"
+            src="https://www.youtube.com/embed?listType=user_uploads&amp;list=omoluabipaul"
+            title="Omoluabi Paul YouTube uploads"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+        </iframe>
+    </div>
+    <p class="youtube-modal-note">Stream Omoluabi Paul's latest videos without leaving Àríyò AI. If the preview doesn't load, you can jump straight to YouTube instead.</p>
+    <div class="youtube-modal-actions">
+        <a class="youtube-modal-link" href="https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV" target="_blank" rel="noopener noreferrer">
+            Open full channel on YouTube
+        </a>
     </div>
 </div>
 
