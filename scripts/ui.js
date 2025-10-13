@@ -250,8 +250,8 @@ const PANEL_LOAD_CONFIG = {
         supportLinkLabel: 'Open channel on YouTube'
     },
     tiktokModalContainer: {
-        loadingMessage: 'Loading Omoluabi Paul on TikTok…',
-        errorMessage: 'TikTok wouldn’t load inside Àríyò AI. Please retry or open the full profile.',
+        loadingMessage: 'Loading Omoluabi Paul\'s embedded TikTok feed…',
+        errorMessage: 'The TikTok feed wouldn\'t load inside Àríyò AI. Please retry or open the full profile.',
         supportLink: 'https://www.tiktok.com/@omoluabi1003',
         supportLinkLabel: 'Open profile on TikTok'
     }
