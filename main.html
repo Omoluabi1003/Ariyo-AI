@@ -413,15 +413,16 @@
         right: 0;
     }
       .picture-game-float-icon, .cycle-precision-float-icon {
-      width: 40px;
-      height: 40px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
       animation: float 3s ease-in-out infinite;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
     }
-    .youtube-embed-wrapper {
+    .youtube-embed-wrapper,
+    .tiktok-embed-wrapper {
       width: 100%;
       aspect-ratio: 16 / 9;
       border-radius: 10px;
@@ -429,12 +430,14 @@
       background: #000;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     }
-    .youtube-frame {
+    .youtube-frame,
+    .tiktok-frame {
       width: 100%;
       height: 100%;
       border: 0;
     }
-    .youtube-modal-note {
+    .youtube-modal-note,
+    .tiktok-modal-note {
       margin: 1rem auto 0.5rem;
       max-width: 520px;
       text-align: center;
@@ -442,14 +445,16 @@
       font-size: clamp(0.85rem, 2.2vw, 0.95rem);
       line-height: 1.5;
     }
-    .youtube-modal-actions {
+    .youtube-modal-actions,
+    .tiktok-modal-actions {
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 0.75rem;
       padding: 0 1.5rem 1.5rem;
     }
-    .youtube-modal-link {
+    .youtube-modal-link,
+    .tiktok-modal-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -464,7 +469,9 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .youtube-modal-link:hover,
-    .youtube-modal-link:focus {
+    .youtube-modal-link:focus,
+    .tiktok-modal-link:hover,
+    .tiktok-modal-link:focus {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
@@ -818,6 +825,10 @@
         <div class="youtube-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Paul's YouTube" aria-controls="youtubeModalContainer" tabindex="0" data-open-target="youtubeModalContainer" data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg">
             <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube Channel" class="picture-game-float-icon" />
         </div>
+        <!-- Omoluabi TikTok Floating Icon -->
+        <div class="tiktok-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Paul's TikTok" aria-controls="tiktokModalContainer" tabindex="0" data-open-target="tiktokModalContainer" data-open-src="https://www.tiktok.com/embed/@omoluabi1003">
+            <img src="icons/tiktok.svg" alt="Omoluabi Paul TikTok Profile" class="picture-game-float-icon" />
+        </div>
         <!-- Picture Game Floating Icon -->
         <div class="picture-game-bubble-container edge-panel-launcher" role="button" aria-label="Open Picture Game" aria-controls="pictureGameContainer" tabindex="0" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html">
             <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
@@ -861,6 +872,30 @@
     <div class="youtube-modal-actions">
         <a class="youtube-modal-link" href="https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV" target="_blank" rel="noopener noreferrer">
             Open full channel on YouTube
+        </a>
+    </div>
+</div>
+
+<!-- Omoluabi Paul TikTok Container -->
+<div id="tiktokModalContainer" class="chatbot-container" role="dialog" aria-labelledby="tiktokModalTitle">
+    <button class="popup-close ripple shockwave" data-close-target="tiktokModalContainer" aria-label="Close Omoluabi Paul's TikTok">×</button>
+    <h3 id="tiktokModalTitle" class="modal-title">Omoluabi Paul on TikTok</h3>
+    <div class="tiktok-embed-wrapper">
+        <iframe
+            class="tiktok-frame"
+            src="https://www.tiktok.com/embed/@omoluabi1003"
+            data-default-src="https://www.tiktok.com/embed/@omoluabi1003"
+            title="Omoluabi Paul TikTok uploads"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="encrypted-media; fullscreen"
+            allowfullscreen>
+        </iframe>
+    </div>
+    <p class="tiktok-modal-note">Catch Omoluabi Paul's latest TikTok videos right inside Àríyò AI. If the embed doesn't load, you can open the profile directly on TikTok.</p>
+    <div class="tiktok-modal-actions">
+        <a class="tiktok-modal-link" href="https://www.tiktok.com/@omoluabi1003" target="_blank" rel="noopener noreferrer">
+            View Omoluabi Paul on TikTok
         </a>
     </div>
 </div>
