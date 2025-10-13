@@ -23,20 +23,76 @@
             <p>Enjoy the latest uploads without leaving Àríyò AI. The feed below streams straight from TikTok.</p>
         </header>
         <section class="tiktok-embed-area" aria-label="Embedded TikTok feed">
-            <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@omoluabi1003" data-unique-id="omoluabi1003" data-embed-type="creator" data-height="720" data-disable-focus="true">
-                <section>
-                    <a target="_blank" rel="noopener noreferrer" href="https://www.tiktok.com/@omoluabi1003">@omoluabi1003</a>
-                </section>
-            </blockquote>
+            <div class="tiktok-feed-shell">
+                <iframe
+                    class="tiktok-embed-frame"
+                    src="https://www.tiktok.com/embed/@omoluabi1003"
+                    title="Omoluabi Paul TikTok feed"
+                    loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+                <div class="tiktok-embed-loading" role="status" aria-live="polite">
+                    <span class="tiktok-spinner" aria-hidden="true"></span>
+                    <span class="tiktok-loading-text">Loading the TikTok feed…</span>
+                </div>
+            </div>
             <noscript>
                 <p class="tiktok-noscript">JavaScript is required to display the TikTok feed. You can still <a href="https://www.tiktok.com/@omoluabi1003" target="_blank" rel="noopener noreferrer">open Omoluabi Paul on TikTok</a>.</p>
             </noscript>
         </section>
-        <p class="tiktok-fallback">If the embedded feed does not load, <a href="https://www.tiktok.com/@omoluabi1003" target="_blank" rel="noopener noreferrer">open the profile on TikTok</a>.</p>
+        <p class="tiktok-fallback" role="alert">
+            We couldn't load the embedded feed. <a href="https://www.tiktok.com/@omoluabi1003" target="_blank" rel="noopener noreferrer">Open Omoluabi Paul on TikTok</a> instead.
+        </p>
     </main>
-    <script async src="https://www.tiktok.com/embed.js"></script>
     <script src="../../color-scheme.js"></script>
     <script>changeColorScheme();</script>
     <script src="../../prevent-zoom.js"></script>
+    <script>
+        const tiktokFrame = document.querySelector('.tiktok-embed-frame');
+        const loadingState = document.querySelector('.tiktok-embed-loading');
+        const fallbackNotice = document.querySelector('.tiktok-fallback');
+        let fallbackShown = false;
+
+        function hideLoading() {
+            loadingState?.classList.add('is-hidden');
+        }
+
+        function showFallback() {
+            if (fallbackShown) {
+                return;
+            }
+
+            fallbackShown = true;
+
+            if (loadingState) {
+                loadingState.classList.add('has-error');
+                const loadingText = loadingState.querySelector('.tiktok-loading-text');
+                if (loadingText) {
+                    loadingText.textContent = 'The TikTok feed is taking longer than expected to load.';
+                }
+            }
+
+            fallbackNotice?.classList.add('is-visible');
+        }
+
+        if (tiktokFrame) {
+            tiktokFrame.addEventListener('load', () => {
+                tiktokFrame.dataset.ready = 'true';
+                hideLoading();
+            });
+
+            tiktokFrame.addEventListener('error', () => {
+                showFallback();
+            });
+
+            window.setTimeout(() => {
+                if (!tiktokFrame.dataset.ready) {
+                    showFallback();
+                }
+            }, 12000);
+        }
+    </script>
 </body>
 </html>
