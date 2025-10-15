@@ -275,7 +275,9 @@
       }
 
       mainContent.classList.remove('about-us-active');
-      gsap.to(mainContent, { opacity: 1, duration: 0.5 });
+      if (window.gsap) {
+        window.gsap.to(mainContent, { opacity: 1, duration: 0.5 });
+      }
     }
 
     /* BACKGROUND CYCLER */
@@ -457,18 +459,24 @@
     // GSAP Sidebar Button Animations
     document.querySelectorAll('.sidebar button').forEach(button => {
       button.addEventListener('mouseenter', () => {
-        gsap.to(button, { scale: 1.08, duration: 0.3, ease: "power2.out" });
+        if (window.gsap) {
+          window.gsap.to(button, { scale: 1.08, duration: 0.3, ease: "power2.out" });
+        }
       });
       button.addEventListener('mouseleave', () => {
-        gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
+        if (window.gsap) {
+          window.gsap.to(button, { scale: 1, duration: 0.3, ease: "power2.out" });
+        }
       });
       button.addEventListener('click', () => {
-        gsap.to(button, {
-          scale: 0.95,
-          duration: 0.1,
-          ease: "power1.in",
-          onComplete: () => gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
-        });
+        if (window.gsap) {
+          window.gsap.to(button, {
+            scale: 0.95,
+            duration: 0.1,
+            ease: "power1.in",
+            onComplete: () => window.gsap.to(button, { scale: 1, duration: 0.2, ease: "bounce.out" })
+          });
+        }
       });
     });
 
@@ -634,17 +642,17 @@
     changeColorScheme();
 
     // Dynamic Edge Panel Height
-    const edgePanel = document.getElementById('edgePanel');
-    const edgePanelContent = document.querySelector('.edge-panel-content');
-    if (edgePanel && edgePanelContent) {
-        const icons = edgePanelContent.querySelectorAll('.edge-panel-launcher');
+    const mainEdgePanel = document.getElementById('edgePanel');
+    const mainEdgePanelContent = document.querySelector('.edge-panel-content');
+    if (mainEdgePanel && mainEdgePanelContent) {
+        const icons = mainEdgePanelContent.querySelectorAll('.edge-panel-launcher');
         const iconHeight = 40; // height of each icon matches CSS
         const iconSpacing = 10; // spacing between icons matches CSS gap
         const panelPadding = 20; // top and bottom padding of the panel
         const iconCount = icons.length;
         if (iconCount > 0) {
             const panelHeight = (iconCount * iconHeight) + ((iconCount - 1) * iconSpacing) + (2 * panelPadding);
-            edgePanel.style.height = `${panelHeight}px`;
+            mainEdgePanel.style.height = `${panelHeight}px`;
         }
     }
 
