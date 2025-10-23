@@ -216,7 +216,6 @@ const PANEL_IDS = [
     'connectFourContainer',
     'cyclePrecisionContainer',
     'youtubeModalContainer',
-    'tiktokModalContainer',
     'aboutModalContainer'
 ];
 
@@ -248,12 +247,6 @@ const PANEL_LOAD_CONFIG = {
         errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
         supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
         supportLinkLabel: 'Open channel on YouTube'
-    },
-    tiktokModalContainer: {
-        loadingMessage: 'Loading Omoluabi Paul\'s embedded TikTok feed…',
-        errorMessage: 'The TikTok feed wouldn\'t load inside Àríyò AI. Please retry or open the full profile.',
-        supportLink: 'https://www.tiktok.com/@omoluabi1003',
-        supportLinkLabel: 'Open profile on TikTok'
     }
 };
 
@@ -552,6 +545,21 @@ function syncPanelSource(panel, trigger) {
 
     if (!desiredSrc) return;
 
+    if (panel.id === 'youtubeModalContainer') {
+        try {
+            const preparedUrl = new URL(desiredSrc, window.location.origin);
+            if (!preparedUrl.searchParams.has('enablejsapi')) {
+                preparedUrl.searchParams.set('enablejsapi', '1');
+            }
+            if (!preparedUrl.searchParams.has('origin')) {
+                preparedUrl.searchParams.set('origin', window.location.origin);
+            }
+            desiredSrc = preparedUrl.toString();
+        } catch (error) {
+            console.warn('Unable to prepare YouTube embed URL:', error);
+        }
+    }
+
     const loadedSrc = iframe.getAttribute('data-loaded-src') || iframe.getAttribute('src') || '';
     if (loadedSrc !== desiredSrc) {
         iframe.setAttribute('src', desiredSrc);
@@ -560,6 +568,41 @@ function syncPanelSource(panel, trigger) {
         iframe.setAttribute('data-loaded-src', loadedSrc);
     }
 }
+
+function stopYouTubePlayback() {
+    const panel = getPanelElement('youtubeModalContainer');
+    if (!panel) return false;
+
+    const iframe = panel.querySelector('iframe');
+    if (!iframe) return false;
+
+    let commandSent = false;
+    try {
+        if (iframe.contentWindow) {
+            const message = JSON.stringify({ event: 'command', func: 'stopVideo', args: [] });
+            iframe.contentWindow.postMessage(message, '*');
+            commandSent = true;
+        }
+    } catch (error) {
+        console.warn('Failed to send YouTube stop command:', error);
+    }
+
+    if (!commandSent) {
+        const defaultSrc = iframe.getAttribute('data-default-src');
+        if (defaultSrc) {
+            iframe.setAttribute('src', 'about:blank');
+            iframe.removeAttribute('data-loaded-src');
+            setTimeout(() => {
+                iframe.setAttribute('src', defaultSrc);
+                iframe.setAttribute('data-loaded-src', defaultSrc);
+            }, 100);
+        }
+    }
+
+    return commandSent;
+}
+
+window.stopYouTubePlayback = stopYouTubePlayback;
 
 function openPanel(targetId, trigger = null) {
     const panel = getPanelElement(targetId);
@@ -582,6 +625,10 @@ function openPanel(targetId, trigger = null) {
 function closePanel(targetId) {
     const panel = getPanelElement(targetId);
     if (!panel) return;
+
+    if (targetId === 'youtubeModalContainer') {
+        stopYouTubePlayback();
+    }
 
     panel.style.display = 'none';
     clearPanelTimeout(targetId);

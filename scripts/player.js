@@ -900,6 +900,13 @@ function selectRadio(src, title, index, logo) {
       resumeAudioContext();
       loadingSpinner.style.display = 'none';
       albumCover.style.display = 'block';
+      if (typeof window !== 'undefined' && typeof window.stopYouTubePlayback === 'function') {
+        try {
+          window.stopYouTubePlayback();
+        } catch (error) {
+          console.warn('Unable to stop YouTube playback before starting media player:', error);
+        }
+      }
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
