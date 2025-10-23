@@ -655,6 +655,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       currentTrackIndex = index;
       currentRadioIndex = -1;
       const params = new URLSearchParams(window.location.search);
+      params.delete('station');
       params.set('album', slugify(albums[currentAlbumIndex].name));
       params.set('track', slugify(title));
       window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
@@ -705,6 +706,7 @@ function selectRadio(src, title, index, logo) {
       resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
+      const station = radioStations[index];
       currentRadioIndex = index;
       currentTrackIndex = -1;
       shuffleQueue = [];
@@ -712,6 +714,11 @@ function selectRadio(src, title, index, logo) {
       const params = new URLSearchParams(window.location.search);
       params.delete('album');
       params.delete('track');
+      if (station) {
+        params.set('station', slugify(station.name));
+      } else {
+        params.delete('station');
+      }
       const newQuery = params.toString();
       window.history.replaceState({}, '', `${window.location.pathname}${newQuery ? '?' + newQuery : ''}`);
       lastTrackSrc = src;

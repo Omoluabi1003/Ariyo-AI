@@ -10,17 +10,30 @@
       let shareUrl = ensureHttps(window.location.href);
       let shareTitle = "Àríyò AI - Smart Naija AI";
       let shareText = "Check out this awesome page!";
+      let qrLabel = shareTitle;
 
-      if (typeof currentAlbumIndex !== 'undefined' && currentRadioIndex === -1) {
-        const album = albums[currentAlbumIndex];
-        const track = album.tracks[currentTrackIndex];
-        shareUrl = ensureHttps(`${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`);
-        shareTitle = `Listening to ${track.title}`;
-        shareText = `I'm listening to ${track.title} on Àríyò AI!`;
-        showQRCode(shareUrl, track.title);
-      } else {
-        showQRCode(shareUrl, shareTitle);
+      const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
+
+      if (playback && playback.type === 'track') {
+        const album = albums[playback.albumIndex];
+        const track = album && album.tracks ? album.tracks[playback.trackIndex] : null;
+        if (album && track) {
+          shareUrl = ensureHttps(`${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`);
+          shareTitle = `Listening to ${track.title}`;
+          shareText = `I'm listening to ${track.title} on Àríyò AI!`;
+          qrLabel = `${track.title} — ${album.name}`;
+        }
+      } else if (playback && playback.type === 'radio') {
+        const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
+        if (station) {
+          shareTitle = `Listening to ${station.name}`;
+          shareText = `I'm listening to ${station.name} on Àríyò AI!`;
+          shareUrl = ensureHttps(`${baseUrl}?station=${slugify(station.name)}`);
+          qrLabel = `${station.name} (${station.location})`;
+        }
       }
+
+      showQRCode(shareUrl, qrLabel);
 
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
 
@@ -361,8 +374,22 @@
 
     function initializePlayer() {
       const params = new URLSearchParams(window.location.search);
+      const stationParam = params.get('station');
       const albumParam = params.get('album');
       const trackParam = params.get('track');
+      if (stationParam) {
+        const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
+        if (stationIndex !== -1) {
+          const station = radioStations[stationIndex];
+          selectRadio(
+            station.url,
+            `${station.name} - ${station.location}`,
+            stationIndex,
+            station.logo
+          );
+          return;
+        }
+      }
       if (albumParam && trackParam) {
         const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
         if (albumIndex !== -1) {
