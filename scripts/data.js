@@ -132,6 +132,7 @@ const albums = [
           name: 'Omoluabi Production Catalogue',
           cover: `${BASE_URL}Logo.jpg`,
           tracks: [
+            { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
             { src: 'https://cdn1.suno.ai/5c17dd10-1770-467a-947a-db773c72ec78.mp3', title: 'Watchman' },
             { src: 'https://cdn1.suno.ai/fb1daddf-1de4-4164-bb9d-113f9639d732.mp3', title: 'Ọmọlúàbí' },
             { src: 'https://cdn1.suno.ai/d3ec2b0a-6062-417f-a62c-4d746f7f4f57.mp3', title: 'Take The Risk' },
@@ -176,6 +177,12 @@ const albums = [
     ];
 
 const latestTracks = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Persecutory Paranoia',
+    src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3',
+    addedOn: '2025-10-29'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'She Said No (Franca Viola Story)',
