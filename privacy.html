@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Àríyò AI Privacy & Data Use</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #020b08;
+      color: #f6f8f7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      width: 100%;
+      padding: clamp(1.5rem, 5vw, 3rem);
+      background: linear-gradient(135deg, #12B76A, #054d3b);
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    main {
+      width: min(960px, 92vw);
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 18px;
+      padding: clamp(1.5rem, 4vw, 2.75rem);
+      margin: clamp(1.5rem, 4vw, 3rem) auto;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      letter-spacing: 0.03em;
+    }
+    h2 {
+      margin-top: 2rem;
+      font-size: clamp(1.35rem, 3vw, 1.75rem);
+      color: #4ce19d;
+    }
+    p, li {
+      line-height: 1.6;
+      font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+    }
+    ul {
+      padding-left: 1.2rem;
+      margin: 0.75rem 0 0 0;
+    }
+    a {
+      color: #4ce19d;
+    }
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 1.5rem 1rem 3rem;
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+      color: rgba(255, 255, 255, 0.75);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Àríyò AI Privacy & Data Use</h1>
+    <p>Clear notes on how the studio handles audio streams, chat prompts, and visit analytics.</p>
+  </header>
+  <main>
+    <section>
+      <h2>What we collect</h2>
+      <ul>
+        <li><strong>Visit analytics:</strong> when you open Àríyò AI we create a random ID in your browser’s <code>localStorage</code> so we can count unique visitors. We send anonymous visit totals to <a href="https://countapi.xyz/">CountAPI</a> and, only for new visitors, a short notification via <a href="https://formsubmit.co/">FormSubmit</a>. No names, emails, or IP addresses are stored by us.</li>
+        <li><strong>Chat prompts:</strong> Àríyò AI chat and Sabi Bible run inside Zapier-hosted bots. Anything you type in those panels is processed and stored by Zapier according to their <a href="https://zapier.com/privacy">privacy policy</a>. We do not keep a copy of your conversations.</li>
+        <li><strong>Embedded media:</strong> Radio stations, Suno audio files, and YouTube videos stream directly from their respective hosts. Those providers may log standard metadata (IP address, device type, play counts) when media loads.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>How we use the information</h2>
+      <ul>
+        <li>Monitor overall traffic and performance so we can keep Àríyò AI fast and stable.</li>
+        <li>Spot when new listeners discover the experience and celebrate the milestone.</li>
+        <li>Improve prompt suggestions and cultural coverage by reviewing anonymous usage trends.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Your choices</h2>
+      <ul>
+        <li>Clear the <code>localStorage</code> entry named <code>ariyoUserId</code> (or use your browser’s “clear site data” option) to reset your anonymous visitor ID.</li>
+        <li>Mute or stop the welcome audio from the speaker button; we only preload a track after you interact.</li>
+        <li>Avoid or close the chat/Bible panels if you do not want Zapier to process your prompts.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Third-party services</h2>
+      <ul>
+        <li><strong>Zapier</strong> for chatbot hosting.</li>
+        <li><strong>CountAPI</strong> for aggregate visit counters.</li>
+        <li><strong>FormSubmit</strong> to notify the creator about brand-new visitors.</li>
+        <li><strong>YouTube, Suno, and curated radio streams</strong> for media playback.</li>
+      </ul>
+      <p>Each service has its own privacy commitments. Review their policies if you want the full details.</p>
+    </section>
+
+    <section>
+      <h2>Need help or want data removed?</h2>
+      <p>Reach out to Omoluabi Productions at <a href="mailto:pakiyogun10@gmail.com">pakiyogun10@gmail.com</a>. We will respond to removal or clarification requests as quickly as possible.</p>
+      <p>This page was last updated in July 2024. Major changes will be announced inside the Àríyò AI experience.</p>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2024 Omoluabi Productions — <a href="index.html">Return to Àríyò AI</a></p>
+  </footer>
+</body>
+</html>

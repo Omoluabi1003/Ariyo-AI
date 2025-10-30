@@ -291,21 +291,38 @@ a {
 #speaker-container {
     position: absolute;
     z-index: 2;
-    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/speaker.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    width: 60px;
-    height: 60px;
     top: calc(env(safe-area-inset-top) + 0.75rem);
     right: calc(env(safe-area-inset-right) + 0.75rem);
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-color, #12B76A);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#speaker-container:focus-visible {
+    outline: none;
+    border-color: var(--theme-color, #12B76A);
+    box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.45);
+}
+
+#speaker-container[aria-pressed="true"],
+#speaker-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
 #speaker-icon {
     animation: bounce 1s infinite;
     width: 36px;
     height: 36px;
-    fill: var(--theme-color, #12B76A);
-    stroke: var(--theme-color, #12B76A);
+    fill: currentColor;
+    stroke: currentColor;
 }
 .floating-watermarks {
     pointer-events: none;

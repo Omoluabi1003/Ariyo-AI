@@ -671,17 +671,56 @@
     // Dynamic Edge Panel Height
     const mainEdgePanel = document.getElementById('edgePanel');
     const mainEdgePanelContent = document.querySelector('.edge-panel-content');
+    const updateEdgePanelHeight = () => {
+        if (!mainEdgePanel || !mainEdgePanelContent) return;
+        const desiredHeight = mainEdgePanelContent.scrollHeight + 8;
+        mainEdgePanel.style.height = `${desiredHeight}px`;
+    };
+
     if (mainEdgePanel && mainEdgePanelContent) {
-        const icons = mainEdgePanelContent.querySelectorAll('.edge-panel-launcher');
-        const iconHeight = 40; // height of each icon matches CSS
-        const iconSpacing = 10; // spacing between icons matches CSS gap
-        const panelPadding = 20; // top and bottom padding of the panel
-        const iconCount = icons.length;
-        if (iconCount > 0) {
-            const panelHeight = (iconCount * iconHeight) + ((iconCount - 1) * iconSpacing) + (2 * panelPadding);
-            mainEdgePanel.style.height = `${panelHeight}px`;
-        }
+        requestAnimationFrame(updateEdgePanelHeight);
+        window.addEventListener('resize', updateEdgePanelHeight);
+        window.addEventListener('orientationchange', updateEdgePanelHeight);
     }
+
+    const sidebarToggle = document.querySelector('.mobile-sidebar-toggle');
+    const appContainer = document.querySelector('.container');
+    const sidebarNav = document.getElementById('sidebarNavigation');
+
+    if (sidebarNav && !sidebarNav.hasAttribute('tabindex')) {
+        sidebarNav.setAttribute('tabindex', '-1');
+    }
+
+    const updateSidebarAriaState = () => {
+        if (!sidebarNav) return;
+        const isMobile = window.matchMedia('(max-width: 900px)').matches;
+        const isOpen = appContainer && appContainer.classList.contains('mobile-sidebar-open');
+        sidebarNav.setAttribute('aria-hidden', isMobile && !isOpen ? 'true' : 'false');
+        if (!isMobile) {
+            if (appContainer) {
+                appContainer.classList.remove('mobile-sidebar-open');
+            }
+            if (sidebarToggle) {
+                sidebarToggle.setAttribute('aria-expanded', 'false');
+            }
+            sidebarNav.removeAttribute('aria-hidden');
+        }
+    };
+
+    if (sidebarToggle && appContainer && sidebarNav) {
+        sidebarToggle.addEventListener('click', () => {
+            const isOpen = appContainer.classList.toggle('mobile-sidebar-open');
+            sidebarToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            updateSidebarAriaState();
+            if (isOpen) {
+                requestAnimationFrame(() => sidebarNav.focus());
+            }
+        });
+    }
+
+    window.addEventListener('resize', updateSidebarAriaState);
+    window.addEventListener('orientationchange', updateSidebarAriaState);
+    updateSidebarAriaState();
 
     // Add this to your main.js file
     document.addEventListener('DOMContentLoaded', function() {
