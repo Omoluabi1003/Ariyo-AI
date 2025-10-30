@@ -253,6 +253,32 @@ const PANEL_LOAD_CONFIG = {
 const panelStates = {};
 const panelLoadTimers = {};
 const panelOverlays = {};
+const panelLastTrigger = new Map();
+const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+function preparePanelForAccessibility(panel) {
+    if (!panel) return;
+    if (!panel.hasAttribute('tabindex')) {
+        panel.setAttribute('tabindex', '-1');
+    }
+    const displayState = window.getComputedStyle(panel).display;
+    panel.setAttribute('aria-hidden', displayState === 'none' ? 'true' : 'false');
+}
+
+function focusFirstElement(panel) {
+    if (!panel) return;
+    const closeButton = panel.querySelector('.popup-close');
+    if (closeButton) {
+        closeButton.focus();
+        return;
+    }
+    const focusable = panel.querySelector(focusableSelector);
+    if (focusable) {
+        focusable.focus();
+        return;
+    }
+    panel.focus();
+}
 
 function getPanelElement(id) {
     if (!panelRegistry[id]) {
@@ -262,11 +288,13 @@ function getPanelElement(id) {
 }
 
 function initializePanelLoadTracking(panelId) {
-    const config = PANEL_LOAD_CONFIG[panelId];
-    if (!config) return;
-
     const panel = getPanelElement(panelId);
     if (!panel) return;
+
+    preparePanelForAccessibility(panel);
+
+    const config = PANEL_LOAD_CONFIG[panelId];
+    if (!config) return;
 
     const iframe = panel.querySelector('iframe');
     if (!iframe) return;
@@ -619,6 +647,12 @@ function openPanel(targetId, trigger = null) {
     beginPanelLoad(targetId);
 
     panel.style.display = 'block';
+    panel.setAttribute('aria-hidden', 'false');
+    const opener = trigger || document.activeElement;
+    if (opener) {
+        panelLastTrigger.set(targetId, opener);
+    }
+    requestAnimationFrame(() => focusFirstElement(panel));
     updateEdgePanelBehavior();
 }
 
@@ -631,8 +665,15 @@ function closePanel(targetId) {
     }
 
     panel.style.display = 'none';
+    panel.setAttribute('aria-hidden', 'true');
     clearPanelTimeout(targetId);
     updateEdgePanelBehavior();
+
+    const lastTrigger = panelLastTrigger.get(targetId);
+    if (lastTrigger && typeof lastTrigger.focus === 'function') {
+        lastTrigger.focus();
+    }
+    panelLastTrigger.delete(targetId);
 }
 
 function openAboutModal() {
@@ -721,6 +762,9 @@ function closeCyclePrecision() {
 
     const edgePanel = document.getElementById('edgePanel');
     const edgePanelHandle = document.querySelector('.edge-panel-handle');
+    const EDGE_PANEL_HIDDEN_X = '-160px';
+    const EDGE_PANEL_PEEK_X = '-32px';
+    const EDGE_PANEL_VISIBLE_X = '0';
     let isDragging = false;
     let initialX;
     let initialRight;
@@ -747,10 +791,10 @@ function closeCyclePrecision() {
             const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
             if (finalRight < -40) {
                 edgePanel.classList.remove('visible');
-                edgePanel.style.right = '-70px';
+                edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
             } else {
                 edgePanel.classList.add('visible');
-                edgePanel.style.right = '0';
+                edgePanel.style.right = EDGE_PANEL_VISIBLE_X;
             }
         }
     });
@@ -759,16 +803,16 @@ function closeCyclePrecision() {
         if (!isDragging) {
             edgePanel.classList.toggle('visible');
             if (edgePanel.classList.contains('visible')) {
-                edgePanel.style.right = '0';
+                edgePanel.style.right = EDGE_PANEL_VISIBLE_X;
             } else {
-                edgePanel.style.right = '-70px';
+                edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
             }
         }
     });
 
     function closeEdgePanel() {
         edgePanel.classList.remove('visible');
-        edgePanel.style.right = '-70px';
+        edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
     }
 
 
@@ -782,13 +826,13 @@ function closeCyclePrecision() {
 
         // Automatically pop out the panel shortly after page load
         setTimeout(() => {
-            edgePanel.style.right = '-20px';
+            edgePanel.style.right = EDGE_PANEL_PEEK_X;
             edgePanel.classList.add('visible');
 
             // And retract it after a few seconds
             setTimeout(() => {
                 if (!chatbotWindowOpen) { // Check again in case a panel was opened
-                    edgePanel.style.right = '-70px';
+                    edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
                     edgePanel.classList.remove('visible');
                 }
             }, 5000);

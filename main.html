@@ -91,7 +91,6 @@
       text-align: center;
     }
     .share-button {
-      margin-left: auto;
       background-color: var(--theme-color);
       color: white;
       padding: 0.6rem;
@@ -122,6 +121,36 @@
       }
     }
     .share-button:hover { background-color: var(--theme-color); }
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .mobile-sidebar-toggle {
+      display: none;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      gap: 0.35rem;
+      align-items: center;
+      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .mobile-sidebar-toggle i {
+      font-size: 1.05rem;
+    }
+    .mobile-sidebar-toggle:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.45);
+      border-color: var(--theme-color);
+    }
+    .mobile-sidebar-toggle:hover {
+      background: rgba(18, 183, 106, 0.35);
+    }
     .container {
       flex: 1;
       display: flex;
@@ -169,6 +198,53 @@
       transition: opacity 0.5s ease-in-out;
       padding-bottom: 20rem; /* Add padding to avoid overlap */
     }
+    .in-app-guide {
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 18px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      color: #f5f5f5;
+      backdrop-filter: blur(4px);
+    }
+    .in-app-guide > summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .in-app-guide[open] > summary::after {
+      content: '▲';
+      font-size: 0.8rem;
+    }
+    .in-app-guide:not([open]) > summary::after {
+      content: '▼';
+      font-size: 0.8rem;
+    }
+    .in-app-guide summary::-webkit-details-marker {
+      display: none;
+    }
+    .in-app-guide-body {
+      margin-top: 0.75rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+    .in-app-guide-list {
+      padding-left: 1.25rem;
+      margin: 0;
+      display: grid;
+      gap: 0.5rem;
+    }
+    .edge-panel-hint {
+      background: rgba(18, 183, 106, 0.2);
+      border-left: 3px solid var(--theme-color);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      font-size: clamp(0.85rem, 2.4vw, 0.95rem);
+    }
     .music-player {
       background: transparent;
       padding: 1rem;
@@ -187,6 +263,38 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .content {
+        order: 1;
+        padding: 1.25rem;
+      }
+      .sidebar {
+        order: 2;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 18px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        padding: 1rem;
+        display: none;
+      }
+      .sidebar button {
+        width: 100%;
+      }
+      .mobile-sidebar-toggle {
+        display: inline-flex;
+      }
+      .container.mobile-sidebar-open #sidebarNavigation {
+        display: flex;
+      }
+      #sidebarNavigation {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
     }
     .album-cover {
       width: clamp(100px, 25vw, 180px);
@@ -361,13 +469,14 @@
     .edge-panel {
         position: fixed;
         top: 50%;
-        right: -70px;
+        right: -160px;
         transform: translateY(-50%);
-        width: 80px;
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 10px 0 0 10px;
+        width: min(190px, 60vw);
+        background-color: rgba(0, 0, 0, 0.65);
+        border-radius: 16px 0 0 16px;
         transition: right 0.3s ease-in-out;
         z-index: 10000;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
     }
     .edge-panel.visible {
         right: 0;
@@ -394,9 +503,9 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
-        gap: 10px;
-        padding: 20px 0;
+        align-items: stretch;
+        gap: 12px;
+        padding: 20px 12px;
         height: 100%;
     }
     .tap-area {
@@ -421,6 +530,81 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
     }
+    .edge-panel-intro {
+      font-size: clamp(0.78rem, 2.2vw, 0.9rem);
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      line-height: 1.4;
+      padding: 0 0.4rem;
+    }
+    .edge-panel-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.55rem 0.6rem;
+      border-radius: 12px;
+      background: rgba(13, 45, 32, 0.55);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+      border-width: 1px;
+      border-style: solid;
+      font: inherit;
+      appearance: none;
+      background-clip: padding-box;
+    }
+    .edge-panel-item:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.5);
+    }
+    .edge-panel-item:hover {
+      transform: translateX(-2px);
+      background: rgba(18, 183, 106, 0.35);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.35);
+    }
+    .edge-panel-item img {
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+      margin-top: 0.15rem;
+    }
+    .edge-panel-label {
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      line-height: 1.3;
+      display: block;
+    }
+    .edge-panel-label strong {
+      display: block;
+      font-size: clamp(0.8rem, 2.1vw, 0.95rem);
+    }
+    .edge-panel-privacy {
+      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      text-align: center;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.75);
+    }
+    .edge-panel-privacy a {
+      color: var(--theme-color);
+      text-decoration: underline;
+    }
+    .app-footer {
+      text-align: center;
+      padding: 1rem clamp(1rem, 4vw, 2rem);
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      color: rgba(255,255,255,0.78);
+      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.55);
+      margin: 0;
+    }
+    .app-footer a {
+      color: var(--theme-color);
+      text-decoration: underline;
+    }
     .youtube-embed-wrapper {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -441,6 +625,29 @@
       color: #333;
       font-size: clamp(0.85rem, 2.2vw, 0.95rem);
       line-height: 1.5;
+    }
+    .modal-tagline {
+      margin: 0.5rem auto 0.75rem;
+      max-width: 560px;
+      text-align: center;
+      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+      color: rgba(18, 24, 33, 0.82);
+      line-height: 1.5;
+    }
+    .quick-start-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1rem;
+      display: grid;
+      gap: 0.5rem;
+    }
+    .quick-start-list li {
+      background: rgba(18, 183, 106, 0.18);
+      border-radius: 12px;
+      padding: 0.6rem 0.8rem;
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
+      color: rgba(18, 24, 33, 0.85);
+      border: 1px solid rgba(18, 183, 106, 0.25);
     }
     .youtube-modal-actions {
       display: flex;
@@ -673,13 +880,19 @@
   <div class="header">
     <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" />
     <span class="header-title">Àríyò AI Studio</span>
-    <button class="share-button" aria-label="Share this page" onclick="shareContent()">
-      <i class="fas fa-share-alt"></i>
-    </button>
+    <div class="header-actions">
+      <button class="mobile-sidebar-toggle" type="button" aria-controls="sidebarNavigation" aria-expanded="false">
+        <span class="mobile-sidebar-toggle-label">Menu</span>
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+      <button class="share-button" aria-label="Share this page" onclick="shareContent()">
+        <i class="fas fa-share-alt"></i>
+      </button>
+    </div>
   </div>
 
   <div class="container">
-    <div class="sidebar">
+    <div class="sidebar" id="sidebarNavigation">
       <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
       <datalist id="searchSuggestions"></datalist>
       <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave"><i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album</button>
@@ -689,9 +902,27 @@
       <button onclick="openAboutModal()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
     </div>
     <div class="content" id="main-content">
+      <details class="in-app-guide" open>
+        <summary>What’s inside Àríyò AI?</summary>
+        <div class="in-app-guide-body">
+          <p class="in-app-guide-intro">Keep this cheat sheet handy while you explore—no need to hop back to the landing page to remember where everything lives.</p>
+          <ul class="in-app-guide-list">
+            <li><strong>Music player &amp; radio:</strong> spin Omoluabi catalog cuts, latest uploads, or jump into Naija/West African stations.</li>
+            <li><strong>Àríyò chat:</strong> ask cultural questions, get music recs, or explore Yoruba idioms with the resident AI.</li>
+            <li><strong>Sabi Bible:</strong> bilingual verse lookups with Yoruba and English explanations tailored for Naija believers.</li>
+            <li><strong>Games &amp; learning:</strong> launch Picture Game, Tetris, Word Search, Ara Connect-4, or Cycle Precision for quick brain breaks.</li>
+            <li><strong>Creator corner:</strong> watch Omoluabi Paul on YouTube or read more inside the About modal.</li>
+          </ul>
+        </div>
+      </details>
+      <div class="edge-panel-hint" role="note">Tap the right-hand edge panel or use the inline labels below to jump directly into chat, Bible study, video, or puzzle modes.</div>
       <div id="newsContainer" class="news-container" style="display: none;"></div>
     </div>
   </div>
+
+  <footer class="app-footer">
+    <p>&copy; 2024 Omoluabi Productions. Crafted in Naija with love. <a href="privacy.html">Privacy &amp; data use</a></p>
+  </footer>
 
   <!-- Music Player -->
   <div class="music-player">
@@ -806,45 +1037,48 @@
 <div class="edge-panel" id="edgePanel">
     <div class="edge-panel-handle"></div>
     <div class="edge-panel-content">
-        <!-- Ariyo AI Floating Icon -->
-        <div class="chatbot-bubble-container edge-panel-launcher" role="button" aria-label="Open Ariyo AI" aria-controls="ariyoChatbotContainer" tabindex="0" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI Icon" class="picture-game-float-icon" />
-        </div>
-        <!-- Sabi Bible Floating Icon -->
-        <div class="chatbot-bubble-container edge-panel-launcher" role="button" aria-label="Open Sabi Bible" aria-controls="sabiBibleContainer" tabindex="0" data-open-target="sabiBibleContainer" data-open-src="apps/sabi-bible/sabi-bible.html">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible Icon" class="picture-game-float-icon" />
-        </div>
-        <!-- Omoluabi YouTube Floating Icon -->
-        <div class="youtube-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Paul's YouTube" aria-controls="youtubeModalContainer" tabindex="0" data-open-target="youtubeModalContainer" data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1">
-            <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube Channel" class="picture-game-float-icon" />
-        </div>
-        <!-- Picture Game Floating Icon -->
-        <div class="picture-game-bubble-container edge-panel-launcher" role="button" aria-label="Open Picture Game" aria-controls="pictureGameContainer" tabindex="0" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game Icon" class="picture-game-float-icon" />
-        </div>
-        <!-- Omoluabi Tetris Floating Icon -->
-        <div class="tetris-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Tetris" aria-controls="tetrisGameContainer" tabindex="0" data-open-target="tetrisGameContainer" data-open-src="apps/tetris/tetris.html">
-            <img src="icons/tetris.svg" alt="Omoluabi Tetris Game Icon" class="picture-game-float-icon" />
-        </div>
-        <!-- Omoluabi Word Search Floating Icon -->
-        <div class="word-search-bubble-container edge-panel-launcher" role="button" aria-label="Open Omoluabi Word Search" aria-controls="wordSearchContainer" tabindex="0" data-open-target="wordSearchContainer" data-open-src="apps/word-search/word-search.html">
-            <img src="icons/word-search.svg" alt="Omoluabi Word Search Game Icon" class="picture-game-float-icon" />
-        </div>
-        <!-- Ara Connect-4 Floating Icon -->
-        <div class="connect-four-bubble-container edge-panel-launcher" role="button" aria-label="Open Ara Connect-4" aria-controls="connectFourContainer" tabindex="0" data-open-target="connectFourContainer" data-open-src="apps/connect-four/connect-four.html">
-            <img src="icons/connect-four.svg" alt="Ara Connect-4 Game Icon" class="picture-game-float-icon" />
-        </div>
-        <!-- Cycle Precision Floating Icon -->
-        <div class="cycle-precision-bubble-container edge-panel-launcher" role="button" aria-label="Open Cycle Precision" aria-controls="cyclePrecisionContainer" tabindex="0" data-open-target="cyclePrecisionContainer" data-open-src="apps/cycle-precision/cycle-precision.html">
-            <img src="icons/blood.svg" alt="Cycle Precision Icon" class="cycle-precision-float-icon" />
-        </div>
+        <p class="edge-panel-intro">Quick launch hub</p>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="ariyoChatbotContainer" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" aria-describedby="edgeLabelAriyo">
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI icon" />
+            <span class="edge-panel-label" id="edgeLabelAriyo"><strong>Àríyò Chat</strong>Culture, music &amp; Naija guidance</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="sabiBibleContainer" data-open-target="sabiBibleContainer" data-open-src="apps/sabi-bible/sabi-bible.html" aria-describedby="edgeLabelBible">
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible icon" />
+            <span class="edge-panel-label" id="edgeLabelBible"><strong>Sabi Bible</strong>Yorùbá-English scripture explorer</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="youtubeModalContainer" data-open-target="youtubeModalContainer" data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1" aria-describedby="edgeLabelYouTube">
+            <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube icon" />
+            <span class="edge-panel-label" id="edgeLabelYouTube"><strong>Watch Omoluabi Paul</strong>Latest videos &amp; performances</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="pictureGameContainer" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html" aria-describedby="edgeLabelPicture">
+            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game icon" />
+            <span class="edge-panel-label" id="edgeLabelPicture"><strong>Picture Game</strong>Guess-the-scene memory challenge</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="tetrisGameContainer" data-open-target="tetrisGameContainer" data-open-src="apps/tetris/tetris.html" aria-describedby="edgeLabelTetris">
+            <img src="icons/tetris.svg" alt="Omoluabi Tetris icon" />
+            <span class="edge-panel-label" id="edgeLabelTetris"><strong>Omoluabi Tetris</strong>Classic stacker with Naija flair</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="wordSearchContainer" data-open-target="wordSearchContainer" data-open-src="apps/word-search/word-search.html" aria-describedby="edgeLabelWordSearch">
+            <img src="icons/word-search.svg" alt="Omoluabi Word Search icon" />
+            <span class="edge-panel-label" id="edgeLabelWordSearch"><strong>Word Search</strong>Find Naija people &amp; places fast</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="connectFourContainer" data-open-target="connectFourContainer" data-open-src="apps/connect-four/connect-four.html" aria-describedby="edgeLabelConnectFour">
+            <img src="icons/connect-four.svg" alt="Ara Connect-4 icon" />
+            <span class="edge-panel-label" id="edgeLabelConnectFour"><strong>Ara Connect-4</strong>Battle for four-in-a-row bragging rights</span>
+        </button>
+        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="cyclePrecisionContainer" data-open-target="cyclePrecisionContainer" data-open-src="apps/cycle-precision/cycle-precision.html" aria-describedby="edgeLabelCycle">
+            <img src="icons/blood.svg" alt="Cycle Precision icon" />
+            <span class="edge-panel-label" id="edgeLabelCycle"><strong>Cycle Precision</strong>Track &amp; learn with calm visuals</span>
+        </button>
+        <p class="edge-panel-privacy">Zapier-hosted chatbots may store prompts. <a href="privacy.html" target="_blank" rel="noopener noreferrer">Read how Àríyò AI handles data</a>.</p>
     </div>
 </div>
 
 <!-- Omoluabi Paul YouTube Container -->
-<div id="youtubeModalContainer" class="chatbot-container" role="dialog" aria-labelledby="youtubeModalTitle">
+<div id="youtubeModalContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="youtubeModalTitle" aria-describedby="youtubeModalNote">
     <button class="popup-close ripple shockwave" data-close-target="youtubeModalContainer" aria-label="Close Omoluabi Paul's YouTube">×</button>
     <h3 id="youtubeModalTitle" class="modal-title">Omoluabi Paul on YouTube</h3>
+    <p class="modal-tagline">Stream performance snippets, social commentary, and behind-the-scenes clips without leaving the studio.</p>
     <div class="youtube-embed-wrapper">
         <iframe
             class="youtube-frame"
@@ -857,7 +1091,7 @@
             allowfullscreen>
         </iframe>
     </div>
-    <p class="youtube-modal-note">Stream Omoluabi Paul's latest videos without leaving Àríyò AI. If the preview doesn't load, you can jump straight to YouTube instead.</p>
+    <p class="youtube-modal-note" id="youtubeModalNote">Stream Omoluabi Paul's latest videos without leaving Àríyò AI. If the preview doesn't load, you can jump straight to YouTube instead.</p>
     <div class="youtube-modal-actions">
         <a class="youtube-modal-link" href="https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV" target="_blank" rel="noopener noreferrer">
             Open full channel on YouTube
@@ -866,60 +1100,78 @@
 </div>
 
 <!-- Ariyo AI Chatbot Container -->
-<div id="ariyoChatbotContainer" class="chatbot-container" role="dialog" aria-labelledby="ariyoChatbotTitle">
+<div id="ariyoChatbotContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="ariyoChatbotTitle" aria-describedby="ariyoChatbotTagline">
     <button class="popup-close ripple shockwave" data-close-target="ariyoChatbotContainer" aria-label="Close Ariyo AI">×</button>
     <h3 id="ariyoChatbotTitle" class="modal-title">Àríyò AI</h3>
-    <iframe src="apps/ariyo-ai-chat/ariyo-ai-chat.html" data-default-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" style="border: none; width: 100%; height: 100%;"></iframe>
+    <p id="ariyoChatbotTagline" class="modal-tagline">“Ẹ káàbọ́!” Swap greetings, decode Naija slang, or get music tips from Àríyò without guessing what to ask first.</p>
+    <ul class="quick-start-list">
+        <li>Ask: “Explain the proverb ‘No condition is permanent’ in Yoruba and English.”</li>
+        <li>Ask: “Recommend a Fuji playlist for a Sunday afternoon hangout.”</li>
+        <li>Ask: “How do I greet elders respectfully in Benin City?”</li>
+    </ul>
+    <iframe src="apps/ariyo-ai-chat/ariyo-ai-chat.html" data-default-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" title="Àríyò AI cultural chatbot" style="border: none; width: 100%; height: 100%;"></iframe>
 </div>
 
 <!-- Sabi Bible Chatbot Container -->
-<div id="sabiBibleContainer" class="chatbot-container" role="dialog" aria-labelledby="sabiBibleTitle">
+<div id="sabiBibleContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="sabiBibleTitle" aria-describedby="sabiBibleTagline">
     <button class="popup-close ripple shockwave" data-close-target="sabiBibleContainer" aria-label="Close Sabi Bible">×</button>
     <h3 id="sabiBibleTitle" class="modal-title">Sabi Bible</h3>
-    <iframe src="apps/sabi-bible/sabi-bible.html" data-default-src="apps/sabi-bible/sabi-bible.html" style="border: none; width: 100%; height: 100%;"></iframe>
+    <p id="sabiBibleTagline" class="modal-tagline">AI-assisted verse exploration for Naija believers—switch between Yoruba and English explanations without flipping concordances.</p>
+    <ul class="quick-start-list">
+        <li>Prompt: “Show Psalm 91 in Yoruba and explain verse 2 in English.”</li>
+        <li>Prompt: “Where does the Bible talk about justice for the oppressed? Give Naija context.”</li>
+        <li>Prompt: “Give me prayers for travelling mercies in Yoruba.”</li>
+    </ul>
+    <iframe src="apps/sabi-bible/sabi-bible.html" data-default-src="apps/sabi-bible/sabi-bible.html" title="Sabi Bible Yoruba-English assistant" style="border: none; width: 100%; height: 100%;"></iframe>
 </div>
 
 <!-- Picture Game Container -->
-<div id="pictureGameContainer" class="chatbot-container" role="dialog" aria-labelledby="pictureGameTitle">
+<div id="pictureGameContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="pictureGameTitle" aria-describedby="pictureGameTagline">
     <button class="popup-close ripple shockwave" data-close-target="pictureGameContainer" aria-label="Close Picture Game">×</button>
     <h3 id="pictureGameTitle" class="modal-title">Picture Game</h3>
-    <iframe src="apps/picture-game/picture-game.html" data-default-src="apps/picture-game/picture-game.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    <p id="pictureGameTagline" class="modal-tagline">Spot Lagos landmarks and Naija icons before the reveal timer runs out.</p>
+    <iframe src="apps/picture-game/picture-game.html" data-default-src="apps/picture-game/picture-game.html" title="Picture Game photo challenge" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Omoluabi Tetris Container -->
-<div id="tetrisGameContainer" class="chatbot-container" role="dialog" aria-labelledby="tetrisGameTitle">
+<div id="tetrisGameContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="tetrisGameTitle" aria-describedby="tetrisGameTagline">
     <button class="popup-close ripple shockwave" data-close-target="tetrisGameContainer" aria-label="Close Omoluabi Tetris">×</button>
     <h3 id="tetrisGameTitle" class="modal-title">Omoluabi Tetris</h3>
-    <iframe src="apps/tetris/tetris.html" data-default-src="apps/tetris/tetris.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    <p id="tetrisGameTagline" class="modal-tagline">Stack falling shapes to Omoluabi rhythms—line clears trigger fresh beats.</p>
+    <iframe src="apps/tetris/tetris.html" data-default-src="apps/tetris/tetris.html" title="Omoluabi Tetris game" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Omoluabi Word Search Container -->
-<div id="wordSearchContainer" class="chatbot-container" role="dialog" aria-labelledby="wordSearchTitle">
+<div id="wordSearchContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="wordSearchTitle" aria-describedby="wordSearchTagline">
     <button class="popup-close ripple shockwave" data-close-target="wordSearchContainer" aria-label="Close Omoluabi Word Search">×</button>
     <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
-    <iframe src="apps/word-search/word-search.html" data-default-src="apps/word-search/word-search.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    <p id="wordSearchTagline" class="modal-tagline">Hunt Yoruba names, Nigerian cities, and cultural gems hidden in the grid.</p>
+    <iframe src="apps/word-search/word-search.html" data-default-src="apps/word-search/word-search.html" title="Omoluabi word search puzzle" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Ara Connect-4 Container -->
-<div id="connectFourContainer" class="chatbot-container" role="dialog" aria-labelledby="connectFourTitle">
+<div id="connectFourContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="connectFourTitle" aria-describedby="connectFourTagline">
     <button class="popup-close ripple shockwave" data-close-target="connectFourContainer" aria-label="Close Ara Connect-4">×</button>
     <h3 id="connectFourTitle" class="modal-title">Ara Connect-4</h3>
-    <iframe src="apps/connect-four/connect-four.html" data-default-src="apps/connect-four/connect-four.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    <p id="connectFourTagline" class="modal-tagline">Challenge friends or family to four-in-a-row bragging rights—pidgin taunts welcome.</p>
+    <iframe src="apps/connect-four/connect-four.html" data-default-src="apps/connect-four/connect-four.html" title="Ara Connect-4 game" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Cycle Precision Container -->
-<div id="cyclePrecisionContainer" class="chatbot-container" role="dialog" aria-labelledby="cyclePrecisionTitle">
+<div id="cyclePrecisionContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="cyclePrecisionTitle" aria-describedby="cyclePrecisionTagline">
     <button class="popup-close ripple shockwave" data-close-target="cyclePrecisionContainer" aria-label="Close Cycle Precision">×</button>
     <h3 id="cyclePrecisionTitle" class="modal-title">Cycle Precision</h3>
-    <iframe src="apps/cycle-precision/cycle-precision.html" data-default-src="apps/cycle-precision/cycle-precision.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    <p id="cyclePrecisionTagline" class="modal-tagline">Track personal rhythms with calming visuals, reminders, and supportive language.</p>
+    <iframe src="apps/cycle-precision/cycle-precision.html" data-default-src="apps/cycle-precision/cycle-precision.html" title="Cycle Precision wellness tracker" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 
 <!-- About Us Container -->
-<div id="aboutModalContainer" class="chatbot-container" role="dialog" aria-labelledby="aboutModalTitle">
+<div id="aboutModalContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
     <button class="popup-close ripple shockwave" data-close-target="aboutModalContainer" aria-label="Close About Us">×</button>
     <h3 id="aboutModalTitle" class="modal-title">About Us</h3>
-    <iframe src="about.html" data-default-src="about.html" title="About Us" style="width: 100%; height: 100%; border: none;"></iframe>
+    <p class="modal-tagline">Dive into Omoluabi Productions, the mission behind Àríyò AI, and the creative collaborators powering each feature.</p>
+    <iframe src="about.html" data-default-src="about.html" title="About Omoluabi Productions" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Share QR Code Modal -->

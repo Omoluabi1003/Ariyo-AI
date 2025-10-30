@@ -70,15 +70,15 @@
             <div class="hint-text">Use the speaker icon to toggle sound</div>
             <p class="hint-subtext">Edge panel offers quick access to Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.</p>
         </div>
-        <div id="speaker-container" style="position: absolute; cursor: pointer;">
-            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off ripple shockwave"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
-        </div>
+        <button id="speaker-container" type="button" class="speaker-toggle ripple shockwave" aria-label="Toggle welcome audio" aria-pressed="false">
+            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
+        </button>
         <footer class="footer-note">
-            <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved.</p>
+            <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved. <a href="privacy.html">Privacy &amp; data use</a></p>
         </footer>
     </div>
 
-     <audio id="welcomeAudio" loop autoplay></audio>
+     <audio id="welcomeAudio" loop preload="none"></audio>
 
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
@@ -160,8 +160,10 @@
               let currentTrackIndex = Math.floor(Math.random() * tracks.length);
               let usingFallback = false;
               let reconnectInterval = null;
+              let hasLoadedPrimaryTrack = false;
 
               const updateSpeakerIcon = (playing) => {
+                  speakerContainer.setAttribute('aria-pressed', playing ? 'true' : 'false');
                   if (playing) {
                       speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
                   } else {
@@ -203,6 +205,7 @@
                   currentTrackIndex = index;
                   audio.src = tracks[currentTrackIndex].src;
                   audio.load();
+                  hasLoadedPrimaryTrack = true;
                   playAudio(force);
               };
 
@@ -210,6 +213,7 @@
                   usingFallback = true;
                   audio.src = fallbackTrack.src;
                   audio.load();
+                  hasLoadedPrimaryTrack = false;
                   playAudio(force);
               };
 
@@ -250,21 +254,23 @@
                   }
               };
 
-              loadTrack(currentTrackIndex, true);
-
               speakerContainer.addEventListener('click', () => {
+                  if (!audio.src) {
+                      loadTrack(currentTrackIndex, true);
+                      return;
+                  }
+
                   if (isPlaying) {
                       pauseAudio(true);
+                  } else if (usingFallback && navigator.onLine && hasLoadedPrimaryTrack) {
+                      attemptReconnect(true);
+                  } else if (usingFallback) {
+                      playFallback(true);
                   } else {
-                      if (usingFallback && navigator.onLine) {
-                          attemptReconnect(true);
-                      } else if (usingFallback) {
-                          playFallback(true);
-                      } else {
-                          loadTrack(currentTrackIndex, true);
-                      }
+                      playAudio(true);
                   }
               });
+
 
               window.addEventListener('offline', () => {
                   scheduleReconnect();
