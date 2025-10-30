@@ -34,13 +34,13 @@ body {
 }
 
 .countdown.red-on-black {
-    color: var(--theme-color, #8B5CF6);
+    color: var(--theme-color, #12B76A);
     background-color: #02140a;
 }
 
 .countdown.black-on-red {
     color: #02140a;
-    background-color: var(--theme-color, #8B5CF6);
+    background-color: var(--theme-color, #12B76A);
 }
 
 
@@ -304,8 +304,8 @@ a {
     animation: bounce 1s infinite;
     width: 36px;
     height: 36px;
-    fill: var(--theme-color, #8B5CF6);
-    stroke: var(--theme-color, #8B5CF6);
+    fill: var(--theme-color, #12B76A);
+    stroke: var(--theme-color, #12B76A);
 }
 .floating-watermarks {
     pointer-events: none;
@@ -393,7 +393,7 @@ a {
 #timer-progress {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, #4C1D95 0%, #8B5CF6 45%, #EC4899 100%);
+    background: linear-gradient(90deg, #047857 0%, #12B76A 45%, #FACC15 100%);
     position: relative;
     border-radius: inherit;
     box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.25);
