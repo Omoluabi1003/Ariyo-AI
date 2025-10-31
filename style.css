@@ -165,25 +165,36 @@ body {
 /* Container and Sidebar */
 .container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
     overflow: hidden;
+    padding: 0 clamp(1rem, 4vw, 2rem);
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .sidebar {
-    width: var(--sidebar-width);
-    background: transparent;
+    width: 100%;
+    max-width: min(1100px, 100%);
+    background: rgba(0, 0, 0, 0.42);
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
     padding: 1rem;
-    gap: 1rem;
-    border-radius: 15px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-    flex-shrink: 0;
+    gap: 0.75rem;
+    border-radius: 18px;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
+    position: relative;
+    z-index: 30;
+    align-self: center;
+    backdrop-filter: saturate(140%) blur(var(--glass-blur));
 }
 
 .sidebar .search-bar {
-    width: 90%;
+    flex: 1 1 320px;
+    max-width: min(480px, 100%);
     padding: 0.6rem 1rem;
     border-radius: 25px;
     border: none;
@@ -196,7 +207,7 @@ body {
     padding: 0.8rem 1rem;
     border: none;
     border-radius: 25px;
-    width: 90%;
+    flex: 1 1 clamp(160px, 24%, 220px);
     cursor: pointer;
     font-size: clamp(0.9rem, 2vw, 1rem);
     transition: all 0.3s ease-in-out;
@@ -205,11 +216,64 @@ body {
     justify-content: center;
     gap: 0.5rem;
     min-height: 48px;
+    white-space: nowrap;
 }
 
 .sidebar button:hover {
     transform: scale(1.08);
     animation: gradient-glow 1.5s infinite alternate;
+}
+
+@media (min-width: 1024px) {
+    :root {
+        --sidebar-width: clamp(240px, 20vw, 300px);
+    }
+    .container {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: clamp(1.5rem, 3vw, 2.5rem);
+    }
+    .sidebar {
+        flex: 0 0 clamp(240px, 20vw, 300px);
+        max-width: clamp(240px, 20vw, 300px);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+        border-radius: 20px;
+        padding: 1.1rem 1rem;
+        position: sticky;
+        top: calc(env(safe-area-inset-top) + 88px);
+        max-height: calc(var(--app-height, 100vh) - env(safe-area-inset-top) - 96px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        align-self: flex-start;
+    }
+    .sidebar .search-bar {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: none;
+        font-size: 0.95rem;
+    }
+    .sidebar button {
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: unset;
+        min-height: 44px;
+        padding: 0.6rem 0.85rem;
+        font-size: 0.95rem;
+        border-radius: 16px;
+    }
+    .sidebar button i {
+        font-size: 1rem;
+    }
+    .content {
+        flex: 1 1 auto;
+        max-width: none;
+        padding-bottom: 12rem;
+    }
+    .turntable-wrapper {
+        --turntable-size: clamp(140px, 18vw, 200px);
+    }
 }
 
 /* Main Content */
