@@ -26,7 +26,6 @@ body {
     --modal-block-padding: clamp(1rem, 4vh, 2.5rem);
     --modal-inline-padding: clamp(1rem, 6vw, 3rem);
     --sidebar-width: 250px;
-    --edge-panel-top-offset: 24px;
     --edge-panel-bottom-guard: 18rem;
     --edge-panel-max-height: 70vh;
 }
@@ -802,7 +801,6 @@ body {
 @media (max-width: 900px) {
     :root {
         --sidebar-width: 0px;
-        --edge-panel-top-offset: 16px;
     }
 }
 

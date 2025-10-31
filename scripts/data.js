@@ -132,46 +132,39 @@ const albums = [
           name: 'Omoluabi Production Catalogue',
           cover: `${BASE_URL}Logo.jpg`,
           tracks: [
-            { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
-            { src: 'https://cdn1.suno.ai/5c17dd10-1770-467a-947a-db773c72ec78.mp3', title: 'Watchman' },
-            { src: 'https://cdn1.suno.ai/fb1daddf-1de4-4164-bb9d-113f9639d732.mp3', title: 'Ọmọlúàbí' },
-            { src: 'https://cdn1.suno.ai/d3ec2b0a-6062-417f-a62c-4d746f7f4f57.mp3', title: 'Take The Risk' },
-            { src: 'https://cdn1.suno.ai/d14755f5-381a-42c2-9cec-5a539d2937bf.mp3', title: 'Woman who Hates Correction' },
-            { src: 'https://cdn1.suno.ai/08a939af-4823-4054-bef6-1b8420857d9c.mp3', title: 'Home That Looks Safe' },
-            { src: 'https://cdn1.suno.ai/d5669af3-5caf-49e2-aca4-47fbc73a6d25.mp3', title: 'TikTok' },
-            { src: 'https://cdn1.suno.ai/800b9280-4389-47f6-b20d-6aa7dd3298ad.mp3', title: 'Something Is About To Happen' },
-            { src: 'https://cdn1.suno.ai/160aa857-a65f-4f60-9217-6045b2091183.mp3', title: 'Haters' },
-            { src: 'https://cdn1.suno.ai/c6e3b4e8-964c-48dc-8187-3005865cb00a.mp3', title: 'Does It Matter To Matter' },
-            { src: 'https://cdn1.suno.ai/a5a8c49a-6871-40b6-9054-36c81ed8be90.mp3', title: 'Pastor or Hustler' },
-            { src: 'https://cdn1.suno.ai/7356371a-b8f7-470a-87a3-dbe5c2916f72.mp3', title: 'Fore-runner’s Map' },
-            { src: 'https://cdn1.suno.ai/5ad4f8bc-4cef-4ad4-b847-c4f1b8147445.mp3', title: 'No Look Down' },
-            { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" },
-            { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
-            { src: 'https://cdn1.suno.ai/57a24cc6-ab05-447a-91ab-008321e9fc6a.mp3', title: 'Ghostwriter' },
-            { src: 'https://cdn1.suno.ai/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3', title: 'She Said No (Franca Viola Story)' },
-            { src: 'https://cdn1.suno.ai/c84b1a3e-b364-41d3-be5f-8e3b2273eb96.mp3', title: 'A Wa Good Gan' },
-            { src: 'https://cdn1.suno.ai/ce45202a-56e3-4d86-b185-3aa741aac131.mp3', title: 'Stir Am Well' },
-            { src: 'https://cdn1.suno.ai/d58c70e0-b330-4cda-8ee5-afd65f874d39.mp3', title: 'Talk Wey Bend (Obfuscation)' },
-            { src: 'https://cdn1.suno.ai/dbb44f28-64a1-49bb-bcbf-b5460c29ccd4.mp3', title: 'Belong Wahala' },
-            { src: 'https://cdn1.suno.ai/19c15d58-c776-4f1c-9ef7-3bb7890b26bb.mp3', title: 'Habatically' },
-            { src: 'https://cdn1.suno.ai/c6bb53b4-def2-4a68-bfaf-35f7f6dd7810.mp3', title: 'Party No Go Stop (Instrumental)' },
+            { src: `${BASE_URL}A%20Very%20Good%20Bad%20Guy%20v3.mp3`, title: 'A Very Good Bad Guy v3' },
+            { src: `${BASE_URL}Algorithm%20Of%20Life.mp3`, title: 'Algorithm Of Life' },
+            { src: `${BASE_URL}Am%20grateful%20Lord.mp3`, title: 'Am grateful Lord' },
+            { src: `${BASE_URL}Babygirl.mp3`, title: 'Babygirl' },
             { src: `${BASE_URL}Blood%20On%20The%20Lithium.mp3`, title: 'Blood On The Lithium' },
-            { src: `${BASE_URL}No%20Be%20My%20Story.mp3`, title: 'No Be My Story' },
+            { src: `${BASE_URL}Dem%20Wan%20Shut%20Me%20Up.mp3`, title: 'Dem Wan Shut Me Up' },
+            { src: `${BASE_URL}Emergency.mp3`, title: 'Emergency' },
+            { src: `${BASE_URL}E%20Get%20Why.mp3`, title: 'E Get Why' },
+            { src: `${BASE_URL}Freedom%20of%20Speech.mp3`, title: 'Freedom of Speech' },
+            { src: `${BASE_URL}Gbas%20Gbos.mp3`, title: 'Gbas Gbos' },
+            { src: `${BASE_URL}Give%20and%20Take%20(Reciprocity%20in%20love).mp3`, title: 'Give and Take (Reciprocity in love)' },
+            { src: `${BASE_URL}Holy%20Vibes%20Only.mp3`, title: 'Holy Vibes Only' },
+            { src: `${BASE_URL}Kindness%20(Remastered).mp3`, title: 'Kindness (Remastered)' },
+            { src: `${BASE_URL}Locked%20Away.mp3`, title: 'Locked Away' },
+            { src: `${BASE_URL}Mic%20No%20Be%20For%20Waist.mp3`, title: 'Mic No Be For Waist' },
+            { src: `${BASE_URL}Multi%20choice%20palava.mp3`, title: 'Multi choice palava' },
+            { src: `${BASE_URL}Na%20My%20Turn.mp3`, title: 'Na My Turn' },
             { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' },
-            { src: 'https://cdn1.suno.ai/e70059ca-398f-481e-9a71-6338fcfb9a1d.mp3', title: 'The Distance' },
-            { src: 'https://cdn1.suno.ai/ab26a763-cba1-4426-9bf0-8117d0602684.mp3', title: 'Stand With Truth' },
-            { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
-            { src: 'https://cdn1.suno.ai/c48de9b1-a68b-4889-b43b-243da2d54bc0.mp3', title: 'Raising Boys' },
-            { src: 'https://cdn1.suno.ai/f7f72dd2-12cd-4568-b831-f745973fa063.mp3', title: 'Destiny No Dey Wait' },
-            { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
-            { src: 'https://cdn1.suno.ai/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
-            { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
-            { src: 'https://cdn1.suno.ai/473edd61-d1ba-4bad-8014-7302cd1a9b71.mp3', title: 'Same Ni' },
-            { src: 'https://cdn1.suno.ai/553eefd4-54ba-4b73-ba02-4df85bfb5bb0.mp3', title: 'Envy' },
-            { src: 'https://cdn1.suno.ai/6af3b681-f3e6-4e84-85c7-9a2ad5f14e44.mp3', title: 'Echoes Of Ice' },
-            { src: 'https://cdn1.suno.ai/e9562054-31e2-4195-ab30-cbe2902193f8.mp3', title: 'Wisdom Moves' },
-            { src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3', title: 'Bread Crumb Effect' },
-            { src: 'https://cdn1.suno.ai/df20133e-8c32-48ec-b7d7-969aefef3478.mp3', title: 'Love Without Empathy' }
+            { src: `${BASE_URL}No%20Be%20My%20Story.mp3`, title: 'No Be My Story' },
+            { src: `${BASE_URL}Ogoni%20Anthem.mp3`, title: 'Ogoni Anthem' },
+            { src: `${BASE_URL}Oluwa%20You%20Too%20Good.mp3`, title: 'Oluwa You Too Good' },
+            { src: `${BASE_URL}Party%20No%20Go%20Stop.mp3`, title: 'Party No Go Stop' },
+            { src: `${BASE_URL}Pigeonhole%20Gbedu.mp3`, title: 'Pigeonhole Gbedu' },
+            { src: `${BASE_URL}Queen%20Warrior.mp3`, title: 'Queen Warrior' },
+            { src: `${BASE_URL}Sengemenge.mp3`, title: 'Sengemenge' },
+            { src: `${BASE_URL}Senator%20Natasha%E2%80%99s%20Whisper.mp3`, title: 'Senator Natasha’s Whisper' },
+            { src: `${BASE_URL}Sharing%20Formula.mp3`, title: 'Sharing Formula' },
+            { src: `${BASE_URL}Sowore.mp3`, title: 'Sowore' },
+            { src: `${BASE_URL}Street%20Sense.mp3`, title: 'Street Sense' },
+            { src: `${BASE_URL}Subsidy.mp3`, title: 'Subsidy' },
+            { src: `${BASE_URL}VDM.mp3`, title: 'VDM' },
+            { src: `${BASE_URL}We%20Are%20Not%20Doing%20That.mp3`, title: 'We Are Not Doing That' },
+            { src: `${BASE_URL}Working%20on%20myself.mp3`, title: 'Working on myself' }
         ]
       },
     ];
@@ -179,39 +172,39 @@ const albums = [
 const latestTracks = [
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Persecutory Paranoia',
-    src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3',
-    addedOn: '2025-10-29'
+    title: 'Emergency',
+    src: `${BASE_URL}Emergency.mp3`,
+    addedOn: '2024-11-05'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'She Said No (Franca Viola Story)',
-    src: 'https://cdn1.suno.ai/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3',
-    addedOn: '2025-10-28'
+    title: 'Senator Natasha’s Whisper',
+    src: `${BASE_URL}Senator%20Natasha%E2%80%99s%20Whisper.mp3`,
+    addedOn: '2024-10-12'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Woman who Hates Correction',
-    src: 'https://cdn1.suno.ai/d14755f5-381a-42c2-9cec-5a539d2937bf.mp3',
-    addedOn: '2024-06-24'
+    title: 'Holy Vibes Only',
+    src: `${BASE_URL}Holy%20Vibes%20Only.mp3`,
+    addedOn: '2024-09-01'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Love Without Empathy',
-    src: 'https://cdn1.suno.ai/df20133e-8c32-48ec-b7d7-969aefef3478.mp3',
-    addedOn: '2024-05-17'
+    title: 'Sowore',
+    src: `${BASE_URL}Sowore.mp3`,
+    addedOn: '2024-08-18'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Bread Crumb Effect',
-    src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3',
-    addedOn: '2024-05-09'
+    title: 'Party No Go Stop',
+    src: `${BASE_URL}Party%20No%20Go%20Stop.mp3`,
+    addedOn: '2024-07-22'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Home That Looks Safe',
-    src: 'https://cdn1.suno.ai/08a939af-4823-4054-bef6-1b8420857d9c.mp3',
-    addedOn: '2024-05-06'
+    title: 'Na We Dey',
+    src: `${BASE_URL}Na%20We%20Dey.mp3`,
+    addedOn: '2024-06-14'
   }
 ];
 

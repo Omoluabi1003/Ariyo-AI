@@ -1,6 +1,6 @@
 {
   "name": "ariyo-ai",
-  "version": "1.14.2",
+  "version": "1.15.0",
   "scripts": {
     "test": "echo \"No tests yet\""
   },
