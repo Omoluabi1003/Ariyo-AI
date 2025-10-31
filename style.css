@@ -25,6 +25,10 @@ body {
 :root {
     --modal-block-padding: clamp(1rem, 4vh, 2.5rem);
     --modal-inline-padding: clamp(1rem, 6vw, 3rem);
+    --sidebar-width: 250px;
+    --edge-panel-top-offset: 24px;
+    --edge-panel-bottom-guard: 18rem;
+    --edge-panel-max-height: 70vh;
 }
 
 .news-banner { 
@@ -165,7 +169,7 @@ body {
 }
 
 .sidebar {
-    width: 250px;
+    width: var(--sidebar-width);
     background: transparent;
     display: flex;
     flex-direction: column;
@@ -227,7 +231,7 @@ body {
     position: fixed;
     bottom: calc(1rem + env(safe-area-inset-bottom));
     width: 100%;
-    max-width: 800px;
+    max-width: min(800px, calc(100vw - var(--sidebar-width) - 2rem));
     overflow-y: auto;
     max-height: 90vh;
     left: 50%;
@@ -238,6 +242,12 @@ body {
     align-items: center;
     color: #fff;
     text-shadow: none;
+}
+
+@media (min-width: 901px) {
+    .music-player {
+        left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
+    }
 }
 
 .about-us-active {
@@ -789,6 +799,13 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 900px) {
+    :root {
+        --sidebar-width: 0px;
+        --edge-panel-top-offset: 16px;
+    }
+}
+
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
@@ -809,9 +826,10 @@ body {
     }
     .music-player {
         z-index: 1000; /* Ensure the music player is on top */
-        left: 0;
-        transform: none;
-        width: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(100%, calc(100vw - 1rem));
+        max-width: min(100%, calc(100vw - 1rem));
     }
     .turntable-wrapper {
         --turntable-size: clamp(120px, 48vw, 170px);

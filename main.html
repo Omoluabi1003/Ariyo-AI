@@ -51,6 +51,12 @@
 
 
   <style>
+    :root {
+      --sidebar-width: 250px;
+      --edge-panel-top-offset: 24px;
+      --edge-panel-bottom-guard: 18rem;
+      --edge-panel-max-height: 70vh;
+    }
     html, body {
       height: 100%;
       overflow-x: hidden;
@@ -158,7 +164,7 @@
       overflow: hidden;
     }
     .sidebar {
-      width: 250px;
+      width: var(--sidebar-width);
       background: transparent;
       display: flex;
       flex-direction: column;
@@ -254,7 +260,7 @@
       position: fixed;
       bottom: calc(1rem + env(safe-area-inset-bottom));
       width: 100%;
-      max-width: 800px;
+      max-width: min(800px, calc(100vw - var(--sidebar-width) - 2rem));
       overflow-y: auto;
       max-height: 90vh;
       left: 50%;
@@ -264,7 +270,16 @@
       flex-direction: column;
       align-items: center;
     }
+    @media (min-width: 901px) {
+      .music-player {
+        left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
+      }
+    }
     @media (max-width: 900px) {
+      :root {
+        --sidebar-width: 0px;
+        --edge-panel-top-offset: 16px;
+      }
       .container {
         flex-direction: column;
         gap: 1rem;
@@ -294,6 +309,9 @@
       #sidebarNavigation {
         flex-direction: column;
         gap: 0.75rem;
+      }
+      .music-player {
+        left: 50%;
       }
     }
     .album-cover {
@@ -468,15 +486,24 @@
     }
     .edge-panel {
         position: fixed;
-        top: 50%;
+        top: calc(env(safe-area-inset-top) + var(--edge-panel-top-offset));
         right: -160px;
-        transform: translateY(-50%);
+        transform: none;
         width: min(190px, 60vw);
         background-color: rgba(0, 0, 0, 0.65);
         border-radius: 16px 0 0 16px;
         transition: right 0.3s ease-in-out;
         z-index: 10000;
         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        max-height: min(
+          var(--edge-panel-max-height),
+          calc(
+            var(--app-height, 100vh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--edge-panel-bottom-guard) - var(--edge-panel-top-offset)
+          )
+        );
     }
     .edge-panel.visible {
         right: 0;
@@ -487,7 +514,7 @@
         left: -10px;
         transform: translateY(-50%);
         width: 20px;
-        height: 100px;
+        height: clamp(96px, 28vh, 160px);
         background-color: rgba(255, 255, 255, 0.5);
         border-radius: 10px 0 0 10px;
         cursor: pointer;
@@ -502,11 +529,14 @@
     .edge-panel-content {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: stretch;
         gap: 12px;
-        padding: 20px 12px;
-        height: 100%;
+        padding: clamp(16px, 3vh, 20px) 12px;
+        flex: 1;
+        overflow-y: auto;
+        max-height: calc(var(--edge-panel-max-height) - 32px);
+        scrollbar-gutter: stable;
     }
     .tap-area {
         position: fixed;
