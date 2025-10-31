@@ -29,6 +29,7 @@ body {
     --edge-panel-top-offset: 24px;
     --edge-panel-bottom-guard: 18rem;
     --edge-panel-max-height: 70vh;
+    --glass-blur: 0px;
 }
 
 .news-banner { 
@@ -61,7 +62,7 @@ body {
     flex-direction: column;
     gap: 1rem;
     z-index: 101;
-    backdrop-filter: blur(6px);
+    backdrop-filter: saturate(140%) blur(calc(var(--glass-blur) + 4px));
     pointer-events: auto;
 }
 
