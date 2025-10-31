@@ -669,18 +669,51 @@
     changeColorScheme();
 
     // Dynamic Edge Panel Height
+    const rootElement = document.documentElement;
     const mainEdgePanel = document.getElementById('edgePanel');
     const mainEdgePanelContent = document.querySelector('.edge-panel-content');
+    const musicPlayerElement = document.querySelector('.music-player');
+
     const updateEdgePanelHeight = () => {
         if (!mainEdgePanel || !mainEdgePanelContent) return;
-        const desiredHeight = mainEdgePanelContent.scrollHeight + 8;
-        mainEdgePanel.style.height = `${desiredHeight}px`;
+
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const computedRoot = getComputedStyle(rootElement);
+        const topOffset = parseFloat(computedRoot.getPropertyValue('--edge-panel-top-offset')) || 24;
+
+        let panelBottomGuard = 220;
+        if (musicPlayerElement) {
+            const musicPlayerRect = musicPlayerElement.getBoundingClientRect();
+            if (musicPlayerRect && musicPlayerRect.height) {
+                panelBottomGuard = Math.max(Math.ceil(musicPlayerRect.height) + 32, 220);
+            }
+        }
+
+        rootElement.style.setProperty('--edge-panel-bottom-guard', `${panelBottomGuard}px`);
+
+        const availableHeight = Math.max(viewportHeight - panelBottomGuard - topOffset, 240);
+        rootElement.style.setProperty('--edge-panel-max-height', `${availableHeight}px`);
+
+        const scrollableLimit = Math.max(availableHeight - 24, 160);
+        mainEdgePanelContent.style.maxHeight = `${scrollableLimit}px`;
+
+        const needsScroll = mainEdgePanelContent.scrollHeight > scrollableLimit;
+        mainEdgePanel.style.height = needsScroll ? `${availableHeight}px` : '';
+        mainEdgePanelContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
     };
 
     if (mainEdgePanel && mainEdgePanelContent) {
         requestAnimationFrame(updateEdgePanelHeight);
         window.addEventListener('resize', updateEdgePanelHeight);
         window.addEventListener('orientationchange', updateEdgePanelHeight);
+        window.addEventListener('load', updateEdgePanelHeight);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', updateEdgePanelHeight);
+        }
+        if ('ResizeObserver' in window && musicPlayerElement) {
+            const playerResizeObserver = new ResizeObserver(updateEdgePanelHeight);
+            playerResizeObserver.observe(musicPlayerElement);
+        }
     }
 
     const sidebarToggle = document.querySelector('.mobile-sidebar-toggle');
