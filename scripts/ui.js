@@ -775,17 +775,22 @@ function closeCyclePrecision() {
         const baseGap = window.innerWidth <= 900 ? Math.max(Math.round(window.innerWidth * 0.03), 10) : 16;
         EDGE_PANEL_VISIBLE_X = baseGap;
 
-        const handleExposure = Math.max(Math.round(handleRect.width * 0.75), 18);
+        const handleExposure = Math.max(Math.round(handleRect.width * 0.85), 18);
         const tuckDistance = panelRect.width - handleExposure;
         EDGE_PANEL_COLLAPSED_X = baseGap - tuckDistance;
 
-        const desiredPeekExposure = Math.min(
-            Math.max(Math.round(panelRect.width * 0.45), 140),
-            panelRect.width - Math.round(handleExposure * 0.4)
+        const extraPeekReveal = Math.min(
+            Math.max(Math.round(handleRect.width * 0.6), 14),
+            Math.round(panelRect.width * 0.25)
         );
+        const desiredPeekExposure = Math.min(
+            handleExposure + extraPeekReveal,
+            panelRect.width - Math.round(handleExposure * 0.55)
+        );
+
         const peekRight = EDGE_PANEL_VISIBLE_X - desiredPeekExposure;
-        const peekLowerBound = EDGE_PANEL_COLLAPSED_X + Math.round(handleExposure * 0.5);
-        const peekUpperBound = EDGE_PANEL_VISIBLE_X - Math.round(handleRect.width * 0.6);
+        const peekLowerBound = EDGE_PANEL_COLLAPSED_X + Math.round(handleExposure * 0.35);
+        const peekUpperBound = EDGE_PANEL_VISIBLE_X - Math.round(handleRect.width * 0.4);
         EDGE_PANEL_PEEK_X = Math.min(Math.max(peekRight, peekLowerBound), peekUpperBound);
     };
 
