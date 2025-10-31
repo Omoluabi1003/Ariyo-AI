@@ -128,6 +128,20 @@ function appendCacheBuster(url) {
   return `${url}${separator}reconnect=${Date.now()}`;
 }
 
+function buildTrackFetchUrl(src) {
+  try {
+    const hostname = new URL(src, window.location.origin).hostname;
+    if (/cdn\d+\.[^.]+\.ai$/i.test(hostname)) {
+      return src;
+    }
+  } catch (error) {
+    console.warn('Unable to analyze track URL for cache busting:', error);
+  }
+
+  const separator = src.includes('?') ? '&' : '?';
+  return `${src}${separator}t=${Date.now()}`;
+}
+
 async function attemptNetworkResume() {
   const source = networkRecoveryState.source;
   if (!source) return false;
@@ -161,9 +175,7 @@ async function attemptNetworkResume() {
       const track = album.tracks[source.trackIndex];
       if (!track) return resolveOnce(false);
 
-      const urlHost = new URL(track.src, window.location.origin).hostname;
-      const isSunoHosted = urlHost.includes('suno');
-      const fetchUrl = isSunoHosted ? track.src : `${track.src}?t=${Date.now()}`;
+      const fetchUrl = buildTrackFetchUrl(track.src);
       const response = await fetch(fetchUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Status ${response.status}`);
       const blob = await response.blob();
@@ -662,8 +674,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      const urlHost = new URL(src, window.location.origin).hostname;
-      const isSunoHosted = urlHost.includes('suno');
       setCrossOrigin(audioPlayer, src);
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
@@ -679,7 +689,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
-      const fetchUrl = isSunoHosted ? src : `${src}?t=${Date.now()}`;
+      const fetchUrl = buildTrackFetchUrl(src);
       fetch(fetchUrl)
         .then(r => r.blob())
         .then(b => {

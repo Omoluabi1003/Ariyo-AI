@@ -3,6 +3,16 @@ const CACHE_PREFIX = 'ariyo-ai-cache-v8';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
+self.addEventListener('message', event => {
+  if (!event.data) {
+    return;
+  }
+
+  if (event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -131,6 +141,19 @@ self.addEventListener('activate', event => {
           }
         })
       );
+
+      try {
+        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
+          ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
+          : null;
+        clients.forEach(client => client.postMessage({
+          type: 'SERVICE_WORKER_UPDATED',
+          version: versionIdentifier
+        }));
+      } catch (error) {
+        console.error('Failed to broadcast service worker update to clients:', error);
+      }
 
       return self.clients.claim();
     })()

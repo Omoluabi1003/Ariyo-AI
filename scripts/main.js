@@ -143,6 +143,69 @@
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
     let currentVersion;
+    let pendingReloadVersion = null;
+    let shouldReloadOnControllerChange = false;
+    let reloadFallbackTimeoutId = null;
+
+    const cancelPendingReloadFallback = () => {
+      if (reloadFallbackTimeoutId) {
+        clearTimeout(reloadFallbackTimeoutId);
+        reloadFallbackTimeoutId = null;
+      }
+    };
+
+    const scheduleAppReload = (version) => {
+      const normalizedVersion = version || 'immediate';
+      if (pendingReloadVersion === normalizedVersion) {
+        return;
+      }
+
+      pendingReloadVersion = normalizedVersion;
+
+      if (!('serviceWorker' in navigator)) {
+        window.location.reload();
+        return;
+      }
+
+      shouldReloadOnControllerChange = true;
+      cancelPendingReloadFallback();
+
+      const swVersionSuffix = version ? `?v=${encodeURIComponent(version)}` : '';
+      navigator.serviceWorker.register(`/service-worker.js${swVersionSuffix}`).then(registration => {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(reg => {
+            if (registration && reg.scope !== registration.scope) {
+              reg.unregister();
+              return;
+            }
+            reg.update().catch(err => console.error('Service worker update failed:', err));
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        }).catch(error => {
+          console.error('Failed to enumerate service worker registrations:', error);
+        });
+      }).catch(error => {
+        console.error('Service worker re-registration failed during update scheduling:', error);
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(reg => {
+            reg.update().catch(err => console.error('Service worker update failed:', err));
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        }).catch(listError => {
+          console.error('Failed to enumerate service worker registrations after registration error:', listError);
+        });
+      });
+
+      reloadFallbackTimeoutId = setTimeout(() => {
+        if (shouldReloadOnControllerChange) {
+          window.location.reload();
+        }
+      }, 10000);
+    };
 
     async function navigateToAbout() {
       const mainContent = document.getElementById('main-content');
@@ -519,9 +582,18 @@
       // Reload the page when a new service worker activates
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing) return;
+        if (refreshing || !shouldReloadOnControllerChange) {
+          return;
+        }
         refreshing = true;
+        cancelPendingReloadFallback();
         window.location.reload();
+      });
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (!event.data || event.data.type !== 'SERVICE_WORKER_UPDATED') {
+          return;
+        }
+        scheduleAppReload(event.data.version || null);
       });
       window.addEventListener('load', async function() {
         showIosInstallBanner();
@@ -534,7 +606,7 @@
         } catch (err) {
           console.error('Failed to fetch version for SW registration:', err);
         }
-        const swUrl = version ? `/service-worker.js?v=${version}` : '/service-worker.js';
+        const swUrl = version ? `/service-worker.js?v=${encodeURIComponent(version)}` : '/service-worker.js';
         navigator.serviceWorker.register(swUrl).then(function(registration) {
           console.log('Service Worker registered with scope:', registration.scope);
           navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -700,9 +772,19 @@
         const needsScroll = mainEdgePanelContent.scrollHeight > scrollableLimit;
         mainEdgePanel.style.height = needsScroll ? `${availableHeight}px` : '';
         mainEdgePanelContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
+
+        const panelRect = mainEdgePanel.getBoundingClientRect();
+        const measuredHeight = panelRect.height || Math.min(availableHeight, mainEdgePanelContent.scrollHeight + 48);
+        const idealTop = (viewportHeight - measuredHeight) / 2;
+        const maxTop = viewportHeight - panelBottomGuard - measuredHeight;
+        const upperBound = Math.max(topOffset, maxTop);
+        const centeredTop = Math.max(topOffset, Math.min(idealTop, upperBound));
+        const safeTop = Number.isFinite(centeredTop) ? centeredTop : topOffset;
+        mainEdgePanel.style.top = `${safeTop}px`;
     };
 
     if (mainEdgePanel && mainEdgePanelContent) {
+        updateEdgePanelHeight();
         requestAnimationFrame(updateEdgePanelHeight);
         window.addEventListener('resize', updateEdgePanelHeight);
         window.addEventListener('orientationchange', updateEdgePanelHeight);
@@ -766,20 +848,7 @@
             .then(response => response.json())
             .then(data => {
                 if (currentVersion && currentVersion !== data.version) {
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register(`/service-worker.js?v=${data.version}`).then(registration => {
-                            navigator.serviceWorker.getRegistrations().then(registrations => {
-                                registrations.forEach(reg => {
-                                    if (reg.scope !== registration.scope) {
-                                        reg.unregister();
-                                    }
-                                });
-                            });
-                        });
-                    }
-                    if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
-                        window.location.reload();
-                    }
+                    scheduleAppReload(data.version);
                 }
                 currentVersion = data.version;
             })
