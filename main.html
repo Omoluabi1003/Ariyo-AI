@@ -52,11 +52,12 @@
 
   <style>
     :root {
-      --edge-panel-top-offset: clamp(20px, 4vh, 48px);
-      --edge-panel-bottom-guard: 18rem;
-      --edge-panel-max-height: 70vh;
-      --edge-panel-handle-width: 28px;
-      --edge-panel-visible-gap: 16px;
+      --glass-blur: 0px;
+      --edge-panel-top-offset: clamp(28px, 5vh, 60px);
+      --edge-panel-bottom-guard: clamp(12rem, 38vh, 16rem);
+      --edge-panel-max-height: 78vh;
+      --edge-panel-handle-width: clamp(22px, 5vw, 30px);
+      --edge-panel-visible-gap: clamp(12px, 3vw, 18px);
     }
     html, body {
       height: 100%;
@@ -138,16 +139,17 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
+      align-items: stretch;
+      gap: 1.25rem;
       overflow: hidden;
-      padding: 0 1.5rem;
+      padding: 0 clamp(1rem, 4vw, 2rem);
       box-sizing: border-box;
+      width: 100%;
     }
     .sidebar {
       width: 100%;
-      max-width: 1100px;
-      background: rgba(0, 0, 0, 0.45);
+      max-width: min(1100px, 100%);
+      background: rgba(0, 0, 0, 0.42);
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -156,10 +158,11 @@
       gap: 0.75rem;
       border-radius: 18px;
       box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
-      position: sticky;
-      top: calc(env(safe-area-inset-top) + 90px);
-      z-index: 50;
-      backdrop-filter: blur(6px);
+      position: relative;
+      top: auto;
+      z-index: 30;
+      align-self: center;
+      backdrop-filter: saturate(140%) blur(var(--glass-blur));
     }
     .sidebar .search-bar {
       flex: 1 1 320px;
@@ -199,7 +202,8 @@
       background: rgba(0, 0, 0, 0.35);
       border-radius: 20px;
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-      backdrop-filter: blur(4px);
+      backdrop-filter: saturate(130%) blur(var(--glass-blur));
+      align-self: center;
     }
     .in-app-guide {
       background: rgba(0, 0, 0, 0.55);
@@ -208,7 +212,7 @@
       padding: 0.9rem 1.15rem;
       margin-bottom: 1.25rem;
       color: #f5f5f5;
-      backdrop-filter: blur(4px);
+      backdrop-filter: saturate(130%) blur(var(--glass-blur));
     }
     .in-app-guide > summary {
       cursor: pointer;
@@ -271,11 +275,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      backdrop-filter: blur(6px);
+      backdrop-filter: saturate(140%) blur(var(--glass-blur));
     }
     @media (max-width: 900px) {
       :root {
-        --edge-panel-handle-width: clamp(38px, 8vw, 48px);
+        --edge-panel-handle-width: clamp(28px, 7vw, 36px);
         --edge-panel-visible-gap: clamp(0.65rem, 4vw, 1.35rem);
       }
       .container {
@@ -291,6 +295,8 @@
         gap: 0.65rem;
         padding-bottom: 0.85rem;
         scrollbar-width: thin;
+        max-width: none;
+        align-self: stretch;
       }
       .sidebar::-webkit-scrollbar {
         height: 6px;
@@ -312,10 +318,10 @@
         background: rgba(0, 0, 0, 0.45);
       }
       .edge-panel {
-        width: min(86vw, 320px);
-        right: -320px;
+        width: min(82vw, 296px);
+        right: -296px;
         border-radius: 24px 0 0 24px;
-        top: calc(env(safe-area-inset-top) + 16px);
+        top: calc(env(safe-area-inset-top) + 20px);
         bottom: auto;
       }
       .edge-panel.visible {
@@ -329,8 +335,8 @@
       }
       .edge-panel-handle {
         width: var(--edge-panel-handle-width);
-        height: clamp(120px, 36vh, 200px);
-        gap: 0.25rem;
+        height: clamp(96px, 32vh, 180px);
+        gap: 0.2rem;
       }
       .edge-panel-content {
         flex-direction: column;
@@ -516,8 +522,8 @@
         top: calc(env(safe-area-inset-top) + var(--edge-panel-top-offset));
         right: -220px;
         transform: none;
-        width: clamp(220px, 32vw, 280px);
-        background: linear-gradient(160deg, rgba(8, 31, 22, 0.92), rgba(3, 15, 10, 0.88));
+        width: clamp(220px, 30vw, 272px);
+        background: linear-gradient(160deg, rgba(8, 31, 22, 0.9), rgba(3, 15, 10, 0.86));
         border-radius: 24px 0 0 24px;
         transition: right 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out;
         z-index: 10000;
@@ -532,7 +538,7 @@
           )
         );
         border: 1px solid rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(12px) saturate(140%);
+        backdrop-filter: saturate(150%) blur(var(--glass-blur));
     }
     .edge-panel.visible {
         box-shadow: 0 26px 52px rgba(0, 0, 0, 0.6);
@@ -548,22 +554,22 @@
         position: absolute;
         top: 50%;
         left: 0;
-        transform: translate(-58%, -50%);
+        transform: translate(-56%, -50%);
         width: var(--edge-panel-handle-width);
-        height: clamp(120px, 32vh, 190px);
-        background: linear-gradient(200deg, rgba(255, 255, 255, 0.88), rgba(18, 183, 106, 0.92));
+        height: clamp(112px, 30vh, 180px);
+        background: linear-gradient(200deg, rgba(255, 255, 255, 0.88), rgba(18, 183, 106, 0.9));
         border-radius: 999px 0 0 999px;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 0.3rem;
+        gap: 0.25rem;
         color: rgba(12, 34, 25, 0.92);
         text-transform: uppercase;
         font-weight: 600;
-        letter-spacing: 0.08em;
-        font-size: 0.7rem;
+        letter-spacing: 0.07em;
+        font-size: 0.68rem;
         box-shadow: 0 14px 30px rgba(0, 0, 0, 0.38);
         border: 1px solid rgba(255, 255, 255, 0.35);
         background-clip: padding-box;
@@ -600,19 +606,19 @@
         content: 'Apps';
         writing-mode: vertical-rl;
         transform: rotate(180deg);
-        font-size: 0.65rem;
-        letter-spacing: 0.18em;
+        font-size: 0.62rem;
+        letter-spacing: 0.16em;
     }
     .edge-panel-content {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
-        gap: 12px;
-        padding: clamp(16px, 3vh, 20px) clamp(14px, 2vw, 18px);
+        gap: 10px;
+        padding: clamp(14px, 2.5vh, 18px) clamp(12px, 2vw, 16px);
         flex: 1;
         overflow-y: auto;
-        max-height: calc(var(--edge-panel-max-height) - 32px);
+        max-height: calc(var(--edge-panel-max-height) - 28px);
         scrollbar-gutter: stable;
     }
     .tap-area {
@@ -647,8 +653,8 @@
     .edge-panel-item {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      padding: 0.55rem 0.6rem;
+      gap: 0.45rem;
+      padding: 0.45rem 0.55rem;
       border-radius: 12px;
       background: rgba(13, 45, 32, 0.55);
       border: 1px solid rgba(255,255,255,0.12);
@@ -673,21 +679,22 @@
       box-shadow: 0 8px 18px rgba(0,0,0,0.35);
     }
     .edge-panel-item img {
-      width: 38px;
-      height: 38px;
+      width: 32px;
+      height: 32px;
       flex-shrink: 0;
       border-radius: 50%;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-      margin-top: 0.15rem;
+      margin-top: 0.1rem;
     }
     .edge-panel-label {
-      font-size: clamp(0.75rem, 2vw, 0.9rem);
-      line-height: 1.3;
+      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      line-height: 1.25;
       display: block;
     }
     .edge-panel-label strong {
       display: block;
-      font-size: clamp(0.8rem, 2.1vw, 0.95rem);
+      font-size: clamp(0.76rem, 1.9vw, 0.9rem);
+      line-height: 1.2;
     }
     .edge-panel-privacy {
       font-size: clamp(0.7rem, 1.8vw, 0.85rem);
@@ -708,7 +715,7 @@
       padding: 1rem clamp(1rem, 4vw, 2rem);
       font-size: clamp(0.75rem, 2vw, 0.9rem);
       color: rgba(255,255,255,0.78);
-      backdrop-filter: blur(4px);
+      backdrop-filter: saturate(130%) blur(var(--glass-blur));
       background: rgba(0, 0, 0, 0.55);
       margin: 0;
     }
@@ -900,30 +907,36 @@
       width: 0%;
       transition: width 0.2s ease;
     }
-    @media (max-width: 768px) {
+    @media (min-width: 1024px) {
       .container {
         flex-direction: row;
-        align-items: stretch;
+        align-items: flex-start;
+        gap: 1.5rem;
       }
       .sidebar {
-        width: clamp(170px, 38vw, 220px);
+        width: clamp(220px, 24vw, 300px);
         flex-direction: column;
         align-items: stretch;
         gap: 0.75rem;
-        border-radius: 12px;
-        padding: 0.75rem 0.5rem;
+        border-radius: 16px;
+        padding: 0.85rem 0.65rem;
+        position: sticky;
+        top: calc(env(safe-area-inset-top) + 88px);
+        max-height: calc(var(--app-height, 100vh) - env(safe-area-inset-top) - 96px);
+        overflow-y: auto;
+        scrollbar-width: thin;
       }
       .sidebar button {
         width: 100%;
         min-width: unset;
       }
       .content {
-        padding-bottom: 6rem;
+        padding-bottom: 12rem;
       }
     }
     @media (max-width: 480px) {
       .sidebar {
-        width: clamp(150px, 42vw, 200px);
+        width: 100%;
         padding: 0.5rem;
       }
       .sidebar button {
