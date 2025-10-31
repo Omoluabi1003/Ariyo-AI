@@ -761,58 +761,134 @@ function closeCyclePrecision() {
     }
 
     const edgePanel = document.getElementById('edgePanel');
-    const edgePanelHandle = document.querySelector('.edge-panel-handle');
-    const EDGE_PANEL_HIDDEN_X = '-160px';
-    const EDGE_PANEL_PEEK_X = '-32px';
-    const EDGE_PANEL_VISIBLE_X = '0';
+    const edgePanelHandle = edgePanel ? edgePanel.querySelector('.edge-panel-handle') : null;
     let isDragging = false;
     let initialX;
     let initialRight;
+    let EDGE_PANEL_VISIBLE_X = 16;
+    let EDGE_PANEL_HIDDEN_X = -160;
+    let EDGE_PANEL_PEEK_X = -32;
 
-    edgePanelHandle.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        initialX = e.clientX;
-        initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-        edgePanel.style.transition = 'none'; // Disable transition during drag
-    });
+    const computeEdgePanelOffsets = () => {
+        if (!edgePanel || !edgePanelHandle) return;
+        const panelRect = edgePanel.getBoundingClientRect();
+        const handleRect = edgePanelHandle.getBoundingClientRect();
+        const baseGap = window.innerWidth <= 900 ? Math.max(Math.round(window.innerWidth * 0.03), 10) : 16;
+        EDGE_PANEL_VISIBLE_X = baseGap;
+        EDGE_PANEL_HIDDEN_X = Math.round(-(panelRect.width - handleRect.width - 4));
+        EDGE_PANEL_PEEK_X = Math.round(EDGE_PANEL_VISIBLE_X - (handleRect.width + 16));
+    };
 
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            const currentX = e.clientX;
-            const dx = currentX - initialX;
-            edgePanel.style.right = `${initialRight - dx}px`;
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            edgePanel.style.transition = 'right 0.3s ease-in-out'; // Re-enable transition
-            const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-            if (finalRight < -40) {
-                edgePanel.classList.remove('visible');
-                edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
-            } else {
+    const applyEdgePanelPosition = (state) => {
+        if (!edgePanel) return;
+        switch (state) {
+            case 'peek':
+                edgePanel.dataset.position = 'peek';
                 edgePanel.classList.add('visible');
-                edgePanel.style.right = EDGE_PANEL_VISIBLE_X;
-            }
+                edgePanel.style.right = `${EDGE_PANEL_PEEK_X}px`;
+                break;
+            case 'visible':
+                edgePanel.classList.add('visible');
+                delete edgePanel.dataset.position;
+                edgePanel.style.right = `${EDGE_PANEL_VISIBLE_X}px`;
+                break;
+            default:
+                edgePanel.classList.remove('visible');
+                delete edgePanel.dataset.position;
+                edgePanel.style.right = `${EDGE_PANEL_HIDDEN_X}px`;
+                break;
         }
-    });
+    };
 
-    edgePanelHandle.addEventListener('click', () => {
-        if (!isDragging) {
-            edgePanel.classList.toggle('visible');
-            if (edgePanel.classList.contains('visible')) {
-                edgePanel.style.right = EDGE_PANEL_VISIBLE_X;
-            } else {
-                edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
-            }
+    if (edgePanel && edgePanelHandle) {
+        computeEdgePanelOffsets();
+        if (!edgePanelHandle.getAttribute('role')) {
+            edgePanelHandle.setAttribute('role', 'button');
         }
-    });
+        if (!edgePanelHandle.hasAttribute('tabindex')) {
+            edgePanelHandle.setAttribute('tabindex', '0');
+        }
+        if (!edgePanelHandle.getAttribute('aria-label')) {
+            edgePanelHandle.setAttribute('aria-label', 'Toggle Quick Launch hub');
+        }
+        applyEdgePanelPosition('hidden');
+
+        const toggleEdgePanelVisibility = () => {
+            if (edgePanel.dataset.position === 'peek') {
+                applyEdgePanelPosition('visible');
+            } else if (edgePanel.classList.contains('visible')) {
+                applyEdgePanelPosition('hidden');
+            } else {
+                applyEdgePanelPosition('visible');
+            }
+        };
+
+        edgePanelHandle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            initialX = e.clientX;
+            initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+            edgePanel.style.transition = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const currentX = e.clientX;
+                const dx = currentX - initialX;
+                edgePanel.style.right = `${initialRight - dx}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
+                const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+                const threshold = (EDGE_PANEL_HIDDEN_X + EDGE_PANEL_VISIBLE_X) / 2;
+                if (finalRight < threshold) {
+                    applyEdgePanelPosition('hidden');
+                } else {
+                    applyEdgePanelPosition('visible');
+                }
+            }
+        });
+
+        edgePanelHandle.addEventListener('click', () => {
+            if (isDragging) return;
+            toggleEdgePanelVisibility();
+        });
+        edgePanelHandle.addEventListener('keydown', (event) => {
+            if (isDragging) return;
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleEdgePanelVisibility();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            computeEdgePanelOffsets();
+            if (edgePanel.dataset.position === 'peek') {
+                applyEdgePanelPosition('peek');
+            } else if (edgePanel.classList.contains('visible')) {
+                applyEdgePanelPosition('visible');
+            } else {
+                applyEdgePanelPosition('hidden');
+            }
+        });
+
+        window.addEventListener('orientationchange', () => {
+            computeEdgePanelOffsets();
+            if (edgePanel.dataset.position === 'peek') {
+                applyEdgePanelPosition('peek');
+            } else if (edgePanel.classList.contains('visible')) {
+                applyEdgePanelPosition('visible');
+            } else {
+                applyEdgePanelPosition('hidden');
+            }
+        });
+    }
 
     function closeEdgePanel() {
-        edgePanel.classList.remove('visible');
-        edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
+        applyEdgePanelPosition('hidden');
     }
 
 
@@ -822,18 +898,15 @@ function closeCyclePrecision() {
     let autoPopOutInterval;
 
     function autoPopOutEdgePanel() {
-        if (chatbotWindowOpen || edgePanel.classList.contains('visible')) return;
+        if (!edgePanel || chatbotWindowOpen || edgePanel.classList.contains('visible')) return;
 
-        // Automatically pop out the panel shortly after page load
         setTimeout(() => {
-            edgePanel.style.right = EDGE_PANEL_PEEK_X;
-            edgePanel.classList.add('visible');
+            computeEdgePanelOffsets();
+            applyEdgePanelPosition('peek');
 
-            // And retract it after a few seconds
             setTimeout(() => {
-                if (!chatbotWindowOpen) { // Check again in case a panel was opened
-                    edgePanel.style.right = EDGE_PANEL_HIDDEN_X;
-                    edgePanel.classList.remove('visible');
+                if (!chatbotWindowOpen) {
+                    applyEdgePanelPosition('hidden');
                 }
             }, 5000);
         }, 2000);
