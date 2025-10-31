@@ -45,8 +45,7 @@ body {
 
 
 .overlay {
-    background: rgba(6, 24, 16, 0.74);
-    backdrop-filter: blur(18px);
+    background: linear-gradient(150deg, rgba(6, 24, 16, 0.9), rgba(6, 24, 16, 0.78));
     padding: clamp(1.5rem, 5vw, 2.75rem);
     border-radius: 24px;
     position: relative;
@@ -411,7 +410,6 @@ a {
     overflow: hidden;
     box-shadow: 0 25px 45px rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(14px);
 }
 
 #timer-progress {

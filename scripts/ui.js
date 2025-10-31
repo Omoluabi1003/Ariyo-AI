@@ -766,7 +766,7 @@ function closeCyclePrecision() {
     let initialX;
     let initialRight;
     let EDGE_PANEL_VISIBLE_X = 16;
-    let EDGE_PANEL_HIDDEN_X = -160;
+    let EDGE_PANEL_COLLAPSED_X = -160;
     let EDGE_PANEL_PEEK_X = -32;
 
     const computeEdgePanelOffsets = () => {
@@ -775,8 +775,12 @@ function closeCyclePrecision() {
         const handleRect = edgePanelHandle.getBoundingClientRect();
         const baseGap = window.innerWidth <= 900 ? Math.max(Math.round(window.innerWidth * 0.03), 10) : 16;
         EDGE_PANEL_VISIBLE_X = baseGap;
-        EDGE_PANEL_HIDDEN_X = Math.round(-(panelRect.width - handleRect.width - 4));
-        EDGE_PANEL_PEEK_X = Math.round(EDGE_PANEL_VISIBLE_X - (handleRect.width + 16));
+
+        const handleExposure = Math.max(Math.round(handleRect.width * 0.6), 14);
+        const minCollapsed = baseGap - handleExposure;
+        EDGE_PANEL_COLLAPSED_X = Math.max(minCollapsed, baseGap - (panelRect.width - 28));
+
+        EDGE_PANEL_PEEK_X = Math.min(Math.round(baseGap - (handleRect.width + 12)), EDGE_PANEL_COLLAPSED_X - 12);
     };
 
     const applyEdgePanelPosition = (state) => {
@@ -793,9 +797,9 @@ function closeCyclePrecision() {
                 edgePanel.style.right = `${EDGE_PANEL_VISIBLE_X}px`;
                 break;
             default:
+                edgePanel.dataset.position = 'collapsed';
                 edgePanel.classList.remove('visible');
-                delete edgePanel.dataset.position;
-                edgePanel.style.right = `${EDGE_PANEL_HIDDEN_X}px`;
+                edgePanel.style.right = `${EDGE_PANEL_COLLAPSED_X}px`;
                 break;
         }
     };
@@ -811,13 +815,13 @@ function closeCyclePrecision() {
         if (!edgePanelHandle.getAttribute('aria-label')) {
             edgePanelHandle.setAttribute('aria-label', 'Toggle Quick Launch hub');
         }
-        applyEdgePanelPosition('hidden');
+        applyEdgePanelPosition('collapsed');
 
         const toggleEdgePanelVisibility = () => {
             if (edgePanel.dataset.position === 'peek') {
                 applyEdgePanelPosition('visible');
             } else if (edgePanel.classList.contains('visible')) {
-                applyEdgePanelPosition('hidden');
+                applyEdgePanelPosition('collapsed');
             } else {
                 applyEdgePanelPosition('visible');
             }
@@ -843,9 +847,9 @@ function closeCyclePrecision() {
                 isDragging = false;
                 edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
                 const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-                const threshold = (EDGE_PANEL_HIDDEN_X + EDGE_PANEL_VISIBLE_X) / 2;
+                const threshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_VISIBLE_X) / 2;
                 if (finalRight < threshold) {
-                    applyEdgePanelPosition('hidden');
+                    applyEdgePanelPosition('collapsed');
                 } else {
                     applyEdgePanelPosition('visible');
                 }
@@ -871,7 +875,7 @@ function closeCyclePrecision() {
             } else if (edgePanel.classList.contains('visible')) {
                 applyEdgePanelPosition('visible');
             } else {
-                applyEdgePanelPosition('hidden');
+                applyEdgePanelPosition('collapsed');
             }
         });
 
@@ -882,13 +886,13 @@ function closeCyclePrecision() {
             } else if (edgePanel.classList.contains('visible')) {
                 applyEdgePanelPosition('visible');
             } else {
-                applyEdgePanelPosition('hidden');
+                applyEdgePanelPosition('collapsed');
             }
         });
     }
 
     function closeEdgePanel() {
-        applyEdgePanelPosition('hidden');
+        applyEdgePanelPosition('collapsed');
     }
 
 
@@ -906,7 +910,7 @@ function closeCyclePrecision() {
 
             setTimeout(() => {
                 if (!chatbotWindowOpen) {
-                    applyEdgePanelPosition('hidden');
+                    applyEdgePanelPosition('collapsed');
                 }
             }, 5000);
         }, 2000);
