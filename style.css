@@ -272,7 +272,7 @@ body {
         padding-bottom: 12rem;
     }
     .turntable-wrapper {
-        --turntable-size: clamp(140px, 18vw, 200px);
+        --turntable-size: clamp(155px, 20vw, 220px);
     }
 }
 
@@ -288,24 +288,25 @@ body {
 
 /* Music Player */
 .music-player {
-    background: transparent;
-    padding: clamp(0.75rem, 2vw, 1rem);
+    background: rgba(0, 0, 0, 0.6);
+    padding: clamp(1rem, 3vw, 1.5rem);
     text-align: center;
-    border-radius: 10px;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
-    position: fixed;
-    bottom: calc(0.75rem + env(safe-area-inset-bottom));
-    width: 100%;
-    max-width: min(760px, calc(100vw - var(--sidebar-width) - 2rem));
+    border-radius: 22px;
+    box-shadow: 0px 22px 48px rgba(0,0,0,0.6);
+    position: relative;
+    bottom: auto;
+    width: min(100%, calc(100vw - clamp(2rem, 8vw, 4rem)));
+    max-width: min(820px, calc(100vw - var(--sidebar-width) - clamp(2rem, 8vw, 4rem)));
     overflow: visible;
     max-height: none;
-    left: 50%;
-    transform: translateX(-50%);
+    left: auto;
+    transform: none;
+    margin: clamp(2rem, 6vh, 3rem) auto;
     z-index: 100;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(0.6rem, 2vw, 0.9rem);
+    gap: clamp(0.75rem, 2.5vw, 1.1rem);
     color: #fff;
     text-shadow: none;
 }
@@ -315,7 +316,7 @@ body {
     width: 100%;
     align-items: stretch;
     justify-content: center;
-    gap: clamp(0.75rem, 3vw, 1.5rem);
+    gap: clamp(1rem, 3.5vw, 1.8rem);
 }
 
 .player-visual {
@@ -364,12 +365,6 @@ body {
     margin: 0.2rem 0 0.1rem;
 }
 
-@media (min-width: 901px) {
-    .music-player {
-        left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
-    }
-}
-
 .about-us-active {
     position: relative;
     z-index: 1001;
@@ -381,7 +376,7 @@ body {
 }
 
 .turntable-wrapper {
-    --turntable-size: clamp(130px, 24vw, 180px);
+    --turntable-size: clamp(150px, 26vw, 210px);
     position: relative;
     width: var(--turntable-size);
     aspect-ratio: 1 / 1;
@@ -565,13 +560,13 @@ body {
     background: transparent;
     color: var(--theme-color);
     border: 2px solid var(--theme-color);
-    padding: 0;
-    border-radius: 15px;
+    padding: 0.1rem;
+    border-radius: 18px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     transition: background-color 0.2s, color 0.2s;
-    min-width: 40px;
-    min-height: 40px;
+    min-width: 48px;
+    min-height: 48px;
     touch-action: manipulation;
     pointer-events: auto;
 }
@@ -599,8 +594,8 @@ body {
     position: relative;
     background: radial-gradient(circle, var(--theme-color) 0%, #000 70%);
     border: none;
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     box-shadow: 0 0 10px var(--theme-color), 0 0 20px var(--theme-color) inset;
     display: flex;
@@ -947,10 +942,10 @@ body {
     }
     .music-player {
         z-index: 1000; /* Ensure the music player is on top */
-        left: 50%;
-        transform: translateX(-50%);
-        width: min(100%, calc(100vw - 1rem));
-        max-width: min(100%, calc(100vw - 1rem));
+        width: min(100%, calc(100vw - 1.5rem));
+        max-width: min(100%, calc(100vw - 1.5rem));
+        margin: clamp(1.75rem, 6vh, 2.75rem) auto;
+        padding: clamp(0.85rem, 4vw, 1.2rem);
     }
     .player-body {
         flex-direction: column;
@@ -970,7 +965,7 @@ body {
         justify-content: center;
     }
     .turntable-wrapper {
-        --turntable-size: clamp(110px, 42vw, 160px);
+        --turntable-size: clamp(125px, 45vw, 180px);
     }
 }
 
@@ -982,17 +977,17 @@ body {
         width: 45%;
     }
     .music-player {
-        bottom: 0;
-        padding: 0.5rem;
-        border-radius: 0;
-        max-width: 100%;
+        padding: clamp(0.75rem, 5vw, 1rem);
+        border-radius: 18px;
+        max-width: min(100%, calc(100vw - 1rem));
+        margin: clamp(1.5rem, 7vh, 2.25rem) auto;
     }
     .music-controls.icons-only {
         justify-content: center;
         gap: 0.4rem;
     }
     .turntable-wrapper {
-        --turntable-size: clamp(90px, 52vw, 130px);
+        --turntable-size: clamp(105px, 56vw, 150px);
     }
     .modal-content {
         width: 90%;
