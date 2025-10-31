@@ -53,9 +53,9 @@
   <style>
     :root {
       --glass-blur: 0px;
-      --edge-panel-top-offset: clamp(28px, 5vh, 60px);
-      --edge-panel-bottom-guard: clamp(12rem, 38vh, 16rem);
-      --edge-panel-max-height: 78vh;
+      --edge-panel-top-offset: clamp(18px, 4vh, 48px);
+      --edge-panel-bottom-guard: clamp(8rem, 30vh, 12rem);
+      --edge-panel-max-height: 88vh;
       --edge-panel-handle-width: clamp(22px, 5vw, 30px);
       --edge-panel-visible-gap: clamp(12px, 3vw, 18px);
     }
@@ -618,7 +618,17 @@
         padding: clamp(14px, 2.5vh, 18px) clamp(12px, 2vw, 16px);
         flex: 1;
         overflow-y: auto;
-        max-height: calc(var(--edge-panel-max-height) - 28px);
+        max-height: min(
+          calc(var(--edge-panel-max-height) - 28px),
+          calc(
+            var(--app-height, 100vh)
+            - env(safe-area-inset-top)
+            - env(safe-area-inset-bottom)
+            - var(--edge-panel-top-offset)
+            - clamp(5rem, 18vh, 7rem)
+          )
+        );
+        overscroll-behavior: contain;
         scrollbar-gutter: stable;
     }
     .tap-area {
@@ -1047,8 +1057,7 @@
   </div>
 
   <footer class="app-footer">
-    <p>&copy; 2024 Omoluabi Productions. Crafted in Naija with love. <a href="privacy.html">Privacy &amp; data use</a></p>
-    <p class="last-updated" aria-live="polite">Last updated: October 2025</p>
+    <p>&copy; 2024 Omoluabi Productions. <a href="privacy.html">Privacy &amp; data use</a></p>
   </footer>
 
   <!-- Music Player -->
