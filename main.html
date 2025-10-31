@@ -349,10 +349,9 @@
       }
     }
     .album-cover {
-      width: clamp(100px, 25vw, 180px);
-      height: clamp(100px, 25vw, 180px);
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      margin: 0.6rem auto;
       display: block;
       box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
       transition: transform 0.3s ease-in-out;
@@ -923,26 +922,43 @@
       .container {
         flex-direction: row;
         align-items: flex-start;
-        gap: 1.5rem;
+        gap: clamp(1.5rem, 3vw, 2.5rem);
       }
       .sidebar {
-        width: clamp(220px, 24vw, 300px);
+        flex: 0 0 clamp(240px, 20vw, 300px);
+        max-width: clamp(240px, 20vw, 300px);
         flex-direction: column;
         align-items: stretch;
-        gap: 0.75rem;
-        border-radius: 16px;
-        padding: 0.85rem 0.65rem;
+        gap: 0.6rem;
+        border-radius: 20px;
+        padding: 1.1rem 1rem;
         position: sticky;
         top: calc(env(safe-area-inset-top) + 88px);
         max-height: calc(var(--app-height, 100vh) - env(safe-area-inset-top) - 96px);
         overflow-y: auto;
         scrollbar-width: thin;
       }
+      .sidebar .search-bar {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: none;
+        font-size: 0.95rem;
+      }
       .sidebar button {
+        flex: 0 0 auto;
         width: 100%;
         min-width: unset;
+        min-height: 44px;
+        padding: 0.6rem 0.85rem;
+        font-size: 0.95rem;
+        border-radius: 16px;
+      }
+      .sidebar button .icon {
+        font-size: 1rem;
       }
       .content {
+        flex: 1 1 auto;
+        max-width: none;
         padding-bottom: 12rem;
       }
     }
