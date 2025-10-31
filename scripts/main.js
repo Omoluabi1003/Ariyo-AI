@@ -752,16 +752,30 @@
         const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
         const computedRoot = getComputedStyle(rootElement);
         const topOffset = parseFloat(computedRoot.getPropertyValue('--edge-panel-top-offset')) || 24;
+        const isCompactLayout = window.matchMedia('(max-width: 900px)').matches;
 
         let panelBottomGuard = 220;
+        let musicPlayerRect;
         if (musicPlayerElement) {
-            const musicPlayerRect = musicPlayerElement.getBoundingClientRect();
+            musicPlayerRect = musicPlayerElement.getBoundingClientRect();
             if (musicPlayerRect && musicPlayerRect.height) {
-                panelBottomGuard = Math.max(Math.ceil(musicPlayerRect.height) + 32, 220);
+                const extraBuffer = isCompactLayout ? 80 : 32;
+                panelBottomGuard = Math.max(Math.ceil(musicPlayerRect.height) + extraBuffer, 220);
             }
         }
 
         rootElement.style.setProperty('--edge-panel-bottom-guard', `${panelBottomGuard}px`);
+
+        if (isCompactLayout) {
+            mainEdgePanel.style.height = '';
+            mainEdgePanel.style.top = '';
+            mainEdgePanel.style.bottom = `${panelBottomGuard}px`;
+            mainEdgePanelContent.style.maxHeight = '';
+            mainEdgePanelContent.style.overflowY = 'hidden';
+            return;
+        }
+
+        mainEdgePanel.style.bottom = '';
 
         const availableHeight = Math.max(viewportHeight - panelBottomGuard - topOffset, 240);
         rootElement.style.setProperty('--edge-panel-max-height', `${availableHeight}px`);
@@ -798,44 +812,11 @@
         }
     }
 
-    const sidebarToggle = document.querySelector('.mobile-sidebar-toggle');
-    const appContainer = document.querySelector('.container');
     const sidebarNav = document.getElementById('sidebarNavigation');
-
-    if (sidebarNav && !sidebarNav.hasAttribute('tabindex')) {
-        sidebarNav.setAttribute('tabindex', '-1');
+    if (sidebarNav) {
+        sidebarNav.removeAttribute('aria-hidden');
+        sidebarNav.removeAttribute('tabindex');
     }
-
-    const updateSidebarAriaState = () => {
-        if (!sidebarNav) return;
-        const isMobile = window.matchMedia('(max-width: 900px)').matches;
-        const isOpen = appContainer && appContainer.classList.contains('mobile-sidebar-open');
-        sidebarNav.setAttribute('aria-hidden', isMobile && !isOpen ? 'true' : 'false');
-        if (!isMobile) {
-            if (appContainer) {
-                appContainer.classList.remove('mobile-sidebar-open');
-            }
-            if (sidebarToggle) {
-                sidebarToggle.setAttribute('aria-expanded', 'false');
-            }
-            sidebarNav.removeAttribute('aria-hidden');
-        }
-    };
-
-    if (sidebarToggle && appContainer && sidebarNav) {
-        sidebarToggle.addEventListener('click', () => {
-            const isOpen = appContainer.classList.toggle('mobile-sidebar-open');
-            sidebarToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            updateSidebarAriaState();
-            if (isOpen) {
-                requestAnimationFrame(() => sidebarNav.focus());
-            }
-        });
-    }
-
-    window.addEventListener('resize', updateSidebarAriaState);
-    window.addEventListener('orientationchange', updateSidebarAriaState);
-    updateSidebarAriaState();
 
     // Add this to your main.js file
     document.addEventListener('DOMContentLoaded', function() {

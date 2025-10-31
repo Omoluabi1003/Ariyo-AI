@@ -52,10 +52,11 @@
 
   <style>
     :root {
-      --sidebar-width: 250px;
-      --edge-panel-top-offset: 24px;
+      --edge-panel-top-offset: clamp(20px, 4vh, 48px);
       --edge-panel-bottom-guard: 18rem;
       --edge-panel-max-height: 70vh;
+      --edge-panel-handle-width: 28px;
+      --edge-panel-visible-gap: 16px;
     }
     html, body {
       height: 100%;
@@ -133,48 +134,37 @@
       align-items: center;
       gap: 0.5rem;
     }
-    .mobile-sidebar-toggle {
-      display: none;
-      background: rgba(0,0,0,0.55);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 999px;
-      padding: 0.45rem 0.9rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-      gap: 0.35rem;
-      align-items: center;
-      transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-    }
-    .mobile-sidebar-toggle i {
-      font-size: 1.05rem;
-    }
-    .mobile-sidebar-toggle:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.45);
-      border-color: var(--theme-color);
-    }
-    .mobile-sidebar-toggle:hover {
-      background: rgba(18, 183, 106, 0.35);
-    }
     .container {
       flex: 1;
       display: flex;
-      flex-direction: row;
-      overflow: hidden;
-    }
-    .sidebar {
-      width: var(--sidebar-width);
-      background: transparent;
-      display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem;
-      gap: 1rem;
-      border-radius: 15px;
-      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-      flex-shrink: 0;
+      gap: 1.5rem;
+      overflow: hidden;
+      padding: 0 1.5rem;
+      box-sizing: border-box;
+    }
+    .sidebar {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
       flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      padding: 1rem;
+      gap: 0.75rem;
+      border-radius: 18px;
+      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
+      position: sticky;
+      top: calc(env(safe-area-inset-top) + 90px);
+      z-index: 50;
+      backdrop-filter: blur(6px);
+    }
+    .sidebar .search-bar {
+      flex: 1 1 320px;
+      max-width: min(480px, 100%);
+      margin-bottom: 0.25rem;
     }
     .sidebar button {
       background: linear-gradient(135deg, var(--theme-color), #333);
@@ -182,7 +172,7 @@
       padding: 0.8rem 1rem;
       border: none;
       border-radius: 25px;
-      width: 90%;
+      flex: 1 1 clamp(160px, 24%, 220px);
       cursor: pointer;
       font-size: clamp(0.9rem, 2vw, 1rem);
       transition: all 0.3s ease-in-out;
@@ -191,6 +181,7 @@
       justify-content: center;
       gap: 0.5rem;
       min-height: 48px;
+      white-space: nowrap;
     }
     .sidebar button:hover {
       transform: scale(1.08);
@@ -198,18 +189,24 @@
     }
     .content {
       flex: 1;
+      width: 100%;
+      max-width: 960px;
       padding: 1.5rem;
       overflow-y: auto;
       opacity: 1;
       transition: opacity 0.5s ease-in-out;
       padding-bottom: 20rem; /* Add padding to avoid overlap */
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
     }
     .in-app-guide {
-      background: rgba(0, 0, 0, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 18px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
+      padding: 0.9rem 1.15rem;
+      margin-bottom: 1.25rem;
       color: #f5f5f5;
       backdrop-filter: blur(4px);
     }
@@ -235,32 +232,37 @@
     .in-app-guide-body {
       margin-top: 0.75rem;
       display: grid;
-      gap: 0.75rem;
+      gap: 0.65rem;
+      font-size: clamp(0.85rem, 2.3vw, 1rem);
+    }
+    .in-app-guide-intro {
+      margin: 0;
     }
     .in-app-guide-list {
       padding-left: 1.25rem;
       margin: 0;
       display: grid;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
     .edge-panel-hint {
-      background: rgba(18, 183, 106, 0.2);
+      background: rgba(18, 183, 106, 0.18);
       border-left: 3px solid var(--theme-color);
-      padding: 0.75rem 1rem;
+      padding: 0.65rem 1rem;
       border-radius: 12px;
-      margin-bottom: 1.25rem;
-      font-size: clamp(0.85rem, 2.4vw, 0.95rem);
+      margin-bottom: 1.1rem;
+      font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+      color: #d9fbe7;
     }
     .music-player {
-      background: transparent;
+      background: rgba(0, 0, 0, 0.6);
       padding: 1rem;
       text-align: center;
-      border-radius: 10px;
-      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+      border-radius: 16px;
+      box-shadow: 0px 18px 40px rgba(0,0,0,0.55);
       position: fixed;
       bottom: calc(1rem + env(safe-area-inset-bottom));
       width: 100%;
-      max-width: min(800px, calc(100vw - var(--sidebar-width) - 2rem));
+      max-width: min(800px, calc(100vw - 2rem));
       overflow-y: auto;
       max-height: 90vh;
       left: 50%;
@@ -269,49 +271,96 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    @media (min-width: 901px) {
-      .music-player {
-        left: calc(var(--sidebar-width) + (100vw - var(--sidebar-width)) / 2);
-      }
+      backdrop-filter: blur(6px);
     }
     @media (max-width: 900px) {
       :root {
-        --sidebar-width: 0px;
-        --edge-panel-top-offset: 16px;
+        --edge-panel-handle-width: 44px;
+        --edge-panel-visible-gap: 14px;
       }
       .container {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .content {
-        order: 1;
-        padding: 1.25rem;
+        padding: 0 1rem 0.5rem;
+        gap: 1.1rem;
+        align-items: stretch;
       }
       .sidebar {
-        order: 2;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 18px;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
-        padding: 1rem;
-        display: none;
+        position: static;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 0.65rem;
+        padding-bottom: 0.85rem;
+        scrollbar-width: thin;
+      }
+      .sidebar::-webkit-scrollbar {
+        height: 6px;
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(18, 183, 106, 0.7);
+        border-radius: 999px;
+      }
+      .sidebar .search-bar {
+        flex: 0 0 80%;
+        min-width: 260px;
       }
       .sidebar button {
-        width: 100%;
+        flex: 0 0 auto;
+        min-width: clamp(160px, 65vw, 220px);
       }
-      .mobile-sidebar-toggle {
-        display: inline-flex;
+      .content {
+        padding: 1.25rem;
+        background: rgba(0, 0, 0, 0.45);
       }
-      .container.mobile-sidebar-open #sidebarNavigation {
-        display: flex;
+      .edge-panel {
+        width: min(92vw, 360px);
+        right: -360px;
+        border-radius: 20px;
+        top: auto;
+        bottom: calc(6.5rem + env(safe-area-inset-bottom));
       }
-      #sidebarNavigation {
-        flex-direction: column;
-        gap: 0.75rem;
+      .edge-panel.visible {
+        right: clamp(0.5rem, 5vw, 1.5rem);
       }
-      .music-player {
+      .edge-panel-handle {
+        top: 0;
         left: 50%;
+        transform: translate(-50%, -100%);
+        width: clamp(140px, 52vw, 200px);
+        height: 52px;
+        border-radius: 18px 18px 0 0;
+        flex-direction: row;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+      .edge-panel-handle::after {
+        content: 'Quick hub';
+        writing-mode: initial;
+        transform: none;
+      }
+      .edge-panel-content {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0.75rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x proximity;
+        padding: 1rem;
+      }
+      .edge-panel-content::-webkit-scrollbar {
+        height: 6px;
+      }
+      .edge-panel-content::-webkit-scrollbar-thumb {
+        background: rgba(18, 183, 106, 0.6);
+        border-radius: 999px;
+      }
+      .edge-panel-item {
+        flex: 0 0 clamp(180px, 68vw, 240px);
+        scroll-snap-align: start;
+        min-height: 120px;
+      }
+      .edge-panel-item:hover {
+        transform: translateY(-4px);
       }
     }
     .album-cover {
@@ -487,14 +536,14 @@
     .edge-panel {
         position: fixed;
         top: calc(env(safe-area-inset-top) + var(--edge-panel-top-offset));
-        right: -160px;
+        right: -220px;
         transform: none;
-        width: min(190px, 60vw);
-        background-color: rgba(0, 0, 0, 0.65);
-        border-radius: 16px 0 0 16px;
-        transition: right 0.3s ease-in-out;
+        width: clamp(220px, 32vw, 280px);
+        background-color: rgba(0, 0, 0, 0.72);
+        border-radius: 18px 0 0 18px;
+        transition: right 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         z-index: 10000;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -504,27 +553,46 @@
             var(--app-height, 100vh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--edge-panel-bottom-guard) - var(--edge-panel-top-offset)
           )
         );
+        backdrop-filter: blur(4px);
     }
     .edge-panel.visible {
-        right: 0;
+        box-shadow: 0 18px 46px rgba(0, 0, 0, 0.55);
+        right: var(--edge-panel-visible-gap);
     }
     .edge-panel-handle {
         position: absolute;
         top: 50%;
-        left: -10px;
-        transform: translateY(-50%);
-        width: 20px;
-        height: clamp(96px, 28vh, 160px);
-        background-color: rgba(255, 255, 255, 0.5);
-        border-radius: 10px 0 0 10px;
+        left: calc(var(--edge-panel-handle-width) * -0.5);
+        transform: translate(-50%, -50%);
+        width: var(--edge-panel-handle-width);
+        height: clamp(110px, 30vh, 180px);
+        background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(18,183,106,0.85));
+        border-radius: 16px 0 0 16px;
         cursor: pointer;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        gap: 0.35rem;
+        color: rgba(12, 34, 25, 0.95);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        font-size: 0.7rem;
+    }
+    .edge-panel-handle:focus-visible {
+        outline: 3px solid rgba(255, 255, 255, 0.9);
+        outline-offset: 3px;
     }
     .edge-panel-handle::before {
-        content: '🤖';
+        content: '☰';
         font-size: 1.2rem;
+        line-height: 1;
+    }
+    .edge-panel-handle::after {
+        content: 'Hub';
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
     }
     .edge-panel-content {
         display: flex;
@@ -532,7 +600,7 @@
         justify-content: flex-start;
         align-items: stretch;
         gap: 12px;
-        padding: clamp(16px, 3vh, 20px) 12px;
+        padding: clamp(16px, 3vh, 20px) clamp(14px, 2vw, 18px);
         flex: 1;
         overflow-y: auto;
         max-height: calc(var(--edge-panel-max-height) - 32px);
@@ -569,7 +637,7 @@
     }
     .edge-panel-item {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 0.6rem;
       padding: 0.55rem 0.6rem;
       border-radius: 12px;
@@ -623,6 +691,10 @@
       text-decoration: underline;
     }
     .app-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
       text-align: center;
       padding: 1rem clamp(1rem, 4vw, 2rem);
       font-size: clamp(0.75rem, 2vw, 0.9rem);
@@ -634,6 +706,13 @@
     .app-footer a {
       color: var(--theme-color);
       text-decoration: underline;
+    }
+    .app-footer .last-updated {
+      font-weight: 600;
+      color: rgba(18, 183, 106, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
     }
     .youtube-embed-wrapper {
       width: 100%;
@@ -911,10 +990,6 @@
     <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" />
     <span class="header-title">Àríyò AI Studio</span>
     <div class="header-actions">
-      <button class="mobile-sidebar-toggle" type="button" aria-controls="sidebarNavigation" aria-expanded="false">
-        <span class="mobile-sidebar-toggle-label">Menu</span>
-        <i class="fas fa-bars" aria-hidden="true"></i>
-      </button>
       <button class="share-button" aria-label="Share this page" onclick="shareContent()">
         <i class="fas fa-share-alt"></i>
       </button>
@@ -932,26 +1007,26 @@
       <button onclick="openAboutModal()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
     </div>
     <div class="content" id="main-content">
-      <details class="in-app-guide" open>
-        <summary>What’s inside Àríyò AI?</summary>
+      <details class="in-app-guide">
+        <summary>Need a quick tour?</summary>
         <div class="in-app-guide-body">
-          <p class="in-app-guide-intro">Keep this cheat sheet handy while you explore—no need to hop back to the landing page to remember where everything lives.</p>
+          <p class="in-app-guide-intro">Open whenever you need a refresher—Àríyò AI keeps the entertainment front and center.</p>
           <ul class="in-app-guide-list">
-            <li><strong>Music player &amp; radio:</strong> spin Omoluabi catalog cuts, latest uploads, or jump into Naija/West African stations.</li>
-            <li><strong>Àríyò chat:</strong> ask cultural questions, get music recs, or explore Yoruba idioms with the resident AI.</li>
-            <li><strong>Sabi Bible:</strong> bilingual verse lookups with Yoruba and English explanations tailored for Naija believers.</li>
-            <li><strong>Games &amp; learning:</strong> launch Picture Game, Tetris, Word Search, Ara Connect-4, or Cycle Precision for quick brain breaks.</li>
-            <li><strong>Creator corner:</strong> watch Omoluabi Paul on YouTube or read more inside the About modal.</li>
+            <li><strong>Music &amp; radio:</strong> spin Omoluabi catalog cuts or hop into Naija stations from the player below.</li>
+            <li><strong>Àríyò chat:</strong> ask cultural questions or request playlists inside the Quick Launch hub.</li>
+            <li><strong>Faith &amp; fun:</strong> explore Sabi Bible or fire up puzzles like Tetris and Word Search from the same hub.</li>
+            <li><strong>Creator corner:</strong> catch Omoluabi Paul on YouTube or learn more via the About button above.</li>
           </ul>
         </div>
       </details>
-      <div class="edge-panel-hint" role="note">Tap the right-hand edge panel or use the inline labels below to jump directly into chat, Bible study, video, or puzzle modes.</div>
+      <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <div id="newsContainer" class="news-container" style="display: none;"></div>
     </div>
   </div>
 
   <footer class="app-footer">
     <p>&copy; 2024 Omoluabi Productions. Crafted in Naija with love. <a href="privacy.html">Privacy &amp; data use</a></p>
+    <p class="last-updated" aria-live="polite">Last updated: October 2025</p>
   </footer>
 
   <!-- Music Player -->
@@ -1065,7 +1140,7 @@
 </div>
 
 <div class="edge-panel" id="edgePanel">
-    <div class="edge-panel-handle"></div>
+    <div class="edge-panel-handle" role="button" tabindex="0" aria-label="Toggle Quick Launch hub"></div>
     <div class="edge-panel-content">
         <p class="edge-panel-intro">Quick launch hub</p>
         <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="ariyoChatbotContainer" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" aria-describedby="edgeLabelAriyo">

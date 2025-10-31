@@ -237,6 +237,13 @@ a {
 .footer-note p {
     margin: 0;
 }
+.footer-note .footer-updated {
+    margin-top: 0.35rem;
+    color: #12b76a;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
 
 @media (max-width: 768px) {
     .overlay {
