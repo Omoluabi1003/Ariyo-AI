@@ -757,13 +757,20 @@
         const isCompactLayout = window.matchMedia('(max-width: 900px)').matches;
 
         if (isCompactLayout) {
-            const compactGuard = Math.max(Math.ceil((musicPlayerElement?.getBoundingClientRect()?.height || 0)) + 48, EDGE_PANEL_MIN_HEIGHT);
-            rootElement.style.setProperty('--edge-panel-bottom-guard', `${compactGuard}px`);
-            rootElement.style.setProperty('--edge-panel-max-height', `${Math.max(viewportHeight - topOffset - compactGuard, EDGE_PANEL_MIN_HEIGHT)}px`);
+            const measuredPlayerHeight = Math.ceil(musicPlayerElement?.getBoundingClientRect()?.height || 0);
+            const guardTarget = Math.max(measuredPlayerHeight + 48, EDGE_PANEL_MIN_HEIGHT);
+            const compactTop = Math.max(topOffset, 16);
+            const maximumBottom = Math.max(viewportHeight - compactTop - EDGE_PANEL_MIN_HEIGHT, 0);
+            const compactBottom = Math.max(0, Math.min(guardTarget, maximumBottom));
+            const compactMaxHeight = Math.max(viewportHeight - compactTop - compactBottom, EDGE_PANEL_MIN_HEIGHT);
+
+            rootElement.style.setProperty('--edge-panel-bottom-guard', `${compactBottom}px`);
+            rootElement.style.setProperty('--edge-panel-max-height', `${compactMaxHeight}px`);
+
             mainEdgePanel.style.height = '';
             mainEdgePanel.style.transform = 'none';
-            mainEdgePanel.style.top = '';
-            mainEdgePanel.style.bottom = `${compactGuard}px`;
+            mainEdgePanel.style.top = `${compactTop}px`;
+            mainEdgePanel.style.bottom = `${compactBottom}px`;
             mainEdgePanelContent.style.maxHeight = '';
             mainEdgePanelContent.style.overflowY = 'auto';
             return;
