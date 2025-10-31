@@ -549,6 +549,8 @@ function updateEdgePanelBehavior() {
     chatbotWindowOpen = isAnyPanelOpen();
     if (chatbotWindowOpen) {
         closeEdgePanel();
+    } else {
+        showEdgePanelPeek();
     }
 }
 
@@ -777,10 +779,14 @@ function closeCyclePrecision() {
         const tuckDistance = panelRect.width - handleExposure;
         EDGE_PANEL_COLLAPSED_X = baseGap - tuckDistance;
 
-        const midpoint = Math.round((EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_VISIBLE_X) / 2);
-        const peekLimit = EDGE_PANEL_VISIBLE_X - Math.round(handleRect.width * 1.1);
-        const peekCandidate = Math.min(midpoint, peekLimit);
-        EDGE_PANEL_PEEK_X = Math.max(peekCandidate, EDGE_PANEL_COLLAPSED_X + Math.round(handleExposure * 0.6));
+        const desiredPeekExposure = Math.min(
+            Math.max(Math.round(panelRect.width * 0.45), 140),
+            panelRect.width - Math.round(handleExposure * 0.4)
+        );
+        const peekRight = EDGE_PANEL_VISIBLE_X - desiredPeekExposure;
+        const peekLowerBound = EDGE_PANEL_COLLAPSED_X + Math.round(handleExposure * 0.5);
+        const peekUpperBound = EDGE_PANEL_VISIBLE_X - Math.round(handleRect.width * 0.6);
+        EDGE_PANEL_PEEK_X = Math.min(Math.max(peekRight, peekLowerBound), peekUpperBound);
     };
 
     const applyEdgePanelPosition = (state) => {
@@ -806,6 +812,7 @@ function closeCyclePrecision() {
 
     if (edgePanel && edgePanelHandle) {
         computeEdgePanelOffsets();
+        applyEdgePanelPosition('peek');
         if (!edgePanelHandle.getAttribute('role')) {
             edgePanelHandle.setAttribute('role', 'button');
         }
@@ -815,13 +822,9 @@ function closeCyclePrecision() {
         if (!edgePanelHandle.getAttribute('aria-label')) {
             edgePanelHandle.setAttribute('aria-label', 'Toggle Quick Launch hub');
         }
-        applyEdgePanelPosition('collapsed');
-
         const toggleEdgePanelVisibility = () => {
-            if (edgePanel.dataset.position === 'peek') {
-                applyEdgePanelPosition('visible');
-            } else if (edgePanel.classList.contains('visible')) {
-                applyEdgePanelPosition('collapsed');
+            if (edgePanel.classList.contains('visible') && edgePanel.dataset.position !== 'peek') {
+                applyEdgePanelPosition('peek');
             } else {
                 applyEdgePanelPosition('visible');
             }
@@ -847,9 +850,13 @@ function closeCyclePrecision() {
                 isDragging = false;
                 edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
                 const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-                const threshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_VISIBLE_X) / 2;
-                if (finalRight < threshold) {
+                const collapseThreshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_PEEK_X) / 2;
+                const peekThreshold = (EDGE_PANEL_PEEK_X + EDGE_PANEL_VISIBLE_X) / 2;
+
+                if (finalRight <= collapseThreshold) {
                     applyEdgePanelPosition('collapsed');
+                } else if (finalRight <= peekThreshold) {
+                    applyEdgePanelPosition('peek');
                 } else {
                     applyEdgePanelPosition('visible');
                 }
@@ -893,6 +900,11 @@ function closeCyclePrecision() {
 
     function closeEdgePanel() {
         applyEdgePanelPosition('collapsed');
+    }
+
+    function showEdgePanelPeek() {
+        if (!edgePanel) return;
+        applyEdgePanelPosition('peek');
     }
 
 
