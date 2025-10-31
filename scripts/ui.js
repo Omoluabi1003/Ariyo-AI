@@ -770,28 +770,26 @@ function closeCyclePrecision() {
 
     const computeEdgePanelOffsets = () => {
         if (!edgePanel || !edgePanelHandle) return;
-        const panelRect = edgePanel.getBoundingClientRect();
-        const handleRect = edgePanelHandle.getBoundingClientRect();
-        const baseGap = window.innerWidth <= 900 ? Math.max(Math.round(window.innerWidth * 0.03), 10) : 16;
-        EDGE_PANEL_VISIBLE_X = baseGap;
+        const panelWidth = edgePanel.offsetWidth;
+        const handleWidth = edgePanelHandle.offsetWidth || Math.max(Math.round(panelWidth * 0.08), 16);
 
-        const handleExposure = Math.max(Math.round(handleRect.width * 0.85), 18);
-        const tuckDistance = panelRect.width - handleExposure;
-        EDGE_PANEL_COLLAPSED_X = baseGap - tuckDistance;
+        const rootStyles = window.getComputedStyle(document.documentElement);
+        const configuredGap = parseFloat(rootStyles.getPropertyValue('--edge-panel-visible-gap'));
+        const responsiveGap = window.innerWidth <= 900
+            ? Math.max(Math.round(window.innerWidth * 0.028), 10)
+            : Math.max(Math.round(window.innerWidth * 0.018), 12);
+        EDGE_PANEL_VISIBLE_X = Number.isNaN(configuredGap) ? responsiveGap : Math.max(configuredGap, responsiveGap);
 
-        const extraPeekReveal = Math.min(
-            Math.max(Math.round(handleRect.width * 0.6), 14),
-            Math.round(panelRect.width * 0.25)
-        );
-        const desiredPeekExposure = Math.min(
-            handleExposure + extraPeekReveal,
-            panelRect.width - Math.round(handleExposure * 0.55)
-        );
+        // Inspired by the Samsung One UI edge panel behaviour — keep only the handle and a slim glow visible.
+        const handleReveal = Math.max(Math.round(handleWidth * 0.55), 14);
+        const tuckedWidth = panelWidth - handleReveal;
+        EDGE_PANEL_COLLAPSED_X = EDGE_PANEL_VISIBLE_X - tuckedWidth;
 
-        const peekRight = EDGE_PANEL_VISIBLE_X - desiredPeekExposure;
-        const peekLowerBound = EDGE_PANEL_COLLAPSED_X + Math.round(handleExposure * 0.35);
-        const peekUpperBound = EDGE_PANEL_VISIBLE_X - Math.round(handleRect.width * 0.4);
-        EDGE_PANEL_PEEK_X = Math.min(Math.max(peekRight, peekLowerBound), peekUpperBound);
+        const peekAccentReveal = Math.min(Math.round(handleWidth * 0.35), 18);
+        const peekExposure = handleReveal + peekAccentReveal;
+        const minimumPeek = EDGE_PANEL_COLLAPSED_X + Math.round(handleWidth * 0.25);
+        const maximumPeek = EDGE_PANEL_VISIBLE_X - Math.round(handleWidth * 0.35);
+        EDGE_PANEL_PEEK_X = Math.min(Math.max(EDGE_PANEL_VISIBLE_X - peekExposure, minimumPeek), maximumPeek);
     };
 
     const applyEdgePanelPosition = (state) => {
@@ -835,38 +833,66 @@ function closeCyclePrecision() {
             }
         };
 
-        edgePanelHandle.addEventListener('mousedown', (e) => {
+        const beginDrag = (clientX) => {
             isDragging = true;
-            initialX = e.clientX;
+            initialX = clientX;
             initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
             edgePanel.style.transition = 'none';
+        };
+
+        edgePanelHandle.addEventListener('mousedown', (e) => {
+            beginDrag(e.clientX);
         });
+
+        edgePanelHandle.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+            beginDrag(touch.clientX);
+        }, { passive: true });
+
+        const clampPanelRight = (value) => {
+            return Math.min(Math.max(value, EDGE_PANEL_COLLAPSED_X), EDGE_PANEL_VISIBLE_X);
+        };
+
+        const endDrag = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
+            const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+            const collapseThreshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_PEEK_X) / 2;
+            const peekThreshold = (EDGE_PANEL_PEEK_X + EDGE_PANEL_VISIBLE_X) / 2;
+
+            if (finalRight <= collapseThreshold) {
+                applyEdgePanelPosition('collapsed');
+            } else if (finalRight <= peekThreshold) {
+                applyEdgePanelPosition('peek');
+            } else {
+                applyEdgePanelPosition('visible');
+            }
+        };
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging) {
                 const currentX = e.clientX;
                 const dx = currentX - initialX;
-                edgePanel.style.right = `${initialRight - dx}px`;
+                const nextRight = clampPanelRight(initialRight - dx);
+                edgePanel.style.right = `${nextRight}px`;
             }
         });
 
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
-                const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-                const collapseThreshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_PEEK_X) / 2;
-                const peekThreshold = (EDGE_PANEL_PEEK_X + EDGE_PANEL_VISIBLE_X) / 2;
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const touch = e.touches[0];
+            if (!touch) return;
+            const dx = touch.clientX - initialX;
+            const nextRight = clampPanelRight(initialRight - dx);
+            edgePanel.style.right = `${nextRight}px`;
+        }, { passive: true });
 
-                if (finalRight <= collapseThreshold) {
-                    applyEdgePanelPosition('collapsed');
-                } else if (finalRight <= peekThreshold) {
-                    applyEdgePanelPosition('peek');
-                } else {
-                    applyEdgePanelPosition('visible');
-                }
-            }
-        });
+        document.addEventListener('mouseup', endDrag);
+
+        document.addEventListener('touchend', endDrag, { passive: true });
+        document.addEventListener('touchcancel', endDrag, { passive: true });
 
         edgePanelHandle.addEventListener('click', () => {
             if (isDragging) return;
