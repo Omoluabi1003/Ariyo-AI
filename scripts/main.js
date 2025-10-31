@@ -572,7 +572,6 @@
 
     // Initialize player
     initializePlayer();
-    autoPopOutEdgePanel();
 
     // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);

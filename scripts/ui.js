@@ -549,9 +549,6 @@ function updateEdgePanelBehavior() {
     chatbotWindowOpen = isAnyPanelOpen();
     if (chatbotWindowOpen) {
         closeEdgePanel();
-        clearInterval(autoPopOutInterval);
-    } else if (!edgePanel.classList.contains('visible')) {
-        autoPopOutEdgePanel();
     }
 }
 
@@ -776,11 +773,14 @@ function closeCyclePrecision() {
         const baseGap = window.innerWidth <= 900 ? Math.max(Math.round(window.innerWidth * 0.03), 10) : 16;
         EDGE_PANEL_VISIBLE_X = baseGap;
 
-        const handleExposure = Math.max(Math.round(handleRect.width * 0.6), 14);
-        const minCollapsed = baseGap - handleExposure;
-        EDGE_PANEL_COLLAPSED_X = Math.max(minCollapsed, baseGap - (panelRect.width - 28));
+        const handleExposure = Math.max(Math.round(handleRect.width * 0.75), 18);
+        const tuckDistance = panelRect.width - handleExposure;
+        EDGE_PANEL_COLLAPSED_X = baseGap - tuckDistance;
 
-        EDGE_PANEL_PEEK_X = Math.min(Math.round(baseGap - (handleRect.width + 12)), EDGE_PANEL_COLLAPSED_X - 12);
+        const midpoint = Math.round((EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_VISIBLE_X) / 2);
+        const peekLimit = EDGE_PANEL_VISIBLE_X - Math.round(handleRect.width * 1.1);
+        const peekCandidate = Math.min(midpoint, peekLimit);
+        EDGE_PANEL_PEEK_X = Math.max(peekCandidate, EDGE_PANEL_COLLAPSED_X + Math.round(handleExposure * 0.6));
     };
 
     const applyEdgePanelPosition = (state) => {
@@ -897,24 +897,8 @@ function closeCyclePrecision() {
 
 
 
-    /* AUTO POP-OUT/RETRACT EDGE PANEL */
+    /* EDGE PANEL STATE HELPERS */
     let chatbotWindowOpen = false;
-    let autoPopOutInterval;
-
-    function autoPopOutEdgePanel() {
-        if (!edgePanel || chatbotWindowOpen || edgePanel.classList.contains('visible')) return;
-
-        setTimeout(() => {
-            computeEdgePanelOffsets();
-            applyEdgePanelPosition('peek');
-
-            setTimeout(() => {
-                if (!chatbotWindowOpen) {
-                    applyEdgePanelPosition('collapsed');
-                }
-            }, 5000);
-        }, 2000);
-    }
 
 function showNowPlayingToast(trackTitle) {
   const toast = document.getElementById('nowPlayingToast');
