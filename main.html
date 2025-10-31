@@ -323,6 +323,7 @@
         border-radius: 24px 0 0 24px;
         top: calc(env(safe-area-inset-top) + 20px);
         bottom: auto;
+        transform: none;
       }
       .edge-panel.visible {
         right: clamp(0.5rem, 5vw, 1.5rem);
@@ -519,9 +520,10 @@
     }
     .edge-panel {
         position: fixed;
-        top: calc(env(safe-area-inset-top) + var(--edge-panel-top-offset));
+        top: 50%;
         right: -220px;
-        transform: none;
+        transform: translateY(-50%);
+        bottom: auto;
         width: clamp(220px, 30vw, 272px);
         background: linear-gradient(160deg, rgba(8, 31, 22, 0.9), rgba(3, 15, 10, 0.86));
         border-radius: 24px 0 0 24px;

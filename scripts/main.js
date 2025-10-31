@@ -745,6 +745,9 @@
     const mainEdgePanelContent = document.querySelector('.edge-panel-content');
     const musicPlayerElement = document.querySelector('.music-player');
 
+    const MIN_EDGE_PANEL_APPS_VISIBLE = 4;
+    const EDGE_PANEL_MIN_HEIGHT = 220;
+
     const updateEdgePanelHeight = () => {
         if (!mainEdgePanel || !mainEdgePanelContent) return;
 
@@ -753,47 +756,79 @@
         const topOffset = parseFloat(computedRoot.getPropertyValue('--edge-panel-top-offset')) || 24;
         const isCompactLayout = window.matchMedia('(max-width: 900px)').matches;
 
-        let panelBottomGuard = 220;
-        let musicPlayerRect;
-        if (musicPlayerElement) {
-            musicPlayerRect = musicPlayerElement.getBoundingClientRect();
-            if (musicPlayerRect && musicPlayerRect.height) {
-                const extraBuffer = isCompactLayout ? 80 : 32;
-                panelBottomGuard = Math.max(Math.ceil(musicPlayerRect.height) + extraBuffer, 220);
-            }
-        }
-
-        rootElement.style.setProperty('--edge-panel-bottom-guard', `${panelBottomGuard}px`);
-
         if (isCompactLayout) {
+            const compactGuard = Math.max(Math.ceil((musicPlayerElement?.getBoundingClientRect()?.height || 0)) + 48, EDGE_PANEL_MIN_HEIGHT);
+            rootElement.style.setProperty('--edge-panel-bottom-guard', `${compactGuard}px`);
+            rootElement.style.setProperty('--edge-panel-max-height', `${Math.max(viewportHeight - topOffset - compactGuard, EDGE_PANEL_MIN_HEIGHT)}px`);
             mainEdgePanel.style.height = '';
+            mainEdgePanel.style.transform = 'none';
             mainEdgePanel.style.top = '';
-            mainEdgePanel.style.bottom = `${panelBottomGuard}px`;
+            mainEdgePanel.style.bottom = `${compactGuard}px`;
             mainEdgePanelContent.style.maxHeight = '';
-            mainEdgePanelContent.style.overflowY = 'hidden';
+            mainEdgePanelContent.style.overflowY = 'auto';
             return;
         }
 
-        mainEdgePanel.style.bottom = '';
+        const verticalMargin = Math.max(topOffset, 24);
+        const availableHeight = Math.max(viewportHeight - 2 * verticalMargin, EDGE_PANEL_MIN_HEIGHT);
 
-        const availableHeight = Math.max(viewportHeight - panelBottomGuard - topOffset, 240);
+        rootElement.style.setProperty('--edge-panel-bottom-guard', `${verticalMargin}px`);
         rootElement.style.setProperty('--edge-panel-max-height', `${availableHeight}px`);
 
-        const scrollableLimit = Math.max(availableHeight - 24, 160);
-        mainEdgePanelContent.style.maxHeight = `${scrollableLimit}px`;
+        const contentStyles = window.getComputedStyle(mainEdgePanelContent);
+        const paddingTop = parseFloat(contentStyles.paddingTop) || 0;
+        const paddingBottom = parseFloat(contentStyles.paddingBottom) || 0;
+        const gapValue = parseFloat(contentStyles.rowGap || contentStyles.gap || 0) || 0;
+        const introEl = mainEdgePanelContent.querySelector('.edge-panel-intro');
+        let introHeight = 0;
+        let introMargins = 0;
+        if (introEl) {
+            const introRect = introEl.getBoundingClientRect();
+            introHeight = introRect?.height || 0;
+            const introStyles = window.getComputedStyle(introEl);
+            introMargins = (parseFloat(introStyles.marginTop) || 0) + (parseFloat(introStyles.marginBottom) || 0);
+        }
 
-        const needsScroll = mainEdgePanelContent.scrollHeight > scrollableLimit;
-        mainEdgePanel.style.height = needsScroll ? `${availableHeight}px` : '';
+        const launcherItems = Array.from(mainEdgePanelContent.querySelectorAll('.edge-panel-item'));
+        const visibleCount = Math.min(MIN_EDGE_PANEL_APPS_VISIBLE, launcherItems.length);
+        let launcherHeight = 0;
+        if (launcherItems.length) {
+            const itemRect = launcherItems[0].getBoundingClientRect();
+            launcherHeight = itemRect?.height || 0;
+            if (!launcherHeight) {
+                const itemStyles = window.getComputedStyle(launcherItems[0]);
+                launcherHeight = parseFloat(itemStyles.minHeight) || 56;
+            }
+        }
+        if (!launcherHeight) {
+            launcherHeight = 56;
+        }
+
+        const itemsHeight = visibleCount > 0
+            ? (visibleCount * launcherHeight) + Math.max(0, visibleCount - 1) * gapValue
+            : 0;
+        const desiredContentHeight = paddingTop + paddingBottom + introHeight + introMargins + itemsHeight;
+        const contentMaxHeight = Math.min(availableHeight, Math.max(desiredContentHeight, EDGE_PANEL_MIN_HEIGHT));
+
+        mainEdgePanelContent.style.maxHeight = `${contentMaxHeight}px`;
+        const needsScroll = mainEdgePanelContent.scrollHeight > contentMaxHeight + 1;
         mainEdgePanelContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
 
+        mainEdgePanel.style.height = '';
+        mainEdgePanel.style.bottom = '';
+        mainEdgePanel.style.top = '50%';
+        mainEdgePanel.style.transform = 'translateY(-50%)';
+
         const panelRect = mainEdgePanel.getBoundingClientRect();
-        const measuredHeight = panelRect.height || Math.min(availableHeight, mainEdgePanelContent.scrollHeight + 48);
-        const idealTop = (viewportHeight - measuredHeight) / 2;
-        const maxTop = viewportHeight - panelBottomGuard - measuredHeight;
-        const upperBound = Math.max(topOffset, maxTop);
-        const centeredTop = Math.max(topOffset, Math.min(idealTop, upperBound));
-        const safeTop = Number.isFinite(centeredTop) ? centeredTop : topOffset;
-        mainEdgePanel.style.top = `${safeTop}px`;
+        const measuredHeight = panelRect.height || contentMaxHeight;
+        const centeredTop = (viewportHeight - measuredHeight) / 2;
+        const maxTop = viewportHeight - measuredHeight - verticalMargin;
+        const safeTop = Math.max(verticalMargin, Math.min(centeredTop, maxTop));
+
+        if (Number.isFinite(safeTop)) {
+            mainEdgePanel.style.top = `${safeTop}px`;
+            mainEdgePanel.style.transform = 'none';
+        }
     };
 
     if (mainEdgePanel && mainEdgePanelContent) {

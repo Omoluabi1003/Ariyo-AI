@@ -176,7 +176,10 @@ const albums = [
       },
     ];
 
-const latestTracks = [
+const LATEST_TRACK_WINDOW_HOURS = 36;
+const LATEST_TRACK_LIMIT = 2;
+
+const latestTrackAnnouncements = [
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Persecutory Paranoia',
@@ -214,6 +217,27 @@ const latestTracks = [
     addedOn: '2024-05-06'
   }
 ];
+
+function normalizeLatestTracks(tracks) {
+  if (!Array.isArray(tracks)) return [];
+  const now = Date.now();
+  const cutoff = now - LATEST_TRACK_WINDOW_HOURS * 60 * 60 * 1000;
+
+  return tracks
+    .map(track => {
+      const parsed = Date.parse(track.addedOn);
+      if (Number.isNaN(parsed)) return null;
+      const safeTimestamp = Math.min(parsed, now);
+      return { ...track, addedTimestamp: safeTimestamp };
+    })
+    .filter(Boolean)
+    .filter(track => track.addedTimestamp >= cutoff)
+    .sort((a, b) => b.addedTimestamp - a.addedTimestamp)
+    .slice(0, LATEST_TRACK_LIMIT)
+    .map(({ addedTimestamp, ...rest }) => rest);
+}
+
+const latestTracks = normalizeLatestTracks(latestTrackAnnouncements);
 
 // Shuffle albums so they appear in a random order on each page load
 function shuffle(array) {
