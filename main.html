@@ -259,23 +259,78 @@
     }
     .music-player {
       background: rgba(0, 0, 0, 0.6);
-      padding: 1rem;
+      padding: clamp(0.75rem, 2vw, 1rem);
       text-align: center;
       border-radius: 16px;
       box-shadow: 0px 18px 40px rgba(0,0,0,0.55);
       position: fixed;
-      bottom: calc(1rem + env(safe-area-inset-bottom));
+      bottom: calc(0.75rem + env(safe-area-inset-bottom));
       width: 100%;
-      max-width: min(800px, calc(100vw - 2rem));
-      overflow-y: auto;
-      max-height: 90vh;
+      max-width: min(760px, calc(100vw - 2rem));
+      overflow: visible;
+      max-height: none;
       left: 50%;
       transform: translateX(-50%);
       z-index: 100;
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: clamp(0.6rem, 2vw, 0.9rem);
       backdrop-filter: saturate(140%) blur(var(--glass-blur));
+    }
+
+    .player-body {
+      display: flex;
+      width: 100%;
+      align-items: stretch;
+      justify-content: center;
+      gap: clamp(0.75rem, 3vw, 1.5rem);
+    }
+
+    .player-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 0 0 auto;
+    }
+
+    .player-main {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.55rem;
+      flex: 1 1 auto;
+      width: 100%;
+    }
+
+    .player-meta-grid {
+      display: grid;
+      width: 100%;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.35rem 0.75rem;
+      text-align: left;
+    }
+
+    .player-meta-grid p {
+      margin: 0;
+    }
+
+    .player-utility {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    .player-utility .retry-button {
+      flex: 1 1 clamp(120px, 32%, 180px);
+    }
+
+    .seek-bar {
+      width: 100%;
+      margin: 0.2rem 0 0.1rem;
     }
     @media (max-width: 900px) {
       :root {
@@ -316,6 +371,23 @@
       .content {
         padding: 1.25rem;
         background: rgba(0, 0, 0, 0.45);
+      }
+      .player-body {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .player-main {
+        align-items: center;
+      }
+      .player-main .track-info {
+        text-align: center;
+      }
+      .player-meta-grid {
+        text-align: center;
+      }
+      .player-utility {
+        justify-content: center;
       }
       .edge-panel {
         width: min(82vw, 296px);
@@ -372,10 +444,10 @@
       margin: 0 auto;
     }
     /* Music control styling handled in style.css */
-    .track-info { margin-top: 0.6rem; font-size: clamp(0.9rem, 2.5vw, 1.1rem); }
-    .track-duration { font-size: clamp(0.7rem, 1.8vw, 0.8rem); margin-top: 0.3rem; }
-    #lyrics { margin-top: 0.6rem; max-height: 200px; overflow-y: auto; text-align: center; display: none; }
-    #lyrics p { margin: 0.2rem 0; }
+    .track-info { margin: 0; font-size: clamp(0.9rem, 2.5vw, 1.1rem); }
+    .track-duration { font-size: clamp(0.7rem, 1.8vw, 0.85rem); }
+    #lyrics { margin-top: 0.4rem; max-height: 180px; overflow-y: auto; text-align: left; display: none; }
+    #lyrics p { margin: 0.15rem 0; }
     #lyrics p.active { color: var(--theme-color); font-weight: bold; }
     .track-details { margin-top: 0.6rem; font-size: clamp(0.7rem, 1.8vw, 0.8rem); }
     .modal {
@@ -1081,56 +1153,66 @@
   <!-- Music Player -->
   <div class="music-player">
     <h3>Music Player</h3>
-    <div class="turntable-wrapper">
-      <div class="turntable">
-        <div class="turntable-disc">
-          <span class="turntable-grooves" aria-hidden="true"></span>
-          <img
-            id="albumCover"
-            class="album-cover"
-            src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-            alt="Album Cover"
-            onerror="this.onerror=null;this.src='Logo.jpg';"
-          />
-          <span class="album-groove-overlay" aria-hidden="true"></span>
-          <span class="turntable-label" aria-hidden="true"></span>
+    <div class="player-body">
+      <div class="player-visual">
+        <div class="turntable-wrapper">
+          <div class="turntable">
+            <div class="turntable-disc">
+              <span class="turntable-grooves" aria-hidden="true"></span>
+              <img
+                id="albumCover"
+                class="album-cover"
+                src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
+                alt="Album Cover"
+                onerror="this.onerror=null;this.src='Logo.jpg';"
+              />
+              <span class="album-groove-overlay" aria-hidden="true"></span>
+              <span class="turntable-label" aria-hidden="true"></span>
+            </div>
+            <span class="turntable-sheen" aria-hidden="true"></span>
+          </div>
         </div>
-        <span class="turntable-sheen" aria-hidden="true"></span>
+        <div id="loadingSpinner" class="loading-spinner"></div>
       </div>
-    </div>
-    <div id="loadingSpinner" class="loading-spinner"></div>
-    <div id="progressBar" class="progress-bar">
-      <div id="progressBarFill"></div>
-    </div>
-    <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
-    <p class="track-details" id="trackArtist">Artist:</p>
-    <p class="track-details" id="trackYear">Release Year: 2025</p>
-    <p class="track-details" id="trackAlbum"></p> <!-- Added for album display -->
-    <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
-    <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p> <!-- New shuffle status display -->
-    <p id="nextTrackInfo" class="track-details" style="font-style: italic;"></p>
-    <input
-      type="range"
-      id="seekBar"
-      value="0"
-      min="0"
-      max="100"
-      step="1"
-      style="width: 90%; margin-top: 10px;"
-      aria-label="Seek bar for audio playback"
-      aria-controls="audioPlayer"
-    />
-    <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
-    <button id="addToPlaylistButton" class="retry-button" onclick="addCurrentTrackToPlaylist()" aria-label="Add current track to playlist">Add to Playlist</button>
-    <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
-    <div id="lyrics"></div>
-    <div class="music-controls icons-only">
-      <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
-      <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer" class="ripple shockwave play-button"></button>
-      <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
-      <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
-      <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
-      <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
+      <div class="player-main">
+        <div id="progressBar" class="progress-bar">
+          <div id="progressBarFill"></div>
+        </div>
+        <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
+        <div class="player-meta-grid">
+          <p class="track-details" id="trackArtist">Artist:</p>
+          <p class="track-details" id="trackYear">Release Year: 2025</p>
+          <p class="track-details" id="trackAlbum"></p>
+          <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+          <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p>
+          <p id="nextTrackInfo" class="track-details" style="font-style: italic;"></p>
+        </div>
+        <input
+          type="range"
+          id="seekBar"
+          value="0"
+          min="0"
+          max="100"
+          step="1"
+          class="seek-bar"
+          aria-label="Seek bar for audio playback"
+          aria-controls="audioPlayer"
+        />
+        <div class="player-utility">
+          <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
+          <button id="addToPlaylistButton" class="retry-button" onclick="addCurrentTrackToPlaylist()" aria-label="Add current track to playlist">Add to Playlist</button>
+          <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
+        </div>
+        <div id="lyrics"></div>
+        <div class="music-controls icons-only">
+          <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
+          <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer" class="ripple shockwave play-button"></button>
+          <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
+          <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
+          <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
+          <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
+        </div>
+      </div>
     </div>
   </div>
 
