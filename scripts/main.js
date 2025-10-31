@@ -143,6 +143,7 @@
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
     let currentVersion;
+    let updateInProgress = false;
 
     async function navigateToAbout() {
       const mainContent = document.getElementById('main-content');
@@ -523,6 +524,11 @@
         refreshing = true;
         window.location.reload();
       });
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'force-reload') {
+          window.location.reload();
+        }
+      });
       window.addEventListener('load', async function() {
         showIosInstallBanner();
         let version = '';
@@ -677,9 +683,12 @@
     const updateEdgePanelHeight = () => {
         if (!mainEdgePanel || !mainEdgePanelContent) return;
 
-        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-        const computedRoot = getComputedStyle(rootElement);
-        const topOffset = parseFloat(computedRoot.getPropertyValue('--edge-panel-top-offset')) || 24;
+        const layoutHeight = window.innerHeight;
+        const visualViewport = window.visualViewport;
+        const topInset = visualViewport ? visualViewport.offsetTop : 0;
+        const bottomInset = visualViewport
+            ? Math.max(layoutHeight - (visualViewport.height + visualViewport.offsetTop), 0)
+            : 0;
 
         let panelBottomGuard = 220;
         if (musicPlayerElement) {
@@ -689,9 +698,11 @@
             }
         }
 
+        const usableHeight = Math.max(layoutHeight - topInset - bottomInset, 320);
+        panelBottomGuard = Math.min(panelBottomGuard, Math.max(usableHeight - 160, 160));
         rootElement.style.setProperty('--edge-panel-bottom-guard', `${panelBottomGuard}px`);
 
-        const availableHeight = Math.max(viewportHeight - panelBottomGuard - topOffset, 240);
+        const availableHeight = Math.max(usableHeight - panelBottomGuard, 240);
         rootElement.style.setProperty('--edge-panel-max-height', `${availableHeight}px`);
 
         const scrollableLimit = Math.max(availableHeight - 24, 160);
@@ -761,29 +772,47 @@
     });
 
     // Check for updates
-    function checkForUpdates() {
-        fetch('/version.json', { cache: 'no-store' })
-            .then(response => response.json())
-            .then(data => {
-                if (currentVersion && currentVersion !== data.version) {
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.register(`/service-worker.js?v=${data.version}`).then(registration => {
-                            navigator.serviceWorker.getRegistrations().then(registrations => {
-                                registrations.forEach(reg => {
-                                    if (reg.scope !== registration.scope) {
-                                        reg.unregister();
-                                    }
-                                });
+    async function checkForUpdates() {
+        try {
+            const response = await fetch('/version.json', { cache: 'no-store' });
+            const data = await response.json();
+            const fetchedVersion = data.version;
+
+            if (!fetchedVersion) {
+                return;
+            }
+
+            if (!currentVersion) {
+                currentVersion = fetchedVersion;
+                return;
+            }
+
+            if (currentVersion !== fetchedVersion && !updateInProgress) {
+                updateInProgress = true;
+                currentVersion = fetchedVersion;
+
+                if ('serviceWorker' in navigator) {
+                    const swUrl = `/service-worker.js?v=${fetchedVersion}`;
+                    navigator.serviceWorker.register(swUrl).then(registration => {
+                        navigator.serviceWorker.getRegistrations().then(registrations => {
+                            registrations.forEach(reg => {
+                                if (reg.scope !== registration.scope) {
+                                    reg.unregister();
+                                }
                             });
                         });
-                    }
-                    if (confirm('A new version of Àríyò AI is available. Reload to update?')) {
-                        window.location.reload();
-                    }
+                    }).catch(error => {
+                        console.error('Service worker registration during update failed:', error);
+                    });
                 }
-                currentVersion = data.version;
-            })
-            .catch(error => console.error('Error checking for updates:', error));
+
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300);
+            }
+        } catch (error) {
+            console.error('Error checking for updates:', error);
+        }
     }
 
     // Check for updates every 30 seconds for faster syncing

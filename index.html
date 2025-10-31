@@ -148,12 +148,12 @@
               let userPaused = false;
 
               const tracks = [
-                  { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
-                  { src: 'https://cdn1.suno.ai/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
-                  { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
-                  { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
-                  { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
-                  { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" }
+                  { src: 'Emergency.mp3', title: 'Emergency' },
+                  { src: 'VDM.mp3', title: 'VDM' },
+                  { src: 'Ubuntu.mp3', title: 'Ubuntu' },
+                  { src: 'Sengemenge.mp3', title: 'Sengemenge' },
+                  { src: 'Subsidy.mp3', title: 'Subsidy' },
+                  { src: 'Sowore.mp3', title: 'Sowore' }
               ];
 
               const fallbackTrack = { src: 'offline-audio.mp3', title: 'Offline Vibes' };
@@ -203,6 +203,7 @@
               const loadTrack = (index, force = false) => {
                   usingFallback = false;
                   currentTrackIndex = index;
+                  audio.dataset.trackSrc = tracks[currentTrackIndex].src;
                   audio.src = tracks[currentTrackIndex].src;
                   audio.load();
                   hasLoadedPrimaryTrack = true;
@@ -211,6 +212,7 @@
 
               const playFallback = (force = false) => {
                   usingFallback = true;
+                  delete audio.dataset.trackSrc;
                   audio.src = fallbackTrack.src;
                   audio.load();
                   hasLoadedPrimaryTrack = false;
@@ -222,7 +224,8 @@
                       return;
                   }
                   clearReconnectInterval();
-                  if (usingFallback || audio.src !== tracks[currentTrackIndex].src) {
+                  const trackedSrc = audio.dataset.trackSrc;
+                  if (usingFallback || trackedSrc !== tracks[currentTrackIndex].src) {
                       loadTrack(currentTrackIndex, force);
                   } else {
                       playAudio(force);

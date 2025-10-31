@@ -132,7 +132,24 @@ self.addEventListener('activate', event => {
         })
       );
 
-      return self.clients.claim();
+      await self.clients.claim();
+
+      const matchedClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      await Promise.all(
+        matchedClients.map(client => {
+          if ('navigate' in client && typeof client.navigate === 'function') {
+            return client.navigate(client.url).catch(error => {
+              console.warn('Failed to auto-navigate client during activation:', error);
+            });
+          }
+          try {
+            client.postMessage({ type: 'force-reload' });
+          } catch (error) {
+            console.warn('Failed to postMessage to client during activation:', error);
+          }
+          return Promise.resolve();
+        })
+      );
     })()
   );
 });
