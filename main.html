@@ -692,23 +692,18 @@
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
-        gap: clamp(0.35rem, 1.5vw, 0.55rem);
-        padding: clamp(0.7rem, 2vw, 0.9rem);
+        gap: clamp(0.45rem, 1.8vw, 0.65rem);
+        padding: clamp(0.85rem, 2.2vw, 1rem);
         flex: 1;
-        overflow-y: auto;
-        max-height: min(
-          calc(var(--edge-panel-max-height) - clamp(2.6rem, 10vh, 3.8rem)),
-          calc(
-            var(--app-height, 100vh)
-            - env(safe-area-inset-top)
-            - env(safe-area-inset-bottom)
-            - var(--edge-panel-top-offset)
-            - clamp(3.8rem, 14vh, 5.2rem)
-          )
-        );
-        overscroll-behavior: contain;
-        scrollbar-gutter: stable;
-        scrollbar-width: thin;
+        overflow: hidden;
+    }
+    .edge-panel-list {
+        display: grid;
+        grid-auto-rows: minmax(clamp(2.6rem, 6.2vh, 3.4rem), 1fr);
+        align-content: stretch;
+        gap: clamp(0.35rem, 1.4vw, 0.55rem);
+        flex: 1;
+        min-height: 0;
     }
     .tap-area {
         position: fixed;
@@ -733,21 +728,23 @@
       cursor: pointer;
     }
     .edge-panel-intro {
-      font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+      font-size: clamp(0.68rem, 1.6vw, 0.8rem);
       color: rgba(255,255,255,0.8);
       text-align: center;
       line-height: 1.35;
-      padding: 0 0.2rem;
+      padding: 0 0.15rem;
     }
     .edge-panel-item {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
-      padding: 0.4rem 0.55rem;
-      border-radius: 12px;
-      background: rgba(13, 45, 32, 0.5);
-      border: 1px solid rgba(255,255,255,0.12);
+      gap: clamp(0.38rem, 1.2vw, 0.5rem);
+      padding: clamp(0.35rem, 1.3vw, 0.5rem) clamp(0.5rem, 1.6vw, 0.7rem);
+      border-radius: 14px;
+      background: rgba(13, 45, 32, 0.52);
+      border: 1px solid rgba(255,255,255,0.14);
       color: #fff;
+      height: 100%;
+      width: 100%;
       transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       cursor: pointer;
       text-align: left;
@@ -793,6 +790,7 @@
       text-align: center;
       line-height: 1.35;
       color: rgba(255,255,255,0.75);
+      margin-top: clamp(0.4rem, 1.6vw, 0.85rem);
     }
     .edge-panel-privacy a {
       color: var(--theme-color);
@@ -1283,38 +1281,40 @@
     <div class="edge-panel-handle" role="button" tabindex="0" aria-label="Toggle Quick Launch hub"></div>
     <div class="edge-panel-content">
         <p class="edge-panel-intro">Quick launch hub</p>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="ariyoChatbotContainer" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" aria-describedby="edgeLabelAriyo">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI icon" />
-            <span class="edge-panel-label" id="edgeLabelAriyo"><strong>Àríyò Chat</strong>Culture, music &amp; Naija guidance</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="sabiBibleContainer" data-open-target="sabiBibleContainer" data-open-src="apps/sabi-bible/sabi-bible.html" aria-describedby="edgeLabelBible">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible icon" />
-            <span class="edge-panel-label" id="edgeLabelBible"><strong>Sabi Bible</strong>Yorùbá-English scripture explorer</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="youtubeModalContainer" data-open-target="youtubeModalContainer" data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1" aria-describedby="edgeLabelYouTube">
-            <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube icon" />
-            <span class="edge-panel-label" id="edgeLabelYouTube"><strong>Watch Omoluabi Paul</strong>Latest videos &amp; performances</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="pictureGameContainer" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html" aria-describedby="edgeLabelPicture">
-            <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game icon" />
-            <span class="edge-panel-label" id="edgeLabelPicture"><strong>Picture Game</strong>Guess-the-scene memory challenge</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="tetrisGameContainer" data-open-target="tetrisGameContainer" data-open-src="apps/tetris/tetris.html" aria-describedby="edgeLabelTetris">
-            <img src="icons/tetris.svg" alt="Omoluabi Tetris icon" />
-            <span class="edge-panel-label" id="edgeLabelTetris"><strong>Omoluabi Tetris</strong>Classic stacker with Naija flair</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="wordSearchContainer" data-open-target="wordSearchContainer" data-open-src="apps/word-search/word-search.html" aria-describedby="edgeLabelWordSearch">
-            <img src="icons/word-search.svg" alt="Omoluabi Word Search icon" />
-            <span class="edge-panel-label" id="edgeLabelWordSearch"><strong>Word Search</strong>Find Naija people &amp; places fast</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="connectFourContainer" data-open-target="connectFourContainer" data-open-src="apps/connect-four/connect-four.html" aria-describedby="edgeLabelConnectFour">
-            <img src="icons/connect-four.svg" alt="Ara Connect-4 icon" />
-            <span class="edge-panel-label" id="edgeLabelConnectFour"><strong>Ara Connect-4</strong>Battle for four-in-a-row bragging rights</span>
-        </button>
-        <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="cyclePrecisionContainer" data-open-target="cyclePrecisionContainer" data-open-src="apps/cycle-precision/cycle-precision.html" aria-describedby="edgeLabelCycle">
-            <img src="icons/blood.svg" alt="Cycle Precision icon" />
-            <span class="edge-panel-label" id="edgeLabelCycle"><strong>Cycle Precision</strong>Track &amp; learn with calm visuals</span>
-        </button>
+        <div class="edge-panel-list" role="list">
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="ariyoChatbotContainer" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" aria-describedby="edgeLabelAriyo" role="listitem">
+                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI icon" />
+                <span class="edge-panel-label" id="edgeLabelAriyo"><strong>Àríyò Chat</strong>Culture, music &amp; Naija guidance</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="sabiBibleContainer" data-open-target="sabiBibleContainer" data-open-src="apps/sabi-bible/sabi-bible.html" aria-describedby="edgeLabelBible" role="listitem">
+                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible icon" />
+                <span class="edge-panel-label" id="edgeLabelBible"><strong>Sabi Bible</strong>Yorùbá-English scripture explorer</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="youtubeModalContainer" data-open-target="youtubeModalContainer" data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1" aria-describedby="edgeLabelYouTube" role="listitem">
+                <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube icon" />
+                <span class="edge-panel-label" id="edgeLabelYouTube"><strong>Watch Omoluabi Paul</strong>Latest videos &amp; performances</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="pictureGameContainer" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html" aria-describedby="edgeLabelPicture" role="listitem">
+                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game icon" />
+                <span class="edge-panel-label" id="edgeLabelPicture"><strong>Picture Game</strong>Guess-the-scene memory challenge</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="tetrisGameContainer" data-open-target="tetrisGameContainer" data-open-src="apps/tetris/tetris.html" aria-describedby="edgeLabelTetris" role="listitem">
+                <img src="icons/tetris.svg" alt="Omoluabi Tetris icon" />
+                <span class="edge-panel-label" id="edgeLabelTetris"><strong>Omoluabi Tetris</strong>Classic stacker with Naija flair</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="wordSearchContainer" data-open-target="wordSearchContainer" data-open-src="apps/word-search/word-search.html" aria-describedby="edgeLabelWordSearch" role="listitem">
+                <img src="icons/word-search.svg" alt="Omoluabi Word Search icon" />
+                <span class="edge-panel-label" id="edgeLabelWordSearch"><strong>Word Search</strong>Find Naija people &amp; places fast</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="connectFourContainer" data-open-target="connectFourContainer" data-open-src="apps/connect-four/connect-four.html" aria-describedby="edgeLabelConnectFour" role="listitem">
+                <img src="icons/connect-four.svg" alt="Ara Connect-4 icon" />
+                <span class="edge-panel-label" id="edgeLabelConnectFour"><strong>Ara Connect-4</strong>Battle for four-in-a-row bragging rights</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="cyclePrecisionContainer" data-open-target="cyclePrecisionContainer" data-open-src="apps/cycle-precision/cycle-precision.html" aria-describedby="edgeLabelCycle" role="listitem">
+                <img src="icons/blood.svg" alt="Cycle Precision icon" />
+                <span class="edge-panel-label" id="edgeLabelCycle"><strong>Cycle Precision</strong>Track &amp; learn with calm visuals</span>
+            </button>
+        </div>
         <p class="edge-panel-privacy">Zapier-hosted chatbots may store prompts. <a href="privacy.html" target="_blank" rel="noopener noreferrer">Read how Àríyò AI handles data</a>.</p>
     </div>
 </div>
