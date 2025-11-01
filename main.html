@@ -394,9 +394,9 @@
         width: min(86vw, var(--edge-panel-width));
         right: calc(var(--edge-panel-visible-gap) - min(86vw, var(--edge-panel-width)));
         border-radius: 24px 0 0 24px;
-        top: calc(env(safe-area-inset-top) + 20px);
+        top: 50%;
         bottom: auto;
-        transform: none;
+        transform: translateY(-50%);
       }
       .edge-panel.visible {
         right: clamp(0.5rem, 5vw, 1.4rem);
