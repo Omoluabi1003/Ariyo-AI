@@ -746,7 +746,7 @@
     const musicPlayerElement = document.querySelector('.music-player');
 
     const MIN_EDGE_PANEL_APPS_VISIBLE = 4;
-    const EDGE_PANEL_MIN_HEIGHT = 220;
+    const EDGE_PANEL_MIN_HEIGHT = 320;
 
     const updateEdgePanelHeight = () => {
         if (!mainEdgePanel || !mainEdgePanelContent) return;
@@ -767,10 +767,19 @@
             rootElement.style.setProperty('--edge-panel-bottom-guard', `${compactBottom}px`);
             rootElement.style.setProperty('--edge-panel-max-height', `${compactMaxHeight}px`);
 
+            const rawCompactSpace = viewportHeight - compactTop - compactBottom;
+            const compactHeightTarget = Math.max(rawCompactSpace, EDGE_PANEL_MIN_HEIGHT);
+            const compactHeight = Math.max(Math.min(compactMaxHeight, compactHeightTarget), EDGE_PANEL_MIN_HEIGHT);
+            const availableTopSpace = Math.max(viewportHeight - compactHeight, 0);
+            const centeredTop = availableTopSpace / 2;
+            const lowerBias = centeredTop + Math.max(0, compactHeight * 0.08);
+            const maxTop = Math.max(viewportHeight - compactHeight - compactBottom, compactTop);
+            const safeTop = Math.min(Math.max(compactTop, lowerBias), maxTop);
+
             mainEdgePanel.style.height = '';
             mainEdgePanel.style.transform = 'none';
-            mainEdgePanel.style.top = `${compactTop}px`;
-            mainEdgePanel.style.bottom = `${compactBottom}px`;
+            mainEdgePanel.style.bottom = '';
+            mainEdgePanel.style.top = `${safeTop}px`;
             mainEdgePanelContent.style.maxHeight = '';
             mainEdgePanelContent.style.overflowY = 'auto';
             return;
