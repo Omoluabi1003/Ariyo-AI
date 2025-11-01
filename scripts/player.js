@@ -1,5 +1,6 @@
 /* MUSIC PLAYER LOGIC */
-    const audioPlayer = new Audio();
+    const existingAudioElement = document.getElementById('audioPlayer');
+    const audioPlayer = existingAudioElement || document.createElement('audio');
     function setCrossOrigin(element, url) {
         try {
             const host = new URL(url, window.location.origin).hostname;
@@ -29,14 +30,18 @@
         window.addEventListener(evt, resumeAudioContext, { once: true, passive: true });
     });
 
-    audioPlayer.id = 'audioPlayer';
+    if (!existingAudioElement) {
+        audioPlayer.id = 'audioPlayer';
+    }
     audioPlayer.preload = 'auto';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
     audioPlayer.setAttribute('controlsList', 'nodownload');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
-    document.body.appendChild(audioPlayer);
+    if (!existingAudioElement) {
+        document.body.appendChild(audioPlayer);
+    }
     const albumCover = document.getElementById('albumCover');
     const turntableDisc = document.querySelector('.turntable-disc');
     const trackInfo = document.getElementById('trackInfo');
