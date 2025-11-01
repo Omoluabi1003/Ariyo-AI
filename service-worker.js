@@ -22,7 +22,6 @@ const CORE_ASSETS = [
   'color-scheme.css',
   'scripts/data.js',
   'scripts/player.js',
-  'scripts/vendor/lyric.min.js',
   'scripts/ui.js',
   'scripts/main.js',
   'color-scheme.js',
