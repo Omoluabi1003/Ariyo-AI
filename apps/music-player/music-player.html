@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
+  <meta name="apple-touch-fullscreen" content="yes" />
+  <link rel="apple-touch-icon" href="../../icons/Ariyo.png" />
+  <title>Omoluabi Music Player</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" />
+  <link rel="stylesheet" href="../../color-scheme.css" />
+  <link rel="stylesheet" href="./music-player.css" />
+  <script src="../../viewport-height.js" defer></script>
+</head>
+<body>
+  <header class="player-header" role="banner">
+    <img src="../../music-player.png" alt="Omoluabi music player logo" class="player-logo" />
+    <div class="player-title-group">
+      <h1 class="player-title">Omoluabi Player</h1>
+      <p class="player-tagline">Handpicked Àríyò favourites ready to spin wherever you are.</p>
+    </div>
+  </header>
+
+  <main class="player-shell" role="main">
+    <section class="player-panel" aria-labelledby="nowPlayingHeading">
+      <h2 id="nowPlayingHeading" class="visually-hidden">Now playing</h2>
+      <div class="artwork-frame" aria-hidden="true">
+        <img id="artwork" src="../../Kindness%20Cover%20Art.jpg" alt="Current track cover art" />
+      </div>
+      <div class="now-playing">
+        <p id="trackTitle" class="track-title">A Very Good Bad Guy v3</p>
+        <p id="trackArtist" class="track-artist">Omoluabi</p>
+        <div class="time-row">
+          <span id="elapsedTime">0:00</span>
+          <input type="range" id="seekBar" class="seek" min="0" max="100" value="0" step="1" aria-label="Track progress" />
+          <span id="totalTime">0:00</span>
+        </div>
+        <div class="control-row">
+          <button type="button" class="control" id="prevButton" aria-label="Previous track">⏮</button>
+          <button type="button" class="control primary" id="playPauseButton" aria-label="Play track">▶️</button>
+          <button type="button" class="control" id="nextButton" aria-label="Next track">⏭</button>
+        </div>
+        <div class="support-row">
+          <label class="volume-label" for="volumeControl">Volume</label>
+          <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1" aria-label="Playback volume" />
+          <button type="button" class="control secondary" id="shuffleButton" aria-pressed="false">Shuffle</button>
+        </div>
+        <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="playlist" aria-labelledby="playlistHeading">
+      <div class="playlist-header">
+        <h2 id="playlistHeading">Track list</h2>
+        <button type="button" id="refreshButton" class="control secondary">Reshuffle order</button>
+      </div>
+      <ol id="playlist" class="playlist-items"></ol>
+    </section>
+  </main>
+
+  <audio id="audio" preload="metadata" crossorigin="anonymous" playsinline></audio>
+
+  <script src="./music-player.js"></script>
+  <script src="../../color-scheme.js"></script>
+  <script>
+    changeColorScheme();
+  </script>
+  <script src="../../prevent-zoom.js"></script>
+</body>
+</html>

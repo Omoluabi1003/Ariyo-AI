@@ -211,6 +211,7 @@ const PANEL_IDS = [
     'ariyoChatbotContainer',
     'sabiBibleContainer',
     'pictureGameContainer',
+    'musicPlayerContainer',
     'tetrisGameContainer',
     'wordSearchContainer',
     'connectFourContainer',
@@ -247,6 +248,10 @@ const PANEL_LOAD_CONFIG = {
         errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
         supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
         supportLinkLabel: 'Open channel on YouTube'
+    },
+    musicPlayerContainer: {
+        loadingMessage: 'Loading Omoluabi Player…',
+        errorMessage: 'The music player is unavailable right now. Please retry in a moment.'
     }
 };
 
