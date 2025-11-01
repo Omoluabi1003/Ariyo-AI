@@ -829,8 +829,8 @@
     const mainEdgePanelContent = document.querySelector('.edge-panel-content');
     const musicPlayerElement = document.querySelector('.music-player');
 
-    const MIN_EDGE_PANEL_APPS_VISIBLE = 4;
-    const EDGE_PANEL_MIN_HEIGHT = 320;
+    const BASE_EDGE_PANEL_APPS_VISIBLE = 4;
+    const EDGE_PANEL_MIN_HEIGHT = 480;
 
     const updateEdgePanelHeight = () => {
         if (!mainEdgePanel || !mainEdgePanelContent) return;
@@ -890,7 +890,8 @@
         }
 
         const launcherItems = Array.from(mainEdgePanelContent.querySelectorAll('.edge-panel-item'));
-        const visibleCount = Math.min(MIN_EDGE_PANEL_APPS_VISIBLE, launcherItems.length);
+        const totalLauncherCount = launcherItems.length;
+        const visibleCount = Math.max(totalLauncherCount, BASE_EDGE_PANEL_APPS_VISIBLE);
         let launcherHeight = 0;
         if (launcherItems.length) {
             const itemRect = launcherItems[0].getBoundingClientRect();
