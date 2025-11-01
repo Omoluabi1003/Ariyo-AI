@@ -54,6 +54,43 @@
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
+const playerStatusMessage = document.getElementById('playerStatusMessage');
+let playerStatusHideTimeout = null;
+
+function updatePlayerStatus(message = '', status = 'info', options = {}) {
+  if (!playerStatusMessage) {
+    return;
+  }
+
+  const { autoHide = false, hideDelay = 2400 } = options;
+
+  if (playerStatusHideTimeout) {
+    clearTimeout(playerStatusHideTimeout);
+    playerStatusHideTimeout = null;
+  }
+
+  if (!message) {
+    playerStatusMessage.textContent = '';
+    playerStatusMessage.dataset.status = 'info';
+    playerStatusMessage.setAttribute('hidden', '');
+    return;
+  }
+
+  playerStatusMessage.textContent = message;
+  playerStatusMessage.dataset.status = status;
+  playerStatusMessage.removeAttribute('hidden');
+
+  if (autoHide) {
+    playerStatusHideTimeout = setTimeout(() => {
+      playerStatusMessage.textContent = '';
+      playerStatusMessage.dataset.status = 'info';
+      playerStatusMessage.setAttribute('hidden', '');
+      playerStatusHideTimeout = null;
+    }, hideDelay);
+  }
+}
+
+updatePlayerStatus('', 'info');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
 let shuffleScope = 'off'; // 'off', 'album', 'all', 'repeat'
@@ -126,6 +163,7 @@ function finishNetworkRecovery() {
   networkRecoveryState.source = null;
   networkRecoveryState.wasPlaying = false;
   networkRecoveryState.resumeTime = 0;
+  updatePlayerStatus('', 'success');
 }
 
 function appendCacheBuster(url) {
@@ -214,20 +252,24 @@ function startNetworkRecovery(reason = 'network') {
   loadingSpinner.style.display = 'none';
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
+  updatePlayerStatus('Connection dropped. Reconnecting…', 'warning');
 
   const attemptReconnect = async () => {
     if (!networkRecoveryState.active) return;
     if (!navigator.onLine) {
       console.log('Waiting for network connection to return...');
+      updatePlayerStatus('Waiting for network connection…', 'warning');
       return;
     }
 
     const success = await attemptNetworkResume();
     if (success) {
       console.log('Network recovery successful.');
+      updatePlayerStatus('Back online! Resuming playback…', 'success', { autoHide: true, hideDelay: 2600 });
       finishNetworkRecovery();
     } else {
       console.log('Network recovery attempt failed, will retry.');
+      updatePlayerStatus('Still trying to reconnect…', 'warning');
     }
   };
 
@@ -666,6 +708,7 @@ function loadMoreStations(region) {
 
 function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
+      updatePlayerStatus(`Loading “${title}”...`, 'info');
       cancelNetworkRecovery();
       resumeAudioContext();
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
@@ -712,11 +755,13 @@ function selectTrack(src, title, index, rebuildQueue = true) {
           console.error('Error fetching track:', err);
           retryButton.style.display = 'block';
           loadingSpinner.style.display = 'none';
+          updatePlayerStatus('Unable to load track. Please try again.', 'error');
         });
     }
 
 function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
+      updatePlayerStatus(`Tuning in to ${title}...`, 'info');
       cancelNetworkRecovery();
       resumeAudioContext();
       closeRadioList();
@@ -764,6 +809,7 @@ function selectRadio(src, title, index, logo) {
     }
 
     function retryTrack() {
+      updatePlayerStatus('Retrying playback…', 'warning');
       if (currentRadioIndex >= 0) {
         selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
       } else {
@@ -778,6 +824,7 @@ function selectRadio(src, title, index, logo) {
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'none';
       setTurntableSpin(false);
+      updatePlayerStatus('Retrying playback…', 'warning');
       setTimeout(retryTrack, 3000);
     }
 
@@ -798,6 +845,7 @@ function selectRadio(src, title, index, logo) {
 
       let playTimeout = null;
       if (!silent) {
+        updatePlayerStatus(`Preparing “${title}”…`, 'info');
         playTimeout = setTimeout(() => {
           console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
           retryTrackWithDelay();
@@ -851,6 +899,7 @@ function selectRadio(src, title, index, logo) {
           document.getElementById('progressBar').style.display = 'none';
           console.log(`Stream ${title} can play through`);
         }
+        updatePlayerStatus('', 'success');
         handleReady();
       }
 
@@ -864,6 +913,7 @@ function selectRadio(src, title, index, logo) {
             document.getElementById('progressBar').style.display = 'none';
             console.log(`Stream ${title} can play (fallback)`);
           }
+          updatePlayerStatus('', 'success');
           handleReady();
         }
       }
@@ -875,6 +925,7 @@ function selectRadio(src, title, index, logo) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
         console.error(`Album cover src: ${albumCover.src}`);
+        updatePlayerStatus('Playback interrupted. Trying to recover…', 'warning');
 
         if (!navigator.onLine || (audioPlayer.error && audioPlayer.error.code === MediaError.MEDIA_ERR_NETWORK)) {
           startNetworkRecovery('load-error');
@@ -937,6 +988,7 @@ function selectRadio(src, title, index, logo) {
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
           console.log(`Playing: ${trackInfo.textContent}`);
+          updatePlayerStatus(`Now playing “${trackInfo.textContent}”`, 'success', { autoHide: true, hideDelay: 2800 });
           savePlayerState();
           if (isFirstPlay) {
             gsap.fromTo(albumCover,
@@ -958,6 +1010,7 @@ function selectRadio(src, title, index, logo) {
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
       console.error(`Error playing ${title}:`, error);
+      updatePlayerStatus('Unable to start playback. Please press play again.', 'error', { autoHide: true, hideDelay: 3400 });
 
       if (!navigator.onLine || (error && error.code === MediaError.MEDIA_ERR_NETWORK)) {
         startNetworkRecovery('play-error');

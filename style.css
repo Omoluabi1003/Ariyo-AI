@@ -347,6 +347,38 @@ body {
     margin: 0;
 }
 
+.player-status-message {
+    width: 100%;
+    margin: 0.1rem 0 0.3rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 0.95rem;
+    text-align: left;
+    letter-spacing: 0.01em;
+    transition: opacity 0.3s ease;
+}
+
+.player-status-message[hidden] {
+    display: none !important;
+}
+
+.player-status-message[data-status="info"] {
+    color: #d6f5ff;
+}
+
+.player-status-message[data-status="warning"] {
+    color: #ffe09f;
+}
+
+.player-status-message[data-status="error"] {
+    color: #ffb3b3;
+}
+
+.player-status-message[data-status="success"] {
+    color: #a8ffd4;
+}
+
 .player-utility {
     display: flex;
     flex-wrap: wrap;
