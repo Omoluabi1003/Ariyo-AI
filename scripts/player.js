@@ -661,7 +661,6 @@ function loadMoreStations(region) {
       currentRadioIndex = -1;
       updateTrackListModal();
       openTrackList();
-      document.getElementById('main-content').innerHTML = '';
     }
 
 function selectTrack(src, title, index, rebuildQueue = true) {
@@ -760,7 +759,6 @@ function selectRadio(src, title, index, logo) {
       handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
-      document.getElementById('main-content').innerHTML = '';
     }
 
     function retryTrack() {
