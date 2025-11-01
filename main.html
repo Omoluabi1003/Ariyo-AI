@@ -1154,8 +1154,8 @@
       </details>
       <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <!-- Music Player -->
-      <div class="music-player">
-        <h3>Music Player</h3>
+      <div class="music-player" role="region" aria-labelledby="musicPlayerHeading">
+        <h3 id="musicPlayerHeading">Music Player</h3>
         <div class="player-body">
           <div class="player-visual">
             <div class="turntable-wrapper">
@@ -1190,6 +1190,13 @@
               <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p>
               <p id="nextTrackInfo" class="track-details" style="font-style: italic;"></p>
             </div>
+            <div
+              id="playerStatusMessage"
+              class="player-status-message"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></div>
             <input
               type="range"
               id="seekBar"
@@ -1432,7 +1439,7 @@
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
 
   <script src="scripts/data.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
+  <script src="scripts/vendor/lyric.min.js"></script>
   <script src="scripts/player.js"></script>
       <script src="scripts/ui.js"></script>
       <script src="color-scheme.js"></script>
