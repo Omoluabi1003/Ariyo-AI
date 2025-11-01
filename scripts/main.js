@@ -138,7 +138,8 @@
     });
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
-    let originalMainContentHTML = '';
+    let originalMainContentFragment = null;
+    let storedMainContentScroll = 0;
     let aboutButtonGlobal = null;
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
@@ -152,6 +153,64 @@
         clearTimeout(reloadFallbackTimeoutId);
         reloadFallbackTimeoutId = null;
       }
+    };
+
+    const captureMainContent = (target) => {
+      if (!target || originalMainContentFragment) {
+        return false;
+      }
+
+      const fragment = document.createDocumentFragment();
+      while (target.firstChild) {
+        fragment.appendChild(target.firstChild);
+      }
+
+      originalMainContentFragment = fragment;
+      storedMainContentScroll = target.scrollTop || 0;
+      target.dataset.originalContentStored = 'true';
+      return true;
+    };
+
+    const restoreStoredMainContent = (target) => {
+      if (!target || !originalMainContentFragment) {
+        return false;
+      }
+
+      while (target.firstChild) {
+        target.removeChild(target.firstChild);
+      }
+
+      target.appendChild(originalMainContentFragment);
+      originalMainContentFragment = null;
+      target.scrollTop = storedMainContentScroll;
+      storedMainContentScroll = 0;
+      delete target.dataset.originalContentStored;
+      return true;
+    };
+
+    const showContentError = (container, message) => {
+      if (!container) {
+        return;
+      }
+
+      const existingBanner = container.querySelector('.content-error-banner');
+      if (existingBanner) {
+        existingBanner.textContent = message;
+        return;
+      }
+
+      const banner = document.createElement('div');
+      banner.className = 'content-error-banner';
+      banner.setAttribute('role', 'status');
+      banner.setAttribute('aria-live', 'polite');
+      banner.textContent = message;
+      container.prepend(banner);
+
+      setTimeout(() => {
+        if (banner.parentNode === container) {
+          banner.remove();
+        }
+      }, 6000);
     };
 
     const scheduleAppReload = (version) => {
@@ -219,9 +278,10 @@
           }
       }
 
-      if (!mainContent.dataset.originalContentStored) {
-        originalMainContentHTML = mainContent.innerHTML;
-        mainContent.dataset.originalContentStored = 'true';
+      const captured = captureMainContent(mainContent);
+
+      if (captured) {
+        mainContent.innerHTML = '<p class="content-loading">Loading About page…</p>';
       }
 
       savePlayerState();
@@ -230,7 +290,12 @@
         const response = await fetch('about.html');
         if (!response.ok) {
           console.error('Failed to fetch about.html:', response.status);
-          mainContent.innerHTML = '<p>Error loading About page content.</p>';
+          const restored = restoreStoredMainContent(mainContent);
+          if (restored) {
+            showContentError(mainContent, 'Error loading About page content. Please try again later.');
+          } else {
+            mainContent.innerHTML = '<p class="content-error-banner">Error loading About page content. Please try again later.</p>';
+          }
           return;
         }
         const aboutHtmlText = await response.text();
@@ -319,14 +384,27 @@
 
       } catch (error) {
         console.error('Error navigating to About page:', error);
-        mainContent.innerHTML = '<p>Error loading About page content.</p>';
+        const restored = restoreStoredMainContent(mainContent);
+        if (restored) {
+          showContentError(mainContent, 'Error loading About page content. Please try again later.');
+        } else if (mainContent) {
+          mainContent.innerHTML = '<p class="content-error-banner">Error loading About page content. Please try again later.</p>';
+        }
       }
     }
 
     function navigateToHome() {
       const mainContent = document.getElementById('main-content');
-      mainContent.innerHTML = '<div id="newsContainer" class="news-container" style="display: none;"></div>';
+      if (!mainContent) {
+        return;
+      }
 
+      const wasRestored = restoreStoredMainContent(mainContent);
+
+      if (!wasRestored && !mainContent.querySelector('.music-player')) {
+        window.location.href = 'main.html';
+        return;
+      }
 
       const aboutPageStyles = document.getElementById('about-page-styles');
       if (aboutPageStyles) {
@@ -354,6 +432,12 @@
       if (window.gsap) {
         window.gsap.to(mainContent, { opacity: 1, duration: 0.5 });
       }
+
+      if (typeof updateEdgePanelHeight === 'function') {
+        requestAnimationFrame(updateEdgePanelHeight);
+      }
+
+      delete mainContent.dataset.originalContentStored;
     }
 
     /* BACKGROUND CYCLER */
