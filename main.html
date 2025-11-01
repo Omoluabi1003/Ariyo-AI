@@ -56,6 +56,7 @@
       --edge-panel-top-offset: clamp(14px, 3vh, 32px);
       --edge-panel-bottom-guard: clamp(4rem, 18vh, 6rem);
       --edge-panel-max-height: 92vh;
+      --edge-panel-min-height: clamp(320px, 68vh, 560px);
       --edge-panel-width: clamp(220px, 30vw, 280px);
       --edge-panel-handle-width: clamp(14px, 3vw, 20px);
       --edge-panel-visible-gap: clamp(6px, 1.8vw, 12px);
@@ -397,6 +398,7 @@
         top: 50%;
         bottom: auto;
         transform: translateY(-50%);
+        min-height: var(--edge-panel-min-height);
       }
       .edge-panel.visible {
         right: clamp(0.5rem, 5vw, 1.4rem);
@@ -409,7 +411,7 @@
       }
       .edge-panel-handle {
         width: var(--edge-panel-handle-width);
-        height: clamp(84px, 30vh, 160px);
+        height: clamp(110px, 32vh, 188px);
         gap: 0.16rem;
       }
       .edge-panel-content {
@@ -605,6 +607,7 @@
         display: flex;
         flex-direction: column;
         overflow: visible;
+        min-height: var(--edge-panel-min-height);
         max-height: min(
           var(--edge-panel-max-height),
           calc(
@@ -631,7 +634,7 @@
         left: 0;
         transform: translate(-58%, -50%);
         width: var(--edge-panel-handle-width);
-        height: clamp(72px, 22vh, 128px);
+        height: clamp(96px, 26vh, 168px);
         background: linear-gradient(200deg, rgba(255, 255, 255, 0.86), rgba(18, 183, 106, 0.88));
         border-radius: 999px 0 0 999px;
         cursor: pointer;
