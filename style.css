@@ -656,24 +656,23 @@ body {
     color: #fff;
 }
 
-.content-loading {
-    background: rgba(18, 183, 106, 0.15);
-    color: #d9fbe7;
+.content-transition-banner {
     padding: 0.85rem 1.25rem;
     border-radius: 16px;
     text-align: center;
     font-size: clamp(0.85rem, 2.4vw, 1rem);
     margin-bottom: 1rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.content-loading {
+    background: rgba(18, 183, 106, 0.18);
+    color: #d9fbe7;
 }
 
 .content-error-banner {
     background: rgba(220, 38, 38, 0.85);
     color: #fff;
-    padding: 0.85rem 1.25rem;
-    border-radius: 16px;
-    margin-bottom: 1rem;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-    font-size: clamp(0.85rem, 2.4vw, 1rem);
 }
 
 .dropdown {

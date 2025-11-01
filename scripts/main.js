@@ -200,7 +200,7 @@
       }
 
       const banner = document.createElement('div');
-      banner.className = 'content-error-banner';
+      banner.className = 'content-transition-banner content-error-banner';
       banner.setAttribute('role', 'status');
       banner.setAttribute('aria-live', 'polite');
       banner.textContent = message;
@@ -281,7 +281,7 @@
       const captured = captureMainContent(mainContent);
 
       if (captured) {
-        mainContent.innerHTML = '<p class="content-loading">Loading About page…</p>';
+        mainContent.innerHTML = '<p class="content-transition-banner content-loading">Loading About page…</p>';
       }
 
       savePlayerState();
@@ -294,7 +294,7 @@
           if (restored) {
             showContentError(mainContent, 'Error loading About page content. Please try again later.');
           } else {
-            mainContent.innerHTML = '<p class="content-error-banner">Error loading About page content. Please try again later.</p>';
+            mainContent.innerHTML = '<p class="content-transition-banner content-error-banner">Error loading About page content. Please try again later.</p>';
           }
           return;
         }
@@ -388,7 +388,7 @@
         if (restored) {
           showContentError(mainContent, 'Error loading About page content. Please try again later.');
         } else if (mainContent) {
-          mainContent.innerHTML = '<p class="content-error-banner">Error loading About page content. Please try again later.</p>';
+          mainContent.innerHTML = '<p class="content-transition-banner content-error-banner">Error loading About page content. Please try again later.</p>';
         }
       }
     }
