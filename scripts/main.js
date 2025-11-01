@@ -138,8 +138,6 @@
     });
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
-    let originalMainContentFragment = null;
-    let storedMainContentScroll = 0;
     let aboutButtonGlobal = null;
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
@@ -155,62 +153,17 @@
       }
     };
 
-    const captureMainContent = (target) => {
-      if (!target || originalMainContentFragment) {
-        return false;
-      }
-
-      const fragment = document.createDocumentFragment();
-      while (target.firstChild) {
-        fragment.appendChild(target.firstChild);
-      }
-
-      originalMainContentFragment = fragment;
-      storedMainContentScroll = target.scrollTop || 0;
-      target.dataset.originalContentStored = 'true';
-      return true;
-    };
-
-    const restoreStoredMainContent = (target) => {
-      if (!target || !originalMainContentFragment) {
-        return false;
-      }
-
-      while (target.firstChild) {
-        target.removeChild(target.firstChild);
-      }
-
-      target.appendChild(originalMainContentFragment);
-      originalMainContentFragment = null;
-      target.scrollTop = storedMainContentScroll;
-      storedMainContentScroll = 0;
-      delete target.dataset.originalContentStored;
-      return true;
-    };
-
-    const showContentError = (container, message) => {
-      if (!container) {
+    const ensureAboutButtonReference = () => {
+      if (aboutButtonGlobal) {
         return;
       }
 
-      const existingBanner = container.querySelector('.content-error-banner');
-      if (existingBanner) {
-        existingBanner.textContent = message;
-        return;
+      const sidebarButtons = document.querySelectorAll('.sidebar button');
+      aboutButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
+      if (aboutButtonGlobal) {
+        originalAboutButtonText = aboutButtonGlobal.textContent;
+        originalAboutButtonOnClick = aboutButtonGlobal.onclick;
       }
-
-      const banner = document.createElement('div');
-      banner.className = 'content-transition-banner content-error-banner';
-      banner.setAttribute('role', 'status');
-      banner.setAttribute('aria-live', 'polite');
-      banner.textContent = message;
-      container.prepend(banner);
-
-      setTimeout(() => {
-        if (banner.parentNode === container) {
-          banner.remove();
-        }
-      }, 6000);
     };
 
     const scheduleAppReload = (version) => {
@@ -266,179 +219,96 @@
       }, 10000);
     };
 
-    async function navigateToAbout() {
+    let aboutViewActive = false;
+
+    function navigateToAbout(pushState = true) {
+      ensureAboutButtonReference();
       const mainContent = document.getElementById('main-content');
-
-      if (!aboutButtonGlobal) {
-          const sidebarButtons = document.querySelectorAll('.sidebar button');
-          aboutButtonGlobal = Array.from(sidebarButtons).find(btn => btn.textContent.includes('About Us'));
-          if (aboutButtonGlobal) {
-              originalAboutButtonText = aboutButtonGlobal.textContent;
-              originalAboutButtonOnClick = aboutButtonGlobal.onclick;
-          }
-      }
-
-      const captured = captureMainContent(mainContent);
-
-      if (captured) {
-        mainContent.innerHTML = '<p class="content-transition-banner content-loading">Loading About page…</p>';
-      }
 
       savePlayerState();
 
-      try {
-        const response = await fetch('about.html');
-        if (!response.ok) {
-          console.error('Failed to fetch about.html:', response.status);
-          const restored = restoreStoredMainContent(mainContent);
-          if (restored) {
-            showContentError(mainContent, 'Error loading About page content. Please try again later.');
-          } else {
-            mainContent.innerHTML = '<p class="content-transition-banner content-error-banner">Error loading About page content. Please try again later.</p>';
-          }
-          return;
-        }
-        const aboutHtmlText = await response.text();
-        const parser = new DOMParser();
-        const aboutDoc = parser.parseFromString(aboutHtmlText, 'text/html');
+      let modalOpened = false;
+      if (typeof openAboutModal === 'function') {
+        openAboutModal();
+        modalOpened = true;
+      }
 
-        const aboutPageActualContent = aboutDoc.body.innerHTML;
+      if (!modalOpened) {
+        window.location.href = 'about.html';
+        return;
+      }
 
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = aboutDoc.body.innerHTML;
+      if (pushState && window.location.pathname !== '/about.html') {
+        history.pushState({ page: 'about' }, 'About Us', 'about.html');
+      }
 
-        const albumCoversDiv = tempDiv.querySelector('.album-covers');
-        if (albumCoversDiv) {
-          albumCoversDiv.innerHTML = '';
-          albums.forEach(album => {
-            const albumLink = document.createElement('a');
-            albumLink.href = album.external_url || '#';
-            if (album.external_url) {
-                albumLink.target = '_blank';
-            }
+      if (aboutButtonGlobal) {
+        aboutButtonGlobal.textContent = '🎵 Back to Player';
+        aboutButtonGlobal.onclick = () => navigateToHome();
+      }
 
-            const img = document.createElement('img');
-            img.src = album.cover;
-            img.alt = album.name + " Album Cover";
-            img.title = album.name;
-
-            const nameParagraph = document.createElement('p');
-            nameParagraph.textContent = album.name;
-            nameParagraph.style.color = '#fff';
-            nameParagraph.style.fontSize = '0.8rem';
-            nameParagraph.style.marginTop = '0.5rem';
-
-            const albumContainer = document.createElement('div');
-            albumContainer.style.textAlign = 'center';
-            albumContainer.appendChild(img);
-            albumContainer.appendChild(nameParagraph);
-
-            albumLink.appendChild(albumContainer);
-            albumCoversDiv.appendChild(albumLink);
-          });
-        }
-
-        mainContent.innerHTML = tempDiv.innerHTML;
-
-
-        const oldStyles = document.getElementById('about-page-styles');
-        if (oldStyles) {
-          oldStyles.remove();
-        }
-        const styleElement = document.createElement('style');
-        styleElement.id = 'about-page-styles';
-        styleElement.textContent = aboutDoc.head.querySelector('style').textContent;
-        document.head.appendChild(styleElement);
-
-        let socialIconOverrideStyle = document.getElementById('social-icon-override-styles');
-        if (!socialIconOverrideStyle) {
-          socialIconOverrideStyle = document.createElement('style');
-          socialIconOverrideStyle.id = 'social-icon-override-styles';
-          document.head.appendChild(socialIconOverrideStyle);
-        }
-        socialIconOverrideStyle.textContent = `
-          #main-content .social-icons a img {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px; /* Optional: adjust border-radius if desired */
-            object-fit: cover;
-          }
-          @media (max-width: 768px) {
-            #main-content .social-icons a img {
-              width: 40px;
-              height: 40px;
-            }
-          }
-        `;
-
-        if (window.location.pathname !== '/about.html') {
-          history.pushState({ page: 'about' }, 'About Us', 'about.html');
-        }
-
-        if (aboutButtonGlobal) {
-          aboutButtonGlobal.textContent = '🎵 Back to Player';
-          aboutButtonGlobal.onclick = navigateToHome;
-        }
+      if (mainContent) {
         mainContent.classList.add('about-us-active');
         mainContent.style.opacity = '1';
-
-      } catch (error) {
-        console.error('Error navigating to About page:', error);
-        const restored = restoreStoredMainContent(mainContent);
-        if (restored) {
-          showContentError(mainContent, 'Error loading About page content. Please try again later.');
-        } else if (mainContent) {
-          mainContent.innerHTML = '<p class="content-transition-banner content-error-banner">Error loading About page content. Please try again later.</p>';
-        }
       }
+
+      aboutViewActive = true;
     }
 
-    function navigateToHome() {
+    function navigateToHome(pushState = true) {
+      ensureAboutButtonReference();
       const mainContent = document.getElementById('main-content');
-      if (!mainContent) {
+
+      if (!aboutViewActive) {
+        if (pushState && window.location.pathname.endsWith('/about.html')) {
+          const basePath = window.location.pathname.replace(/about\.html$/, '');
+          history.replaceState({ page: 'home' }, 'Home', basePath || '/');
+        }
         return;
       }
 
-      const wasRestored = restoreStoredMainContent(mainContent);
-
-      if (!wasRestored && !mainContent.querySelector('.music-player')) {
-        window.location.href = 'main.html';
-        return;
+      if (typeof closeAboutModal === 'function') {
+        closeAboutModal();
       }
 
-      const aboutPageStyles = document.getElementById('about-page-styles');
-      if (aboutPageStyles) {
-        aboutPageStyles.remove();
-      }
-      const socialIconOverride = document.getElementById('social-icon-override-styles');
-      if (socialIconOverride) {
-        socialIconOverride.remove();
-      }
-
-      let currentPath = window.location.pathname;
-      if (currentPath.endsWith('/main.html')) currentPath = currentPath.substring(0, currentPath.length - 'main.html'.length);
-      if (currentPath.endsWith('/about.html')) {
-          history.pushState({ page: 'home' }, 'Home', currentPath.replace('about.html', ''));
-      } else if (currentPath !== '/' && !currentPath.endsWith('/')) {
-           history.pushState({ page: 'home' }, 'Home', '/');
-      }
-
-      if (aboutButtonGlobal && originalAboutButtonText && typeof originalAboutButtonOnClick === 'function') {
+      if (aboutButtonGlobal && originalAboutButtonText) {
         aboutButtonGlobal.textContent = originalAboutButtonText;
-        aboutButtonGlobal.onclick = originalAboutButtonOnClick;
+        if (typeof originalAboutButtonOnClick === 'function') {
+          aboutButtonGlobal.onclick = originalAboutButtonOnClick;
+        } else {
+          aboutButtonGlobal.onclick = null;
+        }
       }
 
-      mainContent.classList.remove('about-us-active');
-      if (window.gsap) {
-        window.gsap.to(mainContent, { opacity: 1, duration: 0.5 });
+      if (pushState) {
+        let currentPath = window.location.pathname;
+        if (currentPath.endsWith('/about.html')) {
+          currentPath = currentPath.substring(0, currentPath.length - 'about.html'.length);
+        }
+        if (!currentPath) {
+          currentPath = '/';
+        }
+        history.replaceState({ page: 'home' }, 'Home', currentPath);
+      }
+
+      if (mainContent) {
+        mainContent.classList.remove('about-us-active');
+        if (window.gsap) {
+          window.gsap.to(mainContent, { opacity: 1, duration: 0.5 });
+        } else {
+          mainContent.style.opacity = '1';
+        }
       }
 
       if (typeof updateEdgePanelHeight === 'function') {
         requestAnimationFrame(updateEdgePanelHeight);
       }
 
-      delete mainContent.dataset.originalContentStored;
+      aboutViewActive = false;
     }
+
+    window.navigateToAbout = navigateToAbout;
+    window.navigateToHome = navigateToHome;
 
     /* BACKGROUND CYCLER */
     const backgrounds = [
@@ -796,24 +666,15 @@
 
     // Handle Browser Back/Forward Navigation for dynamically loaded content
     window.addEventListener('popstate', (event) => {
-      const mainContent = document.getElementById('main-content');
-      const aboutPageStyles = document.getElementById('about-page-styles');
+      if (event.state && event.state.page === 'about') {
+        navigateToAbout(false);
+        return;
+      }
 
-      if (event.state && event.state.page) {
-        if (event.state.page === 'about') {
-          if (!aboutPageStyles || mainContent.innerHTML.includes('<h2>Select an option from the sidebar')) {
-            navigateToAbout();
-          }
-        } else if (event.state.page === 'home') {
-          if (aboutPageStyles) {
-            navigateToHome();
-          }
-        }
+      if (window.location.pathname.endsWith('/about.html')) {
+        navigateToAbout(false);
       } else {
-        // Fallback for initial state or null state. If about page is showing, go home.
-        if (aboutPageStyles) {
-          navigateToHome();
-        }
+        navigateToHome(false);
       }
     });
 
