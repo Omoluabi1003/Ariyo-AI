@@ -678,7 +678,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      setCrossOrigin(audioPlayer, src);
       trackInfo.textContent = title;
       trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
       const year = albums[currentAlbumIndex].releaseYear || 2025;
@@ -693,25 +692,16 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
-      const fetchUrl = buildTrackFetchUrl(src);
-      fetch(fetchUrl)
-        .then(r => r.blob())
-        .then(b => {
-          const objectUrl = URL.createObjectURL(b);
-          audioPlayer.src = objectUrl;
-          audioPlayer.currentTime = 0;
-          handleAudioLoad(objectUrl, title, false);
-          updateMediaSession();
-          showNowPlayingToast(title);
-          if (shuffleMode && rebuildQueue) {
-            buildShuffleQueue();
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching track:', err);
-          retryButton.style.display = 'block';
-          loadingSpinner.style.display = 'none';
-        });
+      const streamUrl = buildTrackFetchUrl(src);
+      setCrossOrigin(audioPlayer, streamUrl);
+      audioPlayer.src = streamUrl;
+      audioPlayer.currentTime = 0;
+      handleAudioLoad(streamUrl, title, false);
+      updateMediaSession();
+      showNowPlayingToast(title);
+      if (shuffleMode && rebuildQueue) {
+        buildShuffleQueue();
+      }
     }
 
 function selectRadio(src, title, index, logo) {
