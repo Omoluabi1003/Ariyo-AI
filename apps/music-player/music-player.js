@@ -58,6 +58,11 @@
   let isShuffleEnabled = false;
   let userSeeking = false;
 
+  const PREFETCH_AHEAD = 3;
+  const PREFETCH_CACHE_LIMIT = 6;
+  const prefetchCache = new Map();
+  const prefetchOrder = [];
+
   function postPanelStatus(status, detail) {
     if (window.parent && window.parent !== window) {
       window.parent.postMessage({
@@ -82,17 +87,17 @@
     statusMessage.dataset.tone = tone;
   }
 
-  function setCrossOrigin(url) {
+  function setCrossOrigin(url, element = audio) {
     try {
       const { hostname } = new URL(url, window.location.href);
       const allowList = ['raw.githubusercontent.com', 'githubusercontent.com', 'zeno.fm', 'streamguys1.com', 'suno.ai'];
       if (allowList.some(host => hostname.endsWith(host))) {
-        audio.crossOrigin = 'anonymous';
+        element.crossOrigin = 'anonymous';
       } else {
-        audio.removeAttribute('crossorigin');
+        element.removeAttribute('crossorigin');
       }
     } catch (_) {
-      audio.removeAttribute('crossorigin');
+      element.removeAttribute('crossorigin');
     }
   }
 
@@ -127,6 +132,87 @@
     const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
     const nextTrack = allTracks[playbackOrder[nextIndex]];
     nextTrackInfo.textContent = `Next: ${nextTrack.title}`;
+  }
+
+  function cleanupPrefetch(url) {
+    if (!url || !prefetchCache.has(url)) return;
+    const element = prefetchCache.get(url);
+    try {
+      if (typeof element.pause === 'function') {
+        element.pause();
+      }
+    } catch (_) {
+      // Ignore pause errors for detached prefetch elements.
+    }
+    try {
+      element.removeAttribute('src');
+      element.load();
+    } catch (_) {
+      // Ignore load errors during cleanup.
+    }
+    prefetchCache.delete(url);
+    const index = prefetchOrder.indexOf(url);
+    if (index !== -1) {
+      prefetchOrder.splice(index, 1);
+    }
+  }
+
+  function prunePrefetchCache() {
+    while (prefetchOrder.length > PREFETCH_CACHE_LIMIT) {
+      const oldest = prefetchOrder.shift();
+      if (!oldest) {
+        break;
+      }
+      if (oldest === audio.dataset.trackSrc) {
+        prefetchOrder.push(oldest);
+        if (prefetchOrder.length <= PREFETCH_CACHE_LIMIT) {
+          break;
+        }
+        continue;
+      }
+      cleanupPrefetch(oldest);
+    }
+  }
+
+  function rememberPrefetch(url, element) {
+    if (!url || prefetchCache.has(url)) return;
+    prefetchCache.set(url, element);
+    prefetchOrder.push(url);
+    prunePrefetchCache();
+  }
+
+  function prefetchTrack(orderIndex) {
+    if (!Number.isInteger(orderIndex) || playbackOrder.length <= 1) return;
+    const track = allTracks[playbackOrder[orderIndex]];
+    if (!track || prefetchCache.has(track.src) || track.src === audio.dataset.trackSrc) return;
+
+    const prefetchAudio = new Audio();
+    prefetchAudio.preload = 'auto';
+    setCrossOrigin(track.src, prefetchAudio);
+    prefetchAudio.src = track.src;
+
+    const handleFailure = () => {
+      cleanupPrefetch(track.src);
+    };
+
+    prefetchAudio.addEventListener('error', handleFailure, { once: true });
+
+    try {
+      prefetchAudio.load();
+      rememberPrefetch(track.src, prefetchAudio);
+    } catch (_) {
+      handleFailure();
+    }
+  }
+
+  function prefetchUpcomingTracks(orderIndex) {
+    if (!playbackOrder.length) return;
+    const maxAhead = Math.min(PREFETCH_AHEAD, playbackOrder.length - 1);
+    for (let offset = 1; offset <= maxAhead; offset += 1) {
+      const nextIndex = (orderIndex + offset) % playbackOrder.length;
+      if (nextIndex === orderIndex) break;
+      prefetchTrack(nextIndex);
+    }
   }
 
   function renderPlaylist() {
@@ -169,6 +255,7 @@
     currentOrderIndex = Math.max(0, playbackOrder.indexOf(currentTrackId));
     renderPlaylist();
     updateNextTrackLabel();
+    prefetchUpcomingTracks(currentOrderIndex);
   }
 
   function shufflePlaybackOrder() {
@@ -199,10 +286,12 @@
 
     setCrossOrigin(track.src);
     audio.src = track.src;
+    audio.dataset.trackSrc = track.src;
     audio.load();
     updatePlaylistHighlight();
     updateNextTrackLabel();
     postPanelStatus('loading', track.title);
+    prefetchUpcomingTracks(currentOrderIndex);
 
     if (autoplay) {
       const playPromise = audio.play();
@@ -321,6 +410,7 @@
     setStatus(`Now playing: ${trackInfo.textContent}`);
     updateSpinState();
     postPanelStatus('playing', trackInfo.textContent);
+    cleanupPrefetch(audio.dataset.trackSrc);
   });
 
   audio.addEventListener('pause', () => {
@@ -350,6 +440,7 @@
     loadingSpinner.style.display = 'none';
     setStatus('Unable to play this track. Please try another one.', 'error');
     postPanelStatus('error', trackInfo.textContent);
+    cleanupPrefetch(audio.dataset.trackSrc);
   });
 
   renderPlaylist();

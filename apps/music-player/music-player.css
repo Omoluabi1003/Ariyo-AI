@@ -1,6 +1,6 @@
 :root {
   color-scheme: dark;
-  --player-bg: rgba(8, 8, 12, 0.92);
+  --player-bg: transparent;
   --player-accent: #12B76A;
   --player-muted: rgba(255, 255, 255, 0.7);
   --player-border: rgba(255, 255, 255, 0.12);
@@ -71,8 +71,8 @@ body {
   border-radius: var(--player-radius);
   border: 1px solid var(--player-border);
   padding: clamp(1.5rem, 4vw, 2rem);
-  box-shadow: 0 28px 48px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(18px);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .music-player {
