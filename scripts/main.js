@@ -146,6 +146,34 @@
     let shouldReloadOnControllerChange = false;
     let reloadFallbackTimeoutId = null;
 
+    const APP_BASE_PATH = (() => {
+      const { pathname } = window.location;
+      if (!pathname || pathname === '/') {
+        return '/';
+      }
+      return pathname.endsWith('/') ? pathname : pathname.replace(/[^/]*$/, '/');
+    })();
+    const APP_BASE_URL = `${window.location.origin}${APP_BASE_PATH}`;
+
+    const resolveAppUrl = (path) => {
+      if (!path) {
+        return APP_BASE_URL;
+      }
+      if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(path)) {
+        return path;
+      }
+      if (path === '/' || path === './') {
+        return APP_BASE_URL;
+      }
+      if (path.startsWith('/')) {
+        return `${window.location.origin}${path}`;
+      }
+      if (path.startsWith('./')) {
+        return `${APP_BASE_URL}${path.slice(2)}`;
+      }
+      return `${APP_BASE_URL}${path}`;
+    };
+
     const cancelPendingReloadFallback = () => {
       if (reloadFallbackTimeoutId) {
         clearTimeout(reloadFallbackTimeoutId);
@@ -183,7 +211,8 @@
       cancelPendingReloadFallback();
 
       const swVersionSuffix = version ? `?v=${encodeURIComponent(version)}` : '';
-      navigator.serviceWorker.register(`/service-worker.js${swVersionSuffix}`).then(registration => {
+      const serviceWorkerUrl = resolveAppUrl(`service-worker.js${swVersionSuffix}`);
+      navigator.serviceWorker.register(serviceWorkerUrl).then(registration => {
         navigator.serviceWorker.getRegistrations().then(registrations => {
           registrations.forEach(reg => {
             if (registration && reg.scope !== registration.scope) {
@@ -552,14 +581,14 @@
         showIosInstallBanner();
         let version = '';
         try {
-          const res = await fetch('/version.json', { cache: 'no-store' });
+          const res = await fetch(resolveAppUrl('version.json'), { cache: 'no-store' });
           const data = await res.json();
           version = data.version;
           currentVersion = version;
         } catch (err) {
           console.error('Failed to fetch version for SW registration:', err);
         }
-        const swUrl = version ? `/service-worker.js?v=${encodeURIComponent(version)}` : '/service-worker.js';
+        const swUrl = resolveAppUrl(version ? `service-worker.js?v=${encodeURIComponent(version)}` : 'service-worker.js');
         navigator.serviceWorker.register(swUrl).then(function(registration) {
           console.log('Service Worker registered with scope:', registration.scope);
           navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -851,7 +880,7 @@
 
     // Check for updates
     function checkForUpdates() {
-        fetch('/version.json', { cache: 'no-store' })
+        fetch(resolveAppUrl('version.json'), { cache: 'no-store' })
             .then(response => response.json())
             .then(data => {
                 if (currentVersion && currentVersion !== data.version) {
