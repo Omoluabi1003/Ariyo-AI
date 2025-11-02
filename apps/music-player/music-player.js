@@ -33,7 +33,7 @@
 
   const allTracks = albums.flatMap((album, albumIndex) => {
     const artist = album.artist || 'Omoluabi';
-    const releaseYear = album.releaseYear || '—';
+    const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : '2025';
     const cover = album.cover || '../../Logo.jpg';
     return album.tracks.map((track, trackIndex) => ({
       title: track.title,
