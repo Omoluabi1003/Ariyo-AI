@@ -63,6 +63,35 @@
       --edge-panel-handle-width: clamp(18px, 4vw, 26px);
       --edge-panel-visible-gap: clamp(8px, 2vw, 16px);
     }
+    @media (max-width: 1024px) {
+      :root {
+        --edge-panel-vertical-margin: clamp(36px, 11vh, 72px);
+        --edge-panel-min-height: clamp(440px, 72vh, 600px);
+        --edge-panel-width: clamp(228px, 40vw, 300px);
+        --edge-panel-visible-gap: clamp(0.65rem, 4vw, 1.35rem);
+      }
+    }
+    @media (max-width: 680px) {
+      :root {
+        --edge-panel-vertical-margin: clamp(24px, 9vh, 58px);
+        --edge-panel-min-height: clamp(360px, 70vh, 520px);
+        --edge-panel-width: clamp(208px, 80vw, 236px);
+        --edge-panel-handle-width: clamp(22px, 12vw, 30px);
+        --edge-panel-visible-gap: clamp(0.55rem, 5vw, 1.2rem);
+      }
+      .edge-panel-intro {
+        font-size: clamp(0.64rem, 2vw, 0.76rem);
+      }
+      .edge-panel-label {
+        font-size: clamp(0.6rem, 2.3vw, 0.74rem);
+      }
+      .edge-panel-label strong {
+        font-size: clamp(0.64rem, 2.6vw, 0.8rem);
+      }
+      .edge-panel-privacy {
+        font-size: clamp(0.58rem, 2.1vw, 0.74rem);
+      }
+    }
     html, body {
       height: 100%;
       overflow-x: hidden;
@@ -712,11 +741,13 @@
         align-items: stretch;
         gap: clamp(0.45rem, 1.8vw, 0.65rem);
         padding: clamp(0.95rem, 2.4vw, 1.2rem);
+        padding-bottom: clamp(1.1rem, 3vh, 1.6rem);
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
         max-height: 100%;
         scrollbar-width: thin;
+        scrollbar-gutter: stable;
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
@@ -740,6 +771,7 @@
       gap: clamp(0.38rem, 1.4vw, 0.6rem);
       flex: 1;
       min-height: 0;
+      padding-bottom: clamp(0.6rem, 2vh, 1rem);
     }
     .tap-area {
         position: fixed;
@@ -827,7 +859,10 @@
       line-height: 1.4;
       color: rgba(255,255,255,0.75);
       margin-top: auto;
-      padding-top: clamp(0.5rem, 1.4vw, 0.85rem);
+      padding: clamp(0.45rem, 1.2vw, 0.7rem) clamp(0.35rem, 1vw, 0.65rem);
+      background: linear-gradient(180deg, rgba(6, 20, 14, 0.65), rgba(6, 20, 14, 0.85));
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
     }
     .edge-panel-privacy a {
       color: var(--theme-color);
