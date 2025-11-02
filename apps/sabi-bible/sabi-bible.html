@@ -29,19 +29,46 @@
       const PANEL_ID = 'sabiBibleContainer';
       const SOURCE = 'edge-panel-app';
 
-      const targetOrigin = (() => {
+      function isValidOrigin(origin) {
+        if (!origin) return false;
+        if (origin === 'null' || origin === 'about:blank') return false;
+        return !origin.startsWith('file:');
+      }
+
+      function resolveTargetOrigin() {
         try {
           if (document.referrer) {
-            return new URL(document.referrer).origin;
-          }
-          if (window.location && window.location.origin) {
-            return window.location.origin;
+            const referrerOrigin = new URL(document.referrer, window.location.href).origin;
+            if (isValidOrigin(referrerOrigin)) {
+              return referrerOrigin;
+            }
           }
         } catch (error) {
-          /* ignore */
+          /* ignore invalid referrer */
         }
+
+        if (window.location) {
+          try {
+            const currentOrigin = window.location.origin;
+            if (isValidOrigin(currentOrigin)) {
+              return currentOrigin;
+            }
+          } catch (error) {
+            /* ignore invalid current origin */
+          }
+
+          if (window.location.ancestorOrigins && window.location.ancestorOrigins.length) {
+            const ancestorOrigin = window.location.ancestorOrigins[0];
+            if (isValidOrigin(ancestorOrigin)) {
+              return ancestorOrigin;
+            }
+          }
+        }
+
         return '*';
-      })();
+      }
+
+      const targetOrigin = resolveTargetOrigin();
 
       function postStatus(status, reason) {
         if (!window.parent || window.parent === window) return;
