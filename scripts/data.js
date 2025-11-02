@@ -134,7 +134,7 @@ const albums = [
           tracks: [
             { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
             { src: 'https://cdn1.suno.ai/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3', title: 'Famine Of Fathers' },
-            { src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3', title: 'The Guilt Trip Trap' },
+            { src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3', title: 'Guilt Trip Trap' },
             { src: 'https://cdn1.suno.ai/5c17dd10-1770-467a-947a-db773c72ec78.mp3', title: 'Watchman' },
             { src: 'https://cdn1.suno.ai/fb1daddf-1de4-4164-bb9d-113f9639d732.mp3', title: 'Ọmọlúàbí' },
             { src: 'https://cdn1.suno.ai/d3ec2b0a-6062-417f-a62c-4d746f7f4f57.mp3', title: 'Take The Risk' },
@@ -178,27 +178,33 @@ const albums = [
       },
     ];
 
-const LATEST_TRACK_WINDOW_HOURS = 36;
+const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
   {
     albumName: 'Omoluabi Production Catalogue',
+    title: 'Guilt Trip Trap',
+    src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3',
+    addedOn: '2024-09-05T09:00:00Z'
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
     title: 'Famine Of Fathers',
     src: 'https://cdn1.suno.ai/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3',
-    addedOn: '2025-10-31'
+    addedOn: '2024-08-27T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Persecutory Paranoia',
     src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3',
-    addedOn: '2025-10-29'
+    addedOn: '2024-08-24T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'She Said No (Franca Viola Story)',
     src: 'https://cdn1.suno.ai/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3',
-    addedOn: '2025-10-28'
+    addedOn: '2024-08-21T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
