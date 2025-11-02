@@ -701,12 +701,12 @@
         scrollbar-width: thin;
     }
     .edge-panel-list {
-        display: grid;
-        grid-auto-rows: minmax(clamp(3.1rem, 6.5vh, 3.9rem), auto);
-        align-content: stretch;
-        gap: clamp(0.4rem, 1.6vw, 0.65rem);
-        flex: 1;
-        min-height: 0;
+      display: grid;
+      grid-auto-rows: minmax(clamp(2.8rem, 5.8vh, 3.6rem), max-content);
+      align-content: stretch;
+      gap: clamp(0.38rem, 1.4vw, 0.6rem);
+      flex: 1;
+      min-height: 0;
     }
     .tap-area {
         position: fixed;
@@ -740,8 +740,8 @@
     .edge-panel-item {
       display: flex;
       align-items: center;
-      gap: clamp(0.38rem, 1.2vw, 0.5rem);
-      padding: clamp(0.35rem, 1.3vw, 0.5rem) clamp(0.5rem, 1.6vw, 0.7rem);
+      gap: clamp(0.32rem, 1vw, 0.45rem);
+      padding: clamp(0.32rem, 1.1vw, 0.45rem) clamp(0.45rem, 1.4vw, 0.65rem);
       border-radius: 14px;
       background: rgba(13, 45, 32, 0.52);
       border: 1px solid rgba(255,255,255,0.14);
@@ -757,7 +757,7 @@
       font: inherit;
       appearance: none;
       background-clip: padding-box;
-      min-height: clamp(3.1rem, 6.5vh, 3.9rem);
+      min-height: clamp(2.9rem, 6vh, 3.6rem);
     }
     .edge-panel-item:focus-visible {
       outline: none;
@@ -769,15 +769,15 @@
       box-shadow: 0 8px 18px rgba(0,0,0,0.35);
     }
     .edge-panel-item img {
-      width: 28px;
-      height: 28px;
+      width: clamp(22px, 6vw, 26px);
+      height: clamp(22px, 6vw, 26px);
       flex-shrink: 0;
       border-radius: 50%;
       box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
     }
     .edge-panel-label {
-      font-size: clamp(0.68rem, 1.6vw, 0.82rem);
-      line-height: 1.28;
+      font-size: clamp(0.62rem, 1.4vw, 0.78rem);
+      line-height: 1.24;
       display: block;
       max-width: 100%;
       white-space: normal;
@@ -785,8 +785,8 @@
     }
     .edge-panel-label strong {
       display: block;
-      font-size: clamp(0.74rem, 1.8vw, 0.9rem);
-      line-height: 1.18;
+      font-size: clamp(0.68rem, 1.6vw, 0.84rem);
+      line-height: 1.16;
     }
     .edge-panel-privacy {
       font-size: clamp(0.66rem, 1.5vw, 0.82rem);
