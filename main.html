@@ -416,12 +416,12 @@
         gap: 0.16rem;
       }
       .edge-panel-content {
-        flex-direction: column;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
         align-items: stretch;
         gap: clamp(0.5rem, 3vw, 0.85rem);
-        overflow-x: hidden;
-        overflow-y: auto;
         padding: clamp(0.85rem, 4vw, 1.2rem);
+        overflow: hidden;
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
@@ -437,6 +437,48 @@
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
+      }
+      .edge-panel-list {
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: clamp(0.6rem, 3vh, 1.1rem);
+        scrollbar-width: thin;
+      }
+      .edge-panel-list::-webkit-scrollbar {
+        width: 6px;
+      }
+      .edge-panel-list::-webkit-scrollbar-thumb {
+        background: rgba(18, 183, 106, 0.55);
+        border-radius: 999px;
+      }
+    }
+    @media (max-width: 600px) {
+      :root {
+        --edge-panel-width: min(92vw, 280px);
+        --edge-panel-min-height: clamp(420px, 82vh, 560px);
+        --edge-panel-handle-width: clamp(22px, 9vw, 28px);
+        --edge-panel-visible-gap: clamp(0.35rem, 5vw, 1.1rem);
+        --edge-panel-vertical-margin: clamp(32px, 14vh, 72px);
+      }
+      .edge-panel {
+        top: calc(50% + env(safe-area-inset-top) * 0.25);
+        min-height: var(--edge-panel-min-height);
+      }
+      .edge-panel.visible {
+        right: clamp(0.35rem, 4.8vw, 1.05rem);
+      }
+      .edge-panel-handle {
+        height: clamp(128px, 40vh, 210px);
+        gap: 0.14rem;
+        font-size: 0.52rem;
+      }
+      .edge-panel-list {
+        grid-auto-rows: minmax(clamp(3rem, 7.2vh, 4rem), max-content);
+        padding-bottom: clamp(0.75rem, 4vh, 1.2rem);
+      }
+      .edge-panel-privacy {
+        font-size: clamp(0.64rem, 2.9vw, 0.78rem);
+        padding-top: clamp(0.4rem, 2vw, 0.75rem);
       }
     }
     .album-cover {
@@ -706,17 +748,14 @@
         letter-spacing: 0.18em;
     }
     .edge-panel-content {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
         align-items: stretch;
         gap: clamp(0.45rem, 1.8vw, 0.65rem);
         padding: clamp(0.95rem, 2.4vw, 1.2rem);
         flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
         max-height: 100%;
-        scrollbar-width: thin;
+        overflow: hidden;
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
@@ -738,8 +777,18 @@
       grid-auto-rows: minmax(clamp(2.8rem, 5.8vh, 3.6rem), max-content);
       align-content: stretch;
       gap: clamp(0.38rem, 1.4vw, 0.6rem);
-      flex: 1;
       min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      padding-bottom: clamp(0.6rem, 2.4vh, 1rem);
+    }
+    .edge-panel-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .edge-panel-list::-webkit-scrollbar-thumb {
+      background: rgba(18, 183, 106, 0.55);
+      border-radius: 999px;
     }
     .tap-area {
         position: fixed;
@@ -826,8 +875,15 @@
       text-align: center;
       line-height: 1.4;
       color: rgba(255,255,255,0.75);
-      margin-top: auto;
-      padding-top: clamp(0.5rem, 1.4vw, 0.85rem);
+      margin-top: 0;
+      padding-top: clamp(0.45rem, 1.4vw, 0.85rem);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(180deg, rgba(8, 31, 22, 0.55), rgba(3, 15, 10, 0.8));
+      backdrop-filter: saturate(140%) blur(calc(var(--glass-blur) + 2px));
+      position: sticky;
+      bottom: 0;
+      padding-bottom: clamp(0.45rem, 1.4vw, 0.75rem);
+      z-index: 2;
     }
     .edge-panel-privacy a {
       color: var(--theme-color);
