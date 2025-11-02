@@ -712,11 +712,13 @@
         align-items: stretch;
         gap: clamp(0.45rem, 1.8vw, 0.65rem);
         padding: clamp(0.95rem, 2.4vw, 1.2rem);
+        padding-bottom: clamp(1.1rem, 4.8vw, 1.6rem);
         flex: 1;
         overflow-y: auto;
         overflow-x: hidden;
         max-height: 100%;
         scrollbar-width: thin;
+        scroll-padding-bottom: clamp(3.2rem, 14vh, 4.8rem);
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
@@ -740,6 +742,7 @@
       gap: clamp(0.38rem, 1.4vw, 0.6rem);
       flex: 1;
       min-height: 0;
+      padding-bottom: clamp(2.1rem, 9vh, 3rem);
     }
     .tap-area {
         position: fixed;
@@ -825,9 +828,28 @@
       font-size: clamp(0.66rem, 1.5vw, 0.82rem);
       text-align: center;
       line-height: 1.4;
-      color: rgba(255,255,255,0.75);
-      margin-top: auto;
-      padding-top: clamp(0.5rem, 1.4vw, 0.85rem);
+      color: rgba(255,255,255,0.8);
+      margin-top: clamp(0.6rem, 2.5vw, 1rem);
+      padding: clamp(0.55rem, 2.6vw, 0.85rem);
+      border-radius: 14px;
+      background: rgba(5, 26, 18, 0.78);
+      border: 1px solid rgba(18, 183, 106, 0.28);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.35);
+      backdrop-filter: saturate(140%) blur(var(--glass-blur));
+      flex-shrink: 0;
+      position: sticky;
+      bottom: clamp(0.45rem, 2.2vw, 0.85rem);
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+    .edge-panel.visible .edge-panel-privacy {
+      opacity: 1;
+    }
+    .edge-panel[data-position='peek'] .edge-panel-privacy,
+    .edge-panel[data-position='collapsed'] .edge-panel-privacy {
+      opacity: 0;
+      pointer-events: none;
     }
     .edge-panel-privacy a {
       color: var(--theme-color);
@@ -856,6 +878,32 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+    }
+    @media (max-width: 600px) {
+      :root {
+        --edge-panel-vertical-margin: clamp(34px, 12vh, 64px);
+        --edge-panel-width: min(92vw, 320px);
+        --edge-panel-handle-width: clamp(24px, 8vw, 32px);
+        --edge-panel-visible-gap: clamp(0.75rem, 6vw, 1.35rem);
+      }
+      .edge-panel {
+        right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
+        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
+        bottom: auto;
+      }
+      .edge-panel.visible {
+        right: var(--edge-panel-visible-gap);
+      }
+      .edge-panel-handle {
+        height: clamp(118px, 40vh, 198px);
+      }
+      .edge-panel-content {
+        padding: clamp(0.85rem, 5vw, 1.25rem);
+        padding-bottom: clamp(1.2rem, 5.5vw, 1.65rem);
+      }
+      .edge-panel-list {
+        padding-bottom: clamp(2.4rem, 12vh, 3.4rem);
+      }
     }
     .youtube-embed-wrapper {
       width: 100%;

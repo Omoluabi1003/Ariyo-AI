@@ -700,13 +700,23 @@
         const computedRoot = getComputedStyle(rootElement);
         const topOffset = parseFloat(computedRoot.getPropertyValue('--edge-panel-top-offset')) || 24;
         const isCompactLayout = window.matchMedia('(max-width: 900px)').matches;
+        if (!isCompactLayout) {
+            mainEdgePanelContent.style.paddingBottom = '';
+        }
 
         if (isCompactLayout) {
             const measuredPlayerHeight = Math.ceil(musicPlayerElement?.getBoundingClientRect()?.height || 0);
             const guardTarget = Math.max(measuredPlayerHeight + 48, EDGE_PANEL_MIN_HEIGHT);
             const compactTop = Math.max(topOffset, 16);
             const maximumBottom = Math.max(viewportHeight - compactTop - EDGE_PANEL_MIN_HEIGHT, 0);
-            const compactBottom = Math.max(0, Math.min(guardTarget, maximumBottom));
+            const isVeryNarrowViewport = window.matchMedia('(max-width: 600px)').matches;
+            const relaxedGuard = isVeryNarrowViewport
+                ? Math.max(Math.round(measuredPlayerHeight * 0.55) + 32, EDGE_PANEL_MIN_HEIGHT * 0.7)
+                : guardTarget;
+            const guardPreference = isVeryNarrowViewport
+                ? Math.min(guardTarget, relaxedGuard)
+                : guardTarget;
+            const compactBottom = Math.max(0, Math.min(guardPreference, maximumBottom));
             const compactMaxHeight = Math.max(viewportHeight - compactTop - compactBottom, EDGE_PANEL_MIN_HEIGHT);
 
             rootElement.style.setProperty('--edge-panel-bottom-guard', `${compactBottom}px`);
@@ -720,13 +730,32 @@
             const lowerBias = centeredTop + Math.max(0, compactHeight * 0.08);
             const maxTop = Math.max(viewportHeight - compactHeight - compactBottom, compactTop);
             const safeTop = Math.min(Math.max(compactTop, lowerBias), maxTop);
+            const centerTarget = Math.min(Math.max(compactTop, centeredTop), maxTop);
+            const blendedTop = isVeryNarrowViewport
+                ? Math.min(Math.max(compactTop, (safeTop + centerTarget) / 2), maxTop)
+                : safeTop;
 
             mainEdgePanel.style.height = '';
             mainEdgePanel.style.transform = 'none';
             mainEdgePanel.style.bottom = '';
-            mainEdgePanel.style.top = `${safeTop}px`;
+            mainEdgePanel.style.top = `${Math.round(blendedTop)}px`;
             mainEdgePanelContent.style.maxHeight = '';
             mainEdgePanelContent.style.overflowY = 'auto';
+
+            const privacyNote = mainEdgePanelContent.querySelector('.edge-panel-privacy');
+            if (privacyNote) {
+                const noteHeight = Math.ceil(privacyNote.getBoundingClientRect()?.height || 0);
+                const extraGap = Math.max(noteHeight, 72);
+                const currentPadding = parseFloat(window.getComputedStyle(mainEdgePanelContent).paddingBottom) || 0;
+                if (extraGap > currentPadding) {
+                    mainEdgePanelContent.style.paddingBottom = `${extraGap}px`;
+                }
+                const currentScrollPadding = parseFloat(window.getComputedStyle(mainEdgePanelContent).scrollPaddingBottom) || 0;
+                const desiredScrollPadding = Math.max(Math.round(extraGap * 0.75), 64);
+                if (desiredScrollPadding > currentScrollPadding) {
+                    mainEdgePanelContent.style.scrollPaddingBottom = `${desiredScrollPadding}px`;
+                }
+            }
             return;
         }
 
@@ -775,6 +804,7 @@
         mainEdgePanelContent.style.maxHeight = `${contentMaxHeight}px`;
         const needsScroll = mainEdgePanelContent.scrollHeight > contentMaxHeight + 1;
         mainEdgePanelContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
+        mainEdgePanelContent.style.scrollPaddingBottom = '';
 
         mainEdgePanel.style.height = '';
         mainEdgePanel.style.bottom = '';
