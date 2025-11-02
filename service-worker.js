@@ -134,6 +134,12 @@ self.addEventListener('activate', event => {
 
       const cachesToKeep = new Set([CACHE_NAME, RUNTIME_CACHE_NAME]);
       const cacheNames = await caches.keys();
+      const hadExistingCaches = cacheNames.some(name => {
+        if (!name.startsWith(`${CACHE_PREFIX}-`)) {
+          return false;
+        }
+        return name !== CACHE_NAME && name !== RUNTIME_CACHE_NAME;
+      });
       await Promise.all(
         cacheNames.map(name => {
           if (!cachesToKeep.has(name)) {
@@ -142,17 +148,19 @@ self.addEventListener('activate', event => {
         })
       );
 
-      try {
-        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-        const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
-          ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
-          : null;
-        clients.forEach(client => client.postMessage({
-          type: 'SERVICE_WORKER_UPDATED',
-          version: versionIdentifier
-        }));
-      } catch (error) {
-        console.error('Failed to broadcast service worker update to clients:', error);
+      if (hadExistingCaches) {
+        try {
+          const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+          const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
+            ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
+            : null;
+          clients.forEach(client => client.postMessage({
+            type: 'SERVICE_WORKER_UPDATED',
+            version: versionIdentifier
+          }));
+        } catch (error) {
+          console.error('Failed to broadcast service worker update to clients:', error);
+        }
       }
 
       return self.clients.claim();
