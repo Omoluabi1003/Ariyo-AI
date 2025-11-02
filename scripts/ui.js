@@ -621,9 +621,41 @@ function syncPanelSource(panel, trigger) {
     }
 
     const loadedSrc = iframe.getAttribute('data-loaded-src') || iframe.getAttribute('src') || '';
-    if (loadedSrc !== desiredSrc) {
-        iframe.setAttribute('src', desiredSrc);
-        iframe.setAttribute('data-loaded-src', desiredSrc);
+    let shouldReload = false;
+
+    if (loadedSrc === desiredSrc) {
+        try {
+            const doc = iframe.contentDocument;
+            if (doc && doc.readyState && (doc.readyState === 'complete' || doc.readyState === 'interactive')) {
+                const body = doc.body;
+                if (!body) {
+                    shouldReload = true;
+                } else {
+                    const hasChildren = body.childElementCount > 0;
+                    const textContent = body.textContent ? body.textContent.trim() : '';
+                    if (!hasChildren && textContent.length === 0) {
+                        shouldReload = true;
+                    }
+                }
+            }
+        } catch (error) {
+            shouldReload = false;
+        }
+    }
+
+    if (loadedSrc !== desiredSrc || shouldReload) {
+        const applySrc = () => {
+            iframe.setAttribute('src', desiredSrc);
+            iframe.setAttribute('data-loaded-src', desiredSrc);
+        };
+
+        if (shouldReload) {
+            iframe.setAttribute('data-loaded-src', '');
+            iframe.setAttribute('src', 'about:blank');
+            window.setTimeout(applySrc, 50);
+        } else {
+            applySrc();
+        }
     } else if (!iframe.hasAttribute('data-loaded-src') && loadedSrc) {
         iframe.setAttribute('data-loaded-src', loadedSrc);
     }
