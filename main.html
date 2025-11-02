@@ -43,6 +43,7 @@
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://cdn1.suno.ai" crossorigin />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer integrity="sha384-3ve3u7etWcm2heCe4TswfZSAYSg2jR/EJxRHuKM5foOiKS8IJL/xRlvmjCaHELBz" crossorigin="anonymous"></script>
 
   <!-- Animations & Chat -->
@@ -260,11 +261,11 @@
       color: #d9fbe7;
     }
     .music-player {
-      background: rgba(0, 0, 0, 0.6);
+      background: transparent;
       padding: clamp(1rem, 3vw, 1.5rem);
       text-align: center;
       border-radius: 22px;
-      box-shadow: 0px 22px 48px rgba(0,0,0,0.6);
+      box-shadow: none;
       position: relative;
       bottom: auto;
       width: min(100%, calc(100vw - clamp(2rem, 8vw, 4rem)));
@@ -279,7 +280,7 @@
       flex-direction: column;
       align-items: center;
       gap: clamp(0.75rem, 2.5vw, 1.1rem);
-      backdrop-filter: saturate(140%) blur(var(--glass-blur));
+      backdrop-filter: none;
     }
 
     .player-body {
