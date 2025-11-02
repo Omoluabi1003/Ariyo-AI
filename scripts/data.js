@@ -132,6 +132,7 @@ const albums = [
           name: 'Omoluabi Production Catalogue',
           cover: `${BASE_URL}Logo.jpg`,
           tracks: [
+            { src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3', title: 'Comfort Zone' },
             { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
             { src: 'https://cdn1.suno.ai/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3', title: 'Famine Of Fathers' },
             { src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3', title: 'Guilt Trip Trap' },
@@ -182,6 +183,12 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Comfort Zone',
+    src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3',
+    addedOn: '2024-11-02T09:00:00Z'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Guilt Trip Trap',
