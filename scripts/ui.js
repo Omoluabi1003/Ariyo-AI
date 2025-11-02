@@ -772,6 +772,10 @@ function closeCyclePrecision() {
     let EDGE_PANEL_VISIBLE_X = 16;
     let EDGE_PANEL_COLLAPSED_X = -160;
     let EDGE_PANEL_PEEK_X = -32;
+    let edgePanelState = 'collapsed';
+    let edgePanelUserCollapsed = false;
+    let edgePanelPeekTimeoutId = null;
+    const EDGE_PANEL_PEEK_DURATION = 3200;
 
     const computeEdgePanelOffsets = () => {
         if (!edgePanel || !edgePanelHandle) return;
@@ -797,30 +801,64 @@ function closeCyclePrecision() {
         EDGE_PANEL_PEEK_X = Math.min(Math.max(EDGE_PANEL_VISIBLE_X - peekExposure, minimumPeek), maximumPeek);
     };
 
-    const applyEdgePanelPosition = (state) => {
+    const applyEdgePanelPosition = (state, { userInitiated = false } = {}) => {
         if (!edgePanel) return;
-        switch (state) {
-            case 'peek':
-                edgePanel.dataset.position = 'peek';
-                edgePanel.classList.add('visible');
-                edgePanel.style.right = `${EDGE_PANEL_PEEK_X}px`;
-                break;
-            case 'visible':
-                edgePanel.classList.add('visible');
-                delete edgePanel.dataset.position;
-                edgePanel.style.right = `${EDGE_PANEL_VISIBLE_X}px`;
-                break;
-            default:
-                edgePanel.dataset.position = 'collapsed';
-                edgePanel.classList.remove('visible');
-                edgePanel.style.right = `${EDGE_PANEL_COLLAPSED_X}px`;
-                break;
+
+        edgePanelState = state;
+
+        const isVisible = state === 'visible';
+        const isPeek = state === 'peek';
+        const ariaExpanded = isVisible ? 'true' : 'false';
+
+        edgePanel.setAttribute('aria-expanded', ariaExpanded);
+        if (edgePanelHandle) {
+            edgePanelHandle.setAttribute('aria-expanded', ariaExpanded);
+        }
+
+        if (edgePanelPeekTimeoutId) {
+            clearTimeout(edgePanelPeekTimeoutId);
+            edgePanelPeekTimeoutId = null;
+        }
+
+        if (isVisible || isPeek) {
+            edgePanel.classList.add('visible');
+        } else {
+            edgePanel.classList.remove('visible');
+        }
+
+        if (isPeek) {
+            edgePanel.dataset.position = 'peek';
+            edgePanel.style.right = `${EDGE_PANEL_PEEK_X}px`;
+        } else if (isVisible) {
+            delete edgePanel.dataset.position;
+            edgePanel.style.right = `${EDGE_PANEL_VISIBLE_X}px`;
+        } else {
+            edgePanel.dataset.position = 'collapsed';
+            edgePanel.style.right = `${EDGE_PANEL_COLLAPSED_X}px`;
+        }
+
+        if (state === 'peek') {
+            edgePanelPeekTimeoutId = window.setTimeout(() => {
+                if (edgePanelState === 'peek') {
+                    applyEdgePanelPosition('collapsed');
+                }
+            }, EDGE_PANEL_PEEK_DURATION);
+        }
+
+        if (userInitiated) {
+            if (state === 'collapsed') {
+                edgePanelUserCollapsed = true;
+            } else if (state === 'visible') {
+                edgePanelUserCollapsed = false;
+            }
+        } else if (state === 'visible') {
+            edgePanelUserCollapsed = false;
         }
     };
 
     if (edgePanel && edgePanelHandle) {
         computeEdgePanelOffsets();
-        applyEdgePanelPosition('peek');
+        applyEdgePanelPosition('collapsed');
         if (!edgePanelHandle.getAttribute('role')) {
             edgePanelHandle.setAttribute('role', 'button');
         }
@@ -830,11 +868,25 @@ function closeCyclePrecision() {
         if (!edgePanelHandle.getAttribute('aria-label')) {
             edgePanelHandle.setAttribute('aria-label', 'Toggle Quick Launch hub');
         }
-        const toggleEdgePanelVisibility = () => {
-            if (edgePanel.classList.contains('visible') && edgePanel.dataset.position !== 'peek') {
-                applyEdgePanelPosition('peek');
+        if (!edgePanelHandle.getAttribute('aria-controls')) {
+            edgePanelHandle.setAttribute('aria-controls', 'edgePanel');
+        }
+        if (!edgePanelHandle.hasAttribute('aria-expanded')) {
+            edgePanelHandle.setAttribute('aria-expanded', 'false');
+        }
+        if (!edgePanel.hasAttribute('aria-expanded')) {
+            edgePanel.setAttribute('aria-expanded', 'false');
+        }
+        window.setTimeout(() => {
+            if (!edgePanelUserCollapsed) {
+                showEdgePanelPeek();
+            }
+        }, 600);
+        const toggleEdgePanelVisibility = ({ userInitiated = false } = {}) => {
+            if (edgePanelState === 'visible') {
+                applyEdgePanelPosition('collapsed', { userInitiated });
             } else {
-                applyEdgePanelPosition('visible');
+                applyEdgePanelPosition('visible', { userInitiated });
             }
         };
 
@@ -868,11 +920,11 @@ function closeCyclePrecision() {
             const peekThreshold = (EDGE_PANEL_PEEK_X + EDGE_PANEL_VISIBLE_X) / 2;
 
             if (finalRight <= collapseThreshold) {
-                applyEdgePanelPosition('collapsed');
+                applyEdgePanelPosition('collapsed', { userInitiated: true });
             } else if (finalRight <= peekThreshold) {
-                applyEdgePanelPosition('peek');
+                applyEdgePanelPosition('peek', { userInitiated: true });
             } else {
-                applyEdgePanelPosition('visible');
+                applyEdgePanelPosition('visible', { userInitiated: true });
             }
         };
 
@@ -901,21 +953,21 @@ function closeCyclePrecision() {
 
         edgePanelHandle.addEventListener('click', () => {
             if (isDragging) return;
-            toggleEdgePanelVisibility();
+            toggleEdgePanelVisibility({ userInitiated: true });
         });
         edgePanelHandle.addEventListener('keydown', (event) => {
             if (isDragging) return;
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                toggleEdgePanelVisibility();
+                toggleEdgePanelVisibility({ userInitiated: true });
             }
         });
 
         window.addEventListener('resize', () => {
             computeEdgePanelOffsets();
-            if (edgePanel.dataset.position === 'peek') {
+            if (edgePanelState === 'peek') {
                 applyEdgePanelPosition('peek');
-            } else if (edgePanel.classList.contains('visible')) {
+            } else if (edgePanelState === 'visible') {
                 applyEdgePanelPosition('visible');
             } else {
                 applyEdgePanelPosition('collapsed');
@@ -924,9 +976,9 @@ function closeCyclePrecision() {
 
         window.addEventListener('orientationchange', () => {
             computeEdgePanelOffsets();
-            if (edgePanel.dataset.position === 'peek') {
+            if (edgePanelState === 'peek') {
                 applyEdgePanelPosition('peek');
-            } else if (edgePanel.classList.contains('visible')) {
+            } else if (edgePanelState === 'visible') {
                 applyEdgePanelPosition('visible');
             } else {
                 applyEdgePanelPosition('collapsed');
@@ -940,6 +992,7 @@ function closeCyclePrecision() {
 
     function showEdgePanelPeek() {
         if (!edgePanel) return;
+        if (edgePanelUserCollapsed) return;
         applyEdgePanelPosition('peek');
     }
 
