@@ -640,6 +640,18 @@ function openPanel(targetId, trigger = null) {
     const panel = getPanelElement(targetId);
     if (!panel) return;
 
+    if (targetId === 'musicPlayerContainer') {
+        const mainAudio = document.getElementById('audioPlayer');
+        if (mainAudio && !mainAudio.paused) {
+            try {
+                mainAudio.pause();
+                mainAudio.currentTime = 0;
+            } catch (error) {
+                console.warn('Unable to stop main player when launching Omoluabi Player:', error);
+            }
+        }
+    }
+
     if (targetId === 'aboutModalContainer') {
         const iframe = panel.querySelector('iframe');
         if (iframe) {
