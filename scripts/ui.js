@@ -64,6 +64,33 @@ function populateAlbumList() {
 
 document.addEventListener('DOMContentLoaded', populateAlbumList);
 
+function prepareDeferredIframes() {
+  const iframes = document.querySelectorAll('.chatbot-container iframe, #aboutModalContainer iframe');
+  if (!iframes.length) {
+    return;
+  }
+
+  iframes.forEach((iframe) => {
+    const currentSrc = iframe.getAttribute('src');
+    const defaultSrc = iframe.getAttribute('data-default-src');
+
+    if (!defaultSrc && currentSrc && currentSrc !== 'about:blank') {
+      iframe.setAttribute('data-default-src', currentSrc);
+    }
+
+    iframe.setAttribute('loading', 'lazy');
+
+    if (iframe.getAttribute('data-default-src')) {
+      iframe.setAttribute('data-loaded-src', '');
+      if (currentSrc && currentSrc !== 'about:blank') {
+        iframe.setAttribute('src', 'about:blank');
+      } else if (!currentSrc) {
+        iframe.setAttribute('src', 'about:blank');
+      }
+    }
+  });
+}
+
 function openAlbumList() {
       document.getElementById('main-content').classList.remove('about-us-active');
       const modal = document.getElementById('albumModal');
@@ -487,6 +514,7 @@ function handlePanelError(panelId, reason) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    prepareDeferredIframes();
     PANEL_IDS.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -682,6 +710,11 @@ function closePanel(targetId) {
 
     panel.style.display = 'none';
     panel.setAttribute('aria-hidden', 'true');
+    const iframe = panel.querySelector('iframe');
+    if (targetId !== 'youtubeModalContainer' && iframe && iframe.getAttribute('data-default-src')) {
+        iframe.setAttribute('src', 'about:blank');
+        iframe.setAttribute('data-loaded-src', '');
+    }
     clearPanelTimeout(targetId);
     updateEdgePanelBehavior();
 
