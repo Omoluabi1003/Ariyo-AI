@@ -31,21 +31,49 @@
     return;
   }
 
-  const allTracks = albums.flatMap((album, albumIndex) => {
+  const albumTrackMap = new Map();
+  const allTracks = [];
+
+  albums.forEach((album, albumIndex) => {
+    if (!album || !Array.isArray(album.tracks)) {
+      return;
+    }
+
     const artist = album.artist || 'Omoluabi';
     const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : '2025';
     const cover = album.cover || '../../Logo.jpg';
-    return album.tracks.map((track, trackIndex) => ({
-      title: track.title,
-      src: track.src,
-      cover,
-      album: album.name,
-      artist,
-      releaseYear,
-      albumIndex,
-      trackIndex,
-    }));
-  }).filter(track => track && track.src);
+    const albumName = album.name || `Album ${albumIndex + 1}`;
+    const collectedTracks = [];
+
+    album.tracks.forEach((track, trackIndex) => {
+      if (!track || !track.src) {
+        return;
+      }
+
+      const title = track.title || `Track ${trackIndex + 1}`;
+      const trackData = {
+        title,
+        src: track.src,
+        cover,
+        album: albumName,
+        artist,
+        releaseYear,
+        albumIndex,
+        albumTrackIndex: trackIndex,
+      };
+
+      allTracks.push(trackData);
+      collectedTracks.push(trackData);
+    });
+
+    if (collectedTracks.length) {
+      albumTrackMap.set(albumIndex, collectedTracks);
+    }
+  });
+
+  allTracks.forEach((track, index) => {
+    track.globalIndex = index;
+  });
 
   if (!allTracks.length) {
     statusMessage.textContent = 'No playable tracks were found.';
@@ -109,18 +137,59 @@
     });
   }
 
+  function collapseAlbumGroup(group) {
+    if (!group) return;
+    group.classList.remove('is-open');
+    const toggle = group.querySelector('.album-toggle');
+    const list = group.querySelector('.album-track-list');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    if (list) {
+      list.hidden = true;
+    }
+  }
+
+  function expandAlbumGroup(group) {
+    if (!group) return;
+    const groups = playlistElement.querySelectorAll('.album-group');
+    groups.forEach(other => {
+      if (other !== group) {
+        collapseAlbumGroup(other);
+      }
+    });
+    group.classList.add('is-open');
+    const toggle = group.querySelector('.album-toggle');
+    const list = group.querySelector('.album-track-list');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+    if (list) {
+      list.hidden = false;
+    }
+  }
+
   function updatePlaylistHighlight() {
-    const items = playlistElement.querySelectorAll('li');
+    const items = playlistElement.querySelectorAll('.album-track');
+    let activeItem = null;
     items.forEach(item => {
       const orderIndex = Number(item.dataset.orderIndex);
       const isActive = orderIndex === currentOrderIndex;
       if (isActive) {
         item.setAttribute('aria-current', 'true');
-        item.scrollIntoView({ block: 'nearest' });
+        activeItem = item;
       } else {
         item.removeAttribute('aria-current');
       }
     });
+
+    if (activeItem) {
+      const group = activeItem.closest('.album-group');
+      if (group) {
+        expandAlbumGroup(group);
+      }
+      activeItem.scrollIntoView({ block: 'nearest' });
+    }
   }
 
   function updateNextTrackLabel() {
@@ -217,35 +286,124 @@
 
   function renderPlaylist() {
     playlistElement.innerHTML = '';
+    const orderLookup = new Map();
     playbackOrder.forEach((trackIndex, orderIndex) => {
-      const track = allTracks[trackIndex];
-      const listItem = document.createElement('li');
-      listItem.tabIndex = 0;
-      listItem.dataset.orderIndex = orderIndex;
+      orderLookup.set(trackIndex, orderIndex);
+    });
 
-      const title = document.createElement('p');
-      title.className = 'track-title';
-      title.textContent = track.title;
+    albumTrackMap.forEach((tracks, albumIndex) => {
+      if (!tracks || !tracks.length) {
+        return;
+      }
 
-      const meta = document.createElement('p');
-      meta.className = 'track-meta';
-      meta.textContent = `${track.album} • ${track.artist}`;
+      const album = albums[albumIndex] || {};
+      const albumGroup = document.createElement('li');
+      albumGroup.className = 'album-group';
+      albumGroup.dataset.albumIndex = albumIndex;
 
-      listItem.appendChild(title);
-      listItem.appendChild(meta);
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'album-toggle';
+      toggle.setAttribute('aria-expanded', 'false');
 
-      listItem.addEventListener('click', () => {
-        loadTrack(orderIndex, { autoplay: true });
-      });
-      listItem.addEventListener('keydown', event => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
+      const trackListId = `albumTracks-${albumIndex}`;
+      toggle.setAttribute('aria-controls', trackListId);
+
+      const thumb = document.createElement('img');
+      thumb.className = 'album-thumb';
+      thumb.src = tracks[0].cover || album.cover || '../../Logo.jpg';
+      thumb.alt = `${tracks[0].album} cover art`;
+      thumb.loading = 'lazy';
+      thumb.decoding = 'async';
+      thumb.onerror = () => {
+        thumb.onerror = null;
+        thumb.src = '../../Logo.jpg';
+      };
+
+      const textWrap = document.createElement('span');
+      textWrap.className = 'album-toggle-text';
+
+      const name = document.createElement('span');
+      name.className = 'album-name';
+      name.textContent = tracks[0].album;
+
+      const meta = document.createElement('span');
+      meta.className = 'album-meta';
+      const releaseYear = (typeof album.releaseYear !== 'undefined' && album.releaseYear) ? album.releaseYear : tracks[0].releaseYear;
+      const trackCount = tracks.length;
+      const safeYear = releaseYear || '2025';
+      meta.textContent = `${safeYear} • ${trackCount} track${trackCount === 1 ? '' : 's'}`;
+
+      textWrap.appendChild(name);
+      textWrap.appendChild(meta);
+
+      const icon = document.createElement('span');
+      icon.className = 'album-toggle-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = '▾';
+
+      toggle.appendChild(thumb);
+      toggle.appendChild(textWrap);
+      toggle.appendChild(icon);
+
+      const trackList = document.createElement('ol');
+      trackList.className = 'album-track-list';
+      trackList.id = trackListId;
+      trackList.hidden = true;
+      trackList.setAttribute('role', 'list');
+
+      tracks.forEach(track => {
+        const orderIndex = orderLookup.get(track.globalIndex);
+        if (typeof orderIndex !== 'number') {
+          return;
+        }
+
+        const listItem = document.createElement('li');
+        listItem.className = 'album-track';
+        listItem.tabIndex = 0;
+        listItem.dataset.orderIndex = orderIndex;
+
+        const title = document.createElement('span');
+        title.className = 'album-track-title';
+        title.textContent = track.title;
+
+        const trackMeta = document.createElement('span');
+        trackMeta.className = 'album-track-meta';
+        trackMeta.textContent = `${track.artist} • Track ${track.albumTrackIndex + 1}`;
+
+        listItem.appendChild(title);
+        listItem.appendChild(trackMeta);
+
+        listItem.addEventListener('click', () => {
           loadTrack(orderIndex, { autoplay: true });
+        });
+        listItem.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            loadTrack(orderIndex, { autoplay: true });
+          }
+        });
+
+        trackList.appendChild(listItem);
+      });
+
+      if (!trackList.children.length) {
+        return;
+      }
+
+      toggle.addEventListener('click', () => {
+        if (albumGroup.classList.contains('is-open')) {
+          collapseAlbumGroup(albumGroup);
+        } else {
+          expandAlbumGroup(albumGroup);
         }
       });
 
-      playlistElement.appendChild(listItem);
+      albumGroup.appendChild(toggle);
+      albumGroup.appendChild(trackList);
+      playlistElement.appendChild(albumGroup);
     });
+
     updatePlaylistHighlight();
   }
 
