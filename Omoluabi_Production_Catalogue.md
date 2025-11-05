@@ -3,6 +3,7 @@
 ![Omoluabi Productions Logo](Logo.jpg)
 
 - [Comfort Zone](https://suno.com/s/o6kpQDz1PBmt8fSy)
+- [Dad is Missing](https://suno.com/s/ZJcZTLwSKP3wOSuG)
 - [Watchman](https://cdn1.suno.ai/5c17dd10-1770-467a-947a-db773c72ec78.mp3)
 - [Famine Of Fathers](https://suno.com/s/oU0v2zP2kD8NjR8q)
 - [Guilt Trip Trap](https://suno.com/s/0a0yeYLjv6xJXrS5)
