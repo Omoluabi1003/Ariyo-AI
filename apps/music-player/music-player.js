@@ -110,15 +110,27 @@
   }
 
   function updatePlaylistHighlight() {
-    const items = playlistElement.querySelectorAll('li');
+    const items = playlistElement.querySelectorAll('.track-item');
     items.forEach(item => {
       const orderIndex = Number(item.dataset.orderIndex);
       const isActive = orderIndex === currentOrderIndex;
+      const button = item.querySelector('.track-button');
       if (isActive) {
         item.setAttribute('aria-current', 'true');
-        item.scrollIntoView({ block: 'nearest' });
+        if (button) {
+          button.setAttribute('aria-current', 'true');
+        }
+        const albumSection = item.closest('details');
+        if (albumSection && !albumSection.open) {
+          albumSection.open = true;
+        }
+        const target = button || item;
+        target.scrollIntoView({ block: 'nearest' });
       } else {
         item.removeAttribute('aria-current');
+        if (button) {
+          button.removeAttribute('aria-current');
+        }
       }
     });
   }
@@ -217,35 +229,112 @@
 
   function renderPlaylist() {
     playlistElement.innerHTML = '';
+
+    const trackLookup = new Map();
     playbackOrder.forEach((trackIndex, orderIndex) => {
       const track = allTracks[trackIndex];
-      const listItem = document.createElement('li');
-      listItem.tabIndex = 0;
-      listItem.dataset.orderIndex = orderIndex;
+      const key = `${track.albumIndex}:${track.trackIndex}`;
+      trackLookup.set(key, { orderIndex, track });
+    });
+
+    albums.forEach((album, albumIndex) => {
+      const albumTracks = (album.tracks || [])
+        .map((_, trackIndex) => {
+          const key = `${albumIndex}:${trackIndex}`;
+          return trackLookup.get(key);
+        })
+        .filter(Boolean);
+
+      if (!albumTracks.length) {
+        return;
+      }
+
+      const albumItem = document.createElement('li');
+      albumItem.className = 'album-group';
+
+      const details = document.createElement('details');
+      details.className = 'album-details';
+
+      const isActiveAlbum = albumTracks.some(entry => entry.orderIndex === currentOrderIndex);
+      if (isActiveAlbum) {
+        details.open = true;
+      }
+
+      const summary = document.createElement('summary');
+      summary.className = 'album-summary';
+
+      const thumb = document.createElement('img');
+      thumb.className = 'album-thumb';
+      thumb.src = album.cover || '../../Logo.jpg';
+      thumb.alt = `${album.name} album cover`;
+      thumb.loading = 'lazy';
+
+      const info = document.createElement('div');
+      info.className = 'album-info';
 
       const title = document.createElement('p');
-      title.className = 'track-title';
-      title.textContent = track.title;
+      title.className = 'album-title';
+      title.textContent = album.name;
 
+      const artist = album.artist || 'Omoluabi';
+      const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : '2025';
       const meta = document.createElement('p');
-      meta.className = 'track-meta';
-      meta.textContent = `${track.album} • ${track.artist}`;
+      meta.className = 'album-meta';
+      meta.textContent = `${artist} • ${releaseYear}`;
 
-      listItem.appendChild(title);
-      listItem.appendChild(meta);
+      info.appendChild(title);
+      info.appendChild(meta);
 
-      listItem.addEventListener('click', () => {
-        loadTrack(orderIndex, { autoplay: true });
-      });
-      listItem.addEventListener('keydown', event => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
+      summary.appendChild(thumb);
+      summary.appendChild(info);
+
+      const trackList = document.createElement('ol');
+      trackList.className = 'album-tracklist';
+
+      albumTracks.forEach(({ orderIndex, track }) => {
+        const trackItem = document.createElement('li');
+        trackItem.className = 'track-item';
+        trackItem.dataset.orderIndex = orderIndex;
+
+        const trackButton = document.createElement('button');
+        trackButton.type = 'button';
+        trackButton.className = 'track-button';
+
+        const trackNumber = document.createElement('span');
+        trackNumber.className = 'track-number';
+        trackNumber.textContent = String(track.trackIndex + 1).padStart(2, '0');
+
+        const trackText = document.createElement('span');
+        trackText.className = 'track-text';
+
+        const trackTitle = document.createElement('span');
+        trackTitle.className = 'track-title';
+        trackTitle.textContent = track.title;
+
+        const trackMeta = document.createElement('span');
+        trackMeta.className = 'track-meta';
+        trackMeta.textContent = track.artist;
+
+        trackText.appendChild(trackTitle);
+        trackText.appendChild(trackMeta);
+
+        trackButton.appendChild(trackNumber);
+        trackButton.appendChild(trackText);
+
+        trackButton.addEventListener('click', () => {
           loadTrack(orderIndex, { autoplay: true });
-        }
+        });
+
+        trackItem.appendChild(trackButton);
+        trackList.appendChild(trackItem);
       });
 
-      playlistElement.appendChild(listItem);
+      details.appendChild(summary);
+      details.appendChild(trackList);
+      albumItem.appendChild(details);
+      playlistElement.appendChild(albumItem);
     });
+
     updatePlaylistHighlight();
   }
 
