@@ -132,6 +132,7 @@ const albums = [
           name: 'Omoluabi Production Catalogue',
           cover: `${BASE_URL}Logo.jpg`,
           tracks: [
+            { src: 'https://cdn1.suno.ai/5262fb23-fc38-404e-932b-e95de36effa8.mp3', title: 'Pepper 4 Body' },
             { src: 'https://cdn1.suno.ai/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3', title: 'Dad is Missing' },
             { src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3', title: 'Comfort Zone' },
             { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
@@ -184,6 +185,12 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Pepper 4 Body',
+    src: 'https://cdn1.suno.ai/5262fb23-fc38-404e-932b-e95de36effa8.mp3',
+    addedOn: '2025-11-09T09:00:00Z'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Dad is Missing',
