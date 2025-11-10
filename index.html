@@ -75,7 +75,7 @@
         </button>
         <footer class="footer-note">
             <p>&copy; 2024 <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved. <a href="privacy.html">Privacy &amp; data use</a></p>
-            <p class="footer-updated" aria-live="polite">Last updated: February 2025</p>
+            <p class="footer-updated" aria-live="polite">Last updated: Loading…</p>
         </footer>
     </div>
 
@@ -144,6 +144,51 @@
               const audio = document.getElementById('welcomeAudio');
               const speakerContainer = document.getElementById('speaker-container');
               const speakerIcon = document.getElementById('speaker-icon');
+              const updatedLabel = document.querySelector('.footer-updated');
+
+              const parseDate = (value) => {
+                  if (!value) return null;
+                  const parsed = new Date(value);
+                  return Number.isNaN(parsed.getTime()) ? null : parsed;
+              };
+
+              const fallbackDate = () => parseDate(document.lastModified) || new Date();
+
+              const formatDate = (date) =>
+                  date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+
+              const setUpdatedLabel = (date, version) => {
+                  if (!updatedLabel || !date) return;
+                  const formatted = formatDate(date);
+                  updatedLabel.textContent = version
+                      ? `Last updated: ${formatted} • v${version}`
+                      : `Last updated: ${formatted}`;
+                  if (version) {
+                      updatedLabel.dataset.version = version;
+                  }
+              };
+
+              if (updatedLabel) {
+                  const initialDate = fallbackDate();
+                  setUpdatedLabel(initialDate);
+
+                  fetch('version.json', { cache: 'no-store' })
+                      .then(response => {
+                          if (!response.ok) {
+                              throw new Error(`Version request failed with status ${response.status}`);
+                          }
+                          const headerDate = response.headers.get('last-modified');
+                          return response.json().then(data => ({ data, headerDate }));
+                      })
+                      .then(({ data, headerDate }) => {
+                          const version = data && typeof data.version === 'string' ? data.version : null;
+                          const resolvedDate = parseDate(headerDate) || initialDate;
+                          setUpdatedLabel(resolvedDate, version);
+                      })
+                      .catch(() => {
+                          setUpdatedLabel(initialDate);
+                      });
+              }
 
               let isPlaying = false;
               let userPaused = false;
