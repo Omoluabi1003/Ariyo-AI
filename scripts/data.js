@@ -188,7 +188,7 @@ const LATEST_TRACK_LIMIT = 1;
 const latestTrackAnnouncements = [
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Detty Season',
+    title: 'Detry Season',
     src: 'https://cdn1.suno.ai/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3',
     addedOn: '2025-02-18T09:00:00Z'
   },

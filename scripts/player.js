@@ -884,6 +884,22 @@ function selectRadio(src, title, index, logo) {
       audioPlayer.addEventListener('canplay', onCanPlay, { once: true });
       audioPlayer.addEventListener('error', onError, { once: true });
 
+      let quickStartAttempts = 0;
+      const quickStartCheck = () => {
+        if (readyHandled) return;
+        const readyState = audioPlayer.readyState;
+        const readyThreshold = typeof HTMLMediaElement !== 'undefined'
+          ? HTMLMediaElement.HAVE_CURRENT_DATA
+          : 2;
+        if (readyState >= readyThreshold) {
+          onCanPlay();
+        } else if (quickStartAttempts < 120) {
+          quickStartAttempts += 1;
+          requestAnimationFrame(quickStartCheck);
+        }
+      };
+      requestAnimationFrame(quickStartCheck);
+
       audioPlayer.load(); // Force load
     }
 
