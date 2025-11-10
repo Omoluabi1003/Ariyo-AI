@@ -147,6 +147,7 @@
     }
     if (list) {
       list.hidden = true;
+      list.setAttribute('aria-hidden', 'true');
     }
   }
 
@@ -166,6 +167,7 @@
     }
     if (list) {
       list.hidden = false;
+      list.setAttribute('aria-hidden', 'false');
     }
   }
 
@@ -351,6 +353,7 @@
       trackList.id = trackListId;
       trackList.hidden = true;
       trackList.setAttribute('role', 'list');
+      trackList.setAttribute('aria-hidden', 'true');
 
       tracks.forEach(track => {
         const orderIndex = orderLookup.get(track.globalIndex);
@@ -396,6 +399,17 @@
           collapseAlbumGroup(albumGroup);
         } else {
           expandAlbumGroup(albumGroup);
+        }
+      });
+
+      toggle.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          if (albumGroup.classList.contains('is-open')) {
+            collapseAlbumGroup(albumGroup);
+          } else {
+            expandAlbumGroup(albumGroup);
+          }
         }
       });
 
