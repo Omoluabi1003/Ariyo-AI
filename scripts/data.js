@@ -136,6 +136,7 @@ const albums = [
             { src: 'https://cdn1.suno.ai/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3', title: 'Dad is Missing' },
             { src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3', title: 'Comfort Zone' },
             { src: 'https://cdn1.suno.ai/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3', title: 'Detty Season' },
+            { src: 'https://cdn1.suno.ai/204380c2-034e-441b-8bf3-ef4e361554c0.mp3', title: 'Detty December' },
             { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
             { src: 'https://cdn1.suno.ai/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3', title: 'Famine Of Fathers' },
             { src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3', title: 'Guilt Trip Trap' },
@@ -183,26 +184,32 @@ const albums = [
     ];
 
 const LATEST_TRACK_WINDOW_HOURS = 168;
-const LATEST_TRACK_LIMIT = 1;
+const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
   {
     albumName: 'Omoluabi Production Catalogue',
-    title: 'Detry Season',
+    title: 'Detty December',
+    src: 'https://cdn1.suno.ai/204380c2-034e-441b-8bf3-ef4e361554c0.mp3',
+    addedOn: '2025-11-10T09:00:00Z'
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Detty Season',
     src: 'https://cdn1.suno.ai/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3',
-    addedOn: '2025-02-18T09:00:00Z'
+    addedOn: '2025-11-07T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Pepper 4 Body',
     src: 'https://cdn1.suno.ai/5262fb23-fc38-404e-932b-e95de36effa8.mp3',
-    addedOn: '2025-11-09T09:00:00Z'
+    addedOn: '2024-05-01T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Dad is Missing',
     src: 'https://cdn1.suno.ai/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3',
-    addedOn: '2025-12-31T00:00:00Z'
+    addedOn: '2024-04-15T00:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
