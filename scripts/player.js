@@ -422,11 +422,35 @@ function removeTrackFromPlaylist(index) {
         if (Array.isArray(latestTracks) && latestTracks.length) {
           const albumName = albums[albumIndex].name;
           const albumHighlights = latestTracks.filter(track => track.albumName === albumName);
-          const announcementList = (albumHighlights.length ? albumHighlights : latestTracks)
-            .map(track => `“${track.title}”${albumHighlights.length ? '' : ` (${track.albumName})`}`)
-            .join(', ');
-          const intro = albumHighlights.length ? `New in ${albumName}` : 'Latest arrivals across Àríyò AI';
-          bannerCopy.textContent = `${intro}: ${announcementList}. Tap a button below to play instantly.`;
+          const displayTracks = albumHighlights.length ? albumHighlights : latestTracks;
+          const formatList = items => {
+            if (items.length <= 1) {
+              return items[0] || '';
+            }
+            if (items.length === 2) {
+              return `${items[0]} and ${items[1]}`;
+            }
+            return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+          };
+          const trackMentions = displayTracks.map(track => {
+            if (albumHighlights.length) {
+              return `“${track.title}”`;
+            }
+            return `“${track.title}” from ${track.albumName}`;
+          });
+          const intro = albumHighlights.length
+            ? `New in ${albumName}`
+            : trackMentions.length === 1
+              ? 'Latest arrival on Àríyò AI'
+              : 'Latest arrivals across Àríyò AI';
+          const landingVerb = trackMentions.length === 1 ? 'just landed' : 'have just landed';
+          const actionPrompt = trackMentions.length === 1
+            ? 'Tap the button below to play instantly.'
+            : 'Tap a button below to play instantly.';
+          const announcementCopy = trackMentions.length
+            ? `${intro}: ${formatList(trackMentions)} ${landingVerb}. ${actionPrompt}`
+            : '';
+          bannerCopy.textContent = announcementCopy.trim();
           latestTracks.forEach(track => {
             const button = document.createElement('button');
             button.type = 'button';
@@ -778,11 +802,42 @@ function selectRadio(src, title, index, logo) {
         onError: onErrorCallback = null
       } = options;
 
-      // Remove all previous event listeners
-      audioPlayer.removeEventListener('progress', onProgress);
-      audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
-      audioPlayer.removeEventListener('canplay', onCanPlay);
-      audioPlayer.removeEventListener('error', onError);
+      const previousHandlers = audioPlayer._loadHandlers;
+      if (previousHandlers) {
+        const {
+          onProgress: prevProgress,
+          onCanPlayThrough: prevCanPlayThrough,
+          onCanPlay: prevCanPlay,
+          onLoadedData: prevLoadedData,
+          onError: prevError,
+          quickStartId: prevQuickStartId,
+          playTimeout: prevPlayTimeout
+        } = previousHandlers;
+        if (prevProgress) {
+          audioPlayer.removeEventListener('progress', prevProgress);
+        }
+        if (prevCanPlayThrough) {
+          audioPlayer.removeEventListener('canplaythrough', prevCanPlayThrough);
+        }
+        if (prevCanPlay) {
+          audioPlayer.removeEventListener('canplay', prevCanPlay);
+        }
+        if (prevLoadedData) {
+          audioPlayer.removeEventListener('loadeddata', prevLoadedData);
+        }
+        if (prevError) {
+          audioPlayer.removeEventListener('error', prevError);
+        }
+        if (prevPlayTimeout) {
+          clearTimeout(prevPlayTimeout);
+        }
+        if (prevQuickStartId && typeof cancelAnimationFrame === 'function') {
+          cancelAnimationFrame(prevQuickStartId);
+        }
+      }
+
+      const handlerState = {};
+      audioPlayer._loadHandlers = handlerState;
 
       let playTimeout = null;
       if (!silent) {
@@ -791,12 +846,14 @@ function selectRadio(src, title, index, logo) {
           retryTrackWithDelay();
         }, 15000);
       }
+      handlerState.playTimeout = playTimeout;
 
       const clearPlayTimeout = () => {
         if (playTimeout) {
           clearTimeout(playTimeout);
           playTimeout = null;
         }
+        handlerState.playTimeout = null;
       };
 
       function onProgress() {
@@ -806,12 +863,27 @@ function selectRadio(src, title, index, logo) {
           progressBar.style.width = `${(bufferedEnd / duration) * 100}%`;
         }
       }
+      handlerState.onProgress = onProgress;
 
       let readyHandled = false;
+
+      const revealPlaybackUi = () => {
+        if (!silent) {
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          document.getElementById('progressBar').style.display = 'none';
+        }
+      };
 
       const handleReady = () => {
         if (readyHandled) return;
         readyHandled = true;
+        clearPlayTimeout();
+        if (handlerState.quickStartId && typeof cancelAnimationFrame === 'function') {
+          cancelAnimationFrame(handlerState.quickStartId);
+          handlerState.quickStartId = null;
+        }
+        revealPlaybackUi();
         if (resumeTime != null && !isNaN(resumeTime)) {
           try {
             audioPlayer.currentTime = resumeTime;
@@ -830,31 +902,25 @@ function selectRadio(src, title, index, logo) {
         }
       };
 
-      function onCanPlayThrough() {
-        console.log("onCanPlayThrough called");
-        clearPlayTimeout();
-        if (!silent) {
-          loadingSpinner.style.display = 'none';
-          albumCover.style.display = 'block';
-          document.getElementById('progressBar').style.display = 'none';
-          console.log(`Stream ${title} can play through`);
-        }
+      function onLoadedData() {
+        console.log('onLoadedData called');
         handleReady();
       }
+      handlerState.onLoadedData = onLoadedData;
+
+      function onCanPlayThrough() {
+        console.log("onCanPlayThrough called");
+        console.log(`Stream ${title} can play through`);
+        handleReady();
+      }
+      handlerState.onCanPlayThrough = onCanPlayThrough;
 
       function onCanPlay() {
         console.log("onCanPlay called");
-        if (silent || loadingSpinner.style.display === 'block') {
-          clearPlayTimeout();
-          if (!silent) {
-            loadingSpinner.style.display = 'none';
-            albumCover.style.display = 'block';
-            document.getElementById('progressBar').style.display = 'none';
-            console.log(`Stream ${title} can play (fallback)`);
-          }
-          handleReady();
-        }
+        console.log(`Stream ${title} can play`);
+        handleReady();
       }
+      handlerState.onCanPlay = onCanPlay;
 
       function onError() {
         clearPlayTimeout();
@@ -877,28 +943,41 @@ function selectRadio(src, title, index, logo) {
         } else if (typeof onErrorCallback === 'function') {
           onErrorCallback();
         }
+        if (handlerState.quickStartId && typeof cancelAnimationFrame === 'function') {
+          cancelAnimationFrame(handlerState.quickStartId);
+          handlerState.quickStartId = null;
+        }
       }
+      handlerState.onError = onError;
 
       audioPlayer.addEventListener('progress', onProgress);
+      audioPlayer.addEventListener('loadeddata', onLoadedData, { once: true });
       audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
       audioPlayer.addEventListener('canplay', onCanPlay, { once: true });
       audioPlayer.addEventListener('error', onError, { once: true });
 
-      let quickStartAttempts = 0;
-      const quickStartCheck = () => {
-        if (readyHandled) return;
-        const readyState = audioPlayer.readyState;
-        const readyThreshold = typeof HTMLMediaElement !== 'undefined'
-          ? HTMLMediaElement.HAVE_CURRENT_DATA
-          : 2;
-        if (readyState >= readyThreshold) {
-          onCanPlay();
-        } else if (quickStartAttempts < 120) {
-          quickStartAttempts += 1;
-          requestAnimationFrame(quickStartCheck);
-        }
-      };
-      requestAnimationFrame(quickStartCheck);
+      if (typeof requestAnimationFrame === 'function') {
+        let quickStartAttempts = 0;
+        const quickStartCheck = () => {
+          if (readyHandled) {
+            handlerState.quickStartId = null;
+            return;
+          }
+          const readyState = audioPlayer.readyState;
+          const readyThreshold = typeof HTMLMediaElement !== 'undefined'
+            ? HTMLMediaElement.HAVE_CURRENT_DATA
+            : 2;
+          if (readyState >= readyThreshold) {
+            onCanPlay();
+          } else if (quickStartAttempts < 120) {
+            quickStartAttempts += 1;
+            handlerState.quickStartId = requestAnimationFrame(quickStartCheck);
+          } else {
+            handlerState.quickStartId = null;
+          }
+        };
+        handlerState.quickStartId = requestAnimationFrame(quickStartCheck);
+      }
 
       audioPlayer.load(); // Force load
     }
