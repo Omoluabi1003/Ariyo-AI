@@ -4,6 +4,7 @@
 
 - [Pepper 4 Body](https://suno.com/s/czQByjy0jSlFGgRL)
 - [Comfort Zone](https://suno.com/s/o6kpQDz1PBmt8fSy)
+- [Detty Season](https://suno.com/s/587XapK08kBnvxPN)
 - [Dad is Missing](https://suno.com/s/ZJcZTLwSKP3wOSuG)
 - [Watchman](https://cdn1.suno.ai/5c17dd10-1770-467a-947a-db773c72ec78.mp3)
 - [Famine Of Fathers](https://suno.com/s/oU0v2zP2kD8NjR8q)
