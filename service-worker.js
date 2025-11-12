@@ -3,6 +3,29 @@ const CACHE_PREFIX = 'ariyo-ai-cache-v8';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
+const swUrl = new URL(self.location.href);
+const SW_BASE_PATH = swUrl.pathname.replace(/[^/]*$/, '/');
+const SW_BASE_URL = `${swUrl.origin}${SW_BASE_PATH}`;
+
+function toAbsoluteUrl(path) {
+  if (!path) {
+    return SW_BASE_URL;
+  }
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(path)) {
+    return path;
+  }
+  if (path === '/' || path === './') {
+    return SW_BASE_URL;
+  }
+  if (path.startsWith('/')) {
+    return `${swUrl.origin}${path}`;
+  }
+  if (path.startsWith('./')) {
+    return `${SW_BASE_URL}${path.slice(2)}`;
+  }
+  return `${SW_BASE_URL}${path}`;
+}
+
 self.addEventListener('message', event => {
   if (!event.data) {
     return;
@@ -13,7 +36,7 @@ self.addEventListener('message', event => {
   }
 });
 
-const CORE_ASSETS = [
+const CORE_ASSET_PATHS = [
   '/',
   '/index.html',
   '/main.html',
@@ -45,6 +68,11 @@ const CORE_ASSETS = [
   'apps/connect-four/connect-four.js',
   'apps/cycle-precision/cycle-precision.html'
 ];
+
+const CORE_ASSETS = CORE_ASSET_PATHS.map(toAbsoluteUrl);
+const INDEX_HTML_URL = toAbsoluteUrl('index.html');
+const FALLBACK_HTML_URL = INDEX_HTML_URL;
+const VERSION_JSON_URL = toAbsoluteUrl('version.json');
 
 function setCacheNames(version) {
   CACHE_NAME = `${CACHE_PREFIX}-${version}`;
@@ -101,7 +129,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     (async () => {
       try {
-        const response = await fetch('/version.json', { cache: 'no-store' });
+        const response = await fetch(VERSION_JSON_URL, { cache: 'no-store' });
         const data = await response.json();
         setCacheNames(data.version);
       } catch (error) {
@@ -123,7 +151,7 @@ self.addEventListener('activate', event => {
 
       if (!CACHE_NAME) {
         try {
-          const response = await fetch('/version.json', { cache: 'no-store' });
+          const response = await fetch(VERSION_JSON_URL, { cache: 'no-store' });
           const data = await response.json();
           setCacheNames(data.version);
         } catch (error) {
@@ -186,7 +214,7 @@ self.addEventListener('fetch', event => {
 
         if (!CACHE_NAME) {
             try {
-                const response = await fetch('/version.json', { cache: 'no-store' });
+                const response = await fetch(VERSION_JSON_URL, { cache: 'no-store' });
                 const data = await response.json();
                 setCacheNames(data.version);
             } catch (error) {
@@ -206,7 +234,7 @@ self.addEventListener('fetch', event => {
                 if (cachedResponse) {
                     return cachedResponse;
                 }
-                return caches.match('/index.html');
+                return caches.match(FALLBACK_HTML_URL);
             }
         }
 
@@ -225,7 +253,7 @@ self.addEventListener('fetch', event => {
             return networkResponse;
         } catch (error) {
             console.error('Fetch failed:', error);
-            const fallbackResponse = await caches.match('/index.html');
+            const fallbackResponse = await caches.match(FALLBACK_HTML_URL);
             if (fallbackResponse) {
                 return fallbackResponse;
             }
