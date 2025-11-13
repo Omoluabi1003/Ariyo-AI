@@ -77,6 +77,68 @@ const networkRecoveryState = {
   source: null
 };
 
+const playbackWatchdog = {
+  intervalId: null,
+  lastTime: 0,
+  lastProgressAt: 0,
+  stallGraceMs: 12000
+};
+
+function recordPlaybackProgress(time) {
+  playbackWatchdog.lastTime = typeof time === 'number' ? time : 0;
+  playbackWatchdog.lastProgressAt = Date.now();
+}
+
+function stopPlaybackWatchdog(resetProgress = true) {
+  if (playbackWatchdog.intervalId) {
+    clearInterval(playbackWatchdog.intervalId);
+    playbackWatchdog.intervalId = null;
+  }
+  if (resetProgress) {
+    recordPlaybackProgress(audioPlayer.currentTime || 0);
+  }
+}
+
+function checkPlaybackHealth() {
+  if (audioPlayer.paused || audioPlayer.ended) {
+    recordPlaybackProgress(audioPlayer.currentTime || 0);
+    return;
+  }
+
+  if (networkRecoveryState.active) {
+    return;
+  }
+
+  const currentTime = audioPlayer.currentTime || 0;
+  if (currentTime > playbackWatchdog.lastTime + 0.25) {
+    recordPlaybackProgress(currentTime);
+    return;
+  }
+
+  const now = Date.now();
+  if (now - playbackWatchdog.lastProgressAt < playbackWatchdog.stallGraceMs) {
+    return;
+  }
+
+  const haveEnoughData = typeof HTMLMediaElement !== 'undefined'
+    ? HTMLMediaElement.HAVE_ENOUGH_DATA
+    : 4;
+
+  if (audioPlayer.readyState >= haveEnoughData) {
+    console.warn('Playback stalled despite sufficient buffer. Attempting recovery.');
+  } else {
+    console.warn('Playback has stalled. Attempting recovery.');
+  }
+  startNetworkRecovery('playback-stall');
+}
+
+function startPlaybackWatchdog() {
+  recordPlaybackProgress(audioPlayer.currentTime || 0);
+  if (!playbackWatchdog.intervalId) {
+    playbackWatchdog.intervalId = setInterval(checkPlaybackHealth, 5000);
+  }
+}
+
 function cancelNetworkRecovery() {
   if (networkRecoveryState.intervalId) {
     clearInterval(networkRecoveryState.intervalId);
@@ -206,9 +268,13 @@ function startNetworkRecovery(reason = 'network') {
   const source = captureCurrentSource();
   if (!source) return;
 
+  stopPlaybackWatchdog(false);
   networkRecoveryState.active = true;
   networkRecoveryState.wasPlaying = !audioPlayer.paused && !audioPlayer.ended;
-  networkRecoveryState.resumeTime = currentRadioIndex === -1 ? audioPlayer.currentTime || 0 : 0;
+  const currentTime = audioPlayer.currentTime || 0;
+  networkRecoveryState.resumeTime = currentRadioIndex === -1
+    ? Math.max(currentTime - 3, 0)
+    : 0;
   networkRecoveryState.source = source;
   retryButton.style.display = 'none';
   loadingSpinner.style.display = 'none';
@@ -226,6 +292,9 @@ function startNetworkRecovery(reason = 'network') {
     if (success) {
       console.log('Network recovery successful.');
       finishNetworkRecovery();
+      if (!audioPlayer.paused) {
+        startPlaybackWatchdog();
+      }
     } else {
       console.log('Network recovery attempt failed, will retry.');
     }
@@ -1019,6 +1088,8 @@ function selectRadio(src, title, index, logo) {
           manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
+          recordPlaybackProgress(audioPlayer.currentTime || 0);
+          startPlaybackWatchdog();
           console.log(`Playing: ${trackInfo.textContent}`);
           savePlayerState();
           if (isFirstPlay) {
@@ -1078,6 +1149,7 @@ function selectRadio(src, title, index, logo) {
       audioPlayer.pause();
       manageVinylRotation();
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      stopPlaybackWatchdog();
       console.log('Paused');
       savePlayerState();
     }
@@ -1088,6 +1160,7 @@ function selectRadio(src, title, index, logo) {
       audioPlayer.currentTime = 0;
       manageVinylRotation();
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+      stopPlaybackWatchdog();
       seekBar.value = 0;
       trackDuration.textContent = '0:00 / 0:00';
       console.log('Stopped');
@@ -1095,28 +1168,33 @@ function selectRadio(src, title, index, logo) {
     }
 
     function updateTrackTime() {
-  const currentTime = audioPlayer.currentTime;
+      const currentTime = audioPlayer.currentTime;
 
-  // 🔒 If it's a radio stream, don't format duration
-  if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
-    trackDuration.textContent = `${formatTime(currentTime)} / Live`;
-    seekBar.style.display = 'none'; // hide seekbar for radio
-    return;
-  }
+      // 🔒 If it's a radio stream, don't format duration
+      if (currentRadioIndex >= 0 || !isFinite(audioPlayer.duration)) {
+        trackDuration.textContent = `${formatTime(currentTime)} / Live`;
+        seekBar.style.display = 'none'; // hide seekbar for radio
+        recordPlaybackProgress(currentTime);
+        return;
+      }
 
-  const duration = audioPlayer.duration || 0;
+      const duration = audioPlayer.duration || 0;
 
-  if (!isNaN(duration) && duration > 0) {
-    trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-    seekBar.value = (currentTime / duration) * 100;
-    seekBar.style.display = 'block';
-    savePlayerState();
-  } else {
-    trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
-    seekBar.style.display = 'block';
-  }
-  highlightLyric(currentTime);
-}
+      if (!isNaN(duration) && duration > 0) {
+        trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+        seekBar.value = (currentTime / duration) * 100;
+        seekBar.style.display = 'block';
+        savePlayerState();
+        recordPlaybackProgress(currentTime);
+      } else {
+        trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+        seekBar.style.display = 'block';
+      }
+      highlightLyric(currentTime);
+      if (isNaN(duration) || duration <= 0) {
+        recordPlaybackProgress(currentTime);
+      }
+    }
 
     function formatTime(seconds) {
       const minutes = Math.floor(seconds / 60);
@@ -1145,6 +1223,7 @@ function selectRadio(src, title, index, logo) {
       console.log("Track ended, selecting next track...");
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
+      stopPlaybackWatchdog(false);
       if (currentRadioIndex === -1) { // Only if not playing a radio station
         if (shuffleScope === 'repeat') {
           selectTrack(
@@ -1175,21 +1254,38 @@ function selectRadio(src, title, index, logo) {
     });
 
     audioPlayer.addEventListener('play', manageVinylRotation);
-    audioPlayer.addEventListener('pause', manageVinylRotation);
+    audioPlayer.addEventListener('pause', event => {
+      manageVinylRotation();
+      if (event && event.target && event.target.paused) {
+        stopPlaybackWatchdog();
+      }
+    });
     audioPlayer.addEventListener('ended', manageVinylRotation);
 
-audioPlayer.addEventListener('playing', () => {
-  audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
-  audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
-  updateTrackTime();  // update UI instantly
-  manageVinylRotation(); // spin the turntable if needed
-  console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
-});
+    audioPlayer.addEventListener('playing', () => {
+      audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
+      audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
+      updateTrackTime();  // update UI instantly
+      manageVinylRotation(); // spin the turntable if needed
+      recordPlaybackProgress(audioPlayer.currentTime || 0);
+      startPlaybackWatchdog();
+      console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
+    });
 
 function handleNetworkEvent(event) {
   if (networkRecoveryState.active) return;
   if (audioPlayer.paused) return;
   if (!navigator.onLine) {
+    startNetworkRecovery(event.type);
+    return;
+  }
+
+  const haveFutureData = typeof HTMLMediaElement !== 'undefined'
+    ? HTMLMediaElement.HAVE_FUTURE_DATA
+    : 3;
+
+  if (audioPlayer.readyState < haveFutureData) {
+    console.warn(`Playback reported ${event.type}. Initiating proactive recovery.`);
     startNetworkRecovery(event.type);
   }
 }
