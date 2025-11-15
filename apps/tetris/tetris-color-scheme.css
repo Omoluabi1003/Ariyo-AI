@@ -4,8 +4,10 @@
     --theme-color: #4169E1;
 }
 
-body.light {
-    --background-color: #fff;
-    --text-color: #000;
-    --theme-color: #87CEFA;
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-color: #fff;
+        --text-color: #000;
+        --theme-color: #87CEFA;
+    }
 }
