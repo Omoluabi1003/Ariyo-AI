@@ -60,19 +60,6 @@ npm test
 
 The command currently prints "No tests yet".
 
-## Utilities
-
-- `user_tracker.py`: stores basic user information in a local SQLite database. If
-  `SMTP_USER` and `SMTP_PASS` environment variables are set, the script also
-  sends a notification email to `pakiyogun10@gmail.com` each time a user is
-  added.
-
-Run the script with:
-
-```bash
-python user_tracker.py
-```
-
 ## License
 
 This project is licensed under the MIT License.

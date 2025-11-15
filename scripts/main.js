@@ -677,13 +677,6 @@
         navigateToHome(false);
       }
     });
-
-
-
-
-    // Weekly Color Scheme Changer
-    changeColorScheme();
-
     // Dynamic Edge Panel Height
     const rootElement = document.documentElement;
     const mainEdgePanel = document.getElementById('edgePanel');
