@@ -3,6 +3,32 @@ const CACHE_PREFIX = 'ariyo-ai-cache-v8';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
+async function notifyClientsOfUpdate(versionIdentifier) {
+  try {
+    const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    await Promise.all(clients.map(async client => {
+      try {
+        client.postMessage({
+          type: 'SERVICE_WORKER_UPDATED',
+          version: versionIdentifier || null
+        });
+      } catch (messageError) {
+        console.error('Failed to notify client of service worker update:', messageError);
+      }
+
+      if (client.url && typeof client.navigate === 'function') {
+        try {
+          await client.navigate(client.url);
+        } catch (navigateError) {
+          console.error('Failed to auto-refresh client after service worker update:', navigateError);
+        }
+      }
+    }));
+  } catch (error) {
+    console.error('Failed to broadcast service worker update to clients:', error);
+  }
+}
+
 self.addEventListener('message', event => {
   if (!event.data) {
     return;
@@ -24,6 +50,7 @@ const CORE_ASSETS = [
   'scripts/player.js',
   'scripts/ui.js',
   'scripts/main.js',
+  'scripts/sw-controller.js',
   'viewport-height.js',
   'apps/ariyo-ai-chat/ariyo-ai-chat.html',
   'apps/sabi-bible/sabi-bible.html',
@@ -146,22 +173,14 @@ self.addEventListener('activate', event => {
         })
       );
 
-      if (hadExistingCaches) {
-        try {
-          const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-          const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
-            ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
-            : null;
-          clients.forEach(client => client.postMessage({
-            type: 'SERVICE_WORKER_UPDATED',
-            version: versionIdentifier
-          }));
-        } catch (error) {
-          console.error('Failed to broadcast service worker update to clients:', error);
-        }
-      }
+      await self.clients.claim();
 
-      return self.clients.claim();
+      if (hadExistingCaches) {
+        const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
+          ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
+          : null;
+        await notifyClientsOfUpdate(versionIdentifier);
+      }
     })()
   );
 });
