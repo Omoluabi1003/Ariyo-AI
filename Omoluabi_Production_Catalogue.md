@@ -3,6 +3,7 @@
 ![Omoluabi Productions Logo](Logo.jpg)
 
 - [Pepper 4 Body](https://suno.com/s/czQByjy0jSlFGgRL)
+- [Home Becomes Peace](https://suno.com/s/8k9Ut2zdZM4R4TR6)
 - [As Far As Your Mind Can See](https://suno.com/s/hgFZ1qjbCmZn4gaq)
 - [Comfort Zone](https://suno.com/s/o6kpQDz1PBmt8fSy)
 - [Detty December](https://suno.com/s/gDCFQBFIne4vlBd9)

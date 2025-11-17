@@ -132,6 +132,7 @@ const albums = [
           name: 'Omoluabi Production Catalogue',
           cover: `${BASE_URL}Logo.jpg`,
           tracks: [
+            { src: 'https://cdn1.suno.ai/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3', title: 'Home Becomes Peace' },
             { src: 'https://cdn1.suno.ai/5262fb23-fc38-404e-932b-e95de36effa8.mp3', title: 'Pepper 4 Body' },
             { src: 'https://cdn1.suno.ai/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3', title: 'Dad is Missing' },
             { src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3', title: 'Comfort Zone' },
@@ -190,6 +191,12 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Home Becomes Peace',
+    src: 'https://cdn1.suno.ai/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3',
+    addedOn: '2025-11-18T09:00:00Z'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'No Contact',
