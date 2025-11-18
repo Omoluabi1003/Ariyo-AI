@@ -1,8 +1,10 @@
-/* Vibrant Naija youth gradient theme */
+/* Naija green energy with an Omoluabi golden glow */
 :root {
-  --theme-color: #12B76A;
-  --gradient-start: #047857;
-  --gradient-end: #FACC15;
+  /* Deep emerald evokes the Naija flag */
+  --theme-color: #0E9F6E;
+  --gradient-start: #055C36;
+  /* Warm gold represents the Omoluabi spirit */
+  --gradient-end: #F4B400;
 }
 
 body {
