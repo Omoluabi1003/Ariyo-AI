@@ -1,7 +1,7 @@
 :root {
   color-scheme: dark;
   --player-bg: transparent;
-  --player-accent: #12B76A;
+  --player-accent: #8E5BFF;
   --player-muted: rgba(255, 255, 255, 0.7);
   --player-border: rgba(255, 255, 255, 0.12);
   --player-radius: 24px;
@@ -14,7 +14,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at top, rgba(33, 150, 83, 0.35), rgba(5, 5, 5, 0.95));
+  background: radial-gradient(circle at top, rgba(142, 91, 255, 0.3), rgba(8, 10, 24, 0.96));
   color: #fff;
   min-height: 100vh;
   display: flex;
@@ -26,7 +26,7 @@ body {
   align-items: center;
   gap: 1rem;
   padding: calc(1rem + env(safe-area-inset-top)) 1.25rem 1rem;
-  background: linear-gradient(135deg, rgba(18, 183, 106, 0.8), rgba(0, 0, 0, 0.85));
+  background: linear-gradient(135deg, rgba(142, 91, 255, 0.82), rgba(12, 20, 46, 0.9));
   border-bottom: 1px solid var(--player-border);
 }
 
@@ -280,7 +280,7 @@ body {
 .progress-bar div {
   height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--player-accent), rgba(18, 183, 106, 0.25));
+  background: linear-gradient(90deg, var(--player-accent), rgba(255, 127, 197, 0.28));
   border-radius: inherit;
   transition: width 0.2s ease;
 }
@@ -430,7 +430,7 @@ body {
 }
 
 .album-group.is-open .album-toggle {
-  background: rgba(18, 183, 106, 0.18);
+  background: rgba(142, 91, 255, 0.14);
   border-color: var(--player-accent);
 }
 
@@ -516,7 +516,7 @@ body {
 }
 
 .album-track[aria-current='true'] {
-  background: rgba(18, 183, 106, 0.2);
+  background: rgba(142, 91, 255, 0.22);
   border-color: var(--player-accent);
   color: #fff;
   font-weight: 600;
