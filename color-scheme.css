@@ -1,10 +1,10 @@
-/* Naija green energy with an Omoluabi golden glow */
+/* Aurora-inspired blend for creative, professional polish */
 :root {
-  /* Deep emerald evokes the Naija flag */
-  --theme-color: #0E9F6E;
-  --gradient-start: #055C36;
-  /* Warm gold represents the Omoluabi spirit */
-  --gradient-end: #F4B400;
+  /* Luminous violet accent for calls to action */
+  --theme-color: #8E5BFF;
+  --gradient-start: #0C1B3C;
+  /* Coral flare to keep the experience energetic */
+  --gradient-end: #FF7FC5;
 }
 
 body {
