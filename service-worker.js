@@ -1,5 +1,5 @@
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v8';
+const CACHE_PREFIX = 'ariyo-ai-cache-v9';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
@@ -71,6 +71,12 @@ const CORE_ASSETS = [
   'apps/cycle-precision/cycle-precision.html'
 ];
 
+const PREFETCH_MEDIA = [
+  'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
+  'https://cdn1.suno.ai/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3'
+];
+const PREFETCH_MEDIA_SET = new Set(PREFETCH_MEDIA);
+
 function setCacheNames(version) {
   CACHE_NAME = `${CACHE_PREFIX}-${version}`;
   RUNTIME_CACHE_NAME = `${CACHE_NAME}-runtime`;
@@ -136,7 +142,19 @@ self.addEventListener('install', event => {
       }
 
       const cache = await caches.open(CACHE_NAME);
-      return cache.addAll(CORE_ASSETS);
+      await cache.addAll(CORE_ASSETS);
+
+      const runtimeCache = await openRuntimeCache();
+      await Promise.all(PREFETCH_MEDIA.map(async (url) => {
+        try {
+          const response = await fetch(url, { cache: 'no-store' });
+          if (response && response.ok) {
+            await runtimeCache.put(url, response.clone());
+          }
+        } catch (error) {
+          console.error('Failed to prefetch media asset:', url, error);
+        }
+      }));
     })()
   );
 });
@@ -195,6 +213,30 @@ self.addEventListener('fetch', event => {
     }
 
     if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
+        if (PREFETCH_MEDIA_SET.has(event.request.url)) {
+            event.respondWith((async () => {
+                const runtimeCache = await openRuntimeCache();
+                const cachedResponse = await runtimeCache.match(event.request.url);
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                try {
+                    const networkResponse = await fetch(event.request, { cache: 'no-store' });
+                    if (networkResponse && networkResponse.ok) {
+                        await runtimeCache.put(event.request.url, networkResponse.clone());
+                    }
+                    return networkResponse;
+                } catch (error) {
+                    console.error('Audio fetch failed:', error);
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    throw error;
+                }
+            })());
+        }
+
         return;
     }
 
