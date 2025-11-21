@@ -132,6 +132,7 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+            { src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3', title: 'One Position' },
             { src: 'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3', title: 'When Help Rode In From Nowhere' },
             { src: 'https://cdn1.suno.ai/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3', title: 'Freedom' },
             { src: 'https://cdn1.suno.ai/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3', title: 'Home Becomes Peace' },
@@ -193,6 +194,12 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'One Position',
+    src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3',
+    addedOn: '2025-05-06T09:00:00Z'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'When Help Rode In From Nowhere',
