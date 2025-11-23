@@ -225,6 +225,25 @@
 
     let aboutViewActive = false;
 
+    function ensureHomeViewForSharedPlayback() {
+      if (typeof closeAboutModal === 'function') {
+        closeAboutModal();
+      }
+      aboutViewActive = false;
+
+      const mainContent = document.getElementById('main-content');
+      if (mainContent) {
+        mainContent.classList.remove('about-us-active');
+        mainContent.style.opacity = '1';
+      }
+
+      const currentPath = window.location.pathname;
+      if (currentPath.endsWith('/about.html')) {
+        const normalizedPath = currentPath.replace(/about\.html$/, '') || '/';
+        history.replaceState({ page: 'home' }, 'Home', normalizedPath + window.location.search);
+      }
+    }
+
     function navigateToAbout(pushState = true) {
       ensureAboutButtonReference();
       const mainContent = document.getElementById('main-content');
@@ -399,6 +418,7 @@
       const albumParam = params.get('album');
       const trackParam = params.get('track');
       if (stationParam) {
+        ensureHomeViewForSharedPlayback();
         const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
         if (stationIndex !== -1) {
           const station = radioStations[stationIndex];
@@ -412,6 +432,7 @@
         }
       }
       if (albumParam && trackParam) {
+        ensureHomeViewForSharedPlayback();
         const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
         if (albumIndex !== -1) {
           const album = albums[albumIndex];
