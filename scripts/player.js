@@ -77,6 +77,8 @@ const networkRecoveryState = {
   source: null
 };
 
+let networkRecoveryTimer = null;
+
 const playbackWatchdog = {
   intervalId: null,
   lastTime: 0,
@@ -1285,8 +1287,27 @@ function handleNetworkEvent(event) {
     : 3;
 
   if (audioPlayer.readyState < haveFutureData) {
-    console.warn(`Playback reported ${event.type}. Initiating proactive recovery.`);
-    startNetworkRecovery(event.type);
+    if (networkRecoveryTimer) {
+      clearTimeout(networkRecoveryTimer);
+    }
+
+    networkRecoveryTimer = setTimeout(() => {
+      networkRecoveryTimer = null;
+
+      if (networkRecoveryState.active || audioPlayer.paused) return;
+      if (!navigator.onLine) {
+        startNetworkRecovery(`${event.type}-offline`);
+        return;
+      }
+
+      if (audioPlayer.readyState < haveFutureData) {
+        console.warn(`Playback reported ${event.type}. Initiating proactive recovery after grace period.`);
+        startNetworkRecovery(event.type);
+      }
+    }, 1500);
+  } else if (networkRecoveryTimer) {
+    clearTimeout(networkRecoveryTimer);
+    networkRecoveryTimer = null;
   }
 }
 
