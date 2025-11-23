@@ -6,8 +6,12 @@
 
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
-      const baseUrl = `${window.location.origin}${window.location.pathname}`;
-      let shareUrl = ensureHttps(window.location.href);
+      const sanitizedPath = window.location.pathname.endsWith('/about.html')
+        ? window.location.pathname.replace(/about\.html$/, '')
+        : window.location.pathname;
+      const baseUrl = `${window.location.origin}${sanitizedPath || '/'}`;
+
+      let shareUrl = ensureHttps(baseUrl);
       let shareTitle = "Àríyò AI - Smart Naija AI";
       let shareText = "Check out this awesome page!";
       let qrLabel = shareTitle;
