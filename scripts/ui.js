@@ -542,6 +542,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         trigger.addEventListener('click', () => closePanel(targetId));
     });
+
+    // Allow users to dismiss any open panel by clicking its backdrop or pressing Escape
+    PANEL_IDS.forEach(id => {
+        const panel = getPanelElement(id);
+        if (!panel) return;
+
+        panel.addEventListener('click', (event) => {
+            if (event.target === panel && panel.style.display === 'block') {
+                closePanel(id);
+            }
+        });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+
+        PANEL_IDS.forEach(id => {
+            const panel = getPanelElement(id);
+            if (panel && panel.style.display === 'block') {
+                closePanel(id);
+            }
+        });
+    });
 });
 
 window.addEventListener('message', (event) => {
