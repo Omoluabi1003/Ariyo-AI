@@ -6,12 +6,13 @@
 
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
-      const sanitizedPath = window.location.pathname.endsWith('/about.html')
-        ? window.location.pathname.replace(/about\.html$/, '')
-        : window.location.pathname;
-      const baseUrl = `${window.location.origin}${sanitizedPath || '/'}`;
+      const shareTarget = new URL(window.location.href);
+      if (shareTarget.pathname.endsWith('/about.html')) {
+        shareTarget.pathname = shareTarget.pathname.replace(/about\.html$/, '');
+      }
+      shareTarget.search = '';
 
-      let shareUrl = ensureHttps(baseUrl);
+      let shareUrl = ensureHttps(shareTarget.toString());
       let shareTitle = "Àríyò AI - Smart Naija AI";
       let shareText = "Check out this awesome page!";
       let qrLabel = shareTitle;
@@ -22,7 +23,9 @@
         const album = albums[playback.albumIndex];
         const track = album && album.tracks ? album.tracks[playback.trackIndex] : null;
         if (album && track) {
-          shareUrl = ensureHttps(`${baseUrl}?album=${slugify(album.name)}&track=${slugify(track.title)}`);
+          shareTarget.searchParams.set('album', slugify(album.name));
+          shareTarget.searchParams.set('track', slugify(track.title));
+          shareUrl = ensureHttps(shareTarget.toString());
           shareTitle = `Listening to ${track.title}`;
           shareText = `I'm listening to ${track.title} on Àríyò AI!`;
           qrLabel = `${track.title} — ${album.name}`;
@@ -30,9 +33,12 @@
       } else if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
         if (station) {
+          shareTarget.searchParams.set('station', slugify(station.name));
+          shareTarget.searchParams.delete('album');
+          shareTarget.searchParams.delete('track');
+          shareUrl = ensureHttps(shareTarget.toString());
           shareTitle = `Listening to ${station.name}`;
           shareText = `I'm listening to ${station.name} on Àríyò AI!`;
-          shareUrl = ensureHttps(`${baseUrl}?station=${slugify(station.name)}`);
           qrLabel = `${station.name} (${station.location})`;
         }
       }
