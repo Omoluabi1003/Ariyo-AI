@@ -187,7 +187,8 @@ const albums = [
             { src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3', title: 'Bread Crumb Effect' },
             { src: 'https://cdn1.suno.ai/df20133e-8c32-48ec-b7d7-969aefef3478.mp3', title: 'Love Without Empathy' },
             { src: 'https://cdn1.suno.ai/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3', title: 'Normal No Mean NOT Toxic' },
-            { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' }
+            { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
+            { src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' }
         ]
       },
     ];
@@ -196,6 +197,12 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Shadows Teach The Light',
+    src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3',
+    addedOn: '2025-11-25T18:53:20Z'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Perform My Life No More',
