@@ -2,6 +2,9 @@
 
 ![Omoluabi Productions Logo](Logo.jpg)
 
+- [Different Phases](https://suno.com/s/XNSQwmwutAlyURsu)
+- [Run Di Settings](https://suno.com/s/qaopje5cVacsY44u)
+- [Shadows Teach The Light](https://suno.com/s/ZYxR5yyukTZuZIGa)
 - [One Position](https://suno.com/s/KR2Wo4HJAeNh7PSK)
 - [Pepper 4 Body](https://suno.com/s/czQByjy0jSlFGgRL)
 - [Home Becomes Peace](https://suno.com/s/8k9Ut2zdZM4R4TR6)
