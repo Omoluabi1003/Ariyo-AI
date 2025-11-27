@@ -1,6 +1,6 @@
 // scripts/dj-player.js
 
-const CrossfadePlayer = (() => {
+window.CrossfadePlayer = (() => {
     let audioContext;
     let player1, player2;
     let source1, source2;
