@@ -526,9 +526,6 @@
         console.log('No saved state found, initialized with default');
       }
       updateMediaSession();
-      if (!savedState) {
-        selectAlbum(0);
-      }
     }
 
     // GSAP Sidebar Button Animations
