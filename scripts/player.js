@@ -762,17 +762,21 @@ function loadMoreStations(region) {
 function toggleDjMode() {
     djAutoMixEnabled = !djAutoMixEnabled;
     const toggleButton = document.getElementById('djModeToggle');
+    const djMixStatusInfo = document.getElementById('djMixStatusInfo');
     if (djAutoMixEnabled) {
-        toggleButton.classList.add('active'); // You might want to style this class
+        toggleButton.classList.add('active');
+        djMixStatusInfo.textContent = 'DJ Auto-Mix: On';
         CrossfadePlayer.setConfig({ enabled: true, duration: 6 });
         CrossfadePlayer.onTrackEnd(handleAutoNextTrack);
     } else {
         toggleButton.classList.remove('active');
+        djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
         CrossfadePlayer.setConfig({ enabled: false });
         CrossfadePlayer.onTrackEnd(null);
     }
     console.log(`DJ Mix mode is now ${djAutoMixEnabled ? 'enabled' : 'disabled'}`);
 }
+
 
 function handleAutoNextTrack() {
     if (!djAutoMixEnabled) return;
