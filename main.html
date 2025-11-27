@@ -1293,7 +1293,7 @@
               <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
               <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
               <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
-              <button id="djModeToggle" aria-label="Toggle DJ Mix" onclick="toggleDjMode()" title="Toggle DJ Mix" class="ripple shockwave">🎚️</button>
+              <button id="djModeToggle" aria-label="Toggle DJ Mix" onclick="toggleDjMode(); this.classList.toggle('active');" title="Toggle DJ Mix" class="ripple shockwave">🎚️</button>
             </div>
             <audio id="audioPlayer" preload="auto" hidden aria-hidden="true"></audio>
           </div>
@@ -1526,7 +1526,6 @@
   <script src="scripts/sw-controller.js" defer></script>
   <script src="scripts/data.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
-  <script src="scripts/dj-player.js"></script>
   <script src="scripts/dj-player.js"></script>
   <script src="scripts/player.js"></script>
   <script src="scripts/ui.js"></script>
