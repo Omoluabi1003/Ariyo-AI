@@ -189,7 +189,8 @@ const albums = [
             { src: 'https://cdn1.suno.ai/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3', title: 'Normal No Mean NOT Toxic' },
             { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
             { src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' },
-            { src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' }
+            { src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' },
+            { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' }
         ]
       },
     ];
@@ -198,6 +199,12 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Run Di Settings',
+    src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3',
+    addedOn: '2025-11-27T01:45:26Z'
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Midnight Maybe',
