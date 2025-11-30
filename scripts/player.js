@@ -62,6 +62,8 @@ let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
 let djAutoMixEnabled = false;
+let crossfadeDurationSeconds = 6;
+const djPreloadAheadSeconds = 8;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -766,8 +768,15 @@ function toggleDjMode() {
     if (djAutoMixEnabled) {
         toggleButton.classList.add('active');
         djMixStatusInfo.textContent = 'DJ Auto-Mix: On';
-        CrossfadePlayer.setConfig({ enabled: true, duration: 6 });
-        CrossfadePlayer.onTrackEnd(handleAutoNextTrack);
+        CrossfadePlayer.setConfig({
+            enabled: true,
+            duration: crossfadeDurationSeconds,
+            preloadAhead: djPreloadAheadSeconds,
+            onCrossfadeStart: handleCrossfadeStart,
+            onCrossfadeComplete: handleCrossfadeComplete,
+            onTrackEnd: handleAutoNextTrack
+        });
+        primeDjDecks();
     } else {
         toggleButton.classList.remove('active');
         djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
@@ -814,6 +823,114 @@ function getNextTrackDetails() {
     };
 }
 
+function applyTrackUiState(albumIndex, trackIndex) {
+    const album = albums[albumIndex];
+    if (!album || !album.tracks || !album.tracks[trackIndex]) return null;
+
+    const track = album.tracks[trackIndex];
+    currentAlbumIndex = albumIndex;
+    currentTrackIndex = trackIndex;
+
+    const params = new URLSearchParams(window.location.search);
+    params.delete('station');
+    params.set('album', slugify(album.name));
+    params.set('track', slugify(track.title));
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+
+    lastTrackSrc = track.src;
+    lastTrackTitle = track.title;
+    lastTrackIndex = trackIndex;
+
+    trackInfo.textContent = track.title;
+    trackArtist.textContent = `Artist: ${album.artist || 'Omoluabi'}`;
+    const year = album.releaseYear || 2025;
+    trackYear.textContent = `Release Year: ${year}`;
+    trackAlbum.textContent = `Album: ${album.name}`;
+    albumCover.src = album.cover;
+    loadLyrics(track.lrc);
+    document.getElementById('progressBar').style.display = 'block';
+    progressBar.style.width = '0%';
+    updateNextTrackInfo();
+    updateMediaSession();
+    return track;
+}
+
+function handleCrossfadeStart(event) {
+    if (!event || !event.incoming) return;
+    if (shuffleMode && shuffleQueue.length > 0) {
+        const upcoming = shuffleQueue[0];
+        if (upcoming.trackIndex === event.incoming.trackIndex && upcoming.albumIndex === event.incoming.albumIndex) {
+            shuffleQueue.shift();
+        }
+    }
+    const track = applyTrackUiState(event.incoming.albumIndex, event.incoming.trackIndex);
+    if (track) {
+        showNowPlayingToast(track.title);
+        setTurntableSpin(true);
+    }
+}
+
+function handleCrossfadeComplete() {
+    const nextTrack = getNextTrackDetails();
+    if (nextTrack) {
+        CrossfadePlayer.loadTrack({
+            src: buildTrackFetchUrl(nextTrack.src),
+            meta: nextTrack
+        }, true);
+    }
+}
+
+function primeDjDecks() {
+    if (currentRadioIndex !== -1) return;
+    const album = albums[currentAlbumIndex];
+    if (!album || !album.tracks[currentTrackIndex]) return;
+    const track = album.tracks[currentTrackIndex];
+    CrossfadePlayer.loadTrack({
+        src: buildTrackFetchUrl(track.src),
+        meta: { albumIndex: currentAlbumIndex, trackIndex: currentTrackIndex, title: track.title }
+    }, false);
+    const nextTrack = getNextTrackDetails();
+    if (nextTrack) {
+        CrossfadePlayer.loadTrack({
+            src: buildTrackFetchUrl(nextTrack.src),
+            meta: nextTrack
+        }, true);
+    }
+}
+
+function resolveTrackForDirection(direction) {
+    if (currentRadioIndex !== -1) return null;
+    if (shuffleMode) {
+        if (shuffleQueue.length === 0) {
+            buildShuffleQueue();
+        }
+        const next = shuffleQueue.shift();
+        return next ? { ...next } : null;
+    }
+    const trackCount = albums[currentAlbumIndex].tracks.length;
+    const targetIndex = (currentTrackIndex + direction + trackCount) % trackCount;
+    const track = albums[currentAlbumIndex].tracks[targetIndex];
+    if (!track) return null;
+    return {
+        src: track.src,
+        title: track.title,
+        albumIndex: currentAlbumIndex,
+        trackIndex: targetIndex
+    };
+}
+
+function startDjCrossfade(target, isAuto = false) {
+    if (!target) return;
+    CrossfadePlayer.loadTrack({
+        src: buildTrackFetchUrl(target.src),
+        meta: target
+    }, true);
+    CrossfadePlayer.crossfade({
+        immediate: !isAuto,
+        durationSeconds: crossfadeDurationSeconds
+    });
+}
+
 
 function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
@@ -822,34 +939,25 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
-      const params = new URLSearchParams(window.location.search);
-      params.delete('station');
-      params.set('album', slugify(albums[currentAlbumIndex].name));
-      params.set('track', slugify(title));
-      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-      lastTrackSrc = src;
-      lastTrackTitle = title;
-      lastTrackIndex = index;
-      trackInfo.textContent = title;
-      trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
-      const year = albums[currentAlbumIndex].releaseYear || 2025;
-      trackYear.textContent = `Release Year: ${year}`;
-      trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
-      albumCover.src = albums[currentAlbumIndex].cover; // Ensure album cover updates
-      loadLyrics(albums[currentAlbumIndex].tracks[currentTrackIndex].lrc);
+      applyTrackUiState(currentAlbumIndex, currentTrackIndex);
       closeTrackList();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
-      document.getElementById('progressBar').style.display = 'block';
-      progressBar.style.width = '0%';
       setTurntableSpin(false);
 
     if (djAutoMixEnabled) {
-        CrossfadePlayer.loadTrack(src, false);
+        const currentStream = buildTrackFetchUrl(src);
+        CrossfadePlayer.loadTrack({
+            src: currentStream,
+            meta: { albumIndex: currentAlbumIndex, trackIndex: currentTrackIndex, title }
+        }, false);
         const nextTrack = getNextTrackDetails();
         if (nextTrack) {
-            CrossfadePlayer.loadTrack(nextTrack.src, true);
+            CrossfadePlayer.loadTrack({
+                src: buildTrackFetchUrl(nextTrack.src),
+                meta: nextTrack
+            }, true);
         }
     } else {
         const streamUrl = buildTrackFetchUrl(src);
@@ -1407,23 +1515,10 @@ audioPlayer.addEventListener('suspend', handleNetworkEvent);
 audioPlayer.addEventListener('waiting', handleNetworkEvent);
 
 function switchTrack(direction, isAuto = false) {
-    if (djAutoMixEnabled && !isAuto) {
-        // Manual skip in DJ mode should trigger a crossfade to the next track
-        const nextTrack = getNextTrackDetails();
-        if (nextTrack) {
-            // Load the next track into the inactive player and then crossfade
-            CrossfadePlayer.loadTrack(nextTrack.src, true);
-            CrossfadePlayer.crossfade();
-
-            // Update current track index
-            currentAlbumIndex = nextTrack.albumIndex;
-            currentTrackIndex = nextTrack.trackIndex;
-
-            // Preload the *next* next track
-            const nextNextTrack = getNextTrackDetails();
-            if (nextNextTrack) {
-                // This logic needs to be smarter; for now, we assume the CrossfadePlayer can handle it
-            }
+    if (djAutoMixEnabled) {
+        const target = resolveTrackForDirection(direction);
+        if (target) {
+            startDjCrossfade(target, isAuto);
         }
         return;
     }
