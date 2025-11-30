@@ -105,6 +105,17 @@
   let standbyPreloadedIndex = null;
   let audioContext = null;
 
+  function getCrossfadeDurationForTrack(trackDurationSeconds) {
+    if (!trackDurationSeconds || !Number.isFinite(trackDurationSeconds)) {
+      return crossfadeDurationSeconds;
+    }
+
+    const maxFadeShare = 0.25;
+    const minimumFadeSeconds = 2;
+    const cappedByTrackLength = Math.max(minimumFadeSeconds, trackDurationSeconds * maxFadeShare);
+    return Math.min(crossfadeDurationSeconds, cappedByTrackLength);
+  }
+
   function createDeck(audioElement) {
     return {
       audio: audioElement,
@@ -877,8 +888,10 @@
           cueTrackOnDeck(getStandbyDeckKey(), nextIndex, { updateUI: false, preloadOnly: true });
           standbyPreloadedIndex = nextIndex;
         }
-        if (remaining <= crossfadeDurationSeconds) {
-          startCrossfade(nextIndex, { duration: crossfadeDurationSeconds });
+
+        const fadeDuration = getCrossfadeDurationForTrack(event.target.duration);
+        if (remaining <= fadeDuration) {
+          startCrossfade(nextIndex, { duration: fadeDuration });
         }
       }
     }
