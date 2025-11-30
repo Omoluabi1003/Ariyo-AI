@@ -13,13 +13,19 @@ img {
 /* General Body Styles */
 body {
     font-family: 'Montserrat', sans-serif;
-    color: #fff;
+    color: var(--surface-contrast);
     background-color: #000;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
     position: relative;
     text-shadow: 1px 1px 2px #000;
+}
+
+body[data-theme="light"] {
+    color: #0f172a;
+    background-color: #f6f7fb;
+    text-shadow: none;
 }
 
 :root {
@@ -1143,4 +1149,49 @@ body {
     transition: opacity 2s ease-in-out;
     z-index: 0;
     pointer-events: none;
+}
+
+/* Light mode overrides */
+body[data-theme="light"] .header {
+    color: #0f172a;
+    -webkit-text-stroke: 0;
+    text-shadow: none;
+}
+
+body[data-theme="light"] .sidebar,
+body[data-theme="light"] .content,
+body[data-theme="light"] .modal .modal-content,
+body[data-theme="light"] .chatbot-container,
+body[data-theme="light"] .music-player {
+    background: var(--surface-bg);
+    color: #0f172a;
+    box-shadow: 0 12px 30px rgba(17, 24, 39, 0.18);
+}
+
+body[data-theme="light"] .sidebar button,
+body[data-theme="light"] .retry-button,
+body[data-theme="light"] .install-btn {
+    color: #0f172a;
+}
+
+body[data-theme="light"] .edge-panel {
+    background: var(--surface-bg);
+    color: #0f172a;
+    border: 1px solid var(--surface-border);
+    box-shadow: 0 10px 25px rgba(17, 24, 39, 0.22);
+}
+
+body[data-theme="light"] .edge-panel-item {
+    background: rgba(255, 255, 255, 0.82);
+    color: #0f172a;
+    box-shadow: 0 6px 14px rgba(17, 24, 39, 0.12);
+}
+
+body[data-theme="light"] .edge-panel-handle {
+    background: linear-gradient(180deg, rgba(111, 69, 255, 0.8), rgba(255, 127, 197, 0.6));
+}
+
+body[data-theme="light"] .edge-panel-privacy,
+body[data-theme="light"] .edge-panel-privacy a {
+    color: #0f172a;
 }

@@ -49,6 +49,7 @@
   <!-- Animations & Chat -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
   <script src="viewport-height.js" defer></script>
+  <script src="scripts/theme-toggle.js" defer></script>
 
 
   <style>
@@ -72,7 +73,7 @@
     }
     body {
       font-family: 'Montserrat', sans-serif;
-      color: #fff;
+      color: var(--surface-contrast);
       display: flex;
       flex-direction: column;
       min-height: var(--app-height, 100vh);
@@ -81,6 +82,13 @@
       background-position: center;
       transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
       box-sizing: border-box;
+    }
+
+    body[data-theme="light"] {
+      color: #0f172a;
+      background-color: #f6f7fb;
+      background-image: none;
+      text-shadow: none;
     }
     a { text-decoration: none; }
     .header {
@@ -1202,7 +1210,11 @@
     <span class="header-title">Àríyò AI Studio</span>
     <div class="header-actions">
       <button class="share-button" aria-label="Share this page" onclick="shareContent()">
-        <i class="fas fa-share-alt"></i>
+        <i class="fas fa-share-alt" aria-hidden="true"></i>
+      </button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+        <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+        <span class="theme-toggle-label">Light mode</span>
       </button>
     </div>
   </div>
