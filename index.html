@@ -22,7 +22,7 @@
     <title>Welcome to Àríyò AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
     <script src="viewport-height.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:wght@600;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="index.css">
     <link rel="manifest" href="manifest.json">
@@ -35,36 +35,55 @@
         <div id="bg2" class="bg-image"></div>
     </div>
     <div class="overlay">
-        <div class="hero-header">
-            <p class="hero-label">Omoluabi Productions</p>
-            <h1>Welcome to Àríyò AI</h1>
-            <p class="hero-subtitle">A refined Naija assistant blending soulful music, playful puzzles, and conversational AI—beautifully tuned for browsers and installed PWAs alike.</p>
-        </div>
-        <div class="cta-row">
-            <div class="cta-copy">
-                <p class="cta-text">Step into a curated universe of sound, stories, and games crafted for every screen.</p>
+        <div class="hero-topbar">
+            <div class="brand-mark">
+                <span class="brand-logo" aria-label="Àríyò AI">Àríyò</span>
+                <span class="brand-tag">Naija AI</span>
             </div>
-            <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
-                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter Àríyò AI" class="enter-icon">
-                <span class="enter-label">Launch experience</span>
-            </button>
+            <div class="brand-meta">
+                <span class="meta-pill">Omoluabi Productions</span>
+                <span class="meta-dot" aria-hidden="true">•</span>
+                <span class="meta-location">Lagos, 2024</span>
+            </div>
         </div>
-        <div class="feature-grid">
-            <article class="feature-card tour-step" id="step1">
-                <span class="feature-icon" aria-hidden="true">🎧</span>
-                <h2 class="feature-title">Stream Naija vibes</h2>
-                <p class="feature-copy">Dive into handcrafted Nigerian playlists that set the tone for every mood.</p>
-            </article>
-            <article class="feature-card tour-step" id="step2">
-                <span class="feature-icon" aria-hidden="true">🤖</span>
-                <h2 class="feature-title">Chat with Àríyò</h2>
-                <p class="feature-copy">Discover music insights, cultural stories, and personalized guidance with our AI host.</p>
-            </article>
-            <article class="feature-card tour-step" id="step3">
-                <span class="feature-icon" aria-hidden="true">🧩</span>
-                <h2 class="feature-title">Play &amp; challenge</h2>
-                <p class="feature-copy">Swap between puzzles like Omoluabi Tetris, Word Search, Ara Connect-4, and more.</p>
-            </article>
+
+        <div class="hero-grid">
+            <div class="hero-column">
+                <div class="hero-header">
+                    <p class="hero-label">Curated for browsers &amp; PWAs</p>
+                    <h1>Welcome to Àríyò AI</h1>
+                    <p class="hero-subtitle">A refined Naija assistant blending soulful music, playful puzzles, and conversational AI—beautifully tuned for every screen size.</p>
+                </div>
+                <div class="cta-row">
+                    <div class="cta-copy">
+                        <p class="cta-text">Step into a curated universe of sound, stories, and games crafted with Yoruba-inspired flair.</p>
+                    </div>
+                    <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
+                        <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter Àríyò AI" class="enter-icon">
+                        <span class="enter-label">Launch experience</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="feature-stack">
+                <div class="feature-grid">
+                    <article class="feature-card tour-step" id="step1">
+                        <span class="feature-icon" aria-hidden="true">🎧</span>
+                        <h2 class="feature-title">Music journeys</h2>
+                        <p class="feature-copy">Flow through handcrafted Nigerian playlists and cinematic scores with zero duplicate loops.</p>
+                    </article>
+                    <article class="feature-card tour-step" id="step2">
+                        <span class="feature-icon" aria-hidden="true">🤖</span>
+                        <h2 class="feature-title">Chat with Àríyò</h2>
+                        <p class="feature-copy">Get cultural context, track trivia, and personal guidance in a single responsive canvas.</p>
+                    </article>
+                    <article class="feature-card tour-step" id="step3">
+                        <span class="feature-icon" aria-hidden="true">🧩</span>
+                        <h2 class="feature-title">Games on tap</h2>
+                        <p class="feature-copy">Swap between puzzles like Omoluabi Tetris, Word Search, Ara Connect-4, and more.</p>
+                    </article>
+                </div>
+            </div>
         </div>
         <div class="experience-hints">
             <div class="hint-text">Use the speaker icon to toggle sound</div>
@@ -97,6 +116,8 @@
       <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/motion@10.16.2/dist/motion.umd.min.js" defer></script>
+
     <script>
         document.querySelectorAll('.exploding-watermark').forEach(watermark => {
             watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
@@ -127,6 +148,9 @@
         }
 
           document.addEventListener('DOMContentLoaded', () => {
+              if (window.__ariyoLandingInitialized) return;
+              window.__ariyoLandingInitialized = true;
+
               const enterIcon = document.querySelector('.enter-icon');
               const enterButton = document.querySelector('.enter-button');
               if (enterButton) {
@@ -145,6 +169,33 @@
               const speakerContainer = document.getElementById('speaker-container');
               const speakerIcon = document.getElementById('speaker-icon');
               const updatedLabel = document.querySelector('.footer-updated');
+
+              const motion = window.motion;
+              if (motion && motion.animate) {
+                  motion.animate('.hero-topbar, .hero-header, .cta-row, .feature-card',
+                      { opacity: [0, 1], y: [12, 0] },
+                      { delay: motion.stagger(0.08), duration: 0.8, easing: 'ease-out' }
+                  );
+
+                  motion.animate('.enter-button',
+                      { scale: [1, 1.04, 1], boxShadow: ['0 12px 26px rgba(255, 127, 197, 0.28)', '0 22px 36px rgba(142, 91, 255, 0.4)', '0 12px 26px rgba(255, 127, 197, 0.28)'] },
+                      { duration: 1.8, easing: 'ease-in-out', repeat: Infinity }
+                  );
+              }
+
+              const enforceSingleNode = (selector) => {
+                  const nodes = Array.from(document.querySelectorAll(selector));
+                  if (nodes.length <= 1) return;
+                  const [first, ...rest] = nodes;
+                  rest.forEach(node => {
+                      if (node.textContent.trim() === first.textContent.trim()) {
+                          node.remove();
+                      }
+                  });
+              };
+
+              enforceSingleNode('.hero-header');
+              enforceSingleNode('.footer-note');
 
               const parseDate = (value) => {
                   if (!value) return null;

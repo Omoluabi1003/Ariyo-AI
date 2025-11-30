@@ -51,7 +51,7 @@ body {
     position: relative;
     z-index: 1;
     color: #f3fdf7;
-    max-width: min(92vw, 760px);
+    max-width: min(96vw, 1100px);
     text-align: left;
     display: flex;
     flex-direction: column;
@@ -80,6 +80,84 @@ a {
     color: #bbf7d0;
 }
 
+.hero-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(142, 91, 255, 0.25);
+    padding-bottom: 0.75rem;
+}
+
+.brand-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+}
+
+.brand-logo {
+    font-family: 'Playfair Display', 'Roboto Slab', serif;
+    font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+    letter-spacing: 0.08em;
+    color: #fce7f3;
+    text-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+.brand-tag {
+    background: linear-gradient(120deg, rgba(142, 91, 255, 0.35), rgba(255, 127, 197, 0.65));
+    color: #0a0f1f;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+}
+
+.brand-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: rgba(214, 240, 219, 0.82);
+    font-size: 0.9rem;
+}
+
+.meta-pill {
+    padding: 0.35rem 0.6rem;
+    border-radius: 10px;
+    background: rgba(14, 20, 44, 0.65);
+    border: 1px solid rgba(142, 91, 255, 0.25);
+    font-weight: 700;
+}
+
+.meta-dot {
+    opacity: 0.6;
+}
+
+.meta-location {
+    letter-spacing: 0.02em;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: clamp(1.5rem, 3vw, 2rem);
+    align-items: start;
+}
+
+.hero-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.feature-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .hero-header {
     display: flex;
     flex-direction: column;
@@ -104,10 +182,12 @@ a {
     align-items: center;
     justify-content: space-between;
     gap: clamp(1rem, 3vw, 2rem);
+    flex-wrap: wrap;
 }
 
 .cta-copy {
     flex: 1 1 55%;
+    min-width: 240px;
 }
 
 .cta-text {
@@ -170,7 +250,7 @@ a {
 
 .feature-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: clamp(0.85rem, 2.5vw, 1.5rem);
 }
 
@@ -249,6 +329,9 @@ a {
         text-align: center;
         align-items: center;
     }
+    .hero-topbar {
+        justify-content: center;
+    }
     .hero-header {
         align-items: center;
     }
@@ -258,8 +341,8 @@ a {
     .cta-copy {
         flex-basis: auto;
     }
-    .feature-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .hero-grid {
+        grid-template-columns: 1fr;
     }
 }
 
