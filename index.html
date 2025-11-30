@@ -22,11 +22,12 @@
     <title>Welcome to Àríyò AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
     <script src="viewport-height.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="index.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/Ariyo.png">
+    <script src="https://cdn.jsdelivr.net/npm/@motionone/dom/dist/motion.min.js" defer></script>
 </head>
 <body>
     <div id="timer-bar"><div id="timer-progress"></div></div>
@@ -35,36 +36,46 @@
         <div id="bg2" class="bg-image"></div>
     </div>
     <div class="overlay">
-        <div class="hero-header">
-            <p class="hero-label">Omoluabi Productions</p>
-            <h1>Welcome to Àríyò AI</h1>
-            <p class="hero-subtitle">A refined Naija assistant blending soulful music, playful puzzles, and conversational AI—beautifully tuned for browsers and installed PWAs alike.</p>
-        </div>
-        <div class="cta-row">
-            <div class="cta-copy">
-                <p class="cta-text">Step into a curated universe of sound, stories, and games crafted for every screen.</p>
+        <div class="hero-layout">
+            <div class="hero-banner hero-animate">
+                <div class="logo-lockup">
+                    <span class="logo-mark" aria-label="Àríyò">Àríyò</span>
+                    <p class="logo-subtitle">Yoruba-inspired intelligence tuned for music, conversation, and play.</p>
+                </div>
+                <span class="banner-pill" aria-label="Omoluabi Productions">Omoluabi Productions</span>
             </div>
-            <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
-                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter Àríyò AI" class="enter-icon">
-                <span class="enter-label">Launch experience</span>
-            </button>
-        </div>
-        <div class="feature-grid">
-            <article class="feature-card tour-step" id="step1">
-                <span class="feature-icon" aria-hidden="true">🎧</span>
-                <h2 class="feature-title">Stream Naija vibes</h2>
-                <p class="feature-copy">Dive into handcrafted Nigerian playlists that set the tone for every mood.</p>
-            </article>
-            <article class="feature-card tour-step" id="step2">
-                <span class="feature-icon" aria-hidden="true">🤖</span>
-                <h2 class="feature-title">Chat with Àríyò</h2>
-                <p class="feature-copy">Discover music insights, cultural stories, and personalized guidance with our AI host.</p>
-            </article>
-            <article class="feature-card tour-step" id="step3">
-                <span class="feature-icon" aria-hidden="true">🧩</span>
-                <h2 class="feature-title">Play &amp; challenge</h2>
-                <p class="feature-copy">Swap between puzzles like Omoluabi Tetris, Word Search, Ara Connect-4, and more.</p>
-            </article>
+            <div class="hero-body">
+                <div class="hero-header hero-animate">
+                    <h1>Welcome to Àríyò AI</h1>
+                    <p class="hero-subtitle">A refined Naija assistant blending soulful music, playful puzzles, and conversational AI—beautifully tuned for browsers and installed PWAs alike.</p>
+                </div>
+                <div class="cta-row hero-animate">
+                    <div class="cta-copy">
+                        <p class="cta-text">Step into a curated universe of sound, stories, and games crafted for every screen.</p>
+                    </div>
+                    <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
+                        <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Enter.png" alt="Enter Àríyò AI" class="enter-icon">
+                        <span class="enter-label">Launch experience</span>
+                    </button>
+                </div>
+            </div>
+            <div class="feature-grid">
+                <article class="feature-card tour-step hero-animate" id="step1">
+                    <span class="feature-icon" aria-hidden="true">🎶</span>
+                    <h2 class="feature-title">Music journeys</h2>
+                    <p class="feature-copy">Dive into handcrafted Nigerian playlists and albums that set the tone for every mood.</p>
+                </article>
+                <article class="feature-card tour-step hero-animate" id="step2">
+                    <span class="feature-icon" aria-hidden="true">🤝</span>
+                    <h2 class="feature-title">Chat with Àríyò</h2>
+                    <p class="feature-copy">Swap stories, discover cultural insights, and get personalized guidance from our AI host.</p>
+                </article>
+                <article class="feature-card tour-step hero-animate" id="step3">
+                    <span class="feature-icon" aria-hidden="true">🎮</span>
+                    <h2 class="feature-title">Games &amp; puzzles</h2>
+                    <p class="feature-copy">Jump into Omoluabi Tetris, Word Search, Ara Connect-4, Cycle Precision, and more.</p>
+                </article>
+            </div>
         </div>
         <div class="experience-hints">
             <div class="hint-text">Use the speaker icon to toggle sound</div>
@@ -145,6 +156,14 @@
               const speakerContainer = document.getElementById('speaker-container');
               const speakerIcon = document.getElementById('speaker-icon');
               const updatedLabel = document.querySelector('.footer-updated');
+
+              const dedupeSelectors = ['.hero-header', '.footer-note'];
+              dedupeSelectors.forEach(selector => {
+                  const nodes = Array.from(document.querySelectorAll(selector));
+                  if (nodes.length > 1) {
+                      nodes.slice(1).forEach(node => node.remove());
+                  }
+              });
 
               const parseDate = (value) => {
                   if (!value) return null;
@@ -364,6 +383,34 @@
                       });
                   }
               });
+
+              const { animate, stagger } = window.motion || {};
+              if (animate) {
+                  animate('.hero-animate', {
+                      opacity: [0, 1],
+                      y: [12, 0]
+                  }, {
+                      duration: 0.8,
+                      delay: stagger(0.08),
+                      easing: 'ease-out'
+                  });
+
+                  const launchButton = document.querySelector('.enter-button');
+                  if (launchButton) {
+                      animate(launchButton, {
+                          scale: [1, 1.05, 1],
+                          boxShadow: [
+                              '0 0 0 rgba(142, 91, 255, 0.0)',
+                              '0 0 0 20px rgba(142, 91, 255, 0.08)',
+                              '0 0 0 rgba(142, 91, 255, 0.0)'
+                          ]
+                      }, {
+                          duration: 2.4,
+                          repeat: Infinity,
+                          easing: 'ease-in-out'
+                      });
+                  }
+              }
           });
 
         document.querySelectorAll('.shockwave').forEach(button => {

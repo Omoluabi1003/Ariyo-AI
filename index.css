@@ -51,7 +51,7 @@ body {
     position: relative;
     z-index: 1;
     color: #f3fdf7;
-    max-width: min(92vw, 760px);
+    max-width: min(92vw, 860px);
     text-align: left;
     display: flex;
     flex-direction: column;
@@ -80,18 +80,69 @@ a {
     color: #bbf7d0;
 }
 
+.hero-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.hero-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: clamp(1rem, 3vw, 1.25rem);
+    border-radius: 18px;
+    background: linear-gradient(120deg, rgba(18, 28, 72, 0.85), rgba(33, 26, 64, 0.9));
+    border: 1px solid rgba(142, 91, 255, 0.28);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.logo-lockup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.logo-mark {
+    font-family: 'Eczar', 'Roboto Slab', serif;
+    font-size: clamp(2.1rem, 5vw, 2.6rem);
+    letter-spacing: 0.08em;
+    color: #ffe8cc;
+    text-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+.logo-subtitle {
+    margin: 0;
+    color: rgba(232, 252, 239, 0.86);
+    font-size: clamp(0.9rem, 2.2vw, 1rem);
+    max-width: 40ch;
+    line-height: 1.5;
+}
+
+.banner-pill {
+    align-self: flex-start;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(142, 91, 255, 0.2);
+    border: 1px solid rgba(142, 91, 255, 0.4);
+    color: #c8e1ff;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.hero-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 1.75rem);
+    align-items: center;
+}
+
 .hero-header {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-}
-
-.hero-label {
-    text-transform: uppercase;
-    letter-spacing: 0.35rem;
-    font-size: 0.75rem;
-    color: rgba(125, 210, 255, 0.9);
-    font-weight: 700;
 }
 
 .hero-subtitle {
@@ -108,6 +159,10 @@ a {
 
 .cta-copy {
     flex: 1 1 55%;
+}
+
+.hero-animate {
+    will-change: transform, opacity;
 }
 
 .cta-text {
@@ -248,6 +303,13 @@ a {
     .overlay {
         text-align: center;
         align-items: center;
+    }
+    .hero-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .hero-body {
+        grid-template-columns: 1fr;
     }
     .hero-header {
         align-items: center;
