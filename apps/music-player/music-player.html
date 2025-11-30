@@ -54,10 +54,26 @@
           <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
           <div class="player-meta-grid">
             <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
-            <p class="track-details" id="trackAlbum">Album: Kindness</p>
-            <p class="track-details" id="trackYear">Release Year: 2025</p>
-            <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
-            <p class="track-details" id="nextTrackInfo"></p>
+          <p class="track-details" id="trackAlbum">Album: Kindness</p>
+          <p class="track-details" id="trackYear">Release Year: 2025</p>
+          <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+          <p class="track-details" id="nextTrackInfo"></p>
+        </div>
+          <div class="dj-controls" aria-live="polite">
+            <label class="toggle" for="djToggle">
+              <input type="checkbox" id="djToggle" />
+              <span class="toggle-thumb" aria-hidden="true"></span>
+              <span class="toggle-label">DJ Mix</span>
+            </label>
+            <label class="crossfade-select" for="crossfadeDuration">
+              <span>Crossfade</span>
+              <select id="crossfadeDuration" aria-label="Crossfade duration">
+                <option value="4">4s</option>
+                <option value="6" selected>6s</option>
+                <option value="8">8s</option>
+              </select>
+            </label>
+            <p id="crossfadeStatus" class="dj-status" role="status">DJ Mix off</p>
           </div>
           <input
             type="range"
@@ -85,6 +101,7 @@
         </div>
       </div>
       <audio id="audioPlayer" preload="auto" playsinline></audio>
+      <audio id="audioDeckB" preload="auto" playsinline aria-hidden="true" class="visually-hidden"></audio>
     </section>
 
     <section class="playlist" aria-labelledby="playlistHeading">
