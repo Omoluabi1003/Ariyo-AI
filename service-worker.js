@@ -1,5 +1,7 @@
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
+
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v9';
+const CACHE_PREFIX = 'ariyo-ai-cache-v10';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
@@ -44,6 +46,7 @@ const CORE_ASSETS = [
   '/index.html',
   '/main.html',
   '/about.html',
+  '/offline-audio.mp3',
   'style.css',
   'color-scheme.css',
   'scripts/data.js',
@@ -51,6 +54,7 @@ const CORE_ASSETS = [
   'scripts/ui.js',
   'scripts/main.js',
   'scripts/sw-controller.js',
+  'scripts/experience.js',
   'viewport-height.js',
   'apps/ariyo-ai-chat/ariyo-ai-chat.html',
   'apps/sabi-bible/sabi-bible.html',
@@ -110,6 +114,26 @@ function ensureFallbackCacheNames() {
 }
 
 const cacheNameReady = initializeCacheNamesFromExistingCaches();
+
+if (self.workbox) {
+  workbox.routing.registerRoute(
+    ({ url }) => url.pathname.startsWith('/apps/'),
+    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-games` })
+  );
+
+  workbox.routing.registerRoute(
+    ({ url }) => url.pathname.endsWith('offline-audio.mp3') || url.pathname.endsWith('.mp3'),
+    new workbox.strategies.CacheFirst({
+      cacheName: `${CACHE_PREFIX}-audio-samples`,
+      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 15 })]
+    })
+  );
+
+  workbox.routing.registerRoute(
+    ({ request }) => request.destination === 'document' && request.url.includes('playlist'),
+    new workbox.strategies.NetworkFirst({ cacheName: `${CACHE_PREFIX}-playlist-pages` })
+  );
+}
 
 async function openRuntimeCache() {
   await cacheNameReady;
@@ -291,5 +315,40 @@ self.addEventListener('fetch', event => {
             }
         }
     })());
+});
+
+self.addEventListener('push', event => {
+  const data = (() => {
+    try {
+      return event.data ? event.data.json() : {};
+    } catch (e) {
+      return {};
+    }
+  })();
+
+  const title = data.title || 'New playlist drops';
+  const body = data.body || 'Fresh Naija vibes are ready. Tap to jump back in.';
+  const options = {
+    body,
+    icon: '/icons/Ariyo.png',
+    badge: '/icons/Ariyo.png',
+    data: { url: data.url || '/' }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const targetUrl = event.notification?.data?.url || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientsArr => {
+      const client = clientsArr.find(c => c.url.includes(targetUrl));
+      if (client) {
+        return client.focus();
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
 });
 

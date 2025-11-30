@@ -54,7 +54,8 @@
             <div class="hero-body">
                 <div class="hero-header hero-animate">
                     <h1>Welcome to Àríyò AI</h1>
-                    <p class="hero-subtitle">A refined Naija assistant blending soulful music, playful puzzles, and conversational AI—beautifully tuned for browsers and installed PWAs alike.</p>
+                    <p class="hero-subtitle">Your pocket-sized Naija vibe curator: Music that moves, stories that stick, games that spark.</p>
+                    <p class="social-proof">Join 500+ Naija explorers already vibing with Ariyò.</p>
                 </div>
                 <div class="cta-row hero-animate">
                     <div class="cta-copy">
@@ -84,6 +85,119 @@
                 </article>
             </div>
         </div>
+        <section class="experience-upgrades">
+            <div class="experience-header">
+                <div>
+                    <p class="eyebrow">Launch Experience</p>
+                    <h2>Unlock the dashboard</h2>
+                    <p>Tap launch to reveal the Music, Stories, and Games hub managed by our lightweight Redux-style state store.</p>
+                </div>
+                <div class="cta-stack">
+                    <button class="enter-button ghost" id="launchExperience" type="button">Launch experience</button>
+                    <button class="badge-button" id="installPwa" type="button">Install PWA</button>
+                </div>
+            </div>
+            <div class="onboarding">
+                <video controls muted playsinline preload="metadata" poster="Naija AI4.png" class="intro-video">
+                    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="carousel" aria-label="AI host highlights">
+                    <div class="carousel-slide">Meet Àríyò—your cultural guide to Naija soundscapes.</div>
+                    <div class="carousel-slide">Follow mood-based playlists from Afrobeats to alté, no stereotypes.</div>
+                    <div class="carousel-slide">Challenge friends with Naija-flavored games on the go.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="profile-gate">
+            <div class="profile-card">
+                <p class="eyebrow">Personalize</p>
+                <h3>Tell us your vibe</h3>
+                <p>Pick your favorite mood so we can prioritize the right playlists at launch.</p>
+                <form id="profileForm">
+                    <label for="favoriteMood">Favorite mood?</label>
+                    <select id="favoriteMood" name="favoriteMood" required>
+                        <option value="chill">Chill</option>
+                        <option value="party">Party</option>
+                        <option value="focus">Focus</option>
+                        <option value="worship">Worship</option>
+                    </select>
+                    <button type="submit" class="enter-button inline">Save my vibe</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="playlist-lane" aria-labelledby="moodPlaylists">
+            <div class="playlist-heading">
+                <div>
+                    <p class="eyebrow">Music streaming</p>
+                    <h2 id="moodPlaylists">Stream Naija vibes by mood</h2>
+                    <p>Free YouTube embeds with play/pause controls and endless scroll so the beats keep coming.</p>
+                </div>
+                <div class="playlist-actions">
+                    <button type="button" id="playlistAlerts" class="badge-button">Enable playlist alerts</button>
+                    <div class="language-toggle" role="group" aria-label="Language">
+                        <button type="button" data-lang="en">English</button>
+                        <button type="button" data-lang="pcm">Pidgin</button>
+                        <button type="button" data-lang="yo">Yorùbá</button>
+                    </div>
+                </div>
+            </div>
+            <div id="playlistStream" class="playlist-grid"></div>
+            <div id="playlistSentinel" aria-hidden="true"></div>
+        </section>
+
+        <section class="pillar-dashboard" hidden>
+            <div class="tablist" role="tablist" aria-label="Experience pillars">
+                <button role="tab" aria-selected="true" data-tab="music">Music</button>
+                <button role="tab" aria-selected="false" data-tab="stories">Stories</button>
+                <button role="tab" aria-selected="false" data-tab="games">Games</button>
+            </div>
+            <div class="tabpanels">
+                <div role="tabpanel" data-panel="music">
+                    <p>Afrobeats for Chill with Burna Boy, Tems, and more. Hit play to start the embedded mix.</p>
+                    <div id="activePlayer"></div>
+                </div>
+                <div role="tabpanel" data-panel="stories" hidden>
+                    <article class="story-snippet" data-lang-key="stories">
+                        <h3>The Evolution of Afrobeats</h3>
+                        <p>From Highlife roots to global charts, Naija creators shape the groove—share your take below.</p>
+                        <form class="story-form">
+                            <label for="storySubmission">Share your vibe</label>
+                            <textarea id="storySubmission" rows="3" placeholder="Tell us your story..."></textarea>
+                            <button type="submit" class="badge-button">Submit</button>
+                        </form>
+                    </article>
+                </div>
+                <div role="tabpanel" data-panel="games" hidden>
+                    <p>Play &amp; challenge: quick prototypes to keep your reflex sharp.</p>
+                    <div class="game-embeds">
+                        <iframe title="Omoluabi Tetris" loading="lazy" src="apps/tetris/tetris.html"></iframe>
+                        <iframe title="Word Search" loading="lazy" src="apps/word-search/word-search.html"></iframe>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-footer">
+            <div class="cta-column">
+                <p class="eyebrow">Cultural sensitivity</p>
+                <p>Partnering with Naija creators for authentic playlists and stories; multilingual support keeps everyone in the circle.</p>
+            </div>
+            <div class="cta-column">
+                <button class="badge-button" id="shareVibe" type="button">Share your vibe</button>
+                <div class="social-buttons">
+                    <a href="https://twitter.com/intent/tweet?text=Vibing%20with%20Ariy%C3%B2%20AI" target="_blank" rel="noopener">Twitter/X</a>
+                    <a href="https://api.whatsapp.com/send?text=Come%20vibe%20with%20Ariy%C3%B2%20AI" target="_blank" rel="noopener">WhatsApp</a>
+                </div>
+                <form class="newsletter" action="https://gmail.us21.list-manage.com/subscribe/post" method="post" target="_blank" rel="noopener">
+                    <label for="newsletterEmail">Join the newsletter</label>
+                    <input type="email" id="newsletterEmail" name="EMAIL" required placeholder="you@example.com">
+                    <button type="submit" class="enter-button inline">Sign up</button>
+                </form>
+            </div>
+        </section>
         <div class="experience-hints">
             <div class="hint-text">Use the speaker icon to toggle sound</div>
             <p class="hint-subtext">Edge panel offers quick access to Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.</p>
@@ -115,6 +229,7 @@
       <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
     </div>
 
+    <script src="scripts/experience.js" defer></script>
     <script>
         document.querySelectorAll('.exploding-watermark').forEach(watermark => {
             watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
