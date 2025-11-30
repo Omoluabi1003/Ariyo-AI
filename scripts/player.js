@@ -64,6 +64,7 @@ let lastTrackIndex = 0;
 let djAutoMixEnabled = false;
 let crossfadeDurationSeconds = 6;
 const djPreloadAheadSeconds = 8;
+let djTimeUpdateAttached = false;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -776,12 +777,15 @@ function toggleDjMode() {
             onCrossfadeComplete: handleCrossfadeComplete,
             onTrackEnd: handleAutoNextTrack
         });
+        attachDjTimeUpdateListener();
         primeDjDecks();
     } else {
         toggleButton.classList.remove('active');
         djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
         CrossfadePlayer.setConfig({ enabled: false });
         CrossfadePlayer.onTrackEnd(null);
+        detachDjTimeUpdateListener();
+        setTurntableSpin(false);
     }
     if (toggleButton) {
         toggleButton.setAttribute('aria-pressed', String(djAutoMixEnabled));
@@ -880,6 +884,25 @@ function handleCrossfadeComplete() {
             src: buildTrackFetchUrl(nextTrack.src),
             meta: nextTrack
         }, true);
+    }
+}
+
+function handleDjTimeUpdate() {
+    updateTrackTime();
+    setTurntableSpin(true);
+}
+
+function attachDjTimeUpdateListener() {
+    if (!djTimeUpdateAttached) {
+        CrossfadePlayer.onTimeUpdate(handleDjTimeUpdate);
+        djTimeUpdateAttached = true;
+    }
+}
+
+function detachDjTimeUpdateListener() {
+    if (djTimeUpdateAttached) {
+        CrossfadePlayer.onTimeUpdate(null);
+        djTimeUpdateAttached = false;
     }
 }
 
@@ -1331,6 +1354,7 @@ function selectRadio(src, title, index, logo) {
     function pauseMusic() {
         if (djAutoMixEnabled) {
             CrossfadePlayer.pause();
+            setTurntableSpin(false);
         } else {
             cancelNetworkRecovery();
             audioPlayer.pause();
@@ -1345,6 +1369,7 @@ function selectRadio(src, title, index, logo) {
     function stopMusic() {
         if (djAutoMixEnabled) {
             CrossfadePlayer.pause(); // Or a more definitive stop if the API supports it
+            setTurntableSpin(false);
         } else {
             cancelNetworkRecovery();
             audioPlayer.pause();
