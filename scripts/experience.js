@@ -54,8 +54,21 @@
   function setupDashboardToggle() {
     const dashboard = document.querySelector('.pillar-dashboard');
     const launchButton = document.getElementById('launchExperience');
+    const statusText = document.getElementById('experienceStatus');
     if (launchButton) {
-      launchButton.addEventListener('click', () => dispatch({ type: 'TOGGLE_DASHBOARD' }));
+      launchButton.addEventListener('click', () => {
+        dispatch({ type: 'TOGGLE_DASHBOARD' });
+        if (dashboard) {
+          dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const firstTab = dashboard.querySelector('[role="tab"]');
+          if (firstTab) {
+            firstTab.focus();
+          }
+        }
+        if (statusText) {
+          statusText.textContent = 'Dashboard unlocked. Scroll down to explore the tabs.';
+        }
+      });
     }
     subscribe(({ dashboardVisible }) => {
       if (dashboard) {
@@ -92,17 +105,41 @@
   function setupPwaInstall() {
     let deferredPrompt;
     const installBtn = document.getElementById('installPwa');
+    const statusText = document.getElementById('experienceStatus');
     if (!installBtn) return;
+    installBtn.disabled = true;
+    installBtn.setAttribute('aria-disabled', 'true');
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.disabled = false;
+      installBtn.removeAttribute('aria-disabled');
+      if (statusText) {
+        statusText.textContent = 'Àríyò AI is ready to be installed on your device.';
+      }
     });
     installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
+      if (!deferredPrompt) {
+        if (statusText) {
+          statusText.textContent = 'Install prompt unavailable. Add to home screen from your browser menu.';
+        }
+        return;
+      }
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
       deferredPrompt = null;
+      installBtn.disabled = true;
+      installBtn.setAttribute('aria-disabled', 'true');
+      if (statusText) {
+        statusText.textContent = 'Thanks for installing! You can now launch Àríyò AI from your home screen.';
+      }
+    });
+    window.addEventListener('appinstalled', () => {
+      if (statusText) {
+        statusText.textContent = 'App installed — enjoy the full experience from your home screen!';
+      }
+      installBtn.disabled = true;
+      installBtn.setAttribute('aria-disabled', 'true');
     });
   }
 

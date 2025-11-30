@@ -599,6 +599,12 @@ body[data-theme="light"] .feature-card:hover {
     flex-wrap: wrap;
 }
 
+.cta-hint {
+    margin-top: 0.35rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+}
+
 .badge-button {
     background: rgba(255,255,255,0.12);
     color: #fff;
