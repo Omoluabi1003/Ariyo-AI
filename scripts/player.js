@@ -774,13 +774,16 @@ function toggleDjMode() {
             preloadAhead: djPreloadAheadSeconds,
             onCrossfadeStart: handleCrossfadeStart,
             onCrossfadeComplete: handleCrossfadeComplete,
-            onTrackEnd: handleAutoNextTrack
+            onTrackEnd: handleAutoNextTrack,
+            onTimeUpdate: updateTrackTime
         });
+        CrossfadePlayer.onTimeUpdate(updateTrackTime);
         primeDjDecks();
     } else {
         toggleButton.classList.remove('active');
         djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
         CrossfadePlayer.setConfig({ enabled: false });
+        CrossfadePlayer.onTimeUpdate(null);
         CrossfadePlayer.onTrackEnd(null);
     }
     if (toggleButton) {

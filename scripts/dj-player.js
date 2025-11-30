@@ -17,6 +17,7 @@ window.CrossfadePlayer = (() => {
     let nextTrackMeta = null;
 
     let onTrackEndCallback = () => {};
+    let onTimeUpdateCallback = null;
     let onCrossfadeStart = null;
     let onCrossfadeComplete = null;
 
@@ -71,7 +72,11 @@ window.CrossfadePlayer = (() => {
     function _bindEvents() {
         player1.removeEventListener('timeupdate', _monitorTrackProgress);
         player2.removeEventListener('timeupdate', _monitorTrackProgress);
+        player1.removeEventListener('timeupdate', _notifyTimeUpdate);
+        player2.removeEventListener('timeupdate', _notifyTimeUpdate);
+
         activePlayer.addEventListener('timeupdate', _monitorTrackProgress);
+        activePlayer.addEventListener('timeupdate', _notifyTimeUpdate);
 
         player1.removeEventListener('ended', _handleTrackEnd);
         player2.removeEventListener('ended', _handleTrackEnd);
@@ -101,6 +106,16 @@ window.CrossfadePlayer = (() => {
 
         if (typeof onTrackEndCallback === 'function') {
             onTrackEndCallback(true);
+        }
+    }
+
+    function _notifyTimeUpdate() {
+        if (typeof onTimeUpdateCallback === 'function') {
+            onTimeUpdateCallback({
+                currentTime: activePlayer.currentTime,
+                duration: activePlayer.duration,
+                isCrossfading
+            });
         }
     }
 
@@ -166,7 +181,7 @@ window.CrossfadePlayer = (() => {
         }, duration * 1000);
     }
 
-    function setConfig({ enabled, duration, preloadAhead, onCrossfadeStart: startCb, onCrossfadeComplete: completeCb, onTrackEnd }) {
+    function setConfig({ enabled, duration, preloadAhead, onCrossfadeStart: startCb, onCrossfadeComplete: completeCb, onTrackEnd, onTimeUpdate: timeUpdateCb }) {
         if (enabled !== undefined) {
             djAutoMixEnabled = enabled;
         }
@@ -184,6 +199,10 @@ window.CrossfadePlayer = (() => {
         }
         if (typeof onTrackEnd === 'function') {
             onTrackEndCallback = onTrackEnd;
+        }
+        if (typeof timeUpdateCb === 'function') {
+            onTimeUpdateCallback = timeUpdateCb;
+            _bindEvents();
         }
     }
 
@@ -224,6 +243,11 @@ window.CrossfadePlayer = (() => {
         onTrackEndCallback = callback;
     }
 
+    function onTimeUpdate(callback) {
+        onTimeUpdateCallback = typeof callback === 'function' ? callback : null;
+        _bindEvents();
+    }
+
     function getCurrentTime() {
         return activePlayer.currentTime;
     }
@@ -241,6 +265,7 @@ window.CrossfadePlayer = (() => {
         pause,
         crossfade,
         onTrackEnd,
+        onTimeUpdate,
         getCurrentTime,
         getDuration
     };
