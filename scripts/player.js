@@ -760,58 +760,26 @@ function loadMoreStations(region) {
     }
 
 function toggleDjMode() {
-    djAutoMixEnabled = !djAutoMixEnabled;
-    const toggleButton = document.getElementById('djModeToggle');
-    const djMixStatusInfo = document.getElementById('djMixStatusInfo');
-    if (djAutoMixEnabled) {
-        toggleButton.classList.add('active');
-        djMixStatusInfo.textContent = 'DJ Auto-Mix: On';
-        CrossfadePlayer.setConfig({ enabled: true, duration: 6 });
-        CrossfadePlayer.onTrackEnd(handleAutoNextTrack);
-    } else {
-        toggleButton.classList.remove('active');
-        djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
-        CrossfadePlayer.setConfig({ enabled: false });
-        CrossfadePlayer.onTrackEnd(null);
+  const djPlayer = document.querySelector('.dj-player-shell');
+  const musicPlayer = document.querySelector('.music-player');
+  const djModeToggle = document.getElementById('djModeToggle');
+
+  djAutoMixEnabled = !djAutoMixEnabled;
+  djModeToggle.classList.toggle('active', djAutoMixEnabled);
+
+  if (djAutoMixEnabled) {
+    djPlayer.style.display = 'block';
+    musicPlayer.style.display = 'none';
+    if (window.dj) {
+      window.dj.setConfig({ autoMix: true });
     }
-    console.log(`DJ Mix mode is now ${djAutoMixEnabled ? 'enabled' : 'disabled'}`);
-}
-
-
-function handleAutoNextTrack() {
-    if (!djAutoMixEnabled) return;
-    console.log("Auto-advancing to next track with crossfade...");
-    switchTrack(1, true); // true indicates it's an automatic advancement
-}
-
-function getNextTrackDetails() {
-    let nextAlbumIndex = currentAlbumIndex;
-    let nextTrackIndex;
-
-    if (shuffleMode) {
-        if (shuffleQueue.length === 0) buildShuffleQueue();
-        if (shuffleQueue.length > 0) {
-            const next = shuffleQueue[0]; // Peek at the next track
-            return {
-                src: next.src,
-                title: next.title,
-                albumIndex: next.albumIndex,
-                trackIndex: next.trackIndex
-            };
-        }
-        return null;
-    } else {
-        const trackCount = albums[currentAlbumIndex].tracks.length;
-        nextTrackIndex = (currentTrackIndex + 1) % trackCount;
+  } else {
+    djPlayer.style.display = 'none';
+    musicPlayer.style.display = 'block';
+    if (window.dj) {
+      window.dj.setConfig({ autoMix: false });
     }
-
-    const nextTrack = albums[nextAlbumIndex].tracks[nextTrackIndex];
-    return {
-        src: nextTrack.src,
-        title: nextTrack.title,
-        albumIndex: nextAlbumIndex,
-        trackIndex: nextTrackIndex
-    };
+  }
 }
 
 
@@ -846,11 +814,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       setTurntableSpin(false);
 
     if (djAutoMixEnabled) {
-        CrossfadePlayer.loadTrack(src, false);
-        const nextTrack = getNextTrackDetails();
-        if (nextTrack) {
-            CrossfadePlayer.loadTrack(nextTrack.src, true);
-        }
+        // The new DJ player handles its own logic
     } else {
         const streamUrl = buildTrackFetchUrl(src);
         setCrossOrigin(audioPlayer, streamUrl);
@@ -1136,7 +1100,7 @@ function selectRadio(src, title, index, logo) {
 
     function playMusic() {
         if (djAutoMixEnabled) {
-            CrossfadePlayer.play();
+            // DJ player handles this now
         } else {
             attemptPlay();
         }
@@ -1219,7 +1183,7 @@ function selectRadio(src, title, index, logo) {
 
     function pauseMusic() {
         if (djAutoMixEnabled) {
-            CrossfadePlayer.pause();
+            // DJ player handles this now
         } else {
             cancelNetworkRecovery();
             audioPlayer.pause();
@@ -1233,7 +1197,7 @@ function selectRadio(src, title, index, logo) {
 
     function stopMusic() {
         if (djAutoMixEnabled) {
-            CrossfadePlayer.pause(); // Or a more definitive stop if the API supports it
+            // DJ player handles this now
         } else {
             cancelNetworkRecovery();
             audioPlayer.pause();
@@ -1249,8 +1213,8 @@ function selectRadio(src, title, index, logo) {
     }
 
     function updateTrackTime() {
-        const currentTime = djAutoMixEnabled ? CrossfadePlayer.getCurrentTime() : audioPlayer.currentTime;
-        const duration = djAutoMixEnabled ? CrossfadePlayer.getDuration() : audioPlayer.duration;
+        const currentTime = djAutoMixEnabled ? window.dj.getCurrentTime() : audioPlayer.currentTime;
+        const duration = djAutoMixEnabled ? window.dj.getDuration() : audioPlayer.duration;
 
       // 🔒 If it's a radio stream, don't format duration
       if (currentRadioIndex >= 0 || !isFinite(duration)) {
@@ -1407,24 +1371,7 @@ audioPlayer.addEventListener('suspend', handleNetworkEvent);
 audioPlayer.addEventListener('waiting', handleNetworkEvent);
 
 function switchTrack(direction, isAuto = false) {
-    if (djAutoMixEnabled && !isAuto) {
-        // Manual skip in DJ mode should trigger a crossfade to the next track
-        const nextTrack = getNextTrackDetails();
-        if (nextTrack) {
-            // Load the next track into the inactive player and then crossfade
-            CrossfadePlayer.loadTrack(nextTrack.src, true);
-            CrossfadePlayer.crossfade();
-
-            // Update current track index
-            currentAlbumIndex = nextTrack.albumIndex;
-            currentTrackIndex = nextTrack.trackIndex;
-
-            // Preload the *next* next track
-            const nextNextTrack = getNextTrackDetails();
-            if (nextNextTrack) {
-                // This logic needs to be smarter; for now, we assume the CrossfadePlayer can handle it
-            }
-        }
+    if (djAutoMixEnabled) {
         return;
     }
 

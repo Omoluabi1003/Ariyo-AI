@@ -1,172 +1,212 @@
 // scripts/dj-player.js
 
-window.CrossfadePlayer = (() => {
-    let audioContext;
-    let player1, player2;
-    let source1, source2;
-    let gainNode1, gainNode2;
-    let activePlayer, inactivePlayer;
-    let activeGainNode, inactiveGainNode;
+function useDjAutomix({
+  playlist,
+  initialAutoMixEnabled,
+  initialCrossfadeSeconds,
+  loopPlaylist,
+}) {
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const [deckA, deckB] = [document.createElement('audio'), document.createElement('audio')];
+  const [sourceA, sourceB] = [
+    audioContext.createMediaElementSource(deckA),
+    audioContext.createMediaElementSource(deckB),
+  ];
+  const [gainA, gainB] = [audioContext.createGain(), audioContext.createGain()];
 
-    let djAutoMixEnabled = false;
-    let isCrossfading = false;
-    let crossfadeDurationSeconds = 6;
-    let preloadAheadSeconds = 8;
+  sourceA.connect(gainA);
+  gainA.connect(audioContext.destination);
+  sourceB.connect(gainB);
+  gainB.connect(audioContext.destination);
 
-    let onTrackEndCallback = () => {};
+  let state = {
+    isPlaying: false,
+    activeDeck: 'A',
+    isCrossfading: false,
+  };
 
-    function init() {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        player1 = _createAudioPlayer('djPlayer1');
-        player2 = _createAudioPlayer('djPlayer2');
+  let currentTrackIndex = 0;
+  let autoMixEnabled = initialAutoMixEnabled;
+  let crossfadeSeconds = initialCrossfadeSeconds;
 
-        source1 = audioContext.createMediaElementSource(player1);
-        source2 = audioContext.createMediaElementSource(player2);
+  const updateState = (newState) => {
+    state = { ...state, ...newState };
+    window.dispatchEvent(new CustomEvent('djStateChange', { detail: state }));
+  };
 
-        gainNode1 = audioContext.createGain();
-        gainNode2 = audioContext.createGain();
+  const loadTrack = (deck, trackIndex) => {
+    if (trackIndex < 0 || trackIndex >= playlist.length) return;
+    deck.src = playlist[trackIndex].src;
+    deck.load();
+  };
 
-        source1.connect(gainNode1);
-        gainNode1.connect(audioContext.destination);
-
-        source2.connect(gainNode2);
-        gainNode2.connect(audioContext.destination);
-
-        activePlayer = player1;
-        inactivePlayer = player2;
-        activeGainNode = gainNode1;
-        inactiveGainNode = gainNode2;
-
-        _bindEvents();
+  const play = () => {
+    if (playlist.length === 0) return;
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
     }
+    const activeDeck = state.activeDeck === 'A' ? deckA : deckB;
+    activeDeck.play();
+    updateState({ isPlaying: true });
+  };
 
-    function _createAudioPlayer(id) {
-        const audio = document.createElement('audio');
-        audio.id = id;
-        audio.crossOrigin = 'anonymous';
-        audio.preload = 'auto';
-        audio.style.display = 'none';
-        document.body.appendChild(audio);
-        return audio;
+  const pause = () => {
+    const activeDeck = state.activeDeck === 'A' ? deckA : deckB;
+    activeDeck.pause();
+    updateState({ isPlaying: false });
+  };
+
+  const crossfade = () => {
+    updateState({ isCrossfading: true });
+
+    const [fadeOutGain, fadeInGain] = state.activeDeck === 'A' ? [gainA, gainB] : [gainB, gainA];
+    const fadeInDeck = state.activeDeck === 'A' ? deckB : deckA;
+
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
     }
+    fadeInDeck.play();
 
-    function _bindEvents() {
-        // Remove old listeners before adding new ones
-        player1.removeEventListener('timeupdate', _monitorTrackProgress);
-        player2.removeEventListener('timeupdate', _monitorTrackProgress);
-        activePlayer.addEventListener('timeupdate', _monitorTrackProgress);
+    const now = audioContext.currentTime;
+    fadeOutGain.gain.linearRampToValueAtTime(0, now + crossfadeSeconds);
+    fadeInGain.gain.setValueAtTime(0, now);
+    fadeInGain.gain.linearRampToValueAtTime(1, now + crossfadeSeconds);
 
-        player1.removeEventListener('ended', _handleTrackEnd);
-        player2.removeEventListener('ended', _handleTrackEnd);
-        activePlayer.addEventListener('ended', _handleTrackEnd);
+    setTimeout(() => {
+      (state.activeDeck === 'A' ? deckA : deckB).pause();
+      updateState({ isCrossfading: false, activeDeck: state.activeDeck === 'A' ? 'B' : 'A' });
+    }, crossfadeSeconds * 1000);
+  };
+
+  const skipToNext = () => {
+    let nextTrackIndex = currentTrackIndex + 1;
+    if (loopPlaylist && nextTrackIndex >= playlist.length) {
+      nextTrackIndex = 0;
     }
+    if (nextTrackIndex >= playlist.length) return;
 
-    function _monitorTrackProgress() {
-        if (!djAutoMixEnabled || isCrossfading || activePlayer.duration < crossfadeDurationSeconds) {
-            return;
-        }
+    loadTrack(state.activeDeck === 'A' ? deckB : deckA, nextTrackIndex);
+    currentTrackIndex = nextTrackIndex;
 
-        const remainingTime = activePlayer.duration - activePlayer.currentTime;
-        if (remainingTime <= crossfadeDurationSeconds) {
-             if (typeof onTrackEndCallback === 'function') {
-                onTrackEndCallback();
-            }
-        }
+    if (autoMixEnabled) {
+      crossfade();
+    } else {
+      pause();
+      updateState({ activeDeck: state.activeDeck === 'A' ? 'B' : 'A' });
+      play();
     }
+  };
 
-    function _handleTrackEnd() {
-        if (!djAutoMixEnabled) {
-            if (typeof onTrackEndCallback === 'function') {
-                onTrackEndCallback(true); // Signal that it was a natural end
-            }
-        }
+  const skipToPrevious = () => {
+    let prevTrackIndex = currentTrackIndex - 1;
+    if (loopPlaylist && prevTrackIndex < 0) {
+      prevTrackIndex = playlist.length - 1;
     }
+    if (prevTrackIndex < 0) return;
 
-    function setConfig({ enabled, duration }) {
-        if (enabled !== undefined) {
-            djAutoMixEnabled = enabled;
-        }
-        if (duration !== undefined) {
-            crossfadeDurationSeconds = duration;
-        }
+    loadTrack(state.activeDeck === 'A' ? deckB : deckA, prevTrackIndex);
+    currentTrackIndex = prevTrackIndex;
+
+    if (autoMixEnabled) {
+      crossfade();
+    } else {
+      pause();
+      updateState({ activeDeck: state.activeDeck === 'A' ? 'B' : 'A' });
+      play();
     }
+  };
 
-    function loadTrack(src, isNext = false) {
-        const player = isNext ? inactivePlayer : activePlayer;
-        player.src = src;
-        player.load();
-    }
+  [deckA, deckB].forEach(deck => {
+    deck.addEventListener('ended', () => {
+      if (autoMixEnabled && deck === (state.activeDeck === 'A' ? deckA : deckB)) {
+        skipToNext();
+      }
+    });
+  });
 
-    function play() {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-        activePlayer.play().catch(e => console.error("Play failed", e));
-        activeGainNode.gain.setValueAtTime(1, audioContext.currentTime);
-        inactiveGainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    }
+  if (playlist.length > 0) {
+    loadTrack(deckA, currentTrackIndex);
+  }
 
-    function pause() {
-        activePlayer.pause();
-    }
+  return {
+    play,
+    pause,
+    skipToNext,
+    skipToPrevious,
+    setConfig: ({ autoMix, crossfade }) => {
+      if (autoMix !== undefined) autoMixEnabled = autoMix;
+      if (crossfade !== undefined) crossfadeSeconds = crossfade;
+    },
+    getCurrentTime: () => (state.activeDeck === 'A' ? deckA : deckB).currentTime,
+    getDuration: () => (state.activeDeck === 'A' ? deckA : deckB).duration,
+    get currentTrack() {
+      return playlist[currentTrackIndex];
+    },
+    get nextTrack() {
+      const nextIndex = currentTrackIndex + 1;
+      return playlist[nextIndex < playlist.length ? nextIndex : (loopPlaylist ? 0 : -1)];
+    },
+  };
+}
 
-    function crossfade() {
-        if (isCrossfading) return;
-        isCrossfading = true;
-
-        const now = audioContext.currentTime;
-
-        // Fade out the active player
-        activeGainNode.gain.linearRampToValueAtTime(0, now + crossfadeDurationSeconds);
-
-        // Swap players
-        [activePlayer, inactivePlayer] = [inactivePlayer, activePlayer];
-        [activeGainNode, inactiveGainNode] = [inactiveGainNode, activeGainNode];
-
-        _bindEvents();
-
-        // Play and fade in the new active player
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-        activePlayer.play().catch(e => console.error("Play failed during crossfade", e));
-        activeGainNode.gain.setValueAtTime(0, now);
-        activeGainNode.gain.linearRampToValueAtTime(1, now + crossfadeDurationSeconds);
-
-        setTimeout(() => {
-            isCrossfading = false;
-            inactivePlayer.pause();
-            inactivePlayer.src = ''; // Clear the source of the inactive player
-        }, crossfadeDurationSeconds * 1000);
-    }
-
-    function onTrackEnd(callback) {
-        onTrackEndCallback = callback;
-    }
-
-    function getCurrentTime() {
-        return activePlayer.currentTime;
-    }
-
-    function getDuration() {
-        return activePlayer.duration;
-    }
-
-    // Public API
-    return {
-        init,
-        setConfig,
-        loadTrack,
-        play,
-        pause,
-        crossfade,
-        onTrackEnd,
-        getCurrentTime,
-        getDuration
-    };
-})();
-
-// Initialize the player when the script is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    CrossfadePlayer.init();
+  const djPlayerShell = document.querySelector('.dj-player-shell');
+  if (djPlayerShell) {
+    const djPlayButton = document.getElementById('dj-play-button');
+    const djPauseButton = document.getElementById('dj-pause-button');
+    const djPrevButton = document.getElementById('dj-prev-button');
+    const djNextButton = document.getElementById('dj-next-button');
+    const djAutomixToggle = document.getElementById('dj-automix-toggle');
+    const djCrossfadeSlider = document.getElementById('dj-crossfade-slider');
+    const djCrossfadeValue = document.getElementById('dj-crossfade-value');
+    const djCurrentTrack = document.getElementById('dj-current-track');
+    const djNextTrackContainer = document.getElementById('dj-next-track-container');
+    const djNextTrack = document.getElementById('dj-next-track');
+    const djStatusPill = document.getElementById('dj-status-pill');
+
+    const playlist = albums.flatMap(album => album.tracks);
+
+    const dj = useDjAutomix({
+      playlist,
+      initialAutoMixEnabled: true,
+      initialCrossfadeSeconds: 8,
+      loopPlaylist: true,
+    });
+
+    const updateUI = (e) => {
+      const state = e.detail;
+      const { currentTrack, nextTrack } = dj;
+      djPlayButton.style.display = state.isPlaying ? 'none' : 'inline-block';
+      djPauseButton.style.display = state.isPlaying ? 'inline-block' : 'none';
+      djCurrentTrack.textContent = currentTrack?.title ?? 'Nothing yet';
+
+      if (nextTrack) {
+        djNextTrack.textContent = nextTrack.title;
+        djNextTrackContainer.style.display = 'block';
+      } else {
+        djNextTrackContainer.style.display = 'none';
+      }
+
+      djStatusPill.textContent = `Deck: ${state.activeDeck} | ${state.isCrossfading ? 'Crossfading' : 'Stable mix'} | ${state.isPlaying ? 'Live' : 'Paused'}`;
+    };
+
+    djPlayButton.addEventListener('click', dj.play);
+    djPauseButton.addEventListener('click', dj.pause);
+    djPrevButton.addEventListener('click', dj.skipToPrevious);
+    djNextButton.addEventListener('click', dj.skipToNext);
+
+    djAutomixToggle.addEventListener('change', (e) => {
+      dj.setConfig({ autoMix: e.target.checked });
+    });
+
+    djCrossfadeSlider.addEventListener('input', (e) => {
+      const seconds = Number(e.target.value);
+      djCrossfadeValue.textContent = seconds;
+      dj.setConfig({ crossfade: seconds });
+    });
+
+    window.addEventListener('djStateChange', updateUI);
+    // Expose dj instance for player.js to access
+    window.dj = dj;
+  }
 });
