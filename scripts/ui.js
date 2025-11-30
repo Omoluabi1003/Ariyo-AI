@@ -875,6 +875,41 @@ function closeCyclePrecision() {
 
     const edgePanel = document.getElementById('edgePanel');
     const edgePanelHandle = edgePanel ? edgePanel.querySelector('.edge-panel-handle') : null;
+    const focusFirstEdgePanelItem = () => {
+        const firstItem = edgePanel?.querySelector('.edge-panel-item');
+        if (firstItem) {
+            firstItem.focus();
+        }
+    };
+    const setupEdgePanelListNavigation = () => {
+        const list = document.querySelector('.edge-panel-list');
+        if (!list) return;
+
+        list.addEventListener('keydown', (event) => {
+            const activeElement = document.activeElement;
+            if (!list.contains(activeElement)) return;
+
+            const items = Array.from(list.querySelectorAll('.edge-panel-item'));
+            const currentIndex = items.indexOf(activeElement);
+            if (currentIndex === -1) return;
+
+            let nextIndex = null;
+            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                nextIndex = Math.min(currentIndex + 1, items.length - 1);
+            } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                nextIndex = Math.max(currentIndex - 1, 0);
+            } else if (event.key === 'Home') {
+                nextIndex = 0;
+            } else if (event.key === 'End') {
+                nextIndex = items.length - 1;
+            }
+
+            if (nextIndex !== null && nextIndex !== currentIndex) {
+                event.preventDefault();
+                items[nextIndex].focus();
+            }
+        });
+    };
     let isDragging = false;
     let initialX;
     let initialRight;
@@ -991,11 +1026,14 @@ function closeCyclePrecision() {
                 showEdgePanelPeek();
             }
         }, 600);
-        const toggleEdgePanelVisibility = ({ userInitiated = false } = {}) => {
+        const toggleEdgePanelVisibility = ({ userInitiated = false, focusLaunchers = false } = {}) => {
             if (edgePanelState === 'visible') {
                 applyEdgePanelPosition('collapsed', { userInitiated });
             } else {
                 applyEdgePanelPosition('visible', { userInitiated });
+                if (focusLaunchers) {
+                    focusFirstEdgePanelItem();
+                }
             }
         };
 
@@ -1068,7 +1106,7 @@ function closeCyclePrecision() {
             if (isDragging) return;
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                toggleEdgePanelVisibility({ userInitiated: true });
+                toggleEdgePanelVisibility({ userInitiated: true, focusLaunchers: true });
             }
         });
 
@@ -1094,6 +1132,8 @@ function closeCyclePrecision() {
             }
         });
     }
+
+    setupEdgePanelListNavigation();
 
     function closeEdgePanel() {
         applyEdgePanelPosition('collapsed');

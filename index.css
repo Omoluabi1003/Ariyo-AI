@@ -10,7 +10,7 @@ body {
         radial-gradient(120% 120% at 15% 20%, rgba(90, 195, 255, 0.26), rgba(10, 15, 31, 0.92) 65%),
         radial-gradient(120% 120% at 85% 25%, rgba(255, 127, 197, 0.28), rgba(10, 15, 31, 0.94) 60%),
         radial-gradient(150% 140% at 50% 85%, rgba(142, 91, 255, 0.24), rgba(10, 15, 31, 0.93) 70%);
-    color: #f3fdf7;
+    color: var(--surface-contrast);
     text-shadow: 0 12px 35px rgba(0, 0, 0, 0.65);
     display: flex;
     justify-content: center;
@@ -21,6 +21,16 @@ body {
     text-align: center;
     position: relative;
     transition: background 0.5s ease-in-out, background-color 0.5s ease-in-out;
+}
+
+body[data-theme="light"] {
+    background-color: #f6f7fb;
+    background-image:
+        radial-gradient(120% 120% at 15% 20%, rgba(111, 69, 255, 0.12), rgba(255, 255, 255, 0.9) 65%),
+        radial-gradient(120% 120% at 85% 25%, rgba(255, 127, 197, 0.14), rgba(255, 255, 255, 0.92) 60%),
+        radial-gradient(150% 140% at 50% 85%, rgba(111, 69, 255, 0.12), rgba(255, 255, 255, 0.9) 70%);
+    color: #0f172a;
+    text-shadow: none;
 }
 
 .countdown {
@@ -45,7 +55,7 @@ body {
 
 
 .overlay {
-    background: linear-gradient(150deg, rgba(12, 20, 46, 0.9), rgba(12, 20, 46, 0.76));
+    background: var(--card-bg);
     padding: clamp(1.5rem, 5vw, 2.75rem);
     border-radius: 24px;
     position: relative;
@@ -60,8 +70,21 @@ body {
     border: 1px solid rgba(142, 91, 255, 0.25);
 }
 
+body[data-theme="light"] .overlay {
+    color: #0f172a;
+    border-color: var(--surface-border);
+    box-shadow: 0 25px 60px rgba(17, 24, 39, 0.18);
+}
+
 h1, p, .feature-card, footer {
     color: inherit;
+}
+
+.page-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 0.5rem;
 }
 
 h1 {
@@ -98,6 +121,13 @@ a {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
 
+body[data-theme="light"] .hero-banner {
+    background: linear-gradient(120deg, #ffffff, #f3edff);
+    border-color: var(--surface-border);
+    color: #0f172a;
+    box-shadow: 0 18px 40px rgba(17, 24, 39, 0.18);
+}
+
 .logo-lockup {
     display: flex;
     flex-direction: column;
@@ -130,6 +160,12 @@ a {
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+}
+
+body[data-theme="light"] .banner-pill {
+    background: rgba(111, 69, 255, 0.18);
+    border-color: rgba(111, 69, 255, 0.35);
+    color: #2c0e63;
 }
 
 .hero-body {
@@ -242,12 +278,25 @@ a {
     opacity: 0.82;
 }
 
+body[data-theme="light"] .feature-card {
+    background: #ffffff;
+    border-color: var(--surface-border);
+    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.18);
+    color: #0f172a;
+}
+
 .feature-card:hover,
 .feature-card.feature-active {
     transform: translateY(-6px);
     border-color: rgba(255, 127, 197, 0.55);
     box-shadow: 0 25px 40px rgba(142, 91, 255, 0.35);
     opacity: 1;
+}
+
+body[data-theme="light"] .feature-card.feature-active,
+body[data-theme="light"] .feature-card:hover {
+    border-color: rgba(111, 69, 255, 0.5);
+    box-shadow: 0 22px 38px rgba(111, 69, 255, 0.25);
 }
 
 .feature-icon {
