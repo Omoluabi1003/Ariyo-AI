@@ -98,7 +98,7 @@
   const DEFAULT_CROSSFADE_SECONDS = 6;
   const CROSSFADE_PRELOAD_SECONDS = 8;
   let crossfadeDurationSeconds = DEFAULT_CROSSFADE_SECONDS;
-  let djAutoMixEnabled = true;
+  let djAutoMixEnabled = djToggle ? djToggle.checked : true;
   let isCrossfading = false;
   let activeDeckKey = 'A';
   let fadingDeckKey = null;
@@ -143,6 +143,34 @@
 
   function getStandbyDeck() {
     return decks[getStandbyDeckKey()];
+  }
+
+  function resetStandbyDeck() {
+    if (isCrossfading) return;
+    const standbyDeck = getStandbyDeck();
+    if (!standbyDeck) return;
+
+    cancelVolumeAnimation(standbyDeck);
+    try {
+      standbyDeck.audio.pause();
+    } catch (_) {
+      // Ignore pause errors during deck resets.
+    }
+    standbyDeck.audio.currentTime = 0;
+
+    if (standbyDeck.audio.dataset.trackSrc) {
+      cleanupPrefetch(standbyDeck.audio.dataset.trackSrc);
+      delete standbyDeck.audio.dataset.trackSrc;
+    }
+
+    standbyDeck.audio.removeAttribute('src');
+    try {
+      standbyDeck.audio.load();
+    } catch (_) {
+      // Ignore load errors when clearing the standby deck.
+    }
+
+    standbyPreloadedIndex = null;
   }
 
   function setDeckVolume(deck, volume) {
@@ -609,7 +637,7 @@
     standbyPreloadedIndex = null;
     cleanupPrefetch(incomingDeck.audio.dataset.trackSrc);
     updateSpinState();
-    crossfadeStatus.textContent = djAutoMixEnabled ? 'DJ Mix on' : 'DJ Mix off';
+    updateDjMixUi();
   }
 
   function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds } = {}) {
@@ -630,7 +658,7 @@
     isCrossfading = true;
     fadingDeckKey = outgoingKey;
     activeDeckKey = incomingKey;
-    crossfadeStatus.textContent = 'Crossfading…';
+    updateDjMixUi();
 
     const playPromise = incomingDeck.audio.play();
     if (playPromise) {
@@ -739,6 +767,36 @@
     });
   }
 
+  function getDjStatusText() {
+    if (isCrossfading) return 'Crossfading…';
+    return djAutoMixEnabled ? 'DJ Mix on' : 'DJ Mix off';
+  }
+
+  function updateDjMixUi() {
+    if (djToggle) {
+      djToggle.checked = djAutoMixEnabled;
+    }
+    if (crossfadeDurationSelect) {
+      crossfadeDurationSelect.disabled = !djAutoMixEnabled;
+      crossfadeDurationSelect.value = String(crossfadeDurationSeconds);
+    }
+    if (crossfadeStatus) {
+      crossfadeStatus.textContent = getDjStatusText();
+    }
+  }
+
+  function handleDjToggleChange() {
+    djAutoMixEnabled = Boolean(djToggle.checked);
+    resetStandbyDeck();
+    updateDjMixUi();
+    setStatus(
+      djAutoMixEnabled
+        ? 'DJ Mix enabled. Crossfades will start near the end of each track.'
+        : 'DJ Mix disabled. Tracks will play through without crossfade.',
+      djAutoMixEnabled ? 'info' : 'neutral'
+    );
+  }
+
   playButton.addEventListener('click', playCurrentTrack);
   pauseButton.addEventListener('click', () => {
     getActiveAudio().pause();
@@ -749,17 +807,15 @@
   shuffleButton.addEventListener('click', toggleShuffle);
   refreshButton.addEventListener('click', shufflePlaybackOrder);
 
-  djToggle.checked = djAutoMixEnabled;
-  crossfadeStatus.textContent = djAutoMixEnabled ? 'DJ Mix on' : 'DJ Mix off';
-  djToggle.addEventListener('change', () => {
-    djAutoMixEnabled = djToggle.checked;
-    crossfadeStatus.textContent = djAutoMixEnabled ? 'DJ Mix on' : 'DJ Mix off';
-  });
-
   crossfadeDurationSelect.value = String(DEFAULT_CROSSFADE_SECONDS);
+  updateDjMixUi();
+
+  djToggle.addEventListener('change', handleDjToggleChange);
+
   crossfadeDurationSelect.addEventListener('change', () => {
     const value = Number(crossfadeDurationSelect.value);
     crossfadeDurationSeconds = Number.isFinite(value) ? value : DEFAULT_CROSSFADE_SECONDS;
+    updateDjMixUi();
   });
 
   volumeControl.addEventListener('input', event => {
