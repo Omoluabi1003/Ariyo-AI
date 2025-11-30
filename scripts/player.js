@@ -774,15 +774,18 @@ function toggleDjMode() {
             preloadAhead: djPreloadAheadSeconds,
             onCrossfadeStart: handleCrossfadeStart,
             onCrossfadeComplete: handleCrossfadeComplete,
-            onTrackEnd: handleAutoNextTrack,
-            onTimeUpdate: () => updateTrackTime()
+            onTrackEnd: handleAutoNextTrack
         });
+        CrossfadePlayer.onTimeUpdate(handleDjTimeUpdate);
+        handleDjTimeUpdate();
         primeDjDecks();
     } else {
         toggleButton.classList.remove('active');
         djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
-        CrossfadePlayer.setConfig({ enabled: false, onTimeUpdate: null });
+        CrossfadePlayer.setConfig({ enabled: false });
+        CrossfadePlayer.onTimeUpdate(null);
         CrossfadePlayer.onTrackEnd(null);
+        setTurntableSpin(false);
     }
     if (toggleButton) {
         toggleButton.setAttribute('aria-pressed', String(djAutoMixEnabled));
@@ -1329,28 +1332,30 @@ function selectRadio(src, title, index, logo) {
       }
     }
 
-    function pauseMusic() {
-        if (djAutoMixEnabled) {
-            CrossfadePlayer.pause();
-        } else {
-            cancelNetworkRecovery();
-            audioPlayer.pause();
-            manageVinylRotation();
-            audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+function pauseMusic() {
+    if (djAutoMixEnabled) {
+        CrossfadePlayer.pause();
+        setTurntableSpin(false);
+    } else {
+        cancelNetworkRecovery();
+        audioPlayer.pause();
+        manageVinylRotation();
+        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
             stopPlaybackWatchdog();
             console.log('Paused');
             savePlayerState();
         }
     }
 
-    function stopMusic() {
-        if (djAutoMixEnabled) {
-            CrossfadePlayer.pause(); // Or a more definitive stop if the API supports it
-        } else {
-            cancelNetworkRecovery();
-            audioPlayer.pause();
-            audioPlayer.currentTime = 0;
-            manageVinylRotation();
+function stopMusic() {
+    if (djAutoMixEnabled) {
+        CrossfadePlayer.pause(); // Or a more definitive stop if the API supports it
+        setTurntableSpin(false);
+    } else {
+        cancelNetworkRecovery();
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        manageVinylRotation();
             audioPlayer.removeEventListener('timeupdate', updateTrackTime);
             stopPlaybackWatchdog();
             seekBar.value = 0;
@@ -1360,9 +1365,9 @@ function selectRadio(src, title, index, logo) {
         }
     }
 
-    function updateTrackTime() {
-        const currentTime = djAutoMixEnabled ? CrossfadePlayer.getCurrentTime() : audioPlayer.currentTime;
-        const duration = djAutoMixEnabled ? CrossfadePlayer.getDuration() : audioPlayer.duration;
+function updateTrackTime() {
+    const currentTime = djAutoMixEnabled ? CrossfadePlayer.getCurrentTime() : audioPlayer.currentTime;
+    const duration = djAutoMixEnabled ? CrossfadePlayer.getDuration() : audioPlayer.duration;
 
       // 🔒 If it's a radio stream, don't format duration
       if (currentRadioIndex >= 0 || !isFinite(duration)) {
@@ -1382,11 +1387,17 @@ function selectRadio(src, title, index, logo) {
         trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
         seekBar.style.display = 'block';
       }
-      highlightLyric(currentTime);
-      if (isNaN(duration) || duration <= 0) {
+    highlightLyric(currentTime);
+    if (isNaN(duration) || duration <= 0) {
         recordPlaybackProgress(currentTime);
-      }
     }
+}
+
+function handleDjTimeUpdate(player) {
+    updateTrackTime();
+    const shouldSpin = player ? (!player.paused && !player.ended) : false;
+    setTurntableSpin(shouldSpin);
+}
 
     function formatTime(seconds) {
       const minutes = Math.floor(seconds / 60);

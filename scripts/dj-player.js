@@ -193,11 +193,21 @@ window.CrossfadePlayer = (() => {
         if (typeof onTrackEnd === 'function') {
             onTrackEndCallback = onTrackEnd;
         }
-        if (typeof onTimeUpdate === 'function') {
-            onTimeUpdateCallback = onTimeUpdate;
-        } else if (onTimeUpdate === null) {
-            onTimeUpdateCallback = null;
+        onTimeUpdateCallback = onTimeUpdateCallbackFromOption(onTimeUpdate, onTimeUpdateCallback);
+    }
+
+    function onTimeUpdateCallbackFromOption(optionValue, fallback) {
+        if (typeof optionValue === 'function') {
+            return optionValue;
         }
+        if (optionValue === null) {
+            return null;
+        }
+        return fallback;
+    }
+
+    function onTimeUpdate(callback) {
+        onTimeUpdateCallback = onTimeUpdateCallbackFromOption(callback, onTimeUpdateCallback);
     }
 
     function loadTrack(trackOrSrc, isNext = false) {
@@ -254,6 +264,7 @@ window.CrossfadePlayer = (() => {
         pause,
         crossfade,
         onTrackEnd,
+        onTimeUpdate,
         getCurrentTime,
         getDuration
     };
