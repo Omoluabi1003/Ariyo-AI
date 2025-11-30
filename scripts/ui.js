@@ -520,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const djModeToggle = document.getElementById('djModeToggle');
     if (djModeToggle) {
+        djModeToggle.setAttribute('aria-pressed', 'false');
         djModeToggle.addEventListener('click', toggleDjMode);
     }
     prepareDeferredIframes();

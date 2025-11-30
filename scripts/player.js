@@ -783,6 +783,9 @@ function toggleDjMode() {
         CrossfadePlayer.setConfig({ enabled: false });
         CrossfadePlayer.onTrackEnd(null);
     }
+    if (toggleButton) {
+        toggleButton.setAttribute('aria-pressed', String(djAutoMixEnabled));
+    }
     console.log(`DJ Mix mode is now ${djAutoMixEnabled ? 'enabled' : 'disabled'}`);
 }
 
