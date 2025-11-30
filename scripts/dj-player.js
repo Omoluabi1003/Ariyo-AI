@@ -19,6 +19,7 @@ window.CrossfadePlayer = (() => {
     let onTrackEndCallback = () => {};
     let onCrossfadeStart = null;
     let onCrossfadeComplete = null;
+    let onTimeUpdateCallback = null;
 
     function init() {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -69,13 +70,24 @@ window.CrossfadePlayer = (() => {
     }
 
     function _bindEvents() {
-        player1.removeEventListener('timeupdate', _monitorTrackProgress);
-        player2.removeEventListener('timeupdate', _monitorTrackProgress);
-        activePlayer.addEventListener('timeupdate', _monitorTrackProgress);
+        player1.removeEventListener('timeupdate', _handleTimeUpdate);
+        player2.removeEventListener('timeupdate', _handleTimeUpdate);
+        activePlayer.addEventListener('timeupdate', _handleTimeUpdate);
 
         player1.removeEventListener('ended', _handleTrackEnd);
         player2.removeEventListener('ended', _handleTrackEnd);
         activePlayer.addEventListener('ended', _handleTrackEnd);
+    }
+
+    function _handleTimeUpdate() {
+        _monitorTrackProgress();
+        if (typeof onTimeUpdateCallback === 'function') {
+            onTimeUpdateCallback({
+                currentTime: activePlayer.currentTime,
+                duration: activePlayer.duration,
+                paused: activePlayer.paused
+            });
+        }
     }
 
     function _monitorTrackProgress() {
@@ -187,6 +199,10 @@ window.CrossfadePlayer = (() => {
         }
     }
 
+    function onTimeUpdate(callback) {
+        onTimeUpdateCallback = typeof callback === 'function' ? callback : null;
+    }
+
     function loadTrack(trackOrSrc, isNext = false) {
         const { src, meta } = typeof trackOrSrc === 'string' ? { src: trackOrSrc, meta: null } : trackOrSrc;
         const player = isNext ? inactivePlayer : activePlayer;
@@ -241,6 +257,7 @@ window.CrossfadePlayer = (() => {
         pause,
         crossfade,
         onTrackEnd,
+        onTimeUpdate,
         getCurrentTime,
         getDuration
     };
