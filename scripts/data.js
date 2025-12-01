@@ -194,6 +194,43 @@ const albums = [
             { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' }
         ]
       },
+      {
+        name: 'Back2Basics',
+        cover: 'https://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/42886166/42886166-1739642112127-66105f9d9f3bc.jpg',
+        tracks: [
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/99619328/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-2-10%2F396277253-44100-2-8537174befb81.m4a', title: 'A Very Good Bad Guy' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/99038893/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-26%2F7f6edbe4-b5c4-4d01-4f21-ee4c84d1ff9c.mp3', title: 'Foresight: Understanding the Times and Securing the Future (Part 3)' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/99038839/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-26%2F1feccee0-e1b6-b06c-6aca-d5e83167836a.mp3', title: 'Foresight: Understanding the Times and Securing the Future (Part 2)' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/99038749/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-26%2F5d9720bf-f713-2ae9-9fd4-33f2f7ae2b02.mp3', title: 'Foresight: Understanding the Times and Securing the Future (Part 1)' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98961371/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-24%2F395455226-44100-2-580c1ef91edbf.m4a', title: 'Please, Sorry, Thank you' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98923996/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-24%2F395408661-44100-2-fceda899ba883.m4a', title: 'Reciprocity: Managing Relationships' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98848652/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-22%2F395315987-44100-2-4566cbba52994.m4a', title: 'Fathers That Left' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98775100/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-20%2F395222980-44100-2-ce1d3caf1fb0c.m4a', title: 'God\'s Eternal Word: Promises and Timeless Faithfulness' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98688611/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-18%2F395113634-44100-2-812814f5274ee.m4a', title: 'The Shoulders We Stand On' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98679617/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-18%2F395101922-44100-2-58bf749fe80c2.m4a', title: 'Receiving Answers After Prayers' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98655099/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-18%2F395071840-44100-2-f9ab1520d379b.m4a', title: 'Electra Complex: Understanding Female Competition and Psychosexual Development' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98650657/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-17%2F395066252-44100-2-f82a8199670ca.m4a', title: 'Raising Boys Biblically: A Balanced Approach' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98576028/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-16%2F394973730-44100-2-490138471bdbb.m4a', title: 'The Ombudsman: Strategy for Impact and Fulfillment' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98559949/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-16%2F394953860-44100-2-10b7319d70bf.m4a', title: 'Giving and Receiving Respect' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98520543/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-14%2F394905743-44100-2-844b382c31ffd.m4a', title: 'Authenticity and Destiny' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98524935/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-15%2F394911342-44100-2-5909601f95249.m4a', title: 'THE DARK ORIGINS OF VALENTINE’S DAY; Fertility and Pagan rituals.' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98519875/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-14%2F394904864-44100-2-203f01055e786.m4a', title: 'Faith, Prayer, and the Rubber Duck Principle' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98480930/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-14%2F394856481-44100-2-d993f1fffa1ce.m4a', title: 'Eliot Ness and the Untouchables: A Model for Christian Living' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98427045/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-13%2F394789473-44100-2-b307e9169eebc.m4a', title: 'The Pigeonhole Principle: Unlocking Potentials' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98418419/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-12%2F394778705-44100-2-ed5a4270dc436.m4a', title: 'Hawthorne Effect: Living Productively' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98412793/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-12%2F394771262-44100-2-2e2a7b3c88b7f.m4a', title: 'Moore’s law and Life’s evolution' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98353240/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-11%2F394696274-44100-2-869778ecbf4f6.m4a', title: 'Vulnerability and Authentic Living' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98351158/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-11%2F394693715-44100-2-7824733a11e12.m4a', title: 'Breaking Family Altars' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98314179/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-11%2F394647576-44100-2-30e434d709c9a.m4a', title: 'Inspirational Action: From Parrot to Person' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98313576/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-10%2F394646756-44100-2-4f6d36e7ff1e6.m4a', title: 'Building up the most Holy faith' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98310422/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-10%2F394642614-44100-2-e6aff663d93.m4a', title: 'The Forerunner’s Map' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98288133/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-10%2F394614277-44100-2-4c49dcd2472b6.m4a', title: 'Passing the Baton' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98218374/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-8%2F394527958-44100-2-c369e90af6b2a.m4a', title: 'God\'s Light and Human Connection' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98218182/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-8%2F394527730-44100-2-9d8d2179b0b4e.m4a', title: 'Missed Opportunities' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98218093/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-8%2F394527626-44100-2-b7af34d500eed.m4a', title: 'Staying Grounded' },
+          { src: 'https://anchor.fm/s/10037af18/podcast/play/98217872/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-8%2F394527334-44100-2-091223371cf9e.m4a', title: 'Password, Prayer and Presence' }
+        ]
+      }
     ];
 
 const LATEST_TRACK_WINDOW_HOURS = 168;
