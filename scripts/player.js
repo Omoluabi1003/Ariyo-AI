@@ -3,9 +3,10 @@
     const audioPlayer = existingAudioElement || document.createElement('audio');
     function setCrossOrigin(element, url) {
         try {
-            const host = new URL(url, window.location.origin).hostname;
-            const corsAllowedHosts = ['raw.githubusercontent.com', 'drive.google.com'];
-            if (corsAllowedHosts.some(h => host.endsWith(h))) {
+            const target = new URL(url, window.location.origin);
+            // Allow anonymous CORS when the audio is hosted off-origin so the Web Audio
+            // graph (crossfader/visualizer) can attach without throwing a security error.
+            if (target.origin !== window.location.origin) {
                 element.crossOrigin = 'anonymous';
             } else {
                 element.removeAttribute('crossorigin');

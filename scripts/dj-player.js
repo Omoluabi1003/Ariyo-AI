@@ -57,9 +57,10 @@ window.CrossfadePlayer = (() => {
 
     function _applyCrossOrigin(element, url) {
         try {
-            const host = new URL(url, window.location.origin).hostname;
-            const corsAllowedHosts = ['raw.githubusercontent.com', 'drive.google.com'];
-            if (corsAllowedHosts.some(h => host.endsWith(h))) {
+            const target = new URL(url, window.location.origin);
+            // Crossfader uses Web Audio; anonymous CORS is required for off-origin sources
+            // to avoid security errors when connecting to the audio graph.
+            if (target.origin !== window.location.origin) {
                 element.crossOrigin = 'anonymous';
             } else {
                 element.removeAttribute('crossorigin');

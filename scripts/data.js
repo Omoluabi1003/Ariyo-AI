@@ -1,4 +1,6 @@
-const BASE_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/';
+// Serve audio from the same origin as the app to avoid cross-origin playback
+// restrictions that can mute the player or break the Web Audio graph.
+const BASE_URL = './';
 const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/';
 const BACK2BASICS_FEED_URL = 'https://anchor.fm/s/10037af18/podcast/rss';
 const albums = [
