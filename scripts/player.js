@@ -483,9 +483,32 @@ function removeTrackFromPlaylist(index) {
 
     function updateTrackListModal() {
       const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
+      const album = albums[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
-      trackModalTitle.textContent = albums[albumIndex].name;
+      trackModalTitle.textContent = album.name;
+
+      const trackModalMeta = document.getElementById('trackModalMeta');
+      if (trackModalMeta) {
+        trackModalMeta.innerHTML = '';
+
+        if (album.detailsUrl) {
+          const docsLink = document.createElement('a');
+          docsLink.href = album.detailsUrl;
+          docsLink.target = '_blank';
+          docsLink.rel = 'noopener';
+          docsLink.className = 'track-meta-link';
+          docsLink.textContent = 'Open album markdown';
+          trackModalMeta.appendChild(docsLink);
+        }
+
+        if (album.rssFeed) {
+          const feedNote = document.createElement('p');
+          feedNote.className = 'track-meta-note';
+          feedNote.textContent = 'Tracks refresh automatically from the RSS feed.';
+          trackModalMeta.appendChild(feedNote);
+        }
+      }
       trackListContainer.innerHTML = '';
 
       const banner = document.getElementById('latestTracksBanner');

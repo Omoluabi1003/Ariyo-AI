@@ -1055,6 +1055,39 @@ body[data-theme="light"] {
     margin-left: 1rem;
 }
 
+.track-modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.25rem 0 0.75rem;
+}
+
+.track-meta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.8rem;
+    background: var(--theme-color);
+    color: #000;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.track-meta-link:hover,
+.track-meta-link:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+}
+
+.track-meta-note {
+    color: #d1d5db;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 900px) {
     :root {
