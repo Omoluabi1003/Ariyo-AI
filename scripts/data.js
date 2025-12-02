@@ -3,6 +3,7 @@
 const BASE_URL = './';
 const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/';
 const BACK2BASICS_FEED_URL = 'https://anchor.fm/s/10037af18/podcast/rss';
+const RSS_FETCH_TIMEOUT_MS = 8000;
 const albums = [
       {
         name: 'Kindness',
@@ -242,6 +243,55 @@ const podcastFeedAlbums = [
   { name: 'Back2Basics', feedUrl: BACK2BASICS_FEED_URL }
 ];
 
+const rssFallbacks = [
+  (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  (url) => `https://r.jina.ai/${url}`
+];
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = RSS_FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer',
+      signal: controller.signal,
+      ...options
+    });
+    return response;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchPodcastXml(feedUrl) {
+  const candidates = [feedUrl, ...rssFallbacks.map(builder => builder(feedUrl))];
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetchWithTimeout(candidate, { mode: 'cors' });
+      if (!response.ok) {
+        console.warn(`RSS fetch failed (${response.status}) for ${candidate}`);
+        continue;
+      }
+
+      const text = await response.text();
+      if (text && text.trim().length) {
+        return text;
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.warn(`RSS fetch timed out for ${candidate}`);
+      } else {
+        console.warn(`RSS fetch failed for ${candidate}:`, error);
+      }
+    }
+  }
+
+  throw new Error('All RSS fetch attempts failed.');
+}
+
 function parsePodcastFeed(xmlText) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
@@ -276,11 +326,7 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
   if (albumIndex === -1) return;
 
   try {
-    const response = await fetch(feedUrl, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`Feed request failed with status ${response.status}`);
-    }
-    const xmlText = await response.text();
+    const xmlText = await fetchPodcastXml(feedUrl);
     const { cover, tracks } = parsePodcastFeed(xmlText);
 
     if (tracks.length) {

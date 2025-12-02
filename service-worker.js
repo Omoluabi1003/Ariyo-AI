@@ -1,7 +1,7 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v10';
+const CACHE_PREFIX = 'ariyo-ai-cache-v11';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
@@ -231,37 +231,23 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Always fetch manifest and icon assets from the network to avoid stale installs
-    if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
+    // Always let the network handle streaming audio (and Range requests) so the
+    // browser can negotiate byte ranges with the origin. Cached full responses
+    // can block playback from starting quickly.
+    if (event.request.headers.has('range') || event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
         event.respondWith(fetch(event.request, { cache: 'no-store' }));
         return;
     }
 
-    if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
-        if (PREFETCH_MEDIA_SET.has(event.request.url)) {
-            event.respondWith((async () => {
-                const runtimeCache = await openRuntimeCache();
-                const cachedResponse = await runtimeCache.match(event.request.url);
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
+    // RSS feeds should bypass caching to avoid stale podcast metadata.
+    if (url.hostname.includes('anchor.fm') && url.pathname.includes('/rss')) {
+        event.respondWith(fetch(event.request, { cache: 'no-store' }));
+        return;
+    }
 
-                try {
-                    const networkResponse = await fetch(event.request, { cache: 'no-store' });
-                    if (networkResponse && networkResponse.ok) {
-                        await runtimeCache.put(event.request.url, networkResponse.clone());
-                    }
-                    return networkResponse;
-                } catch (error) {
-                    console.error('Audio fetch failed:', error);
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                    throw error;
-                }
-            })());
-        }
-
+    // Always fetch manifest and icon assets from the network to avoid stale installs
+    if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
+        event.respondWith(fetch(event.request, { cache: 'no-store' }));
         return;
     }
 
