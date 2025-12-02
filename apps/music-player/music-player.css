@@ -715,3 +715,223 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+.btn-auto-dj {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--player-border);
+  background: linear-gradient(135deg, rgba(142, 91, 255, 0.16), rgba(109, 211, 255, 0.12));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-auto-dj:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  border-color: rgba(142, 91, 255, 0.65);
+}
+
+.btn-auto-dj.active {
+  border-color: rgba(142, 91, 255, 0.85);
+  box-shadow: 0 0 0 2px rgba(142, 91, 255, 0.35);
+}
+
+.auto-dj-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f87171;
+  box-shadow: 0 0 0 0 rgba(142, 91, 255, 0.18);
+  animation: pulse 1.8s infinite;
+}
+
+.btn-auto-dj.active .auto-dj-indicator {
+  background: #4ade80;
+}
+
+.auto-dj-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 1200;
+  padding: 1rem;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.auto-dj-overlay[aria-hidden="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.auto-dj-panel {
+  width: min(1040px, 100%);
+  background: linear-gradient(145deg, rgba(17, 24, 39, 0.9), rgba(28, 38, 64, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  padding: 1rem 1.25rem 1.25rem;
+  color: #e5e7eb;
+}
+
+.auto-dj-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.auto-dj-header h2 {
+  margin: 0;
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+}
+
+.auto-dj-close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.auto-dj-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: rotate(-4deg);
+}
+
+.auto-dj-decks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.dj-deck {
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+}
+
+.dj-deck-label {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  color: #c7d2fe;
+}
+
+.dj-vinyl-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.dj-vinyl {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #121826 0%, #0a0f1a 50%, #030712 90%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dj-vinyl::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+}
+
+.dj-vinyl-center {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #8e5bff, #6dd3ff);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.dj-vinyl.spinning {
+  animation: vinylSpin 3.6s linear infinite;
+}
+
+@keyframes vinylSpin {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+
+.dj-track-meta {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.75rem;
+}
+
+.dj-track-title {
+  font-weight: 700;
+}
+
+.dj-track-artist {
+  color: #9ca3af;
+}
+
+.dj-crossfader-block {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+}
+
+.dj-crossfader-label {
+  margin: 0;
+  color: #c7d2fe;
+  font-weight: 700;
+}
+
+.dj-crossfader {
+  width: 100%;
+  accent-color: #8e5bff;
+}
+
+.dj-crossfader-scale {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.auto-dj-footer {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auto-dj-status {
+  color: #c7d2fe;
+  font-weight: 600;
+}

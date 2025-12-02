@@ -25,6 +25,15 @@
   const djToggle = document.getElementById('djToggle');
   const crossfadeDurationSelect = document.getElementById('crossfadeDuration');
   const crossfadeStatus = document.getElementById('crossfadeStatus');
+  const autoDjToggle = document.getElementById('autoDjToggle');
+  const autoDjOverlay = document.getElementById('autoDjOverlay');
+  const autoDjClose = document.getElementById('autoDjClose');
+  const autoDjStatus = document.getElementById('autoDjStatus');
+  const deckAVinyl = document.getElementById('deckA_vinyl');
+  const deckBVinyl = document.getElementById('deckB_vinyl');
+  const deckAMeta = document.getElementById('deckA_meta');
+  const deckBMeta = document.getElementById('deckB_meta');
+  const djCrossfader = document.getElementById('djCrossfader');
 
   const hasAlbums = typeof albums !== 'undefined' && Array.isArray(albums) && albums.length;
   if (!hasAlbums) {
@@ -116,6 +125,7 @@
   let fadingDeckKey = null;
   let standbyPreloadedIndex = null;
   let audioContext = null;
+  let crossfaderFrame = null;
 
   function getCrossfadeDurationForTrack(trackDurationSeconds) {
     if (!trackDurationSeconds || !Number.isFinite(trackDurationSeconds)) {
@@ -295,6 +305,67 @@
       if (!element) return;
       element.classList.toggle('spin', shouldSpin);
     });
+
+    const deckAPlaying = (activeDeckKey === 'A' && shouldSpin) || (isCrossfading && fadingDeckKey === 'A');
+    const deckBPlaying = (activeDeckKey === 'B' && shouldSpin) || (isCrossfading && fadingDeckKey === 'B');
+    if (deckAVinyl) deckAVinyl.classList.toggle('spinning', deckAPlaying);
+    if (deckBVinyl) deckBVinyl.classList.toggle('spinning', deckBPlaying);
+  }
+
+  function updateOverlayMetadata(deckKey, track) {
+    const meta = deckKey === 'A' ? deckAMeta : deckBMeta;
+    if (!meta || !track) return;
+    const [titleEl, artistEl] = meta.querySelectorAll('span');
+    if (titleEl) titleEl.textContent = track.title || 'Untitled';
+    if (artistEl) artistEl.textContent = track.artist || 'Omoluabi';
+  }
+
+  function updateAutoDjStatus(message) {
+    if (autoDjStatus) {
+      autoDjStatus.textContent = message;
+    }
+  }
+
+  function toggleAutoDjOverlay(show) {
+    if (!autoDjOverlay) return;
+    autoDjOverlay.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
+
+  function setAutoDjToggleActive(active) {
+    if (autoDjToggle) {
+      autoDjToggle.classList.toggle('active', active);
+      autoDjToggle.setAttribute('aria-pressed', String(active));
+    }
+  }
+
+  function updateCrossfaderUI(value) {
+    if (!djCrossfader) return;
+    const clamped = Math.min(100, Math.max(0, value));
+    djCrossfader.value = String(clamped);
+  }
+
+  function syncCrossfaderToActiveDeck() {
+    const value = activeDeckKey === 'A' ? 0 : 100;
+    updateCrossfaderUI(value);
+  }
+
+  function animateCrossfader(fromKey, toKey, durationSeconds) {
+    if (!djCrossfader) return;
+    if (crossfaderFrame) cancelAnimationFrame(crossfaderFrame);
+    const start = performance.now();
+    const startValue = fromKey === 'A' ? 0 : 100;
+    const endValue = toKey === 'A' ? 0 : 100;
+
+    const step = now => {
+      const progress = Math.min((now - start) / (durationSeconds * 1000), 1);
+      const value = startValue + (endValue - startValue) * progress;
+      updateCrossfaderUI(value);
+      if (progress < 1) {
+        crossfaderFrame = requestAnimationFrame(step);
+      }
+    };
+
+    crossfaderFrame = requestAnimationFrame(step);
   }
 
   function collapseAlbumGroup(group) {
@@ -641,6 +712,7 @@
     if (updateUI) {
       currentOrderIndex = orderIndex;
       updateTrackMetadata(track);
+      updateOverlayMetadata(deckKey, track);
       postPanelStatus('loading', track.title);
       prefetchUpcomingTracks(currentOrderIndex);
     }
@@ -667,6 +739,8 @@
     isCrossfading = false;
     standbyPreloadedIndex = null;
     cleanupPrefetch(incomingDeck.audio.dataset.trackSrc);
+    updateAutoDjStatus(djAutoMixEnabled ? 'Auto-mix: Playing' : 'Auto-mix: Off');
+    syncCrossfaderToActiveDeck();
     updateSpinState();
     updateDjMixUi();
   }
@@ -690,6 +764,8 @@
     fadingDeckKey = outgoingKey;
     activeDeckKey = incomingKey;
     updateDjMixUi();
+    updateAutoDjStatus('Auto-mix: Crossfading');
+    animateCrossfader(outgoingKey, incomingKey, duration);
 
     const playPromise = incomingDeck.audio.play();
     if (playPromise) {
@@ -814,6 +890,12 @@
     if (crossfadeStatus) {
       crossfadeStatus.textContent = getDjStatusText();
     }
+    setAutoDjToggleActive(djAutoMixEnabled);
+    toggleAutoDjOverlay(djAutoMixEnabled);
+    if (!djAutoMixEnabled) {
+      updateAutoDjStatus('Auto-mix: Off');
+    }
+    syncCrossfaderToActiveDeck();
   }
 
   function handleDjToggleChange() {
@@ -826,6 +908,7 @@
         : 'DJ Mix disabled. Tracks will play through without crossfade.',
       djAutoMixEnabled ? 'info' : 'neutral'
     );
+    updateAutoDjStatus(djAutoMixEnabled ? 'Auto-mix: Playing' : 'Auto-mix: Off');
   }
 
   playButton.addEventListener('click', playCurrentTrack);
@@ -842,6 +925,25 @@
   updateDjMixUi();
 
   djToggle.addEventListener('change', handleDjToggleChange);
+
+  if (autoDjToggle) {
+    autoDjToggle.addEventListener('click', () => {
+      if (!djToggle) return;
+      djToggle.checked = !djAutoMixEnabled;
+      handleDjToggleChange();
+    });
+  }
+
+  if (autoDjClose) {
+    autoDjClose.addEventListener('click', () => {
+      if (djToggle && djAutoMixEnabled) {
+        djToggle.checked = false;
+        handleDjToggleChange();
+      } else {
+        toggleAutoDjOverlay(false);
+      }
+    });
+  }
 
   crossfadeDurationSelect.addEventListener('change', () => {
     const value = Number(crossfadeDurationSelect.value);
