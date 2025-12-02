@@ -1,5 +1,6 @@
 const BASE_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/';
 const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/';
+const BACK2BASICS_FEED_URL = 'https://anchor.fm/s/10037af18/podcast/rss';
 const albums = [
       {
         name: 'Kindness',
@@ -197,6 +198,8 @@ const albums = [
       {
         name: 'Back2Basics',
         cover: 'https://d3t3ozftmdmh3i.cloudfront.net/staging/podcast_uploaded_nologo/42886166/42886166-1739642112127-66105f9d9f3bc.jpg',
+        rssFeed: BACK2BASICS_FEED_URL,
+        detailsUrl: 'Back2Basics_Podcast.md',
         tracks: [
           { src: 'https://anchor.fm/s/10037af18/podcast/play/99619328/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-2-10%2F396277253-44100-2-8537174befb81.m4a', title: 'A Very Good Bad Guy' },
           { src: 'https://anchor.fm/s/10037af18/podcast/play/99038893/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2025-1-26%2F7f6edbe4-b5c4-4d01-4f21-ee4c84d1ff9c.mp3', title: 'Foresight: Understanding the Times and Securing the Future (Part 3)' },
@@ -232,6 +235,77 @@ const albums = [
         ]
       }
     ];
+
+const podcastFeedAlbums = [
+  { name: 'Back2Basics', feedUrl: BACK2BASICS_FEED_URL }
+];
+
+function parsePodcastFeed(xmlText) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
+  if (xmlDoc.querySelector('parsererror')) {
+    throw new Error('Invalid RSS XML for podcast feed.');
+  }
+
+  const channel = xmlDoc.querySelector('channel');
+  if (!channel) {
+    throw new Error('Podcast feed missing channel data.');
+  }
+
+  const cover = channel.querySelector('itunes\\:image')?.getAttribute('href')
+    || channel.querySelector('image > url')?.textContent?.trim()
+    || '';
+
+  const tracks = Array.from(channel.querySelectorAll('item'))
+    .map(item => {
+      const title = item.querySelector('title')?.textContent?.trim() || 'Untitled Episode';
+      const enclosure = item.querySelector('enclosure');
+      const src = enclosure?.getAttribute('url') || item.querySelector('link')?.textContent?.trim();
+      if (!src) return null;
+      return { src, title };
+    })
+    .filter(Boolean);
+
+  return { cover, tracks };
+}
+
+async function hydratePodcastAlbum(albumName, feedUrl) {
+  const albumIndex = albums.findIndex(album => album.name === albumName);
+  if (albumIndex === -1) return;
+
+  try {
+    const response = await fetch(feedUrl, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Feed request failed with status ${response.status}`);
+    }
+    const xmlText = await response.text();
+    const { cover, tracks } = parsePodcastFeed(xmlText);
+
+    if (tracks.length) {
+      albums[albumIndex].tracks = tracks;
+    }
+
+    if (cover) {
+      albums[albumIndex].cover = cover;
+      if (typeof currentAlbumIndex !== 'undefined' && typeof albumCover !== 'undefined' && currentAlbumIndex === albumIndex) {
+        albumCover.src = cover;
+      }
+    }
+
+    if (typeof updateTrackListModal === 'function') {
+      updateTrackListModal();
+    }
+    if (typeof populateAlbumList === 'function') {
+      populateAlbumList();
+    }
+  } catch (error) {
+    console.error(`Unable to refresh ${albumName} from RSS:`, error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  podcastFeedAlbums.forEach(feed => hydratePodcastAlbum(feed.name, feed.feedUrl));
+});
 
 const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
