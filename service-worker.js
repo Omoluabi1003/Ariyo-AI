@@ -238,6 +238,15 @@ self.addEventListener('fetch', event => {
     }
 
     if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
+        const hasRangeRequest = event.request.headers.has('range');
+        const requestUrl = new URL(event.request.url);
+        const sameOrigin = requestUrl.origin === self.location.origin;
+
+        if (hasRangeRequest || !sameOrigin) {
+            event.respondWith(fetch(event.request));
+            return;
+        }
+
         if (PREFETCH_MEDIA_SET.has(event.request.url)) {
             event.respondWith((async () => {
                 const runtimeCache = await openRuntimeCache();
@@ -260,8 +269,10 @@ self.addEventListener('fetch', event => {
                     throw error;
                 }
             })());
+            return;
         }
 
+        event.respondWith(fetch(event.request));
         return;
     }
 
