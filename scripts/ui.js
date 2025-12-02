@@ -518,10 +518,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (djMixStatusInfo) {
         djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
     }
-    const djModeToggle = document.getElementById('djModeToggle');
+    const djModeToggle = document.getElementById('autoDjToggle');
     if (djModeToggle) {
         djModeToggle.setAttribute('aria-pressed', 'false');
-        djModeToggle.addEventListener('click', toggleDjMode);
     }
     prepareDeferredIframes();
     PANEL_IDS.forEach(id => {
