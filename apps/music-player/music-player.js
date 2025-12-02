@@ -168,6 +168,55 @@
     return decks[getStandbyDeckKey()];
   }
 
+  function dispatchAutoMixState(extra = {}) {
+    window.dispatchEvent(new CustomEvent('automix:state', {
+      detail: {
+        activeDeck: activeDeckKey,
+        isCrossfading,
+        autoMixEnabled: djAutoMixEnabled,
+        currentOrderIndex,
+        ...extra,
+      },
+    }));
+  }
+
+  function dispatchDeckMetadata(deckKey, track, orderIndex, isActive = false) {
+    if (!track) return;
+    window.dispatchEvent(new CustomEvent('automix:deck-metadata', {
+      detail: {
+        deck: deckKey,
+        track,
+        orderIndex,
+        isActive,
+      },
+    }));
+  }
+
+  function dispatchCrossfadeProgress(fromDeck, toDeck, progress) {
+    window.dispatchEvent(new CustomEvent('automix:crossfade-progress', {
+      detail: {
+        fromDeck,
+        toDeck,
+        progress,
+      },
+    }));
+  }
+
+  function monitorCrossfadeProgress(fromDeck, toDeck, durationSeconds) {
+    const start = performance.now();
+    const total = durationSeconds * 1000;
+
+    function step(now) {
+      const progress = Math.min(Math.max((now - start) / total, 0), 1);
+      dispatchCrossfadeProgress(fromDeck, toDeck, progress);
+      if (progress < 1 && isCrossfading) {
+        requestAnimationFrame(step);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
   function resetStandbyDeck() {
     if (isCrossfading) return;
     const standbyDeck = getStandbyDeck();
@@ -650,6 +699,8 @@
       setStatus('Loading track…');
     }
 
+    dispatchDeckMetadata(deckKey, track, orderIndex, deckKey === activeDeckKey);
+
     return { deck, track };
   }
 
@@ -669,6 +720,8 @@
     cleanupPrefetch(incomingDeck.audio.dataset.trackSrc);
     updateSpinState();
     updateDjMixUi();
+    dispatchAutoMixState({ activeDeck: activeDeckKey });
+    dispatchCrossfadeProgress(outgoingKey, incomingKey, 1);
   }
 
   function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds } = {}) {
@@ -690,6 +743,7 @@
     fadingDeckKey = outgoingKey;
     activeDeckKey = incomingKey;
     updateDjMixUi();
+    dispatchAutoMixState({ activeDeck: incomingKey, isCrossfading: true });
 
     const playPromise = incomingDeck.audio.play();
     if (playPromise) {
@@ -698,6 +752,7 @@
       });
     }
 
+    monitorCrossfadeProgress(outgoingKey, incomingKey, duration);
     rampVolume(incomingDeck, 0, targetVolume, duration);
     rampVolume(outgoingDeck, targetVolume, 0, duration, () => {
       completeSwitch(incomingKey, outgoingKey, targetVolume);
@@ -741,6 +796,7 @@
     standbyPreloadedIndex = null;
     cleanupPrefetch(incomingDeck.audio.dataset.trackSrc);
     updateSpinState();
+    dispatchAutoMixState({ activeDeck: activeDeckKey });
   }
 
   function loadTrack(orderIndex, { autoplay = false } = {}) {
@@ -814,6 +870,7 @@
     if (crossfadeStatus) {
       crossfadeStatus.textContent = getDjStatusText();
     }
+    dispatchAutoMixState();
   }
 
   function handleDjToggleChange() {
@@ -826,6 +883,7 @@
         : 'DJ Mix disabled. Tracks will play through without crossfade.',
       djAutoMixEnabled ? 'info' : 'neutral'
     );
+    dispatchAutoMixState();
   }
 
   playButton.addEventListener('click', playCurrentTrack);
@@ -986,6 +1044,39 @@
     el.addEventListener('error', handleError);
   });
 
+  window.AriyoPlayerBridge = {
+    getPlaylistLength: () => playbackOrder.length,
+    getTrackByOrderIndex: orderIndex => {
+      const trackIndex = playbackOrder[orderIndex];
+      return typeof trackIndex === 'number' ? allTracks[trackIndex] : null;
+    },
+    getPlaybackOrder: () => [...playbackOrder],
+    getCurrentOrderIndex: () => currentOrderIndex,
+    getActiveDeckKey: () => activeDeckKey,
+    isAutoMixEnabled: () => djAutoMixEnabled,
+    setAutoMixEnabled(value) {
+      djAutoMixEnabled = Boolean(value);
+      updateDjMixUi();
+      return djAutoMixEnabled;
+    },
+    setCrossfadeSeconds(seconds) {
+      if (Number.isFinite(seconds)) {
+        crossfadeDurationSeconds = seconds;
+        updateDjMixUi();
+      }
+      return crossfadeDurationSeconds;
+    },
+    getCrossfadeSeconds: () => crossfadeDurationSeconds,
+    playFromOrderIndex: orderIndex => {
+      transitionToOrderIndex(orderIndex, { autoplay: true, preferCrossfade: djAutoMixEnabled });
+    },
+    cueDeck: (deckKey, orderIndex, options = {}) => cueTrackOnDeck(deckKey, orderIndex, options),
+    stopAll: stopPlayback,
+    getDeckAudio: deckKey => (decks[deckKey] ? decks[deckKey].audio : null),
+    getDeckGainNode: deckKey => (decks[deckKey] ? decks[deckKey].gainNode : null),
+  };
+
   renderPlaylist();
   loadTrack(currentOrderIndex, { autoplay: false });
+  dispatchAutoMixState();
 })();

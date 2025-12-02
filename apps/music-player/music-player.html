@@ -92,6 +92,11 @@
             <button type="button" id="stopButton" aria-label="Stop" class="ripple">⏹</button>
             <button type="button" id="nextButton" aria-label="Next track" class="ripple">⏭</button>
             <button type="button" id="shuffleButton" aria-label="Toggle shuffle" aria-pressed="false" class="ripple shuffle-button">🔀</button>
+            <!-- Auto DJ toggle in main player controls -->
+            <button id="autoDjToggle" class="btn-auto-dj" type="button">
+              <span class="auto-dj-indicator"></span>
+              Auto DJ
+            </button>
           </div>
           <div class="support-row">
             <label class="volume-label" for="volumeControl">Volume</label>
@@ -118,6 +123,75 @@
   <script src="../../scripts/sw-controller.js" defer></script>
   <script src="../../scripts/data.js"></script>
   <script src="./music-player.js"></script>
+  <script src="../../scripts/dj-automix.js"></script>
   <script src="../../prevent-zoom.js"></script>
+
+  <!-- Auto DJ Virtual Decks Overlay -->
+  <div id="autoDjOverlay" class="auto-dj-overlay" aria-hidden="true">
+    <div class="auto-dj-panel">
+      <header class="auto-dj-header">
+        <h2>DJ Auto-mix</h2>
+        <button id="autoDjClose" class="auto-dj-close" aria-label="Close Auto DJ">
+          &times;
+        </button>
+      </header>
+
+      <div class="auto-dj-decks">
+        <!-- Deck A -->
+        <section class="dj-deck dj-deck-a">
+          <h3 class="dj-deck-label">Deck A</h3>
+          <div class="dj-vinyl-wrapper">
+            <div class="dj-vinyl" id="deckA_vinyl">
+              <div class="dj-vinyl-center"></div>
+            </div>
+          </div>
+          <div class="dj-track-meta" id="deckA_meta">
+            <span class="dj-track-title">Track title A</span>
+            <span class="dj-track-artist">Artist A</span>
+          </div>
+        </section>
+
+        <!-- Crossfader -->
+        <section class="dj-crossfader-block">
+          <label for="djCrossfader" class="dj-crossfader-label">
+            Crossfader
+          </label>
+          <input
+            type="range"
+            id="djCrossfader"
+            class="dj-crossfader"
+            min="0"
+            max="100"
+            value="0"
+          />
+          <div class="dj-crossfader-scale">
+            <span>A</span>
+            <span>Center</span>
+            <span>B</span>
+          </div>
+        </section>
+
+        <!-- Deck B -->
+        <section class="dj-deck dj-deck-b">
+          <h3 class="dj-deck-label">Deck B</h3>
+          <div class="dj-vinyl-wrapper">
+            <div class="dj-vinyl" id="deckB_vinyl">
+              <div class="dj-vinyl-center"></div>
+            </div>
+          </div>
+          <div class="dj-track-meta" id="deckB_meta">
+            <span class="dj-track-title">Track title B</span>
+            <span class="dj-track-artist">Artist B</span>
+          </div>
+        </section>
+      </div>
+
+      <footer class="auto-dj-footer">
+        <span class="auto-dj-status" id="autoDjStatus">
+          Auto-mix: Idle
+        </span>
+      </footer>
+    </div>
+  </div>
 </body>
 </html>
