@@ -45,25 +45,33 @@
 
     const artist = album.artist || 'Omoluabi';
     const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : '2025';
-    const cover = album.cover || '../../Logo.jpg';
-    const albumName = album.name || `Album ${albumIndex + 1}`;
+    const cover = album.cover || album.coverImage || '../../Logo.jpg';
+    const albumName = album.name || album.title || `Album ${albumIndex + 1}`;
     const collectedTracks = [];
 
     album.tracks.forEach((track, trackIndex) => {
-      if (!track || !track.src) {
+      if (!track) {
+        return;
+      }
+
+      const trackSrc = track.src || track.url;
+      if (!trackSrc) {
         return;
       }
 
       const title = track.title || `Track ${trackIndex + 1}`;
       const trackData = {
         title,
-        src: track.src,
+        src: trackSrc,
         cover,
         album: albumName,
-        artist,
+        artist: track.artist || artist,
         releaseYear,
         albumIndex,
         albumTrackIndex: trackIndex,
+        isLive: Boolean(track.isLive || track.sourceType === 'stream'),
+        sourceType: track.sourceType || (track.isLive ? 'stream' : 'file'),
+        duration: typeof track.duration === 'number' ? track.duration : null,
       };
 
       allTracks.push(trackData);
@@ -82,6 +90,10 @@
   if (!allTracks.length) {
     statusMessage.textContent = 'No playable tracks were found.';
     return;
+  }
+
+  function isLiveStreamTrack(track) {
+    return Boolean(track && (track.isLive || track.sourceType === 'stream'));
   }
 
   let playbackOrder = allTracks.map((_, index) => index);
@@ -521,7 +533,10 @@
 
         const trackMeta = document.createElement('span');
         trackMeta.className = 'album-track-meta';
-        trackMeta.textContent = `${track.artist} • Track ${track.albumTrackIndex + 1}`;
+        const trackLabel = isLiveStreamTrack(track)
+          ? 'Live • Afrobeats'
+          : `Track ${track.albumTrackIndex + 1}`;
+        trackMeta.textContent = `${track.artist} • ${trackLabel}`;
 
         listItem.appendChild(title);
         listItem.appendChild(trackMeta);
@@ -589,6 +604,7 @@
   }
 
   function updateTrackMetadata(track) {
+    const isLive = isLiveStreamTrack(track);
     trackInfo.textContent = track.title;
     trackArtist.textContent = `Artist: ${track.artist}`;
     trackAlbum.textContent = `Album: ${track.album}`;
@@ -596,7 +612,9 @@
     albumCover.src = track.cover || '../../Logo.jpg';
     progressBarFill.style.width = '0%';
     seekBar.value = 0;
-    trackDuration.textContent = '0:00 / 0:00';
+    seekBar.disabled = isLive;
+    seekBar.setAttribute('aria-disabled', String(isLive));
+    trackDuration.textContent = isLive ? 'Live • Afrobeats' : '0:00 / 0:00';
     updatePlaylistHighlight();
     updateNextTrackLabel();
   }
@@ -611,6 +629,8 @@
     setCrossOrigin(track.src, deck.audio);
     deck.audio.src = track.src;
     deck.audio.dataset.trackSrc = track.src;
+    deck.audio.dataset.isLive = String(isLiveStreamTrack(track));
+    deck.audio.dataset.sourceType = track.sourceType || '';
 
     try {
       deck.audio.load();
@@ -849,7 +869,7 @@
 
   seekBar.addEventListener('input', event => {
     const activeAudio = getActiveAudio();
-    if (!activeAudio.duration) return;
+    if (activeAudio.dataset.isLive === 'true' || !activeAudio.duration) return;
     const value = Number(event.target.value);
     const newTime = (value / 100) * activeAudio.duration;
     trackDuration.textContent = `${formatTime(newTime)} / ${formatTime(activeAudio.duration)}`;
@@ -858,7 +878,7 @@
 
   seekBar.addEventListener('change', event => {
     const activeAudio = getActiveAudio();
-    if (!activeAudio.duration) return;
+    if (activeAudio.dataset.isLive === 'true' || !activeAudio.duration) return;
     const value = Number(event.target.value);
     activeAudio.currentTime = (value / 100) * activeAudio.duration;
     userSeeking = false;
@@ -866,6 +886,12 @@
 
   function handleLoadedMetadata(event) {
     if (event.target !== getActiveAudio()) return;
+    if (event.target.dataset.isLive === 'true') {
+      trackDuration.textContent = 'Live • Afrobeats';
+      seekBar.value = 0;
+      progressBarFill.style.width = '0%';
+      return;
+    }
     const total = event.target.duration;
     trackDuration.textContent = `${formatTime(event.target.currentTime)} / ${formatTime(total)}`;
     seekBar.value = 0;
@@ -873,7 +899,14 @@
   }
 
   function handleTimeUpdate(event) {
-    if (event.target !== getActiveAudio() || !event.target.duration || userSeeking) return;
+    if (event.target !== getActiveAudio() || userSeeking) return;
+    if (event.target.dataset.isLive === 'true') {
+      trackDuration.textContent = 'Live • Afrobeats';
+      seekBar.value = 0;
+      progressBarFill.style.width = '0%';
+      return;
+    }
+    if (!event.target.duration) return;
     const current = event.target.currentTime;
     const percent = (current / event.target.duration) * 100;
     seekBar.value = percent;

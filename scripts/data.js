@@ -5,6 +5,27 @@ const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreeme
 const BACK2BASICS_FEED_URL = 'https://anchor.fm/s/10037af18/podcast/rss';
 const albums = [
       {
+        id: 'afrobeat-hits',
+        name: 'Afrobeat Hits',
+        title: 'Afrobeat Hits',
+        description: 'Nonstop Afrobeats. Pure Nigerian gbedu on demand.',
+        coverImage: './Logo.jpg',
+        cover: `${BASE_URL}Logo.jpg`,
+        type: 'radio',
+        tracks: [
+          {
+            id: 'naija-hits-fm',
+            title: 'Naija Hits FM (Live)',
+            artist: 'Naija Hits FM',
+            url: 'https://stream.zeno.fm/thbqnu2wvmzuv',
+            src: 'https://stream.zeno.fm/thbqnu2wvmzuv',
+            sourceType: 'stream',
+            isLive: true,
+            duration: null,
+          },
+        ],
+      },
+      {
         name: 'Kindness',
         cover: `${BASE_URL}Kindness%20Cover%20Art.jpg`,
         tracks: [
