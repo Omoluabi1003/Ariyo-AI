@@ -514,14 +514,6 @@ function handlePanelError(panelId, reason) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const djMixStatusInfo = document.getElementById('djMixStatusInfo');
-    if (djMixStatusInfo) {
-        djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
-    }
-    const djModeToggle = document.getElementById('autoDjToggle');
-    if (djModeToggle) {
-        djModeToggle.setAttribute('aria-pressed', 'false');
-    }
     prepareDeferredIframes();
     PANEL_IDS.forEach(id => {
         const element = document.getElementById(id);

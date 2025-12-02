@@ -76,9 +76,6 @@ let isFirstPlay = true;
 let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
-let djAutoMixEnabled = false;
-let crossfadeDurationSeconds = 6;
-const djPreloadAheadSeconds = 8;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -829,74 +826,6 @@ function loadMoreStations(region) {
       openTrackList();
     }
 
-function toggleDjMode() {
-    const toggleButton = document.getElementById('autoDjToggle');
-    const playlist = albums[currentAlbumIndex]?.tracks || [];
-    if (!playlist.length || playlist.length < 2) {
-        const info = document.getElementById('djMixStatusInfo');
-        if (info) {
-            info.textContent = 'DJ Auto-Mix needs at least 2 tracks';
-        }
-        return;
-    }
-
-    if (window.DJAutoMix && DJAutoMix.isEnabled()) {
-        DJAutoMix.stopAutoMix();
-        djAutoMixEnabled = false;
-    } else if (window.DJAutoMix) {
-        DJAutoMix.startAutoMix();
-        djAutoMixEnabled = DJAutoMix.isEnabled();
-    }
-
-    if (toggleButton) {
-        toggleButton.setAttribute('aria-pressed', String(djAutoMixEnabled));
-        toggleButton.classList.toggle('active', djAutoMixEnabled);
-    }
-
-    const djMixStatusInfo = document.getElementById('djMixStatusInfo');
-    if (djMixStatusInfo && !djAutoMixEnabled) {
-        djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
-    }
-    console.log(`DJ Mix mode is now ${djAutoMixEnabled ? 'enabled' : 'disabled'}`);
-}
-
-
-function handleAutoNextTrack() {
-    if (!djAutoMixEnabled) return;
-    console.log("Auto-advancing to next track with crossfade...");
-    switchTrack(1, true); // true indicates it's an automatic advancement
-}
-
-function getNextTrackDetails() {
-    let nextAlbumIndex = currentAlbumIndex;
-    let nextTrackIndex;
-
-    if (shuffleMode) {
-        if (shuffleQueue.length === 0) buildShuffleQueue();
-        if (shuffleQueue.length > 0) {
-            const next = shuffleQueue[0]; // Peek at the next track
-            return {
-                src: next.src,
-                title: next.title,
-                albumIndex: next.albumIndex,
-                trackIndex: next.trackIndex
-            };
-        }
-        return null;
-    } else {
-        const trackCount = albums[currentAlbumIndex].tracks.length;
-        nextTrackIndex = (currentTrackIndex + 1) % trackCount;
-    }
-
-    const nextTrack = albums[nextAlbumIndex].tracks[nextTrackIndex];
-    return {
-        src: nextTrack.src,
-        title: nextTrack.title,
-        albumIndex: nextAlbumIndex,
-        trackIndex: nextTrackIndex
-    };
-}
-
 function applyTrackUiState(albumIndex, trackIndex) {
     const album = albums[albumIndex];
     if (!album || !album.tracks || !album.tracks[trackIndex]) return null;
@@ -929,49 +858,6 @@ function applyTrackUiState(albumIndex, trackIndex) {
     return track;
 }
 
-function handleCrossfadeStart(event) {
-    if (!event || !event.incoming) return;
-    if (shuffleMode && shuffleQueue.length > 0) {
-        const upcoming = shuffleQueue[0];
-        if (upcoming.trackIndex === event.incoming.trackIndex && upcoming.albumIndex === event.incoming.albumIndex) {
-            shuffleQueue.shift();
-        }
-    }
-    const track = applyTrackUiState(event.incoming.albumIndex, event.incoming.trackIndex);
-    if (track) {
-        showNowPlayingToast(track.title);
-        setTurntableSpin(true);
-    }
-}
-
-function handleCrossfadeComplete() {
-    const nextTrack = getNextTrackDetails();
-    if (nextTrack) {
-        CrossfadePlayer.loadTrack({
-            src: buildTrackFetchUrl(nextTrack.src),
-            meta: nextTrack
-        }, true);
-    }
-}
-
-function primeDjDecks() {
-    if (currentRadioIndex !== -1) return;
-    const album = albums[currentAlbumIndex];
-    if (!album || !album.tracks[currentTrackIndex]) return;
-    const track = album.tracks[currentTrackIndex];
-    CrossfadePlayer.loadTrack({
-        src: buildTrackFetchUrl(track.src),
-        meta: { albumIndex: currentAlbumIndex, trackIndex: currentTrackIndex, title: track.title }
-    }, false);
-    const nextTrack = getNextTrackDetails();
-    if (nextTrack) {
-        CrossfadePlayer.loadTrack({
-            src: buildTrackFetchUrl(nextTrack.src),
-            meta: nextTrack
-        }, true);
-    }
-}
-
 function resolveTrackForDirection(direction) {
     if (currentRadioIndex !== -1) return null;
     if (shuffleMode) {
@@ -993,18 +879,6 @@ function resolveTrackForDirection(direction) {
     };
 }
 
-function startDjCrossfade(target, isAuto = false) {
-    if (!target) return;
-    CrossfadePlayer.loadTrack({
-        src: buildTrackFetchUrl(target.src),
-        meta: target
-    }, true);
-    CrossfadePlayer.crossfade({
-        immediate: !isAuto,
-        durationSeconds: crossfadeDurationSeconds
-    });
-}
-
 
 function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
@@ -1020,26 +894,11 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       setTurntableSpin(false);
 
-    if (djAutoMixEnabled) {
-        const currentStream = buildTrackFetchUrl(src);
-        CrossfadePlayer.loadTrack({
-            src: currentStream,
-            meta: { albumIndex: currentAlbumIndex, trackIndex: currentTrackIndex, title }
-        }, false);
-        const nextTrack = getNextTrackDetails();
-        if (nextTrack) {
-            CrossfadePlayer.loadTrack({
-                src: buildTrackFetchUrl(nextTrack.src),
-                meta: nextTrack
-            }, true);
-        }
-    } else {
-        const streamUrl = buildTrackFetchUrl(src);
-        setCrossOrigin(audioPlayer, streamUrl);
-        audioPlayer.src = streamUrl;
-        audioPlayer.currentTime = 0;
-        handleAudioLoad(streamUrl, title, false);
-    }
+    const streamUrl = buildTrackFetchUrl(src);
+    setCrossOrigin(audioPlayer, streamUrl);
+    audioPlayer.src = streamUrl;
+    audioPlayer.currentTime = 0;
+    handleAudioLoad(streamUrl, title, false);
 
       updateMediaSession();
       showNowPlayingToast(title);
@@ -1333,11 +1192,7 @@ function selectRadio(src, title, index, logo) {
     }
 
     function playMusic() {
-        if (djAutoMixEnabled && window.DJAutoMix) {
-            DJAutoMix.play();
-        } else {
-            attemptPlay();
-        }
+        attemptPlay();
     }
 
     function attemptPlay() {
@@ -1416,71 +1271,54 @@ function selectRadio(src, title, index, logo) {
     }
 
 function pauseMusic() {
-    if (djAutoMixEnabled && window.DJAutoMix) {
-        DJAutoMix.pause();
-        setTurntableSpin(false);
-    } else {
-        cancelNetworkRecovery();
-        audioPlayer.pause();
-        manageVinylRotation();
-        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-            stopPlaybackWatchdog();
-            console.log('Paused');
-            schedulePlayerStateSave(true);
-        }
+    cancelNetworkRecovery();
+    audioPlayer.pause();
+    manageVinylRotation();
+    audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+        stopPlaybackWatchdog();
+        console.log('Paused');
+        schedulePlayerStateSave(true);
     }
 
 function stopMusic() {
-    if (djAutoMixEnabled && window.DJAutoMix) {
-        DJAutoMix.stopAutoMix();
-        djAutoMixEnabled = false;
-        setTurntableSpin(false);
-    } else {
-        cancelNetworkRecovery();
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-        manageVinylRotation();
-            audioPlayer.removeEventListener('timeupdate', updateTrackTime);
-            stopPlaybackWatchdog();
-            seekBar.value = 0;
-            trackDuration.textContent = '0:00 / 0:00';
-            console.log('Stopped');
-            schedulePlayerStateSave(true);
-        }
-    }
-
-function updateTrackTime() {
-    const currentTime = djAutoMixEnabled && window.DJAutoMix ? DJAutoMix.getCurrentTime() : audioPlayer.currentTime;
-    const duration = djAutoMixEnabled && window.DJAutoMix ? DJAutoMix.getDuration() : audioPlayer.duration;
-
-      // 🔒 If it's a radio stream, don't format duration
-      if (currentRadioIndex >= 0 || !isFinite(duration)) {
-        trackDuration.textContent = `${formatTime(currentTime)} / Live`;
-        seekBar.style.display = 'none'; // hide seekbar for radio
-        recordPlaybackProgress(currentTime);
-        return;
-      }
-
-      if (!isNaN(duration) && duration > 0) {
-        trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-        seekBar.value = (currentTime / duration) * 100;
-        seekBar.style.display = 'block';
-        schedulePlayerStateSave();
-        recordPlaybackProgress(currentTime);
-      } else {
-        trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
-        seekBar.style.display = 'block';
-      }
-    highlightLyric(currentTime);
-    if (isNaN(duration) || duration <= 0) {
-        recordPlaybackProgress(currentTime);
-    }
+    cancelNetworkRecovery();
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+    manageVinylRotation();
+        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+        stopPlaybackWatchdog();
+        seekBar.value = 0;
+        trackDuration.textContent = '0:00 / 0:00';
+        console.log('Stopped');
+        schedulePlayerStateSave(true);
 }
 
-function handleDjTimeUpdate(player) {
-    updateTrackTime();
-    const shouldSpin = player ? (!player.paused && !player.ended) : false;
-    setTurntableSpin(shouldSpin);
+function updateTrackTime() {
+    const currentTime = audioPlayer.currentTime;
+    const duration = audioPlayer.duration;
+
+    // 🔒 If it's a radio stream, don't format duration
+    if (currentRadioIndex >= 0 || !isFinite(duration)) {
+      trackDuration.textContent = `${formatTime(currentTime)} / Live`;
+      seekBar.style.display = 'none'; // hide seekbar for radio
+      recordPlaybackProgress(currentTime);
+      return;
+    }
+
+    if (!isNaN(duration) && duration > 0) {
+      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+      seekBar.value = (currentTime / duration) * 100;
+      seekBar.style.display = 'block';
+      schedulePlayerStateSave();
+      recordPlaybackProgress(currentTime);
+    } else {
+      trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+      seekBar.style.display = 'block';
+    }
+  highlightLyric(currentTime);
+  if (isNaN(duration) || duration <= 0) {
+      recordPlaybackProgress(currentTime);
+  }
 }
 
     function formatTime(seconds) {
@@ -1490,9 +1328,6 @@ function handleDjTimeUpdate(player) {
     }
 
     function seekAudio(value) {
-      if (djAutoMixEnabled && window.DJAutoMix) {
-        return;
-      }
       if (audioPlayer.duration && currentRadioIndex === -1) {
         const newTime = (value / 100) * audioPlayer.duration;
         audioPlayer.currentTime = newTime;
@@ -1502,19 +1337,16 @@ function handleDjTimeUpdate(player) {
 
     seekBar.addEventListener('input', () => seekAudio(seekBar.value));
     seekBar.addEventListener('touchstart', () => {
-      if (djAutoMixEnabled && window.DJAutoMix) return;
       audioPlayer.pause();
     }, { passive: true });
     seekBar.addEventListener('touchend', () => {
       seekAudio(seekBar.value);
-      if (!djAutoMixEnabled && !audioPlayer.paused) audioPlayer.play();
+      if (!audioPlayer.paused) audioPlayer.play();
     });
 
     audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
 
     function handleTrackEnded() {
-      if (djAutoMixEnabled) return; // DJ player handles its own track ending
-
       console.log("Track ended, selecting next track...");
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
@@ -1611,12 +1443,6 @@ audioPlayer.addEventListener('suspend', handleNetworkEvent);
 audioPlayer.addEventListener('waiting', handleNetworkEvent);
 
 function switchTrack(direction, isAuto = false) {
-    if (djAutoMixEnabled && window.DJAutoMix) {
-        DJAutoMix.manualAdvance(direction);
-        return;
-    }
-
-
   if (currentRadioIndex !== -1) {
     const stationCount = radioStations.length;
     let newIndex;
