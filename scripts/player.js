@@ -1141,11 +1141,18 @@ function selectRadio(src, title, index, logo) {
       audioPlayer._loadHandlers = handlerState;
 
       let playTimeout = null;
+      let stallTimeout = null;
       if (!silent) {
         playTimeout = setTimeout(() => {
           console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
           retryTrackWithDelay();
         }, 15000);
+
+        stallTimeout = setTimeout(() => {
+          loadingSpinner.style.display = 'none';
+          albumCover.style.display = 'block';
+          retryButton.style.display = 'inline-flex';
+        }, 8000);
       }
       handlerState.playTimeout = playTimeout;
 
@@ -1153,6 +1160,10 @@ function selectRadio(src, title, index, logo) {
         if (playTimeout) {
           clearTimeout(playTimeout);
           playTimeout = null;
+        }
+        if (stallTimeout) {
+          clearTimeout(stallTimeout);
+          stallTimeout = null;
         }
         handlerState.playTimeout = null;
       };
