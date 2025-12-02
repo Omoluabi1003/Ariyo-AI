@@ -400,6 +400,11 @@ function removeTrackFromPlaylist(index) {
       updateNextTrackInfo();
     }
 
+    const saveStateConfig = {
+      timerId: null,
+      intervalMs: 4000
+    };
+
     function savePlayerState() {
       const playerState = {
         albumIndex: currentAlbumIndex,
@@ -413,6 +418,26 @@ function removeTrackFromPlaylist(index) {
       localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
       console.log('Player state saved:', playerState);
     }
+
+    function schedulePlayerStateSave(immediate = false) {
+      if (immediate) {
+        if (saveStateConfig.timerId) {
+          clearTimeout(saveStateConfig.timerId);
+          saveStateConfig.timerId = null;
+        }
+        savePlayerState();
+        return;
+      }
+
+      if (saveStateConfig.timerId) return;
+
+      saveStateConfig.timerId = setTimeout(() => {
+        saveStateConfig.timerId = null;
+        savePlayerState();
+      }, saveStateConfig.intervalMs);
+    }
+
+    window.addEventListener('beforeunload', () => schedulePlayerStateSave(true));
 
     function loadPlayerState() {
       const savedState = localStorage.getItem('ariyoPlayerState');
@@ -1302,7 +1327,7 @@ function selectRadio(src, title, index, logo) {
           recordPlaybackProgress(audioPlayer.currentTime || 0);
           startPlaybackWatchdog();
           console.log(`Playing: ${trackInfo.textContent}`);
-          savePlayerState();
+          schedulePlayerStateSave();
           if (isFirstPlay) {
             gsap.fromTo(albumCover,
               { scale: 1 },
@@ -1366,7 +1391,7 @@ function pauseMusic() {
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
             stopPlaybackWatchdog();
             console.log('Paused');
-            savePlayerState();
+            schedulePlayerStateSave(true);
         }
     }
 
@@ -1384,7 +1409,7 @@ function stopMusic() {
             seekBar.value = 0;
             trackDuration.textContent = '0:00 / 0:00';
             console.log('Stopped');
-            savePlayerState();
+            schedulePlayerStateSave(true);
         }
     }
 
@@ -1404,7 +1429,7 @@ function updateTrackTime() {
         trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
         seekBar.value = (currentTime / duration) * 100;
         seekBar.style.display = 'block';
-        savePlayerState();
+        schedulePlayerStateSave();
         recordPlaybackProgress(currentTime);
       } else {
         trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
