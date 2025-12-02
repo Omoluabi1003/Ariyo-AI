@@ -1114,6 +1114,10 @@ function selectRadio(src, title, index, logo) {
       setTimeout(retryTrack, 3000);
     }
 
+    function hideRetryButton() {
+      retryButton.style.display = 'none';
+    }
+
     function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
       const {
         silent = false,
@@ -1205,6 +1209,7 @@ function selectRadio(src, title, index, logo) {
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
         }
+        hideRetryButton();
       };
 
       const handleReady = () => {
