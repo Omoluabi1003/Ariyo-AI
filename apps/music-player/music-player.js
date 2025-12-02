@@ -206,6 +206,13 @@
     }
   }
 
+  function getDeckVolume(deck) {
+    if (deck.gainNode && audioContext) {
+      return deck.gainNode.gain.value;
+    }
+    return deck.audio.volume;
+  }
+
   function cancelVolumeAnimation(deck) {
     if (deck.volumeFrame) {
       cancelAnimationFrame(deck.volumeFrame);
@@ -272,6 +279,10 @@
     if (!statusMessage) return;
     statusMessage.textContent = message || '';
     statusMessage.dataset.tone = tone;
+  }
+
+  function dispatchDjEvent(name, detail = {}) {
+    document.dispatchEvent(new CustomEvent(name, { detail }));
   }
 
   function setCrossOrigin(url, element = getActiveAudio()) {
@@ -638,6 +649,8 @@
       // Ignore load errors for browsers that block preloading.
     }
 
+    dispatchDjEvent('dj-deck-load', { deckKey, track, orderIndex });
+
     if (updateUI) {
       currentOrderIndex = orderIndex;
       updateTrackMetadata(track);
@@ -669,6 +682,7 @@
     cleanupPrefetch(incomingDeck.audio.dataset.trackSrc);
     updateSpinState();
     updateDjMixUi();
+    dispatchDjEvent('dj-crossfade-complete', { activeDeck: incomingKey, previousDeck: outgoingKey });
   }
 
   function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds } = {}) {
@@ -690,6 +704,8 @@
     fadingDeckKey = outgoingKey;
     activeDeckKey = incomingKey;
     updateDjMixUi();
+
+    dispatchDjEvent('dj-crossfade-start', { incomingKey, outgoingKey, duration });
 
     const playPromise = incomingDeck.audio.play();
     if (playPromise) {
@@ -973,6 +989,34 @@
     postPanelStatus('error', trackInfo.textContent);
     cleanupPrefetch(event.target.dataset.trackSrc);
   }
+
+  window.djAutoMixAdapter = {
+    getTracks: () => allTracks.slice(),
+    getPlaybackOrder: () => [...playbackOrder],
+    getCurrentOrderIndex: () => currentOrderIndex,
+    setCurrentOrderIndex: value => {
+      if (!playbackOrder.length || !Number.isInteger(value)) return;
+      const normalized = ((value % playbackOrder.length) + playbackOrder.length) % playbackOrder.length;
+      currentOrderIndex = normalized;
+    },
+    loadTrackAtOrderIndex: (orderIndex, options = {}) => loadTrack(orderIndex, options),
+    setDjAutoMixFlag: enabled => {
+      djAutoMixEnabled = Boolean(enabled);
+      updateDjMixUi();
+    },
+    getDeckElements: () => ({ deckA: deckAudioA, deckB: deckAudioB }),
+    getDeckVolumes: () => ({ A: getDeckVolume(decks.A), B: getDeckVolume(decks.B) }),
+    getActiveDeckKey: () => activeDeckKey,
+    getFadingDeckKey: () => fadingDeckKey,
+    setStatus,
+    formatTime,
+    getTrackByOrderIndex: orderIndex => {
+      if (!playbackOrder.length) return null;
+      const idx = playbackOrder[((orderIndex % playbackOrder.length) + playbackOrder.length) % playbackOrder.length];
+      return allTracks[idx];
+    },
+    stopPlayback,
+  };
 
   Object.values(decks).forEach(deck => {
     const el = deck.audio;

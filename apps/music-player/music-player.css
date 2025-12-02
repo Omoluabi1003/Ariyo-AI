@@ -715,3 +715,226 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+/* Auto DJ overlay */
+.btn-auto-dj {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--player-accent), #2d0c57);
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-auto-dj .auto-dj-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f87171;
+  box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-auto-dj.is-active .auto-dj-indicator {
+  background: #4ade80;
+  box-shadow: 0 0 0 10px rgba(74, 222, 128, 0.2);
+}
+
+.btn-auto-dj:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.auto-dj-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 5, 25, 0.75);
+  backdrop-filter: blur(10px) saturate(120%);
+  z-index: 1200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.auto-dj-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.auto-dj-panel {
+  width: min(960px, 96vw);
+  background: linear-gradient(135deg, rgba(25, 12, 42, 0.92), rgba(12, 10, 30, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  color: #f5f3ff;
+}
+
+.auto-dj-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.auto-dj-header h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+}
+
+.auto-dj-close {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.auto-dj-decks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: center;
+}
+
+.dj-deck {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.dj-deck-label {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dj-vinyl-wrapper {
+  display: grid;
+  place-items: center;
+  padding: 0.75rem 0;
+}
+
+.dj-vinyl {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05)), #111;
+  border: 6px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.04), 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dj-vinyl::before,
+.dj-vinyl::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dj-vinyl::before {
+  inset: 10%;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+}
+
+.dj-vinyl::after {
+  inset: 30%;
+  border: 4px solid rgba(142, 91, 255, 0.65);
+}
+
+.dj-vinyl-center {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  box-shadow: inset 0 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.dj-vinyl.spinning {
+  animation: spinDisc 3.5s linear infinite;
+}
+
+.dj-track-meta {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 0.5rem;
+  color: #e0e7ff;
+}
+
+.dj-track-title {
+  font-weight: 700;
+}
+
+.dj-track-artist {
+  font-size: 0.85rem;
+  color: rgba(224, 231, 255, 0.8);
+}
+
+.dj-crossfader-block {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  padding: 1rem;
+  border-radius: 16px;
+  display: grid;
+  gap: 0.65rem;
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.dj-crossfader-label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #cbd5e1;
+}
+
+.dj-crossfader {
+  width: 100%;
+  accent-color: var(--player-accent);
+}
+
+.dj-crossfader-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.auto-dj-footer {
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #cbd5e1;
+}
+
+.auto-dj-status {
+  font-weight: 600;
+}
+
+@media (max-width: 920px) {
+  .auto-dj-decks {
+    grid-template-columns: 1fr;
+  }
+
+  .dj-crossfader-block {
+    order: -1;
+  }
+}
