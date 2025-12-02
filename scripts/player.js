@@ -1506,41 +1506,32 @@ function handleDjTimeUpdate(player) {
 
     audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
 
-    audioPlayer.addEventListener('ended', () => {
+    function handleTrackEnded() {
       if (djAutoMixEnabled) return; // DJ player handles its own track ending
 
       console.log("Track ended, selecting next track...");
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
       stopPlaybackWatchdog(false);
-      if (currentRadioIndex === -1) { // Only if not playing a radio station
-        if (shuffleScope === 'repeat') {
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex,
-            false
-          );
-        } else if (shuffleMode) {
-          if (shuffleQueue.length === 0) {
-            buildShuffleQueue();
-          }
-          const next = shuffleQueue.shift();
-          if (next) {
-            currentAlbumIndex = next.albumIndex;
-            selectTrack(next.src, next.title, next.trackIndex, false);
-            updateNextTrackInfo();
-          }
-        } else { // No shuffle
-          currentTrackIndex = (currentTrackIndex + 1) % albums[currentAlbumIndex].tracks.length;
-          selectTrack(
-            albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-            albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-            currentTrackIndex
-          );
-        }
+
+      if (currentRadioIndex !== -1) return; // Only advance albums/podcasts, not live radio
+
+      if (shuffleScope === 'repeat') {
+        selectTrack(
+          albums[currentAlbumIndex].tracks[currentTrackIndex].src,
+          albums[currentAlbumIndex].tracks[currentTrackIndex].title,
+          currentTrackIndex,
+          false
+        );
+        return;
       }
-    });
+
+      // Use the shared switchTrack helper so shuffle/all albums stay in sync
+      // and the UI reflects the upcoming selection.
+      switchTrack(1, true);
+    }
+
+    audioPlayer.addEventListener('ended', handleTrackEnded);
 
     audioPlayer.addEventListener('play', manageVinylRotation);
     audioPlayer.addEventListener('pause', event => {
