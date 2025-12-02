@@ -1443,6 +1443,8 @@ audioPlayer.addEventListener('suspend', handleNetworkEvent);
 audioPlayer.addEventListener('waiting', handleNetworkEvent);
 
 function switchTrack(direction, isAuto = false) {
+  const shouldAutoPlay = isAuto || !audioPlayer.paused;
+
   if (currentRadioIndex !== -1) {
     const stationCount = radioStations.length;
     let newIndex;
@@ -1475,13 +1477,22 @@ function switchTrack(direction, isAuto = false) {
     }
   }
 
-  if (!audioPlayer.paused) {
-    audioPlayer.addEventListener('canplay', function canPlayListener() {
-      audioPlayer.play();
+  if (shouldAutoPlay) {
+    const attemptAutoplay = () => {
+      const playPromise = audioPlayer.play();
+      if (playPromise) {
+        playPromise.catch(err => console.warn('Autoplay failed:', err));
+      }
       manageVinylRotation();
-      audioPlayer.removeEventListener('canplay', canPlayListener);
-    });
+    };
+
+    if (audioPlayer.readyState >= (typeof HTMLMediaElement !== 'undefined' ? HTMLMediaElement.HAVE_FUTURE_DATA : 3)) {
+      attemptAutoplay();
+    } else {
+      audioPlayer.addEventListener('canplay', attemptAutoplay, { once: true });
+    }
   }
+
   updateMediaSession();
 }
 
