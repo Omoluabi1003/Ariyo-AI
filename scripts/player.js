@@ -4,9 +4,23 @@
     function setCrossOrigin(element, url) {
         try {
             const target = new URL(url, window.location.origin);
-            // Allow anonymous CORS when the audio is hosted off-origin so the Web Audio
-            // graph (crossfader/visualizer) can attach without throwing a security error.
-            if (target.origin !== window.location.origin) {
+            const sameOrigin = target.origin === window.location.origin;
+            const allowList = [
+              /\.suno\.ai$/i,
+              /raw\.githubusercontent\.com$/i,
+              /githubusercontent\.com$/i
+            ];
+            const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
+
+            // Only set CORS when we know the host sends the correct headers. Some podcast
+            // hosts (e.g., Anchor/Spotify) block CORS requests, which prevents audio from
+            // loading entirely if we force `crossorigin="anonymous"`.
+            if (!sameOrigin && !isAllowListed) {
+              element.removeAttribute('crossorigin');
+              return;
+            }
+
+            if (sameOrigin || isAllowListed) {
                 element.crossOrigin = 'anonymous';
             } else {
                 element.removeAttribute('crossorigin');
