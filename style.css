@@ -1228,3 +1228,207 @@ body[data-theme="light"] .edge-panel-privacy,
 body[data-theme="light"] .edge-panel-privacy a {
     color: #0f172a;
 }
+
+/* Auto DJ Overlay */
+.btn-auto-dj {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6f4cff, #9c7bff);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-auto-dj .auto-dj-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d3d3d3;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease, box-shadow 0.3s ease;
+}
+
+.btn-auto-dj.active {
+  box-shadow: 0 10px 25px rgba(111, 76, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-auto-dj.active .auto-dj-indicator {
+  background: #34d399;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
+}
+
+.auto-dj-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 15, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1.5rem;
+}
+
+.auto-dj-overlay[aria-hidden="false"] {
+  display: flex;
+}
+
+.auto-dj-panel {
+  background: linear-gradient(160deg, #0f1024 0%, #1a1c3a 60%, #0d0f2b 100%);
+  color: #fff;
+  width: min(1100px, 96vw);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.auto-dj-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.auto-dj-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.auto-dj-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.auto-dj-decks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.dj-deck {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.dj-deck-label {
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  color: #c9c9d1;
+}
+
+.dj-vinyl-wrapper {
+  display: grid;
+  place-items: center;
+  padding: 1rem 0;
+}
+
+.dj-vinyl {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #3c3f63 0%, #0b0c1d 65%);
+  position: relative;
+  box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.04), 0 12px 35px rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+}
+
+.dj-vinyl::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08) 1px, transparent 1px, transparent 3px);
+  opacity: 0.4;
+}
+
+.dj-vinyl-center {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9472 0%, #f2709c 100%);
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.45);
+  z-index: 1;
+}
+
+.dj-track-meta {
+  display: grid;
+  gap: 0.15rem;
+  color: #e7e7f1;
+}
+
+.dj-track-title {
+  font-weight: 700;
+}
+
+.dj-crossfader-block {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dj-crossfader-label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  color: #d6d6e1;
+}
+
+.dj-crossfader {
+  width: 100%;
+  accent-color: #6f4cff;
+}
+
+.dj-crossfader-scale {
+  display: flex;
+  justify-content: space-between;
+  color: #aeb0c5;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+}
+
+.auto-dj-footer {
+  margin-top: 1rem;
+  text-align: right;
+  color: #b9bad3;
+}
+
+.auto-dj-status {
+  font-weight: 600;
+}
+
+.dj-vinyl.spinning {
+  animation: vinyl-spin 4s linear infinite;
+}
+
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .auto-dj-decks {
+    grid-template-columns: 1fr;
+  }
+
+  .auto-dj-panel {
+    padding: 1.1rem;
+  }
+}

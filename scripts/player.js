@@ -830,33 +830,32 @@ function loadMoreStations(region) {
     }
 
 function toggleDjMode() {
-    djAutoMixEnabled = !djAutoMixEnabled;
-    const toggleButton = document.getElementById('djModeToggle');
-    const djMixStatusInfo = document.getElementById('djMixStatusInfo');
-    if (djAutoMixEnabled) {
-        toggleButton.classList.add('active');
-        djMixStatusInfo.textContent = 'DJ Auto-Mix: On';
-        CrossfadePlayer.setConfig({
-            enabled: true,
-            duration: crossfadeDurationSeconds,
-            preloadAhead: djPreloadAheadSeconds,
-            onCrossfadeStart: handleCrossfadeStart,
-            onCrossfadeComplete: handleCrossfadeComplete,
-            onTrackEnd: handleAutoNextTrack
-        });
-        CrossfadePlayer.onTimeUpdate(handleDjTimeUpdate);
-        handleDjTimeUpdate();
-        primeDjDecks();
-    } else {
-        toggleButton.classList.remove('active');
-        djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
-        CrossfadePlayer.setConfig({ enabled: false });
-        CrossfadePlayer.onTimeUpdate(null);
-        CrossfadePlayer.onTrackEnd(null);
-        setTurntableSpin(false);
+    const toggleButton = document.getElementById('autoDjToggle');
+    const playlist = albums[currentAlbumIndex]?.tracks || [];
+    if (!playlist.length || playlist.length < 2) {
+        const info = document.getElementById('djMixStatusInfo');
+        if (info) {
+            info.textContent = 'DJ Auto-Mix needs at least 2 tracks';
+        }
+        return;
     }
+
+    if (window.DJAutoMix && DJAutoMix.isEnabled()) {
+        DJAutoMix.stopAutoMix();
+        djAutoMixEnabled = false;
+    } else if (window.DJAutoMix) {
+        DJAutoMix.startAutoMix();
+        djAutoMixEnabled = DJAutoMix.isEnabled();
+    }
+
     if (toggleButton) {
         toggleButton.setAttribute('aria-pressed', String(djAutoMixEnabled));
+        toggleButton.classList.toggle('active', djAutoMixEnabled);
+    }
+
+    const djMixStatusInfo = document.getElementById('djMixStatusInfo');
+    if (djMixStatusInfo && !djAutoMixEnabled) {
+        djMixStatusInfo.textContent = 'DJ Auto-Mix: Off';
     }
     console.log(`DJ Mix mode is now ${djAutoMixEnabled ? 'enabled' : 'disabled'}`);
 }
@@ -1334,8 +1333,8 @@ function selectRadio(src, title, index, logo) {
     }
 
     function playMusic() {
-        if (djAutoMixEnabled) {
-            CrossfadePlayer.play();
+        if (djAutoMixEnabled && window.DJAutoMix) {
+            DJAutoMix.play();
         } else {
             attemptPlay();
         }
@@ -1417,8 +1416,8 @@ function selectRadio(src, title, index, logo) {
     }
 
 function pauseMusic() {
-    if (djAutoMixEnabled) {
-        CrossfadePlayer.pause();
+    if (djAutoMixEnabled && window.DJAutoMix) {
+        DJAutoMix.pause();
         setTurntableSpin(false);
     } else {
         cancelNetworkRecovery();
@@ -1432,8 +1431,9 @@ function pauseMusic() {
     }
 
 function stopMusic() {
-    if (djAutoMixEnabled) {
-        CrossfadePlayer.pause(); // Or a more definitive stop if the API supports it
+    if (djAutoMixEnabled && window.DJAutoMix) {
+        DJAutoMix.stopAutoMix();
+        djAutoMixEnabled = false;
         setTurntableSpin(false);
     } else {
         cancelNetworkRecovery();
@@ -1450,8 +1450,8 @@ function stopMusic() {
     }
 
 function updateTrackTime() {
-    const currentTime = djAutoMixEnabled ? CrossfadePlayer.getCurrentTime() : audioPlayer.currentTime;
-    const duration = djAutoMixEnabled ? CrossfadePlayer.getDuration() : audioPlayer.duration;
+    const currentTime = djAutoMixEnabled && window.DJAutoMix ? DJAutoMix.getCurrentTime() : audioPlayer.currentTime;
+    const duration = djAutoMixEnabled && window.DJAutoMix ? DJAutoMix.getDuration() : audioPlayer.duration;
 
       // 🔒 If it's a radio stream, don't format duration
       if (currentRadioIndex >= 0 || !isFinite(duration)) {
@@ -1490,6 +1490,9 @@ function handleDjTimeUpdate(player) {
     }
 
     function seekAudio(value) {
+      if (djAutoMixEnabled && window.DJAutoMix) {
+        return;
+      }
       if (audioPlayer.duration && currentRadioIndex === -1) {
         const newTime = (value / 100) * audioPlayer.duration;
         audioPlayer.currentTime = newTime;
@@ -1498,10 +1501,13 @@ function handleDjTimeUpdate(player) {
     }
 
     seekBar.addEventListener('input', () => seekAudio(seekBar.value));
-    seekBar.addEventListener('touchstart', () => audioPlayer.pause(), { passive: true });
+    seekBar.addEventListener('touchstart', () => {
+      if (djAutoMixEnabled && window.DJAutoMix) return;
+      audioPlayer.pause();
+    }, { passive: true });
     seekBar.addEventListener('touchend', () => {
       seekAudio(seekBar.value);
-      if (!audioPlayer.paused) audioPlayer.play();
+      if (!djAutoMixEnabled && !audioPlayer.paused) audioPlayer.play();
     });
 
     audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
@@ -1605,11 +1611,8 @@ audioPlayer.addEventListener('suspend', handleNetworkEvent);
 audioPlayer.addEventListener('waiting', handleNetworkEvent);
 
 function switchTrack(direction, isAuto = false) {
-    if (djAutoMixEnabled) {
-        const target = resolveTrackForDirection(direction);
-        if (target) {
-            startDjCrossfade(target, isAuto);
-        }
+    if (djAutoMixEnabled && window.DJAutoMix) {
+        DJAutoMix.manualAdvance(direction);
         return;
     }
 
