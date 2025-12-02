@@ -275,8 +275,28 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
   const albumIndex = albums.findIndex(album => album.name === albumName);
   if (albumIndex === -1) return;
 
+  const fetchWithTimeout = async (url, { timeout = 8000 } = {}) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      return response;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+
   try {
-    const response = await fetch(feedUrl, { cache: 'no-store' });
+    let response;
+    try {
+      response = await fetchWithTimeout(feedUrl);
+    } catch (directError) {
+      console.warn(`Direct RSS fetch failed for ${albumName}, falling back to proxy:`, directError);
+      response = await fetchWithTimeout(proxiedUrl, { timeout: 10000 });
+    }
+
     if (!response.ok) {
       throw new Error(`Feed request failed with status ${response.status}`);
     }

@@ -218,7 +218,12 @@ function appendCacheBuster(url) {
 function buildTrackFetchUrl(src) {
   try {
     const hostname = new URL(src, window.location.origin).hostname;
-    if (/cdn\d+\.[^.]+\.ai$/i.test(hostname)) {
+    const cacheSafeHosts = [
+      /cdn\d+\.[^.]+\.ai$/i, // Suno
+      /anchor\.fm$/i,
+      /cloudfront\.net$/i
+    ];
+    if (cacheSafeHosts.some(pattern => pattern.test(hostname))) {
       return src;
     }
   } catch (error) {
