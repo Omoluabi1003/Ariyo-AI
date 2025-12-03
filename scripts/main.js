@@ -26,8 +26,8 @@
           shareTarget.searchParams.set('album', slugify(album.name));
           shareTarget.searchParams.set('track', slugify(track.title));
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `Listening to ${track.title}`;
-          shareText = `I'm listening to ${track.title} on Àríyò AI!`;
+          shareTitle = `"${track.title}" — listen on Àríyò AI`;
+          shareText = `Find "${track.title}" on the Àríyò AI web app.`;
           qrLabel = `${track.title} — ${album.name}`;
         }
       } else if (playback && playback.type === 'radio') {
@@ -37,8 +37,8 @@
           shareTarget.searchParams.delete('album');
           shareTarget.searchParams.delete('track');
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `Listening to ${station.name}`;
-          shareText = `I'm listening to ${station.name} on Àríyò AI!`;
+          shareTitle = `"${station.name}" — listen on Àríyò AI`;
+          shareText = `Find "${station.name}" on the Àríyò AI web app.`;
           qrLabel = `${station.name} (${station.location})`;
         }
       }
