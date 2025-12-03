@@ -14,8 +14,7 @@
 
       let shareUrl = ensureHttps(shareTarget.toString());
       let shareTitle = "Àríyò AI - Smart Naija AI";
-      let shareText = "Check out this awesome page!";
-      let qrLabel = shareTitle;
+      let shareMessage = "Find Àríyò AI on the web app.";
 
       const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
 
@@ -26,9 +25,8 @@
           shareTarget.searchParams.set('album', slugify(album.name));
           shareTarget.searchParams.set('track', slugify(track.title));
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `"${track.title}" — listen on Àríyò AI`;
-          shareText = `Find "${track.title}" on the Àríyò AI web app.`;
-          qrLabel = `${track.title} — ${album.name}`;
+          shareTitle = `"${track.title}" — find it on the Àríyò AI web app.`;
+          shareMessage = shareTitle;
         }
       } else if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
@@ -37,13 +35,18 @@
           shareTarget.searchParams.delete('album');
           shareTarget.searchParams.delete('track');
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `"${station.name}" — listen on Àríyò AI`;
-          shareText = `Find "${station.name}" on the Àríyò AI web app.`;
-          qrLabel = `${station.name} (${station.location})`;
+          shareTitle = `"${station.name}" — find it on the Àríyò AI web app.`;
+          shareMessage = shareTitle;
         }
       }
 
-      showQRCode(shareUrl, qrLabel);
+      showQRCode(shareUrl, shareMessage);
+
+      const sharePayload = {
+        title: shareTitle,
+        text: `${shareMessage} ${shareUrl}`,
+        url: shareUrl
+      };
 
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
 
@@ -54,11 +57,7 @@
           const file = new File([blob], 'qr-code.png', { type: 'image/png' });
 
           if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: shareTitle,
-              text: `${shareText} ${shareUrl}`,
-              files: [file]
-            });
+            await navigator.share({ ...sharePayload, files: [file] });
             return;
           }
         } catch (err) {
@@ -67,11 +66,7 @@
       }
 
       if (navigator.share) {
-        navigator.share({
-          title: shareTitle,
-          text: `${shareText} ${shareUrl}`,
-          url: shareUrl
-        }).catch((err) => console.error("Share failed:", err));
+        navigator.share(sharePayload).catch((err) => console.error("Share failed:", err));
       } else {
         alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
       }
