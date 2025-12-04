@@ -154,12 +154,13 @@ const albums = [
         ]
       },
         {
-        name: 'Omoluabi Production Catalogue',
-        cover: `${BASE_URL}Logo.jpg`,
-        tracks: [
-            { src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3', title: 'I Love You' },
-            { src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3', title: 'Face Of A Narcissist' },
-            { src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3', title: 'Growth Comes With Goodbyes' },
+          name: 'Omoluabi Production Catalogue',
+          cover: `${BASE_URL}Logo.jpg`,
+          tracks: [
+              { src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3', title: 'Feelings Fi You ft. Steady' },
+              { src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3', title: 'I Love You' },
+              { src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3', title: 'Face Of A Narcissist' },
+              { src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3', title: 'Growth Comes With Goodbyes' },
             { src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3', title: 'Boda Yen' },
             { src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3', title: 'Different Phases' },
             { src: 'https://cdn1.suno.ai/383f1d83-84da-492d-9716-a09608fdeba4.mp3', title: 'Built Like This' },
@@ -358,10 +359,17 @@ document.addEventListener('DOMContentLoaded', () => {
 const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
-const latestTrackAnnouncements = [
-  {
-    albumName: 'Omoluabi Production Catalogue',
-    title: 'I Love You',
+  const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Feelings Fi You ft. Steady',
+      src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3',
+      addedOn: '2025-02-24T09:00:00Z',
+      isFreshDrop: true
+    },
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'I Love You',
     src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3',
     addedOn: '2025-12-04T09:00:00Z',
     isFreshDrop: true
