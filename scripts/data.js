@@ -157,6 +157,7 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+            { src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3', title: 'Face Of A Narcissist' },
             { src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3', title: 'Growth Comes With Goodbyes' },
             { src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3', title: 'Boda Yen' },
             { src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3', title: 'Different Phases' },
@@ -357,6 +358,13 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Face Of A Narcissist',
+    src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3',
+    addedOn: '2025-12-12T09:00:00Z',
+    isFreshDrop: true
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Growth Comes With Goodbyes',
