@@ -888,7 +888,6 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       currentTrackIndex = index;
       currentRadioIndex = -1;
       applyTrackUiState(currentAlbumIndex, currentTrackIndex);
-      closeTrackList();
       loadingSpinner.style.display = 'block';
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
@@ -898,7 +897,20 @@ function selectTrack(src, title, index, rebuildQueue = true) {
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
     audioPlayer.currentTime = 0;
-    handleAudioLoad(streamUrl, title, false);
+    handleAudioLoad(streamUrl, title, false, {
+      onReady: () => {
+        const trackModal = document.getElementById('trackModal');
+        if (trackModal && trackModal.style.display !== 'none') {
+          closeTrackList();
+        }
+      },
+      onError: () => {
+        const modalStatus = document.getElementById('statusMessage');
+        if (modalStatus) {
+          modalStatus.textContent = 'Unable to start playback. Please pick another track.';
+        }
+      }
+    });
 
       updateMediaSession();
       showNowPlayingToast(title);
