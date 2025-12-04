@@ -157,6 +157,11 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+            { src: 'https://cdn1.suno.ai/7Ow0LQre3KMHRpLg.mp3', title: 'Boda Yen' },
+            { src: 'https://cdn1.suno.ai/LGK0zdwOuwKQ2ydl.mp3', title: 'Growth Comes With Goodbyes' },
+            { src: 'https://cdn1.suno.ai/eKZVeL36UVYjPrtf.mp3', title: 'Face Of A Narcissist' },
+            { src: 'https://cdn1.suno.ai/uDSMFWISceF0dgm4.mp3', title: 'I Love You' },
+            { src: 'https://cdn1.suno.ai/tUKrhShvoB35OXLs.mp3', title: 'Feelings Fi You ft. Steady' },
             { src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3', title: 'Different Phases' },
             { src: 'https://cdn1.suno.ai/383f1d83-84da-492d-9716-a09608fdeba4.mp3', title: 'Built Like This' },
             { src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3', title: 'One Position' },
@@ -216,12 +221,7 @@ const albums = [
             { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
             { src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' },
             { src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' },
-            { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' },
-            { src: 'https://cdn1.suno.ai/7Ow0LQre3KMHRpLg.mp3', title: 'Boda Yen' },
-            { src: 'https://cdn1.suno.ai/LGK0zdwOuwKQ2ydl.mp3', title: 'Growth Comes With Goodbyes' },
-            { src: 'https://cdn1.suno.ai/eKZVeL36UVYjPrtf.mp3', title: 'Face Of A Narcissist' },
-            { src: 'https://cdn1.suno.ai/uDSMFWISceF0dgm4.mp3', title: 'I Love You' },
-            { src: 'https://cdn1.suno.ai/tUKrhShvoB35OXLs.mp3', title: 'Feelings Fi You ft. Steady' }
+            { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' }
         ]
       },
       {
