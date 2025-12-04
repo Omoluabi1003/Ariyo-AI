@@ -622,6 +622,23 @@ body {
   color: var(--player-muted);
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.album-track-duration {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.album-duration {
+  margin-left: 0.35rem;
+  color: #fff;
+  letter-spacing: 0.01em;
 }
 
 @keyframes spinDisc {
