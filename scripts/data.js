@@ -157,11 +157,6 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
-            { src: 'https://suno.com/s/7Ow0LQre3KMHRpLg', title: 'Boda Yen' },
-            { src: 'https://suno.com/s/LGK0zdwOuwKQ2ydl', title: 'Growth Comes With Goodbyes' },
-            { src: 'https://suno.com/s/eKZVeL36UVYjPrtf', title: 'Face Of A Narcissist' },
-            { src: 'https://suno.com/s/uDSMFWISceF0dgm4', title: 'I Love You' },
-            { src: 'https://suno.com/s/tUKrhShvoB35OXLs', title: 'Feelings Fi You ft. Steady' },
             { src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3', title: 'Different Phases' },
             { src: 'https://cdn1.suno.ai/383f1d83-84da-492d-9716-a09608fdeba4.mp3', title: 'Built Like This' },
             { src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3', title: 'One Position' },
@@ -360,41 +355,6 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
-  {
-    albumName: 'Omoluabi Production Catalogue',
-    title: 'Boda Yen',
-    src: 'https://cdn1.suno.ai/7Ow0LQre3KMHRpLg.mp3',
-    addedOn: '2025-12-04T04:51:00Z',
-    isFreshDrop: true
-  },
-  {
-    albumName: 'Omoluabi Production Catalogue',
-    title: 'Growth Comes With Goodbyes',
-    src: 'https://cdn1.suno.ai/LGK0zdwOuwKQ2ydl.mp3',
-    addedOn: '2025-12-04T04:51:00Z',
-    isFreshDrop: true
-  },
-  {
-    albumName: 'Omoluabi Production Catalogue',
-    title: 'Face Of A Narcissist',
-    src: 'https://cdn1.suno.ai/eKZVeL36UVYjPrtf.mp3',
-    addedOn: '2025-12-04T04:51:00Z',
-    isFreshDrop: true
-  },
-  {
-    albumName: 'Omoluabi Production Catalogue',
-    title: 'I Love You',
-    src: 'https://cdn1.suno.ai/uDSMFWISceF0dgm4.mp3',
-    addedOn: '2025-12-04T04:51:00Z',
-    isFreshDrop: true
-  },
-  {
-    albumName: 'Omoluabi Production Catalogue',
-    title: 'Feelings Fi You ft. Steady',
-    src: 'https://cdn1.suno.ai/tUKrhShvoB35OXLs.mp3',
-    addedOn: '2025-12-04T04:51:00Z',
-    isFreshDrop: true
-  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Different Phases',
