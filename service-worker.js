@@ -1,7 +1,8 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v10';
+const CACHE_PREFIX = 'ariyo-ai-cache-v11';
+const FALLBACK_VERSION = '1.15.6';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
@@ -159,11 +160,10 @@ self.addEventListener('install', event => {
       try {
         const response = await fetch('/version.json', { cache: 'no-store' });
         const data = await response.json();
-        setCacheNames(data.version);
+        setCacheNames(data.version || FALLBACK_VERSION);
       } catch (error) {
         console.error('Failed to fetch version during install:', error);
-        await cacheNameReady;
-        ensureFallbackCacheNames();
+        setCacheNames(FALLBACK_VERSION);
       }
 
       const cache = await caches.open(CACHE_NAME);
@@ -193,10 +193,10 @@ self.addEventListener('activate', event => {
         try {
           const response = await fetch('/version.json', { cache: 'no-store' });
           const data = await response.json();
-          setCacheNames(data.version);
+          setCacheNames(data.version || FALLBACK_VERSION);
         } catch (error) {
           console.error('Failed to refresh version during activate:', error);
-          ensureFallbackCacheNames();
+          setCacheNames(FALLBACK_VERSION);
         }
       }
 
@@ -217,6 +217,12 @@ self.addEventListener('activate', event => {
       );
 
       await self.clients.claim();
+
+      try {
+        await self.registration.update();
+      } catch (error) {
+        console.error('Service worker self-update failed:', error);
+      }
 
       if (hadExistingCaches) {
         const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)

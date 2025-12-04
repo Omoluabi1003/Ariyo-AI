@@ -216,7 +216,12 @@ const albums = [
             { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
             { src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' },
             { src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' },
-            { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' }
+            { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' },
+            { src: 'https://cdn1.suno.ai/7Ow0LQre3KMHRpLg.mp3', title: 'Fresh Drop 7Ow0LQre3KMHRpLg' },
+            { src: 'https://cdn1.suno.ai/LGK0zdwOuwKQ2ydl.mp3', title: 'Fresh Drop LGK0zdwOuwKQ2ydl' },
+            { src: 'https://cdn1.suno.ai/eKZVeL36UVYjPrtf.mp3', title: 'Fresh Drop eKZVeL36UVYjPrtf' },
+            { src: 'https://cdn1.suno.ai/uDSMFWISceF0dgm4.mp3', title: 'Fresh Drop uDSMFWISceF0dgm4' },
+            { src: 'https://cdn1.suno.ai/tUKrhShvoB35OXLs.mp3', title: 'Fresh Drop tUKrhShvoB35OXLs' }
         ]
       },
       {
@@ -355,6 +360,41 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Fresh Drop 7Ow0LQre3KMHRpLg',
+    src: 'https://cdn1.suno.ai/7Ow0LQre3KMHRpLg.mp3',
+    addedOn: '2025-12-04T04:51:00Z',
+    isFreshDrop: true
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Fresh Drop LGK0zdwOuwKQ2ydl',
+    src: 'https://cdn1.suno.ai/LGK0zdwOuwKQ2ydl.mp3',
+    addedOn: '2025-12-04T04:51:00Z',
+    isFreshDrop: true
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Fresh Drop eKZVeL36UVYjPrtf',
+    src: 'https://cdn1.suno.ai/eKZVeL36UVYjPrtf.mp3',
+    addedOn: '2025-12-04T04:51:00Z',
+    isFreshDrop: true
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Fresh Drop uDSMFWISceF0dgm4',
+    src: 'https://cdn1.suno.ai/uDSMFWISceF0dgm4.mp3',
+    addedOn: '2025-12-04T04:51:00Z',
+    isFreshDrop: true
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Fresh Drop tUKrhShvoB35OXLs',
+    src: 'https://cdn1.suno.ai/tUKrhShvoB35OXLs.mp3',
+    addedOn: '2025-12-04T04:51:00Z',
+    isFreshDrop: true
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Different Phases',
@@ -518,7 +558,7 @@ function normalizeLatestTracks(tracks) {
   const now = Date.now();
   const cutoff = now - LATEST_TRACK_WINDOW_HOURS * 60 * 60 * 1000;
 
-  return tracks
+  const normalized = tracks
     .map(track => {
       const parsed = Date.parse(track.addedOn);
       if (Number.isNaN(parsed)) return null;
@@ -527,7 +567,16 @@ function normalizeLatestTracks(tracks) {
     })
     .filter(Boolean)
     .filter(track => track.addedTimestamp >= cutoff)
-    .sort((a, b) => b.addedTimestamp - a.addedTimestamp)
+    .sort((a, b) => b.addedTimestamp - a.addedTimestamp);
+
+  const freshDropTracks = normalized.filter(track => track.isFreshDrop);
+  const pool = freshDropTracks.length ? [...freshDropTracks] : [...normalized];
+
+  if (freshDropTracks.length) {
+    shuffle(pool);
+  }
+
+  return pool
     .slice(0, LATEST_TRACK_LIMIT)
     .map(({ addedTimestamp, ...rest }) => rest);
 }
