@@ -2,6 +2,11 @@
 
 ![Omoluabi Productions Logo](Logo.jpg)
 
+- [Boda Yen](https://suno.com/s/7Ow0LQre3KMHRpLg)
+- [Growth Comes With Goodbyes](https://suno.com/s/LGK0zdwOuwKQ2ydl)
+- [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)
+- [I Love You](https://suno.com/s/uDSMFWISceF0dgm4)
+- [Feelings Fi You ft. Steady](https://suno.com/s/tUKrhShvoB35OXLs)
 - [Different Phases](https://suno.com/s/XNSQwmwutAlyURsu)
 - [Run Di Settings](https://suno.com/s/qaopje5cVacsY44u)
 - [Midnight Maybe](https://suno.com/s/pVOv1vcYc9rE4NNy)
