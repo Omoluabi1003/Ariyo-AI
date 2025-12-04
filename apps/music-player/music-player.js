@@ -274,6 +274,122 @@
     return `${minutes}:${secs}`;
   }
 
+  function formatAlbumDuration(seconds) {
+    const safeSeconds = Number.isFinite(seconds) ? Math.max(Math.floor(seconds), 0) : 0;
+    const hours = Math.floor(safeSeconds / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
+    const secs = safeSeconds % 60;
+
+    if (hours > 0) {
+      const hourLabel = `${hours} hr${hours === 1 ? '' : 's'}`;
+      const minuteLabel = `${minutes.toString().padStart(2, '0')} min`;
+      return `${hourLabel} ${minuteLabel}`;
+    }
+
+    if (minutes > 0) {
+      const minuteLabel = `${minutes} min`;
+      return secs ? `${minuteLabel} ${secs} sec` : minuteLabel;
+    }
+
+    return `${secs} sec`;
+  }
+
+  const durationCache = new Map();
+  const durationPromises = new Map();
+  const albumDurationState = new Map();
+
+  function requestTrackDuration(track, { disableCors = false } = {}) {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio();
+      audio.preload = 'metadata';
+
+      if (disableCors) {
+        audio.removeAttribute('crossorigin');
+      } else {
+        setCrossOrigin(track.src, audio);
+      }
+
+      const cleanup = () => {
+        audio.removeEventListener('loadedmetadata', handleSuccess);
+        audio.removeEventListener('error', handleError);
+        audio.removeAttribute('src');
+      };
+
+      const handleSuccess = () => {
+        cleanup();
+        resolve(Number.isFinite(audio.duration) ? audio.duration : null);
+      };
+
+      const handleError = () => {
+        cleanup();
+        reject(new Error('Metadata load failed'));
+      };
+
+      audio.addEventListener('loadedmetadata', handleSuccess, { once: true });
+      audio.addEventListener('error', handleError, { once: true });
+
+      try {
+        audio.src = track.src;
+        audio.load();
+      } catch (error) {
+        cleanup();
+        reject(error);
+      }
+    });
+  }
+
+  async function loadTrackDuration(track) {
+    if (durationCache.has(track.src)) {
+      return durationCache.get(track.src);
+    }
+
+    if (durationPromises.has(track.src)) {
+      return durationPromises.get(track.src);
+    }
+
+    const promise = (async () => {
+      const attempts = [false, true];
+      for (const disableCors of attempts) {
+        try {
+          const duration = await requestTrackDuration(track, { disableCors });
+          if (Number.isFinite(duration)) {
+            durationCache.set(track.src, duration);
+          }
+          return duration;
+        } catch (_) {
+          // Continue to the next attempt without CORS if the first try fails.
+        }
+      }
+      return null;
+    })();
+
+    durationPromises.set(track.src, promise);
+    const result = await promise;
+    durationPromises.delete(track.src);
+    return result;
+  }
+
+  function updateAlbumDurationLabel(albumIndex, durationSeconds) {
+    const state = albumDurationState.get(albumIndex);
+    if (!state) return;
+
+    if (arguments.length > 1) {
+      if (Number.isFinite(durationSeconds)) {
+        state.totalSeconds += durationSeconds;
+      }
+      state.pending = Math.max(0, (state.pending || 0) - 1);
+    }
+
+    let label = ' • Unknown length';
+    if (state.totalSeconds > 0) {
+      label = ` • ${formatAlbumDuration(state.totalSeconds)}${state.pending > 0 ? '…' : ''}`;
+    } else if (state.pending > 0) {
+      label = ' • Calculating…';
+    }
+
+    state.element.textContent = label;
+  }
+
   function setStatus(message, tone = 'info') {
     if (!statusMessage) return;
     statusMessage.textContent = message || '';
@@ -498,6 +614,7 @@
 
   function renderPlaylist() {
     playlistElement.innerHTML = '';
+    albumDurationState.clear();
     const orderLookup = new Map();
     playbackOrder.forEach((trackIndex, orderIndex) => {
       orderLookup.set(trackIndex, orderIndex);
@@ -546,6 +663,17 @@
       const safeYear = releaseYear || '2025';
       meta.textContent = `${safeYear} • ${trackCount} track${trackCount === 1 ? '' : 's'}`;
 
+      const durationLabel = document.createElement('span');
+      durationLabel.className = 'album-duration';
+      meta.appendChild(durationLabel);
+      const pendingDurations = tracks.filter(track => !isLiveStreamTrack(track)).length;
+      albumDurationState.set(albumIndex, {
+        element: durationLabel,
+        pending: pendingDurations,
+        totalSeconds: 0,
+      });
+      updateAlbumDurationLabel(albumIndex);
+
       textWrap.appendChild(name);
       textWrap.appendChild(meta);
 
@@ -586,6 +714,30 @@
           ? 'Live • Afrobeats'
           : `Track ${track.albumTrackIndex + 1}`;
         trackMeta.textContent = `${track.artist} • ${trackLabel}`;
+
+        const trackDurationLabel = document.createElement('span');
+        trackDurationLabel.className = 'album-track-duration';
+        trackMeta.appendChild(trackDurationLabel);
+
+        if (isLiveStreamTrack(track)) {
+          trackDurationLabel.textContent = 'Live stream';
+          updateAlbumDurationLabel(albumIndex);
+        } else {
+          trackDurationLabel.textContent = 'Loading…';
+          loadTrackDuration(track)
+            .then(durationSeconds => {
+              if (Number.isFinite(durationSeconds)) {
+                trackDurationLabel.textContent = formatTime(durationSeconds);
+              } else {
+                trackDurationLabel.textContent = 'Unknown length';
+              }
+              updateAlbumDurationLabel(albumIndex, durationSeconds);
+            })
+            .catch(() => {
+              trackDurationLabel.textContent = 'Unknown length';
+              updateAlbumDurationLabel(albumIndex, null);
+            });
+        }
 
         listItem.appendChild(title);
         listItem.appendChild(trackMeta);
