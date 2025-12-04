@@ -157,6 +157,7 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+            { src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3', title: 'Boda Yen' },
             { src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3', title: 'Different Phases' },
             { src: 'https://cdn1.suno.ai/383f1d83-84da-492d-9716-a09608fdeba4.mp3', title: 'Built Like This' },
             { src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3', title: 'One Position' },
@@ -355,6 +356,13 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
 const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Boda Yen',
+    src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3',
+    addedOn: '2025-12-04T09:00:00Z',
+    isFreshDrop: true
+  },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Different Phases',
