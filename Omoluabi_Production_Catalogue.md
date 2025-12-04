@@ -3,10 +3,12 @@
 ![Omoluabi Productions Logo](Logo.jpg)
 
 ## Latest additions (now live in the catalogue player)
+- [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)
 - [Growth Comes With Goodbyes](https://suno.com/s/LGK0zdwOuwKQ2ydl)
 - [Boda Yen](https://suno.com/s/7Ow0LQre3KMHRpLg)
 
 ## Full catalogue (includes the additions above)
+- [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)
 - [Growth Comes With Goodbyes](https://suno.com/s/LGK0zdwOuwKQ2ydl)
 - [Boda Yen](https://suno.com/s/7Ow0LQre3KMHRpLg)
 - [Different Phases](https://suno.com/s/XNSQwmwutAlyURsu)
