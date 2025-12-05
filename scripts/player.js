@@ -101,6 +101,8 @@ const playbackWatchdog = {
   stallGraceMs: 12000
 };
 
+const audioHealer = createSelfHealAudio(audioPlayer);
+
 function recordPlaybackProgress(time) {
   playbackWatchdog.lastTime = typeof time === 'number' ? time : 0;
   playbackWatchdog.lastProgressAt = Date.now();
@@ -210,6 +212,155 @@ function finishNetworkRecovery() {
 function appendCacheBuster(url) {
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}reconnect=${Date.now()}`;
+}
+
+function createSelfHealAudio(player) {
+  const state = {
+    recovering: false,
+    lastKnownSrc: '',
+    lastTitle: '',
+    durationTimer: null,
+    retryCount: 0,
+    maxRetries: 3
+  };
+
+  function log(message, extra = {}) {
+    console.log(`[self-heal] ${message}`, extra);
+  }
+
+  function clearDurationTimer() {
+    if (state.durationTimer) {
+      clearTimeout(state.durationTimer);
+      state.durationTimer = null;
+    }
+  }
+
+  function watchDuration(reason = 'duration-check') {
+    clearDurationTimer();
+    state.durationTimer = setTimeout(() => {
+      const invalidDuration = !player.duration || !isFinite(player.duration);
+      if (invalidDuration) {
+        log(`Duration invalid (${player.duration}). Triggering heal.`, { reason });
+        heal(reason);
+      }
+    }, 2000);
+  }
+
+  function rebindMetadataHandlers() {
+    const onLoadedMetadata = () => {
+      clearDurationTimer();
+      if (!player.duration || !isFinite(player.duration)) {
+        watchDuration('loadedmetadata-invalid');
+      }
+    };
+
+    const onDurationChange = () => {
+      if (!player.duration || !isFinite(player.duration)) {
+        watchDuration('durationchange-invalid');
+      } else {
+        clearDurationTimer();
+      }
+    };
+
+    player.removeEventListener('loadedmetadata', player._selfHealMetaHandler);
+    player.removeEventListener('durationchange', player._selfHealDurationHandler);
+
+    player._selfHealMetaHandler = onLoadedMetadata;
+    player._selfHealDurationHandler = onDurationChange;
+
+    player.addEventListener('loadedmetadata', onLoadedMetadata);
+    player.addEventListener('durationchange', onDurationChange);
+  }
+
+  function heal(reason = 'unknown') {
+    if (state.recovering) return;
+    state.recovering = true;
+
+    const wasPlaying = !player.paused && !player.ended;
+    const resumeTime = player.currentTime || 0;
+    const targetSrc = appendCacheBuster(state.lastKnownSrc || player.currentSrc || player.src);
+
+    log(`Healing audio due to ${reason}`, { src: targetSrc, wasPlaying, resumeTime });
+
+    try {
+      setCrossOrigin(player, targetSrc);
+    } catch (error) {
+      console.warn('Unable to set crossorigin during heal:', error);
+    }
+
+    player.src = targetSrc;
+    rebindMetadataHandlers();
+
+    player.addEventListener('loadedmetadata', () => {
+      try {
+        if (resumeTime && isFinite(resumeTime)) {
+          player.currentTime = Math.max(resumeTime - 1, 0);
+        }
+      } catch (error) {
+        console.warn('Failed to restore time after heal:', error);
+      }
+    }, { once: true });
+
+    player.addEventListener('canplay', () => {
+      if (wasPlaying) {
+        const playAttempt = player.play();
+        if (playAttempt && typeof playAttempt.catch === 'function') {
+          playAttempt.catch(err => console.warn('Autoplay blocked during heal:', err));
+        }
+      }
+      state.recovering = false;
+      state.retryCount = 0;
+    }, { once: true });
+
+    player.load();
+  }
+
+  function handleError(event) {
+    state.retryCount += 1;
+    log('Audio error detected', { eventType: event.type, code: player.error && player.error.code, retry: state.retryCount });
+    if (state.retryCount <= state.maxRetries) {
+      heal(event.type || 'error');
+    }
+  }
+
+  function handleStall(event) {
+    if (player.paused || state.recovering) return;
+    watchDuration(event.type);
+  }
+
+  function attach() {
+    rebindMetadataHandlers();
+    ['error', 'stalled', 'suspend', 'waiting'].forEach(evt => {
+      player.removeEventListener(evt, player._selfHealErrorHandler);
+    });
+
+    player._selfHealErrorHandler = (e) => {
+      if (e.type === 'error') {
+        handleError(e);
+      } else {
+        handleStall(e);
+      }
+    };
+
+    ['error', 'stalled', 'suspend', 'waiting'].forEach(evt => {
+      player.addEventListener(evt, player._selfHealErrorHandler);
+    });
+  }
+
+  function trackSource(src, title) {
+    state.lastKnownSrc = src || state.lastKnownSrc;
+    state.lastTitle = title || state.lastTitle;
+    watchDuration('source-change');
+  }
+
+  attach();
+
+  return {
+    heal,
+    trackSource,
+    rebindMetadataHandlers,
+    clearDurationTimer
+  };
 }
 
 function buildTrackFetchUrl(src) {
@@ -896,6 +1047,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
     const streamUrl = buildTrackFetchUrl(src);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
+    audioHealer.trackSource(streamUrl, title);
     audioPlayer.currentTime = 0;
     handleAudioLoad(streamUrl, title, false, {
       onReady: () => {
@@ -945,6 +1097,7 @@ function selectRadio(src, title, index, logo) {
       lastTrackIndex = index;
       setCrossOrigin(audioPlayer, src);
       audioPlayer.src = src;
+      audioHealer.trackSource(src, title);
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
@@ -996,6 +1149,9 @@ function selectRadio(src, title, index, logo) {
         onReady = null,
         onError: onErrorCallback = null
       } = options;
+
+      audioHealer.trackSource(src, title);
+      audioHealer.rebindMetadataHandlers();
 
       const previousHandlers = audioPlayer._loadHandlers;
       if (previousHandlers) {
