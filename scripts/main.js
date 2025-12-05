@@ -456,34 +456,38 @@
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
-          audioPlayer.src = station.url;
+          setCrossOrigin(audioPlayer, station.url);
+          audioHealer.trackSource(station.url, station.name);
           trackInfo.textContent = `${station.name} - ${station.location}`;
           trackArtist.textContent = '';
           trackYear.textContent = '';
           trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-          audioPlayer.addEventListener('loadedmetadata', () => {
-            audioPlayer.currentTime = savedState.playbackPosition;
-            updateTrackTime();
-            manageVinylRotation();
-          }, { once: true });
+          handleAudioLoad(station.url, `${station.name} - ${station.location}`, true, {
+            autoPlay: false,
+            resumeTime: savedState.playbackPosition,
+            onReady: () => {
+              updateTrackTime();
+              manageVinylRotation();
+            }
+          });
         } else {
           albumCover.src = albums[currentAlbumIndex].cover;
           const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
-          fetch(track.src)
-            .then(r => r.blob())
-            .then(b => {
-              audioPlayer.src = URL.createObjectURL(b);
-            });
-          trackInfo.textContent = track.title;
-          trackArtist.textContent = `Artist: ${albums[currentAlbumIndex].artist || 'Omoluabi'}`;
-          const year = albums[currentAlbumIndex].releaseYear || 2025;
-          trackYear.textContent = `Release Year: ${year}`;
-          trackAlbum.textContent = `Album: ${albums[currentAlbumIndex].name}`; // Display album name
-          audioPlayer.addEventListener('loadedmetadata', () => {
-            audioPlayer.currentTime = savedState.playbackPosition;
-            updateTrackTime();
-            manageVinylRotation();
-          }, { once: true });
+          applyTrackUiState(currentAlbumIndex, currentTrackIndex);
+          const streamUrl = buildTrackFetchUrl(track.src);
+          setCrossOrigin(audioPlayer, streamUrl);
+          audioHealer.trackSource(streamUrl, track.title);
+          handleAudioLoad(streamUrl, track.title, false, {
+            autoPlay: false,
+            resumeTime: savedState.playbackPosition,
+            onReady: () => {
+              updateTrackTime();
+              manageVinylRotation();
+            },
+            onError: () => {
+              audioPlayer.src = streamUrl;
+            }
+          });
         }
         updateTrackListModal();
         const controls = document.querySelector(".music-controls.icons-only");
