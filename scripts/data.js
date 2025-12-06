@@ -157,6 +157,7 @@ const albums = [
           name: 'Omoluabi Production Catalogue',
           cover: `${BASE_URL}Logo.jpg`,
           tracks: [
+              { src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3', title: 'Matasa Ku Tashi' },
               { src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3', title: 'Feelings Fi You ft. Steady' },
               { src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3', title: 'I Love You' },
               { src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3', title: 'Face Of A Narcissist' },
@@ -360,6 +361,13 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Matasa Ku Tashi',
+      src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3',
+      addedOn: '2025-12-06T15:30:00Z',
+      isFreshDrop: true
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Feelings Fi You ft. Steady',
