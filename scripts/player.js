@@ -1314,6 +1314,7 @@ function selectRadio(src, title, index, logo) {
       handlerState.onError = onError;
 
       audioPlayer.addEventListener('progress', onProgress);
+      audioPlayer.addEventListener('loadedmetadata', onCanPlay, { once: true });
       audioPlayer.addEventListener('loadeddata', onLoadedData, { once: true });
       audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
       audioPlayer.addEventListener('canplay', onCanPlay, { once: true });
