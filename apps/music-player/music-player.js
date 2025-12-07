@@ -111,6 +111,7 @@
   const PREFETCH_CACHE_LIMIT = 6;
   const prefetchCache = new Map();
   const prefetchOrder = [];
+  const playbackLatencyMarks = new Map();
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   const DEFAULT_CROSSFADE_SECONDS = 6;
   const CROSSFADE_PRELOAD_SECONDS = 8;
@@ -436,6 +437,50 @@
     if (!djCrossfader) return;
     const clamped = Math.min(100, Math.max(0, value));
     djCrossfader.value = String(clamped);
+  }
+
+  function markPlaybackSelection(trackSrc) {
+    if (!trackSrc) return;
+    playbackLatencyMarks.set(trackSrc, performance.now());
+    console.debug('[player] Track selected, priming playback', trackSrc);
+  }
+
+  function logPlaybackStart(trackSrc) {
+    if (!trackSrc || !playbackLatencyMarks.has(trackSrc)) return;
+    const startedAt = performance.now();
+    const latency = Math.round(startedAt - playbackLatencyMarks.get(trackSrc));
+    playbackLatencyMarks.delete(trackSrc);
+    console.debug(`[player] Playback audible in ${latency}ms for ${trackSrc}`);
+  }
+
+  function attemptImmediatePlay(deck) {
+    if (!deck || !deck.audio) return;
+    const audioEl = deck.audio;
+    let retried = false;
+
+    const tryPlay = () => {
+      const playPromise = audioEl.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(error => {
+          console.warn('Immediate play blocked', error);
+          setStatus('Tap play to start listening.', 'warning');
+          updateSpinState();
+        });
+      }
+    };
+
+    tryPlay();
+
+    if (audioEl.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      const retry = () => {
+        if (!audioEl.paused || retried) return;
+        retried = true;
+        tryPlay();
+      };
+
+      audioEl.addEventListener('canplay', retry, { once: true });
+      setTimeout(retry, 250);
+    }
   }
 
   function syncCrossfaderToActiveDeck() {
@@ -828,10 +873,29 @@
     const deck = decks[deckKey];
     ensureAudioGraph(deck);
     setCrossOrigin(track.src, deck.audio);
-    deck.audio.src = track.src;
+    deck.audio.autoplay = !preloadOnly;
+    deck.audio.preload = preloadOnly ? 'metadata' : 'auto';
+
+    if (prefetchCache.has(track.src)) {
+      // Promote the prefetched response so play() can start immediately from cache.
+      deck.audio.src = prefetchCache.get(track.src).currentSrc || track.src;
+    } else {
+      deck.audio.src = track.src;
+    }
+
     deck.audio.dataset.trackSrc = track.src;
     deck.audio.dataset.isLive = String(isLiveStreamTrack(track));
     deck.audio.dataset.sourceType = track.sourceType || '';
+
+    if (typeof deck.audio.fastSeek === 'function') {
+      try {
+        deck.audio.fastSeek(0);
+      } catch (_) {
+        deck.audio.currentTime = 0;
+      }
+    } else {
+      deck.audio.currentTime = 0;
+    }
 
     try {
       deck.audio.load();
@@ -881,7 +945,7 @@
     const queued = cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
     if (!queued) return;
 
-    const incomingDeck = queued.deck;
+    const { deck: incomingDeck, track } = queued;
     const outgoingDeck = decks[outgoingKey];
     const targetVolume = Number(volumeControl.value || 1);
 
@@ -895,12 +959,8 @@
     updateDjMixUi();
     animateCrossfader(outgoingKey, incomingKey, duration);
 
-    const playPromise = incomingDeck.audio.play();
-    if (playPromise) {
-      playPromise.catch(() => {
-        setStatus('Tap play to continue the mix.', 'warning');
-      });
-    }
+    markPlaybackSelection(track.src);
+    attemptImmediatePlay(incomingDeck);
 
     rampVolume(incomingDeck, 0, targetVolume, duration);
     rampVolume(outgoingDeck, targetVolume, 0, duration, () => {
@@ -921,21 +981,16 @@
     const queued = cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
     if (!queued) return;
 
+    const { deck: incomingDeck, track } = queued;
     const targetVolume = Number(volumeControl.value || 1);
-    const incomingDeck = queued.deck;
     const outgoingDeck = decks[outgoingKey];
     ensureAudioGraph(incomingDeck);
     ensureAudioGraph(outgoingDeck);
     setDeckVolume(incomingDeck, targetVolume);
 
     if (autoplay) {
-      const playPromise = incomingDeck.audio.play();
-      if (playPromise) {
-        playPromise.catch(() => {
-          setStatus('Tap play to start listening.', 'warning');
-          updateSpinState();
-        });
-      }
+      markPlaybackSelection(track.src);
+      attemptImmediatePlay(incomingDeck);
     }
 
     outgoingDeck.audio.pause();
@@ -1137,6 +1192,7 @@
 
   function handlePlaying(event) {
     if (event.target !== getActiveAudio()) return;
+    logPlaybackStart(event.target.dataset.trackSrc);
     loadingSpinner.style.display = 'none';
     setStatus(`Now playing: ${trackInfo.textContent}`);
     updateSpinState();
