@@ -1255,7 +1255,7 @@ function selectRadio(src, title, index, logo) {
           }
         }
         updateMediaSession();
-        if (autoPlay) {
+        if (autoPlay && audioPlayer.paused) {
           attemptPlay();
         } else {
           manageVinylRotation();
@@ -1270,6 +1270,12 @@ function selectRadio(src, title, index, logo) {
         handleReady();
       }
       handlerState.onLoadedData = onLoadedData;
+
+      function onPlaying() {
+        console.log('onPlaying called');
+        handleReady();
+      }
+      handlerState.onPlaying = onPlaying;
 
       function onCanPlayThrough() {
         console.log("onCanPlayThrough called");
@@ -1315,6 +1321,7 @@ function selectRadio(src, title, index, logo) {
 
       audioPlayer.addEventListener('progress', onProgress);
       audioPlayer.addEventListener('loadeddata', onLoadedData, { once: true });
+      audioPlayer.addEventListener('playing', onPlaying, { once: true });
       audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
       audioPlayer.addEventListener('canplay', onCanPlay, { once: true });
       audioPlayer.addEventListener('error', onError, { once: true });
@@ -1343,6 +1350,10 @@ function selectRadio(src, title, index, logo) {
       }
 
       audioPlayer.load(); // Force load
+
+      if (autoPlay && audioPlayer.paused) {
+        attemptPlay();
+      }
     }
 
     function setTurntableSpin(isSpinning) {
