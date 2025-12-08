@@ -3,12 +3,14 @@
 ![Omoluabi Productions Logo](Logo.jpg)
 
 ## Latest additions (now live in the catalogue player)
+- [Udo Don Cost](https://suno.com/s/Zhc4NEYlBCI3I2Bt)
 - [Matasa Ku Tashi](https://suno.com/s/uWGCb7FjDfXL6DYo)
 - [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)
 - [Growth Comes With Goodbyes](https://suno.com/s/LGK0zdwOuwKQ2ydl)
 - [Boda Yen](https://suno.com/s/7Ow0LQre3KMHRpLg)
 
 ## Full catalogue (includes the additions above)
+- [Udo Don Cost](https://suno.com/s/Zhc4NEYlBCI3I2Bt)
 - [Matasa Ku Tashi](https://suno.com/s/uWGCb7FjDfXL6DYo)
 - [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)
 - [Growth Comes With Goodbyes](https://suno.com/s/LGK0zdwOuwKQ2ydl)
