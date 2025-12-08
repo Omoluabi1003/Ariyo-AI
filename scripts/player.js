@@ -103,6 +103,61 @@ const playbackWatchdog = {
 
 const audioHealer = createSelfHealAudio(audioPlayer);
 
+const slowBufferRescue = {
+  timerId: null,
+  inFlight: null,
+  attempts: 0,
+  maxAttempts: 2
+};
+
+function clearSlowBufferRescue() {
+  if (slowBufferRescue.timerId) {
+    clearTimeout(slowBufferRescue.timerId);
+    slowBufferRescue.timerId = null;
+  }
+  if (slowBufferRescue.inFlight) {
+    slowBufferRescue.inFlight.abort();
+    slowBufferRescue.inFlight = null;
+  }
+  slowBufferRescue.attempts = 0;
+}
+
+async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = true, callbacks = {}) {
+  if (!src || slowBufferRescue.inFlight || slowBufferRescue.attempts >= slowBufferRescue.maxAttempts) {
+    return;
+  }
+
+  slowBufferRescue.attempts += 1;
+  const controller = new AbortController();
+  slowBufferRescue.inFlight = controller;
+
+  try {
+    const fetchUrl = buildTrackFetchUrl(src);
+    console.warn(`[slow-buffer] Attempt ${slowBufferRescue.attempts} fetching ${title} for slow network users.`);
+    const response = await fetch(fetchUrl, { cache: 'no-store', signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`Slow buffer fetch failed with status ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const safeResume = resumeTime != null && !isNaN(resumeTime) ? resumeTime : (audioPlayer.currentTime || 0);
+
+    handleAudioLoad(objectUrl, title, false, {
+      silent: true,
+      autoPlay,
+      resumeTime: Math.max(safeResume - 1, 0),
+      disableSlowGuard: true,
+      onReady: callbacks.onReady,
+      onError: callbacks.onError
+    });
+  } catch (error) {
+    console.warn('[slow-buffer] Rescue fetch failed:', error);
+  } finally {
+    slowBufferRescue.inFlight = null;
+  }
+}
+
 function recordPlaybackProgress(time) {
   playbackWatchdog.lastTime = typeof time === 'number' ? time : 0;
   playbackWatchdog.lastProgressAt = Date.now();
@@ -402,6 +457,7 @@ async function attemptNetworkResume() {
       handleAudioLoad(reloadSrc, source.title, true, {
         silent: true,
         autoPlay: networkRecoveryState.wasPlaying,
+        disableSlowGuard: true,
         resumeTime: 0,
         onReady: () => resolveOnce(true),
         onError: () => resolveOnce(false)
@@ -425,6 +481,7 @@ async function attemptNetworkResume() {
         silent: true,
         autoPlay: networkRecoveryState.wasPlaying,
         resumeTime: networkRecoveryState.resumeTime,
+        disableSlowGuard: true,
         onReady: () => resolveOnce(true),
         onError: () => resolveOnce(false)
       });
@@ -1034,6 +1091,7 @@ function resolveTrackForDirection(direction) {
 function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
+      clearSlowBufferRescue();
       resumeAudioContext();
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
@@ -1074,6 +1132,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
 function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
+      clearSlowBufferRescue();
       resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
@@ -1147,11 +1206,16 @@ function selectRadio(src, title, index, logo) {
         autoPlay = true,
         resumeTime = null,
         onReady = null,
-        onError: onErrorCallback = null
+        onError: onErrorCallback = null,
+        disableSlowGuard = false
       } = options;
 
       audioHealer.trackSource(src, title);
       audioHealer.rebindMetadataHandlers();
+
+      if (disableSlowGuard) {
+        clearSlowBufferRescue();
+      }
 
       const previousHandlers = audioPlayer._loadHandlers;
       if (previousHandlers) {
@@ -1195,7 +1259,7 @@ function selectRadio(src, title, index, logo) {
       if (!silent) {
         playTimeout = setTimeout(() => {
           console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
-          retryTrackWithDelay();
+          startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
         }, 15000);
 
         stallTimeout = setTimeout(() => {
@@ -1236,6 +1300,7 @@ function selectRadio(src, title, index, logo) {
           document.getElementById('progressBar').style.display = 'none';
         }
         hideRetryButton();
+        clearSlowBufferRescue();
       };
 
       const handleReady = () => {
@@ -1308,7 +1373,7 @@ function selectRadio(src, title, index, logo) {
         }
 
         if (!silent) {
-          retryTrackWithDelay();
+          startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
         } else if (typeof onErrorCallback === 'function') {
           onErrorCallback();
         }
@@ -1326,6 +1391,16 @@ function selectRadio(src, title, index, logo) {
       audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
       audioPlayer.addEventListener('canplay', onCanPlay, { once: true });
       audioPlayer.addEventListener('error', onError, { once: true });
+
+      if (!disableSlowGuard) {
+        clearTimeout(slowBufferRescue.timerId);
+        slowBufferRescue.timerId = setTimeout(() => {
+          if (readyHandled || audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2)) {
+            return;
+          }
+          startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
+        }, 7000);
+      }
 
       if (typeof requestAnimationFrame === 'function') {
         let quickStartAttempts = 0;
