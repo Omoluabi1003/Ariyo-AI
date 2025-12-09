@@ -3,6 +3,7 @@
 ![Omoluabi Productions Logo](Logo.jpg)
 
 ## Latest additions (now live in the catalogue player)
+- [Mummy I love you ft. Steady](https://suno.com/s/23KDqK57gg0cjcoe)
 - [Udo Don Cost](https://suno.com/s/Zhc4NEYlBCI3I2Bt)
 - [Matasa Ku Tashi](https://suno.com/s/uWGCb7FjDfXL6DYo)
 - [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)
@@ -10,6 +11,7 @@
 - [Boda Yen](https://suno.com/s/7Ow0LQre3KMHRpLg)
 
 ## Full catalogue (includes the additions above)
+- [Mummy I love you ft. Steady](https://suno.com/s/23KDqK57gg0cjcoe)
 - [Udo Don Cost](https://suno.com/s/Zhc4NEYlBCI3I2Bt)
 - [Matasa Ku Tashi](https://suno.com/s/uWGCb7FjDfXL6DYo)
 - [Face Of A Narcissist](https://suno.com/s/eKZVeL36UVYjPrtf)

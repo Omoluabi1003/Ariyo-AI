@@ -157,6 +157,7 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+              { src: 'https://cdn1.suno.ai/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3', title: 'Mummy I love you ft. Steady' },
               { src: 'https://cdn1.suno.ai/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3', title: 'Udo Don Cost' },
               { src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3', title: 'Matasa Ku Tashi' },
               { src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3', title: 'Feelings Fi You ft. Steady' },
@@ -362,6 +363,13 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Mummy I love you ft. Steady',
+      src: 'https://cdn1.suno.ai/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3',
+      addedOn: '2025-12-09T12:00:00Z',
+      isFreshDrop: true
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Udo Don Cost',
