@@ -55,6 +55,7 @@ const CORE_ASSETS = [
   'scripts/ui.js',
   'scripts/main.js',
   'scripts/sw-controller.js',
+  'scripts/push-notifications.js',
   'scripts/experience.js',
   'viewport-height.js',
   'apps/ariyo-ai-chat/ariyo-ai-chat.html',
@@ -345,11 +346,17 @@ self.addEventListener('push', event => {
 
   const title = data.title || 'New playlist drops';
   const body = data.body || 'Fresh Naija vibes are ready. Tap to jump back in.';
+  const url = data.url || '/';
   const options = {
     body,
     icon: '/icons/Ariyo.png',
     badge: '/icons/Ariyo.png',
-    data: { url: data.url || '/' }
+    tag: 'ariyo-ai-drop',
+    renotify: true,
+    data: { url },
+    actions: [
+      { action: 'open', title: 'Open Ariyò AI', icon: '/icons/Ariyo.png' }
+    ]
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -357,10 +364,10 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const targetUrl = event.notification?.data?.url || '/';
+  const targetUrl = new URL(event.notification?.data?.url || '/', self.location.origin).href;
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientsArr => {
-      const client = clientsArr.find(c => c.url.includes(targetUrl));
+      const client = clientsArr.find(c => c.url.startsWith(targetUrl));
       if (client) {
         return client.focus();
       }
