@@ -4,6 +4,13 @@
         : `https://${url.replace(/^https?:\/\//i, '')}`;
     }
 
+    function formatMusicShareMessage(title, artist, url) {
+      const heading = artist ? `${title} – ${artist}` : title;
+      const formattedHeading = heading ? `**${heading}**` : '';
+      if (!formattedHeading) return url || '';
+      return url ? `${formattedHeading}\n${url}` : formattedHeading;
+    }
+
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
       const shareTarget = new URL(window.location.href);
@@ -14,7 +21,7 @@
 
       let shareUrl = ensureHttps(shareTarget.toString());
       let shareTitle = "Àríyò AI - Smart Naija AI";
-      let shareMessage = "Find Àríyò AI on the web app.";
+      let shareMessage = `Find Àríyò AI on the web app.\n${shareUrl}`;
 
       const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
 
@@ -22,11 +29,12 @@
         const album = albums[playback.albumIndex];
         const track = album && album.tracks ? album.tracks[playback.trackIndex] : null;
         if (album && track) {
+          const artist = track.artist || album.artist || 'Omoluabi';
           shareTarget.searchParams.set('album', slugify(album.name));
           shareTarget.searchParams.set('track', slugify(track.title));
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `"${track.title}" — find it on the Àríyò AI web app.`;
-          shareMessage = shareTitle;
+          shareTitle = `${track.title} — ${artist}`;
+          shareMessage = formatMusicShareMessage(track.title, artist, shareUrl);
         }
       } else if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
@@ -35,16 +43,16 @@
           shareTarget.searchParams.delete('album');
           shareTarget.searchParams.delete('track');
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `"${station.name}" — find it on the Àríyò AI web app.`;
-          shareMessage = shareTitle;
+          shareTitle = `${station.name} — find it on the Àríyò AI web app.`;
+          shareMessage = `${shareTitle}\n${shareUrl}`;
         }
       }
 
-      showQRCode(shareUrl, shareMessage);
+      showQRCode(shareUrl, shareTitle);
 
       const sharePayload = {
         title: shareTitle,
-        text: `${shareMessage} ${shareUrl}`,
+        text: shareMessage,
         url: shareUrl
       };
 
