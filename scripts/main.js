@@ -4,9 +4,23 @@
         : `https://${url.replace(/^https?:\/\//i, '')}`;
     }
 
-    function formatMusicSharePayload(title, url) {
+    /**
+     * Builds a standardized, title-first share payload for music and radio experiences.
+     * - Always bolds the heading and places it on the first line.
+     * - Includes the artist when provided, separated by an en dash.
+     * - Ensures the URL is normalized to HTTPS and placed on its own line.
+     *
+     * @param {string} title - The track or station title; falls back to "Àríyò AI" when empty.
+     * @param {string} [artist] - Optional artist name appended to the title.
+     * @param {string} url - The share target URL, automatically converted to HTTPS.
+     * @returns {{ heading: string, url: string, text: string }}
+     */
+    function formatMusicSharePayload(title, artist, url) {
       const safeUrl = ensureHttps(url);
-      const heading = title || 'Àríyò AI';
+      const safeTitle = (title || 'Àríyò AI').trim();
+      const safeArtist = (artist || '').trim();
+      const heading = safeArtist ? `${safeTitle} – ${safeArtist}` : safeTitle;
+
       return {
         heading,
         url: safeUrl,
@@ -23,7 +37,7 @@
       shareTarget.search = '';
 
       const defaultTitle = "Àríyò AI - Smart Naija AI";
-      let shareInfo = formatMusicSharePayload(defaultTitle, shareTarget.toString());
+      let shareInfo = formatMusicSharePayload(defaultTitle, null, shareTarget.toString());
 
       const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
 
@@ -34,8 +48,7 @@
           shareTarget.searchParams.set('album', slugify(album.name));
           shareTarget.searchParams.set('track', slugify(track.title));
           const artistName = track.artist || album.artist;
-          const shareHeading = artistName ? `${track.title} – ${artistName}` : track.title;
-          shareInfo = formatMusicSharePayload(shareHeading, shareTarget.toString());
+          shareInfo = formatMusicSharePayload(track.title, artistName, shareTarget.toString());
         }
       } else if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
@@ -43,7 +56,7 @@
           shareTarget.searchParams.set('station', slugify(station.name));
           shareTarget.searchParams.delete('album');
           shareTarget.searchParams.delete('track');
-          shareInfo = formatMusicSharePayload(station.name, shareTarget.toString());
+          shareInfo = formatMusicSharePayload(station.name, null, shareTarget.toString());
         }
       }
 
