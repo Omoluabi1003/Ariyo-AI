@@ -54,17 +54,7 @@
       return null;
     }
 
-    /* SHARE BUTTON (Web Share API) */
-    async function shareContent() {
-      const shareTarget = new URL(window.location.href);
-      if (shareTarget.pathname.endsWith('/about.html')) {
-        shareTarget.pathname = shareTarget.pathname.replace(/about\.html$/, '');
-      }
-      shareTarget.search = '';
-
-      const defaultTitle = "Àríyò AI - Smart Naija AI";
-      let shareInfo = formatMusicSharePayload(defaultTitle, null, ensureHttps(shareTarget.toString()));
-
+    function deriveActivePlaybackContext() {
       const livePlayback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
       const derivedPlayback = derivePlaybackFromUrl(window.location.href);
       const playback = livePlayback || derivedPlayback;
@@ -73,19 +63,58 @@
         const album = albums[playback.albumIndex];
         const track = album && album.tracks ? album.tracks[playback.trackIndex] : null;
         if (album && track) {
-          shareTarget.searchParams.set('album', slugify(album.name));
-          shareTarget.searchParams.set('track', slugify(track.title));
-          const artistName = track.artist || album.artist;
-          shareInfo = formatMusicSharePayload(track.title, artistName, shareTarget.toString());
+          return {
+            type: 'track',
+            title: track.title,
+            artist: track.artist || album.artist,
+            albumSlug: slugify(album.name),
+            trackSlug: slugify(track.title)
+          };
         }
-      } else if (playback && playback.type === 'radio') {
+      }
+
+      if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
         if (station) {
-          shareTarget.searchParams.set('station', slugify(station.name));
-          shareTarget.searchParams.delete('album');
-          shareTarget.searchParams.delete('track');
-          shareInfo = formatMusicSharePayload(station.name, null, shareTarget.toString());
+          return {
+            type: 'radio',
+            title: station.name,
+            albumSlug: null,
+            trackSlug: null,
+            artist: null,
+            stationSlug: slugify(station.name)
+          };
         }
+      }
+
+      return null;
+    }
+
+    /* SHARE BUTTON (Web Share API) */
+    async function shareContent() {
+      const shareTarget = new URL(window.location.href);
+      if (shareTarget.pathname.endsWith('/about.html')) {
+        shareTarget.pathname = shareTarget.pathname.replace(/about\.html$/, '');
+      }
+      shareTarget.search = '';
+
+      const playbackContext = deriveActivePlaybackContext();
+      const defaultTitle = "Àríyò AI - Smart Naija AI";
+      let shareInfo = formatMusicSharePayload(defaultTitle, null, ensureHttps(shareTarget.toString()));
+
+      if (playbackContext && playbackContext.type === 'track') {
+        shareTarget.searchParams.set('album', playbackContext.albumSlug);
+        shareTarget.searchParams.set('track', playbackContext.trackSlug);
+        shareInfo = formatMusicSharePayload(
+          playbackContext.title,
+          playbackContext.artist,
+          shareTarget.toString()
+        );
+      } else if (playbackContext && playbackContext.type === 'radio') {
+        shareTarget.searchParams.set('station', playbackContext.stationSlug);
+        shareTarget.searchParams.delete('album');
+        shareTarget.searchParams.delete('track');
+        shareInfo = formatMusicSharePayload(playbackContext.title, null, shareTarget.toString());
       }
 
       showQRCode(shareInfo.url, shareInfo.heading, shareInfo.text);
@@ -120,24 +149,24 @@
       }
     }
 
-    function showQRCode(url, title, text) {
+    function showQRCode(url, heading, text) {
       const modal = document.getElementById('qrModal');
       const img = document.getElementById('qrImage');
       const trackName = document.getElementById('qrTrackName');
       const shareDetails = document.getElementById('qrShareDetails');
-      const safeTitle = title || 'Àríyò AI';
+      const safeHeading = heading || 'Àríyò AI';
       const safeUrl = ensureHttps(url);
-      trackName.innerHTML = `<strong>${safeTitle}</strong>`;
+      const formattedText = text || `**${safeHeading}**\n${safeUrl}`;
+      trackName.innerHTML = `<strong>${safeHeading}</strong>`;
 
       if (shareDetails) {
         shareDetails.innerHTML = `
-          <p class="qr-share-heading"><strong>${safeTitle}</strong></p>
+          <p class="qr-share-heading"><strong>${safeHeading}</strong></p>
           <p class="qr-share-links"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a></p>
         `;
       }
 
-      const qrPayload = text || `**${safeTitle}**\n${safeUrl}`;
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrPayload)}`;
+      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(formattedText)}`;
       modal.classList.add('active');
     }
 
