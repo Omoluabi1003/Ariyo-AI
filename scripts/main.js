@@ -4,6 +4,16 @@
         : `https://${url.replace(/^https?:\/\//i, '')}`;
     }
 
+    function formatMusicSharePayload(title, url) {
+      const safeUrl = ensureHttps(url);
+      const heading = title || 'Àríyò AI';
+      return {
+        heading,
+        url: safeUrl,
+        text: `**${heading}**\n${safeUrl}`
+      };
+    }
+
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
       const shareTarget = new URL(window.location.href);
@@ -12,10 +22,8 @@
       }
       shareTarget.search = '';
 
-      let shareUrl = ensureHttps(shareTarget.toString());
-      let shareTitle = "Àríyò AI - Smart Naija AI";
-      let shareHeading = shareTitle;
-      let shareText = `Find Àríyò AI on the web app.\n${shareUrl}`;
+      const defaultTitle = "Àríyò AI - Smart Naija AI";
+      let shareInfo = formatMusicSharePayload(defaultTitle, shareTarget.toString());
 
       const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
 
@@ -26,10 +34,8 @@
           shareTarget.searchParams.set('album', slugify(album.name));
           shareTarget.searchParams.set('track', slugify(track.title));
           const artistName = track.artist || album.artist;
-          shareHeading = artistName ? `${track.title} – ${artistName}` : track.title;
-          shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = shareHeading;
-          shareText = `**${shareHeading}**\n${shareUrl}`;
+          const shareHeading = artistName ? `${track.title} – ${artistName}` : track.title;
+          shareInfo = formatMusicSharePayload(shareHeading, shareTarget.toString());
         }
       } else if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
@@ -37,24 +43,19 @@
           shareTarget.searchParams.set('station', slugify(station.name));
           shareTarget.searchParams.delete('album');
           shareTarget.searchParams.delete('track');
-          shareUrl = ensureHttps(shareTarget.toString());
-          shareHeading = station.name;
-          shareTitle = shareHeading;
-          shareText = `${shareTitle}\n${shareUrl}`;
+          shareInfo = formatMusicSharePayload(station.name, shareTarget.toString());
         }
-      } else {
-        shareText = `**${shareTitle}**\n${shareUrl}`;
       }
 
-      showQRCode(shareUrl, shareHeading);
+      showQRCode(shareInfo.url, shareInfo.heading, shareInfo.text);
 
       const sharePayload = {
-        title: shareTitle,
-        text: shareText,
-        url: shareUrl
+        title: shareInfo.heading,
+        text: shareInfo.text,
+        url: shareInfo.url
       };
 
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareInfo.text)}`;
 
       if (navigator.canShare) {
         try {
@@ -78,13 +79,13 @@
       }
     }
 
-    function showQRCode(url, title) {
+    function showQRCode(url, title, text) {
       const modal = document.getElementById('qrModal');
       const img = document.getElementById('qrImage');
       const trackName = document.getElementById('qrTrackName');
       trackName.textContent = title;
-      const fullUrl = ensureHttps(url);
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fullUrl)}`;
+      const qrPayload = text || ensureHttps(url);
+      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrPayload)}`;
       modal.classList.add('active');
     }
 
