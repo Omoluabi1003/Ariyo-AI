@@ -4,6 +4,8 @@
         : `https://${url.replace(/^https?:\/\//i, '')}`;
     }
 
+    let pendingSharedPlayback = null;
+
     /**
      * Builds a standardized, title-first share payload for music and radio experiences.
      * - Always bolds the heading and places it on the first line.
@@ -88,6 +90,21 @@
       }
 
       return null;
+    }
+
+    function trySharedTrackPlayback(albumSlug, trackSlug) {
+      const albumIndex = albums.findIndex(a => slugify(a.name) === albumSlug);
+      if (albumIndex === -1) return false;
+
+      const album = albums[albumIndex];
+      const trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackSlug);
+      if (trackIndex === -1) return false;
+
+      currentAlbumIndex = albumIndex;
+      updateTrackListModal();
+      selectTrack(album.tracks[trackIndex].src, album.tracks[trackIndex].title, trackIndex);
+      pendingSharedPlayback = null;
+      return true;
     }
 
     /* SHARE BUTTON (Web Share API) */
@@ -526,17 +543,10 @@
       }
       if (albumParam && trackParam) {
         ensureHomeViewForSharedPlayback();
-        const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
-        if (albumIndex !== -1) {
-          const album = albums[albumIndex];
-          const trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackParam);
-          if (trackIndex !== -1) {
-            currentAlbumIndex = albumIndex;
-            updateTrackListModal();
-            selectTrack(album.tracks[trackIndex].src, album.tracks[trackIndex].title, trackIndex);
-            return;
-          }
-        }
+        const foundTrack = trySharedTrackPlayback(albumParam, trackParam);
+        if (foundTrack) return;
+
+        pendingSharedPlayback = { albumSlug: albumParam, trackSlug: trackParam };
       }
 
       const savedState = loadPlayerState();
@@ -641,6 +651,15 @@
           });
         }
       });
+    });
+
+    document.addEventListener('podcastHydrated', event => {
+      if (!pendingSharedPlayback) return;
+
+      const hydratedAlbumSlug = slugify(event.detail?.albumName || '');
+      if (hydratedAlbumSlug && hydratedAlbumSlug === pendingSharedPlayback.albumSlug) {
+        trySharedTrackPlayback(pendingSharedPlayback.albumSlug, pendingSharedPlayback.trackSlug);
+      }
     });
 
     // Initialize player
