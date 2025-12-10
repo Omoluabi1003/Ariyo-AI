@@ -201,6 +201,36 @@
       transform: scale(1.08);
       box-shadow: 0px 4px 10px var(--theme-color);
     }
+    .notification-card {
+      background: rgba(0, 0, 0, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .notification-card h4 {
+      margin: 0 0 0.25rem;
+      font-size: 1rem;
+    }
+    .notification-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .notification-actions {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 220px;
+    }
+    .notification-status {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
     .content {
       flex: 1;
       width: 100%;
@@ -1242,6 +1272,16 @@
           </ul>
         </div>
       </details>
+      <div class="notification-card">
+        <div>
+          <h4>Stay in the loop</h4>
+          <p>Enable push notifications to get fresh drop alerts even when the PWA is closed.</p>
+        </div>
+        <div class="notification-actions">
+          <button class="badge-button" id="enableNotifications" type="button">Enable notifications</button>
+          <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
+        </div>
+      </div>
       <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <!-- Music Player -->
       <div class="music-player">
@@ -1557,6 +1597,7 @@
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
 
   <script src="scripts/sw-controller.js" defer></script>
+  <script src="scripts/push-notifications.js" defer></script>
   <script src="scripts/data.js"></script>
   <script src="scripts/suno-audio-fallback.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>

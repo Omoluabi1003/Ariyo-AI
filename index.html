@@ -95,6 +95,8 @@
                 <div class="cta-stack">
                     <button class="enter-button ghost" id="launchExperience" type="button">Launch experience</button>
                     <button class="badge-button" id="installPwa" type="button">Install PWA</button>
+                    <button class="badge-button" id="enableNotifications" type="button">Enable notifications</button>
+                    <p class="cta-hint" id="notificationStatus" aria-live="polite"></p>
                 </div>
                 <p class="cta-hint" id="experienceStatus" aria-live="polite"></p>
             </div>
@@ -556,6 +558,7 @@
             highlightStep(currentStep);
         }, 3000);
     </script>
+    <script src="scripts/push-notifications.js" defer></script>
     <script src="scripts/sw-controller.js" defer></script>
     <script src="background-rotator.js"></script>
     <script src="user-tracking.js"></script>

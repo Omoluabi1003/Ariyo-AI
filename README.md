@@ -60,6 +60,10 @@ npm test
 
 The command currently prints "No tests yet".
 
+## Push notifications
+
+See [docs/push-notifications.md](docs/push-notifications.md) for configuring VAPID keys, enabling client subscriptions, and triggering broadcast alerts for new drops.
+
 ## License
 
 This project is licensed under the MIT License.
