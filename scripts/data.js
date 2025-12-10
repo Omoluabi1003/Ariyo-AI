@@ -350,6 +350,10 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
     if (typeof populateAlbumList === 'function') {
       populateAlbumList();
     }
+
+    document.dispatchEvent(new CustomEvent('podcastHydrated', {
+      detail: { albumName }
+    }));
   } catch (error) {
     console.error(`Unable to refresh ${albumName} from RSS:`, error);
   }
