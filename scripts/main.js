@@ -14,7 +14,8 @@
 
       let shareUrl = ensureHttps(shareTarget.toString());
       let shareTitle = "Àríyò AI - Smart Naija AI";
-      let shareMessage = "Find Àríyò AI on the web app.";
+      let shareHeading = shareTitle;
+      let shareText = `Find Àríyò AI on the web app.\n${shareUrl}`;
 
       const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
 
@@ -24,9 +25,11 @@
         if (album && track) {
           shareTarget.searchParams.set('album', slugify(album.name));
           shareTarget.searchParams.set('track', slugify(track.title));
+          const artistName = track.artist || album.artist;
+          shareHeading = artistName ? `${track.title} – ${artistName}` : track.title;
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `"${track.title}" — find it on the Àríyò AI web app.`;
-          shareMessage = shareTitle;
+          shareTitle = shareHeading;
+          shareText = `**${shareHeading}**\n${shareUrl}`;
         }
       } else if (playback && playback.type === 'radio') {
         const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
@@ -35,16 +38,19 @@
           shareTarget.searchParams.delete('album');
           shareTarget.searchParams.delete('track');
           shareUrl = ensureHttps(shareTarget.toString());
-          shareTitle = `"${station.name}" — find it on the Àríyò AI web app.`;
-          shareMessage = shareTitle;
+          shareHeading = station.name;
+          shareTitle = shareHeading;
+          shareText = `${shareTitle}\n${shareUrl}`;
         }
+      } else {
+        shareText = `**${shareTitle}**\n${shareUrl}`;
       }
 
-      showQRCode(shareUrl, shareMessage);
+      showQRCode(shareUrl, shareHeading);
 
       const sharePayload = {
         title: shareTitle,
-        text: `${shareMessage} ${shareUrl}`,
+        text: shareText,
         url: shareUrl
       };
 
