@@ -1229,6 +1229,27 @@
       width: 200px;
       height: 200px;
     }
+
+    .qr-share-details {
+      margin: 0.25rem 0 0.75rem;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    .qr-share-heading {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .qr-share-links {
+      margin: 0.35rem 0 0;
+      word-break: break-word;
+    }
+
+    .qr-share-links a {
+      color: inherit;
+      text-decoration: underline;
+    }
   </style>
   <link rel="stylesheet" href="color-scheme.css">
   <link rel="stylesheet" href="style.css">
@@ -1583,14 +1604,15 @@
 </div>
 
 <!-- Share QR Code Modal -->
-<div id="qrModal" class="qr-modal" role="dialog" aria-labelledby="qrTitle" aria-modal="true">
-  <div class="qr-content">
-    <button class="popup-close ripple shockwave" aria-label="Close QR Code" onclick="closeQRModal()">×</button>
-    <h3 id="qrTitle" class="modal-title">Share Track</h3>
-    <p id="qrTrackName"></p>
-    <img id="qrImage" alt="QR code for track" />
+  <div id="qrModal" class="qr-modal" role="dialog" aria-labelledby="qrTitle" aria-modal="true">
+    <div class="qr-content">
+      <button class="popup-close ripple shockwave" aria-label="Close QR Code" onclick="closeQRModal()">×</button>
+      <h3 id="qrTitle" class="modal-title">Share Track</h3>
+      <p id="qrTrackName"></p>
+      <div id="qrShareDetails" class="qr-share-details" aria-live="polite"></div>
+      <img id="qrImage" alt="QR code for track" />
+    </div>
   </div>
-</div>
 
 <!-- 🎧 Now Playing Toast -->
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>

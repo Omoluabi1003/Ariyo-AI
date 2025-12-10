@@ -28,6 +28,32 @@
       };
     }
 
+    function derivePlaybackFromUrl(url) {
+      const params = new URL(url).searchParams;
+      const stationParam = params.get('station');
+      const albumParam = params.get('album');
+      const trackParam = params.get('track');
+
+      if (stationParam) {
+        const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
+        if (stationIndex !== -1) {
+          return { type: 'radio', index: stationIndex };
+        }
+      }
+
+      if (albumParam && trackParam) {
+        const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
+        if (albumIndex !== -1) {
+          const trackIndex = albums[albumIndex].tracks.findIndex(t => slugify(t.title) === trackParam);
+          if (trackIndex !== -1) {
+            return { type: 'track', albumIndex, trackIndex };
+          }
+        }
+      }
+
+      return null;
+    }
+
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
       const shareTarget = new URL(window.location.href);
@@ -37,9 +63,11 @@
       shareTarget.search = '';
 
       const defaultTitle = "Àríyò AI - Smart Naija AI";
-      let shareInfo = formatMusicSharePayload(defaultTitle, null, shareTarget.toString());
+      let shareInfo = formatMusicSharePayload(defaultTitle, null, ensureHttps(shareTarget.toString()));
 
-      const playback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
+      const livePlayback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
+      const derivedPlayback = derivePlaybackFromUrl(window.location.href);
+      const playback = livePlayback || derivedPlayback;
 
       if (playback && playback.type === 'track') {
         const album = albums[playback.albumIndex];
@@ -96,8 +124,19 @@
       const modal = document.getElementById('qrModal');
       const img = document.getElementById('qrImage');
       const trackName = document.getElementById('qrTrackName');
-      trackName.textContent = title;
-      const qrPayload = text || ensureHttps(url);
+      const shareDetails = document.getElementById('qrShareDetails');
+      const safeTitle = title || 'Àríyò AI';
+      const safeUrl = ensureHttps(url);
+      trackName.innerHTML = `<strong>${safeTitle}</strong>`;
+
+      if (shareDetails) {
+        shareDetails.innerHTML = `
+          <p class="qr-share-heading"><strong>${safeTitle}</strong></p>
+          <p class="qr-share-links"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a></p>
+        `;
+      }
+
+      const qrPayload = text || `**${safeTitle}**\n${safeUrl}`;
       img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrPayload)}`;
       modal.classList.add('active');
     }
