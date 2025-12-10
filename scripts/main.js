@@ -505,7 +505,41 @@
       }
     });
 
-    function initializePlayer() {
+    async function loadRssTracks(album) {
+      if (!album || !album.rssFeed || album._rssLoaded) {
+        return album?.tracks || [];
+      }
+
+      try {
+        const response = await fetch(album.rssFeed);
+        const xmlText = await response.text();
+        const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+        const items = Array.from(doc.querySelectorAll('item'));
+        const rssTracks = items
+          .map(item => {
+            const titleNode = item.querySelector('title');
+            const enclosure = item.querySelector('enclosure');
+            const linkNode = item.querySelector('link');
+            const src = enclosure?.getAttribute('url') || linkNode?.textContent?.trim();
+            const title = titleNode?.textContent?.trim();
+
+            if (!src || !title) return null;
+            return { src, title };
+          })
+          .filter(Boolean);
+
+        if (rssTracks.length) {
+          album.tracks = rssTracks;
+          album._rssLoaded = true;
+        }
+      } catch (error) {
+        console.error('Failed to refresh tracks from RSS feed:', error);
+      }
+
+      return album.tracks;
+    }
+
+    async function initializePlayer() {
       const params = new URLSearchParams(window.location.search);
       const stationParam = params.get('station');
       const albumParam = params.get('album');
@@ -529,7 +563,14 @@
         const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
         if (albumIndex !== -1) {
           const album = albums[albumIndex];
-          const trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackParam);
+          let trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackParam);
+
+          if (trackIndex === -1 && album.rssFeed) {
+            await loadRssTracks(album);
+            trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackParam);
+            updateTrackListModal();
+          }
+
           if (trackIndex !== -1) {
             currentAlbumIndex = albumIndex;
             updateTrackListModal();
