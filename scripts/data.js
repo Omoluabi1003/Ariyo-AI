@@ -166,7 +166,7 @@ const albums = [
               { src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3', title: 'Growth Comes With Goodbyes' },
             { src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3', title: 'Boda Yen' },
             { src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3', title: 'Different Phases' },
-            { src: 'https://cdn1.suno.ai/383f1d83-84da-492d-9716-a09608fdeba4.mp3', title: 'Built Like This' },
+              { src: `${BASE_URL}Built%20Like%20This.mp3`, title: 'Built Like This' },
             { src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3', title: 'One Position' },
             { src: 'https://cdn1.suno.ai/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3', title: 'Perform My Life No More' },
             { src: 'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3', title: 'When Help Rode In From Nowhere' },
@@ -452,7 +452,7 @@ const LATEST_TRACK_LIMIT = 2;
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Built Like This',
-    src: 'https://cdn1.suno.ai/383f1d83-84da-492d-9716-a09608fdeba4.mp3',
+    src: `${BASE_URL}Built%20Like%20This.mp3`,
     addedOn: '2025-11-22T09:00:00Z'
   },
   {
