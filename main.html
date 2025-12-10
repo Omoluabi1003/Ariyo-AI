@@ -1272,16 +1272,15 @@
           </ul>
         </div>
       </details>
-      <div class="notification-card">
-        <div>
-          <h4>Stay in the loop</h4>
-          <p>Enable push notifications to get fresh drop alerts even when the PWA is closed.</p>
+        <div class="notification-card">
+          <div>
+            <h4>Stay in the loop</h4>
+          <p>We will invite you to enable drop alerts after you play music or follow creators—no spammy popups.</p>
+          </div>
+          <div class="notification-actions">
+            <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
+          </div>
         </div>
-        <div class="notification-actions">
-          <button class="badge-button" id="enableNotifications" type="button">Enable notifications</button>
-          <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
-        </div>
-      </div>
       <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <!-- Music Player -->
       <div class="music-player">
@@ -1595,6 +1594,22 @@
 
 <!-- 🎧 Now Playing Toast -->
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
+
+  <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
+    <div class="notification-toast__content">
+      <p class="notification-toast__eyebrow">Stay close to the music</p>
+      <p class="notification-toast__title" id="notificationToastTitle">Get instant alerts when your favorite artists drop new music.</p>
+      <p class="notification-toast__copy" id="notificationToastCopy">We only ping for the releases you follow—no spam, no noise.</p>
+      <div class="notification-toast__actions">
+        <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
+          <span class="badge-button__icon" aria-hidden="true">🔔</span>
+          <span class="badge-button__label">Enable notifications</span>
+        </button>
+        <button class="notification-toast__secondary" id="notificationLater" type="button">Maybe later</button>
+      </div>
+    </div>
+    <button class="notification-toast__close" id="notificationClose" type="button" aria-label="Dismiss notification prompt">×</button>
+  </aside>
 
   <script src="scripts/sw-controller.js" defer></script>
   <script src="scripts/push-notifications.js" defer></script>

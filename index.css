@@ -606,12 +606,163 @@ body[data-theme="light"] .feature-card:hover {
 }
 
 .badge-button {
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.2);
-    padding: 0.6rem 1rem;
+    --badge-bg: linear-gradient(135deg, #8E5BFF 0%, #6bdcff 100%);
+    --badge-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--badge-bg);
+    color: #0c0c17;
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 0.65rem 1.1rem;
     border-radius: 999px;
     cursor: pointer;
+    font-weight: 700;
+    box-shadow: var(--badge-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.badge-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
+.badge-button:active {
+    transform: translateY(0);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35) inset, 0 8px 18px rgba(0, 0, 0, 0.25);
+}
+
+.badge-button:focus-visible {
+    outline: 2px solid #c1f4e3;
+    outline-offset: 3px;
+}
+
+.badge-button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.badge-button__icon {
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-button__label {
+    letter-spacing: 0.01em;
+}
+
+.notification-toast {
+    position: fixed;
+    left: 50%;
+    bottom: env(safe-area-inset-bottom, 1rem);
+    transform: translate(-50%, calc(100% + 1rem));
+    background: rgba(15, 11, 30, 0.9);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+    width: min(560px, calc(100% - 2rem));
+    padding: 1.1rem 1.2rem 1rem 1.2rem;
+    backdrop-filter: blur(16px);
+    color: #fff;
+    z-index: 1200;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.notification-toast.is-open {
+    transform: translate(-50%, 0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.notification-toast__content {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.notification-toast__eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.notification-toast__title {
+    font-weight: 800;
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.notification-toast__copy {
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.45;
+}
+
+.notification-toast__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+}
+
+.notification-toast__primary {
+    background: var(--badge-bg);
+}
+
+.notification-toast__secondary {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.notification-toast__secondary:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-1px);
+}
+
+.notification-toast__secondary:focus-visible {
+    outline: 2px solid #c1f4e3;
+    outline-offset: 3px;
+}
+
+.notification-toast__close {
+    align-self: flex-start;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.16);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: grid;
+    place-items: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.notification-toast__close:hover {
+    background: rgba(255,255,255,0.14);
+    transform: translateY(-1px);
+}
+
+.notification-toast__close:focus-visible {
+    outline: 2px solid #c1f4e3;
+    outline-offset: 3px;
 }
 
 .onboarding {
