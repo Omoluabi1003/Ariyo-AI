@@ -381,7 +381,11 @@
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
-          artist: currentRadioIndex === -1 ? (albums[currentAlbumIndex].artist || 'Omoluabi') : '',
+          artist: currentRadioIndex === -1
+            ? (typeof deriveTrackArtist === 'function'
+              ? deriveTrackArtist(albums[currentAlbumIndex].artist, track.title)
+              : (albums[currentAlbumIndex].artist || 'Omoluabi'))
+            : '',
           album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
           artwork: [
             { src: artwork, sizes: '96x96', type: 'image/jpeg' },

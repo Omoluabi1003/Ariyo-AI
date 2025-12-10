@@ -2,6 +2,18 @@
     const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
     const existingAudioElement = document.getElementById('audioPlayer');
     const audioPlayer = existingAudioElement || document.createElement('audio');
+
+    function deriveTrackArtist(baseArtist, trackTitle) {
+        const artistName = baseArtist || 'Omoluabi';
+        if (!trackTitle) return artistName;
+
+        const match = trackTitle.match(/ft\.?\s+(.+)/i);
+        if (match && match[1]) {
+            return `${artistName} ft. ${match[1].trim()}`;
+        }
+
+        return artistName;
+    }
     function setCrossOrigin(element, url) {
         try {
             const target = new URL(url, window.location.origin);
@@ -1056,7 +1068,8 @@ function applyTrackUiState(albumIndex, trackIndex) {
     lastTrackIndex = trackIndex;
 
     trackInfo.textContent = track.title;
-    trackArtist.textContent = `Artist: ${album.artist || 'Omoluabi'}`;
+    const displayArtist = deriveTrackArtist(album.artist, track.title);
+    trackArtist.textContent = `Artist: ${displayArtist}`;
     const year = album.releaseYear || 2025;
     trackYear.textContent = `Release Year: ${year}`;
     trackAlbum.textContent = `Album: ${album.name}`;
