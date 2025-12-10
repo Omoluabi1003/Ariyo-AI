@@ -95,7 +95,6 @@
                 <div class="cta-stack">
                     <button class="enter-button ghost" id="launchExperience" type="button">Launch experience</button>
                     <button class="badge-button" id="installPwa" type="button">Install PWA</button>
-                    <button class="badge-button" id="enableNotifications" type="button">Enable notifications</button>
                     <p class="cta-hint" id="notificationStatus" aria-live="polite"></p>
                 </div>
                 <p class="cta-hint" id="experienceStatus" aria-live="polite"></p>
@@ -112,6 +111,22 @@
                 </div>
             </div>
         </section>
+
+        <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
+            <div class="notification-toast__content">
+                <p class="notification-toast__eyebrow">Stay close to the music</p>
+                <p class="notification-toast__title" id="notificationToastTitle">Get instant alerts when your favorite artists drop new music.</p>
+                <p class="notification-toast__copy" id="notificationToastCopy">We only ping for the releases you follow—no spam, no noise.</p>
+                <div class="notification-toast__actions">
+                    <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
+                        <span class="badge-button__icon" aria-hidden="true">🔔</span>
+                        <span class="badge-button__label">Enable notifications</span>
+                    </button>
+                    <button class="notification-toast__secondary" id="notificationLater" type="button">Maybe later</button>
+                </div>
+            </div>
+            <button class="notification-toast__close" id="notificationClose" type="button" aria-label="Dismiss notification prompt">×</button>
+        </aside>
 
         <section class="profile-gate">
             <div class="profile-card">
