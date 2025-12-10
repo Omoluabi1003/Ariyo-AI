@@ -1,4 +1,5 @@
 /* MUSIC PLAYER LOGIC */
+    const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
     const existingAudioElement = document.getElementById('audioPlayer');
     const audioPlayer = existingAudioElement || document.createElement('audio');
     function setCrossOrigin(element, url) {
@@ -132,7 +133,8 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
   slowBufferRescue.inFlight = controller;
 
   try {
-    const fetchUrl = buildTrackFetchUrl(src);
+    const resolvedSrc = await resolveSunoAudioSrc(src);
+    const fetchUrl = buildTrackFetchUrl(resolvedSrc);
     console.warn(`[slow-buffer] Attempt ${slowBufferRescue.attempts} fetching ${title} for slow network users.`);
     const response = await fetch(fetchUrl, { cache: 'no-store', signal: controller.signal });
     if (!response.ok) {
@@ -471,7 +473,8 @@ async function attemptNetworkResume() {
       const track = album.tracks[source.trackIndex];
       if (!track) return resolveOnce(false);
 
-      const fetchUrl = buildTrackFetchUrl(track.src);
+      const resolvedSrc = await resolveSunoAudioSrc(track.src);
+      const fetchUrl = buildTrackFetchUrl(resolvedSrc);
       const response = await fetch(fetchUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Status ${response.status}`);
       const blob = await response.blob();
@@ -1088,7 +1091,7 @@ function resolveTrackForDirection(direction) {
 }
 
 
-function selectTrack(src, title, index, rebuildQueue = true) {
+async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
@@ -1102,7 +1105,8 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       setTurntableSpin(false);
 
-    const streamUrl = buildTrackFetchUrl(src);
+    const resolvedSrc = await resolveSunoAudioSrc(src);
+    const streamUrl = buildTrackFetchUrl(resolvedSrc);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
     audioHealer.trackSource(streamUrl, title);
@@ -1129,7 +1133,7 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       }
     }
 
-function selectRadio(src, title, index, logo) {
+async function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
@@ -1154,9 +1158,10 @@ function selectRadio(src, title, index, logo) {
       lastTrackSrc = src;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      setCrossOrigin(audioPlayer, src);
-      audioPlayer.src = src;
-      audioHealer.trackSource(src, title);
+      const resolvedSrc = await resolveSunoAudioSrc(src);
+      setCrossOrigin(audioPlayer, resolvedSrc);
+      audioPlayer.src = resolvedSrc;
+      audioHealer.trackSource(resolvedSrc, title);
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';

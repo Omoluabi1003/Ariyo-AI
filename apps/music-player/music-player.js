@@ -1,6 +1,7 @@
 (function () {
   const deckAudioA = document.getElementById('audioPlayer');
   const deckAudioB = document.getElementById('audioDeckB');
+  const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
   const albumCover = document.getElementById('albumCover');
   const turntableDisc = document.querySelector('.turntable-disc');
   const trackInfo = document.getElementById('trackInfo');
@@ -330,8 +331,13 @@
       audio.addEventListener('error', handleError, { once: true });
 
       try {
-        audio.src = track.src;
-        audio.load();
+        resolveSunoAudioSrc(track.src).then(resolved => {
+          audio.src = resolved;
+          audio.load();
+        }).catch(error => {
+          cleanup();
+          reject(error);
+        });
       } catch (error) {
         cleanup();
         reject(error);
@@ -622,7 +628,7 @@
     prunePrefetchCache();
   }
 
-  function prefetchTrack(orderIndex) {
+  async function prefetchTrack(orderIndex) {
     if (!Number.isInteger(orderIndex) || playbackOrder.length <= 1) return;
     const track = allTracks[playbackOrder[orderIndex]];
     const currentTrackSrc = getActiveAudio().dataset.trackSrc;
@@ -630,8 +636,9 @@
 
     const prefetchAudio = new Audio();
     prefetchAudio.preload = 'auto';
-    setCrossOrigin(track.src, prefetchAudio);
-    prefetchAudio.src = track.src;
+    const resolvedSrc = await resolveSunoAudioSrc(track.src);
+    setCrossOrigin(resolvedSrc, prefetchAudio);
+    prefetchAudio.src = resolvedSrc;
 
     const handleFailure = () => {
       cleanupPrefetch(track.src);
@@ -865,22 +872,23 @@
     updateNextTrackLabel();
   }
 
-  function cueTrackOnDeck(deckKey, orderIndex, { updateUI = true, preloadOnly = false } = {}) {
+  async function cueTrackOnDeck(deckKey, orderIndex, { updateUI = true, preloadOnly = false } = {}) {
     const trackIndex = playbackOrder[orderIndex];
     const track = allTracks[trackIndex];
     if (!track) return null;
 
     const deck = decks[deckKey];
     ensureAudioGraph(deck);
-    setCrossOrigin(track.src, deck.audio);
+    const resolvedSrc = await resolveSunoAudioSrc(track.src);
+    setCrossOrigin(resolvedSrc, deck.audio);
     deck.audio.autoplay = !preloadOnly;
     deck.audio.preload = preloadOnly ? 'metadata' : 'auto';
 
     if (prefetchCache.has(track.src)) {
       // Promote the prefetched response so play() can start immediately from cache.
-      deck.audio.src = prefetchCache.get(track.src).currentSrc || track.src;
+      deck.audio.src = prefetchCache.get(track.src).currentSrc || resolvedSrc;
     } else {
-      deck.audio.src = track.src;
+      deck.audio.src = resolvedSrc;
     }
 
     deck.audio.dataset.trackSrc = track.src;
@@ -938,11 +946,11 @@
     updateDjMixUi();
   }
 
-  function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds } = {}) {
+  async function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds } = {}) {
     if (isCrossfading || !playbackOrder.length) return;
     const incomingKey = getStandbyDeckKey();
     const outgoingKey = activeDeckKey;
-    const queued = cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
+    const queued = await cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
     if (!queued) return;
 
     const { deck: incomingDeck, track } = queued;
@@ -968,17 +976,17 @@
     });
   }
 
-  function transitionToOrderIndex(orderIndex, { autoplay = true, preferCrossfade = true, shortFade = false } = {}) {
+  async function transitionToOrderIndex(orderIndex, { autoplay = true, preferCrossfade = true, shortFade = false } = {}) {
     const shouldCrossfade = preferCrossfade && djAutoMixEnabled && autoplay && playbackOrder.length > 1;
     if (shouldCrossfade) {
       const duration = shortFade ? Math.max(2, crossfadeDurationSeconds / 2) : crossfadeDurationSeconds;
-      startCrossfade(orderIndex, { duration });
+      await startCrossfade(orderIndex, { duration });
       return;
     }
 
     const incomingKey = getStandbyDeckKey();
     const outgoingKey = activeDeckKey;
-    const queued = cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
+    const queued = await cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
     if (!queued) return;
 
     const { deck: incomingDeck, track } = queued;
@@ -1002,8 +1010,8 @@
     updateSpinState();
   }
 
-  function loadTrack(orderIndex, { autoplay = false } = {}) {
-    transitionToOrderIndex(orderIndex, { autoplay, preferCrossfade: djAutoMixEnabled });
+  async function loadTrack(orderIndex, { autoplay = false } = {}) {
+    await transitionToOrderIndex(orderIndex, { autoplay, preferCrossfade: djAutoMixEnabled });
   }
 
   function playCurrentTrack() {
@@ -1027,16 +1035,16 @@
     setStatus('Playback stopped.');
   }
 
-  function playNextTrack(auto = false) {
+  async function playNextTrack(auto = false) {
     if (!playbackOrder.length) return;
     const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
-    transitionToOrderIndex(nextIndex, { autoplay: auto ? true : !getActiveAudio().paused, shortFade: !auto });
+    await transitionToOrderIndex(nextIndex, { autoplay: auto ? true : !getActiveAudio().paused, shortFade: !auto });
   }
 
-  function playPreviousTrack() {
+  async function playPreviousTrack() {
     if (!playbackOrder.length) return;
     const prevIndex = (currentOrderIndex - 1 + playbackOrder.length) % playbackOrder.length;
-    transitionToOrderIndex(prevIndex, { autoplay: !getActiveAudio().paused, shortFade: true });
+    await transitionToOrderIndex(prevIndex, { autoplay: !getActiveAudio().paused, shortFade: true });
   }
 
   function toggleShuffle() {
@@ -1158,7 +1166,7 @@
     progressBarFill.style.width = '0%';
   }
 
-  function handleTimeUpdate(event) {
+  async function handleTimeUpdate(event) {
     if (event.target !== getActiveAudio() || userSeeking) return;
     if (event.target.dataset.isLive === 'true') {
       trackDuration.textContent = 'Live • Afrobeats';
@@ -1178,13 +1186,13 @@
       if (remaining <= CROSSFADE_PRELOAD_SECONDS && playbackOrder.length > 1) {
         const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
         if (standbyPreloadedIndex !== nextIndex) {
-          cueTrackOnDeck(getStandbyDeckKey(), nextIndex, { updateUI: false, preloadOnly: true });
+          await cueTrackOnDeck(getStandbyDeckKey(), nextIndex, { updateUI: false, preloadOnly: true });
           standbyPreloadedIndex = nextIndex;
         }
 
         const fadeDuration = getCrossfadeDurationForTrack(event.target.duration);
         if (remaining <= fadeDuration) {
-          startCrossfade(nextIndex, { duration: fadeDuration });
+          await startCrossfade(nextIndex, { duration: fadeDuration });
         }
       }
     }
