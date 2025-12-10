@@ -32,6 +32,18 @@
   const deckBMeta = document.getElementById('deckB_meta');
   const djCrossfader = document.getElementById('djCrossfader');
 
+  const deriveTrackArtist = (baseArtist, trackTitle) => {
+    const artistName = baseArtist || 'Omoluabi';
+    if (!trackTitle) return artistName;
+
+    const match = trackTitle.match(/ft\.?\s+(.+)/i);
+    if (match && match[1]) {
+      return `${artistName} ft. ${match[1].trim()}`;
+    }
+
+    return artistName;
+  };
+
   const hasAlbums = typeof albums !== 'undefined' && Array.isArray(albums) && albums.length;
   if (!hasAlbums) {
     statusMessage.textContent = 'No tracks available. Please refresh the page.';
@@ -71,7 +83,7 @@
         src: trackSrc,
         cover,
         album: albumName,
-        artist: track.artist || artist,
+        artist: deriveTrackArtist(track.artist || artist, title),
         releaseYear,
         albumIndex,
         albumTrackIndex: trackIndex,
