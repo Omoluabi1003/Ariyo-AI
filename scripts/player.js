@@ -5,6 +5,12 @@
     const resolvedRadioStations = (Array.isArray(window.mergedRadioStations)
       ? window.mergedRadioStations
       : window.radioStations || (typeof radioStations !== 'undefined' ? radioStations : []));
+    const DEFAULT_RADIO_LOGO = typeof BASE_URL === 'string' ? `${BASE_URL}Logo.jpg` : './Logo.jpg';
+
+    function getStationLogo(station) {
+      if (!station) return DEFAULT_RADIO_LOGO;
+      return station.logo || station.thumbnail || station.image || DEFAULT_RADIO_LOGO;
+    }
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -24,7 +30,10 @@
             const allowList = [
               /\.suno\.ai$/i,
               /raw\.githubusercontent\.com$/i,
-              /githubusercontent\.com$/i
+              /githubusercontent\.com$/i,
+              /zeno\.fm$/i,
+              /streamguys1\.com$/i,
+              /radio\.co$/i
             ];
             const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
 
@@ -1253,7 +1262,12 @@ function loadMoreStations(region) {
     const stationLink = document.createElement("a");
     stationLink.href = "#";
     const globalIndex = resolvedRadioStations.indexOf(station);
-    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, globalIndex, station.logo);
+    stationLink.onclick = () => selectRadio(
+      station.url,
+      `${station.name} - ${station.location}`,
+      globalIndex,
+      getStationLogo(station)
+    );
 
     const statusSpan = document.createElement('span');
     statusSpan.style.marginLeft = '10px';
@@ -1386,7 +1400,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       }
     }
 
-async function selectRadio(src, title, index, logo) {
+async function selectRadio(src, title, index, logo = DEFAULT_RADIO_LOGO) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
@@ -1416,7 +1430,7 @@ async function selectRadio(src, title, index, logo) {
       trackArtist.textContent = '';
       trackYear.textContent = '';
       trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-      albumCover.src = logo;
+      albumCover.src = logo || DEFAULT_RADIO_LOGO;
       lyricsContainer.innerHTML = '';
       lyricLines = [];
       closeRadioList();
@@ -1438,7 +1452,12 @@ async function selectRadio(src, title, index, logo) {
 
     function retryTrack() {
       if (currentRadioIndex >= 0) {
-        selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, resolvedRadioStations[currentRadioIndex].logo);
+        selectRadio(
+          lastTrackSrc,
+          lastTrackTitle,
+          lastTrackIndex,
+          getStationLogo(resolvedRadioStations[currentRadioIndex])
+        );
       } else {
         selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex, false);
       }
@@ -1988,7 +2007,12 @@ function switchTrack(direction, isAuto = false) {
       newIndex = (currentRadioIndex + direction + stationCount) % stationCount;
     }
     const station = resolvedRadioStations[newIndex];
-    selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
+    selectRadio(
+      station.url,
+      `${station.name} - ${station.location}`,
+      newIndex,
+      getStationLogo(station)
+    );
   } else {
     if (shuffleMode) {
       if (shuffleQueue.length === 0) {
