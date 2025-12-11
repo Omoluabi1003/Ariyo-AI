@@ -2,15 +2,6 @@
     const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
     const existingAudioElement = document.getElementById('audioPlayer');
     const audioPlayer = existingAudioElement || document.createElement('audio');
-    const resolvedRadioStations = (Array.isArray(window.mergedRadioStations)
-      ? window.mergedRadioStations
-      : window.radioStations || (typeof radioStations !== 'undefined' ? radioStations : []));
-    const DEFAULT_RADIO_LOGO = typeof BASE_URL === 'string' ? `${BASE_URL}Logo.jpg` : './Logo.jpg';
-
-    function getStationLogo(station) {
-      if (!station) return DEFAULT_RADIO_LOGO;
-      return station.logo || station.thumbnail || station.image || DEFAULT_RADIO_LOGO;
-    }
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -30,10 +21,7 @@
             const allowList = [
               /\.suno\.ai$/i,
               /raw\.githubusercontent\.com$/i,
-              /githubusercontent\.com$/i,
-              /zeno\.fm$/i,
-              /streamguys1\.com$/i,
-              /radio\.co$/i
+              /githubusercontent\.com$/i
             ];
             const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
 
@@ -126,9 +114,7 @@ const playbackWatchdog = {
   stallGraceMs: 12000
 };
 
-    const audioHealer = createSelfHealAudio(audioPlayer);
-
-    const radioPlaybackController = createRadioPlaybackController(audioPlayer);
+const audioHealer = createSelfHealAudio(audioPlayer);
 
 const slowBufferRescue = {
   timerId: null,
@@ -255,7 +241,7 @@ function cancelNetworkRecovery() {
 
 function captureCurrentSource() {
   if (!lastTrackSrc) return null;
-  if (currentRadioIndex >= 0 && resolvedRadioStations[currentRadioIndex]) {
+  if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
     return {
       type: 'radio',
       index: currentRadioIndex,
@@ -443,218 +429,6 @@ function createSelfHealAudio(player) {
     trackSource,
     rebindMetadataHandlers,
     clearDurationTimer
-  };
-}
-
-function createRadioPlaybackController(player) {
-  const state = {
-    station: null,
-    token: 0,
-    retryCount: 0,
-    baseDelay: 2000,
-    maxDelay: 45000,
-    reconnectTimer: null,
-    guardTimer: null,
-    monitorId: null,
-    currentSrc: '',
-    lastProgress: 0,
-    lastProgressAt: 0
-  };
-
-  function markProgress(time = player.currentTime || 0) {
-    state.lastProgress = time;
-    state.lastProgressAt = Date.now();
-  }
-
-  function hasRecentProgress() {
-    const current = player.currentTime || 0;
-    const progressed = current > state.lastProgress + 0.05;
-    if (progressed) {
-      markProgress(current);
-      return true;
-    }
-
-    const timeSinceProgress = Date.now() - state.lastProgressAt;
-    return timeSinceProgress < 4000;
-  }
-
-  function clearTimers() {
-    if (state.reconnectTimer) {
-      clearTimeout(state.reconnectTimer);
-      state.reconnectTimer = null;
-    }
-    if (state.guardTimer) {
-      clearTimeout(state.guardTimer);
-      state.guardTimer = null;
-    }
-    if (state.monitorId) {
-      clearInterval(state.monitorId);
-      state.monitorId = null;
-    }
-  }
-
-  function removeHandlers() {
-    const handlers = player._radioHandlers;
-    if (!handlers) return;
-
-    const events = ['stalled', 'suspend', 'waiting', 'error', 'ended', 'abort', 'playing'];
-    events.forEach(evt => {
-      if (handlers[evt]) {
-        player.removeEventListener(evt, handlers[evt]);
-      }
-    });
-    player._radioHandlers = null;
-  }
-
-  function scheduleReconnect(token, reason) {
-    if (token !== state.token) return;
-    if (state.reconnectTimer) return;
-    if (hasRecentProgress()) {
-      console.info(`[radio] Skipping reconnect (${reason}); playback is progressing.`);
-      return;
-    }
-
-    const delay = Math.min(state.baseDelay * Math.pow(2, state.retryCount), state.maxDelay);
-    state.retryCount += 1;
-    console.warn(`[radio] ${reason}; retry #${state.retryCount} in ${delay}ms`);
-
-    state.reconnectTimer = setTimeout(() => {
-      state.reconnectTimer = null;
-      if (token !== state.token) return;
-      if (hasRecentProgress()) {
-        console.info('[radio] Aborting reconnect; playback resumed.');
-        return;
-      }
-      loadStream(token);
-    }, delay);
-  }
-
-  function startHealthMonitor(token) {
-    if (token !== state.token) return;
-    if (state.monitorId) {
-      clearInterval(state.monitorId);
-    }
-
-    let lastTime = player.currentTime || 0;
-    state.monitorId = setInterval(() => {
-      if (token !== state.token) return;
-      if (player.paused) {
-        lastTime = player.currentTime || 0;
-        return;
-      }
-
-      const current = player.currentTime || 0;
-      const progressed = current > lastTime + 0.05;
-      const hasData = player.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
-
-      if (progressed || (!progressed && hasData)) {
-        // Live radio streams can hold currentTime at zero; treat sustained readyState
-        // as proof of life to avoid unnecessary reconnect attempts.
-        markProgress(current);
-      }
-
-      const timeSinceProgress = Date.now() - state.lastProgressAt;
-      const stalledByBuffer = !hasData && timeSinceProgress > 6000;
-      const stalledBySilence = timeSinceProgress > 15000;
-
-      if (stalledByBuffer || stalledBySilence) {
-        scheduleReconnect(token, stalledByBuffer ? 'buffering-too-long' : 'progress-timeout');
-      }
-      lastTime = current;
-    }, 7000);
-  }
-
-  function attachHandlers(token) {
-    removeHandlers();
-    const handlers = {};
-
-    handlers.stalled = () => scheduleReconnect(token, 'stalled');
-    handlers.suspend = () => scheduleReconnect(token, 'suspend');
-    handlers.waiting = () => scheduleReconnect(token, 'waiting');
-    handlers.error = () => scheduleReconnect(token, 'stream-error');
-    handlers.ended = () => scheduleReconnect(token, 'ended');
-    handlers.abort = () => scheduleReconnect(token, 'abort');
-    handlers.playing = () => markProgress(player.currentTime || 0);
-
-    Object.entries(handlers).forEach(([evt, handler]) => {
-      player.addEventListener(evt, handler);
-    });
-
-    player._radioHandlers = handlers;
-  }
-
-  function onReady(token) {
-    if (token !== state.token) return;
-    clearTimers();
-    state.retryCount = 0;
-    startHealthMonitor(token);
-  }
-
-  async function loadStream(token) {
-    if (!state.station || token !== state.token) return;
-
-    clearTimers();
-    removeHandlers();
-
-    const baseSrc = state.station.src;
-    const streamChanged = baseSrc !== state.currentSrc;
-    const cacheSafeSrc = streamChanged
-      ? appendCacheBuster(baseSrc)
-      : (player.currentSrc || player.src || appendCacheBuster(baseSrc));
-
-    if (!streamChanged && hasRecentProgress() && player.currentSrc) {
-      state.retryCount = 0;
-      attachHandlers(token);
-      startHealthMonitor(token);
-      return;
-    }
-
-    state.currentSrc = baseSrc;
-    markProgress(player.currentTime || 0);
-    setCrossOrigin(player, cacheSafeSrc);
-    player.pause();
-    player.removeAttribute('src');
-    player.load();
-    player.src = cacheSafeSrc;
-    player.currentTime = 0;
-
-    state.guardTimer = setTimeout(() => scheduleReconnect(token, 'startup-timeout'), 12000);
-
-    handleAudioLoad(cacheSafeSrc, state.station.title, true, {
-      autoPlay: true,
-      resumeTime: 0,
-      onReady: () => onReady(token),
-      onError: () => scheduleReconnect(token, 'load-error')
-    });
-
-    attachHandlers(token);
-  }
-
-  return {
-    start(station) {
-      state.station = station;
-      state.token += 1;
-      state.retryCount = 0;
-      clearTimers();
-      removeHandlers();
-      loadStream(state.token);
-    },
-    resume() {
-      if (!state.station) return;
-      clearTimers();
-      removeHandlers();
-      loadStream(state.token);
-    },
-    stop() {
-      clearTimers();
-      removeHandlers();
-      state.station = null;
-      state.currentSrc = '';
-      state.retryCount = 0;
-      player.pause();
-      player.removeAttribute('src');
-      player.load();
-    }
   };
 }
 
@@ -1169,76 +943,54 @@ function classifyStation(station) {
 
 // Grouped Stations
 const groupedStations = { nigeria: [], westAfrica: [], international: [] };
-resolvedRadioStations.forEach(station => {
+radioStations.forEach(station => {
   const region = classifyStation(station);
   groupedStations[region].push(station);
 });
 
 async function checkStreamStatus(url) {
-  const controller = new AbortController();
-  const fetchTimeout = window.setTimeout(() => controller.abort(), 6000);
+      return new Promise(resolve => {
+        const testAudio = document.createElement('audio');
+        let settled = false;
 
-  try {
-    const response = await fetch(url, {
-      method: 'HEAD',
-      mode: 'no-cors',
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-    window.clearTimeout(fetchTimeout);
+        const cleanup = () => {
+          testAudio.removeEventListener('canplay', onCanPlay);
+          testAudio.removeEventListener('error', onError);
+          testAudio.src = '';
+        };
 
-    // Any opaque/no-cors success means the origin is reachable even if we
-    // cannot inspect the headers (most radio hosts block CORS).
-    if (response.ok || response.type === 'opaque') {
-      return 'online';
+        const onCanPlay = () => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve('online');
+          }
+        };
+
+        const onError = () => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve('offline');
+          }
+        };
+
+        setCrossOrigin(testAudio, url);
+        testAudio.preload = 'auto';
+        testAudio.addEventListener('canplay', onCanPlay, { once: true });
+        testAudio.addEventListener('error', onError, { once: true });
+        testAudio.src = url;
+        testAudio.load();
+
+        setTimeout(() => {
+          if (!settled) {
+            settled = true;
+            cleanup();
+            resolve('offline');
+          }
+        }, 10000); // fallback timeout
+      });
     }
-  } catch (err) {
-    // Ignore fetch errors and fall back to an audio capability probe.
-    window.clearTimeout(fetchTimeout);
-  }
-
-  return new Promise(resolve => {
-    const testAudio = document.createElement('audio');
-    let settled = false;
-
-    const cleanup = () => {
-      testAudio.removeEventListener('canplay', onCanPlay);
-      testAudio.removeEventListener('error', onError);
-      testAudio.src = '';
-    };
-
-    const onCanPlay = () => {
-      if (!settled) {
-        settled = true;
-        cleanup();
-        resolve('online');
-      }
-    };
-
-    const onError = () => {
-      if (!settled) {
-        settled = true;
-        cleanup();
-        resolve('offline');
-      }
-    };
-
-    setCrossOrigin(testAudio, url);
-    testAudio.preload = 'auto';
-    testAudio.addEventListener('canplay', onCanPlay, { once: true });
-    testAudio.addEventListener('error', onError, { once: true });
-    testAudio.src = url;
-    testAudio.load();
-
-    setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        cleanup();
-        resolve('online');
-      }
-    }, 10000); // fallback timeout now assumes reachability when in doubt
-  });
-}
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
@@ -1261,13 +1013,8 @@ function loadMoreStations(region) {
   stations.slice(start, end).forEach((station, index) => {
     const stationLink = document.createElement("a");
     stationLink.href = "#";
-    const globalIndex = resolvedRadioStations.indexOf(station);
-    stationLink.onclick = () => selectRadio(
-      station.url,
-      `${station.name} - ${station.location}`,
-      globalIndex,
-      getStationLogo(station)
-    );
+    const globalIndex = radioStations.indexOf(station);
+    stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, globalIndex, station.logo);
 
     const statusSpan = document.createElement('span');
     statusSpan.style.marginLeft = '10px';
@@ -1361,7 +1108,6 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
-      radioPlaybackController.stop();
       resumeAudioContext();
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
@@ -1400,14 +1146,14 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       }
     }
 
-async function selectRadio(src, title, index, logo = DEFAULT_RADIO_LOGO) {
+async function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
       resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
-      const station = resolvedRadioStations[index];
+      const station = radioStations[index];
       currentRadioIndex = index;
       currentTrackIndex = -1;
       shuffleQueue = [];
@@ -1426,11 +1172,15 @@ async function selectRadio(src, title, index, logo = DEFAULT_RADIO_LOGO) {
       lastTrackTitle = title;
       lastTrackIndex = index;
       const resolvedSrc = await resolveSunoAudioSrc(src);
+      setCrossOrigin(audioPlayer, resolvedSrc);
+      audioPlayer.src = resolvedSrc;
+      audioHealer.trackSource(resolvedSrc, title);
+      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
       trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-      albumCover.src = logo || DEFAULT_RADIO_LOGO;
+      albumCover.src = logo;
       lyricsContainer.innerHTML = '';
       lyricLines = [];
       closeRadioList();
@@ -1441,23 +1191,14 @@ async function selectRadio(src, title, index, logo = DEFAULT_RADIO_LOGO) {
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
-      radioPlaybackController.start({
-        src: resolvedSrc,
-        title,
-        index
-      });
+      handleAudioLoad(src, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
     }
 
     function retryTrack() {
       if (currentRadioIndex >= 0) {
-        selectRadio(
-          lastTrackSrc,
-          lastTrackTitle,
-          lastTrackIndex,
-          getStationLogo(resolvedRadioStations[currentRadioIndex])
-        );
+        selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
       } else {
         selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex, false);
       }
@@ -1822,12 +1563,8 @@ function pauseMusic() {
 
 function stopMusic() {
     cancelNetworkRecovery();
-    if (currentRadioIndex >= 0) {
-      radioPlaybackController.stop();
-    } else {
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
-    }
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
@@ -1935,9 +1672,6 @@ function updateTrackTime() {
     });
 
 function handleNetworkEvent(event) {
-  if (currentRadioIndex >= 0) {
-    return;
-  }
   if (networkRecoveryState.active) return;
   if (audioPlayer.paused) return;
   if (!navigator.onLine) {
@@ -1976,17 +1710,11 @@ function handleNetworkEvent(event) {
 
 window.addEventListener('offline', () => {
   if (!audioPlayer.paused) {
-    if (currentRadioIndex >= 0) {
-      radioPlaybackController.stop();
-    } else {
-      startNetworkRecovery('offline-event');
-    }
+    startNetworkRecovery('offline-event');
   }
 });
 window.addEventListener('online', () => {
-  if (currentRadioIndex >= 0) {
-    radioPlaybackController.resume();
-  } else if (networkRecoveryState.active && typeof networkRecoveryState.attemptFn === 'function') {
+  if (networkRecoveryState.active && typeof networkRecoveryState.attemptFn === 'function') {
     networkRecoveryState.attemptFn();
   }
 });
@@ -1999,20 +1727,15 @@ function switchTrack(direction, isAuto = false) {
   const shouldAutoPlay = isAuto || !audioPlayer.paused;
 
   if (currentRadioIndex !== -1) {
-    const stationCount = resolvedRadioStations.length;
+    const stationCount = radioStations.length;
     let newIndex;
     if (shuffleMode) {
       newIndex = Math.floor(Math.random() * stationCount);
     } else {
       newIndex = (currentRadioIndex + direction + stationCount) % stationCount;
     }
-    const station = resolvedRadioStations[newIndex];
-    selectRadio(
-      station.url,
-      `${station.name} - ${station.location}`,
-      newIndex,
-      getStationLogo(station)
-    );
+    const station = radioStations[newIndex];
+    selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
   } else {
     if (shuffleMode) {
       if (shuffleQueue.length === 0) {
