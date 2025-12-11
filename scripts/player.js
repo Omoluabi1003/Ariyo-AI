@@ -114,7 +114,9 @@ const playbackWatchdog = {
   stallGraceMs: 12000
 };
 
-const audioHealer = createSelfHealAudio(audioPlayer);
+    const audioHealer = createSelfHealAudio(audioPlayer);
+
+    const radioPlaybackController = createRadioPlaybackController(audioPlayer);
 
 const slowBufferRescue = {
   timerId: null,
@@ -429,6 +431,162 @@ function createSelfHealAudio(player) {
     trackSource,
     rebindMetadataHandlers,
     clearDurationTimer
+  };
+}
+
+function createRadioPlaybackController(player) {
+  const state = {
+    station: null,
+    token: 0,
+    retryCount: 0,
+    baseDelay: 2000,
+    maxDelay: 45000,
+    reconnectTimer: null,
+    guardTimer: null,
+    monitorId: null
+  };
+
+  function clearTimers() {
+    if (state.reconnectTimer) {
+      clearTimeout(state.reconnectTimer);
+      state.reconnectTimer = null;
+    }
+    if (state.guardTimer) {
+      clearTimeout(state.guardTimer);
+      state.guardTimer = null;
+    }
+    if (state.monitorId) {
+      clearInterval(state.monitorId);
+      state.monitorId = null;
+    }
+  }
+
+  function removeHandlers() {
+    const handlers = player._radioHandlers;
+    if (!handlers) return;
+
+    const events = ['stalled', 'suspend', 'waiting', 'error', 'ended', 'abort'];
+    events.forEach(evt => {
+      if (handlers[evt]) {
+        player.removeEventListener(evt, handlers[evt]);
+      }
+    });
+    player._radioHandlers = null;
+  }
+
+  function scheduleReconnect(token, reason) {
+    if (token !== state.token) return;
+    if (state.reconnectTimer) return;
+
+    const delay = Math.min(state.baseDelay * Math.pow(2, state.retryCount), state.maxDelay);
+    state.retryCount += 1;
+    console.warn(`[radio] ${reason}; retry #${state.retryCount} in ${delay}ms`);
+
+    state.reconnectTimer = setTimeout(() => {
+      state.reconnectTimer = null;
+      if (token !== state.token) return;
+      loadStream(token);
+    }, delay);
+  }
+
+  function startHealthMonitor(token) {
+    if (token !== state.token) return;
+    if (state.monitorId) {
+      clearInterval(state.monitorId);
+    }
+
+    let lastTime = player.currentTime || 0;
+    state.monitorId = setInterval(() => {
+      if (token !== state.token) return;
+      if (player.paused) {
+        lastTime = player.currentTime || 0;
+        return;
+      }
+
+      const current = player.currentTime || 0;
+      const progressed = current > lastTime + 0.05;
+      if (!progressed || player.readyState < (HTMLMediaElement?.HAVE_CURRENT_DATA || 2)) {
+        scheduleReconnect(token, 'playback-stuck');
+      }
+      lastTime = current;
+    }, 7000);
+  }
+
+  function attachHandlers(token) {
+    removeHandlers();
+    const handlers = {};
+
+    handlers.stalled = () => scheduleReconnect(token, 'stalled');
+    handlers.suspend = () => scheduleReconnect(token, 'suspend');
+    handlers.waiting = () => scheduleReconnect(token, 'waiting');
+    handlers.error = () => scheduleReconnect(token, 'stream-error');
+    handlers.ended = () => scheduleReconnect(token, 'ended');
+    handlers.abort = () => scheduleReconnect(token, 'abort');
+
+    Object.entries(handlers).forEach(([evt, handler]) => {
+      player.addEventListener(evt, handler);
+    });
+
+    player._radioHandlers = handlers;
+  }
+
+  function onReady(token) {
+    if (token !== state.token) return;
+    clearTimers();
+    state.retryCount = 0;
+    startHealthMonitor(token);
+  }
+
+  async function loadStream(token) {
+    if (!state.station || token !== state.token) return;
+
+    clearTimers();
+    removeHandlers();
+
+    const cacheSafeSrc = appendCacheBuster(state.station.src);
+    setCrossOrigin(player, cacheSafeSrc);
+    player.pause();
+    player.removeAttribute('src');
+    player.load();
+    player.src = cacheSafeSrc;
+    player.currentTime = 0;
+
+    state.guardTimer = setTimeout(() => scheduleReconnect(token, 'startup-timeout'), 12000);
+
+    handleAudioLoad(cacheSafeSrc, state.station.title, true, {
+      autoPlay: true,
+      resumeTime: 0,
+      onReady: () => onReady(token),
+      onError: () => scheduleReconnect(token, 'load-error')
+    });
+
+    attachHandlers(token);
+  }
+
+  return {
+    start(station) {
+      state.station = station;
+      state.token += 1;
+      state.retryCount = 0;
+      clearTimers();
+      removeHandlers();
+      loadStream(state.token);
+    },
+    resume() {
+      if (!state.station) return;
+      clearTimers();
+      removeHandlers();
+      loadStream(state.token);
+    },
+    stop() {
+      clearTimers();
+      removeHandlers();
+      state.station = null;
+      state.retryCount = 0;
+      player.pause();
+      player.removeAttribute('src');
+      player.load();
+    }
   };
 }
 
@@ -1108,6 +1266,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
+      radioPlaybackController.stop();
       resumeAudioContext();
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
@@ -1172,10 +1331,6 @@ async function selectRadio(src, title, index, logo) {
       lastTrackTitle = title;
       lastTrackIndex = index;
       const resolvedSrc = await resolveSunoAudioSrc(src);
-      setCrossOrigin(audioPlayer, resolvedSrc);
-      audioPlayer.src = resolvedSrc;
-      audioHealer.trackSource(resolvedSrc, title);
-      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
@@ -1191,7 +1346,11 @@ async function selectRadio(src, title, index, logo) {
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
-      handleAudioLoad(src, title, true);
+      radioPlaybackController.start({
+        src: resolvedSrc,
+        title,
+        index
+      });
       updateMediaSession();
       showNowPlayingToast(title);
     }
@@ -1563,8 +1722,12 @@ function pauseMusic() {
 
 function stopMusic() {
     cancelNetworkRecovery();
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    if (currentRadioIndex >= 0) {
+      radioPlaybackController.stop();
+    } else {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+    }
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
@@ -1672,6 +1835,9 @@ function updateTrackTime() {
     });
 
 function handleNetworkEvent(event) {
+  if (currentRadioIndex >= 0) {
+    return;
+  }
   if (networkRecoveryState.active) return;
   if (audioPlayer.paused) return;
   if (!navigator.onLine) {
@@ -1710,11 +1876,17 @@ function handleNetworkEvent(event) {
 
 window.addEventListener('offline', () => {
   if (!audioPlayer.paused) {
-    startNetworkRecovery('offline-event');
+    if (currentRadioIndex >= 0) {
+      radioPlaybackController.stop();
+    } else {
+      startNetworkRecovery('offline-event');
+    }
   }
 });
 window.addEventListener('online', () => {
-  if (networkRecoveryState.active && typeof networkRecoveryState.attemptFn === 'function') {
+  if (currentRadioIndex >= 0) {
+    radioPlaybackController.resume();
+  } else if (networkRecoveryState.active && typeof networkRecoveryState.attemptFn === 'function') {
     networkRecoveryState.attemptFn();
   }
 });
