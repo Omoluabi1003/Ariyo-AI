@@ -1484,6 +1484,14 @@ async function selectRadio(src, title, index, logo) {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
+          retryButton.style.display = 'none';
+          const progressBarElement = document.getElementById('progressBar');
+          if (progressBarElement) {
+            progressBarElement.style.display = 'block';
+          }
+          if (lastTrackTitle) {
+            trackInfo.textContent = lastTrackTitle;
+          }
           manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
