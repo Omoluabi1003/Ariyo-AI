@@ -2,6 +2,11 @@
   const BASE_URL = './';
 
   const OMOLUABI_TRACKS = [
+    {
+      slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb',
+      title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)',
+      src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3'
+    },
     { slug: 'mummy-i-love-you-ft-steady', title: 'Mummy I love you ft. Steady', src: 'https://cdn1.suno.ai/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3' },
     { slug: 'udo-don-cost', title: 'Udo Don Cost', src: 'https://cdn1.suno.ai/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3' },
     { slug: 'matasa-ku-tashi', title: 'Matasa Ku Tashi', src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3' },
@@ -73,6 +78,7 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    { albumName: 'Omoluabi Production Catalogue', slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb', addedOn: '2025-12-11T09:00:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'dad-is-missing', addedOn: '2025-11-23T09:00:00Z' },
     { albumName: 'Omoluabi Production Catalogue', slug: 'built-like-this', addedOn: '2025-11-22T09:00:00Z' },
     { albumName: 'Omoluabi Production Catalogue', slug: 'one-position', addedOn: '2025-05-06T09:00:00Z' },
