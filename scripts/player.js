@@ -485,7 +485,7 @@ function createRadioPlaybackController(player) {
     const handlers = player._radioHandlers;
     if (!handlers) return;
 
-    const events = ['stalled', 'suspend', 'waiting', 'error', 'ended', 'abort'];
+    const events = ['stalled', 'suspend', 'waiting', 'error', 'ended', 'abort', 'playing'];
     events.forEach(evt => {
       if (handlers[evt]) {
         player.removeEventListener(evt, handlers[evt]);
@@ -533,11 +533,20 @@ function createRadioPlaybackController(player) {
 
       const current = player.currentTime || 0;
       const progressed = current > lastTime + 0.05;
-      if (progressed) {
+      const hasData = player.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
+
+      if (progressed || (!progressed && hasData)) {
+        // Live radio streams can hold currentTime at zero; treat sustained readyState
+        // as proof of life to avoid unnecessary reconnect attempts.
         markProgress(current);
       }
-      if (!progressed || player.readyState < (HTMLMediaElement?.HAVE_CURRENT_DATA || 2)) {
-        scheduleReconnect(token, 'playback-stuck');
+
+      const timeSinceProgress = Date.now() - state.lastProgressAt;
+      const stalledByBuffer = !hasData && timeSinceProgress > 6000;
+      const stalledBySilence = timeSinceProgress > 15000;
+
+      if (stalledByBuffer || stalledBySilence) {
+        scheduleReconnect(token, stalledByBuffer ? 'buffering-too-long' : 'progress-timeout');
       }
       lastTime = current;
     }, 7000);
@@ -553,6 +562,7 @@ function createRadioPlaybackController(player) {
     handlers.error = () => scheduleReconnect(token, 'stream-error');
     handlers.ended = () => scheduleReconnect(token, 'ended');
     handlers.abort = () => scheduleReconnect(token, 'abort');
+    handlers.playing = () => markProgress(player.currentTime || 0);
 
     Object.entries(handlers).forEach(([evt, handler]) => {
       player.addEventListener(evt, handler);
