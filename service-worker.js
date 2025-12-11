@@ -51,7 +51,6 @@ const CORE_ASSETS = [
   'style.css',
   'color-scheme.css',
   'scripts/data.js',
-  'scripts/radioStations.js',
   'scripts/player.js',
   'scripts/ui.js',
   'scripts/main.js',

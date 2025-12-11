@@ -5,9 +5,6 @@
     }
 
     let pendingSharedPlayback = null;
-    const resolvedRadioStations = (Array.isArray(window.mergedRadioStations)
-      ? window.mergedRadioStations
-      : window.radioStations || (typeof radioStations !== 'undefined' ? radioStations : []));
 
     /**
      * Builds a standardized, title-first share payload for music and radio experiences.
@@ -40,7 +37,7 @@
       const trackParam = params.get('track');
 
       if (stationParam) {
-        const stationIndex = resolvedRadioStations.findIndex(s => slugify(s.name) === stationParam);
+        const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
         if (stationIndex !== -1) {
           return { type: 'radio', index: stationIndex };
         }
@@ -79,7 +76,7 @@
       }
 
       if (playback && playback.type === 'radio') {
-        const station = Array.isArray(resolvedRadioStations) ? resolvedRadioStations[playback.index] : null;
+        const station = Array.isArray(radioStations) ? radioStations[playback.index] : null;
         if (station) {
           return {
             type: 'radio',
@@ -224,7 +221,7 @@
       });
     });
 
-    resolvedRadioStations.forEach((station, index) => {
+    radioStations.forEach((station, index) => {
       const label = `${station.name} (${station.location})`;
       const option = document.createElement('option');
       option.value = label;
@@ -241,7 +238,7 @@
           const track = albums[result.albumIndex].tracks[result.trackIndex];
           selectTrack(track.src, track.title, result.trackIndex);
         } else if (result.type === 'radio') {
-          const station = resolvedRadioStations[result.index];
+          const station = radioStations[result.index];
           selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
         } else if (result.type === 'album') {
           selectAlbum(result.albumIndex);
@@ -482,10 +479,10 @@
       if ('mediaSession' in navigator) {
         const track = currentRadioIndex === -1
           ? albums[currentAlbumIndex].tracks[currentTrackIndex]
-          : resolvedRadioStations[currentRadioIndex];
+          : radioStations[currentRadioIndex];
         const artwork = currentRadioIndex === -1
           ? albums[currentAlbumIndex].cover
-          : resolvedRadioStations[currentRadioIndex].logo;
+          : radioStations[currentRadioIndex].logo;
 
         navigator.mediaSession.metadata = new MediaMetadata({
           title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
@@ -532,9 +529,9 @@
       const trackParam = params.get('track');
       if (stationParam) {
         ensureHomeViewForSharedPlayback();
-        const stationIndex = resolvedRadioStations.findIndex(s => slugify(s.name) === stationParam);
+        const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
         if (stationIndex !== -1) {
-          const station = resolvedRadioStations[stationIndex];
+          const station = radioStations[stationIndex];
           selectRadio(
             station.url,
             `${station.name} - ${station.location}`,
@@ -559,7 +556,7 @@
         currentRadioIndex = savedState.radioIndex;
         // shuffleMode = savedState.shuffleMode; // This line is updated below
         if (currentRadioIndex >= 0) {
-          const station = resolvedRadioStations[currentRadioIndex];
+          const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
           setCrossOrigin(audioPlayer, station.url);
           audioHealer.trackSource(station.url, station.name);
