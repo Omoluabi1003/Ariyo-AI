@@ -2,6 +2,9 @@
     const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
     const existingAudioElement = document.getElementById('audioPlayer');
     const audioPlayer = existingAudioElement || document.createElement('audio');
+    const resolvedRadioStations = (Array.isArray(window.mergedRadioStations)
+      ? window.mergedRadioStations
+      : window.radioStations || (typeof radioStations !== 'undefined' ? radioStations : []));
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -243,7 +246,7 @@ function cancelNetworkRecovery() {
 
 function captureCurrentSource() {
   if (!lastTrackSrc) return null;
-  if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
+  if (currentRadioIndex >= 0 && resolvedRadioStations[currentRadioIndex]) {
     return {
       type: 'radio',
       index: currentRadioIndex,
@@ -1157,7 +1160,7 @@ function classifyStation(station) {
 
 // Grouped Stations
 const groupedStations = { nigeria: [], westAfrica: [], international: [] };
-radioStations.forEach(station => {
+resolvedRadioStations.forEach(station => {
   const region = classifyStation(station);
   groupedStations[region].push(station);
 });
@@ -1249,7 +1252,7 @@ function loadMoreStations(region) {
   stations.slice(start, end).forEach((station, index) => {
     const stationLink = document.createElement("a");
     stationLink.href = "#";
-    const globalIndex = radioStations.indexOf(station);
+    const globalIndex = resolvedRadioStations.indexOf(station);
     stationLink.onclick = () => selectRadio(station.url, `${station.name} - ${station.location}`, globalIndex, station.logo);
 
     const statusSpan = document.createElement('span');
@@ -1390,7 +1393,7 @@ async function selectRadio(src, title, index, logo) {
       resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
-      const station = radioStations[index];
+      const station = resolvedRadioStations[index];
       currentRadioIndex = index;
       currentTrackIndex = -1;
       shuffleQueue = [];
@@ -1435,7 +1438,7 @@ async function selectRadio(src, title, index, logo) {
 
     function retryTrack() {
       if (currentRadioIndex >= 0) {
-        selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
+        selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, resolvedRadioStations[currentRadioIndex].logo);
       } else {
         selectTrack(lastTrackSrc, lastTrackTitle, lastTrackIndex, false);
       }
@@ -1977,14 +1980,14 @@ function switchTrack(direction, isAuto = false) {
   const shouldAutoPlay = isAuto || !audioPlayer.paused;
 
   if (currentRadioIndex !== -1) {
-    const stationCount = radioStations.length;
+    const stationCount = resolvedRadioStations.length;
     let newIndex;
     if (shuffleMode) {
       newIndex = Math.floor(Math.random() * stationCount);
     } else {
       newIndex = (currentRadioIndex + direction + stationCount) % stationCount;
     }
-    const station = radioStations[newIndex];
+    const station = resolvedRadioStations[newIndex];
     selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
   } else {
     if (shuffleMode) {
