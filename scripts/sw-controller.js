@@ -3,8 +3,12 @@
     return;
   }
 
-  const SW_URL = '/service-worker.js';
-  const VERSION_URL = '/version.json';
+  const basePath = typeof BASE_URL === 'string'
+    ? BASE_URL
+    : `${window.location.pathname.replace(/[^/]*$/, '')}`;
+  const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`;
+  const SW_URL = `${normalizedBase}service-worker.js`;
+  const VERSION_URL = `${normalizedBase}version.json`;
   let hasController = !!navigator.serviceWorker.controller;
   let reloadScheduled = false;
   let updateIntervalId = null;
