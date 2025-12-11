@@ -1,6 +1,6 @@
 (function () {
   const cache = new Map();
-  const SUNO_HOST = /^https?:\/\/(?:cdn\d*\.)?suno\.com\//i;
+  const SUNO_HOST = /^https?:\/\/(?:cdn\d*\.)?suno\.(?:ai|com)\//i;
   async function resolveSunoAudioSrc(src, timeoutMs = 2600) {
     if (!SUNO_HOST.test(src)) return src;
     if (cache.has(src)) return cache.get(src);
