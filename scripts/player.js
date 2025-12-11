@@ -1163,48 +1163,70 @@ radioStations.forEach(station => {
 });
 
 async function checkStreamStatus(url) {
-      return new Promise(resolve => {
-        const testAudio = document.createElement('audio');
-        let settled = false;
+  const controller = new AbortController();
+  const fetchTimeout = window.setTimeout(() => controller.abort(), 6000);
 
-        const cleanup = () => {
-          testAudio.removeEventListener('canplay', onCanPlay);
-          testAudio.removeEventListener('error', onError);
-          testAudio.src = '';
-        };
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      mode: 'no-cors',
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    window.clearTimeout(fetchTimeout);
 
-        const onCanPlay = () => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            resolve('online');
-          }
-        };
-
-        const onError = () => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            resolve('offline');
-          }
-        };
-
-        setCrossOrigin(testAudio, url);
-        testAudio.preload = 'auto';
-        testAudio.addEventListener('canplay', onCanPlay, { once: true });
-        testAudio.addEventListener('error', onError, { once: true });
-        testAudio.src = url;
-        testAudio.load();
-
-        setTimeout(() => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            resolve('offline');
-          }
-        }, 10000); // fallback timeout
-      });
+    // Any opaque/no-cors success means the origin is reachable even if we
+    // cannot inspect the headers (most radio hosts block CORS).
+    if (response.ok || response.type === 'opaque') {
+      return 'online';
     }
+  } catch (err) {
+    // Ignore fetch errors and fall back to an audio capability probe.
+    window.clearTimeout(fetchTimeout);
+  }
+
+  return new Promise(resolve => {
+    const testAudio = document.createElement('audio');
+    let settled = false;
+
+    const cleanup = () => {
+      testAudio.removeEventListener('canplay', onCanPlay);
+      testAudio.removeEventListener('error', onError);
+      testAudio.src = '';
+    };
+
+    const onCanPlay = () => {
+      if (!settled) {
+        settled = true;
+        cleanup();
+        resolve('online');
+      }
+    };
+
+    const onError = () => {
+      if (!settled) {
+        settled = true;
+        cleanup();
+        resolve('offline');
+      }
+    };
+
+    setCrossOrigin(testAudio, url);
+    testAudio.preload = 'auto';
+    testAudio.addEventListener('canplay', onCanPlay, { once: true });
+    testAudio.addEventListener('error', onError, { once: true });
+    testAudio.src = url;
+    testAudio.load();
+
+    setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        cleanup();
+        resolve('online');
+      }
+    }, 10000); // fallback timeout now assumes reachability when in doubt
+  });
+}
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
