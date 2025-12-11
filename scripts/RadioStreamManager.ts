@@ -3,6 +3,16 @@
  * ------------------
  * Dedicated controller for resilient live radio playback.
  *
+ * What changed (stability + UX):
+ * - The underlying HTMLAudioElement is now treated as a stable singleton; it is only reset when a
+ *   different station is explicitly selected or when a recovery flow forces a reload. Metadata-only
+ *   updates will no longer pause or seek the stream.
+ * - Recovery timers avoid piling up retries; stalled/waiting events simply start the stall watchdog
+ *   and a single retry timer. If playback recovers before the timer fires, the retry is skipped.
+ * - Pause events triggered by intentional resets (station switch/stop) are suppressed so the UI does
+ *   not bounce back to "0:00 / Live" during normal playback. Status updates now map cleanly to the
+ *   audio element state without spurious resets.
+ *
  * Design goals:
  * - React-friendly, but framework agnostic module API.
  * - Backward compatible with the existing immutable station list shape (id/name/streamUrl/url/etc.).
@@ -79,6 +89,7 @@ export function createRadioStreamManager(
   let sessionMetadata: Record<string, unknown> = {};
   let isOffline = !navigator.onLine;
   let isBuffering = false;
+  let suppressNextPauseEvent = false;
 
   // Event guard to prevent duplicate listeners on remount/switch.
   let audioListenersAttached = false;
@@ -125,6 +136,14 @@ export function createRadioStreamManager(
   // Station resolution & cache busting ------------------------------------
   const matchesStationId = (station: RadioStation, stationId: string | number) => {
     return station.id === stationId || station.name === stationId;
+  };
+
+  const isSameStation = (a: RadioStation | null, b: RadioStation) => {
+    if (!a) return false;
+    if (a.id != null && b.id != null) {
+      return a.id === b.id;
+    }
+    return a.name === b.name;
   };
 
   const findStation = (stationId: string | number): RadioStation | undefined => {
@@ -177,8 +196,12 @@ export function createRadioStreamManager(
 
   const handlePause = () => {
     clearStallTimer();
+    if (suppressNextPauseEvent) {
+      suppressNextPauseEvent = false;
+      return;
+    }
     if (!audio.paused && !audio.ended) return;
-    emitStatus('stopped');
+    emitStatus(currentStation ? 'buffering' : 'stopped');
   };
 
   const handleWaiting = () => {
@@ -190,7 +213,9 @@ export function createRadioStreamManager(
   const handleStalled = () => {
     emitStatus('stalled');
     startStallWatch();
-    scheduleRetry('stalled event');
+    if (!retryState.timerId) {
+      scheduleRetry('stalled event');
+    }
   };
 
   const handleError = () => {
@@ -245,21 +270,45 @@ export function createRadioStreamManager(
 
   const loadStation = (station: RadioStation) => {
     resetRecoveryState();
-    detachAudioListeners();
-    audio.pause();
-    audio.src = '';
-    audio.load();
+    const streamUrl = resolveStreamUrl(station);
+    if (!streamUrl) {
+      emitStatus('error', { error: new Error('Missing stream URL for station') });
+      return;
+    }
+
+    const stationChanged = !isSameStation(currentStation, station);
 
     currentStation = station;
     // Merge metadata into a runtime snapshot without mutating the source.
     sessionMetadata = { ...(station.metadata ?? {}), name: station.name, logo: station.logo, region: station.region };
     emitStatus('metadataUpdated');
 
-    const streamUrl = resolveStreamUrl(station);
-    if (!streamUrl) {
-      emitStatus('error', { error: new Error('Missing stream URL for station') });
+    // If the station did not change, keep the element stable and avoid a reset.
+    if (!stationChanged) {
+      attachAudioListeners();
+      if (audio.src !== streamUrl) {
+        audio.src = streamUrl;
+      }
+      if (audio.paused) {
+        const playPromise = audio.play();
+        if (playPromise) {
+          playPromise.catch(err => {
+            emitStatus('error', { error: err instanceof Error ? err : new Error(String(err)) });
+            scheduleRetry('resume-play-rejection');
+          });
+        }
+      }
+      startStallWatch();
+      emitStatus(isBuffering ? 'buffering' : 'playing');
       return;
     }
+
+    // Station switch: perform a controlled reset with pause suppression so the UI
+    // does not momentarily show "stopped" between streams.
+    suppressNextPauseEvent = true;
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
 
     audio.src = streamUrl;
     audio.autoplay = true;
@@ -282,6 +331,7 @@ export function createRadioStreamManager(
       return;
     }
     if (!currentStation) return;
+    if (retryState.timerId != null) return;
     if (retryState.count >= maxRetries) {
       emitStatus('error', { error: new Error(`Failed to recover stream after ${maxRetries} attempts (${reason}).`) });
       return;
@@ -293,7 +343,14 @@ export function createRadioStreamManager(
     emitStatus('retrying', { attempt: retryState.count, retryDelayMs: delay });
 
     retryState.timerId = window.setTimeout(() => {
+      retryState.timerId = null;
       if (!currentStation) return;
+      if (!audio.paused && !audio.ended && audio.currentTime > 0 && audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        // Playback recovered on its own; skip the retry without touching the element.
+        resetRecoveryState();
+        emitStatus('playing');
+        return;
+      }
       const streamUrl = resolveStreamUrl(currentStation);
       if (!streamUrl) {
         emitStatus('error', { error: new Error('Missing stream URL for station') });
