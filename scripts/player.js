@@ -443,8 +443,28 @@ function createRadioPlaybackController(player) {
     maxDelay: 45000,
     reconnectTimer: null,
     guardTimer: null,
-    monitorId: null
+    monitorId: null,
+    currentSrc: '',
+    lastProgress: 0,
+    lastProgressAt: 0
   };
+
+  function markProgress(time = player.currentTime || 0) {
+    state.lastProgress = time;
+    state.lastProgressAt = Date.now();
+  }
+
+  function hasRecentProgress() {
+    const current = player.currentTime || 0;
+    const progressed = current > state.lastProgress + 0.05;
+    if (progressed) {
+      markProgress(current);
+      return true;
+    }
+
+    const timeSinceProgress = Date.now() - state.lastProgressAt;
+    return timeSinceProgress < 4000;
+  }
 
   function clearTimers() {
     if (state.reconnectTimer) {
@@ -477,6 +497,10 @@ function createRadioPlaybackController(player) {
   function scheduleReconnect(token, reason) {
     if (token !== state.token) return;
     if (state.reconnectTimer) return;
+    if (hasRecentProgress()) {
+      console.info(`[radio] Skipping reconnect (${reason}); playback is progressing.`);
+      return;
+    }
 
     const delay = Math.min(state.baseDelay * Math.pow(2, state.retryCount), state.maxDelay);
     state.retryCount += 1;
@@ -485,6 +509,10 @@ function createRadioPlaybackController(player) {
     state.reconnectTimer = setTimeout(() => {
       state.reconnectTimer = null;
       if (token !== state.token) return;
+      if (hasRecentProgress()) {
+        console.info('[radio] Aborting reconnect; playback resumed.');
+        return;
+      }
       loadStream(token);
     }, delay);
   }
@@ -505,6 +533,9 @@ function createRadioPlaybackController(player) {
 
       const current = player.currentTime || 0;
       const progressed = current > lastTime + 0.05;
+      if (progressed) {
+        markProgress(current);
+      }
       if (!progressed || player.readyState < (HTMLMediaElement?.HAVE_CURRENT_DATA || 2)) {
         scheduleReconnect(token, 'playback-stuck');
       }
@@ -543,7 +574,21 @@ function createRadioPlaybackController(player) {
     clearTimers();
     removeHandlers();
 
-    const cacheSafeSrc = appendCacheBuster(state.station.src);
+    const baseSrc = state.station.src;
+    const streamChanged = baseSrc !== state.currentSrc;
+    const cacheSafeSrc = streamChanged
+      ? appendCacheBuster(baseSrc)
+      : (player.currentSrc || player.src || appendCacheBuster(baseSrc));
+
+    if (!streamChanged && hasRecentProgress() && player.currentSrc) {
+      state.retryCount = 0;
+      attachHandlers(token);
+      startHealthMonitor(token);
+      return;
+    }
+
+    state.currentSrc = baseSrc;
+    markProgress(player.currentTime || 0);
     setCrossOrigin(player, cacheSafeSrc);
     player.pause();
     player.removeAttribute('src');
@@ -582,6 +627,7 @@ function createRadioPlaybackController(player) {
       clearTimers();
       removeHandlers();
       state.station = null;
+      state.currentSrc = '';
       state.retryCount = 0;
       player.pause();
       player.removeAttribute('src');
