@@ -171,20 +171,20 @@ const albums = [
             { src: './data/suno-assets/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3', title: 'Perform My Life No More' },
             { src: './data/suno-assets/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3', title: 'When Help Rode In From Nowhere' },
             { src: './data/suno-assets/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3', title: 'Freedom' },
-            { src: 'https://cdn1.suno.ai/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3', title: 'Home Becomes Peace' },
-            { src: 'https://cdn1.suno.ai/5262fb23-fc38-404e-932b-e95de36effa8.mp3', title: 'Pepper 4 Body' },
-            { src: 'https://cdn1.suno.ai/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3', title: 'Dad is Missing' },
-            { src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3', title: 'Comfort Zone' },
-            { src: 'https://cdn1.suno.ai/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3', title: 'Detty Season' },
-            { src: 'https://cdn1.suno.ai/204380c2-034e-441b-8bf3-ef4e361554c0.mp3', title: 'Detty December' },
-            { src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
-            { src: 'https://cdn1.suno.ai/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3', title: 'Famine Of Fathers' },
-            { src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3', title: 'Guilt Trip Trap' },
+            { src: './data/suno-assets/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3', title: 'Home Becomes Peace' },
+            { src: './data/suno-assets/5262fb23-fc38-404e-932b-e95de36effa8.mp3', title: 'Pepper 4 Body' },
+            { src: './data/suno-assets/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3', title: 'Dad is Missing' },
+            { src: './data/suno-assets/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3', title: 'Comfort Zone' },
+            { src: './data/suno-assets/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3', title: 'Detty Season' },
+            { src: './data/suno-assets/204380c2-034e-441b-8bf3-ef4e361554c0.mp3', title: 'Detty December' },
+            { src: './data/suno-assets/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3', title: 'Persecutory Paranoia' },
+            { src: './data/suno-assets/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3', title: 'Famine Of Fathers' },
+            { src: './data/suno-assets/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3', title: 'Guilt Trip Trap' },
             { src: './data/suno-assets/5c17dd10-1770-467a-947a-db773c72ec78.mp3', title: 'Watchman' },
             { src: './data/suno-assets/fb1daddf-1de4-4164-bb9d-113f9639d732.mp3', title: 'Ọmọlúàbí' },
             { src: './data/suno-assets/d3ec2b0a-6062-417f-a62c-4d746f7f4f57.mp3', title: 'Take The Risk' },
-            { src: 'https://cdn1.suno.ai/d14755f5-381a-42c2-9cec-5a539d2937bf.mp3', title: 'Woman who Hates Correction' },
-            { src: 'https://cdn1.suno.ai/08a939af-4823-4054-bef6-1b8420857d9c.mp3', title: 'Home That Looks Safe' },
+            { src: './data/suno-assets/d14755f5-381a-42c2-9cec-5a539d2937bf.mp3', title: 'Woman who Hates Correction' },
+            { src: './data/suno-assets/08a939af-4823-4054-bef6-1b8420857d9c.mp3', title: 'Home That Looks Safe' },
             { src: './data/suno-assets/d5669af3-5caf-49e2-aca4-47fbc73a6d25.mp3', title: 'TikTok' },
             { src: './data/suno-assets/800b9280-4389-47f6-b20d-6aa7dd3298ad.mp3', title: 'Something Is About To Happen' },
             { src: './data/suno-assets/160aa857-a65f-4f60-9217-6045b2091183.mp3', title: 'Haters' },
@@ -194,33 +194,33 @@ const albums = [
             { src: './data/suno-assets/5ad4f8bc-4cef-4ad4-b847-c4f1b8147445.mp3', title: 'No Look Down' },
             { src: './data/suno-assets/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" },
             { src: './data/suno-assets/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
-            { src: 'https://cdn1.suno.ai/57a24cc6-ab05-447a-91ab-008321e9fc6a.mp3', title: 'Ghostwriter' },
-            { src: 'https://cdn1.suno.ai/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3', title: 'She Said No (Franca Viola Story)' },
-            { src: 'https://cdn1.suno.ai/c84b1a3e-b364-41d3-be5f-8e3b2273eb96.mp3', title: 'A Wa Good Gan' },
-            { src: 'https://cdn1.suno.ai/ce45202a-56e3-4d86-b185-3aa741aac131.mp3', title: 'Stir Am Well' },
-            { src: 'https://cdn1.suno.ai/d58c70e0-b330-4cda-8ee5-afd65f874d39.mp3', title: 'Talk Wey Bend (Obfuscation)' },
-            { src: 'https://cdn1.suno.ai/dbb44f28-64a1-49bb-bcbf-b5460c29ccd4.mp3', title: 'Belong Wahala' },
-            { src: 'https://cdn1.suno.ai/19c15d58-c776-4f1c-9ef7-3bb7890b26bb.mp3', title: 'Habatically' },
-            { src: 'https://cdn1.suno.ai/c6bb53b4-def2-4a68-bfaf-35f7f6dd7810.mp3', title: 'Party No Go Stop (Instrumental)' },
+            { src: './data/suno-assets/57a24cc6-ab05-447a-91ab-008321e9fc6a.mp3', title: 'Ghostwriter' },
+            { src: './data/suno-assets/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3', title: 'She Said No (Franca Viola Story)' },
+            { src: './data/suno-assets/c84b1a3e-b364-41d3-be5f-8e3b2273eb96.mp3', title: 'A Wa Good Gan' },
+            { src: './data/suno-assets/ce45202a-56e3-4d86-b185-3aa741aac131.mp3', title: 'Stir Am Well' },
+            { src: './data/suno-assets/d58c70e0-b330-4cda-8ee5-afd65f874d39.mp3', title: 'Talk Wey Bend (Obfuscation)' },
+            { src: './data/suno-assets/dbb44f28-64a1-49bb-bcbf-b5460c29ccd4.mp3', title: 'Belong Wahala' },
+            { src: './data/suno-assets/19c15d58-c776-4f1c-9ef7-3bb7890b26bb.mp3', title: 'Habatically' },
+            { src: './data/suno-assets/c6bb53b4-def2-4a68-bfaf-35f7f6dd7810.mp3', title: 'Party No Go Stop (Instrumental)' },
             { src: `${BASE_URL}Blood%20On%20The%20Lithium.mp3`, title: 'Blood On The Lithium' },
             { src: `${BASE_URL}No%20Be%20My%20Story.mp3`, title: 'No Be My Story' },
             { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' },
-            { src: 'https://cdn1.suno.ai/53a2cbb3-7a29-4641-aca3-43ad0a1d8ae1.mp3', title: 'As Far As Your Mind Can See' },
-            { src: 'https://cdn1.suno.ai/e70059ca-398f-481e-9a71-6338fcfb9a1d.mp3', title: 'The Distance' },
+            { src: './data/suno-assets/53a2cbb3-7a29-4641-aca3-43ad0a1d8ae1.mp3', title: 'As Far As Your Mind Can See' },
+            { src: './data/suno-assets/e70059ca-398f-481e-9a71-6338fcfb9a1d.mp3', title: 'The Distance' },
             { src: './data/suno-assets/ab26a763-cba1-4426-9bf0-8117d0602684.mp3', title: 'Stand With Truth' },
             { src: './data/suno-assets/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
-            { src: 'https://cdn1.suno.ai/c48de9b1-a68b-4889-b43b-243da2d54bc0.mp3', title: 'Raising Boys' },
-            { src: 'https://cdn1.suno.ai/f7f72dd2-12cd-4568-b831-f745973fa063.mp3', title: 'Destiny No Dey Wait' },
+            { src: './data/suno-assets/c48de9b1-a68b-4889-b43b-243da2d54bc0.mp3', title: 'Raising Boys' },
+            { src: './data/suno-assets/f7f72dd2-12cd-4568-b831-f745973fa063.mp3', title: 'Destiny No Dey Wait' },
             { src: './data/suno-assets/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
             { src: './data/suno-assets/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
             { src: './data/suno-assets/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
-            { src: 'https://cdn1.suno.ai/473edd61-d1ba-4bad-8014-7302cd1a9b71.mp3', title: 'Same Ni' },
-            { src: 'https://cdn1.suno.ai/553eefd4-54ba-4b73-ba02-4df85bfb5bb0.mp3', title: 'Envy' },
-            { src: 'https://cdn1.suno.ai/6af3b681-f3e6-4e84-85c7-9a2ad5f14e44.mp3', title: 'Echoes Of Ice' },
-            { src: 'https://cdn1.suno.ai/e9562054-31e2-4195-ab30-cbe2902193f8.mp3', title: 'Wisdom Moves' },
-            { src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3', title: 'Bread Crumb Effect' },
-            { src: 'https://cdn1.suno.ai/df20133e-8c32-48ec-b7d7-969aefef3478.mp3', title: 'Love Without Empathy' },
-            { src: 'https://cdn1.suno.ai/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3', title: 'Normal No Mean NOT Toxic' },
+            { src: './data/suno-assets/473edd61-d1ba-4bad-8014-7302cd1a9b71.mp3', title: 'Same Ni' },
+            { src: './data/suno-assets/553eefd4-54ba-4b73-ba02-4df85bfb5bb0.mp3', title: 'Envy' },
+            { src: './data/suno-assets/6af3b681-f3e6-4e84-85c7-9a2ad5f14e44.mp3', title: 'Echoes Of Ice' },
+            { src: './data/suno-assets/e9562054-31e2-4195-ab30-cbe2902193f8.mp3', title: 'Wisdom Moves' },
+            { src: './data/suno-assets/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3', title: 'Bread Crumb Effect' },
+            { src: './data/suno-assets/df20133e-8c32-48ec-b7d7-969aefef3478.mp3', title: 'Love Without Empathy' },
+            { src: './data/suno-assets/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3', title: 'Normal No Mean NOT Toxic' },
             { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
             { src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' },
             { src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' },
@@ -370,63 +370,63 @@ const LATEST_TRACK_LIMIT = 2;
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Mummy I love you ft. Steady',
-      src: 'https://cdn1.suno.ai/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3',
+      src: './data/suno-assets/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3',
       addedOn: '2025-12-09T12:00:00Z',
       isFreshDrop: true
     },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Udo Don Cost',
-      src: 'https://cdn1.suno.ai/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3',
+      src: './data/suno-assets/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3',
       addedOn: '2025-12-08T12:00:00Z',
       isFreshDrop: true
     },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Matasa Ku Tashi',
-      src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3',
+      src: './data/suno-assets/377a7311-7338-4a51-816a-96eacaef7bac.mp3',
       addedOn: '2025-12-06T15:30:00Z',
       isFreshDrop: true
     },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Feelings Fi You ft. Steady',
-      src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3',
+      src: './data/suno-assets/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3',
       addedOn: '2025-02-24T09:00:00Z',
       isFreshDrop: true
     },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'I Love You',
-    src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3',
+    src: './data/suno-assets/ab702e5a-f698-4e05-9463-499cbeccff67.mp3',
     addedOn: '2025-12-04T09:00:00Z',
     isFreshDrop: true
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Face Of A Narcissist',
-    src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3',
+    src: './data/suno-assets/4a173806-00d5-4528-be27-3f236df02c58.mp3',
     addedOn: '2025-12-12T09:00:00Z',
     isFreshDrop: true
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Growth Comes With Goodbyes',
-    src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3',
+    src: './data/suno-assets/52e7e84c-205b-4439-9c59-7e21304ca168.mp3',
     addedOn: '2025-12-10T09:00:00Z',
     isFreshDrop: true
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Boda Yen',
-    src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3',
+    src: './data/suno-assets/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3',
     addedOn: '2025-12-04T09:00:00Z',
     isFreshDrop: true
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Different Phases',
-    src: 'https://cdn1.suno.ai/55a69d8b-c572-4280-84df-6226f574e92e.mp3',
+    src: './data/suno-assets/55a69d8b-c572-4280-84df-6226f574e92e.mp3',
     addedOn: '2025-11-26T17:55:24Z'
   },
   {
@@ -450,7 +450,7 @@ const LATEST_TRACK_LIMIT = 2;
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Perform My Life No More',
-    src: 'https://cdn1.suno.ai/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3',
+    src: './data/suno-assets/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3',
     addedOn: '2025-11-23T09:00:00Z'
   },
   {
@@ -462,25 +462,25 @@ const LATEST_TRACK_LIMIT = 2;
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'One Position',
-    src: 'https://cdn1.suno.ai/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3',
+    src: './data/suno-assets/97301c6c-bcad-411b-adce-02b9cfd071d8.mp3',
     addedOn: '2025-05-06T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'When Help Rode In From Nowhere',
-    src: 'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
+    src: './data/suno-assets/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
     addedOn: '2025-11-21T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Freedom',
-    src: 'https://cdn1.suno.ai/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3',
+    src: './data/suno-assets/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3',
     addedOn: '2025-11-21T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Home Becomes Peace',
-    src: 'https://cdn1.suno.ai/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3',
+    src: './data/suno-assets/5ef5743f-4848-4d92-84c6-873d9b51958e.mp3',
     addedOn: '2025-11-18T09:00:00Z'
   },
   {
@@ -492,91 +492,91 @@ const LATEST_TRACK_LIMIT = 2;
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'As Far As Your Mind Can See',
-    src: 'https://cdn1.suno.ai/53a2cbb3-7a29-4641-aca3-43ad0a1d8ae1.mp3',
+    src: './data/suno-assets/53a2cbb3-7a29-4641-aca3-43ad0a1d8ae1.mp3',
     addedOn: '2024-12-13T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Normal No Mean NOT Toxic',
-    src: 'https://cdn1.suno.ai/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3',
+    src: './data/suno-assets/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3',
     addedOn: '2025-11-14T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Detty December',
-    src: 'https://cdn1.suno.ai/204380c2-034e-441b-8bf3-ef4e361554c0.mp3',
+    src: './data/suno-assets/204380c2-034e-441b-8bf3-ef4e361554c0.mp3',
     addedOn: '2025-11-10T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Detty Season',
-    src: 'https://cdn1.suno.ai/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3',
+    src: './data/suno-assets/b618aae7-c7b0-4260-af4a-2f7d2e5e3b70.mp3',
     addedOn: '2025-11-07T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Pepper 4 Body',
-    src: 'https://cdn1.suno.ai/5262fb23-fc38-404e-932b-e95de36effa8.mp3',
+    src: './data/suno-assets/5262fb23-fc38-404e-932b-e95de36effa8.mp3',
     addedOn: '2024-05-01T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Dad is Missing',
-    src: 'https://cdn1.suno.ai/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3',
+    src: './data/suno-assets/7a8b0fa8-fb18-4af8-9007-c2b54e2daa0b.mp3',
     addedOn: '2024-04-15T00:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Comfort Zone',
-    src: 'https://cdn1.suno.ai/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3',
+    src: './data/suno-assets/5baa29da-81ce-4f7d-94cc-3b15e88055f5.mp3',
     addedOn: '2024-11-02T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Guilt Trip Trap',
-    src: 'https://cdn1.suno.ai/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3',
+    src: './data/suno-assets/f0666a04-fab8-4c4f-bb75-56147c49feaa.mp3',
     addedOn: '2024-09-05T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Famine Of Fathers',
-    src: 'https://cdn1.suno.ai/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3',
+    src: './data/suno-assets/22d01aa2-02bb-4c6a-917c-0cd1b1d28552.mp3',
     addedOn: '2024-08-27T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Persecutory Paranoia',
-    src: 'https://cdn1.suno.ai/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3',
+    src: './data/suno-assets/8e63cdab-2e25-4993-ad25-1d074224b0c2.mp3',
     addedOn: '2024-08-24T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'She Said No (Franca Viola Story)',
-    src: 'https://cdn1.suno.ai/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3',
+    src: './data/suno-assets/b8a32f06-edd8-475f-9e06-7f54fc84d571.mp3',
     addedOn: '2024-08-21T09:00:00Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Woman who Hates Correction',
-    src: 'https://cdn1.suno.ai/d14755f5-381a-42c2-9cec-5a539d2937bf.mp3',
+    src: './data/suno-assets/d14755f5-381a-42c2-9cec-5a539d2937bf.mp3',
     addedOn: '2024-06-24'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Love Without Empathy',
-    src: 'https://cdn1.suno.ai/df20133e-8c32-48ec-b7d7-969aefef3478.mp3',
+    src: './data/suno-assets/df20133e-8c32-48ec-b7d7-969aefef3478.mp3',
     addedOn: '2024-05-17'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Bread Crumb Effect',
-    src: 'https://cdn1.suno.ai/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3',
+    src: './data/suno-assets/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3',
     addedOn: '2024-05-09'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Home That Looks Safe',
-    src: 'https://cdn1.suno.ai/08a939af-4823-4054-bef6-1b8420857d9c.mp3',
+    src: './data/suno-assets/08a939af-4823-4054-bef6-1b8420857d9c.mp3',
     addedOn: '2024-05-06'
   }
 ];
