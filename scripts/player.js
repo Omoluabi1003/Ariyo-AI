@@ -20,6 +20,7 @@
             const sameOrigin = target.origin === window.location.origin;
             const allowList = [
               /\.suno\.ai$/i,
+              /\.suno\.com$/i,
               /raw\.githubusercontent\.com$/i,
               /githubusercontent\.com$/i
             ];
@@ -41,6 +42,20 @@
         } catch (e) {
             element.removeAttribute('crossorigin');
         }
+    }
+
+    function normalizeMediaSrc(src) {
+      if (!src) return '';
+      const trimmed = src.trim();
+      if (/^\/\//.test(trimmed)) {
+        return `${window.location.protocol}${trimmed}`;
+      }
+
+      if (/^http:\/\//i.test(trimmed)) {
+        return trimmed.replace(/^http:\/\//i, 'https://');
+      }
+
+      return trimmed;
     }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
@@ -1118,7 +1133,8 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       retryButton.style.display = 'none';
       setTurntableSpin(false);
 
-    const resolvedSrc = await resolveSunoAudioSrc(src);
+    const normalizedSrc = normalizeMediaSrc(src);
+    const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
     const streamUrl = buildTrackFetchUrl(resolvedSrc);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
@@ -1168,13 +1184,15 @@ async function selectRadio(src, title, index, logo) {
       }
       const newQuery = params.toString();
       window.history.replaceState({}, '', `${window.location.pathname}${newQuery ? '?' + newQuery : ''}`);
-      lastTrackSrc = src;
+      const normalizedSrc = normalizeMediaSrc(src);
+      lastTrackSrc = normalizedSrc;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      const resolvedSrc = await resolveSunoAudioSrc(src);
-      setCrossOrigin(audioPlayer, resolvedSrc);
-      audioPlayer.src = resolvedSrc;
-      audioHealer.trackSource(resolvedSrc, title);
+      const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
+      const streamUrl = buildTrackFetchUrl(resolvedSrc);
+      setCrossOrigin(audioPlayer, streamUrl);
+      audioPlayer.src = streamUrl;
+      audioHealer.trackSource(streamUrl, title);
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
@@ -1191,7 +1209,7 @@ async function selectRadio(src, title, index, logo) {
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
-      handleAudioLoad(src, title, true);
+      handleAudioLoad(streamUrl, title, true);
       updateMediaSession();
       showNowPlayingToast(title);
     }
