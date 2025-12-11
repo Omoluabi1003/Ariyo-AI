@@ -221,10 +221,10 @@ const albums = [
             { src: './data/suno-assets/81ba8cdd-bf24-492c-9504-b52b0a93fb39.mp3', title: 'Bread Crumb Effect' },
             { src: './data/suno-assets/df20133e-8c32-48ec-b7d7-969aefef3478.mp3', title: 'Love Without Empathy' },
             { src: './data/suno-assets/9ce53c0b-5bb2-4ac7-aee7-050013396548.mp3', title: 'Normal No Mean NOT Toxic' },
-            { src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
-            { src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' },
-            { src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' },
-            { src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' }
+            { src: './data/suno-assets/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3', title: 'No Contact' },
+            { src: './data/suno-assets/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3', title: 'Shadows Teach The Light' },
+            { src: './data/suno-assets/f76cf242-e031-4785-a4b5-209b615da414.mp3', title: 'Midnight Maybe' },
+            { src: './data/suno-assets/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3', title: 'Run Di Settings' }
         ]
       },
       {
@@ -432,19 +432,19 @@ const LATEST_TRACK_LIMIT = 2;
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Run Di Settings',
-    src: 'https://cdn1.suno.ai/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3',
+    src: './data/suno-assets/db52c7ad-c0aa-4f69-ab66-c7a6740ff1e5.mp3',
     addedOn: '2025-11-27T01:45:26Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Midnight Maybe',
-    src: 'https://cdn1.suno.ai/f76cf242-e031-4785-a4b5-209b615da414.mp3',
+    src: './data/suno-assets/f76cf242-e031-4785-a4b5-209b615da414.mp3',
     addedOn: '2024-11-26T16:57:26Z'
   },
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'Shadows Teach The Light',
-    src: 'https://cdn1.suno.ai/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3',
+    src: './data/suno-assets/8961b5ef-ca9b-4d0b-bce5-1bf065915db9.mp3',
     addedOn: '2025-11-25T18:53:20Z'
   },
   {
@@ -486,7 +486,7 @@ const LATEST_TRACK_LIMIT = 2;
   {
     albumName: 'Omoluabi Production Catalogue',
     title: 'No Contact',
-    src: 'https://cdn1.suno.ai/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3',
+    src: './data/suno-assets/d010f7ec-5367-4d82-8243-8a515fcaf961.mp3',
     addedOn: '2025-11-17T09:00:00Z'
   },
   {
