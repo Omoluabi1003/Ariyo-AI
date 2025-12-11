@@ -78,9 +78,9 @@ const CORE_ASSETS = [
 ];
 
 const PREFETCH_MEDIA = [
-  '/data/suno-assets/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
-  '/data/suno-assets/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3',
-  '/data/suno-assets/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3'
+  'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
+  'https://cdn1.suno.ai/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3',
+  'https://cdn1.suno.ai/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3'
 ];
 const PREFETCH_MEDIA_SET = new Set(PREFETCH_MEDIA);
 
