@@ -451,3 +451,8 @@ albums.forEach(album => {
       { name: "947", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/FM947.mp3", logo: `${BASE_URL}Logo.jpg` },
       { name: "SAfm (SABC News & Talk)", location: "South Africa", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/SAFM.mp3", logo: `${BASE_URL}Logo.jpg` }
     ];
+
+    // Preserve the legacy array for reference while allowing downstream scripts to consume the merged list.
+    if (typeof window !== 'undefined') {
+      window.radioStations = radioStations;
+    }
