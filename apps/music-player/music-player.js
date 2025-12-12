@@ -1,3 +1,19 @@
+/**
+ * Audio playback flow overview
+ * -----------------------------
+ * When the user taps play, we immediately:
+ * 1) Update the UI to a lightweight "connecting" state so it never looks idle.
+ * 2) Start playback and arm a timeout watchdog. If playback does not reach a
+ *    playable state within PLAYBACK_START_TIMEOUT_MS, we treat it as a soft
+ *    failure and retry automatically.
+ * 3) Retry up to PLAYBACK_MAX_RETRIES before surfacing a calm, actionable
+ *    error message to the listener. All technical details are logged to the
+ *    console for developers but not shown to users.
+ * 4) Success (canplay/playing) clears timers, removes the loading indicator,
+ *    and keeps the rest of the UI responsive. Switching tracks cancels any
+ *    pending attempts to avoid ghost timers or stuck loading states.
+ */
+
 (function () {
   const deckAudioA = document.getElementById('audioPlayer');
   const deckAudioB = document.getElementById('audioDeckB');
@@ -31,6 +47,11 @@
   const deckAMeta = document.getElementById('deckA_meta');
   const deckBMeta = document.getElementById('deckB_meta');
   const djCrossfader = document.getElementById('djCrossfader');
+
+  // Playback start safeguards. Adjust these values to tune responsiveness.
+  const PLAYBACK_START_TIMEOUT_MS = 8000;
+  const PLAYBACK_MAX_RETRIES = 2;
+  const PLAYBACK_RETRY_DELAY_MS = 600;
 
   const deriveTrackArtist = (baseArtist, trackTitle) => {
     const artistName = baseArtist || 'Omoluabi';
@@ -136,6 +157,8 @@
   let standbyPreloadedIndex = null;
   let audioContext = null;
   let crossfaderFrame = null;
+  let playbackStartState = null;
+  const preconnectedHosts = new Set();
 
   function getCrossfadeDurationForTrack(trackDurationSeconds) {
     if (!trackDurationSeconds || !Number.isFinite(trackDurationSeconds)) {
@@ -415,6 +438,149 @@
     statusMessage.dataset.tone = tone;
   }
 
+  function showLoading(message = 'Connecting…', tone = 'info') {
+    loadingSpinner.style.display = 'block';
+    setStatus(message, tone);
+  }
+
+  function hideLoading() {
+    loadingSpinner.style.display = 'none';
+  }
+
+  function ensurePreconnect(url) {
+    try {
+      const { origin } = new URL(url, window.location.href);
+      if (preconnectedHosts.has(origin)) return;
+      const link = document.createElement('link');
+      link.rel = 'preconnect';
+      link.href = origin;
+      link.crossOrigin = 'anonymous';
+      document.head.appendChild(link);
+      preconnectedHosts.add(origin);
+    } catch (_) {
+      // Ignore malformed URLs or failures to create link tags.
+    }
+  }
+
+  function resetPlaybackStartState() {
+    if (!playbackStartState) return;
+    if (playbackStartState.timeoutId) {
+      clearTimeout(playbackStartState.timeoutId);
+    }
+    const { audioEl, onSuccess, onError } = playbackStartState;
+    if (audioEl && onSuccess && onError) {
+      audioEl.removeEventListener('playing', onSuccess);
+      audioEl.removeEventListener('canplay', onSuccess);
+      audioEl.removeEventListener('error', onError);
+    }
+    playbackStartState = null;
+  }
+
+  function isActivePlaybackState(state) {
+    return playbackStartState && state && playbackStartState.id === state.id;
+  }
+
+  function retryOrFailPlayback(state, error) {
+    if (!isActivePlaybackState(state)) return;
+    if (state.timeoutId) {
+      clearTimeout(state.timeoutId);
+      state.timeoutId = null;
+    }
+
+    const audioEl = state.audioEl;
+    if (!audioEl) return;
+
+    if (state.retries < PLAYBACK_MAX_RETRIES) {
+      state.retries += 1;
+      console.warn('[player] Playback retry', { attempt: state.retries, error });
+      try {
+        audioEl.pause();
+        if (typeof audioEl.fastSeek === 'function') {
+          audioEl.fastSeek(0);
+        }
+        audioEl.currentTime = 0;
+        audioEl.load();
+      } catch (_) {
+        // Ignore reset errors between retries.
+      }
+      showLoading('Reconnecting…');
+      state.timeoutId = setTimeout(() => {
+        retryOrFailPlayback(state, new Error('timeout'));
+      }, PLAYBACK_START_TIMEOUT_MS + PLAYBACK_RETRY_DELAY_MS);
+      setTimeout(() => {
+        if (!isActivePlaybackState(state)) return;
+        const playPromise = audioEl.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(err => retryOrFailPlayback(state, err));
+        }
+      }, PLAYBACK_RETRY_DELAY_MS);
+      return;
+    }
+
+    resetPlaybackStartState();
+    hideLoading();
+    // Update this message to change the user-facing playback failure copy.
+    setStatus('We could not start playback right now. Please check your connection and try again.', 'error');
+    postPanelStatus('error', state.trackTitle || '');
+    console.error('[player] Playback failed after retries', { error });
+  }
+
+  function beginPlaybackStart(deckKey, track) {
+    const deck = decks[deckKey];
+    if (!deck || !deck.audio) return;
+
+    resetPlaybackStartState();
+    const audioEl = deck.audio;
+    const state = {
+      id: Date.now(),
+      audioEl,
+      deckKey,
+      retries: 0,
+      timeoutId: null,
+      trackTitle: track ? track.title : '',
+      onSuccess: null,
+      onError: null,
+    };
+
+    const handleSuccess = () => {
+      if (!isActivePlaybackState(state)) return;
+      if (state.timeoutId) {
+        clearTimeout(state.timeoutId);
+      }
+      hideLoading();
+      resetPlaybackStartState();
+    };
+
+    const handleError = event => {
+      retryOrFailPlayback(state, event?.error || event);
+    };
+
+    state.onSuccess = handleSuccess;
+    state.onError = handleError;
+
+    audioEl.addEventListener('playing', handleSuccess);
+    audioEl.addEventListener('canplay', handleSuccess);
+    audioEl.addEventListener('error', handleError);
+
+    playbackStartState = state;
+    markPlaybackSelection(track?.src);
+    showLoading('Connecting…');
+
+    const startAttempt = () => {
+      if (!isActivePlaybackState(state)) return;
+      state.timeoutId = setTimeout(() => {
+        retryOrFailPlayback(state, new Error('playback timeout'));
+      }, PLAYBACK_START_TIMEOUT_MS);
+
+      const playPromise = audioEl.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(err => retryOrFailPlayback(state, err));
+      }
+    };
+
+    startAttempt();
+  }
+
   function setCrossOrigin(url, element = getActiveAudio()) {
     try {
       const { hostname } = new URL(url, window.location.href);
@@ -469,36 +635,6 @@
     const latency = Math.round(startedAt - playbackLatencyMarks.get(trackSrc));
     playbackLatencyMarks.delete(trackSrc);
     console.debug(`[player] Playback audible in ${latency}ms for ${trackSrc}`);
-  }
-
-  function attemptImmediatePlay(deck) {
-    if (!deck || !deck.audio) return;
-    const audioEl = deck.audio;
-    let retried = false;
-
-    const tryPlay = () => {
-      const playPromise = audioEl.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(error => {
-          console.warn('Immediate play blocked', error);
-          setStatus('Tap play to start listening.', 'warning');
-          updateSpinState();
-        });
-      }
-    };
-
-    tryPlay();
-
-    if (audioEl.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-      const retry = () => {
-        if (!audioEl.paused || retried) return;
-        retried = true;
-        tryPlay();
-      };
-
-      audioEl.addEventListener('canplay', retry, { once: true });
-      setTimeout(retry, 250);
-    }
   }
 
   function syncCrossfaderToActiveDeck() {
@@ -892,6 +1028,7 @@
     const deck = decks[deckKey];
     ensureAudioGraph(deck);
     const resolvedSrc = await resolveSunoAudioSrc(track.src);
+    ensurePreconnect(resolvedSrc);
     setCrossOrigin(resolvedSrc, deck.audio);
     deck.audio.autoplay = !preloadOnly;
     deck.audio.preload = preloadOnly ? 'metadata' : 'auto';
@@ -932,8 +1069,7 @@
     }
 
     if (!preloadOnly) {
-      loadingSpinner.style.display = 'block';
-      setStatus('Loading track…');
+      showLoading('Loading track…');
     }
 
     return { deck, track };
@@ -979,8 +1115,7 @@
     updateDjMixUi();
     animateCrossfader(outgoingKey, incomingKey, duration);
 
-    markPlaybackSelection(track.src);
-    attemptImmediatePlay(incomingDeck);
+    beginPlaybackStart(incomingKey, track);
 
     rampVolume(incomingDeck, 0, targetVolume, duration);
     rampVolume(outgoingDeck, targetVolume, 0, duration, () => {
@@ -1009,8 +1144,7 @@
     setDeckVolume(incomingDeck, targetVolume);
 
     if (autoplay) {
-      markPlaybackSelection(track.src);
-      attemptImmediatePlay(incomingDeck);
+      beginPlaybackStart(incomingKey, track);
     }
 
     outgoingDeck.audio.pause();
@@ -1039,11 +1173,13 @@
   }
 
   function stopPlayback() {
+    resetPlaybackStartState();
     Object.values(decks).forEach(deck => {
       deck.audio.pause();
       deck.audio.currentTime = 0;
     });
     updateSpinState();
+    hideLoading();
     setStatus('Playback stopped.');
   }
 
@@ -1213,7 +1349,7 @@
   function handlePlaying(event) {
     if (event.target !== getActiveAudio()) return;
     logPlaybackStart(event.target.dataset.trackSrc);
-    loadingSpinner.style.display = 'none';
+    hideLoading();
     setStatus(`Now playing: ${trackInfo.textContent}`);
     updateSpinState();
     postPanelStatus('playing', trackInfo.textContent);
@@ -1231,13 +1367,12 @@
 
   function handleWaiting(event) {
     if (event.target !== getActiveAudio()) return;
-    loadingSpinner.style.display = 'block';
-    setStatus('Buffering…', 'info');
+    showLoading('Buffering…', 'info');
   }
 
   function handleCanPlay(event) {
     if (event.target !== getActiveAudio()) return;
-    loadingSpinner.style.display = 'none';
+    hideLoading();
   }
 
   function handleEnded(event) {
@@ -1249,8 +1384,12 @@
 
   function handleError(event) {
     if (event.target !== getActiveAudio()) return;
-    loadingSpinner.style.display = 'none';
-    setStatus('Unable to play this track. Please try another one.', 'error');
+    if (playbackStartState && playbackStartState.audioEl === event.target) {
+      retryOrFailPlayback(playbackStartState, event?.error || event);
+      return;
+    }
+    hideLoading();
+    setStatus('We could not start playback right now. Please check your connection and try again.', 'error');
     postPanelStatus('error', trackInfo.textContent);
     cleanupPrefetch(event.target.dataset.trackSrc);
   }
