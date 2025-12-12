@@ -158,13 +158,14 @@ const albums = [
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
               { src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3', title: 'No Respect, No Me' },
+              { src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3', title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)' },
+              { src: 'https://cdn1.suno.ai/d4891669-f5e2-403a-826c-0d886d5e0f5e.mp3', title: 'Government Why ft. Steady' },
+              { src: 'https://cdn1.suno.ai/5eb479d0-4e75-431e-9bb4-21aef77e7dd3.mp3', title: 'Naughty Boy ft. Steady' },
               { src: 'https://cdn1.suno.ai/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3', title: 'Mummy I love you ft. Steady' },
               { src: 'https://cdn1.suno.ai/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3', title: 'Udo Don Cost' },
               { src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3', title: 'Matasa Ku Tashi' },
               { src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3', title: 'Feelings Fi You ft. Steady' },
               { src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3', title: 'I Love You' },
-              { src: 'https://cdn1.suno.ai/d4891669-f5e2-403a-826c-0d886d5e0f5e.mp3', title: 'Government Why ft. Steady' },
-              { src: 'https://cdn1.suno.ai/5eb479d0-4e75-431e-9bb4-21aef77e7dd3.mp3', title: 'Naughty Boy ft. Steady' },
               { src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3', title: 'Face Of A Narcissist' },
               { src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3', title: 'Growth Comes With Goodbyes' },
             { src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3', title: 'Boda Yen' },
@@ -370,6 +371,34 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'No Respect, No Me',
+      src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3',
+      addedOn: '2025-12-13T09:15:00Z',
+      isFreshDrop: true
+    },
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Government Why ft. Steady',
+      src: 'https://cdn1.suno.ai/d4891669-f5e2-403a-826c-0d886d5e0f5e.mp3',
+      addedOn: '2025-12-13T09:10:00Z',
+      isFreshDrop: true
+    },
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Naughty Boy ft. Steady',
+      src: 'https://cdn1.suno.ai/5eb479d0-4e75-431e-9bb4-21aef77e7dd3.mp3',
+      addedOn: '2025-12-13T09:05:00Z',
+      isFreshDrop: true
+    },
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)',
+      src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3',
+      addedOn: '2025-12-12T09:30:00Z',
+      isFreshDrop: true
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Mummy I love you ft. Steady',

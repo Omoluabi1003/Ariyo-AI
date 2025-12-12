@@ -1,8 +1,8 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v11';
-const FALLBACK_VERSION = '1.15.7';
+const CACHE_PREFIX = 'ariyo-ai-cache-v12';
+const FALLBACK_VERSION = '1.16.0';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
