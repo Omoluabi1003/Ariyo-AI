@@ -2,11 +2,14 @@
   const BASE_URL = './';
 
   const OMOLUABI_TRACKS = [
+    { slug: 'no-respect-no-me', title: 'No Respect, No Me', src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3' },
     {
       slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb',
       title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)',
       src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3'
     },
+    { slug: 'government-why-ft-steady', title: 'Government Why ft. Steady', src: 'https://cdn1.suno.ai/d4891669-f5e2-403a-826c-0d886d5e0f5e.mp3' },
+    { slug: 'naughty-boy-ft-steady', title: 'Naughty Boy ft. Steady', src: 'https://cdn1.suno.ai/5eb479d0-4e75-431e-9bb4-21aef77e7dd3.mp3' },
     { slug: 'mummy-i-love-you-ft-steady', title: 'Mummy I love you ft. Steady', src: 'https://cdn1.suno.ai/e8ab9c5b-b567-4e5e-8b26-4c33faff4307.mp3' },
     { slug: 'udo-don-cost', title: 'Udo Don Cost', src: 'https://cdn1.suno.ai/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3' },
     { slug: 'matasa-ku-tashi', title: 'Matasa Ku Tashi', src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3' },
@@ -78,6 +81,9 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    { albumName: 'Omoluabi Production Catalogue', slug: 'no-respect-no-me', addedOn: '2025-12-12T09:00:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'government-why-ft-steady', addedOn: '2025-12-12T09:05:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'naughty-boy-ft-steady', addedOn: '2025-12-12T09:10:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb', addedOn: '2025-12-11T09:00:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'dad-is-missing', addedOn: '2025-11-23T09:00:00Z' },
     { albumName: 'Omoluabi Production Catalogue', slug: 'built-like-this', addedOn: '2025-11-22T09:00:00Z' },
