@@ -81,10 +81,10 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
-    { albumName: 'Omoluabi Production Catalogue', slug: 'no-respect-no-me', addedOn: '2025-12-12T09:00:00Z', isFreshDrop: true },
-    { albumName: 'Omoluabi Production Catalogue', slug: 'government-why-ft-steady', addedOn: '2025-12-12T09:05:00Z', isFreshDrop: true },
-    { albumName: 'Omoluabi Production Catalogue', slug: 'naughty-boy-ft-steady', addedOn: '2025-12-12T09:10:00Z', isFreshDrop: true },
-    { albumName: 'Omoluabi Production Catalogue', slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb', addedOn: '2025-12-11T09:00:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'no-respect-no-me', addedOn: '2025-12-13T09:15:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'government-why-ft-steady', addedOn: '2025-12-13T09:10:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'naughty-boy-ft-steady', addedOn: '2025-12-13T09:05:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb', addedOn: '2025-12-12T09:30:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'dad-is-missing', addedOn: '2025-11-23T09:00:00Z' },
     { albumName: 'Omoluabi Production Catalogue', slug: 'built-like-this', addedOn: '2025-11-22T09:00:00Z' },
     { albumName: 'Omoluabi Production Catalogue', slug: 'one-position', addedOn: '2025-05-06T09:00:00Z' },
