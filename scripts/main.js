@@ -559,7 +559,7 @@
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
           setCrossOrigin(audioPlayer, station.url);
-          audioHealer.trackSource(station.url, station.name);
+          audioHealer.trackSource(station.url, station.name, { live: true });
           trackInfo.textContent = `${station.name} - ${station.location}`;
           trackArtist.textContent = '';
           trackYear.textContent = '';
@@ -578,7 +578,7 @@
           applyTrackUiState(currentAlbumIndex, currentTrackIndex);
           const streamUrl = buildTrackFetchUrl(track.src);
           setCrossOrigin(audioPlayer, streamUrl);
-          audioHealer.trackSource(streamUrl, track.title);
+          audioHealer.trackSource(streamUrl, track.title, { live: false });
           handleAudioLoad(streamUrl, track.title, false, {
             autoPlay: false,
             resumeTime: savedState.playbackPosition,

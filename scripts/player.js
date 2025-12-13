@@ -305,7 +305,8 @@ function createSelfHealAudio(player) {
     lastTitle: '',
     durationTimer: null,
     retryCount: 0,
-    maxRetries: 3
+    maxRetries: 3,
+    isLive: false
   };
 
   function log(message, extra = {}) {
@@ -320,6 +321,7 @@ function createSelfHealAudio(player) {
   }
 
   function watchDuration(reason = 'duration-check') {
+    if (state.isLive) return;
     clearDurationTimer();
     state.durationTimer = setTimeout(() => {
       const invalidDuration = !player.duration || !isFinite(player.duration);
@@ -332,6 +334,7 @@ function createSelfHealAudio(player) {
 
   function rebindMetadataHandlers() {
     const onLoadedMetadata = () => {
+      if (state.isLive) return;
       clearDurationTimer();
       if (!player.duration || !isFinite(player.duration)) {
         watchDuration('loadedmetadata-invalid');
@@ -339,6 +342,7 @@ function createSelfHealAudio(player) {
     };
 
     const onDurationChange = () => {
+      if (state.isLive) return;
       if (!player.duration || !isFinite(player.duration)) {
         watchDuration('durationchange-invalid');
       } else {
@@ -408,7 +412,7 @@ function createSelfHealAudio(player) {
   }
 
   function handleStall(event) {
-    if (player.paused || state.recovering) return;
+    if (player.paused || state.recovering || state.isLive) return;
     watchDuration(event.type);
   }
 
@@ -431,9 +435,14 @@ function createSelfHealAudio(player) {
     });
   }
 
-  function trackSource(src, title) {
+  function trackSource(src, title, options = {}) {
+    state.isLive = Boolean(options.live);
     state.lastKnownSrc = src || state.lastKnownSrc;
     state.lastTitle = title || state.lastTitle;
+    if (state.isLive) {
+      clearDurationTimer();
+      return;
+    }
     watchDuration('source-change');
   }
 
@@ -1138,7 +1147,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
     const streamUrl = buildTrackFetchUrl(resolvedSrc);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
-    audioHealer.trackSource(streamUrl, title);
+    audioHealer.trackSource(streamUrl, title, { live: false });
     audioPlayer.currentTime = 0;
     handleAudioLoad(streamUrl, title, false, {
       onReady: () => {
@@ -1192,7 +1201,7 @@ async function selectRadio(src, title, index, logo) {
       const streamUrl = buildTrackFetchUrl(resolvedSrc);
       setCrossOrigin(audioPlayer, streamUrl);
       audioPlayer.src = streamUrl;
-      audioHealer.trackSource(streamUrl, title);
+      audioHealer.trackSource(streamUrl, title, { live: true });
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
@@ -1243,10 +1252,11 @@ async function selectRadio(src, title, index, logo) {
         resumeTime = null,
         onReady = null,
         onError: onErrorCallback = null,
-        disableSlowGuard = false
+        disableSlowGuard = false,
+        live = currentRadioIndex >= 0
       } = options;
 
-      audioHealer.trackSource(src, title);
+      audioHealer.trackSource(src, title, { live });
       audioHealer.rebindMetadataHandlers();
 
       if (disableSlowGuard) {
