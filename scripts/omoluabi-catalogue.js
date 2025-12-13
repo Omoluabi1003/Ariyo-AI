@@ -2,6 +2,7 @@
   const BASE_URL = './';
 
   const OMOLUABI_TRACKS = [
+    { slug: 'alafia', title: 'Alafia', src: 'https://cdn1.suno.ai/bd9f428d-77d2-4aee-b797-9c0d4913ebf4.mp3' },
     { slug: 'no-respect-no-me', title: 'No Respect, No Me', src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3' },
     {
       slug: 'make-we-no-meet-who-we-suppose-be-mwnmwwsb',
@@ -81,6 +82,7 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    { albumName: 'Omoluabi Production Catalogue', slug: 'alafia', addedOn: '2025-12-13T09:20:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'no-respect-no-me', addedOn: '2025-12-13T09:15:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'government-why-ft-steady', addedOn: '2025-12-13T09:10:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'naughty-boy-ft-steady', addedOn: '2025-12-13T09:05:00Z', isFreshDrop: true },
