@@ -22,12 +22,27 @@
       const safeTitle = (title || 'Àríyò AI').trim();
       const safeArtist = (artist || '').trim();
       const heading = safeArtist ? `${safeTitle} – ${safeArtist}` : safeTitle;
+      const plainText = `${heading}\n${safeUrl}`;
+      const emphasizedText = `**${heading}**\n${safeUrl}`;
 
       return {
         heading,
         url: safeUrl,
-        text: `**${heading}**\n${safeUrl}`
+        text: plainText,
+        qrText: emphasizedText
       };
+    }
+
+    function normalizeShareTargetPath(url) {
+      const target = new URL(url);
+
+      if (target.pathname.endsWith('/about.html')) {
+        target.pathname = target.pathname.replace(/about\.html$/, '/main.html');
+      } else if (target.pathname === '/' || target.pathname.endsWith('/index.html')) {
+        target.pathname = target.pathname.replace(/index\.html$/, 'main.html').replace(/\/$/, '/main.html');
+      }
+
+      return target;
     }
 
     function derivePlaybackFromUrl(url) {
@@ -109,10 +124,7 @@
 
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
-      const shareTarget = new URL(window.location.href);
-      if (shareTarget.pathname.endsWith('/about.html')) {
-        shareTarget.pathname = shareTarget.pathname.replace(/about\.html$/, '');
-      }
+      const shareTarget = normalizeShareTargetPath(window.location.href);
       shareTarget.search = '';
 
       const playbackContext = deriveActivePlaybackContext();
@@ -134,7 +146,7 @@
         shareInfo = formatMusicSharePayload(playbackContext.title, null, shareTarget.toString());
       }
 
-      showQRCode(shareInfo.url, shareInfo.heading, shareInfo.text);
+      showQRCode(shareInfo.url, shareInfo.heading, shareInfo.qrText);
 
       const sharePayload = {
         title: shareInfo.heading,
