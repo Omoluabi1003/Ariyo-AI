@@ -157,6 +157,7 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+              { src: 'https://cdn1.suno.ai/bd9f428d-77d2-4aee-b797-9c0d4913ebf4.mp3', title: 'Alafia' },
               { src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3', title: 'No Respect, No Me' },
               { src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3', title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)' },
               { src: 'https://cdn1.suno.ai/d4891669-f5e2-403a-826c-0d886d5e0f5e.mp3', title: 'Government Why ft. Steady' },
