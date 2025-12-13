@@ -144,7 +144,7 @@ const PlaybackStatus = {
 };
 
 let playbackStatus = PlaybackStatus.idle;
-const neutralFailureMessage = 'Audio could not start. Tap to retry.';
+const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
 
 const slowBufferRescue = {
   timerId: null,
@@ -153,7 +153,7 @@ const slowBufferRescue = {
   maxAttempts: 2
 };
 
-function showBufferingState(message = 'Preparing your audio...') {
+function showBufferingState(message = 'Settling your stream...') {
   setPlaybackStatus(
     playbackStatus === PlaybackStatus.playing ? PlaybackStatus.buffering : PlaybackStatus.preparing,
     { message }
@@ -175,7 +175,7 @@ function setPlaybackStatus(status, options = {}) {
   playbackStatus = status;
 
   if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
-    const messageText = message || 'Preparing your audio...';
+    const messageText = message || 'Preparing a smooth start...';
     if (bufferingMessage) {
       bufferingMessage.textContent = messageText;
     }
@@ -1627,16 +1627,16 @@ async function selectRadio(src, title, index, logo) {
 
       switch (error.code) {
         case MediaError.MEDIA_ERR_ABORTED:
-          trackInfo.textContent = 'Playback aborted.';
+          trackInfo.textContent = 'Playback paused early—press play when you’re ready.';
           break;
         case MediaError.MEDIA_ERR_NETWORK:
-          trackInfo.textContent = 'A network error occurred.';
+          trackInfo.textContent = 'Connection blinked. Retry when your signal steadies.';
           break;
         case MediaError.MEDIA_ERR_DECODE:
-          trackInfo.textContent = 'A decoding error occurred.';
+          trackInfo.textContent = 'We hit a decoding bump. Tap retry to reload smoothly.';
           break;
         case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-          trackInfo.textContent = 'Audio format not supported.';
+          trackInfo.textContent = 'This source is blocked here—pick another track while we refresh.';
           break;
         default:
           // Handle cases where error.code is undefined (e.g. DOMException from play())
