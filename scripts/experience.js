@@ -123,7 +123,7 @@
     installBtn.addEventListener('click', async () => {
       if (!deferredPrompt) {
         if (statusText) {
-          statusText.textContent = 'Install prompt unavailable. Add to home screen from your browser menu.';
+          statusText.textContent = 'Install prompt will appear on supported devices. Use your browser menu to pin us anytime.';
         }
         return;
       }

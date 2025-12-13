@@ -174,7 +174,7 @@
       if (navigator.share) {
         navigator.share(sharePayload).catch((err) => console.error("Share failed:", err));
       } else {
-        alert("Your browser doesn't support the Web Share API. Please copy the URL manually.");
+        alert("This browser keeps sharing simple—copy the link and keep the vibe moving.");
       }
     }
 
