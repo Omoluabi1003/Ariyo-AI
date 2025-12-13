@@ -9,27 +9,27 @@
     /**
      * Builds a standardized, title-first share payload for music and radio experiences.
      * - Always bolds the heading and places it on the first line.
-     * - Includes the artist when provided, separated by an en dash.
-     * - Ensures the URL is normalized to HTTPS and placed on its own line.
+     * - Uses the "Title by Artist" phrasing to keep the artist close to the track name.
+     * - Keeps the URL out of the share text to avoid duplicate links in some share targets.
+     * - Ensures the URL is normalized to HTTPS and placed on its own line in QR payloads.
      *
      * @param {string} title - The track or station title; falls back to "Àríyò AI" when empty.
-     * @param {string} [artist] - Optional artist name appended to the title.
+     * @param {string} [artist] - Optional artist name appended to the title with "by".
      * @param {string} url - The share target URL, automatically converted to HTTPS.
-     * @returns {{ heading: string, url: string, text: string }}
+     * @returns {{ heading: string, url: string, shareText: string, qrText: string }}
      */
     function formatMusicSharePayload(title, artist, url) {
       const safeUrl = ensureHttps(url);
       const safeTitle = (title || 'Àríyò AI').trim();
       const safeArtist = (artist || '').trim();
-      const heading = safeArtist ? `${safeTitle} – ${safeArtist}` : safeTitle;
-      const plainText = `${heading}\n${safeUrl}`;
-      const emphasizedText = `**${heading}**\n${safeUrl}`;
+      const heading = safeArtist ? `${safeTitle} by ${safeArtist}` : safeTitle;
+      const boldHeading = `**${heading}**`;
 
       return {
         heading,
         url: safeUrl,
-        text: plainText,
-        qrText: emphasizedText
+        shareText: boldHeading,
+        qrText: `${boldHeading}\n${safeUrl}`
       };
     }
 
@@ -150,11 +150,11 @@
 
       const sharePayload = {
         title: shareInfo.heading,
-        text: shareInfo.text,
+        text: shareInfo.shareText,
         url: shareInfo.url
       };
 
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareInfo.text)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareInfo.qrText)}`;
 
       if (navigator.canShare) {
         try {

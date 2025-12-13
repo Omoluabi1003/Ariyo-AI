@@ -93,10 +93,12 @@
     const shareButton = document.getElementById('shareVibe');
     if (shareButton && navigator.share) {
       shareButton.addEventListener('click', () => {
+        const heading = 'Àríyò AI by Smart Naija AI';
+        const shareUrl = window.location.href.replace(/^http:\/\//i, 'https://');
         navigator.share({
-          title: 'Àríyò AI',
-          text: 'Discover Naija vibes with Àríyò AI',
-          url: window.location.href
+          title: heading,
+          text: `**${heading}**`,
+          url: shareUrl
         }).catch(() => {});
       });
     }
