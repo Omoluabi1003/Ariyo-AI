@@ -94,6 +94,8 @@
     const trackDuration = document.getElementById('trackDuration');
     const seekBar = document.getElementById('seekBar');
     const loadingSpinner = document.getElementById('loadingSpinner');
+    const bufferingOverlay = document.getElementById('bufferingOverlay');
+    const bufferingMessage = document.getElementById('bufferingMessage');
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
@@ -137,6 +139,31 @@ const slowBufferRescue = {
   attempts: 0,
   maxAttempts: 2
 };
+
+function showBufferingState(message = 'Preparing your audio...') {
+  if (bufferingMessage && message) {
+    bufferingMessage.textContent = message;
+  }
+  if (bufferingOverlay) {
+    bufferingOverlay.classList.add('visible');
+  }
+  if (loadingSpinner) {
+    loadingSpinner.style.display = 'flex';
+    if (message) {
+      loadingSpinner.setAttribute('aria-label', message);
+    }
+  }
+}
+
+function hideBufferingState() {
+  if (bufferingOverlay) {
+    bufferingOverlay.classList.remove('visible');
+  }
+  if (loadingSpinner) {
+    loadingSpinner.style.display = 'none';
+    loadingSpinner.removeAttribute('aria-label');
+  }
+}
 
 function clearSlowBufferRescue() {
   if (slowBufferRescue.timerId) {
@@ -546,7 +573,7 @@ function startNetworkRecovery(reason = 'network') {
     : 0;
   networkRecoveryState.source = source;
   retryButton.style.display = 'none';
-  loadingSpinner.style.display = 'none';
+  hideBufferingState();
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
 
@@ -1137,7 +1164,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       currentTrackIndex = index;
       currentRadioIndex = -1;
       applyTrackUiState(currentAlbumIndex, currentTrackIndex);
-      loadingSpinner.style.display = 'block';
+      showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
       setTurntableSpin(false);
@@ -1212,7 +1239,7 @@ async function selectRadio(src, title, index, logo) {
       lyricLines = [];
       closeRadioList();
       stopMusic();
-      loadingSpinner.style.display = 'block';
+      showBufferingState('Connecting to the station...');
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
@@ -1233,7 +1260,7 @@ async function selectRadio(src, title, index, logo) {
 
     function retryTrackWithDelay() {
       trackInfo.textContent = 'Retrying...';
-      loadingSpinner.style.display = 'block';
+      showBufferingState('Retrying playback...');
       albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
       retryButton.style.display = 'none';
@@ -1309,7 +1336,7 @@ async function selectRadio(src, title, index, logo) {
         }, 15000);
 
         stallTimeout = setTimeout(() => {
-          loadingSpinner.style.display = 'none';
+          hideBufferingState();
           albumCover.style.display = 'block';
           retryButton.style.display = 'inline-flex';
         }, 8000);
@@ -1341,7 +1368,7 @@ async function selectRadio(src, title, index, logo) {
 
       const revealPlaybackUi = () => {
         if (!silent) {
-          loadingSpinner.style.display = 'none';
+          hideBufferingState();
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
         }
@@ -1499,7 +1526,7 @@ async function selectRadio(src, title, index, logo) {
     function attemptPlay() {
       console.log('[attemptPlay] called');
       resumeAudioContext();
-      loadingSpinner.style.display = 'none';
+      hideBufferingState();
       albumCover.style.display = 'block';
       if (typeof window !== 'undefined' && typeof window.stopYouTubePlayback === 'function') {
         try {
@@ -1542,7 +1569,7 @@ async function selectRadio(src, title, index, logo) {
     }
 
     function handlePlayError(error, title) {
-      loadingSpinner.style.display = 'none';
+      hideBufferingState();
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
@@ -1554,6 +1581,7 @@ async function selectRadio(src, title, index, logo) {
       }
 
       retryButton.style.display = 'block';
+      retryButton.textContent = 'Retry';
 
       switch (error.code) {
         case MediaError.MEDIA_ERR_ABORTED:
@@ -1571,7 +1599,9 @@ async function selectRadio(src, title, index, logo) {
         default:
           // Handle cases where error.code is undefined (e.g. DOMException from play())
           if (error.name === 'NotAllowedError') {
-            trackInfo.textContent = 'Playback was blocked. Please interact with the page.';
+            trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
+            retryButton.textContent = 'Start playback';
+            showBufferingState('Ready when you are — press play to start');
           } else {
             trackInfo.textContent = 'Playback failed. Please try again.';
           }

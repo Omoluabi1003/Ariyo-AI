@@ -366,6 +366,8 @@ body[data-theme="light"] .edge-panel-hint {
     align-items: center;
     gap: 0.5rem;
     flex: 0 0 auto;
+    position: relative;
+    min-height: calc(var(--turntable-size) + 3.5rem);
 }
 
 .player-main {
@@ -639,13 +641,87 @@ body[data-theme="light"] .edge-panel-hint {
 
 .loading-spinner {
     display: none;
-    width: 30px;
-    height: 30px;
-    border: 4px solid #fff;
+    width: 42px;
+    height: 42px;
+    border: 4px solid rgba(255, 255, 255, 0.16);
     border-top: 4px solid var(--theme-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.loading-spinner::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    animation: buffering-ripple 1.6s ease-out infinite;
+}
+
+.buffering-overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 8;
+    padding: 0.25rem;
+}
+
+.buffering-overlay.visible {
+    display: flex;
+}
+
+.buffering-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.85rem 1.2rem;
+    border-radius: 14px;
+    background: rgba(7, 10, 24, 0.72);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+}
+
+.buffering-message {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #e7f0ff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.buffering-ripple {
+    position: absolute;
+    width: clamp(160px, 32vw, 220px);
+    height: clamp(160px, 32vw, 220px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+    animation: buffering-ripple 1.8s ease-out infinite;
+    filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.35));
+}
+
+.buffering-ripple.delayed {
+    animation-delay: 0.6s;
+}
+
+@keyframes buffering-ripple {
+    0% {
+        transform: scale(0.65);
+        opacity: 0.5;
+    }
+    70% {
+        opacity: 0.18;
+    }
+    100% {
+        transform: scale(1.35);
+        opacity: 0;
+    }
 }
 
 .music-controls.icons-only {
