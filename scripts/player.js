@@ -133,6 +133,19 @@ const playbackWatchdog = {
 
 const audioHealer = createSelfHealAudio(audioPlayer);
 
+const PlaybackStatus = {
+  idle: 'idle',
+  preparing: 'preparing',
+  buffering: 'buffering',
+  playing: 'playing',
+  paused: 'paused',
+  stopped: 'stopped',
+  failed: 'failed'
+};
+
+let playbackStatus = PlaybackStatus.idle;
+const neutralFailureMessage = 'Audio could not start. Tap to retry.';
+
 const slowBufferRescue = {
   timerId: null,
   inFlight: null,
@@ -141,18 +154,10 @@ const slowBufferRescue = {
 };
 
 function showBufferingState(message = 'Preparing your audio...') {
-  if (bufferingMessage && message) {
-    bufferingMessage.textContent = message;
-  }
-  if (bufferingOverlay) {
-    bufferingOverlay.classList.add('visible');
-  }
-  if (loadingSpinner) {
-    loadingSpinner.style.display = 'flex';
-    if (message) {
-      loadingSpinner.setAttribute('aria-label', message);
-    }
-  }
+  setPlaybackStatus(
+    playbackStatus === PlaybackStatus.playing ? PlaybackStatus.buffering : PlaybackStatus.preparing,
+    { message }
+  );
 }
 
 function hideBufferingState() {
@@ -162,6 +167,40 @@ function hideBufferingState() {
   if (loadingSpinner) {
     loadingSpinner.style.display = 'none';
     loadingSpinner.removeAttribute('aria-label');
+  }
+}
+
+function setPlaybackStatus(status, options = {}) {
+  const { message } = options;
+  playbackStatus = status;
+
+  if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
+    const messageText = message || 'Preparing your audio...';
+    if (bufferingMessage) {
+      bufferingMessage.textContent = messageText;
+    }
+    if (bufferingOverlay) {
+      bufferingOverlay.classList.add('visible');
+    }
+    if (loadingSpinner) {
+      loadingSpinner.style.display = 'flex';
+      loadingSpinner.setAttribute('aria-label', messageText);
+    }
+    retryButton.style.display = 'none';
+    return;
+  }
+
+  hideBufferingState();
+
+  if (status === PlaybackStatus.failed) {
+    trackInfo.textContent = message || neutralFailureMessage;
+    retryButton.style.display = 'block';
+    retryButton.textContent = 'Retry';
+    return;
+  }
+
+  if (status === PlaybackStatus.playing) {
+    hideRetryButton();
   }
 }
 
@@ -573,7 +612,7 @@ function startNetworkRecovery(reason = 'network') {
     : 0;
   networkRecoveryState.source = source;
   retryButton.style.display = 'none';
-  hideBufferingState();
+  setPlaybackStatus(PlaybackStatus.buffering, { message: 'Reconnecting...' });
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
 
@@ -1336,9 +1375,8 @@ async function selectRadio(src, title, index, logo) {
         }, 15000);
 
         stallTimeout = setTimeout(() => {
-          hideBufferingState();
+          setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
           albumCover.style.display = 'block';
-          retryButton.style.display = 'inline-flex';
         }, 8000);
       }
       handlerState.playTimeout = playTimeout;
@@ -1368,7 +1406,6 @@ async function selectRadio(src, title, index, logo) {
 
       const revealPlaybackUi = () => {
         if (!silent) {
-          hideBufferingState();
           albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
         }
@@ -1393,6 +1430,9 @@ async function selectRadio(src, title, index, logo) {
           }
         }
         updateMediaSession();
+        if (!silent) {
+          setPlaybackStatus(PlaybackStatus.buffering, { message: bufferingMessage?.textContent });
+        }
         if (autoPlay && audioPlayer.paused) {
           attemptPlay();
         } else {
@@ -1526,7 +1566,9 @@ async function selectRadio(src, title, index, logo) {
     function attemptPlay() {
       console.log('[attemptPlay] called');
       resumeAudioContext();
-      hideBufferingState();
+      if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
+        setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
+      }
       albumCover.style.display = 'block';
       if (typeof window !== 'undefined' && typeof window.stopYouTubePlayback === 'function') {
         try {
@@ -1539,7 +1581,7 @@ async function selectRadio(src, title, index, logo) {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
-          retryButton.style.display = 'none';
+          setPlaybackStatus(PlaybackStatus.playing);
           const progressBarElement = document.getElementById('progressBar');
           if (progressBarElement) {
             progressBarElement.style.display = 'block';
@@ -1569,7 +1611,7 @@ async function selectRadio(src, title, index, logo) {
     }
 
     function handlePlayError(error, title) {
-      hideBufferingState();
+      setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
@@ -1601,9 +1643,10 @@ async function selectRadio(src, title, index, logo) {
           if (error.name === 'NotAllowedError') {
             trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
             retryButton.textContent = 'Start playback';
-            showBufferingState('Ready when you are — press play to start');
+            retryButton.style.display = 'block';
+            setPlaybackStatus(PlaybackStatus.idle);
           } else {
-            trackInfo.textContent = 'Playback failed. Please try again.';
+            trackInfo.textContent = neutralFailureMessage;
           }
           break;
       }
@@ -1613,10 +1656,11 @@ function pauseMusic() {
     cancelNetworkRecovery();
     audioPlayer.pause();
     manageVinylRotation();
-    audioPlayer.removeEventListener('timeupdate', updateTrackTime);
+        audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
         console.log('Paused');
         schedulePlayerStateSave(true);
+        setPlaybackStatus(PlaybackStatus.paused);
     }
 
 function stopMusic() {
@@ -1630,6 +1674,7 @@ function stopMusic() {
         trackDuration.textContent = '0:00 / 0:00';
         console.log('Stopped');
         schedulePlayerStateSave(true);
+        setPlaybackStatus(PlaybackStatus.stopped);
 }
 
 function updateTrackTime() {
@@ -1690,6 +1735,7 @@ function updateTrackTime() {
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
       stopPlaybackWatchdog(false);
+      setPlaybackStatus(PlaybackStatus.stopped);
 
       if (currentRadioIndex !== -1) return; // Only advance albums/podcasts, not live radio
 
