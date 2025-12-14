@@ -923,6 +923,7 @@ function removeTrackFromPlaylist(index) {
               }
               currentAlbumIndex = albumIdx;
               pendingAlbumIndex = null;
+              closeTrackList();
               selectTrack(albums[albumIdx].tracks[trackIdx].src, albums[albumIdx].tracks[trackIdx].title, trackIdx);
             });
             bannerActions.appendChild(button);
@@ -960,6 +961,7 @@ function removeTrackFromPlaylist(index) {
           item.addEventListener('click', () => {
             currentAlbumIndex = albumIndex;
             pendingAlbumIndex = null;
+            closeTrackList();
             selectTrack(track.src, track.title, index);
           });
           const removeBtn = document.createElement('button');
@@ -979,6 +981,7 @@ function removeTrackFromPlaylist(index) {
           item.addEventListener('click', () => {
             currentAlbumIndex = albumIndex;
             pendingAlbumIndex = null;
+            closeTrackList();
             selectTrack(track.src, track.title, index);
           });
           const addBtn = document.createElement('button');
@@ -1207,6 +1210,11 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       albumCover.style.display = 'none';
       retryButton.style.display = 'none';
       setTurntableSpin(false);
+
+      const trackModal = document.getElementById('trackModal');
+      if (trackModal && trackModal.style.display !== 'none') {
+        closeTrackList();
+      }
 
     const normalizedSrc = normalizeMediaSrc(src);
     const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
@@ -1641,10 +1649,18 @@ async function selectRadio(src, title, index, logo) {
         default:
           // Handle cases where error.code is undefined (e.g. DOMException from play())
           if (error.name === 'NotAllowedError') {
-            trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
+            trackInfo.textContent = 'Safari blocked autoplay—tap Start playback to hear the track.';
             retryButton.textContent = 'Start playback';
             retryButton.style.display = 'block';
             setPlaybackStatus(PlaybackStatus.idle);
+            const requestUnlock = () => {
+              window.removeEventListener('touchend', requestUnlock);
+              window.removeEventListener('click', requestUnlock);
+              resumeAudioContext();
+              attemptPlay();
+            };
+            window.addEventListener('touchend', requestUnlock, { once: true });
+            window.addEventListener('click', requestUnlock, { once: true });
           } else {
             trackInfo.textContent = neutralFailureMessage;
           }
