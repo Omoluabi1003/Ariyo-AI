@@ -77,6 +77,7 @@
         audioPlayer.id = 'audioPlayer';
     }
     audioPlayer.preload = 'auto';
+    audioPlayer.autoplay = true;
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
@@ -134,6 +135,24 @@ const playbackWatchdog = {
 };
 
 const audioHealer = createSelfHealAudio(audioPlayer);
+
+    function forceInstantPlayback(autoPlay, title) {
+      if (!autoPlay) return;
+
+      resumeAudioContext();
+      audioPlayer.muted = false;
+      audioPlayer.volume = Math.max(audioPlayer.volume || 0, 1);
+
+      const kickOffPlayback = () => {
+        attemptPlay();
+      };
+
+      kickOffPlayback();
+      audioPlayer.addEventListener('canplay', kickOffPlayback, { once: true });
+      audioPlayer.addEventListener('playing', kickOffPlayback, { once: true });
+      audioPlayer.addEventListener('loadeddata', kickOffPlayback, { once: true });
+      console.log(`[instant-play] Ensuring immediate playback for ${title}`);
+    }
 
 const PlaybackStatus = {
   idle: 'idle',
@@ -1444,6 +1463,8 @@ async function selectRadio(src, title, index, logo) {
 
       audioHealer.trackSource(src, title, { live });
       audioHealer.rebindMetadataHandlers();
+
+      forceInstantPlayback(autoPlay, title);
 
       if (disableSlowGuard) {
         clearSlowBufferRescue();
