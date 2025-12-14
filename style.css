@@ -1237,6 +1237,30 @@ body[data-theme="light"] .dropdown {
     margin: 0;
 }
 
+.track-meta-action {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--accent-color, #f97316);
+    border: none;
+    border-radius: 6px;
+    color: #111827;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.track-meta-action:disabled {
+    opacity: 0.7;
+    cursor: progress;
+}
+
+.track-meta-action:hover:not(:disabled),
+.track-meta-action:focus-visible:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+    outline: none;
+}
+
 /* Responsive Design */
 @media (max-width: 900px) {
     :root {

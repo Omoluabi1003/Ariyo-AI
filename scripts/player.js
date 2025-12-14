@@ -860,8 +860,33 @@ function removeTrackFromPlaylist(index) {
         if (album.rssFeed) {
           const feedNote = document.createElement('p');
           feedNote.className = 'track-meta-note';
-          feedNote.textContent = 'Tracks refresh automatically from the RSS feed.';
+          feedNote.textContent = 'Tracks refresh automatically from the RSS feed. If you do not see new episodes, refresh the feed below.';
           trackModalMeta.appendChild(feedNote);
+
+          const refreshButton = document.createElement('button');
+          refreshButton.type = 'button';
+          refreshButton.className = 'track-meta-action';
+          refreshButton.textContent = 'Refresh feed now';
+          refreshButton.addEventListener('click', async () => {
+            if (typeof hydratePodcastAlbum !== 'function') {
+              return;
+            }
+            const matchingFeed = podcastFeedAlbums?.find(feed => feed.name === album.name);
+            const feedUrl = matchingFeed?.feedUrl || album.rssFeed;
+            if (!feedUrl) {
+              return;
+            }
+            const originalLabel = refreshButton.textContent;
+            refreshButton.disabled = true;
+            refreshButton.textContent = 'Refreshing...';
+            try {
+              await hydratePodcastAlbum(album.name, feedUrl);
+            } finally {
+              refreshButton.disabled = false;
+              refreshButton.textContent = originalLabel;
+            }
+          });
+          trackModalMeta.appendChild(refreshButton);
         }
       }
       trackListContainer.innerHTML = '';
@@ -937,6 +962,15 @@ function removeTrackFromPlaylist(index) {
 
       // Build an array of track indices and shuffle them (except for playlist)
       let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
+
+      if (!trackIndices.length) {
+        const emptyNotice = document.createElement('p');
+        emptyNotice.className = 'track-meta-note';
+        emptyNotice.textContent = album.rssFeed
+          ? 'No episodes are available yet from the RSS feed. Try refreshing or check back soon.'
+          : 'This album does not have any tracks yet.';
+        trackListContainer.appendChild(emptyNotice);
+      }
       if (albumIndex !== playlistAlbumIndex) {
         for (let i = trackIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));

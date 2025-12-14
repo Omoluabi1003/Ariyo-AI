@@ -337,37 +337,60 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
     }
   };
 
-  const proxiedUrls = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
-    `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`
-  ];
+  const fetchPodcastFeedWithFallback = async () => {
+    const proxiedUrls = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`
+    ];
 
-  try {
-    let response;
+    const parseResponse = async response => {
+      if (!response) {
+        throw new Error('No response received for RSS request.');
+      }
+      if (!response.ok) {
+        throw new Error(`Feed request failed with status ${response.status}`);
+      }
+      const xmlText = await response.text();
+      return parsePodcastFeed(xmlText);
+    };
+
+    let cover = '';
+
     try {
-      response = await fetchWithTimeout(feedUrl);
+      const directResponse = await fetchWithTimeout(feedUrl);
+      const directResult = await parseResponse(directResponse);
+      cover = directResult.cover || cover;
+      if (directResult.tracks.length) {
+        return { cover, tracks: directResult.tracks };
+      }
+      console.warn(`Direct RSS fetch returned no episodes for ${albumName}, trying proxies.`);
     } catch (directError) {
       console.warn(`Direct RSS fetch failed for ${albumName}, trying proxies:`, directError);
+    }
 
-      for (const proxyUrl of proxiedUrls) {
-        try {
-          response = await fetchWithTimeout(proxyUrl, { timeout: 10000 });
-          if (response.ok) break;
-        } catch (proxyError) {
-          console.warn(`Proxy fetch failed for ${albumName} via ${proxyUrl}:`, proxyError);
+    for (const proxyUrl of proxiedUrls) {
+      try {
+        const proxyResponse = await fetchWithTimeout(proxyUrl, { timeout: 10000 });
+        const proxyResult = await parseResponse(proxyResponse);
+        cover = proxyResult.cover || cover;
+        if (proxyResult.tracks.length) {
+          return { cover, tracks: proxyResult.tracks };
         }
+        console.warn(`Proxy RSS fetch returned no episodes for ${albumName} via ${proxyUrl}.`);
+      } catch (proxyError) {
+        console.warn(`Proxy fetch failed for ${albumName} via ${proxyUrl}:`, proxyError);
       }
     }
 
-    if (!response) {
-      throw new Error('No RSS response received after trying all sources.');
+    if (cover) {
+      return { cover, tracks: [] };
     }
 
-    if (!response.ok) {
-      throw new Error(`Feed request failed with status ${response.status}`);
-    }
-    const xmlText = await response.text();
-    const { cover, tracks } = parsePodcastFeed(xmlText);
+    throw new Error('No playable episodes found after trying all RSS sources.');
+  };
+
+  try {
+    const { cover, tracks } = await fetchPodcastFeedWithFallback();
 
     if (tracks.length) {
       albums[albumIndex].tracks = tracks;
