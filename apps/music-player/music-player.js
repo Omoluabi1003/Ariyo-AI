@@ -462,6 +462,14 @@
     }
   }
 
+  function hasAudioAudiblyStarted(audioEl) {
+    if (!audioEl) return false;
+    const haveCurrentData = typeof HTMLMediaElement !== 'undefined'
+      ? HTMLMediaElement.HAVE_CURRENT_DATA
+      : 2;
+    return !audioEl.paused && !audioEl.ended && audioEl.currentTime > 0 && audioEl.readyState >= haveCurrentData;
+  }
+
   function resetPlaybackStartState() {
     if (!playbackStartState) return;
     if (playbackStartState.timeoutId) {
@@ -489,6 +497,12 @@
 
     const audioEl = state.audioEl;
     if (!audioEl) return;
+
+    if (hasAudioAudiblyStarted(audioEl)) {
+      resetPlaybackStartState();
+      hideLoading();
+      return;
+    }
 
     if (state.retries < PLAYBACK_MAX_RETRIES) {
       state.retries += 1;
