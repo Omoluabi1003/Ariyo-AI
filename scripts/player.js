@@ -153,6 +153,25 @@ const slowBufferRescue = {
   maxAttempts: 2
 };
 
+const corsFetchBlockList = [
+  /(?:^|\.)podcastics\.com$/i,
+  /(?:^|\.)anchor\.fm$/i,
+  /d3ctxlq1ktw2nl\.cloudfront\.net$/i
+];
+
+function isCrossOriginFetchSafe(url) {
+  try {
+    const target = new URL(url, window.location.origin);
+    const isSameOrigin = target.origin === window.location.origin;
+    if (isSameOrigin) return true;
+
+    return !corsFetchBlockList.some(pattern => pattern.test(target.hostname));
+  } catch (error) {
+    console.warn('Unable to evaluate CORS safety for fetch:', error);
+    return false;
+  }
+}
+
 function showBufferingState(message = 'Settling your stream...') {
   setPlaybackStatus(
     playbackStatus === PlaybackStatus.playing ? PlaybackStatus.buffering : PlaybackStatus.preparing,
@@ -228,6 +247,27 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
   try {
     const resolvedSrc = await resolveSunoAudioSrc(src);
     const fetchUrl = buildTrackFetchUrl(resolvedSrc);
+    const safeResume = resumeTime != null && !isNaN(resumeTime) ? resumeTime : (audioPlayer.currentTime || 0);
+
+    const reloadDirectly = () => {
+      const reloadUrl = appendCacheBuster(fetchUrl);
+      setCrossOrigin(audioPlayer, reloadUrl);
+      handleAudioLoad(reloadUrl, title, false, {
+        silent: true,
+        autoPlay,
+        resumeTime: Math.max(safeResume - 1, 0),
+        disableSlowGuard: true,
+        onReady: callbacks.onReady,
+        onError: callbacks.onError
+      });
+    };
+
+    if (!isCrossOriginFetchSafe(fetchUrl)) {
+      console.warn(`[slow-buffer] Skipping fetch rescue for ${title}; host blocks cross-origin fetches.`);
+      slowBufferRescue.inFlight = null;
+      reloadDirectly();
+      return;
+    }
     console.warn(`[slow-buffer] Attempt ${slowBufferRescue.attempts} fetching ${title} for slow network users.`);
     const response = await fetch(fetchUrl, { cache: 'no-store', signal: controller.signal });
     if (!response.ok) {
@@ -236,7 +276,6 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
 
     const blob = await response.blob();
     const objectUrl = URL.createObjectURL(blob);
-    const safeResume = resumeTime != null && !isNaN(resumeTime) ? resumeTime : (audioPlayer.currentTime || 0);
 
     handleAudioLoad(objectUrl, title, false, {
       silent: true,
@@ -248,6 +287,7 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
     });
   } catch (error) {
     console.warn('[slow-buffer] Rescue fetch failed:', error);
+    reloadDirectly();
   } finally {
     slowBufferRescue.inFlight = null;
   }
