@@ -435,8 +435,9 @@
         width: min(86vw, var(--edge-panel-width));
         right: calc(var(--edge-panel-visible-gap) - min(86vw, var(--edge-panel-width)));
         border-radius: 24px 0 0 24px;
-        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
+        top: 50%;
         bottom: auto;
+        transform: translateY(-50%);
         min-height: var(--edge-panel-min-height);
       }
       .edge-panel.visible {
@@ -923,8 +924,9 @@
       }
       .edge-panel {
         right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
-        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
+        top: 50%;
         bottom: auto;
+        transform: translateY(-50%);
       }
       .edge-panel.visible {
         right: var(--edge-panel-visible-gap);
