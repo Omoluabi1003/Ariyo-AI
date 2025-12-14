@@ -11,16 +11,6 @@
   --card-bg: linear-gradient(150deg, rgba(12, 20, 46, 0.9), rgba(12, 20, 46, 0.76));
 }
 
-:root[data-theme="light"] {
-  --theme-color: #6f45ff;
-  --gradient-start: #f1e9ff;
-  --gradient-end: #ffd9f0;
-  --surface-bg: rgba(255, 255, 255, 0.9);
-  --surface-contrast: #0f172a;
-  --surface-border: rgba(111, 69, 255, 0.28);
-  --card-bg: linear-gradient(140deg, #ffffff, #f5f2ff);
-}
-
 body {
   font-family: 'Montserrat', sans-serif;
 }
@@ -33,32 +23,3 @@ body {
 .progress-bar div { background: var(--theme-color); }
 .install-btn { background: var(--theme-color); }
 .radio-region-header { color: var(--theme-color); }
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--surface-border);
-  background: linear-gradient(135deg, rgba(142, 91, 255, 0.18), rgba(255, 127, 197, 0.22));
-  color: var(--surface-contrast);
-  cursor: pointer;
-  font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.theme-toggle:hover,
-.theme-toggle:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-  outline: none;
-}
-
-.theme-toggle:focus-visible {
-  box-shadow: 0 0 0 3px rgba(111, 69, 255, 0.4);
-}
-
-.theme-toggle-icon {
-  font-size: 1.1rem;
-}
