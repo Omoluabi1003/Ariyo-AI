@@ -1,4 +1,10 @@
+const albumDurationsCache = new Map();
+
 function calculateAlbumDuration(album) {
+  if (albumDurationsCache.has(album.name)) {
+    return Promise.resolve(albumDurationsCache.get(album.name));
+  }
+
   const promises = album.tracks.map(track => {
     if (track.duration) return Promise.resolve(track.duration);
     return new Promise(resolve => {
@@ -13,7 +19,12 @@ function calculateAlbumDuration(album) {
       tempAudio.addEventListener('error', () => resolve(0));
     });
   });
-  return Promise.all(promises).then(durations => durations.reduce((a, b) => a + b, 0));
+
+  return Promise.all(promises).then(durations => {
+    const total = durations.reduce((a, b) => a + b, 0);
+    albumDurationsCache.set(album.name, total);
+    return total;
+  });
 }
 
 function populateAlbumList() {
@@ -61,8 +72,6 @@ function populateAlbumList() {
       });
   });
 }
-
-document.addEventListener('DOMContentLoaded', populateAlbumList);
 
 function prepareDeferredIframes() {
   const iframes = document.querySelectorAll('.chatbot-container iframe, #aboutModalContainer iframe');
