@@ -116,7 +116,8 @@
     const bufferingMessage = document.getElementById('bufferingMessage');
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
-const lyricsContainer = document.getElementById('lyrics');
+    retryButton.onclick = retryTrack;
+    const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
 let shuffleScope = 'off'; // 'off', 'album', 'all', 'repeat'
@@ -160,6 +161,12 @@ const audioHealer = createSelfHealAudio(audioPlayer);
       audioPlayer.muted = false;
       audioPlayer.volume = Math.max(audioPlayer.volume || 0, 1);
 
+      const onCanPlayThrough = () => {
+        audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
+        attemptPlay();
+      };
+      audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
+
       const kickOffPlayback = () => {
         attemptPlay();
       };
@@ -183,6 +190,34 @@ const PlaybackStatus = {
 
 let playbackStatus = PlaybackStatus.idle;
 const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
+
+const debugPanel = document.getElementById('debugPanel');
+let debugIntervalId = null;
+
+function renderDebugPanel() {
+  if (!debugPanel || !debugPanel.classList.contains('active')) return;
+  const lines = [
+    `Status: ${playbackStatus}`,
+    `Current source: ${audioPlayer?.src || 'none'}`,
+    `Time: ${formatTime(audioPlayer?.currentTime || 0)}`,
+    `Network state: ${audioPlayer?.networkState}`
+  ];
+  debugPanel.textContent = lines.join(' \u2022 ');
+}
+
+window.toggleDebugMode = function toggleDebugMode() {
+  if (!debugPanel) return;
+  const enable = !debugPanel.classList.contains('active');
+  debugPanel.classList.toggle('active', enable);
+  debugPanel.hidden = !enable;
+  if (enable) {
+    renderDebugPanel();
+    debugIntervalId = setInterval(renderDebugPanel, 800);
+  } else if (debugIntervalId) {
+    clearInterval(debugIntervalId);
+    debugIntervalId = null;
+  }
+};
 
 const slowBufferRescue = {
   timerId: null,
@@ -230,6 +265,7 @@ function hideBufferingState() {
 function setPlaybackStatus(status, options = {}) {
   const { message } = options;
   playbackStatus = status;
+  renderDebugPanel();
 
   if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
     const messageText = message || 'Preparing a smooth start...';
@@ -1792,6 +1828,14 @@ async function selectRadio(src, title, index, logo) {
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
       console.error(`Error playing ${title}:`, error);
+
+      if (error && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
+        retryButton.textContent = 'Tap to start sound';
+        retryButton.onclick = playMusic;
+        retryButton.style.display = 'block';
+        trackInfo.textContent = 'Tap play to unlock audio on this device.';
+        return;
+      }
 
       if (!navigator.onLine || (error && error.code === MediaError.MEDIA_ERR_NETWORK)) {
         startNetworkRecovery('play-error');

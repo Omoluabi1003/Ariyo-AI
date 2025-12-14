@@ -122,6 +122,31 @@
       return true;
     }
 
+    function bootstrapDefaultPlayback() {
+      const derived = derivePlaybackFromUrl(window.location.href);
+      if (derived) {
+        if (derived.type === 'track') {
+          const album = albums[derived.albumIndex];
+          const track = album?.tracks?.[derived.trackIndex];
+          if (album && track) {
+            currentAlbumIndex = derived.albumIndex;
+            selectTrack(track.src, track.title, derived.trackIndex);
+          }
+        } else if (derived.type === 'radio' && radioStations[derived.index]) {
+          const station = radioStations[derived.index];
+          selectRadio(station.url, `${station.name} - ${station.location}`, derived.index, station.logo);
+        }
+        return;
+      }
+
+      const firstAlbum = albums?.[0];
+      const firstTrack = firstAlbum?.tracks?.[0];
+      if (firstAlbum && firstTrack) {
+        currentAlbumIndex = 0;
+        selectTrack(firstTrack.src, firstTrack.title, 0);
+      }
+    }
+
     /* SHARE BUTTON (Web Share API) */
     async function shareContent() {
       const shareTarget = normalizeShareTargetPath(window.location.href);
@@ -950,20 +975,18 @@
         mainEdgePanelContent.style.scrollPaddingBottom = '';
 
         mainEdgePanel.style.height = '';
-        mainEdgePanel.style.bottom = '';
-        mainEdgePanel.style.top = '50%';
-        mainEdgePanel.style.transform = 'translateY(-50%)';
+        mainEdgePanel.style.bottom = 'auto';
 
         const panelRect = mainEdgePanel.getBoundingClientRect();
         const measuredHeight = panelRect.height || contentMaxHeight;
-        const centeredTop = (viewportHeight - measuredHeight) / 2;
-        const maxTop = viewportHeight - measuredHeight - verticalMargin;
-        const safeTop = Math.max(verticalMargin, Math.min(centeredTop, maxTop));
+        const halfHeight = measuredHeight / 2;
+        const idealCenter = viewportHeight / 2;
+        const minCenter = verticalMargin + halfHeight;
+        const maxCenter = viewportHeight - verticalMargin - halfHeight;
+        const clampedCenter = Math.min(Math.max(idealCenter, minCenter), maxCenter);
 
-        if (Number.isFinite(safeTop)) {
-            mainEdgePanel.style.top = `${safeTop}px`;
-            mainEdgePanel.style.transform = 'none';
-        }
+        mainEdgePanel.style.top = `${clampedCenter}px`;
+        mainEdgePanel.style.transform = 'translateY(-50%)';
     };
 
     if (mainEdgePanel && mainEdgePanelContent) {
@@ -987,9 +1010,8 @@
         sidebarNav.removeAttribute('tabindex');
     }
 
-    // Add this to your main.js file
     document.addEventListener('DOMContentLoaded', function() {
-        // Your other DOM-dependent code here
+        bootstrapDefaultPlayback();
     });
 
     // Check for updates
