@@ -304,8 +304,16 @@ function parsePodcastFeed(xmlText) {
   const tracks = Array.from(channel.querySelectorAll('item'))
     .map(item => {
       const title = item.querySelector('title')?.textContent?.trim() || 'Untitled Episode';
+
+      // Podcastics and some other hosts occasionally omit the enclosure tag when
+      // feeds are proxied. Make sure we pick up alternate media declarations so
+      // the track modal still renders playable episodes.
       const enclosure = item.querySelector('enclosure');
-      const src = enclosure?.getAttribute('url') || item.querySelector('link')?.textContent?.trim();
+      const mediaContent = item.querySelector('media\\:content');
+      const src = enclosure?.getAttribute('url')
+        || mediaContent?.getAttribute('url')
+        || item.querySelector('link')?.textContent?.trim();
+
       if (!src) return null;
       return { src, title };
     })
@@ -329,15 +337,30 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
     }
   };
 
-  const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+  const proxiedUrls = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(feedUrl)}`
+  ];
 
   try {
     let response;
     try {
       response = await fetchWithTimeout(feedUrl);
     } catch (directError) {
-      console.warn(`Direct RSS fetch failed for ${albumName}, falling back to proxy:`, directError);
-      response = await fetchWithTimeout(proxiedUrl, { timeout: 10000 });
+      console.warn(`Direct RSS fetch failed for ${albumName}, trying proxies:`, directError);
+
+      for (const proxyUrl of proxiedUrls) {
+        try {
+          response = await fetchWithTimeout(proxyUrl, { timeout: 10000 });
+          if (response.ok) break;
+        } catch (proxyError) {
+          console.warn(`Proxy fetch failed for ${albumName} via ${proxyUrl}:`, proxyError);
+        }
+      }
+    }
+
+    if (!response) {
+      throw new Error('No RSS response received after trying all sources.');
     }
 
     if (!response.ok) {
