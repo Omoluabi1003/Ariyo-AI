@@ -106,6 +106,8 @@ let isFirstPlay = true;
 let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
+let consecutivePlaybackErrors = 0;
+let fallbackEngaged = false;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -236,7 +238,12 @@ function clearSlowBufferRescue() {
 }
 
 async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = true, callbacks = {}) {
-  if (!src || slowBufferRescue.inFlight || slowBufferRescue.attempts >= slowBufferRescue.maxAttempts) {
+  if (!src || slowBufferRescue.inFlight) {
+    return;
+  }
+
+  if (slowBufferRescue.attempts >= slowBufferRescue.maxAttempts) {
+    useOfflineFallback('network');
     return;
   }
 
@@ -558,8 +565,45 @@ function createSelfHealAudio(player) {
     heal,
     trackSource,
     rebindMetadataHandlers,
-    clearDurationTimer
+  clearDurationTimer
   };
+}
+
+function useOfflineFallback(reason = 'unavailable') {
+  if (fallbackEngaged) {
+    return;
+  }
+
+  fallbackEngaged = true;
+  consecutivePlaybackErrors = 0;
+
+  const fallbackTitle = 'Offline Vibes';
+  const fallbackSrc = 'offline-audio.mp3';
+
+  lastTrackSrc = fallbackSrc;
+  lastTrackTitle = fallbackTitle;
+  trackInfo.textContent = `${fallbackTitle} (${reason})`;
+  trackArtist.textContent = 'Artist: Omoluabi';
+  trackYear.textContent = 'Release Year: 2024';
+  trackAlbum.textContent = 'Album: Local backup';
+  albumCover.src = 'Logo.jpg';
+  setTurntableSpin(false);
+  showBufferingState('Loading offline backup...');
+
+  setCrossOrigin(audioPlayer, fallbackSrc);
+  handleAudioLoad(fallbackSrc, fallbackTitle, false, {
+    autoPlay: true,
+    disableSlowGuard: true,
+    onReady: () => {
+      setPlaybackStatus(PlaybackStatus.playing, { message: 'Playing offline backup' });
+      manageVinylRotation();
+    },
+    onError: () => {
+      setPlaybackStatus(PlaybackStatus.failed);
+      retryButton.style.display = 'block';
+      retryButton.textContent = 'Retry';
+    }
+  });
 }
 
 function buildTrackFetchUrl(src) {
@@ -1497,6 +1541,10 @@ async function selectRadio(src, title, index, logo) {
           cancelAnimationFrame(handlerState.quickStartId);
           handlerState.quickStartId = null;
         }
+        consecutivePlaybackErrors = 0;
+        if (!src.includes('offline-audio.mp3')) {
+          fallbackEngaged = false;
+        }
         revealPlaybackUi();
         if (resumeTime != null && !isNaN(resumeTime)) {
           try {
@@ -1552,6 +1600,12 @@ async function selectRadio(src, title, index, logo) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
         console.error(`Album cover src: ${albumCover.src}`);
+
+        consecutivePlaybackErrors += 1;
+        if (consecutivePlaybackErrors >= 2 && !fallbackEngaged) {
+          useOfflineFallback('recovery');
+          return;
+        }
 
         if (!navigator.onLine || (audioPlayer.error && audioPlayer.error.code === MediaError.MEDIA_ERR_NETWORK)) {
           startNetworkRecovery('load-error');
