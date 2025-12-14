@@ -1,4 +1,19 @@
 const albumDurationsCache = new Map();
+const metadataCorsBlocklist = [
+  /(?:^|\.)podcastics\.com$/i,
+  /(?:^|\.)anchor\.fm$/i,
+  /d3ctxlq1ktw2nl\.cloudfront\.net$/i
+];
+
+function shouldUseAnonymousCors(url) {
+  try {
+    const target = new URL(url, window.location.origin);
+    return !metadataCorsBlocklist.some(pattern => pattern.test(target.hostname));
+  } catch (error) {
+    console.warn('Unable to determine CORS safety for metadata probe:', error);
+    return false;
+  }
+}
 
 function calculateAlbumDuration(album) {
   if (albumDurationsCache.has(album.name)) {
@@ -10,13 +25,17 @@ function calculateAlbumDuration(album) {
     return new Promise(resolve => {
       const tempAudio = new Audio();
       tempAudio.preload = 'metadata';
-      tempAudio.crossOrigin = 'anonymous';
+      if (shouldUseAnonymousCors(track.src)) {
+        tempAudio.crossOrigin = 'anonymous';
+      }
       tempAudio.src = track.src;
       tempAudio.addEventListener('loadedmetadata', () => {
         track.duration = tempAudio.duration;
         resolve(track.duration);
       });
-      tempAudio.addEventListener('error', () => resolve(0));
+      tempAudio.addEventListener('error', () => {
+        resolve(track.duration || 0);
+      });
     });
   });
 

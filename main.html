@@ -49,7 +49,6 @@
   <!-- Animations & Chat -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
   <script src="viewport-height.js" defer></script>
-  <script src="scripts/theme-toggle.js" defer></script>
 
 
   <style>
@@ -84,12 +83,6 @@
       box-sizing: border-box;
     }
 
-    body[data-theme="light"] {
-      color: #0f172a;
-      background-color: #f6f7fb;
-      background-image: none;
-      text-shadow: none;
-    }
     a { text-decoration: none; }
     .header {
       padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
@@ -146,29 +139,6 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-    }
-    .debug-toggle {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      color: inherit;
-      padding: 0.4rem 0.75rem;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-    #debugPanel {
-      position: fixed;
-      right: clamp(12px, 2vw, 24px);
-      bottom: clamp(12px, 2vw, 24px);
-      background: rgba(0, 0, 0, 0.72);
-      color: #fff;
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      max-width: min(480px, 90vw);
-      line-height: 1.4;
-      z-index: 200;
     }
     .container {
       flex: 1;
@@ -1288,15 +1258,8 @@
         <button class="share-button" aria-label="Share this page" onclick="shareContent()">
           <i class="fas fa-share-alt" aria-hidden="true"></i>
         </button>
-        <button class="debug-toggle" type="button" onclick="toggleDebugMode()">Debug</button>
-        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
-          <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
-          <span class="theme-toggle-label">Light mode</span>
-        </button>
       </div>
     </div>
-
-    <div id="debugPanel" hidden aria-live="polite"></div>
 
     <div class="container">
     <div class="sidebar" id="sidebarNavigation">
@@ -1430,7 +1393,6 @@
               aria-controls="audioPlayer"
             />
             <div class="player-utility">
-              <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
               <button id="addToPlaylistButton" class="retry-button" onclick="addCurrentTrackToPlaylist()" aria-label="Add current track to playlist">Add to Playlist</button>
               <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
             </div>

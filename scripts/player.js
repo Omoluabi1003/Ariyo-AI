@@ -116,7 +116,6 @@
     const bufferingMessage = document.getElementById('bufferingMessage');
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
-    retryButton.onclick = retryTrack;
     const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
@@ -154,6 +153,32 @@ const playbackWatchdog = {
 
 const audioHealer = createSelfHealAudio(audioPlayer);
 
+const instantBufferPrimer = {
+  controller: null
+};
+
+async function primeInstantBuffer(url) {
+  if (!window.fetch || !url) return;
+  try {
+    if (instantBufferPrimer.controller) {
+      instantBufferPrimer.controller.abort();
+    }
+    const controller = new AbortController();
+    instantBufferPrimer.controller = controller;
+    const safeMode = isCrossOriginFetchSafe(url) ? 'cors' : 'no-cors';
+    const timer = setTimeout(() => controller.abort(), 5000);
+    await fetch(url, {
+      method: 'GET',
+      mode: safeMode,
+      cache: 'force-cache',
+      signal: controller.signal
+    }).catch(() => {});
+    clearTimeout(timer);
+  } catch (error) {
+    console.debug('Buffer priming skipped:', error);
+  }
+}
+
     function forceInstantPlayback(autoPlay, title) {
       if (!autoPlay) return;
 
@@ -189,35 +214,7 @@ const PlaybackStatus = {
 };
 
 let playbackStatus = PlaybackStatus.idle;
-const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
-
-const debugPanel = document.getElementById('debugPanel');
-let debugIntervalId = null;
-
-function renderDebugPanel() {
-  if (!debugPanel || !debugPanel.classList.contains('active')) return;
-  const lines = [
-    `Status: ${playbackStatus}`,
-    `Current source: ${audioPlayer?.src || 'none'}`,
-    `Time: ${formatTime(audioPlayer?.currentTime || 0)}`,
-    `Network state: ${audioPlayer?.networkState}`
-  ];
-  debugPanel.textContent = lines.join(' \u2022 ');
-}
-
-window.toggleDebugMode = function toggleDebugMode() {
-  if (!debugPanel) return;
-  const enable = !debugPanel.classList.contains('active');
-  debugPanel.classList.toggle('active', enable);
-  debugPanel.hidden = !enable;
-  if (enable) {
-    renderDebugPanel();
-    debugIntervalId = setInterval(renderDebugPanel, 800);
-  } else if (debugIntervalId) {
-    clearInterval(debugIntervalId);
-    debugIntervalId = null;
-  }
-};
+const neutralFailureMessage = 'Playback paused—recovering stream automatically.';
 
 const slowBufferRescue = {
   timerId: null,
@@ -265,7 +262,6 @@ function hideBufferingState() {
 function setPlaybackStatus(status, options = {}) {
   const { message } = options;
   playbackStatus = status;
-  renderDebugPanel();
 
   if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
     const messageText = message || 'Preparing a smooth start...';
@@ -279,7 +275,7 @@ function setPlaybackStatus(status, options = {}) {
       loadingSpinner.style.display = 'flex';
       loadingSpinner.setAttribute('aria-label', messageText);
     }
-    retryButton.style.display = 'none';
+    hideRetryButton();
     return;
   }
 
@@ -287,13 +283,12 @@ function setPlaybackStatus(status, options = {}) {
 
   if (status === PlaybackStatus.failed) {
     trackInfo.textContent = message || neutralFailureMessage;
-    retryButton.style.display = 'block';
-    retryButton.textContent = 'Retry';
     audioPlayer.pause();
     stopPlaybackWatchdog();
     setTurntableSpin(false);
     document.getElementById('progressBar').style.display = 'none';
     hideBufferingState();
+    retryTrackWithDelay();
     return;
   }
 
@@ -677,8 +672,7 @@ function useOfflineFallback(reason = 'unavailable') {
     },
     onError: () => {
       setPlaybackStatus(PlaybackStatus.failed);
-      retryButton.style.display = 'block';
-      retryButton.textContent = 'Retry';
+      retryTrackWithDelay();
     }
   });
 }
@@ -774,7 +768,7 @@ function startNetworkRecovery(reason = 'network') {
     ? Math.max(currentTime - 3, 0)
     : 0;
   networkRecoveryState.source = source;
-  retryButton.style.display = 'none';
+  hideRetryButton();
   setPlaybackStatus(PlaybackStatus.buffering, { message: 'Reconnecting...' });
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
@@ -1402,12 +1396,13 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       applyTrackUiState(currentAlbumIndex, currentTrackIndex);
       showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
-      retryButton.style.display = 'none';
+      hideRetryButton();
       setTurntableSpin(false);
 
     const normalizedSrc = normalizeMediaSrc(src);
     const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
     const streamUrl = buildTrackFetchUrl(resolvedSrc);
+    primeInstantBuffer(streamUrl);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
     audioHealer.trackSource(streamUrl, title, { live: false });
@@ -1462,6 +1457,7 @@ async function selectRadio(src, title, index, logo) {
       lastTrackIndex = index;
       const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
       const streamUrl = buildTrackFetchUrl(resolvedSrc);
+      primeInstantBuffer(streamUrl);
       setCrossOrigin(audioPlayer, streamUrl);
       audioPlayer.src = streamUrl;
       audioHealer.trackSource(streamUrl, title, { live: true });
@@ -1477,7 +1473,7 @@ async function selectRadio(src, title, index, logo) {
       stopMusic();
       showBufferingState('Connecting to the station...');
       albumCover.style.display = 'none';
-      retryButton.style.display = 'none';
+      hideRetryButton();
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
@@ -1502,13 +1498,17 @@ async function selectRadio(src, title, index, logo) {
       showBufferingState('Retrying playback...');
       albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
-      retryButton.style.display = 'none';
+      hideRetryButton();
       setTurntableSpin(false);
       setTimeout(retryTrack, 3000);
     }
 
     function hideRetryButton() {
-      retryButton.style.display = 'none';
+      if (retryButton) {
+        retryButton.style.display = 'none';
+        retryButton.textContent = '';
+        retryButton.onclick = null;
+      }
     }
 
     function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
@@ -1638,6 +1638,12 @@ async function selectRadio(src, title, index, logo) {
         updateMediaSession();
         if (!silent) {
           setPlaybackStatus(PlaybackStatus.buffering, { message: bufferingMessage?.textContent });
+        }
+        if (currentRadioIndex === -1) {
+          const activeTrack = albums?.[currentAlbumIndex]?.tracks?.[currentTrackIndex];
+          if (activeTrack && isFinite(audioPlayer.duration) && audioPlayer.duration > 0) {
+            activeTrack.duration = audioPlayer.duration;
+          }
         }
         if (autoPlay && audioPlayer.paused) {
           attemptPlay();
@@ -1816,61 +1822,62 @@ async function selectRadio(src, title, index, logo) {
             isFirstPlay = false;
           }
         }).catch(error => {
-          console.error(`[attemptPlay] Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
-          handlePlayError(error, trackInfo.textContent);
-        });
-      }
-    }
+      console.error(`[attemptPlay] Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
+      handlePlayError(error, trackInfo.textContent);
+    });
+  }
+}
 
-    function handlePlayError(error, title) {
-      setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
-      albumCover.style.display = 'block';
-      document.getElementById('progressBar').style.display = 'none';
-      setTurntableSpin(false);
-      console.error(`Error playing ${title}:`, error);
+function handlePlayError(error, title) {
+  setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
+  albumCover.style.display = 'block';
+  document.getElementById('progressBar').style.display = 'none';
+  setTurntableSpin(false);
+  console.error(`Error playing ${title}:`, error);
 
-      if (error && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
-        retryButton.textContent = 'Tap to start sound';
-        retryButton.onclick = playMusic;
-        retryButton.style.display = 'block';
-        trackInfo.textContent = 'Tap play to unlock audio on this device.';
-        return;
-      }
+  if (error && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
+    const resumePlayback = () => {
+      document.removeEventListener('click', resumePlayback);
+      document.removeEventListener('touchend', resumePlayback);
+      playMusic();
+    };
+    document.addEventListener('click', resumePlayback, { once: true, passive: true });
+    document.addEventListener('touchend', resumePlayback, { once: true, passive: true });
+    trackInfo.textContent = 'Tap anywhere to unlock audio on this device.';
+    return;
+  }
 
       if (!navigator.onLine || (error && error.code === MediaError.MEDIA_ERR_NETWORK)) {
         startNetworkRecovery('play-error');
         return;
       }
 
-      retryButton.style.display = 'block';
-      retryButton.textContent = 'Retry';
-
-      switch (error.code) {
-        case MediaError.MEDIA_ERR_ABORTED:
-          trackInfo.textContent = 'Playback paused early—press play when you’re ready.';
-          break;
-        case MediaError.MEDIA_ERR_NETWORK:
-          trackInfo.textContent = 'Connection blinked. Retry when your signal steadies.';
-          break;
-        case MediaError.MEDIA_ERR_DECODE:
-          trackInfo.textContent = 'We hit a decoding bump. Tap retry to reload smoothly.';
-          break;
-        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-          trackInfo.textContent = 'This source is blocked here—pick another track while we refresh.';
-          break;
-        default:
-          // Handle cases where error.code is undefined (e.g. DOMException from play())
-          if (error.name === 'NotAllowedError') {
-            trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
-            retryButton.textContent = 'Start playback';
-            retryButton.style.display = 'block';
-            setPlaybackStatus(PlaybackStatus.idle);
-          } else {
-            trackInfo.textContent = neutralFailureMessage;
-          }
-          break;
+  switch (error.code) {
+    case MediaError.MEDIA_ERR_ABORTED:
+      trackInfo.textContent = 'Playback paused early—press play when you’re ready.';
+      break;
+    case MediaError.MEDIA_ERR_NETWORK:
+      trackInfo.textContent = 'Connection blinked. Retry when your signal steadies.';
+      break;
+    case MediaError.MEDIA_ERR_DECODE:
+      trackInfo.textContent = 'We hit a decoding bump. Tap retry to reload smoothly.';
+      break;
+    case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+      trackInfo.textContent = 'This source is blocked here—pick another track while we refresh.';
+      break;
+    default:
+      // Handle cases where error.code is undefined (e.g. DOMException from play())
+      if (error.name === 'NotAllowedError') {
+        trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
+        setPlaybackStatus(PlaybackStatus.idle);
+      } else {
+        trackInfo.textContent = neutralFailureMessage;
       }
-    }
+      break;
+  }
+
+  retryTrackWithDelay();
+}
 
 function pauseMusic() {
     cancelNetworkRecovery();
@@ -1899,28 +1906,35 @@ function stopMusic() {
 
 function updateTrackTime() {
     const currentTime = audioPlayer.currentTime;
-    const duration = audioPlayer.duration;
+    const rawDuration = audioPlayer.duration;
+    const trackMeta = albums?.[currentAlbumIndex]?.tracks?.[currentTrackIndex];
+    const knownDuration = (isFinite(rawDuration) && rawDuration > 0)
+      ? rawDuration
+      : (trackMeta?.duration && isFinite(trackMeta.duration) ? trackMeta.duration : null);
 
     // 🔒 If it's a radio stream, don't format duration
-    if (currentRadioIndex >= 0 || !isFinite(duration)) {
+    if (currentRadioIndex >= 0 || (!isFinite(rawDuration) && !knownDuration)) {
       trackDuration.textContent = `${formatTime(currentTime)} / Live`;
       seekBar.style.display = 'none'; // hide seekbar for radio
       recordPlaybackProgress(currentTime);
       return;
     }
 
-    if (!isNaN(duration) && duration > 0) {
-      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-      seekBar.value = (currentTime / duration) * 100;
+    if (knownDuration) {
+      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(knownDuration)}`;
+      seekBar.value = (currentTime / knownDuration) * 100;
       seekBar.style.display = 'block';
       schedulePlayerStateSave();
       recordPlaybackProgress(currentTime);
-    } else {
-      trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
-      seekBar.style.display = 'block';
-    }
-  highlightLyric(currentTime);
-  if (isNaN(duration) || duration <= 0) {
+      if (trackMeta && (!trackMeta.duration || !isFinite(trackMeta.duration))) {
+        trackMeta.duration = knownDuration;
+      }
+  } else {
+    trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+    seekBar.style.display = 'block';
+  }
+highlightLyric(currentTime);
+  if (!knownDuration) {
       recordPlaybackProgress(currentTime);
   }
 }
