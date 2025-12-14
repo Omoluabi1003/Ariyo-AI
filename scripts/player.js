@@ -577,12 +577,14 @@ async function attemptNetworkResume() {
 
       const resolvedSrc = await resolveSunoAudioSrc(track.src);
       const fetchUrl = buildTrackFetchUrl(resolvedSrc);
-      const response = await fetch(fetchUrl, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Status ${response.status}`);
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      audioPlayer.src = objectUrl;
-      handleAudioLoad(objectUrl, track.title, false, {
+
+      // Avoid downloading the entire podcast episode during recovery; large
+      // feeds (like DJ Bounce) were fetching as blobs, resetting the player to
+      // 0s while the download completed. Instead, stream directly from the
+      // source with a cache-busting URL so playback can resume quickly.
+      setCrossOrigin(audioPlayer, fetchUrl);
+      audioPlayer.src = fetchUrl;
+      handleAudioLoad(fetchUrl, track.title, false, {
         silent: true,
         autoPlay: networkRecoveryState.wasPlaying,
         resumeTime: networkRecoveryState.resumeTime,
