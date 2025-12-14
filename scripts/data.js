@@ -332,19 +332,43 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
   const proxiedUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
 
   try {
-    let response;
-    try {
-      response = await fetchWithTimeout(feedUrl);
-    } catch (directError) {
+    let cover = '';
+    let tracks = [];
+
+    const hydrateFromResponse = async (response) => {
+      if (!response || !response.ok) {
+        return null;
+      }
+      const xmlText = await response.text();
+      const parsed = parsePodcastFeed(xmlText);
+      return parsed;
+    };
+
+    const directResponse = await fetchWithTimeout(feedUrl).catch((directError) => {
       console.warn(`Direct RSS fetch failed for ${albumName}, falling back to proxy:`, directError);
-      response = await fetchWithTimeout(proxiedUrl, { timeout: 10000 });
+      return null;
+    });
+
+    let parsed = await hydrateFromResponse(directResponse);
+
+    if (!parsed || !parsed.tracks.length) {
+      const proxyResponse = await fetchWithTimeout(proxiedUrl, { timeout: 10000 }).catch((proxyError) => {
+        console.warn(`Proxy RSS fetch failed for ${albumName}:`, proxyError);
+        return null;
+      });
+
+      const proxyParsed = await hydrateFromResponse(proxyResponse);
+      if (proxyParsed && proxyParsed.tracks.length) {
+        parsed = proxyParsed;
+      }
     }
 
-    if (!response.ok) {
-      throw new Error(`Feed request failed with status ${response.status}`);
+    if (!parsed) {
+      throw new Error('Feed request failed after trying direct and proxy URLs.');
     }
-    const xmlText = await response.text();
-    const { cover, tracks } = parsePodcastFeed(xmlText);
+
+    cover = parsed.cover;
+    tracks = parsed.tracks;
 
     if (tracks.length) {
       albums[albumIndex].tracks = tracks;
