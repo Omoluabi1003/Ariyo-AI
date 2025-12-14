@@ -253,6 +253,11 @@ function setPlaybackStatus(status, options = {}) {
     trackInfo.textContent = message || neutralFailureMessage;
     retryButton.style.display = 'block';
     retryButton.textContent = 'Retry';
+    audioPlayer.pause();
+    stopPlaybackWatchdog();
+    setTurntableSpin(false);
+    document.getElementById('progressBar').style.display = 'none';
+    hideBufferingState();
     return;
   }
 
@@ -1446,6 +1451,9 @@ async function selectRadio(src, title, index, logo) {
     }
 
     function retryTrack() {
+      audioPlayer.pause();
+      stopPlaybackWatchdog();
+      setTurntableSpin(false);
       if (currentRadioIndex >= 0) {
         selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
       } else {
