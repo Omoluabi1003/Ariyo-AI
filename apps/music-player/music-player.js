@@ -185,6 +185,17 @@
     B: createDeck(deckAudioB),
   };
 
+  async function resumeAudioContext() {
+    if (!audioContext || typeof audioContext.resume !== 'function') return;
+    try {
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+    } catch (_) {
+      // Ignore resume failures so playback attempts still proceed.
+    }
+  }
+
   function ensureAudioGraph(deck) {
     if (!AudioContextClass || deck.gainNode) return;
     audioContext = audioContext || new AudioContext();
@@ -572,10 +583,12 @@
         retryOrFailPlayback(state, new Error('playback timeout'));
       }, PLAYBACK_START_TIMEOUT_MS);
 
-      const playPromise = audioEl.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(err => retryOrFailPlayback(state, err));
-      }
+      resumeAudioContext().finally(() => {
+        const playPromise = audioEl.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(err => retryOrFailPlayback(state, err));
+        }
+      });
     };
 
     startAttempt();
@@ -1160,9 +1173,10 @@
     await transitionToOrderIndex(orderIndex, { autoplay, preferCrossfade: djAutoMixEnabled });
   }
 
-  function playCurrentTrack() {
+  async function playCurrentTrack() {
     const activeAudio = getActiveAudio();
     ensureAudioGraph(getActiveDeck());
+    await resumeAudioContext();
     const playPromise = activeAudio.play();
     if (playPromise) {
       playPromise.catch(() => {
