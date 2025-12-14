@@ -59,6 +59,7 @@
     }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
+    let hasUnlockedMobilePlayback = false;
 
     function resumeAudioContext() {
         if (audioContext.state === 'suspended' && !isAudioContextResumed) {
@@ -69,8 +70,23 @@
         }
     }
 
-    ['click', 'touchstart', 'keydown'].forEach(evt => {
-        window.addEventListener(evt, resumeAudioContext, { once: true, passive: true });
+    function unlockMobilePlayback() {
+      if (hasUnlockedMobilePlayback) return;
+      resumeAudioContext();
+
+      const silentSource = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=');
+      silentSource.muted = true;
+      silentSource.playsInline = true;
+      silentSource.setAttribute('playsinline', '');
+      silentSource.play().then(() => {
+        hasUnlockedMobilePlayback = true;
+      }).catch(() => {
+        // Keep trying on the next interaction
+      });
+    }
+
+    ['click', 'touchstart', 'keydown', 'pointerdown', 'touchend'].forEach(evt => {
+        window.addEventListener(evt, unlockMobilePlayback, { once: true, passive: true });
     });
 
     if (!existingAudioElement) {
@@ -82,6 +98,7 @@
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
     audioPlayer.setAttribute('controlsList', 'nodownload');
+    audioPlayer.setAttribute('webkit-playsinline', '');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     if (!existingAudioElement) {
         document.body.appendChild(audioPlayer);
@@ -1716,7 +1733,7 @@ async function selectRadio(src, title, index, logo) {
 
     function attemptPlay() {
       console.log('[attemptPlay] called');
-      resumeAudioContext();
+      unlockMobilePlayback();
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
       }
