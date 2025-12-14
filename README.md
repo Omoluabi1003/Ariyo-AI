@@ -60,6 +60,18 @@ npm test
 
 The command currently prints "No tests yet".
 
+## Music feeds
+
+The Music section consumes a normalized JSON feed (no RSS parsing in the UI) from an aggregator set by the environment:
+
+- `VITE_MUSIC_FEED_BASE_URL` (or `NEXT_PUBLIC_MUSIC_FEED_BASE_URL` for Next-style hosting).
+- Expected endpoints under that base:
+  - `GET /feed/latest?limit=50`
+  - `GET /feed/library?category=Afrobeat&limit=100`
+  - `GET /feed/episodes?limit=50`
+
+Only direct-play sources are rendered (mp3, m4a, aac, ogg, wav; HTTPS required unless running on localhost). If the base URL is not configured, the Music section stays hidden as a feature flag.
+
 ## Push notifications
 
 See [docs/push-notifications.md](docs/push-notifications.md) for configuring VAPID keys, enabling client subscriptions, and triggering broadcast alerts for new drops.

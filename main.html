@@ -1302,6 +1302,22 @@
             <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
           </div>
         </div>
+      <section id="musicFeedSection" class="music-feed-card" aria-labelledby="musicFeedHeading" hidden>
+        <div class="music-feed-header">
+          <div>
+            <p class="music-feed-eyebrow">Premium music feed</p>
+            <h3 id="musicFeedHeading">Music</h3>
+            <p id="musicFeedHeaderNote" class="music-feed-note">Direct-play Afrobeat drops without RSS clutter.</p>
+          </div>
+          <div class="music-feed-tabs" role="tablist" aria-label="Music feed views">
+            <button type="button" data-music-tab="latest" role="tab" aria-selected="true">Latest Drops</button>
+            <button type="button" data-music-tab="library" role="tab" aria-selected="false">Library</button>
+            <button type="button" data-music-tab="episodes" role="tab" aria-selected="false">Episodes</button>
+          </div>
+        </div>
+        <div class="music-feed-categories" aria-label="Music categories"></div>
+        <div class="music-feed-list" id="musicFeedList" data-loading="false" aria-live="polite"></div>
+      </section>
       <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <!-- Music Player -->
       <div class="music-player">
@@ -1652,6 +1668,8 @@
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
   <script src="scripts/player.js"></script>
   <script src="scripts/ui.js"></script>
+  <script src="scripts/music-feed-service.js"></script>
+  <script src="scripts/music-feed-ui.js"></script>
   <script src="scripts/main.js"></script>
   <script src="user-tracking.js"></script>
   <script src="prevent-zoom.js"></script>
