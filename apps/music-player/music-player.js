@@ -47,7 +47,6 @@
   const deckAMeta = document.getElementById('deckA_meta');
   const deckBMeta = document.getElementById('deckB_meta');
   const djCrossfader = document.getElementById('djCrossfader');
-  const playbackStateLabel = document.body; // acts as a single source of truth for playback state
 
   // Playback start safeguards. Adjust these values to tune responsiveness.
   const PLAYBACK_START_TIMEOUT_MS = 8000;
@@ -132,8 +131,6 @@
     return;
   }
 
-  setPlaybackState('idle');
-
   function isLiveStreamTrack(track) {
     return Boolean(track && (track.isLive || track.sourceType === 'stream'));
   }
@@ -161,9 +158,6 @@
   let audioContext = null;
   let crossfaderFrame = null;
   let playbackStartState = null;
-  let playbackSessionId = 0;
-  let playbackState = 'idle';
-  let userHasInitiatedPlayback = false;
   const preconnectedHosts = new Set();
 
   function getCrossfadeDurationForTrack(trackDurationSeconds) {
@@ -190,9 +184,6 @@
     A: createDeck(deckAudioA),
     B: createDeck(deckAudioB),
   };
-
-  deckAudioA.autoplay = false;
-  deckAudioB.autoplay = false;
 
   function ensureAudioGraph(deck) {
     if (!AudioContextClass || deck.gainNode) return;
@@ -447,33 +438,9 @@
     statusMessage.dataset.tone = tone;
   }
 
-  function setPlaybackState(nextState) {
-    playbackState = nextState;
-    if (playbackStateLabel) {
-      playbackStateLabel.dataset.playbackState = playbackState;
-    }
-  }
-
-  function allowAutoplay({ autoplay, userInitiated }) {
-    if (userInitiated) {
-      userHasInitiatedPlayback = true;
-    }
-
-    if (!autoplay) return false;
-
-    if (userHasInitiatedPlayback) {
-      return true;
-    }
-
-    console.debug('[player] Autoplay blocked until user interacts');
-    return false;
-  }
-
   function showLoading(message = 'Connecting…', tone = 'info') {
     loadingSpinner.style.display = 'block';
-    if (message) {
-      setStatus(message, tone);
-    }
+    setStatus(message, tone);
   }
 
   function hideLoading() {
@@ -493,14 +460,6 @@
     } catch (_) {
       // Ignore malformed URLs or failures to create link tags.
     }
-  }
-
-  function hasAudioAudiblyStarted(audioEl) {
-    if (!audioEl) return false;
-    const haveCurrentData = typeof HTMLMediaElement !== 'undefined'
-      ? HTMLMediaElement.HAVE_CURRENT_DATA
-      : 2;
-    return !audioEl.paused && !audioEl.ended && audioEl.currentTime > 0 && audioEl.readyState >= haveCurrentData;
   }
 
   function resetPlaybackStartState() {
@@ -530,12 +489,6 @@
 
     const audioEl = state.audioEl;
     if (!audioEl) return;
-
-    if (hasAudioAudiblyStarted(audioEl)) {
-      resetPlaybackStartState();
-      hideLoading();
-      return;
-    }
 
     if (state.retries < PLAYBACK_MAX_RETRIES) {
       state.retries += 1;
@@ -568,7 +521,6 @@
     hideLoading();
     // Update this message to change the user-facing playback failure copy.
     setStatus('We could not start playback right now. Please check your connection and try again.', 'error');
-    setPlaybackState('error');
     postPanelStatus('error', state.trackTitle || '');
     console.error('[player] Playback failed after retries', { error });
   }
@@ -580,7 +532,7 @@
     resetPlaybackStartState();
     const audioEl = deck.audio;
     const state = {
-      id: ++playbackSessionId,
+      id: Date.now(),
       audioEl,
       deckKey,
       retries: 0,
@@ -590,10 +542,6 @@
       onError: null,
     };
 
-    if (audioContext && typeof audioContext.resume === 'function' && audioContext.state === 'suspended') {
-      audioContext.resume().catch(() => {});
-    }
-
     const handleSuccess = () => {
       if (!isActivePlaybackState(state)) return;
       if (state.timeoutId) {
@@ -601,7 +549,6 @@
       }
       hideLoading();
       resetPlaybackStartState();
-      setPlaybackState('playing');
     };
 
     const handleError = event => {
@@ -617,7 +564,6 @@
 
     playbackStartState = state;
     markPlaybackSelection(track?.src);
-    setPlaybackState('loading');
     showLoading('Connecting…');
 
     const startAttempt = () => {
@@ -997,12 +943,12 @@
         listItem.appendChild(trackMeta);
 
         listItem.addEventListener('click', () => {
-          loadTrack(orderIndex, { autoplay: true, userInitiated: true });
+          loadTrack(orderIndex, { autoplay: true });
         });
         listItem.addEventListener('keydown', event => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            loadTrack(orderIndex, { autoplay: true, userInitiated: true });
+            loadTrack(orderIndex, { autoplay: true });
           }
         });
 
@@ -1074,7 +1020,7 @@
     updateNextTrackLabel();
   }
 
-  async function cueTrackOnDeck(deckKey, orderIndex, { updateUI = true, preloadOnly = false, autoplayIntent = false } = {}) {
+  async function cueTrackOnDeck(deckKey, orderIndex, { updateUI = true, preloadOnly = false } = {}) {
     const trackIndex = playbackOrder[orderIndex];
     const track = allTracks[trackIndex];
     if (!track) return null;
@@ -1084,7 +1030,7 @@
     const resolvedSrc = await resolveSunoAudioSrc(track.src);
     ensurePreconnect(resolvedSrc);
     setCrossOrigin(resolvedSrc, deck.audio);
-    deck.audio.autoplay = Boolean(autoplayIntent && !preloadOnly);
+    deck.audio.autoplay = !preloadOnly;
     deck.audio.preload = preloadOnly ? 'metadata' : 'auto';
 
     if (prefetchCache.has(track.src)) {
@@ -1122,7 +1068,7 @@
       prefetchUpcomingTracks(currentOrderIndex);
     }
 
-    if (!preloadOnly && autoplayIntent) {
+    if (!preloadOnly) {
       showLoading('Loading track…');
     }
 
@@ -1148,11 +1094,11 @@
     updateDjMixUi();
   }
 
-  async function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds, autoplayIntent = false } = {}) {
+  async function startCrossfade(orderIndex, { duration = crossfadeDurationSeconds } = {}) {
     if (isCrossfading || !playbackOrder.length) return;
     const incomingKey = getStandbyDeckKey();
     const outgoingKey = activeDeckKey;
-    const queued = await cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true, autoplayIntent });
+    const queued = await cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
     if (!queued) return;
 
     const { deck: incomingDeck, track } = queued;
@@ -1169,11 +1115,7 @@
     updateDjMixUi();
     animateCrossfader(outgoingKey, incomingKey, duration);
 
-    if (autoplayIntent) {
-      beginPlaybackStart(incomingKey, track);
-    } else {
-      setPlaybackState('idle');
-    }
+    beginPlaybackStart(incomingKey, track);
 
     rampVolume(incomingDeck, 0, targetVolume, duration);
     rampVolume(outgoingDeck, targetVolume, 0, duration, () => {
@@ -1181,18 +1123,17 @@
     });
   }
 
-  async function transitionToOrderIndex(orderIndex, { autoplay = true, preferCrossfade = true, shortFade = false, userInitiated = false } = {}) {
-    const autoplayIntent = allowAutoplay({ autoplay, userInitiated });
-    const shouldCrossfade = preferCrossfade && djAutoMixEnabled && autoplayIntent && playbackOrder.length > 1;
+  async function transitionToOrderIndex(orderIndex, { autoplay = true, preferCrossfade = true, shortFade = false } = {}) {
+    const shouldCrossfade = preferCrossfade && djAutoMixEnabled && autoplay && playbackOrder.length > 1;
     if (shouldCrossfade) {
       const duration = shortFade ? Math.max(2, crossfadeDurationSeconds / 2) : crossfadeDurationSeconds;
-      await startCrossfade(orderIndex, { duration, autoplayIntent });
+      await startCrossfade(orderIndex, { duration });
       return;
     }
 
     const incomingKey = getStandbyDeckKey();
     const outgoingKey = activeDeckKey;
-    const queued = await cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true, autoplayIntent });
+    const queued = await cueTrackOnDeck(incomingKey, orderIndex, { updateUI: true });
     if (!queued) return;
 
     const { deck: incomingDeck, track } = queued;
@@ -1202,10 +1143,8 @@
     ensureAudioGraph(outgoingDeck);
     setDeckVolume(incomingDeck, targetVolume);
 
-    if (autoplayIntent) {
+    if (autoplay) {
       beginPlaybackStart(incomingKey, track);
-    } else {
-      setPlaybackState('idle');
     }
 
     outgoingDeck.audio.pause();
@@ -1217,18 +1156,20 @@
     updateSpinState();
   }
 
-  async function loadTrack(orderIndex, { autoplay = false, userInitiated = false } = {}) {
-    await transitionToOrderIndex(orderIndex, { autoplay, userInitiated, preferCrossfade: djAutoMixEnabled });
+  async function loadTrack(orderIndex, { autoplay = false } = {}) {
+    await transitionToOrderIndex(orderIndex, { autoplay, preferCrossfade: djAutoMixEnabled });
   }
 
-  function playCurrentTrack(userInitiated = false) {
+  function playCurrentTrack() {
     const activeAudio = getActiveAudio();
-    const currentTrack = allTracks[playbackOrder[currentOrderIndex]];
-    if (!activeAudio || !currentTrack) return;
-
-    userHasInitiatedPlayback = userInitiated || userHasInitiatedPlayback;
     ensureAudioGraph(getActiveDeck());
-    beginPlaybackStart(activeDeckKey, currentTrack);
+    const playPromise = activeAudio.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        setStatus('Playback blocked by your browser. Tap play again.', 'warning');
+        updateSpinState();
+      });
+    }
   }
 
   function stopPlayback() {
@@ -1237,7 +1178,6 @@
       deck.audio.pause();
       deck.audio.currentTime = 0;
     });
-    setPlaybackState('idle');
     updateSpinState();
     hideLoading();
     setStatus('Playback stopped.');
@@ -1246,21 +1186,13 @@
   async function playNextTrack(auto = false) {
     if (!playbackOrder.length) return;
     const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
-    await transitionToOrderIndex(nextIndex, {
-      autoplay: auto ? true : !getActiveAudio().paused,
-      userInitiated: userHasInitiatedPlayback,
-      shortFade: !auto,
-    });
+    await transitionToOrderIndex(nextIndex, { autoplay: auto ? true : !getActiveAudio().paused, shortFade: !auto });
   }
 
   async function playPreviousTrack() {
     if (!playbackOrder.length) return;
     const prevIndex = (currentOrderIndex - 1 + playbackOrder.length) % playbackOrder.length;
-    await transitionToOrderIndex(prevIndex, {
-      autoplay: !getActiveAudio().paused,
-      userInitiated: userHasInitiatedPlayback,
-      shortFade: true,
-    });
+    await transitionToOrderIndex(prevIndex, { autoplay: !getActiveAudio().paused, shortFade: true });
   }
 
   function toggleShuffle() {
@@ -1312,7 +1244,7 @@
     );
   }
 
-  playButton.addEventListener('click', () => playCurrentTrack(true));
+  playButton.addEventListener('click', playCurrentTrack);
   pauseButton.addEventListener('click', () => {
     getActiveAudio().pause();
   });
@@ -1408,7 +1340,7 @@
 
         const fadeDuration = getCrossfadeDurationForTrack(event.target.duration);
         if (remaining <= fadeDuration) {
-          await startCrossfade(nextIndex, { duration: fadeDuration, autoplayIntent: userHasInitiatedPlayback });
+          await startCrossfade(nextIndex, { duration: fadeDuration });
         }
       }
     }
@@ -1420,7 +1352,6 @@
     hideLoading();
     setStatus(`Now playing: ${trackInfo.textContent}`);
     updateSpinState();
-    setPlaybackState('playing');
     postPanelStatus('playing', trackInfo.textContent);
     cleanupPrefetch(event.target.dataset.trackSrc);
   }
@@ -1428,7 +1359,6 @@
   function handlePause(event) {
     if (event.target !== getActiveAudio()) return;
     updateSpinState();
-    setPlaybackState('paused');
     if (event.target.currentTime > 0 && event.target.currentTime < event.target.duration) {
       setStatus('Playback paused.');
       postPanelStatus('paused', trackInfo.textContent);
@@ -1437,21 +1367,18 @@
 
   function handleWaiting(event) {
     if (event.target !== getActiveAudio()) return;
-    setPlaybackState('loading');
-    showLoading('', 'info');
+    showLoading('Buffering…', 'info');
   }
 
   function handleCanPlay(event) {
     if (event.target !== getActiveAudio()) return;
     hideLoading();
-    setPlaybackState('idle');
   }
 
   function handleEnded(event) {
     if (event.target !== getActiveAudio() || isCrossfading) return;
     updateSpinState();
     setStatus('Track finished. Loading next…');
-    setPlaybackState('loading');
     playNextTrack(true);
   }
 
@@ -1462,8 +1389,7 @@
       return;
     }
     hideLoading();
-    setPlaybackState('error');
-    setStatus('Playback hiccup. We will retry if possible.', 'warning');
+    setStatus('We could not start playback right now. Please check your connection and try again.', 'error');
     postPanelStatus('error', trackInfo.textContent);
     cleanupPrefetch(event.target.dataset.trackSrc);
   }

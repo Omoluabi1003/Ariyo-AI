@@ -1,49 +1,19 @@
-const albumDurationsCache = new Map();
-const metadataCorsBlocklist = [
-  /(?:^|\.)podcastics\.com$/i,
-  /(?:^|\.)anchor\.fm$/i,
-  /d3ctxlq1ktw2nl\.cloudfront\.net$/i
-];
-
-function shouldUseAnonymousCors(url) {
-  try {
-    const target = new URL(url, window.location.origin);
-    return !metadataCorsBlocklist.some(pattern => pattern.test(target.hostname));
-  } catch (error) {
-    console.warn('Unable to determine CORS safety for metadata probe:', error);
-    return false;
-  }
-}
-
 function calculateAlbumDuration(album) {
-  if (albumDurationsCache.has(album.name)) {
-    return Promise.resolve(albumDurationsCache.get(album.name));
-  }
-
   const promises = album.tracks.map(track => {
     if (track.duration) return Promise.resolve(track.duration);
     return new Promise(resolve => {
       const tempAudio = new Audio();
       tempAudio.preload = 'metadata';
-      if (shouldUseAnonymousCors(track.src)) {
-        tempAudio.crossOrigin = 'anonymous';
-      }
+      tempAudio.crossOrigin = 'anonymous';
       tempAudio.src = track.src;
       tempAudio.addEventListener('loadedmetadata', () => {
         track.duration = tempAudio.duration;
         resolve(track.duration);
       });
-      tempAudio.addEventListener('error', () => {
-        resolve(track.duration || 0);
-      });
+      tempAudio.addEventListener('error', () => resolve(0));
     });
   });
-
-  return Promise.all(promises).then(durations => {
-    const total = durations.reduce((a, b) => a + b, 0);
-    albumDurationsCache.set(album.name, total);
-    return total;
-  });
+  return Promise.all(promises).then(durations => durations.reduce((a, b) => a + b, 0));
 }
 
 function populateAlbumList() {
@@ -91,6 +61,8 @@ function populateAlbumList() {
       });
   });
 }
+
+document.addEventListener('DOMContentLoaded', populateAlbumList);
 
 function prepareDeferredIframes() {
   const iframes = document.querySelectorAll('.chatbot-container iframe, #aboutModalContainer iframe');

@@ -22,6 +22,7 @@
     <title>Welcome to Àríyò AI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
     <script src="viewport-height.js" defer></script>
+    <script src="scripts/theme-toggle.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="index.css">
@@ -36,7 +37,12 @@
         <div id="bg2" class="bg-image"></div>
     </div>
     <div class="overlay">
-        <div class="page-actions"></div>
+        <div class="page-actions">
+            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+                <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+                <span class="theme-toggle-label">Light mode</span>
+            </button>
+        </div>
         <div class="hero-layout">
             <div class="hero-banner hero-animate">
                 <div class="logo-lockup">
