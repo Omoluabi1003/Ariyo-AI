@@ -49,6 +49,7 @@
   <!-- Animations & Chat -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
   <script src="viewport-height.js" defer></script>
+  <script src="scripts/theme-toggle.js" defer></script>
 
 
   <style>
@@ -83,6 +84,12 @@
       box-sizing: border-box;
     }
 
+    body[data-theme="light"] {
+      color: #0f172a;
+      background-color: #f6f7fb;
+      background-image: none;
+      text-shadow: none;
+    }
     a { text-decoration: none; }
     .header {
       padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
@@ -428,9 +435,8 @@
         width: min(86vw, var(--edge-panel-width));
         right: calc(var(--edge-panel-visible-gap) - min(86vw, var(--edge-panel-width)));
         border-radius: 24px 0 0 24px;
-        top: 50%;
+        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
         bottom: auto;
-        transform: translateY(-50%);
         min-height: var(--edge-panel-min-height);
       }
       .edge-panel.visible {
@@ -917,9 +923,8 @@
       }
       .edge-panel {
         right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
-        top: 50%;
+        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
         bottom: auto;
-        transform: translateY(-50%);
       }
       .edge-panel.visible {
         right: var(--edge-panel-visible-gap);
@@ -1250,18 +1255,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-  <body>
-    <div class="header">
-      <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" />
-      <span class="header-title">Àríyò AI Studio</span>
-      <div class="header-actions">
-        <button class="share-button" aria-label="Share this page" onclick="shareContent()">
-          <i class="fas fa-share-alt" aria-hidden="true"></i>
-        </button>
-      </div>
+<body>
+  <div class="header">
+    <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" />
+    <span class="header-title">Àríyò AI Studio</span>
+    <div class="header-actions">
+      <button class="share-button" aria-label="Share this page" onclick="shareContent()">
+        <i class="fas fa-share-alt" aria-hidden="true"></i>
+      </button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+        <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+        <span class="theme-toggle-label">Light mode</span>
+      </button>
     </div>
+  </div>
 
-    <div class="container">
+  <div class="container">
     <div class="sidebar" id="sidebarNavigation">
       <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
       <datalist id="searchSuggestions"></datalist>
@@ -1293,22 +1302,6 @@
             <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
           </div>
         </div>
-      <section id="musicFeedSection" class="music-feed-card" aria-labelledby="musicFeedHeading" hidden>
-        <div class="music-feed-header">
-          <div>
-            <p class="music-feed-eyebrow">Premium music feed</p>
-            <h3 id="musicFeedHeading">Music</h3>
-            <p id="musicFeedHeaderNote" class="music-feed-note">Direct-play Afrobeat drops without RSS clutter.</p>
-          </div>
-          <div class="music-feed-tabs" role="tablist" aria-label="Music feed views">
-            <button type="button" data-music-tab="latest" role="tab" aria-selected="true">Latest Drops</button>
-            <button type="button" data-music-tab="library" role="tab" aria-selected="false">Library</button>
-            <button type="button" data-music-tab="episodes" role="tab" aria-selected="false">Episodes</button>
-          </div>
-        </div>
-        <div class="music-feed-categories" aria-label="Music categories"></div>
-        <div class="music-feed-list" id="musicFeedList" data-loading="false" aria-live="polite"></div>
-      </section>
       <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <!-- Music Player -->
       <div class="music-player">
@@ -1393,6 +1386,7 @@
               aria-controls="audioPlayer"
             />
             <div class="player-utility">
+              <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
               <button id="addToPlaylistButton" class="retry-button" onclick="addCurrentTrackToPlaylist()" aria-label="Add current track to playlist">Add to Playlist</button>
               <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
             </div>
@@ -1658,8 +1652,6 @@
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
   <script src="scripts/player.js"></script>
   <script src="scripts/ui.js"></script>
-  <script src="scripts/music-feed-service.js"></script>
-  <script src="scripts/music-feed-ui.js"></script>
   <script src="scripts/main.js"></script>
   <script src="user-tracking.js"></script>
   <script src="prevent-zoom.js"></script>

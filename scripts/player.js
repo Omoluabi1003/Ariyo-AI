@@ -59,7 +59,6 @@
     }
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     let isAudioContextResumed = false;
-    let hasUnlockedMobilePlayback = false;
 
     function resumeAudioContext() {
         if (audioContext.state === 'suspended' && !isAudioContextResumed) {
@@ -70,35 +69,18 @@
         }
     }
 
-    function unlockMobilePlayback() {
-      if (hasUnlockedMobilePlayback) return;
-      resumeAudioContext();
-
-      const silentSource = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=');
-      silentSource.muted = true;
-      silentSource.playsInline = true;
-      silentSource.setAttribute('playsinline', '');
-      silentSource.play().then(() => {
-        hasUnlockedMobilePlayback = true;
-      }).catch(() => {
-        // Keep trying on the next interaction
-      });
-    }
-
-    ['click', 'touchstart', 'keydown', 'pointerdown', 'touchend'].forEach(evt => {
-        window.addEventListener(evt, unlockMobilePlayback, { once: true, passive: true });
+    ['click', 'touchstart', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, resumeAudioContext, { once: true, passive: true });
     });
 
     if (!existingAudioElement) {
         audioPlayer.id = 'audioPlayer';
     }
     audioPlayer.preload = 'auto';
-    audioPlayer.autoplay = true;
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
     audioPlayer.setAttribute('controlsList', 'nodownload');
-    audioPlayer.setAttribute('webkit-playsinline', '');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     if (!existingAudioElement) {
         document.body.appendChild(audioPlayer);
@@ -116,7 +98,7 @@
     const bufferingMessage = document.getElementById('bufferingMessage');
     const retryButton = document.getElementById('retryButton');
     const progressBar = document.getElementById('progressBarFill');
-    const lyricsContainer = document.getElementById('lyrics');
+const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
 let shuffleScope = 'off'; // 'off', 'album', 'all', 'repeat'
@@ -124,8 +106,6 @@ let isFirstPlay = true;
 let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
-let consecutivePlaybackErrors = 0;
-let fallbackEngaged = false;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -153,56 +133,6 @@ const playbackWatchdog = {
 
 const audioHealer = createSelfHealAudio(audioPlayer);
 
-const instantBufferPrimer = {
-  controller: null
-};
-
-async function primeInstantBuffer(url) {
-  if (!window.fetch || !url) return;
-  try {
-    if (instantBufferPrimer.controller) {
-      instantBufferPrimer.controller.abort();
-    }
-    const controller = new AbortController();
-    instantBufferPrimer.controller = controller;
-    const safeMode = isCrossOriginFetchSafe(url) ? 'cors' : 'no-cors';
-    const timer = setTimeout(() => controller.abort(), 5000);
-    await fetch(url, {
-      method: 'GET',
-      mode: safeMode,
-      cache: 'force-cache',
-      signal: controller.signal
-    }).catch(() => {});
-    clearTimeout(timer);
-  } catch (error) {
-    console.debug('Buffer priming skipped:', error);
-  }
-}
-
-    function forceInstantPlayback(autoPlay, title) {
-      if (!autoPlay) return;
-
-      resumeAudioContext();
-      audioPlayer.muted = false;
-      audioPlayer.volume = Math.max(audioPlayer.volume || 0, 1);
-
-      const onCanPlayThrough = () => {
-        audioPlayer.removeEventListener('canplaythrough', onCanPlayThrough);
-        attemptPlay();
-      };
-      audioPlayer.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
-
-      const kickOffPlayback = () => {
-        attemptPlay();
-      };
-
-      kickOffPlayback();
-      audioPlayer.addEventListener('canplay', kickOffPlayback, { once: true });
-      audioPlayer.addEventListener('playing', kickOffPlayback, { once: true });
-      audioPlayer.addEventListener('loadeddata', kickOffPlayback, { once: true });
-      console.log(`[instant-play] Ensuring immediate playback for ${title}`);
-    }
-
 const PlaybackStatus = {
   idle: 'idle',
   preparing: 'preparing',
@@ -214,7 +144,7 @@ const PlaybackStatus = {
 };
 
 let playbackStatus = PlaybackStatus.idle;
-const neutralFailureMessage = 'Playback paused—recovering stream automatically.';
+const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
 
 const slowBufferRescue = {
   timerId: null,
@@ -222,25 +152,6 @@ const slowBufferRescue = {
   attempts: 0,
   maxAttempts: 2
 };
-
-const corsFetchBlockList = [
-  /(?:^|\.)podcastics\.com$/i,
-  /(?:^|\.)anchor\.fm$/i,
-  /d3ctxlq1ktw2nl\.cloudfront\.net$/i
-];
-
-function isCrossOriginFetchSafe(url) {
-  try {
-    const target = new URL(url, window.location.origin);
-    const isSameOrigin = target.origin === window.location.origin;
-    if (isSameOrigin) return true;
-
-    return !corsFetchBlockList.some(pattern => pattern.test(target.hostname));
-  } catch (error) {
-    console.warn('Unable to evaluate CORS safety for fetch:', error);
-    return false;
-  }
-}
 
 function showBufferingState(message = 'Settling your stream...') {
   setPlaybackStatus(
@@ -275,7 +186,7 @@ function setPlaybackStatus(status, options = {}) {
       loadingSpinner.style.display = 'flex';
       loadingSpinner.setAttribute('aria-label', messageText);
     }
-    hideRetryButton();
+    retryButton.style.display = 'none';
     return;
   }
 
@@ -283,12 +194,8 @@ function setPlaybackStatus(status, options = {}) {
 
   if (status === PlaybackStatus.failed) {
     trackInfo.textContent = message || neutralFailureMessage;
-    audioPlayer.pause();
-    stopPlaybackWatchdog();
-    setTurntableSpin(false);
-    document.getElementById('progressBar').style.display = 'none';
-    hideBufferingState();
-    retryTrackWithDelay();
+    retryButton.style.display = 'block';
+    retryButton.textContent = 'Retry';
     return;
   }
 
@@ -310,12 +217,7 @@ function clearSlowBufferRescue() {
 }
 
 async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = true, callbacks = {}) {
-  if (!src || slowBufferRescue.inFlight) {
-    return;
-  }
-
-  if (slowBufferRescue.attempts >= slowBufferRescue.maxAttempts) {
-    useOfflineFallback('network');
+  if (!src || slowBufferRescue.inFlight || slowBufferRescue.attempts >= slowBufferRescue.maxAttempts) {
     return;
   }
 
@@ -326,27 +228,6 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
   try {
     const resolvedSrc = await resolveSunoAudioSrc(src);
     const fetchUrl = buildTrackFetchUrl(resolvedSrc);
-    const safeResume = resumeTime != null && !isNaN(resumeTime) ? resumeTime : (audioPlayer.currentTime || 0);
-
-    const reloadDirectly = () => {
-      const reloadUrl = appendCacheBuster(fetchUrl);
-      setCrossOrigin(audioPlayer, reloadUrl);
-      handleAudioLoad(reloadUrl, title, false, {
-        silent: true,
-        autoPlay,
-        resumeTime: Math.max(safeResume - 1, 0),
-        disableSlowGuard: true,
-        onReady: callbacks.onReady,
-        onError: callbacks.onError
-      });
-    };
-
-    if (!isCrossOriginFetchSafe(fetchUrl)) {
-      console.warn(`[slow-buffer] Skipping fetch rescue for ${title}; host blocks cross-origin fetches.`);
-      slowBufferRescue.inFlight = null;
-      reloadDirectly();
-      return;
-    }
     console.warn(`[slow-buffer] Attempt ${slowBufferRescue.attempts} fetching ${title} for slow network users.`);
     const response = await fetch(fetchUrl, { cache: 'no-store', signal: controller.signal });
     if (!response.ok) {
@@ -355,6 +236,7 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
 
     const blob = await response.blob();
     const objectUrl = URL.createObjectURL(blob);
+    const safeResume = resumeTime != null && !isNaN(resumeTime) ? resumeTime : (audioPlayer.currentTime || 0);
 
     handleAudioLoad(objectUrl, title, false, {
       silent: true,
@@ -366,7 +248,6 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
     });
   } catch (error) {
     console.warn('[slow-buffer] Rescue fetch failed:', error);
-    reloadDirectly();
   } finally {
     slowBufferRescue.inFlight = null;
   }
@@ -637,44 +518,8 @@ function createSelfHealAudio(player) {
     heal,
     trackSource,
     rebindMetadataHandlers,
-  clearDurationTimer
+    clearDurationTimer
   };
-}
-
-function useOfflineFallback(reason = 'unavailable') {
-  if (fallbackEngaged) {
-    return;
-  }
-
-  fallbackEngaged = true;
-  consecutivePlaybackErrors = 0;
-
-  const fallbackTitle = 'Offline Vibes';
-  const fallbackSrc = 'offline-audio.mp3';
-
-  lastTrackSrc = fallbackSrc;
-  lastTrackTitle = fallbackTitle;
-  trackInfo.textContent = `${fallbackTitle} (${reason})`;
-  trackArtist.textContent = 'Artist: Omoluabi';
-  trackYear.textContent = 'Release Year: 2024';
-  trackAlbum.textContent = 'Album: Local backup';
-  albumCover.src = 'Logo.jpg';
-  setTurntableSpin(false);
-  showBufferingState('Loading offline backup...');
-
-  setCrossOrigin(audioPlayer, fallbackSrc);
-  handleAudioLoad(fallbackSrc, fallbackTitle, false, {
-    autoPlay: true,
-    disableSlowGuard: true,
-    onReady: () => {
-      setPlaybackStatus(PlaybackStatus.playing, { message: 'Playing offline backup' });
-      manageVinylRotation();
-    },
-    onError: () => {
-      setPlaybackStatus(PlaybackStatus.failed);
-      retryTrackWithDelay();
-    }
-  });
 }
 
 function buildTrackFetchUrl(src) {
@@ -732,14 +577,12 @@ async function attemptNetworkResume() {
 
       const resolvedSrc = await resolveSunoAudioSrc(track.src);
       const fetchUrl = buildTrackFetchUrl(resolvedSrc);
-
-      // Avoid downloading the entire podcast episode during recovery; large
-      // feeds (like DJ Bounce) were fetching as blobs, resetting the player to
-      // 0s while the download completed. Instead, stream directly from the
-      // source with a cache-busting URL so playback can resume quickly.
-      setCrossOrigin(audioPlayer, fetchUrl);
-      audioPlayer.src = fetchUrl;
-      handleAudioLoad(fetchUrl, track.title, false, {
+      const response = await fetch(fetchUrl, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Status ${response.status}`);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      audioPlayer.src = objectUrl;
+      handleAudioLoad(objectUrl, track.title, false, {
         silent: true,
         autoPlay: networkRecoveryState.wasPlaying,
         resumeTime: networkRecoveryState.resumeTime,
@@ -768,7 +611,7 @@ function startNetworkRecovery(reason = 'network') {
     ? Math.max(currentTime - 3, 0)
     : 0;
   networkRecoveryState.source = source;
-  hideRetryButton();
+  retryButton.style.display = 'none';
   setPlaybackStatus(PlaybackStatus.buffering, { message: 'Reconnecting...' });
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
@@ -1017,33 +860,8 @@ function removeTrackFromPlaylist(index) {
         if (album.rssFeed) {
           const feedNote = document.createElement('p');
           feedNote.className = 'track-meta-note';
-          feedNote.textContent = 'Tracks refresh automatically from the RSS feed. If you do not see new episodes, refresh the feed below.';
+          feedNote.textContent = 'Tracks refresh automatically from the RSS feed.';
           trackModalMeta.appendChild(feedNote);
-
-          const refreshButton = document.createElement('button');
-          refreshButton.type = 'button';
-          refreshButton.className = 'track-meta-action';
-          refreshButton.textContent = 'Refresh feed now';
-          refreshButton.addEventListener('click', async () => {
-            if (typeof hydratePodcastAlbum !== 'function') {
-              return;
-            }
-            const matchingFeed = podcastFeedAlbums?.find(feed => feed.name === album.name);
-            const feedUrl = matchingFeed?.feedUrl || album.rssFeed;
-            if (!feedUrl) {
-              return;
-            }
-            const originalLabel = refreshButton.textContent;
-            refreshButton.disabled = true;
-            refreshButton.textContent = 'Refreshing...';
-            try {
-              await hydratePodcastAlbum(album.name, feedUrl);
-            } finally {
-              refreshButton.disabled = false;
-              refreshButton.textContent = originalLabel;
-            }
-          });
-          trackModalMeta.appendChild(refreshButton);
         }
       }
       trackListContainer.innerHTML = '';
@@ -1119,15 +937,6 @@ function removeTrackFromPlaylist(index) {
 
       // Build an array of track indices and shuffle them (except for playlist)
       let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
-
-      if (!trackIndices.length) {
-        const emptyNotice = document.createElement('p');
-        emptyNotice.className = 'track-meta-note';
-        emptyNotice.textContent = album.rssFeed
-          ? 'No episodes are available yet from the RSS feed. Try refreshing or check back soon.'
-          : 'This album does not have any tracks yet.';
-        trackListContainer.appendChild(emptyNotice);
-      }
       if (albumIndex !== playlistAlbumIndex) {
         for (let i = trackIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -1396,13 +1205,12 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       applyTrackUiState(currentAlbumIndex, currentTrackIndex);
       showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
-      hideRetryButton();
+      retryButton.style.display = 'none';
       setTurntableSpin(false);
 
     const normalizedSrc = normalizeMediaSrc(src);
     const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
     const streamUrl = buildTrackFetchUrl(resolvedSrc);
-    primeInstantBuffer(streamUrl);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
     audioHealer.trackSource(streamUrl, title, { live: false });
@@ -1457,7 +1265,6 @@ async function selectRadio(src, title, index, logo) {
       lastTrackIndex = index;
       const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
       const streamUrl = buildTrackFetchUrl(resolvedSrc);
-      primeInstantBuffer(streamUrl);
       setCrossOrigin(audioPlayer, streamUrl);
       audioPlayer.src = streamUrl;
       audioHealer.trackSource(streamUrl, title, { live: true });
@@ -1473,7 +1280,7 @@ async function selectRadio(src, title, index, logo) {
       stopMusic();
       showBufferingState('Connecting to the station...');
       albumCover.style.display = 'none';
-      hideRetryButton();
+      retryButton.style.display = 'none';
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
@@ -1483,9 +1290,6 @@ async function selectRadio(src, title, index, logo) {
     }
 
     function retryTrack() {
-      audioPlayer.pause();
-      stopPlaybackWatchdog();
-      setTurntableSpin(false);
       if (currentRadioIndex >= 0) {
         selectRadio(lastTrackSrc, lastTrackTitle, lastTrackIndex, radioStations[currentRadioIndex].logo);
       } else {
@@ -1498,17 +1302,13 @@ async function selectRadio(src, title, index, logo) {
       showBufferingState('Retrying playback...');
       albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
-      hideRetryButton();
+      retryButton.style.display = 'none';
       setTurntableSpin(false);
       setTimeout(retryTrack, 3000);
     }
 
     function hideRetryButton() {
-      if (retryButton) {
-        retryButton.style.display = 'none';
-        retryButton.textContent = '';
-        retryButton.onclick = null;
-      }
+      retryButton.style.display = 'none';
     }
 
     function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
@@ -1524,8 +1324,6 @@ async function selectRadio(src, title, index, logo) {
 
       audioHealer.trackSource(src, title, { live });
       audioHealer.rebindMetadataHandlers();
-
-      forceInstantPlayback(autoPlay, title);
 
       if (disableSlowGuard) {
         clearSlowBufferRescue();
@@ -1623,10 +1421,6 @@ async function selectRadio(src, title, index, logo) {
           cancelAnimationFrame(handlerState.quickStartId);
           handlerState.quickStartId = null;
         }
-        consecutivePlaybackErrors = 0;
-        if (!src.includes('offline-audio.mp3')) {
-          fallbackEngaged = false;
-        }
         revealPlaybackUi();
         if (resumeTime != null && !isNaN(resumeTime)) {
           try {
@@ -1638,12 +1432,6 @@ async function selectRadio(src, title, index, logo) {
         updateMediaSession();
         if (!silent) {
           setPlaybackStatus(PlaybackStatus.buffering, { message: bufferingMessage?.textContent });
-        }
-        if (currentRadioIndex === -1) {
-          const activeTrack = albums?.[currentAlbumIndex]?.tracks?.[currentTrackIndex];
-          if (activeTrack && isFinite(audioPlayer.duration) && audioPlayer.duration > 0) {
-            activeTrack.duration = audioPlayer.duration;
-          }
         }
         if (autoPlay && audioPlayer.paused) {
           attemptPlay();
@@ -1688,12 +1476,6 @@ async function selectRadio(src, title, index, logo) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
         console.error(`Album cover src: ${albumCover.src}`);
-
-        consecutivePlaybackErrors += 1;
-        if (consecutivePlaybackErrors >= 2 && !fallbackEngaged) {
-          useOfflineFallback('recovery');
-          return;
-        }
 
         if (!navigator.onLine || (audioPlayer.error && audioPlayer.error.code === MediaError.MEDIA_ERR_NETWORK)) {
           startNetworkRecovery('load-error');
@@ -1783,7 +1565,7 @@ async function selectRadio(src, title, index, logo) {
 
     function attemptPlay() {
       console.log('[attemptPlay] called');
-      unlockMobilePlayback();
+      resumeAudioContext();
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
       }
@@ -1822,62 +1604,53 @@ async function selectRadio(src, title, index, logo) {
             isFirstPlay = false;
           }
         }).catch(error => {
-      console.error(`[attemptPlay] Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
-      handlePlayError(error, trackInfo.textContent);
-    });
-  }
-}
+          console.error(`[attemptPlay] Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
+          handlePlayError(error, trackInfo.textContent);
+        });
+      }
+    }
 
-function handlePlayError(error, title) {
-  setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
-  albumCover.style.display = 'block';
-  document.getElementById('progressBar').style.display = 'none';
-  setTurntableSpin(false);
-  console.error(`Error playing ${title}:`, error);
-
-  if (error && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
-    const resumePlayback = () => {
-      document.removeEventListener('click', resumePlayback);
-      document.removeEventListener('touchend', resumePlayback);
-      playMusic();
-    };
-    document.addEventListener('click', resumePlayback, { once: true, passive: true });
-    document.addEventListener('touchend', resumePlayback, { once: true, passive: true });
-    trackInfo.textContent = 'Tap anywhere to unlock audio on this device.';
-    return;
-  }
+    function handlePlayError(error, title) {
+      setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
+      albumCover.style.display = 'block';
+      document.getElementById('progressBar').style.display = 'none';
+      setTurntableSpin(false);
+      console.error(`Error playing ${title}:`, error);
 
       if (!navigator.onLine || (error && error.code === MediaError.MEDIA_ERR_NETWORK)) {
         startNetworkRecovery('play-error');
         return;
       }
 
-  switch (error.code) {
-    case MediaError.MEDIA_ERR_ABORTED:
-      trackInfo.textContent = 'Playback paused early—press play when you’re ready.';
-      break;
-    case MediaError.MEDIA_ERR_NETWORK:
-      trackInfo.textContent = 'Connection blinked. Retry when your signal steadies.';
-      break;
-    case MediaError.MEDIA_ERR_DECODE:
-      trackInfo.textContent = 'We hit a decoding bump. Tap retry to reload smoothly.';
-      break;
-    case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-      trackInfo.textContent = 'This source is blocked here—pick another track while we refresh.';
-      break;
-    default:
-      // Handle cases where error.code is undefined (e.g. DOMException from play())
-      if (error.name === 'NotAllowedError') {
-        trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
-        setPlaybackStatus(PlaybackStatus.idle);
-      } else {
-        trackInfo.textContent = neutralFailureMessage;
-      }
-      break;
-  }
+      retryButton.style.display = 'block';
+      retryButton.textContent = 'Retry';
 
-  retryTrackWithDelay();
-}
+      switch (error.code) {
+        case MediaError.MEDIA_ERR_ABORTED:
+          trackInfo.textContent = 'Playback paused early—press play when you’re ready.';
+          break;
+        case MediaError.MEDIA_ERR_NETWORK:
+          trackInfo.textContent = 'Connection blinked. Retry when your signal steadies.';
+          break;
+        case MediaError.MEDIA_ERR_DECODE:
+          trackInfo.textContent = 'We hit a decoding bump. Tap retry to reload smoothly.';
+          break;
+        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          trackInfo.textContent = 'This source is blocked here—pick another track while we refresh.';
+          break;
+        default:
+          // Handle cases where error.code is undefined (e.g. DOMException from play())
+          if (error.name === 'NotAllowedError') {
+            trackInfo.textContent = lastTrackTitle || title || 'Ready to play';
+            retryButton.textContent = 'Start playback';
+            retryButton.style.display = 'block';
+            setPlaybackStatus(PlaybackStatus.idle);
+          } else {
+            trackInfo.textContent = neutralFailureMessage;
+          }
+          break;
+      }
+    }
 
 function pauseMusic() {
     cancelNetworkRecovery();
@@ -1906,35 +1679,28 @@ function stopMusic() {
 
 function updateTrackTime() {
     const currentTime = audioPlayer.currentTime;
-    const rawDuration = audioPlayer.duration;
-    const trackMeta = albums?.[currentAlbumIndex]?.tracks?.[currentTrackIndex];
-    const knownDuration = (isFinite(rawDuration) && rawDuration > 0)
-      ? rawDuration
-      : (trackMeta?.duration && isFinite(trackMeta.duration) ? trackMeta.duration : null);
+    const duration = audioPlayer.duration;
 
     // 🔒 If it's a radio stream, don't format duration
-    if (currentRadioIndex >= 0 || (!isFinite(rawDuration) && !knownDuration)) {
+    if (currentRadioIndex >= 0 || !isFinite(duration)) {
       trackDuration.textContent = `${formatTime(currentTime)} / Live`;
       seekBar.style.display = 'none'; // hide seekbar for radio
       recordPlaybackProgress(currentTime);
       return;
     }
 
-    if (knownDuration) {
-      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(knownDuration)}`;
-      seekBar.value = (currentTime / knownDuration) * 100;
+    if (!isNaN(duration) && duration > 0) {
+      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
+      seekBar.value = (currentTime / duration) * 100;
       seekBar.style.display = 'block';
       schedulePlayerStateSave();
       recordPlaybackProgress(currentTime);
-      if (trackMeta && (!trackMeta.duration || !isFinite(trackMeta.duration))) {
-        trackMeta.duration = knownDuration;
-      }
-  } else {
-    trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
-    seekBar.style.display = 'block';
-  }
-highlightLyric(currentTime);
-  if (!knownDuration) {
+    } else {
+      trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
+      seekBar.style.display = 'block';
+    }
+  highlightLyric(currentTime);
+  if (isNaN(duration) || duration <= 0) {
       recordPlaybackProgress(currentTime);
   }
 }
