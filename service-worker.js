@@ -169,21 +169,29 @@ self.addEventListener('install', event => {
 
       const cache = await caches.open(CACHE_NAME);
       await cache.addAll(CORE_ASSETS);
-
-      const runtimeCache = await openRuntimeCache();
-      await Promise.all(PREFETCH_MEDIA.map(async (url) => {
-        try {
-          const response = await fetch(url, { cache: 'no-store' });
-          if (response && response.ok) {
-            await runtimeCache.put(url, response.clone());
-          }
-        } catch (error) {
-          console.error('Failed to prefetch media asset:', url, error);
-        }
-      }));
     })()
   );
 });
+
+async function prefetchMediaInBackground(timeoutMs = 3000) {
+  const runtimeCache = await openRuntimeCache();
+
+  await Promise.all(PREFETCH_MEDIA.map(async (url) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      if (response && response.ok) {
+        await runtimeCache.put(url, response.clone());
+      }
+    } catch (error) {
+      console.error('Failed to prefetch media asset:', url, error);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }));
+}
 
 self.addEventListener('activate', event => {
   event.waitUntil(
@@ -231,6 +239,11 @@ self.addEventListener('activate', event => {
           : null;
         await notifyClientsOfUpdate(versionIdentifier);
       }
+
+      // Warm the runtime cache without blocking activation.
+      prefetchMediaInBackground().catch(error => {
+        console.error('Background media prefetch failed:', error);
+      });
     })()
   );
 });
