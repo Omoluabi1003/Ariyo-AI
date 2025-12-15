@@ -209,7 +209,7 @@
         </footer>
     </div>
 
-     <audio id="welcomeAudio" loop preload="none"></audio>
+     <audio id="welcomeAudio" loop preload="auto" playsinline controlsList="nodownload noplaybackrate"></audio>
 
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
@@ -346,6 +346,7 @@
               let usingFallback = false;
               let reconnectInterval = null;
               let hasLoadedPrimaryTrack = false;
+              const mediaSessionSupported = 'mediaSession' in navigator;
 
               const updateSpeakerIcon = (playing) => {
                   speakerContainer.setAttribute('aria-pressed', playing ? 'true' : 'false');
@@ -357,6 +358,38 @@
                       speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
                   } else {
                       speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
+                  }
+              };
+
+              const updateMediaSession = (track) => {
+                  if (!mediaSessionSupported || !track) return;
+                  navigator.mediaSession.metadata = new MediaMetadata({
+                      title: track.title,
+                      artist: 'Omoluabi Productions',
+                      album: 'Àríyò AI',
+                      artwork: [
+                          { src: 'icons/Ariyo.png', sizes: '96x96', type: 'image/png' },
+                          { src: 'icons/Ariyo.png', sizes: '192x192', type: 'image/png' },
+                          { src: 'icons/Ariyo.png', sizes: '512x512', type: 'image/png' }
+                      ]
+                  });
+                  navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+              };
+
+              const ensureBackgroundPlayback = (reason) => {
+                  if (userPaused || !isPlaying) {
+                      return;
+                  }
+                  if (audio.paused || audio.ended) {
+                      audio.play().then(() => {
+                          if (mediaSessionSupported) {
+                              navigator.mediaSession.playbackState = 'playing';
+                          }
+                      }).catch(error => {
+                          console.log(`Background playback prevented (${reason}):`, error);
+                      });
+                  } else if (mediaSessionSupported) {
+                      navigator.mediaSession.playbackState = 'playing';
                   }
               };
 
@@ -375,6 +408,7 @@
                       isPlaying = true;
                       userPaused = false;
                       updateSpeakerIcon(true);
+                      updateMediaSession(tracks[currentTrackIndex] || fallbackTrack);
                   }).catch(error => {
                       console.log("Audio playback failed:", error);
                   });
@@ -395,6 +429,7 @@
                   audio.src = tracks[currentTrackIndex].src;
                   audio.load();
                   hasLoadedPrimaryTrack = true;
+                  updateMediaSession(tracks[currentTrackIndex]);
                   playAudio(force);
               };
 
@@ -403,6 +438,7 @@
                   audio.src = fallbackTrack.src;
                   audio.load();
                   hasLoadedPrimaryTrack = false;
+                  updateMediaSession(fallbackTrack);
                   playAudio(force);
               };
 
@@ -493,18 +529,20 @@
 
               // Attempt to keep audio playing even when the page is hidden
               document.addEventListener('visibilitychange', () => {
-                  if (!userPaused && isPlaying && document.visibilityState === 'hidden') {
-                      audio.play().catch(error => {
-                          console.log('Background playback prevented:', error);
-                      });
+                  if (document.visibilityState === 'hidden') {
+                      ensureBackgroundPlayback('visibilitychange');
+                  } else if (mediaSessionSupported) {
+                      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
                   }
               });
 
+              ['pagehide', 'freeze'].forEach(eventName => {
+                  window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
+              });
+
               audio.addEventListener('pause', () => {
-                  if (!userPaused && isPlaying && document.visibilityState === 'hidden') {
-                      audio.play().catch(error => {
-                          console.log('Background playback prevented:', error);
-                      });
+                  if (document.visibilityState === 'hidden') {
+                      ensureBackgroundPlayback('hidden-pause');
                   }
               });
 
