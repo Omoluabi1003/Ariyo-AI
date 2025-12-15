@@ -112,6 +112,7 @@ let lastTrackIndex = 0;
 let currentRadioIndex = -1;
 let shuffleQueue = [];
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
+let userInitiatedPause = false;
 
 const networkRecoveryState = {
   active: false,
@@ -201,6 +202,37 @@ function setPlaybackStatus(status, options = {}) {
 
   if (status === PlaybackStatus.playing) {
     hideRetryButton();
+  }
+
+  if ('mediaSession' in navigator) {
+    const state = status === PlaybackStatus.playing
+      ? 'playing'
+      : status === PlaybackStatus.paused
+        ? 'paused'
+        : 'none';
+    navigator.mediaSession.playbackState = state;
+  }
+}
+
+function syncMediaSessionPlaybackState() {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.playbackState = audioPlayer.paused ? 'paused' : 'playing';
+  }
+}
+
+function ensureBackgroundPlayback(reason = 'hidden') {
+  if (userInitiatedPause || playbackStatus !== PlaybackStatus.playing) {
+    return;
+  }
+
+  if (audioPlayer.paused || audioPlayer.ended) {
+    audioPlayer.play().then(() => {
+      syncMediaSessionPlaybackState();
+    }).catch(error => {
+      console.warn(`[background] Playback prevented during ${reason}:`, error);
+    });
+  } else {
+    syncMediaSessionPlaybackState();
   }
 }
 
@@ -1573,6 +1605,7 @@ async function selectRadio(src, title, index, logo) {
 
     function attemptPlay() {
       console.log('[attemptPlay] called');
+      userInitiatedPause = false;
       resumeAudioContext();
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
@@ -1670,6 +1703,7 @@ async function selectRadio(src, title, index, logo) {
 
 function pauseMusic() {
     cancelNetworkRecovery();
+    userInitiatedPause = true;
     audioPlayer.pause();
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
@@ -1677,10 +1711,12 @@ function pauseMusic() {
         console.log('Paused');
         schedulePlayerStateSave(true);
         setPlaybackStatus(PlaybackStatus.paused);
+    syncMediaSessionPlaybackState();
     }
 
 function stopMusic() {
     cancelNetworkRecovery();
+    userInitiatedPause = true;
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     manageVinylRotation();
@@ -1691,6 +1727,7 @@ function stopMusic() {
         console.log('Stopped');
         schedulePlayerStateSave(true);
         setPlaybackStatus(PlaybackStatus.stopped);
+    syncMediaSessionPlaybackState();
 }
 
 function updateTrackTime() {
@@ -1778,6 +1815,12 @@ function updateTrackTime() {
       if (event && event.target && event.target.paused) {
         stopPlaybackWatchdog();
       }
+
+      if (document.visibilityState === 'hidden') {
+        ensureBackgroundPlayback('hidden-pause');
+      } else {
+        syncMediaSessionPlaybackState();
+      }
     });
     audioPlayer.addEventListener('ended', manageVinylRotation);
 
@@ -1789,6 +1832,19 @@ function updateTrackTime() {
       recordPlaybackProgress(audioPlayer.currentTime || 0);
       startPlaybackWatchdog();
       console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
+      syncMediaSessionPlaybackState();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        ensureBackgroundPlayback('visibilitychange');
+      } else {
+        syncMediaSessionPlaybackState();
+      }
+    });
+
+    ['pagehide', 'freeze'].forEach(eventName => {
+      window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
     });
 
 function handleNetworkEvent(event) {
