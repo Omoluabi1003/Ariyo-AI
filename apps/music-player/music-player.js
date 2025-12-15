@@ -210,6 +210,26 @@
     }
   }
 
+  function unlockAudio() {
+    if (!AudioContextClass) return;
+    audioContext = audioContext || new AudioContext();
+    if (!audioContext) return;
+
+    resumeAudioContext();
+
+    if (audioContext.state === 'running') return;
+
+    try {
+      const buffer = audioContext.createBuffer(1, 1, 22050);
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start();
+    } catch (_) {
+      // Ignore unlock failures; playback will retry on user gesture.
+    }
+  }
+
   function getActiveDeck() {
     return decks[activeDeckKey];
   }
@@ -1284,6 +1304,10 @@
     syncVolume(value);
   });
   syncVolume(Number(volumeControl.value || 1));
+
+  ['pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
+    window.addEventListener(eventName, unlockAudio, { passive: true, once: true });
+  });
 
   ['pointerdown', 'mousedown', 'touchstart'].forEach(eventName => {
     seekBar.addEventListener(eventName, () => {
