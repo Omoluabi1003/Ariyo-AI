@@ -97,6 +97,9 @@
     const bufferingOverlay = document.getElementById('bufferingOverlay');
     const bufferingMessage = document.getElementById('bufferingMessage');
     const retryButton = document.getElementById('retryButton');
+    if (retryButton) {
+      retryButton.style.display = 'none';
+    }
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
@@ -159,6 +162,51 @@ function showBufferingState(message = 'Settling your stream...') {
     playbackStatus === PlaybackStatus.playing ? PlaybackStatus.buffering : PlaybackStatus.preparing,
     { message }
   );
+}
+
+function getDefaultTrack() {
+  const fallbackAlbum = albums && albums.length ? albums[0] : null;
+  const fallbackTrack = fallbackAlbum && fallbackAlbum.tracks && fallbackAlbum.tracks.length
+    ? fallbackAlbum.tracks[0]
+    : null;
+
+  if (!fallbackAlbum || !fallbackTrack) {
+    return null;
+  }
+
+  return { albumIndex: 0, trackIndex: 0, track: fallbackTrack, album: fallbackAlbum };
+}
+
+function ensureInitialTrackLoaded(silent = true) {
+  if (audioPlayer.src) {
+    return true;
+  }
+
+  const defaultSelection = getDefaultTrack();
+  if (!defaultSelection) {
+    return false;
+  }
+
+  const { albumIndex, trackIndex, track, album } = defaultSelection;
+  applyTrackUiState(albumIndex, trackIndex);
+  const normalizedSrc = normalizeMediaSrc(track.src);
+  const streamUrl = buildTrackFetchUrl(normalizedSrc);
+  setCrossOrigin(audioPlayer, streamUrl);
+  audioPlayer.src = streamUrl;
+  audioHealer.trackSource(streamUrl, track.title, { live: false });
+  handleAudioLoad(streamUrl, track.title, false, {
+    autoPlay: false,
+    silent,
+    onReady: () => {
+      trackAlbum.textContent = `Album: ${album.name}`;
+      manageVinylRotation();
+    },
+    onError: () => {
+      audioPlayer.src = streamUrl;
+    }
+  });
+
+  return true;
 }
 
 function hideBufferingState() {
@@ -1597,6 +1645,7 @@ async function selectRadio(src, title, index, logo) {
       console.log('[attemptPlay] called');
       userInitiatedPause = false;
       resumeAudioContext();
+      ensureInitialTrackLoaded();
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
       }
@@ -1642,6 +1691,13 @@ async function selectRadio(src, title, index, logo) {
     }
 
     function handlePlayError(error, title) {
+      if (!audioPlayer.src) {
+        trackInfo.textContent = 'Choose a track to start playback.';
+        hideRetryButton();
+        setPlaybackStatus(PlaybackStatus.idle);
+        return;
+      }
+
       setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
@@ -1836,6 +1892,26 @@ function updateTrackTime() {
     ['pagehide', 'freeze'].forEach(eventName => {
       window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
     });
+
+    const BACKGROUND_PING_MS = 20000;
+    setInterval(() => {
+      if (playbackStatus !== PlaybackStatus.playing) return;
+      if (document.visibilityState !== 'hidden') return;
+
+      resumeAudioContext();
+      ensureInitialTrackLoaded(true);
+
+      const needsNudge = audioPlayer.paused || audioPlayer.ended;
+      const readyState = audioPlayer.readyState;
+      const haveCurrentData = typeof HTMLMediaElement !== 'undefined'
+        ? HTMLMediaElement.HAVE_CURRENT_DATA
+        : 2;
+      if (needsNudge || readyState < haveCurrentData) {
+        audioPlayer.play().catch(err => {
+          console.warn('[background] Unable to keep playback alive:', err);
+        });
+      }
+    }, BACKGROUND_PING_MS);
 
 function handleNetworkEvent(event) {
   if (networkRecoveryState.active) return;
