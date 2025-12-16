@@ -45,15 +45,48 @@ function toArray(value) {
   return Array.isArray(value) ? value : [value];
 }
 
-function findImage(entry) {
-  if (entry.enclosure?.url) return entry.enclosure.url;
-  if (entry.content?.url) return entry.content.url;
-  if (entry['media:content']?.url) return entry['media:content'].url;
-  if (entry.image?.url) return entry.image.url;
+function getUrlFrom(value) {
+  if (!value) return null;
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const nested = getUrlFrom(item);
+      if (nested) return nested;
+    }
+    return null;
+  }
+  if (typeof value === 'object') return value.url || value.href || null;
+  return null;
+}
+
+function resolveUrl(url, base) {
+  if (!url) return null;
+  try {
+    const normalized = url.startsWith('//') ? `https:${url}` : url;
+    return new URL(normalized, base || undefined).toString();
+  } catch (error) {
+    return null;
+  }
+}
+
+function findImage(entry, baseLink) {
+  const candidates = [
+    getUrlFrom(entry.enclosure),
+    getUrlFrom(entry.content),
+    getUrlFrom(entry['media:content']),
+    getUrlFrom(entry['media:thumbnail']),
+    getUrlFrom(entry.image)
+  ];
+
+  for (const candidate of candidates) {
+    const resolved = resolveUrl(candidate, baseLink);
+    if (resolved) return resolved;
+  }
 
   const description = entry.description || entry.summary || '';
   const match = description.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (match && match[1]) return match[1];
+  const descriptionImage = resolveUrl(match?.[1], baseLink);
+  if (descriptionImage) return descriptionImage;
 
   return DEFAULT_IMAGE;
 }
@@ -77,7 +110,7 @@ function normalizeEntry(entry, tag) {
     url: link,
     title,
     summary: summary || title,
-    image: findImage(entry),
+    image: findImage(entry, link),
     publishedAt,
     tag
   };
