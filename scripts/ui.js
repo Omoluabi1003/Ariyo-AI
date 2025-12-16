@@ -124,7 +124,7 @@ function openAlbumList() {
     }
 
     function openTrackList() {
-      updateTrackListModal();
+      updateTrackListModal({ prefetchDurations: true });
       const modal = document.getElementById('trackModal');
       modal.style.display = 'flex';
       gsap.fromTo(modal.querySelector('.modal-content'),
