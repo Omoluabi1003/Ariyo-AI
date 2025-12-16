@@ -71,30 +71,56 @@ function resolveUrl(url, base) {
   if (!url) return null;
   try {
     const normalized = url.startsWith('//') ? `https:${url}` : url;
-    return new URL(normalized, base || undefined).toString();
+    const resolved = new URL(normalized, base || undefined);
+    if (resolved.protocol === 'http:') {
+      resolved.protocol = 'https:';
+    }
+    return resolved.toString();
   } catch (error) {
     return null;
   }
 }
 
+function extractMediaContent(entry) {
+  const media = toArray(entry['media:content'] || entry.media || []);
+  if (!media.length) return null;
+
+  const ranked = media
+    .map(item => {
+      const url = getUrlFrom(item);
+      const width = Number(item.width || item['media:width'] || item['@_width'] || 0) || 0;
+      const height = Number(item.height || item['media:height'] || item['@_height'] || 0) || 0;
+      return { url, area: width * height };
+    })
+    .filter(item => Boolean(item.url))
+    .sort((a, b) => b.area - a.area);
+
+  return ranked[0]?.url || ranked.find(item => item.url)?.url || null;
+}
+
+function extractInlineImage(html = '') {
+  if (!html) return null;
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match?.[1] || null;
+}
+
 function findImage(entry, baseLink) {
+  const inlineImage =
+    extractInlineImage(entry['content:encoded']) || extractInlineImage(entry.description) || extractInlineImage(entry.summary);
+
   const candidates = [
+    extractMediaContent(entry),
     getUrlFrom(entry.enclosure),
     getUrlFrom(entry.content),
-    getUrlFrom(entry['media:content']),
     getUrlFrom(entry['media:thumbnail']),
-    getUrlFrom(entry.image)
+    getUrlFrom(entry.image),
+    inlineImage
   ];
 
   for (const candidate of candidates) {
     const resolved = resolveUrl(candidate, baseLink);
     if (resolved) return resolved;
   }
-
-  const description = entry.description || entry.summary || '';
-  const match = description.match(/<img[^>]+src=["']([^"']+)["']/i);
-  const descriptionImage = resolveUrl(match?.[1], baseLink);
-  if (descriptionImage) return descriptionImage;
 
   return DEFAULT_IMAGE;
 }
