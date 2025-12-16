@@ -1,4 +1,4 @@
-(async () => {
+async function initUserTracking() {
   try {
     let userId = localStorage.getItem('ariyoUserId');
     let isNewUser = false;
@@ -29,4 +29,6 @@
   } catch (err) {
     console.error('User tracking failed', err);
   }
-})();
+}
+
+window.initUserTracking = initUserTracking;

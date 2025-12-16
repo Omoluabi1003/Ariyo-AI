@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function startBackgroundRotator() {
   const allImages = [
     'Naija AI1.png',
     'Naija AI2.png',
@@ -49,5 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Change background every 2 minutes
   setInterval(switchBackground, 120000);
-});
+}
+
+window.startBackgroundRotator = startBackgroundRotator;
 
