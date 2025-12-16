@@ -1,5 +1,5 @@
 (function() {
-  const NEWS_URL = '/data/news.json';
+  const NEWS_URL = '/api/news';
   const LAST_SEEN_KEY = 'ariyoNewsLastSeen';
   const NEWS_CACHE_KEY = 'ariyoNewsCache';
   const NEWS_PANEL_ID = 'news-section';
@@ -76,6 +76,21 @@
     return badge;
   }
 
+  function makeCardInteractive(card, url) {
+    if (!url) return;
+
+    const openLink = () => window.open(url, '_blank', 'noreferrer');
+    card.setAttribute('role', 'link');
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('click', openLink);
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openLink();
+      }
+    });
+  }
+
   function buildCard(item, isHero = false) {
     const card = document.createElement('article');
     card.className = `news-card${isHero ? ' news-hero-card' : ''}`;
@@ -98,7 +113,8 @@
     const meta = document.createElement('p');
     meta.className = 'news-meta';
     const date = new Date(item.publishedAt || item.date || Date.now());
-    meta.textContent = `${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+    const source = item.tag ? ` · ${item.tag}` : '';
+    meta.textContent = `${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}${source}`;
 
     const summary = document.createElement('p');
     summary.className = 'news-summary';
@@ -110,6 +126,8 @@
 
     body.append(heading, meta, summary, footer);
     card.append(imgWrapper, body);
+
+    makeCardInteractive(card, item.url);
     return card;
   }
 
