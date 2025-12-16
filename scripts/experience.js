@@ -157,12 +157,14 @@
     }, 3500);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function initExperienceShell() {
     setupDashboardToggle();
     setupTabs();
     setupProfileForm();
     setupShareButtons();
     setupPwaInstall();
     setupOnboardingCarousel();
-  });
+  }
+
+  window.deferExperienceInit = initExperienceShell;
 })();

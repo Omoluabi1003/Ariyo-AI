@@ -57,26 +57,36 @@
 
       return trimmed;
     }
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let isAudioContextResumed = false;
+    const audioContext = window.__ariyoAudioContext || (window.__ariyoAudioContext = new (window.AudioContext || window.webkitAudioContext)());
+    let isAudioContextResumed = audioContext.state === 'running';
 
-    function resumeAudioContext() {
+    async function resumeAudioContext() {
         if (audioContext.state === 'suspended' && !isAudioContextResumed) {
-            audioContext.resume().then(() => {
+            try {
+                await audioContext.resume();
                 isAudioContextResumed = true;
                 console.log('AudioContext resumed successfully.');
-            }).catch(err => console.error('AudioContext resume failed:', err));
+            } catch (err) {
+                console.error('AudioContext resume failed:', err);
+            }
         }
+        return audioContext.state;
     }
 
-    ['click', 'touchstart', 'keydown'].forEach(evt => {
-        window.addEventListener(evt, resumeAudioContext, { once: true, passive: true });
-    });
+    const unlockHandler = () => {
+      resumeAudioContext();
+      document.removeEventListener('click', unlockHandler);
+      document.removeEventListener('touchstart', unlockHandler);
+      document.removeEventListener('keydown', unlockHandler);
+    };
+    document.addEventListener('click', unlockHandler, { passive: true });
+    document.addEventListener('touchstart', unlockHandler, { passive: true });
+    document.addEventListener('keydown', unlockHandler);
 
     if (!existingAudioElement) {
         audioPlayer.id = 'audioPlayer';
     }
-    audioPlayer.preload = 'auto';
+    audioPlayer.preload = 'metadata';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
@@ -1716,10 +1726,10 @@ async function selectRadio(src, title, index, logo) {
         attemptPlay();
     }
 
-    function attemptPlay() {
+    async function attemptPlay() {
       console.log('[attemptPlay] called');
       userInitiatedPause = false;
-      resumeAudioContext();
+      await resumeAudioContext();
       ensureInitialTrackLoaded();
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });

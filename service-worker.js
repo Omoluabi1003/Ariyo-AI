@@ -1,5 +1,8 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
+self.skipWaiting();
+self.clientsClaim && self.clientsClaim();
+
 // Bump cache prefix to force clients to refresh old caches
 const CACHE_PREFIX = 'ariyo-ai-cache-v12';
 const FALLBACK_VERSION = '1.16.0';
@@ -42,7 +45,7 @@ self.addEventListener('message', event => {
   }
 });
 
-const CORE_ASSETS = [
+const CORE_ASSETS = self.__WB_MANIFEST || [
   '/',
   '/index.html',
   '/main.html',
@@ -57,6 +60,7 @@ const CORE_ASSETS = [
   'scripts/sw-controller.js',
   'scripts/push-notifications.js',
   'scripts/experience.js',
+  'scripts/deferred-init.js',
   'viewport-height.js',
   'apps/ariyo-ai-chat/ariyo-ai-chat.html',
   'apps/sabi-bible/sabi-bible.html',
@@ -79,8 +83,7 @@ const CORE_ASSETS = [
 
 const PREFETCH_MEDIA = [
   'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
-  'https://cdn1.suno.ai/312ec841-e3db-4cf4-9cf0-5a581e02322d.mp3',
-  'https://cdn1.suno.ai/fb22a6b0-5bb8-49eb-b77c-529a9e170817.mp3'
+  'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3'
 ];
 const PREFETCH_MEDIA_SET = new Set(PREFETCH_MEDIA);
 
@@ -127,7 +130,7 @@ if (self.workbox) {
     ({ url }) => url.pathname.endsWith('offline-audio.mp3') || url.pathname.endsWith('.mp3'),
     new workbox.strategies.CacheFirst({
       cacheName: `${CACHE_PREFIX}-audio-samples`,
-      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 15 })]
+      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 30 })]
     })
   );
 
@@ -145,11 +148,11 @@ async function openRuntimeCache() {
   return caches.open(RUNTIME_CACHE_NAME);
 }
 
-async function limitCacheSize(cache) {
+async function limitCacheSize(cache, maxEntries = 50) {
   const keys = await cache.keys();
-  if (keys.length > 50) {
+  if (keys.length > maxEntries) {
     await cache.delete(keys[0]);
-    return limitCacheSize(cache);
+    return limitCacheSize(cache, maxEntries);
   }
 }
 
@@ -246,40 +249,31 @@ self.addEventListener('fetch', event => {
 
     if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
         const hasRangeRequest = event.request.headers.has('range');
-        const requestUrl = new URL(event.request.url);
-        const sameOrigin = requestUrl.origin === self.location.origin;
-
-        if (hasRangeRequest || !sameOrigin) {
+        if (hasRangeRequest) {
             event.respondWith(fetch(event.request));
             return;
         }
 
-        if (PREFETCH_MEDIA_SET.has(event.request.url)) {
-            event.respondWith((async () => {
-                const runtimeCache = await openRuntimeCache();
-                const cachedResponse = await runtimeCache.match(event.request.url);
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
+        event.respondWith((async () => {
+            const cache = await openRuntimeCache();
+            const cached = await cache.match(event.request);
+            if (cached) {
+                return cached;
+            }
 
-                try {
-                    const networkResponse = await fetch(event.request, { cache: 'no-store' });
-                    if (networkResponse && networkResponse.ok) {
-                        await runtimeCache.put(event.request.url, networkResponse.clone());
-                    }
-                    return networkResponse;
-                } catch (error) {
-                    console.error('Audio fetch failed:', error);
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                    throw error;
+            try {
+                const networkResponse = await fetch(event.request, { cache: 'no-store' });
+                if (networkResponse && networkResponse.ok) {
+                    await cache.put(event.request, networkResponse.clone());
+                    await limitCacheSize(cache, 30);
                 }
-            })());
-            return;
-        }
-
-        event.respondWith(fetch(event.request));
+                return networkResponse;
+            } catch (error) {
+                console.error('Audio fetch failed:', error);
+                if (cached) return cached;
+                throw error;
+            }
+        })());
         return;
     }
 

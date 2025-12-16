@@ -62,8 +62,6 @@ function populateAlbumList() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', populateAlbumList);
-
 function prepareDeferredIframes() {
   const iframes = document.querySelectorAll('.chatbot-container iframe, #aboutModalContainer iframe');
   if (!iframes.length) {
