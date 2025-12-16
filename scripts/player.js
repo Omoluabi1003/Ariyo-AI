@@ -1407,17 +1407,11 @@ async function selectRadio(src, title, index, logo) {
       audioPlayer._loadHandlers = handlerState;
 
       let playTimeout = null;
-      let stallTimeout = null;
       if (!silent) {
         playTimeout = setTimeout(() => {
           console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
           startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
         }, 15000);
-
-        stallTimeout = setTimeout(() => {
-          setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
-          albumCover.style.display = 'block';
-        }, 8000);
       }
       handlerState.playTimeout = playTimeout;
 
@@ -1425,10 +1419,6 @@ async function selectRadio(src, title, index, logo) {
         if (playTimeout) {
           clearTimeout(playTimeout);
           playTimeout = null;
-        }
-        if (stallTimeout) {
-          clearTimeout(stallTimeout);
-          stallTimeout = null;
         }
         handlerState.playTimeout = null;
       };
