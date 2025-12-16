@@ -20,11 +20,31 @@
   <meta name="twitter:description" content="Discover Nigerian music and culture through Àríyò AI by Paul A.K. Iyogun (Omoluabi)." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
     <title>Welcome to Àríyò AI</title>
+    <script>
+      // Early, synchronous iOS detection to optimize initial load & audio unlocking
+      window.__IS_IOS__ = /iP(ad|hone|od)/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (window.__IS_IOS__) {
+        document.documentElement.classList.add('ios');
+      }
+      window.__ariyoAudioContext = window.__ariyoAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+      // One-time gesture unlock; kept extremely small and synchronous
+      const __ariyoUnlock = () => {
+        if (window.__ariyoAudioContext && window.__ariyoAudioContext.state === 'suspended') {
+          window.__ariyoAudioContext.resume().catch(() => {});
+        }
+        window.removeEventListener('touchstart', __ariyoUnlock);
+        window.removeEventListener('click', __ariyoUnlock);
+      };
+      window.addEventListener('touchstart', __ariyoUnlock, { passive: true, once: true });
+      window.addEventListener('click', __ariyoUnlock, { passive: true, once: true });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
     <script src="viewport-height.js" defer></script>
     <script src="scripts/theme-toggle.js" defer></script>
     <script src="scripts/deferred-init.js" defer></script>
     <link rel="preload" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin>
+    <link rel="preload" as="audio" href="Omoluabi.mp3">
+    <link rel="preload" as="audio" href="offline-audio.mp3">
     <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="index.css">

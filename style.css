@@ -403,6 +403,10 @@ body[data-theme="light"] .edge-panel-hint {
     flex: 1 1 clamp(120px, 32%, 180px);
 }
 
+.retry-button {
+    display: none !important;
+}
+
 .seek-bar {
     width: 100%;
     margin: 0.2rem 0 0.1rem;
@@ -818,6 +822,22 @@ body[data-theme="light"] .edge-panel-hint {
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     animation: pulseGlow 2s infinite alternate;
+}
+
+.music-controls.icons-only .play-button .play-spinner {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    border-top-color: #fff;
+    animation: spin 0.6s linear infinite;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+}
+
+.music-controls.icons-only .play-button.loading .play-spinner {
+    opacity: 1;
 }
 
 .music-controls.icons-only .play-button::before {

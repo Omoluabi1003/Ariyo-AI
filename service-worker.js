@@ -4,7 +4,7 @@ self.skipWaiting();
 self.clientsClaim && self.clientsClaim();
 
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v12';
+const CACHE_PREFIX = 'ariyo-ai-cache-v13';
 const FALLBACK_VERSION = '1.16.0';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
@@ -82,7 +82,8 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
 ];
 
 const PREFETCH_MEDIA = [
-  'https://cdn1.suno.ai/4423f194-f2b3-4aea-ae4d-ed9150de2477.mp3',
+  'Omoluabi.mp3',
+  'offline-audio.mp3',
   'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3'
 ];
 const PREFETCH_MEDIA_SET = new Set(PREFETCH_MEDIA);
@@ -130,7 +131,7 @@ if (self.workbox) {
     ({ url }) => url.pathname.endsWith('offline-audio.mp3') || url.pathname.endsWith('.mp3'),
     new workbox.strategies.CacheFirst({
       cacheName: `${CACHE_PREFIX}-audio-samples`,
-      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 30 })]
+      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 50 })]
     })
   );
 
@@ -174,7 +175,7 @@ self.addEventListener('install', event => {
       await cache.addAll(CORE_ASSETS);
 
       const runtimeCache = await openRuntimeCache();
-      await Promise.all(PREFETCH_MEDIA.map(async (url) => {
+      for (const url of PREFETCH_MEDIA) {
         try {
           const response = await fetch(url, { cache: 'no-store' });
           if (response && response.ok) {
@@ -183,7 +184,7 @@ self.addEventListener('install', event => {
         } catch (error) {
           console.error('Failed to prefetch media asset:', url, error);
         }
-      }));
+      }
     })()
   );
 });
@@ -265,7 +266,7 @@ self.addEventListener('fetch', event => {
                 const networkResponse = await fetch(event.request, { cache: 'no-store' });
                 if (networkResponse && networkResponse.ok) {
                     await cache.put(event.request, networkResponse.clone());
-                    await limitCacheSize(cache, 30);
+                    await limitCacheSize(cache, 50);
                 }
                 return networkResponse;
             } catch (error) {
