@@ -1608,6 +1608,8 @@ body[data-theme="light"] .edge-panel-privacy a {
     border-radius: 18px;
     overflow: hidden;
     display: grid;
+    text-decoration: none;
+    color: inherit;
     grid-template-rows: auto 1fr;
     min-height: 280px;
     position: relative;

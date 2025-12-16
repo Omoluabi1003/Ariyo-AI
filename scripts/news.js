@@ -1,8 +1,11 @@
 (function() {
-  const NEWS_URL = '/data/news.json';
+  const NEWS_API_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss/search?q=Nigeria%20OR%20Nigerian%20diaspora%20OR%20Naija&hl=en&gl=NG&ceid=NG:en';
+  const FALLBACK_URL = '/data/news.json';
   const LAST_SEEN_KEY = 'ariyoNewsLastSeen';
   const NEWS_CACHE_KEY = 'ariyoNewsCache';
   const NEWS_PANEL_ID = 'news-section';
+
+  const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1504716325983-cb91edab7e6c?auto=format&fit=crop&w=1600&q=80';
 
   const createIconDot = () => {
     const dot = document.createElement('span');
@@ -19,8 +22,8 @@
     button.type = 'button';
     button.className = 'ripple shockwave news-nav-button';
     button.setAttribute('data-open-target', NEWS_PANEL_ID);
-    button.setAttribute('aria-label', 'Open Naija Vibes News');
-    button.innerHTML = '<i class="fas fa-newspaper" aria-hidden="true"></i> Naija Vibes News';
+    button.setAttribute('aria-label', 'Open Naija Vibes Global News');
+    button.innerHTML = '<i class="fas fa-newspaper" aria-hidden="true"></i> Naija Vibes Global News';
     button.appendChild(createIconDot());
 
     const aboutButton = sidebar.querySelector('button[onclick*="navigateToAbout"]');
@@ -51,7 +54,7 @@
     const label = document.createElement('span');
     label.className = 'edge-panel-label';
     label.id = 'edgeLabelNews';
-    label.innerHTML = '<strong>Naija Vibes News</strong>Fresh drops, milestones, and challenges';
+    label.innerHTML = '<strong>Naija Vibes News</strong>Global Naija headlines and diaspora wins';
 
     button.append(image, label, createIconDot());
 
@@ -69,6 +72,38 @@
     return Math.max(...items.map(parseDate));
   }
 
+  function stripHtml(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html || '';
+    return temp.textContent || temp.innerText || '';
+  }
+
+  function normalizeRssItem(item, index) {
+    const summary = stripHtml(item.description || item.content || '').trim();
+    const fallbackSummary = 'Latest Naija headline curated from trusted outlets.';
+    const image = (item.enclosure && item.enclosure.link) || item.thumbnail || DEFAULT_IMAGE;
+
+    return {
+      id: item.guid || item.link || `live-${index}`,
+      title: item.title || 'Naija headline',
+      summary: summary || fallbackSummary,
+      image,
+      publishedAt: item.pubDate || item.published || Date.now(),
+      tag: (item.categories && item.categories[0]) || 'Headline',
+      link: item.link
+    };
+  }
+
+  async function fetchLiveNews() {
+    const response = await fetch(NEWS_API_URL, { cache: 'no-store' });
+    if (!response.ok) throw new Error('Unable to reach live news feed');
+    const payload = await response.json();
+    if (payload.status !== 'ok' || !Array.isArray(payload.items)) {
+      throw new Error('Live feed returned an unexpected shape');
+    }
+    return payload.items.map(normalizeRssItem);
+  }
+
   function buildBadge(tag) {
     const badge = document.createElement('span');
     badge.className = 'news-tag';
@@ -77,8 +112,13 @@
   }
 
   function buildCard(item, isHero = false) {
-    const card = document.createElement('article');
+    const card = document.createElement(item.link ? 'a' : 'article');
     card.className = `news-card${isHero ? ' news-hero-card' : ''}`;
+    if (item.link) {
+      card.href = item.link;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+    }
 
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'news-image-wrap';
@@ -153,15 +193,26 @@
 
   async function loadNews() {
     let newsItems = getCachedNews() || [];
+
     try {
-      const response = await fetch(NEWS_URL, { cache: 'no-store' });
-      if (response.ok) {
-        newsItems = await response.json();
+      const liveNews = await fetchLiveNews();
+      if (liveNews.length) {
+        newsItems = liveNews;
         saveCache(newsItems);
       }
     } catch (error) {
-      if (!newsItems.length) {
-        console.warn('News feed is offline; using cache when available.');
+      console.warn('Live Naija feed unavailable; falling back to cached or local news.', error);
+    }
+
+    if (!newsItems.length) {
+      try {
+        const response = await fetch(FALLBACK_URL, { cache: 'no-store' });
+        if (response.ok) {
+          newsItems = await response.json();
+          saveCache(newsItems);
+        }
+      } catch (error) {
+        console.warn('Local fallback news also unavailable.', error);
       }
     }
 
