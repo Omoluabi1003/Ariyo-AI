@@ -242,7 +242,8 @@ const PANEL_IDS = [
     'connectFourContainer',
     'cyclePrecisionContainer',
     'youtubeModalContainer',
-    'aboutModalContainer'
+    'aboutModalContainer',
+    'news-section'
 ];
 
 const panelRegistry = {};

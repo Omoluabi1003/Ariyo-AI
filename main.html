@@ -1543,6 +1543,18 @@
     <p class="edge-panel-privacy">Zapier-hosted chatbots may store prompts. <a href="privacy.html" target="_blank" rel="noopener noreferrer">Read how Àríyò AI handles data</a>.</p>
 </div>
 
+<section id="news-section" class="chatbot-container news-panel" role="dialog" aria-modal="true" aria-labelledby="newsTitle" aria-describedby="newsCopy" aria-hidden="true">
+    <button class="popup-close ripple shockwave" data-close-target="news-section" aria-label="Close Naija Vibes News">×</button>
+    <div class="news-layout">
+        <header>
+            <p id="newsCopy" class="modal-tagline">Live Naija culture drops, refreshed automatically and ready even when you are offline.</p>
+            <h3 id="newsTitle" class="modal-title">Naija Vibes News</h3>
+        </header>
+        <div class="news-hero" id="news-hero"></div>
+        <div class="news-grid" id="news-feed" aria-live="polite"></div>
+    </div>
+</section>
+
 <!-- Omoluabi Music Player Container -->
 <div id="musicPlayerContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="musicPlayerTitle" aria-describedby="musicPlayerTagline">
     <button class="popup-close ripple shockwave" data-close-target="musicPlayerContainer" aria-label="Close Omoluabi Player">×</button>
@@ -1688,6 +1700,7 @@
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
   <script src="scripts/player.js"></script>
   <script src="scripts/ui.js"></script>
+  <script src="scripts/news.js" defer></script>
   <script src="scripts/main.js"></script>
   <script src="user-tracking.js"></script>
   <script src="prevent-zoom.js"></script>
