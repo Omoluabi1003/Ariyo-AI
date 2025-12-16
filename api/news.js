@@ -10,6 +10,14 @@ const SOURCES = [
     tag: 'Diaspora'
   },
   {
+    url: 'https://news.google.com/rss/search?q=Nollywood%20OR%20Afrobeats%20OR%20Nigerian%20entertainment&hl=en&gl=NG&ceid=NG:en',
+    tag: 'Entertainment NG'
+  },
+  {
+    url: 'https://news.google.com/rss/search?q=Nigerian%20artists%20abroad%20OR%20Nigerian%20entertainers%20global&hl=en&gl=US&ceid=US:en',
+    tag: 'Global Entertainment'
+  },
+  {
     url: 'https://guardian.ng/feed',
     tag: 'Guardian Nigeria'
   },
@@ -91,6 +99,36 @@ function findImage(entry, baseLink) {
   return DEFAULT_IMAGE;
 }
 
+async function fetchOpenGraphImage(url) {
+  if (!url) return null;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 6000);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'AriyoAI-NewsFetcher/1.0' },
+      redirect: 'follow'
+    });
+
+    if (!response.ok || !response.headers.get('content-type')?.includes('text/html')) {
+      return null;
+    }
+
+    const html = await response.text();
+    const metaMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["'][^>]*>/i);
+    const twitterMatch = html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["'][^>]*>/i);
+    const image = metaMatch?.[1] || twitterMatch?.[1];
+
+    return resolveUrl(image, url);
+  } catch (error) {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function parseDate(entry) {
   const raw = entry.pubDate || entry.published || entry.updated || entry.date || entry.createdAt;
   const parsed = new Date(raw || Date.now());
@@ -114,6 +152,20 @@ function normalizeEntry(entry, tag) {
     publishedAt,
     tag
   };
+}
+
+async function enrichImages(items) {
+  const tasks = items.map(async (item) => {
+    if (item.image && item.image !== DEFAULT_IMAGE) return item;
+
+    const openGraph = await fetchOpenGraphImage(item.url);
+    if (openGraph) {
+      return { ...item, image: openGraph };
+    }
+    return item;
+  });
+
+  return Promise.all(tasks);
 }
 
 async function fetchFeed(source) {
@@ -154,10 +206,12 @@ async function fetchAllNews() {
     }
   });
 
-  return Array.from(uniqueByUrl.values())
+  const uniqueItems = Array.from(uniqueByUrl.values())
     .filter(item => item.title && item.summary)
     .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
     .slice(0, 30);
+
+  return enrichImages(uniqueItems);
 }
 
 module.exports = async (req, res) => {
