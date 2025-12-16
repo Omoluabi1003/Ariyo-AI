@@ -79,8 +79,7 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'apps/connect-four/connect-four.html',
   'apps/connect-four/connect-four.css',
   'apps/connect-four/connect-four.js',
-  'apps/cycle-precision/cycle-precision.html',
-  'data/news.json'
+  'apps/cycle-precision/cycle-precision.html'
 ];
 
 const PREFETCH_MEDIA = [
@@ -143,8 +142,11 @@ if (self.workbox) {
   );
 
   workbox.routing.registerRoute(
-    ({ url }) => url.pathname.endsWith('/data/news.json') || url.pathname.endsWith('news.json'),
-    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-news` })
+    ({ url }) => url.pathname === '/api/news',
+    new workbox.strategies.NetworkFirst({
+      cacheName: `${CACHE_PREFIX}-news`,
+      networkTimeoutSeconds: 8,
+    })
   );
 }
 
