@@ -110,6 +110,10 @@ let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
 let firstPlayGuardTimeoutId = null;
+const quickStartDeadline = {
+  timerId: null,
+  timeoutMs: 4500
+};
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -165,6 +169,35 @@ function clearFirstPlayGuard() {
   }
 }
 
+function clearQuickStartDeadline() {
+  if (quickStartDeadline.timerId) {
+    clearTimeout(quickStartDeadline.timerId);
+    quickStartDeadline.timerId = null;
+  }
+}
+
+function scheduleQuickStartDeadline(src, title, resumeTime = null) {
+  clearQuickStartDeadline();
+
+  if (!src) return;
+
+  quickStartDeadline.timerId = setTimeout(() => {
+    const noAudibleProgress = audioPlayer.paused || (audioPlayer.currentTime || 0) === 0;
+
+    if (!noAudibleProgress) {
+      clearQuickStartDeadline();
+      return;
+    }
+
+    console.warn(`[quick-start] ${title || 'Track'} still silent after ${quickStartDeadline.timeoutMs}ms, retrying source.`);
+    const resumePoint = resumeTime != null && !isNaN(resumeTime)
+      ? resumeTime
+      : (audioPlayer.currentTime || 0);
+    startSlowBufferRescue(src, title, resumePoint, true);
+    attemptPlay();
+  }, quickStartDeadline.timeoutMs);
+}
+
 function scheduleFirstPlayGuard() {
   clearFirstPlayGuard();
 
@@ -194,7 +227,7 @@ function scheduleFirstPlayGuard() {
       ensureInitialTrackLoaded(false);
       attemptPlay();
     }
-  }, 4000);
+  }, 2500);
 }
 
 function showBufferingState(message = 'Settling your stream...') {
@@ -1535,6 +1568,7 @@ async function selectRadio(src, title, index, logo) {
         if (readyHandled) return;
         readyHandled = true;
         clearPlayTimeout();
+        clearQuickStartDeadline();
         if (handlerState.quickStartId && typeof cancelAnimationFrame === 'function') {
           cancelAnimationFrame(handlerState.quickStartId);
           handlerState.quickStartId = null;
@@ -1550,6 +1584,7 @@ async function selectRadio(src, title, index, logo) {
         updateMediaSession();
         if (!silent) {
           setPlaybackStatus(PlaybackStatus.buffering, { message: bufferingMessage?.textContent });
+          scheduleQuickStartDeadline(src, title, resumeTime);
         }
         if (autoPlay && audioPlayer.paused) {
           attemptPlay();
@@ -1703,6 +1738,7 @@ async function selectRadio(src, title, index, logo) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
           setPlaybackStatus(PlaybackStatus.playing);
+          clearQuickStartDeadline();
           const progressBarElement = document.getElementById('progressBar');
           if (progressBarElement) {
             progressBarElement.style.display = 'block';
@@ -1732,6 +1768,7 @@ async function selectRadio(src, title, index, logo) {
     }
 
     function handlePlayError(error, title) {
+      clearQuickStartDeadline();
       if (!audioPlayer.src) {
         trackInfo.textContent = 'Choose a track to start playback.';
         hideRetryButton();
@@ -1791,6 +1828,7 @@ async function selectRadio(src, title, index, logo) {
 function pauseMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
+    clearQuickStartDeadline();
     audioPlayer.pause();
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
@@ -1804,6 +1842,7 @@ function pauseMusic() {
 function stopMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
+    clearQuickStartDeadline();
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     manageVinylRotation();
