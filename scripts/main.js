@@ -635,8 +635,8 @@
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
         document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").innerHTML = '🔀';
         buildShuffleQueue();
-        selectAlbum(0);
-        console.log('No saved state found, initialized with default');
+        ensureInitialTrackLoaded(true);
+        console.log('No saved state found, initialized with default track loaded');
       }
       updateMediaSession();
     }
