@@ -109,7 +109,19 @@
     footer.appendChild(buildBadge(item.tag));
 
     body.append(heading, meta, summary, footer);
-    card.append(imgWrapper, body);
+
+    if (item.url) {
+      const link = document.createElement('a');
+      link.href = item.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.className = 'news-card-link';
+      link.append(imgWrapper, body);
+      card.appendChild(link);
+    } else {
+      card.append(imgWrapper, body);
+    }
+
     return card;
   }
 

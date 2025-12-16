@@ -1613,6 +1613,19 @@ body[data-theme="light"] .edge-panel-privacy a {
     position: relative;
 }
 
+.news-card-link {
+    color: inherit;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    text-decoration: none;
+}
+
+.news-card-link:focus-visible {
+    outline: 3px solid #c1f4e3;
+    outline-offset: 4px;
+}
+
 .news-hero-card {
     grid-column: 1 / -1;
     min-height: 360px;
