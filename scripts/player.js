@@ -93,8 +93,14 @@
     audioPlayer.setAttribute('controlsList', 'nodownload');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     audioPlayer.addEventListener('canplaythrough', hidePlaySpinner, { once: false });
-    audioPlayer.addEventListener('playing', hidePlaySpinner);
-    audioPlayer.addEventListener('waiting', showPlaySpinner);
+    audioPlayer.addEventListener('playing', () => {
+      clearBufferingHedge();
+      hidePlaySpinner();
+    });
+    audioPlayer.addEventListener('waiting', () => {
+      showPlaySpinner();
+      scheduleBufferingHedgeFromSource();
+    });
     audioPlayer.addEventListener('stalled', () => {
       showPlaySpinner();
       if (!stallRetryTimer) {
@@ -133,7 +139,7 @@ let lastTrackIndex = 0;
 let firstPlayGuardTimeoutId = null;
 const quickStartDeadline = {
   timerId: null,
-  timeoutMs: 4500
+  timeoutMs: 3000
 };
 
     let currentAlbumIndex = 0;
@@ -158,7 +164,12 @@ const playbackWatchdog = {
   intervalId: null,
   lastTime: 0,
   lastProgressAt: 0,
-  stallGraceMs: 12000
+  stallGraceMs: 6000
+};
+
+const bufferingHedge = {
+  timerId: null,
+  deadlineMs: 3000
 };
 
 const audioHealer = createSelfHealAudio(audioPlayer);
@@ -321,6 +332,7 @@ function ensureInitialTrackLoaded(silent = true) {
 }
 
 function hideBufferingState() {
+  clearBufferingHedge();
   if (bufferingOverlay) {
     bufferingOverlay.classList.remove('visible');
   }
@@ -405,6 +417,29 @@ function clearSlowBufferRescue() {
     slowBufferRescue.inFlight = null;
   }
   slowBufferRescue.attempts = 0;
+}
+
+function clearBufferingHedge() {
+  if (bufferingHedge.timerId) {
+    clearTimeout(bufferingHedge.timerId);
+    bufferingHedge.timerId = null;
+  }
+}
+
+function scheduleBufferingHedgeFromSource() {
+  const source = captureCurrentSource();
+  if (!source || !source.src) return;
+
+  const resumePoint = audioPlayer.currentTime || 0;
+  const title = source.title || lastTrackTitle || 'Track';
+
+  clearBufferingHedge();
+  bufferingHedge.timerId = setTimeout(() => {
+    bufferingHedge.timerId = null;
+    startSlowBufferRescue(source.src, title, Math.max(resumePoint - 0.5, 0), true, {
+      onReady: () => setPlaybackStatus(PlaybackStatus.buffering, { message: 'Catching up faster...' })
+    });
+  }, bufferingHedge.deadlineMs);
 }
 
 async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = true, callbacks = {}) {
@@ -1570,7 +1605,7 @@ async function selectRadio(src, title, index, logo) {
         playTimeout = setTimeout(() => {
           console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
           startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
-        }, 15000);
+        }, 9000);
       }
       handlerState.playTimeout = playTimeout;
 
@@ -1607,6 +1642,7 @@ async function selectRadio(src, title, index, logo) {
         readyHandled = true;
         clearPlayTimeout();
         clearQuickStartDeadline();
+        clearBufferingHedge();
         if (handlerState.quickStartId && typeof cancelAnimationFrame === 'function') {
           cancelAnimationFrame(handlerState.quickStartId);
           handlerState.quickStartId = null;
@@ -1703,7 +1739,7 @@ async function selectRadio(src, title, index, logo) {
             return;
           }
           startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
-        }, 7000);
+        }, 4000);
       }
 
       if (typeof requestAnimationFrame === 'function') {
