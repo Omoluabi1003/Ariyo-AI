@@ -109,6 +109,7 @@ let isFirstPlay = true;
 let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
+let firstPlayGuardTimeoutId = null;
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -156,6 +157,45 @@ const slowBufferRescue = {
   attempts: 0,
   maxAttempts: 2
 };
+
+function clearFirstPlayGuard() {
+  if (firstPlayGuardTimeoutId) {
+    clearTimeout(firstPlayGuardTimeoutId);
+    firstPlayGuardTimeoutId = null;
+  }
+}
+
+function scheduleFirstPlayGuard() {
+  clearFirstPlayGuard();
+
+  // If playback never transitions to "playing" after the user hits play,
+  // reload the current source and try again so the UI never appears frozen.
+  firstPlayGuardTimeoutId = setTimeout(() => {
+    if (playbackStatus === PlaybackStatus.playing || audioPlayer.currentTime > 0) {
+      clearFirstPlayGuard();
+      return;
+    }
+
+    console.warn('[firstPlayGuard] Playback did not start, retrying source load.');
+    showBufferingState('Reconnecting your audio...');
+
+    const source = captureCurrentSource();
+    if (source && source.type === 'track') {
+      const album = albums[source.albumIndex];
+      const track = album && album.tracks ? album.tracks[source.trackIndex] : null;
+      if (track) {
+        selectTrack(track.src, track.title, source.trackIndex, false);
+        attemptPlay();
+      }
+    } else if (source && source.type === 'radio' && radioStations[source.index]) {
+      selectRadio(source.src, source.title, source.index, radioStations[source.index].logo);
+      attemptPlay();
+    } else {
+      ensureInitialTrackLoaded(false);
+      attemptPlay();
+    }
+  }, 4000);
+}
 
 function showBufferingState(message = 'Settling your stream...') {
   setPlaybackStatus(
@@ -1649,6 +1689,7 @@ async function selectRadio(src, title, index, logo) {
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
       }
+      scheduleFirstPlayGuard();
       albumCover.style.display = 'block';
       if (typeof window !== 'undefined' && typeof window.stopYouTubePlayback === 'function') {
         try {
@@ -1879,7 +1920,11 @@ function updateTrackTime() {
       startPlaybackWatchdog();
       console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
       syncMediaSessionPlaybackState();
+      clearFirstPlayGuard();
     });
+
+    audioPlayer.addEventListener('error', clearFirstPlayGuard);
+    audioPlayer.addEventListener('stalled', scheduleFirstPlayGuard);
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
