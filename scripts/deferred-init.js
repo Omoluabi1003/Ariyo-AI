@@ -1,9 +1,9 @@
 (function() {
-  const schedule = (cb) => {
+  const schedule = (cb, timeout = 750) => {
     if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(cb, { timeout: 500 });
+      requestIdleCallback(cb, { timeout });
     } else {
-      setTimeout(cb, 100);
+      setTimeout(cb, timeout);
     }
   };
 
@@ -11,7 +11,16 @@
     const spinner = document.getElementById('bootSpinner');
     if (spinner) {
       spinner.classList.add('hidden');
-      setTimeout(() => spinner.remove(), 300);
+      setTimeout(() => spinner.remove(), 260);
+    }
+  }
+
+  function forcePreloadWelcomeAudio() {
+    const welcomeAudio = document.getElementById('welcomeAudio');
+    if (!welcomeAudio) return;
+    welcomeAudio.preload = window.__IS_IOS__ ? 'auto' : 'metadata';
+    if (window.__IS_IOS__) {
+      try { welcomeAudio.load(); } catch (_) {}
     }
   }
 
@@ -33,29 +42,24 @@
     document.addEventListener('keydown', handler);
   }
 
+  function deferNonCritical() {
+    schedule(() => {
+      if (typeof prepareDeferredIframes === 'function') prepareDeferredIframes();
+      if (typeof startBackgroundRotator === 'function') startBackgroundRotator();
+      if (typeof initUserTracking === 'function') initUserTracking();
+    }, 500);
+
+    schedule(() => {
+      if (typeof populateAlbumList === 'function') populateAlbumList();
+      if (typeof deferExperienceInit === 'function') deferExperienceInit();
+      if (typeof warmMiniGames === 'function') warmMiniGames();
+    }, 1000);
+  }
+
   window.addEventListener('load', () => {
     hideBootSpinner();
     attachUnlockGesture();
-
-    schedule(() => {
-      if (typeof prepareDeferredIframes === 'function') {
-        prepareDeferredIframes();
-      }
-      if (typeof startBackgroundRotator === 'function') {
-        startBackgroundRotator();
-      }
-    });
-
-    schedule(() => {
-      if (typeof populateAlbumList === 'function') {
-        populateAlbumList();
-      }
-      if (typeof deferExperienceInit === 'function') {
-        deferExperienceInit();
-      }
-      if (typeof initUserTracking === 'function') {
-        initUserTracking();
-      }
-    });
+    forcePreloadWelcomeAudio();
+    deferNonCritical();
   });
 })();

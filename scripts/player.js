@@ -86,12 +86,21 @@
     if (!existingAudioElement) {
         audioPlayer.id = 'audioPlayer';
     }
-    audioPlayer.preload = 'metadata';
+    audioPlayer.preload = window.__IS_IOS__ ? 'auto' : 'metadata';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
     audioPlayer.setAttribute('controlsList', 'nodownload');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
+    audioPlayer.addEventListener('canplaythrough', hidePlaySpinner, { once: false });
+    audioPlayer.addEventListener('playing', hidePlaySpinner);
+    audioPlayer.addEventListener('waiting', showPlaySpinner);
+    audioPlayer.addEventListener('stalled', () => {
+      showPlaySpinner();
+      if (!stallRetryTimer) {
+        stallRetryTimer = setTimeout(() => attemptPlay(), 3000);
+      }
+    });
     if (!existingAudioElement) {
         document.body.appendChild(audioPlayer);
     }
@@ -109,7 +118,9 @@
     const retryButton = document.getElementById('retryButton');
     if (retryButton) {
       retryButton.style.display = 'none';
+      retryButton.inert = true;
     }
+    const playButtonEl = document.getElementById('playButton');
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
@@ -164,6 +175,23 @@ const PlaybackStatus = {
 
 let playbackStatus = PlaybackStatus.idle;
 const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
+let stallRetryTimer = null;
+
+function showPlaySpinner() {
+  if (playButtonEl) {
+    playButtonEl.classList.add('loading');
+  }
+}
+
+function hidePlaySpinner() {
+  if (playButtonEl) {
+    playButtonEl.classList.remove('loading');
+  }
+  if (stallRetryTimer) {
+    clearTimeout(stallRetryTimer);
+    stallRetryTimer = null;
+  }
+}
 
 const slowBufferRescue = {
   timerId: null,
@@ -1729,6 +1757,7 @@ async function selectRadio(src, title, index, logo) {
     async function attemptPlay() {
       console.log('[attemptPlay] called');
       userInitiatedPause = false;
+      showPlaySpinner();
       await resumeAudioContext();
       ensureInitialTrackLoaded();
       if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
@@ -1743,12 +1772,15 @@ async function selectRadio(src, title, index, logo) {
           console.warn('Unable to stop YouTube playback before starting media player:', error);
         }
       }
+      // Force a fresh load before every play attempt for instant start on iOS
+      try { audioPlayer.load(); } catch (_) {}
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
           setPlaybackStatus(PlaybackStatus.playing);
           clearQuickStartDeadline();
+          hidePlaySpinner();
           const progressBarElement = document.getElementById('progressBar');
           if (progressBarElement) {
             progressBarElement.style.display = 'block';
@@ -1786,7 +1818,7 @@ async function selectRadio(src, title, index, logo) {
         return;
       }
 
-      setPlaybackStatus(PlaybackStatus.failed, { message: neutralFailureMessage });
+      setPlaybackStatus(PlaybackStatus.buffering, { message: 'Locking in your audio…' });
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
@@ -1797,41 +1829,13 @@ async function selectRadio(src, title, index, logo) {
         return;
       }
 
-      retryButton.style.display = 'block';
-      retryButton.textContent = 'Retry';
-
-      switch (error.code) {
-        case MediaError.MEDIA_ERR_ABORTED:
-          trackInfo.textContent = 'Playback paused early—press play when you’re ready.';
-          break;
-        case MediaError.MEDIA_ERR_NETWORK:
-          trackInfo.textContent = 'Connection blinked. Retry when your signal steadies.';
-          break;
-        case MediaError.MEDIA_ERR_DECODE:
-          trackInfo.textContent = 'We hit a decoding bump. Tap retry to reload smoothly.';
-          break;
-        case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-          trackInfo.textContent = 'This source is blocked here—pick another track while we refresh.';
-          break;
-        default:
-          // Handle cases where error.code is undefined (e.g. DOMException from play())
-          if (error.name === 'NotAllowedError') {
-            trackInfo.textContent = 'Safari blocked autoplay—tap Start playback to hear the track.';
-            retryButton.textContent = 'Start playback';
-            retryButton.style.display = 'block';
-            setPlaybackStatus(PlaybackStatus.idle);
-            const requestUnlock = () => {
-              window.removeEventListener('touchend', requestUnlock);
-              window.removeEventListener('click', requestUnlock);
-              resumeAudioContext();
-              attemptPlay();
-            };
-            window.addEventListener('touchend', requestUnlock, { once: true });
-            window.addEventListener('click', requestUnlock, { once: true });
-          } else {
-            trackInfo.textContent = neutralFailureMessage;
-          }
-          break;
+      // Silent auto retry: keep UI clean
+      hidePlaySpinner();
+      if (!stallRetryTimer) {
+        stallRetryTimer = setTimeout(() => {
+          stallRetryTimer = null;
+          attemptPlay();
+        }, 1200);
       }
     }
 
