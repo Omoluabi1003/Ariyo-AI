@@ -56,6 +56,7 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'scripts/data.js',
   'scripts/player.js',
   'scripts/ui.js',
+  'scripts/news.js',
   'scripts/main.js',
   'scripts/sw-controller.js',
   'scripts/push-notifications.js',
@@ -78,7 +79,8 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'apps/connect-four/connect-four.html',
   'apps/connect-four/connect-four.css',
   'apps/connect-four/connect-four.js',
-  'apps/cycle-precision/cycle-precision.html'
+  'apps/cycle-precision/cycle-precision.html',
+  'data/news.json'
 ];
 
 const PREFETCH_MEDIA = [
@@ -138,6 +140,11 @@ if (self.workbox) {
   workbox.routing.registerRoute(
     ({ request }) => request.destination === 'document' && request.url.includes('playlist'),
     new workbox.strategies.NetworkFirst({ cacheName: `${CACHE_PREFIX}-playlist-pages` })
+  );
+
+  workbox.routing.registerRoute(
+    ({ url }) => url.pathname.endsWith('/data/news.json') || url.pathname.endsWith('news.json'),
+    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-news` })
   );
 }
 
