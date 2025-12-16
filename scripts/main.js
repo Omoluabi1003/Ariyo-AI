@@ -985,6 +985,19 @@
     if (sidebarNav) {
         sidebarNav.removeAttribute('aria-hidden');
         sidebarNav.removeAttribute('tabindex');
+
+        const enforceSidebarVisibility = () => {
+            sidebarNav.removeAttribute('hidden');
+            sidebarNav.removeAttribute('aria-hidden');
+            sidebarNav.style.visibility = 'visible';
+            sidebarNav.style.opacity = '1';
+        };
+
+        enforceSidebarVisibility();
+
+        const sidebarGuard = new MutationObserver(() => enforceSidebarVisibility());
+        sidebarGuard.observe(sidebarNav, { attributes: true, attributeFilter: ['hidden', 'style', 'aria-hidden', 'class'] });
+        window.addEventListener('beforeunload', () => sidebarGuard.disconnect());
     }
 
     // Add this to your main.js file
