@@ -146,6 +146,8 @@
   const prefetchCache = new Map();
   const prefetchOrder = [];
   const playbackLatencyMarks = new Map();
+  const STALL_RECOVERY_DELAY_MS = 7000;
+  const STALL_RECOVERY_ATTEMPTS = 2;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   const DEFAULT_CROSSFADE_SECONDS = 6;
   const CROSSFADE_PRELOAD_SECONDS = 8;
@@ -158,6 +160,9 @@
   let audioContext = null;
   let crossfaderFrame = null;
   let playbackStartState = null;
+  let stallRecoveryTimer = null;
+  let stallRecoveryAttempts = 0;
+  let lastProgressAt = Date.now();
   const preconnectedHosts = new Set();
 
   function getCrossfadeDurationForTrack(trackDurationSeconds) {
@@ -478,6 +483,60 @@
     loadingSpinner.style.display = 'none';
   }
 
+  function resetStallRecovery() {
+    if (stallRecoveryTimer) {
+      clearTimeout(stallRecoveryTimer);
+    }
+    stallRecoveryAttempts = 0;
+    stallRecoveryTimer = null;
+    lastProgressAt = Date.now();
+  }
+
+  function notePlaybackProgress() {
+    lastProgressAt = Date.now();
+    stallRecoveryAttempts = 0;
+    if (stallRecoveryTimer) {
+      clearTimeout(stallRecoveryTimer);
+      stallRecoveryTimer = null;
+    }
+  }
+
+  function scheduleStallRecovery() {
+    if (stallRecoveryTimer) return;
+    stallRecoveryTimer = setTimeout(async () => {
+      stallRecoveryTimer = null;
+      const activeAudio = getActiveAudio();
+      if (!activeAudio) return;
+
+      if (Date.now() - lastProgressAt < STALL_RECOVERY_DELAY_MS - 250) {
+        return;
+      }
+
+      stallRecoveryAttempts += 1;
+      showLoading('Reconnecting…', 'info');
+
+      try {
+        activeAudio.pause();
+        activeAudio.load();
+      } catch (_) {
+        // Ignore reload errors during stall recovery.
+      }
+
+      try {
+        await resumeAudioContext();
+        await activeAudio.play();
+      } catch (_) {
+        // Some browsers will require an explicit user gesture; we surface status below.
+      }
+
+      if (stallRecoveryAttempts < STALL_RECOVERY_ATTEMPTS) {
+        scheduleStallRecovery();
+      } else {
+        setStatus('Trying to reconnect. Tap play if audio does not resume.', 'warning');
+      }
+    }, STALL_RECOVERY_DELAY_MS);
+  }
+
   function ensurePreconnect(url) {
     try {
       const { origin } = new URL(url, window.location.href);
@@ -561,6 +620,7 @@
     if (!deck || !deck.audio) return;
 
     resetPlaybackStartState();
+    resetStallRecovery();
     const audioEl = deck.audio;
     const state = {
       id: Date.now(),
@@ -1093,6 +1153,8 @@
       // Ignore load errors for browsers that block preloading.
     }
 
+    resetStallRecovery();
+
     if (updateUI) {
       currentOrderIndex = orderIndex;
       updateTrackMetadata(track);
@@ -1121,6 +1183,7 @@
     fadingDeckKey = null;
     isCrossfading = false;
     standbyPreloadedIndex = null;
+    resetStallRecovery();
     cleanupPrefetch(incomingDeck.audio.dataset.trackSrc);
     syncCrossfaderToActiveDeck();
     updateSpinState();
@@ -1208,6 +1271,7 @@
 
   function stopPlayback() {
     resetPlaybackStartState();
+    resetStallRecovery();
     Object.values(decks).forEach(deck => {
       deck.audio.pause();
       deck.audio.currentTime = 0;
@@ -1366,6 +1430,7 @@
     seekBar.value = percent;
     progressBarFill.style.width = `${percent}%`;
     trackDuration.textContent = `${formatTime(current)} / ${formatTime(event.target.duration)}`;
+    notePlaybackProgress();
 
     if (djAutoMixEnabled && !isCrossfading && event.target.duration) {
       const remaining = event.target.duration - event.target.currentTime;
@@ -1386,6 +1451,7 @@
 
   function handlePlaying(event) {
     if (event.target !== getActiveAudio()) return;
+    notePlaybackProgress();
     logPlaybackStart(event.target.dataset.trackSrc);
     hideLoading();
     setStatus(`Now playing: ${trackInfo.textContent}`);
@@ -1397,6 +1463,7 @@
   function handlePause(event) {
     if (event.target !== getActiveAudio()) return;
     updateSpinState();
+    resetStallRecovery();
     if (event.target.currentTime > 0 && event.target.currentTime < event.target.duration) {
       setStatus('Playback paused.');
       postPanelStatus('paused', trackInfo.textContent);
@@ -1406,15 +1473,18 @@
   function handleWaiting(event) {
     if (event.target !== getActiveAudio()) return;
     showLoading('Buffering…', 'info');
+    scheduleStallRecovery();
   }
 
   function handleCanPlay(event) {
     if (event.target !== getActiveAudio()) return;
     hideLoading();
+    notePlaybackProgress();
   }
 
   function handleEnded(event) {
     if (event.target !== getActiveAudio() || isCrossfading) return;
+    resetStallRecovery();
     updateSpinState();
     setStatus('Track finished. Loading next…');
     playNextTrack(true);
@@ -1422,6 +1492,7 @@
 
   function handleError(event) {
     if (event.target !== getActiveAudio()) return;
+    resetStallRecovery();
     if (playbackStartState && playbackStartState.audioEl === event.target) {
       retryOrFailPlayback(playbackStartState, event?.error || event);
       return;
