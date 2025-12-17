@@ -116,7 +116,6 @@
       if (trackIndex === -1) return false;
 
       currentAlbumIndex = albumIndex;
-      updateTrackListModal();
       selectTrack(album.tracks[trackIndex].src, album.tracks[trackIndex].title, trackIndex);
       pendingSharedPlayback = null;
       return true;
@@ -603,7 +602,6 @@
             }
           });
         }
-        updateTrackListModal();
         const controls = document.querySelector(".music-controls.icons-only");
         // Updated section for shuffle button text:
         const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");

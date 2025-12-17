@@ -889,7 +889,11 @@ function addTrackToPlaylistByIndex(albumIndex, trackIndex) {
     savePlaylist();
     alert('Track added to playlist!');
     if (pendingAlbumIndex === playlistAlbumIndex) {
-      updateTrackListModal();
+      const trackModal = document.getElementById('trackModal');
+      const isVisible = trackModal && trackModal.style.display === 'flex';
+      if (isVisible) {
+        updateTrackListModal({ prefetchDurations: true });
+      }
     }
   }
 }
@@ -911,7 +915,11 @@ function removeTrackFromPlaylist(index) {
         currentTrackIndex = -1;
       }
     }
-    updateTrackListModal();
+    const trackModal = document.getElementById('trackModal');
+    const isVisible = trackModal && trackModal.style.display === 'flex';
+    if (isVisible) {
+      updateTrackListModal({ prefetchDurations: true });
+    }
   }
 }
 
@@ -1068,7 +1076,8 @@ function removeTrackFromPlaylist(index) {
       }
     }
 
-    function updateTrackListModal() {
+    function updateTrackListModal(options = {}) {
+      const { prefetchDurations = false } = options;
       const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
       const album = albums[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
@@ -1227,7 +1236,7 @@ function removeTrackFromPlaylist(index) {
           trackListContainer.appendChild(item);
         }
 
-        if (!track.duration) {
+        if (prefetchDurations && !track.duration) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
           setCrossOrigin(tempAudio, track.src);
@@ -1370,7 +1379,7 @@ function loadMoreStations(region) {
       console.log(`Selecting album: ${albums[albumIndex].name}`);
       pendingAlbumIndex = albumIndex;
       currentRadioIndex = -1;
-      updateTrackListModal();
+      updateTrackListModal({ prefetchDurations: true });
       openTrackList();
     }
 
