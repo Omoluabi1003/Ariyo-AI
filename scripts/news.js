@@ -3,6 +3,7 @@
   const LAST_SEEN_KEY = 'ariyoNewsLastSeen';
   const NEWS_CACHE_KEY = 'ariyoNewsCache';
   const NEWS_PANEL_ID = 'news-section';
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
 
   const createIconDot = () => {
     const dot = document.createElement('span');
@@ -98,10 +99,17 @@
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'news-image-wrap';
     const img = document.createElement('img');
+    const safeImage = item.image || FALLBACK_IMAGE;
     img.loading = 'lazy';
     img.decoding = 'async';
-    img.src = item.image;
+    img.src = safeImage;
     img.alt = item.title;
+    img.referrerPolicy = 'no-referrer';
+    img.onerror = () => {
+      if (img.src !== FALLBACK_IMAGE) {
+        img.src = FALLBACK_IMAGE;
+      }
+    };
     imgWrapper.appendChild(img);
 
     const body = document.createElement('div');
