@@ -1,4 +1,4 @@
-const { unwrapGoogleNewsUrl, findImage, DEFAULT_IMAGE } = require('../api/news');
+const { unwrapGoogleNewsUrl, findImage, DEFAULT_IMAGE, buildKeywordImage } = require('../api/news');
 
 const buildEntryWithMedia = (media = []) => ({
   media
@@ -42,5 +42,22 @@ describe('image selection', () => {
   test('falls back to the default image when none are available', () => {
     const entry = { description: '<p>No media here</p>' };
     expect(findImage(entry)).toBe(DEFAULT_IMAGE);
+  });
+});
+
+describe('keyword-based fallbacks', () => {
+  test('builds a keyword-focused image URL from story context', () => {
+    const item = {
+      title: 'Nigerian tech founders expand hubs in Lagos',
+      summary: 'Investors back new innovation centers across the city.',
+      tag: 'Global Nigeria'
+    };
+
+    const keywordUrl = buildKeywordImage(item);
+
+    expect(keywordUrl).toContain('source.unsplash.com/featured/1200x800?');
+    const query = decodeURIComponent(keywordUrl.split('?')[1]);
+    expect(query).toContain('nigerian');
+    expect(query).toContain('lagos');
   });
 });

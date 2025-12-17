@@ -28,6 +28,43 @@ const SOURCES = [
 ];
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
+const KEYWORD_STOPWORDS = new Set([
+  'the',
+  'a',
+  'an',
+  'and',
+  'or',
+  'of',
+  'for',
+  'with',
+  'without',
+  'from',
+  'in',
+  'on',
+  'at',
+  'to',
+  'by',
+  'about',
+  'after',
+  'before',
+  'this',
+  'that',
+  'these',
+  'those',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'being',
+  'been',
+  'it',
+  'its',
+  'as',
+  'news',
+  'update',
+  'story'
+]);
 const parser = new XMLParser({
   ignoreAttributes: false,
   removeNSPrefix: true,
@@ -231,6 +268,31 @@ function normalizeEntry(entry, tag) {
   };
 }
 
+function extractKeywords(text = '') {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/gi, ' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter(token => !KEYWORD_STOPWORDS.has(token));
+}
+
+function buildKeywordImage(item) {
+  const keywords = new Set();
+
+  [item.title, item.summary, item.tag]
+    .filter(Boolean)
+    .forEach(text => {
+      extractKeywords(text).forEach(token => keywords.add(token));
+    });
+
+  if (!keywords.size) return null;
+
+  const topKeywords = Array.from(keywords).slice(0, 6).join(',');
+  const query = encodeURIComponent(topKeywords);
+  return `https://source.unsplash.com/featured/1200x800?${query}`;
+}
+
 async function enrichImages(items) {
   const tasks = items.map(async (item) => {
     if (item.image && item.image !== DEFAULT_IMAGE) return item;
@@ -239,6 +301,12 @@ async function enrichImages(items) {
     if (openGraph) {
       return { ...item, image: openGraph };
     }
+
+    const keywordImage = buildKeywordImage(item);
+    if (keywordImage) {
+      return { ...item, image: keywordImage };
+    }
+
     return { ...item, image: item.image || DEFAULT_IMAGE };
   });
 
@@ -316,4 +384,5 @@ module.exports = async (req, res) => {
 module.exports.unwrapGoogleNewsUrl = unwrapGoogleNewsUrl;
 module.exports.findImage = findImage;
 module.exports.normalizeEntry = normalizeEntry;
+module.exports.buildKeywordImage = buildKeywordImage;
 module.exports.DEFAULT_IMAGE = DEFAULT_IMAGE;
