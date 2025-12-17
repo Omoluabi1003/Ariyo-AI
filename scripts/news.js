@@ -3,7 +3,8 @@
   const LAST_SEEN_KEY = 'ariyoNewsLastSeen';
   const NEWS_CACHE_KEY = 'ariyoNewsCache';
   const NEWS_PANEL_ID = 'news-section';
-  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
+  const LOCAL_FALLBACK_IMAGE = '/img/news-fallback.svg';
+  const REMOTE_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
   const KEYWORD_IMAGE_BASE = 'https://source.unsplash.com/featured/900x600?';
 
   const createIconDot = () => {
@@ -98,14 +99,21 @@
   }
 
   function getStoryImage(item) {
-    if (item.image) return item.image;
+    const customImage = (item.image || '').trim();
+    if (customImage) return customImage;
 
     const keywordQuery = extractKeywords(item);
     if (keywordQuery) {
       return `${KEYWORD_IMAGE_BASE}${encodeURIComponent(keywordQuery)}`;
     }
 
-    return FALLBACK_IMAGE;
+    return REMOTE_FALLBACK_IMAGE || LOCAL_FALLBACK_IMAGE;
+  }
+
+  function isEntertainment(item) {
+    const haystack = `${item.tag || ''} ${item.title || ''} ${item.summary || ''}`.toLowerCase();
+    const keywords = ['entertainment', 'music', 'afrobeats', 'celebrity', 'vibe', 'artist'];
+    return keywords.some(term => haystack.includes(term));
   }
 
   function makeCardInteractive(card, url) {
@@ -130,15 +138,15 @@
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'news-image-wrap';
     const img = document.createElement('img');
-    const safeImage = getStoryImage(item);
+    const safeImage = getStoryImage(item) || LOCAL_FALLBACK_IMAGE;
     img.loading = 'lazy';
     img.decoding = 'async';
     img.src = safeImage;
     img.alt = item.title;
     img.referrerPolicy = 'no-referrer';
     img.onerror = () => {
-      if (img.src !== FALLBACK_IMAGE) {
-        img.src = FALLBACK_IMAGE;
+      if (img.src !== LOCAL_FALLBACK_IMAGE) {
+        img.src = LOCAL_FALLBACK_IMAGE;
       } else {
         img.onerror = null;
       }
@@ -181,9 +189,13 @@
     feedTarget.innerHTML = '';
 
     const sorted = [...items].sort((a, b) => parseDate(b) - parseDate(a));
-    const pinnedItems = sorted.filter(item => item.pinned);
-    const heroItem = pinnedItems[0] || sorted[0];
-    const remaining = sorted.filter(item => item !== heroItem);
+    const entertainmentItems = sorted.filter(isEntertainment);
+    const nonEntertainment = sorted.filter(item => !isEntertainment(item));
+    const prioritized = [...entertainmentItems, ...nonEntertainment];
+    if (!prioritized.length) return;
+    const pinnedItems = prioritized.filter(item => item.pinned);
+    const heroItem = pinnedItems.find(isEntertainment) || pinnedItems[0] || prioritized[0];
+    const remaining = prioritized.filter(item => item !== heroItem);
 
     if (heroItem) {
       heroTarget.appendChild(buildCard(heroItem, true));
