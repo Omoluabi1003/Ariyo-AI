@@ -1174,7 +1174,9 @@ function removeTrackFromPlaylist(index) {
           const announcementCopy = trackMentions.length
             ? `${intro}: ${formatList(trackMentions)} ${landingVerb}. ${actionPrompt}`
             : '';
-          bannerCopy.textContent = announcementCopy.trim();
+          const newsNote = 'Àríyò AI Media Studio now streams Naija Vibe News alongside your playlists—open the news panel for fresh headlines.';
+          const combinedCopy = [announcementCopy.trim(), newsNote].filter(Boolean).join(' ');
+          bannerCopy.textContent = combinedCopy.trim();
           latestTracks.forEach(track => {
             const button = document.createElement('button');
             button.type = 'button';
@@ -1200,6 +1202,17 @@ function removeTrackFromPlaylist(index) {
             });
             bannerActions.appendChild(button);
           });
+          const newsButton = document.createElement('button');
+          newsButton.type = 'button';
+          newsButton.className = 'latest-track-button';
+          newsButton.textContent = '📰 Open Naija Vibe News';
+          newsButton.setAttribute('aria-label', 'Open the Naija Vibe News panel');
+          newsButton.addEventListener('click', () => {
+            if (typeof window.openPanel === 'function') {
+              window.openPanel('news-section');
+            }
+          });
+          bannerActions.appendChild(newsButton);
           banner.hidden = false;
         } else {
           banner.hidden = true;
