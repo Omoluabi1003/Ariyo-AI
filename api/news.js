@@ -174,7 +174,7 @@ function normalizeEntry(entry, tag) {
     url: link,
     title,
     summary: summary || title,
-    image: findImage(entry, link),
+    image: findImage(entry, link) || DEFAULT_IMAGE,
     publishedAt,
     tag
   };
