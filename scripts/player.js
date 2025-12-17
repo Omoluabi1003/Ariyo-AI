@@ -480,6 +480,19 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
     });
   } catch (error) {
     console.warn('[slow-buffer] Rescue fetch failed:', error);
+    if (isLikelyCorsBlock(error)) {
+      const fallbackSrc = appendCacheBuster(src);
+      console.warn('[slow-buffer] Falling back to direct stream after CORS block.', { fallbackSrc });
+      setCrossOrigin(audioPlayer, fallbackSrc);
+      handleAudioLoad(fallbackSrc, title, false, {
+        silent: true,
+        autoPlay,
+        resumeTime: Math.max((resumeTime != null ? resumeTime : audioPlayer.currentTime || 0) - 1, 0),
+        disableSlowGuard: true,
+        onReady: callbacks.onReady,
+        onError: callbacks.onError
+      });
+    }
   } finally {
     slowBufferRescue.inFlight = null;
   }
@@ -594,6 +607,12 @@ function finishNetworkRecovery() {
 function appendCacheBuster(url) {
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}reconnect=${Date.now()}`;
+}
+
+function isLikelyCorsBlock(error) {
+  if (!error) return false;
+  const message = String(error.message || '').toLowerCase();
+  return error.name === 'TypeError' || message.includes('cors');
 }
 
 function createSelfHealAudio(player) {
@@ -785,6 +804,10 @@ async function attemptNetworkResume() {
       resolve(value);
     };
 
+    let track = null;
+    let originalSrc = source.src;
+    let trackTitle = source.title;
+
     if (source.type === 'radio') {
       setCrossOrigin(audioPlayer, source.src);
       const reloadSrc = appendCacheBuster(source.src);
@@ -804,8 +827,10 @@ async function attemptNetworkResume() {
     try {
       const album = albums[source.albumIndex];
       if (!album) return resolveOnce(false);
-      const track = album.tracks[source.trackIndex];
+      track = album.tracks[source.trackIndex];
       if (!track) return resolveOnce(false);
+      trackTitle = track.title || source.title;
+      originalSrc = track.src;
 
       const resolvedSrc = await resolveSunoAudioSrc(track.src);
       const fetchUrl = buildTrackFetchUrl(resolvedSrc);
@@ -824,6 +849,21 @@ async function attemptNetworkResume() {
       });
     } catch (error) {
       console.error('Failed to fetch track during recovery:', error);
+      if (isLikelyCorsBlock(error) && originalSrc) {
+        const fallbackSrc = appendCacheBuster(originalSrc);
+        console.warn('[network-recovery] Direct stream fallback after CORS block.', { fallbackSrc });
+        setCrossOrigin(audioPlayer, fallbackSrc);
+        audioPlayer.src = fallbackSrc;
+        handleAudioLoad(fallbackSrc, trackTitle || source.title, false, {
+          silent: true,
+          autoPlay: networkRecoveryState.wasPlaying,
+          resumeTime: networkRecoveryState.resumeTime,
+          disableSlowGuard: true,
+          onReady: () => resolveOnce(true),
+          onError: () => resolveOnce(false)
+        });
+        return;
+      }
       resolveOnce(false);
     }
   });
