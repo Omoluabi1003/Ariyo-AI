@@ -4,6 +4,7 @@
   const NEWS_CACHE_KEY = 'ariyoNewsCache';
   const NEWS_PANEL_ID = 'news-section';
   const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
+  const KEYWORD_IMAGE_BASE = 'https://source.unsplash.com/featured/900x600?';
 
   const createIconDot = () => {
     const dot = document.createElement('span');
@@ -77,6 +78,36 @@
     return badge;
   }
 
+  function extractKeywords(item) {
+    const stopWords = new Set(['the', 'a', 'an', 'and', 'of', 'for', 'to', 'with', 'in', 'on', 'at', 'by', 'from']);
+    const text = [item.tag, item.title, item.summary]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s,]/g, ' ');
+
+    if (!text) return '';
+
+    const keywords = text
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((word, index, arr) => !stopWords.has(word) && arr.indexOf(word) === index)
+      .slice(0, 6);
+
+    return keywords.join(',');
+  }
+
+  function getStoryImage(item) {
+    if (item.image) return item.image;
+
+    const keywordQuery = extractKeywords(item);
+    if (keywordQuery) {
+      return `${KEYWORD_IMAGE_BASE}${encodeURIComponent(keywordQuery)}`;
+    }
+
+    return FALLBACK_IMAGE;
+  }
+
   function makeCardInteractive(card, url) {
     if (!url) return;
 
@@ -99,7 +130,7 @@
     const imgWrapper = document.createElement('div');
     imgWrapper.className = 'news-image-wrap';
     const img = document.createElement('img');
-    const safeImage = item.image || FALLBACK_IMAGE;
+    const safeImage = getStoryImage(item);
     img.loading = 'lazy';
     img.decoding = 'async';
     img.src = safeImage;
