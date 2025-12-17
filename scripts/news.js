@@ -108,6 +108,8 @@
     img.onerror = () => {
       if (img.src !== FALLBACK_IMAGE) {
         img.src = FALLBACK_IMAGE;
+      } else {
+        img.onerror = null;
       }
     };
     imgWrapper.appendChild(img);
