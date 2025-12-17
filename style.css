@@ -1585,6 +1585,11 @@ body[data-theme="light"] .edge-panel-privacy a {
     font-size: clamp(1.4rem, 4vw, 1.8rem);
 }
 
+.news-panel .modal-tagline {
+    color: rgba(255, 255, 255, 0.88);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
 .news-layout {
     display: grid;
     gap: clamp(1rem, 3vw, 1.5rem);
