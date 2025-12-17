@@ -56,10 +56,19 @@
     }, 1000);
   }
 
-  window.addEventListener('load', () => {
+  function bootstrap() {
     hideBootSpinner();
     attachUnlockGesture();
     forcePreloadWelcomeAudio();
     deferNonCritical();
-  });
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    requestAnimationFrame(bootstrap);
+  } else {
+    document.addEventListener('DOMContentLoaded', bootstrap, { once: true });
+  }
+
+  window.addEventListener('load', hideBootSpinner, { once: true });
+  setTimeout(hideBootSpinner, 1200);
 })();

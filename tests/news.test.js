@@ -55,9 +55,10 @@ describe('keyword-based fallbacks', () => {
 
     const keywordUrl = buildKeywordImage(item);
 
-    expect(keywordUrl).toContain('source.unsplash.com/featured/1200x800?');
-    const query = decodeURIComponent(keywordUrl.split('?')[1]);
-    expect(query).toContain('nigerian');
-    expect(query).toContain('lagos');
+    expect(keywordUrl.startsWith('data:image/svg+xml,')).toBe(true);
+    const decoded = decodeURIComponent(keywordUrl.replace('data:image/svg+xml,', ''));
+    expect(decoded).toContain('Naija Vibes News');
+    expect(decoded.toLowerCase()).toContain('lagos');
+    expect(decoded.toLowerCase()).toContain('nigerian');
   });
 });

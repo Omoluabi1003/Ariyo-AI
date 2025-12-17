@@ -27,7 +27,7 @@ const SOURCES = [
   }
 ];
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
+const DEFAULT_IMAGE = '/img/news-fallback.svg';
 const KEYWORD_STOPWORDS = new Set([
   'the',
   'a',
@@ -277,6 +277,15 @@ function extractKeywords(text = '') {
     .filter(token => !KEYWORD_STOPWORDS.has(token));
 }
 
+function hashColor(input) {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = ((hash << 5) - hash + input.charCodeAt(i)) | 0;
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 62%, 52%)`;
+}
+
 function buildKeywordImage(item) {
   const keywords = new Set();
 
@@ -288,9 +297,37 @@ function buildKeywordImage(item) {
 
   if (!keywords.size) return null;
 
-  const topKeywords = Array.from(keywords).slice(0, 6).join(',');
-  const query = encodeURIComponent(topKeywords);
-  return `https://source.unsplash.com/featured/1200x800?${query}`;
+  const topKeywords = Array.from(keywords).slice(0, 4);
+  const theme = hashColor(topKeywords.join('-') || 'naija-news');
+  const headline = (item.title || 'Naija Vibes').slice(0, 70);
+  const tags = topKeywords.join(' • ') || 'Naija Vibes';
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" role="img" aria-label="${headline}">
+      <defs>
+        <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stop-color="${theme}" stop-opacity="0.95" />
+          <stop offset="100%" stop-color="${theme}" stop-opacity="0.6" />
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="800" fill="url(#bg)" />
+      <circle cx="1040" cy="160" r="120" fill="rgba(255,255,255,0.18)" />
+      <text x="72" y="200" font-family="'Montserrat', 'Manrope', system-ui" font-size="58" font-weight="700" fill="#fff" opacity="0.95">
+        Naija Vibes News
+      </text>
+      <text x="72" y="300" font-family="'Manrope', 'Inter', system-ui" font-size="42" font-weight="600" fill="#fff" opacity="0.9">
+        ${headline.replace(/"/g, '\\"')}
+      </text>
+      <text x="72" y="380" font-family="'Manrope', 'Inter', system-ui" font-size="30" font-weight="500" fill="rgba(255,255,255,0.9)">
+        ${tags}
+      </text>
+      <text x="72" y="470" font-family="'Manrope', 'Inter', system-ui" font-size="26" font-weight="600" fill="rgba(255,255,255,0.75)">
+        Instant playback • Always with artwork • ${new Date().getFullYear()}
+      </text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 async function enrichImages(items) {
