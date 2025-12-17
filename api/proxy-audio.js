@@ -1,6 +1,14 @@
 const { Readable } = require('node:stream');
 
-const ALLOW = [/\.suno\.(?:ai|com)$/i];
+const ALLOW = [
+  /\.suno\.(?:ai|com)$/i,
+  /streamguys1\.com$/i,
+  /radio\.co$/i,
+  /zeno\.fm$/i,
+  /akamaized\.net$/i,
+  /mystreaming\.net$/i,
+  /securenetsystems\.net$/i
+];
 const REQUEST_TIMEOUT_MS = 25_000;
 
 function isAllowedHost(url) {

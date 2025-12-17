@@ -22,7 +22,13 @@
               /\.suno\.ai$/i,
               /\.suno\.com$/i,
               /raw\.githubusercontent\.com$/i,
-              /githubusercontent\.com$/i
+              /githubusercontent\.com$/i,
+              /streamguys1\.com$/i,
+              /radio\.co$/i,
+              /zeno\.fm$/i,
+              /akamaized\.net$/i,
+              /mystreaming\.net$/i,
+              /securenetsystems\.net$/i
             ];
             const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
 
