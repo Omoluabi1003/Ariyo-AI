@@ -168,13 +168,14 @@ function normalizeEntry(entry, tag) {
   const summary = stripHtml(entry.description || entry.summary || entry.text || '');
   const publishedAt = parseDate(entry).toISOString();
   const id = link || `${title}-${publishedAt}`;
+  const image = findImage(entry, link) || DEFAULT_IMAGE;
 
   return {
     id,
     url: link,
     title,
     summary: summary || title,
-    image: findImage(entry, link),
+    image,
     publishedAt,
     tag
   };
@@ -188,7 +189,7 @@ async function enrichImages(items) {
     if (openGraph) {
       return { ...item, image: openGraph };
     }
-    return item;
+    return { ...item, image: item.image || DEFAULT_IMAGE };
   });
 
   return Promise.all(tasks);
