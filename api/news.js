@@ -81,6 +81,54 @@ function resolveUrl(url, base) {
   }
 }
 
+function unwrapGoogleNewsUrl(url) {
+  const resolved = resolveUrl(url);
+  if (!resolved) return null;
+
+  try {
+    const parsed = new URL(resolved);
+    if (!parsed.hostname.endsWith('news.google.com')) return resolved;
+
+    const candidateParams = ['url', 'u', 'link'];
+    for (const key of candidateParams) {
+      const candidate = resolveUrl(parsed.searchParams.get(key));
+      if (candidate) return candidate;
+    }
+
+    const decodedPath = decodeURIComponent(`${parsed.pathname}${parsed.search}${parsed.hash}`);
+    const embeddedMatch = decodedPath.match(/https?:\/\/(?!news\.google\.com)[^\s]+/);
+    if (embeddedMatch) {
+      const embedded = resolveUrl(embeddedMatch[0]);
+      if (embedded) return embedded;
+    }
+
+    const encodedSegment = parsed.pathname.split('/').pop();
+    if (encodedSegment) {
+      try {
+        const cleanSegment = encodedSegment
+          .replace(/-/g, '+')
+          .replace(/_/g, '/')
+          .replace(/[^A-Za-z0-9+/=]/g, '');
+        const padding = (4 - (cleanSegment.length % 4)) % 4;
+        const paddedSegment = cleanSegment.padEnd(cleanSegment.length + padding, '=');
+        const decoded = Buffer.from(paddedSegment, 'base64').toString('utf8');
+        const decodedMatch = decoded.match(/https?:\/\/(?!news\.google\.com)[^\s]+/);
+        if (decodedMatch) {
+          const cleanedMatch = decodedMatch[0].replace(/[\uFFFD\u0000-\u001F]+$/g, '');
+          const decodedUrl = resolveUrl(cleanedMatch);
+          if (decodedUrl) return decodedUrl;
+        }
+      } catch (error) {
+        // ignore invalid base64
+      }
+    }
+
+    return resolved;
+  } catch (error) {
+    return resolved;
+  }
+}
+
 function extractMediaContent(entry) {
   const media = toArray(entry['media:content'] || entry.media || []);
   if (!media.length) return null;
@@ -163,7 +211,9 @@ function parseDate(entry) {
 }
 
 function normalizeEntry(entry, tag) {
-  const link = typeof entry.link === 'string' ? entry.link : entry.link?.href || entry.link?.[0]?.href;
+  const link = unwrapGoogleNewsUrl(
+    typeof entry.link === 'string' ? entry.link : entry.link?.href || entry.link?.[0]?.href
+  );
   const title = decodeHtml(entry.title || 'Untitled');
   const summary = stripHtml(entry.description || entry.summary || entry.text || '');
   const publishedAt = parseDate(entry).toISOString();
@@ -262,3 +312,8 @@ module.exports = async (req, res) => {
     res.end(JSON.stringify({ error: 'Unable to fetch live Naija news right now.' }));
   }
 };
+
+module.exports.unwrapGoogleNewsUrl = unwrapGoogleNewsUrl;
+module.exports.findImage = findImage;
+module.exports.normalizeEntry = normalizeEntry;
+module.exports.DEFAULT_IMAGE = DEFAULT_IMAGE;
