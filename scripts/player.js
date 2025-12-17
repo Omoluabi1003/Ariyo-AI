@@ -1444,7 +1444,8 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       setTurntableSpin(false);
 
       const trackModal = document.getElementById('trackModal');
-      if (trackModal && trackModal.style.display !== 'none') {
+      const userIsChoosingAlbum = pendingAlbumIndex !== null;
+      if (trackModal && trackModal.style.display !== 'none' && !userIsChoosingAlbum) {
         closeTrackList();
       }
 
@@ -1458,7 +1459,8 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
     handleAudioLoad(streamUrl, title, false, {
       onReady: () => {
         const trackModal = document.getElementById('trackModal');
-        if (trackModal && trackModal.style.display !== 'none') {
+        const userIsChoosingAlbum = pendingAlbumIndex !== null;
+        if (trackModal && trackModal.style.display !== 'none' && !userIsChoosingAlbum) {
           closeTrackList();
         }
       },
