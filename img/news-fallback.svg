@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Naija Vibe entertainment news placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#141a2a"/>
+      <stop offset="50%" stop-color="#1f2d52"/>
+      <stop offset="100%" stop-color="#7c1f7a"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff9f1c" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#ff577f" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="950" cy="120" r="140" fill="url(#shine)" opacity="0.2"/>
+  <circle cx="250" cy="540" r="180" fill="#1fe0a2" opacity="0.12"/>
+  <text x="120" y="300" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="90" font-weight="700" fill="#ffffff">
+    Naija Vibe
+  </text>
+  <text x="120" y="400" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="54" font-weight="600" fill="#ffe6f0">
+    Entertainment News
+  </text>
+  <text x="120" y="470" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="32" font-weight="500" fill="#d7e9ff">
+    Always tuned to the latest vibe.
+  </text>
+</svg>

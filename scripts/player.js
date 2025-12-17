@@ -86,7 +86,7 @@
     if (!existingAudioElement) {
         audioPlayer.id = 'audioPlayer';
     }
-    audioPlayer.preload = window.__IS_IOS__ ? 'auto' : 'metadata';
+    audioPlayer.preload = 'auto';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
@@ -358,7 +358,10 @@ function setPlaybackStatus(status, options = {}) {
       loadingSpinner.style.display = 'flex';
       loadingSpinner.setAttribute('aria-label', messageText);
     }
-    retryButton.style.display = 'none';
+    if (retryButton) {
+      retryButton.style.display = 'none';
+      retryButton.inert = true;
+    }
     return;
   }
 
@@ -366,8 +369,11 @@ function setPlaybackStatus(status, options = {}) {
 
   if (status === PlaybackStatus.failed) {
     trackInfo.textContent = message || neutralFailureMessage;
-    retryButton.style.display = 'block';
-    retryButton.textContent = 'Retry';
+    if (retryButton) {
+      retryButton.style.display = 'block';
+      retryButton.textContent = 'Retry';
+      retryButton.inert = false;
+    }
     return;
   }
 
@@ -837,7 +843,7 @@ function startNetworkRecovery(reason = 'network') {
     ? Math.max(currentTime - 3, 0)
     : 0;
   networkRecoveryState.source = source;
-  retryButton.style.display = 'none';
+  hideRetryButton();
   setPlaybackStatus(PlaybackStatus.buffering, { message: 'Reconnecting...' });
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
@@ -1434,7 +1440,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       applyTrackUiState(currentAlbumIndex, currentTrackIndex);
       showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
-      retryButton.style.display = 'none';
+      hideRetryButton();
       setTurntableSpin(false);
 
       const trackModal = document.getElementById('trackModal');
@@ -1514,7 +1520,7 @@ async function selectRadio(src, title, index, logo) {
       stopMusic();
       showBufferingState('Connecting to the station...');
       albumCover.style.display = 'none';
-      retryButton.style.display = 'none';
+      hideRetryButton();
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
@@ -1536,13 +1542,22 @@ async function selectRadio(src, title, index, logo) {
       showBufferingState('Retrying playback...');
       albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
-      retryButton.style.display = 'none';
+      hideRetryButton();
       setTurntableSpin(false);
       setTimeout(retryTrack, 3000);
     }
 
     function hideRetryButton() {
+      if (!retryButton) return;
       retryButton.style.display = 'none';
+      retryButton.inert = true;
+    }
+
+    function showRetryButton(label = 'Retry') {
+      if (!retryButton) return;
+      retryButton.style.display = 'block';
+      retryButton.textContent = label;
+      retryButton.inert = false;
     }
 
     function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
@@ -1796,7 +1811,10 @@ async function selectRadio(src, title, index, logo) {
       showPlaySpinner();
       await resumeAudioContext();
       ensureInitialTrackLoaded();
-      if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
+      const hasBufferedAudio = audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
+      if (hasBufferedAudio) {
+        hideBufferingState();
+      } else if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
       }
       scheduleFirstPlayGuard();
@@ -1808,8 +1826,10 @@ async function selectRadio(src, title, index, logo) {
           console.warn('Unable to stop YouTube playback before starting media player:', error);
         }
       }
-      // Force a fresh load before every play attempt for instant start on iOS
-      try { audioPlayer.load(); } catch (_) {}
+      // Avoid reloading when buffered audio is already present to keep playback instant
+      if (!hasBufferedAudio) {
+        try { audioPlayer.load(); } catch (_) {}
+      }
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
@@ -1854,7 +1874,7 @@ async function selectRadio(src, title, index, logo) {
         return;
       }
 
-      setPlaybackStatus(PlaybackStatus.buffering, { message: 'Locking in your audio…' });
+      setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback was interrupted. Tap play to resume.' });
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
@@ -1865,14 +1885,9 @@ async function selectRadio(src, title, index, logo) {
         return;
       }
 
-      // Silent auto retry: keep UI clean
+      // Surface retry control immediately to keep listeners in control
       hidePlaySpinner();
-      if (!stallRetryTimer) {
-        stallRetryTimer = setTimeout(() => {
-          stallRetryTimer = null;
-          attemptPlay();
-        }, 1200);
-      }
+      showRetryButton('Retry playback');
     }
 
 function pauseMusic() {
