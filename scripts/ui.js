@@ -1,8 +1,8 @@
-function calculateAlbumDuration(album) {
-  const promises = album.tracks.map(track => {
-    if (track.duration) return Promise.resolve(track.duration);
-    return new Promise(resolve => {
-      const tempAudio = new Audio();
+  function calculateAlbumDuration(album) {
+    const promises = album.tracks.map(track => {
+      if (track.duration) return Promise.resolve(track.duration);
+      return new Promise(resolve => {
+        const tempAudio = new Audio();
       tempAudio.preload = 'metadata';
       tempAudio.crossOrigin = 'anonymous';
       tempAudio.src = track.src;

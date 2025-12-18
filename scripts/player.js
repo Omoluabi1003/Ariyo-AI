@@ -1238,7 +1238,6 @@ function removeTrackFromPlaylist(index) {
 
       trackIndices.forEach(index => {
         const track = albums[albumIndex].tracks[index];
-
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
 
