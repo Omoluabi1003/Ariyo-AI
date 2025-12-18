@@ -1580,14 +1580,26 @@ body[data-theme="light"] .edge-panel-privacy a {
     transform: translateY(0) scale(1);
 }
 
+.news-panel header {
+    background: linear-gradient(135deg, rgba(16, 22, 44, 0.9), rgba(10, 32, 28, 0.86));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.32);
+    border-radius: 18px;
+    padding: clamp(0.85rem, 2vw, 1.1rem) clamp(1rem, 3vw, 1.35rem);
+}
+
 .news-panel .modal-title {
     margin-top: 0;
     font-size: clamp(1.4rem, 4vw, 1.8rem);
+    color: #fdfdff;
 }
 
 .news-panel .modal-tagline {
-    color: rgba(255, 255, 255, 0.88);
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+    color: #f8fbff;
+    font-size: clamp(1rem, 2.6vw, 1.15rem);
+    line-height: 1.6;
+    max-width: 72ch;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.36);
 }
 
 .news-layout {
