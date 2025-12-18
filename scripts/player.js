@@ -1114,8 +1114,11 @@ function removeTrackFromPlaylist(index) {
       }
     }
 
-    function updateTrackListModal() {
+    function updateTrackListModal(prefetchDurations = false) {
       const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
+      const modal = document.getElementById('trackModal');
+      const modalVisible = modal && getComputedStyle(modal).display !== 'none';
+      const shouldPrefetchDurations = prefetchDurations || modalVisible;
       const album = albums[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
@@ -1289,7 +1292,7 @@ function removeTrackFromPlaylist(index) {
           trackListContainer.appendChild(item);
         }
 
-        if (!track.duration && !track.isLive) {
+        if (shouldPrefetchDurations && !track.duration && !track.isLive) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
           setCrossOrigin(tempAudio, track.src);
