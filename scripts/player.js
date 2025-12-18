@@ -1499,7 +1499,8 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       currentTrackIndex = index;
       currentRadioIndex = -1;
-      applyTrackUiState(currentAlbumIndex, currentTrackIndex);
+      const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
+      const isLiveTrack = Boolean(track && track.isLive);
       showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
       hideRetryButton();
@@ -1516,9 +1517,10 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
     const streamUrl = buildTrackFetchUrl(resolvedSrc);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
-    audioHealer.trackSource(streamUrl, title, { live: false });
+    audioHealer.trackSource(streamUrl, title, { live: isLiveTrack });
     audioPlayer.currentTime = 0;
     handleAudioLoad(streamUrl, title, false, {
+      live: isLiveTrack,
       onReady: () => {
         const trackModal = document.getElementById('trackModal');
         const userIsChoosingAlbum = pendingAlbumIndex !== null;
