@@ -3,6 +3,7 @@ const path = require('path');
 
 const projectRoot = process.cwd();
 const distDir = path.join(projectRoot, 'dist');
+const { generateDrops } = require('./generate-drops');
 
 const EXCLUDED_ENTRIES = new Set([
   'node_modules',
@@ -44,6 +45,8 @@ function copyRecursive(src, dest) {
 
 function build() {
   console.log('Preparing static build...');
+  console.log('Generating Drops pages...');
+  generateDrops();
   cleanDist();
   const entries = fs.readdirSync(projectRoot, { withFileTypes: true });
   for (const entry of entries) {

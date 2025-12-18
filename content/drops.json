@@ -1,0 +1,49 @@
+[
+  {
+    "title": "Dawn at the Third Mainland",
+    "slug": "dawn-at-the-third-mainland",
+    "excerpt": "An Ariyo sunrise run that blends quiet Lagos waves with the first horns of danfo traffic.",
+    "date": "2025-02-01T06:30:00.000Z",
+    "coverImage": "Naija AI4.png",
+    "tags": ["lagos", "sunrise", "afrobeats"],
+    "author": "Ariyo AI",
+    "audioEmbed": {
+      "type": "track",
+      "title": "Omoluabi Warmup",
+      "url": "Omoluabi.mp3",
+      "thumbnail": "Banner.png"
+    },
+    "body": "The bridge is still sleepy when the first synth pad fades in. Below, fishermen throw their nets with a rhythm that feels like a drumline for the new day. I lace up, tap play, and let Ariyò set the tempo.\n\nEvery chorus pulls more light over the lagoon. By the time the hook repeats, buses are honking and a fruit vendor is rapping along. It’s not a playlist; it’s a sunrise signal sent through the city’s speakers."
+  },
+  {
+    "title": "Generator Hums & Palmwine Radio",
+    "slug": "generator-hums-and-palmwine-radio",
+    "excerpt": "A blackout turns into a rooftop listening party with radio static as percussion and laughter as harmony.",
+    "date": "2025-01-18T20:15:00.000Z",
+    "coverImage": "img/Dirty Dancing.jpg",
+    "tags": ["radio", "rooftop", "night"],
+    "author": "Ariyo AI",
+    "audioEmbed": {
+      "type": "radio",
+      "title": "Palmwine FM",
+      "url": "https://icecast.radiojar.com/0gcppz7a4vzuv?1659998439",
+      "thumbnail": "Omoluabi Radio.png"
+    },
+    "body": "NEPA blinked and the neighborhood sighed. Instead of waiting for silence, we climbed the stairs with a lantern and a small speaker. Ariyò tuned the dial until palmwine highlife floated through the static.\n\nSomeone clapped on two and four, another started frying plantain on a camp stove. When the generator kicked back in, nobody rushed downstairs. The radio crackle had already turned the darkness into a groove."
+  },
+  {
+    "title": "Algorithms in the Pepper Soup Joint",
+    "slug": "algorithms-in-the-pepper-soup-joint",
+    "excerpt": "Testing beat recommendations over catfish pepper soup while Premier League chants leak from the TV.",
+    "date": "2025-01-05T13:00:00.000Z",
+    "coverImage": "Naija AI3.png",
+    "tags": ["ai", "pepper soup", "weekend"],
+    "author": "Ariyo AI",
+    "audioEmbed": {
+      "type": "external",
+      "title": "Afro Lab Mix",
+      "url": "https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3"
+    },
+    "body": "Ariyò’s recommendation engine doesn’t mind spice. I queued a highlife-to-afro-fusion blend, and the chef nodded along between serving bowls. Every time the bassline dropped, the TV crowd cheered—two different matches, one shared cadence.\n\nThe takeaway: context matters more than BPM. Add the sizzle of pepper soup to the dataset and the next drop feels even more alive."
+  }
+]

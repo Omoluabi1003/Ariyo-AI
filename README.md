@@ -39,6 +39,16 @@
 - Root HTML files (`index.html`, `main.html`, `about.html`) – Primary entry points for the PWA shell.
 - `docs/` – Additional documentation about the architecture and organization of the project.
 
+## Drops (social stories)
+
+The **Drops** layer adds short, share-ready blog posts without changing the core music engine.
+
+### Adding a new Drop
+1. Set `NEXT_PUBLIC_SITE_URL` for correct canonical/OG metadata (e.g., export it before running builds).
+2. Add a new entry inside `content/drops.json` with `title`, `slug`, `excerpt`, `date` (ISO), `coverImage`, `tags`, `author`, `body`, and optional `audioEmbed` (track/radio/external).
+3. Generate the static pages: `npm run generate:drops` (this runs automatically during `npm run build`).
+4. Commit the updated HTML under `drops/` along with the JSON change and deploy.
+
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a deeper dive into how the pieces fit together.
 
 ## Development Requirements
