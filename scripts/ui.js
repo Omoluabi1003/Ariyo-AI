@@ -1,7 +1,7 @@
 function calculateAlbumDuration(album) {
   const promises = album.tracks.map(track => {
-    if (track.isExternal) return Promise.resolve(0);
-    if (track.duration) return Promise.resolve(track.duration);
+    if (track.isLive || track.sourceType === 'stream') return Promise.resolve(track.duration || 0);
+    if (typeof track.duration === 'number') return Promise.resolve(track.duration);
     return new Promise(resolve => {
       const tempAudio = new Audio();
       tempAudio.preload = 'metadata';
