@@ -54,7 +54,7 @@
     const label = document.createElement('span');
     label.className = 'edge-panel-label';
     label.id = 'edgeLabelNews';
-    label.innerHTML = '<strong>Naija Vibes News</strong>Fresh drops, milestones, and challenges';
+    label.innerHTML = '<strong>Naija Vibes News</strong>Fresh releases, milestones, and challenges';
 
     button.append(image, label, createIconDot());
 

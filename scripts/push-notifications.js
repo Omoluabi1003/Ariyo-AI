@@ -13,12 +13,12 @@
 
   const copyVariants = [
     {
-      title: 'Get instant alerts when your favorite artists drop new music.',
+      title: 'Get instant alerts when your favorite artists release new music.',
       copy: 'We only ping for the releases you follow—no spam, no noise.'
     },
     {
-      title: 'Never miss a midnight drop again.',
-      copy: 'Turn on drop alerts to hear about new tracks, remixes, and playlists as soon as they go live.'
+      title: 'Never miss a midnight premiere again.',
+      copy: 'Turn on music alerts to hear about new tracks, remixes, and playlists as soon as they go live.'
     }
   ];
 
@@ -115,7 +115,7 @@
     const registration = await navigator.serviceWorker.ready;
     const existing = await registration.pushManager.getSubscription();
     if (existing) {
-      setStatus('Notifications are active. You will hear about fresh drops.', 'success');
+      setStatus('Notifications are active. You will hear about new releases.', 'success');
       return;
     }
 
@@ -125,7 +125,7 @@
       applicationServerKey: urlBase64ToUint8Array(publicKey)
     });
     await sendSubscriptionToServer(subscription);
-    setStatus('Notifications enabled. We will ping you for new drops.', 'success');
+    setStatus('Notifications enabled. We will ping you for new music.', 'success');
     writePromptMeta('granted', 'subscribe');
   };
 
@@ -153,7 +153,7 @@
     }
 
     if (shouldGateForIos()) {
-      setStatus('Add Ariyo to your Home Screen to enable drop alerts on iOS.', 'info');
+      setStatus('Add Ariyo to your Home Screen to enable music alerts on iOS.', 'info');
       return false;
     }
 
@@ -185,7 +185,7 @@
     lastFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     approveBtn?.focus();
     document.addEventListener('keydown', handleKeydown);
-    setStatus('Ready to enable drop alerts.', 'info');
+    setStatus('Ready to enable music alerts.', 'info');
   };
 
   const closeToast = (decision) => {

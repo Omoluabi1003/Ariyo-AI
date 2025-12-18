@@ -1312,7 +1312,6 @@
       <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave"><i class="fas fa-music" aria-hidden="true"></i> Choose A Track</button>
       <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave"><i class="fas fa-list" aria-hidden="true"></i> My Playlist</button>
       <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave"><i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations</button>
-      <button onclick="window.location.href='/drops'" aria-label="Read Drops" class="ripple shockwave"><i class="fas fa-bolt" aria-hidden="true"></i> Drops</button>
       <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
     </div>
     <div class="content" id="main-content">
@@ -1331,7 +1330,7 @@
         <div class="notification-card">
           <div>
             <h4>Stay in the loop</h4>
-          <p>We will invite you to enable drop alerts after you play music or follow creators—no spammy popups.</p>
+          <p>We will invite you to enable music alerts after you play or follow creators—no spammy popups.</p>
           </div>
           <div class="notification-actions">
             <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
@@ -1464,7 +1463,7 @@
         <div class="latest-tracks-header">
           <span class="latest-tracks-badge" aria-hidden="true">NEW</span>
           <div class="latest-tracks-text">
-            <p class="latest-tracks-title">Fresh drop alert</p>
+            <p class="latest-tracks-title">Latest release alert</p>
             <p class="latest-tracks-copy" id="latestTracksCopy"></p>
           </div>
         </div>
@@ -1681,7 +1680,7 @@
   <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
     <div class="notification-toast__content">
       <p class="notification-toast__eyebrow">Stay close to the music</p>
-      <p class="notification-toast__title" id="notificationToastTitle">Get instant alerts when your favorite artists drop new music.</p>
+      <p class="notification-toast__title" id="notificationToastTitle">Get instant alerts when your favorite artists release new music.</p>
       <p class="notification-toast__copy" id="notificationToastCopy">We only ping for the releases you follow—no spam, no noise.</p>
       <div class="notification-toast__actions">
         <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
