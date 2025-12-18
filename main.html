@@ -103,6 +103,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
     .header-logo {
       height: 60px;
@@ -1293,6 +1295,13 @@
   <div class="header">
     <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" />
     <span class="header-title">Àríyò AI Studio</span>
+    <div class="honors-badge" aria-label="Marquis Who's Who 2025 Honored Listee">
+      <img src="img/marquis-whos-who-badge.svg" alt="Marquis Who's Who Honored Listee 2025 badge" loading="lazy" />
+      <span class="honors-copy">
+        <strong>Honored Listee</strong>
+        <small>Marquis Who's Who · 2025</small>
+      </span>
+    </div>
     <div class="header-actions">
       <button class="share-button" aria-label="Share this page" onclick="shareContent()">
         <i class="fas fa-share-alt" aria-hidden="true"></i>
@@ -1505,6 +1514,10 @@
             <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="ariyoChatbotContainer" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" aria-describedby="edgeLabelAriyo" role="listitem">
                 <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI icon" />
                 <span class="edge-panel-label" id="edgeLabelAriyo"><strong>Àríyò Chat</strong>Culture, music &amp; Naija guidance</span>
+            </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="news-section" data-open-target="news-section" aria-describedby="edgeLabelNews" role="listitem">
+                <img src="img/news-fallback.svg" alt="Naija Vibes News badge" />
+                <span class="edge-panel-label" id="edgeLabelNews"><strong>Naija Vibes News</strong>Entertainment headlines &amp; pop-culture pulse</span>
             </button>
             <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="sabiBibleContainer" data-open-target="sabiBibleContainer" data-open-src="apps/sabi-bible/sabi-bible.html" aria-describedby="edgeLabelBible" role="listitem">
                 <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible icon" />

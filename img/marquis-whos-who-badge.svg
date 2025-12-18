@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img" aria-labelledby="title desc">
+  <title id="title">Marquis Who's Who Honored Listee badge</title>
+  <desc id="desc">Circular badge noting Marquis Who's Who Honored Listee 2025 for over 125 years of legacy.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f7e7a9" />
+      <stop offset="100%" stop-color="#d0a647" />
+    </linearGradient>
+  </defs>
+  <circle cx="240" cy="240" r="230" fill="#fdfaf3" stroke="#b89c58" stroke-width="10" />
+  <circle cx="240" cy="240" r="200" fill="none" stroke="#2f4a7c" stroke-width="24" />
+  <circle cx="240" cy="240" r="176" fill="none" stroke="#d0a647" stroke-width="10" />
+  <text x="240" y="90" text-anchor="middle" font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-size="30" fill="#b0792b" font-weight="700" letter-spacing="2">HONORED LISTEE</text>
+  <text x="240" y="170" text-anchor="middle" font-family="'Roboto Slab', 'Times New Roman', serif" font-size="60" fill="#2f4a7c" font-weight="700">Marquis</text>
+  <text x="240" y="220" text-anchor="middle" font-family="'Roboto Slab', 'Times New Roman', serif" font-size="58" fill="#2f4a7c" font-weight="700">Who&apos;s Who</text>
+  <text x="240" y="278" text-anchor="middle" font-family="'Poppins', 'Helvetica Neue', Arial, sans-serif" font-size="32" fill="#b0792b" font-weight="700">Est. 1898</text>
+  <rect x="150" y="302" width="180" height="64" rx="12" fill="url(#gold)" stroke="#b0792b" stroke-width="6" />
+  <text x="240" y="345" text-anchor="middle" font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-size="34" fill="#1d2d50" font-weight="700">2025</text>
+  <text x="240" y="392" text-anchor="middle" font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-size="26" fill="#2f4a7c" font-weight="700">Over 125 Years</text>
+</svg>
