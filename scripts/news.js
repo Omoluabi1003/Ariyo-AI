@@ -58,7 +58,14 @@
 
     button.append(image, label, createIconDot());
 
-    edgeList.appendChild(button);
+    const firstItem = edgeList.querySelector('.edge-panel-item');
+    const insertBeforeNode = firstItem ? firstItem.nextElementSibling || firstItem : null;
+
+    if (insertBeforeNode) {
+      edgeList.insertBefore(button, insertBeforeNode);
+    } else {
+      edgeList.appendChild(button);
+    }
     return button;
   }
 
