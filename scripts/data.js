@@ -25,14 +25,39 @@ const albums = [
             duration: null,
           },
           {
-            id: 'naija-hits-playlist',
-            title: 'Naija Hits (Spotify Playlist)',
-            artist: 'Naija Hits',
-            url: 'https://open.spotify.com/playlist/10cSXhhNC1eddyCnGxU4y3',
-            src: 'https://open.spotify.com/playlist/10cSXhhNC1eddyCnGxU4y3',
-            sourceType: 'external',
-            isExternal: true,
-            duration: 0,
+            id: 'naija-hits-sengemenge',
+            title: 'Sengemenge',
+            artist: 'Mr Real',
+            src: `${BASE_URL}Sengemenge.mp3`,
+            sourceType: 'song'
+          },
+          {
+            id: 'naija-hits-tiktok',
+            title: 'TikTok',
+            artist: 'Kharisa',
+            src: `${BASE_URL}TikTok.mp3`,
+            sourceType: 'song'
+          },
+          {
+            id: 'naija-hits-vdm',
+            title: 'VDM',
+            artist: 'Kizz Daniel',
+            src: `${BASE_URL}VDM.mp3`,
+            sourceType: 'song'
+          },
+          {
+            id: 'naija-hits-run-di-settings',
+            title: 'Run Di Settings',
+            artist: 'Jeriq',
+            src: `${BASE_URL}Run%20Di%20Settings.mp3`,
+            sourceType: 'song'
+          },
+          {
+            id: 'naija-hits-stir-am-well',
+            title: 'Stir Am Well',
+            artist: 'Magixx',
+            src: `${BASE_URL}Stir%20Am%20Well.mp3`,
+            sourceType: 'song'
           },
         ],
       },

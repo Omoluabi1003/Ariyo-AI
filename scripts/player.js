@@ -979,7 +979,6 @@ function removeTrackFromPlaylist(index) {
       if (shuffleScope === 'all') {
         albums.forEach((album, albumIdx) => {
           album.tracks.forEach((track, trackIdx) => {
-            if (track.isExternal) return;
             if (!(albumIdx === currentAlbumIndex && trackIdx === currentTrackIndex)) {
               shuffleQueue.push({
                 albumIndex: albumIdx,
@@ -992,7 +991,6 @@ function removeTrackFromPlaylist(index) {
         });
       } else if (shuffleScope === 'album') {
         albums[currentAlbumIndex].tracks.forEach((track, idx) => {
-          if (track.isExternal) return;
           if (idx !== currentTrackIndex) {
             shuffleQueue.push({
               albumIndex: currentAlbumIndex,
@@ -1240,11 +1238,12 @@ function removeTrackFromPlaylist(index) {
 
       trackIndices.forEach(index => {
         const track = albums[albumIndex].tracks[index];
-        const isExternal = Boolean(track.isExternal);
-        const externalTarget = track.externalUrl || track.url || track.src;
-
         // Use cached duration if available, otherwise fetch it
-        const displayDuration = track.duration ? ` (${formatTime(track.duration)})` : '';
+        const displayDuration = track.duration
+          ? ` (${formatTime(track.duration)})`
+          : track.isLive
+            ? ' (Live)'
+            : '';
 
         let titleSpan;
         if (albumIndex === playlistAlbumIndex) {
@@ -1271,35 +1270,26 @@ function removeTrackFromPlaylist(index) {
           const item = document.createElement('div');
           item.className = 'track-item';
           titleSpan = document.createElement('span');
-          const externalNote = isExternal ? ' (Opens in Spotify)' : displayDuration;
-          titleSpan.textContent = `${track.title}${externalNote}`;
+          titleSpan.textContent = `${track.title}${displayDuration}`;
           item.appendChild(titleSpan);
-          if (isExternal) {
-            item.classList.add('track-item-external');
-            item.title = 'Opens external playlist in a new tab';
-            item.addEventListener('click', () => {
-              window.open(externalTarget, '_blank', 'noopener,noreferrer');
-            });
-          } else {
-            item.addEventListener('click', () => {
-              currentAlbumIndex = albumIndex;
-              pendingAlbumIndex = null;
-              closeTrackList();
-              selectTrack(track.src, track.title, index);
-            });
-            const addBtn = document.createElement('button');
-            addBtn.textContent = '➕';
-            addBtn.setAttribute('aria-label', 'Add to playlist');
-            addBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              addTrackToPlaylistByIndex(albumIndex, index);
-            });
-            item.appendChild(addBtn);
-          }
+          item.addEventListener('click', () => {
+            currentAlbumIndex = albumIndex;
+            pendingAlbumIndex = null;
+            closeTrackList();
+            selectTrack(track.src, track.title, index);
+          });
+          const addBtn = document.createElement('button');
+          addBtn.textContent = '➕';
+          addBtn.setAttribute('aria-label', 'Add to playlist');
+          addBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            addTrackToPlaylistByIndex(albumIndex, index);
+          });
+          item.appendChild(addBtn);
           trackListContainer.appendChild(item);
         }
 
-        if (!track.duration && !isExternal) {
+        if (!track.duration && !track.isLive) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
           setCrossOrigin(tempAudio, track.src);
