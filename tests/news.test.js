@@ -48,9 +48,9 @@ describe('image selection', () => {
 describe('keyword-based fallbacks', () => {
   test('builds a keyword-focused image URL from story context', () => {
     const item = {
-      title: 'Nigerian tech founders expand hubs in Lagos',
-      summary: 'Investors back new innovation centers across the city.',
-      tag: 'Global Nigeria'
+      title: 'Kpop idols headline global entertainment festival in Tokyo',
+      summary: 'Fans celebrate cross-border performances and new albums.',
+      tag: 'Foreign Entertainment'
     };
 
     const keywordUrl = buildKeywordImage(item);
@@ -58,7 +58,7 @@ describe('keyword-based fallbacks', () => {
     expect(keywordUrl.startsWith('data:image/svg+xml,')).toBe(true);
     const decoded = decodeURIComponent(keywordUrl.replace('data:image/svg+xml,', ''));
     expect(decoded).toContain('Naija Vibes News');
-    expect(decoded.toLowerCase()).toContain('lagos');
-    expect(decoded.toLowerCase()).toContain('nigerian');
+    expect(decoded.toLowerCase()).toContain('kpop');
+    expect(decoded.toLowerCase()).toContain('tokyo');
   });
 });
