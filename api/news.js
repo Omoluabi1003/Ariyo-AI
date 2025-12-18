@@ -2,6 +2,26 @@ const { XMLParser } = require('fast-xml-parser');
 
 const SOURCES = [
   {
+    url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en',
+    tag: 'Global Headlines'
+  },
+  {
+    url: 'https://feeds.bbci.co.uk/news/world/rss.xml',
+    tag: 'BBC World'
+  },
+  {
+    url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+    tag: 'NYT World'
+  },
+  {
+    url: 'https://www.aljazeera.com/xml/rss/all.xml',
+    tag: 'Al Jazeera'
+  },
+  {
+    url: 'https://apnews.com/hub/ap-top-news?output=rss',
+    tag: 'AP Top News'
+  },
+  {
     url: 'https://news.google.com/rss/search?q=Nigeria%20OR%20Nigerian&hl=en&gl=NG&ceid=NG:en',
     tag: 'Global Nigeria'
   },
