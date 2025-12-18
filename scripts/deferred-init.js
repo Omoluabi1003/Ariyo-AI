@@ -50,7 +50,6 @@
     }, 500);
 
     schedule(() => {
-      if (typeof populateAlbumList === 'function') populateAlbumList();
       if (typeof deferExperienceInit === 'function') deferExperienceInit();
       if (typeof warmMiniGames === 'function') warmMiniGames();
     }, 1000);
