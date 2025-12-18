@@ -1500,6 +1500,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       clearSlowBufferRescue();
       resumeAudioContext();
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      pendingAlbumIndex = null;
       currentTrackIndex = index;
       currentRadioIndex = -1;
       const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
@@ -1510,8 +1511,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       setTurntableSpin(false);
 
       const trackModal = document.getElementById('trackModal');
-      const userIsChoosingAlbum = pendingAlbumIndex !== null;
-      if (trackModal && trackModal.style.display !== 'none' && !userIsChoosingAlbum) {
+      if (trackModal && trackModal.style.display !== 'none') {
         closeTrackList();
       }
 
@@ -1526,8 +1526,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       live: isLiveTrack,
       onReady: () => {
         const trackModal = document.getElementById('trackModal');
-        const userIsChoosingAlbum = pendingAlbumIndex !== null;
-        if (trackModal && trackModal.style.display !== 'none' && !userIsChoosingAlbum) {
+        if (trackModal && trackModal.style.display !== 'none') {
           closeTrackList();
         }
       },
@@ -1538,6 +1537,11 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
         }
       }
     });
+
+    // Begin playback immediately after the user selects a track instead of waiting for
+    // metadata events. The autoplay safeguards in handleAudioLoad will keep the state
+    // consistent if the play promise settles later.
+    attemptPlay();
 
       updateMediaSession();
       showNowPlayingToast(title);
