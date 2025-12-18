@@ -22,8 +22,8 @@ const SOURCES = [
     tag: 'AP Top News'
   },
   {
-    url: 'https://news.google.com/rss/search?q=Nigeria%20OR%20Nigerian&hl=en&gl=NG&ceid=NG:en',
-    tag: 'Global Nigeria'
+    url: 'https://news.google.com/rss/search?q=foreign%20entertainment%20OR%20hollywood%20OR%20bollywood%20OR%20k-pop&hl=en&gl=US&ceid=US:en',
+    tag: 'Foreign Entertainment'
   },
   {
     url: 'https://news.google.com/rss/search?q=Nigerian%20diaspora%20OR%20Nigerians%20abroad&hl=en&gl=NG&ceid=NG:en',
