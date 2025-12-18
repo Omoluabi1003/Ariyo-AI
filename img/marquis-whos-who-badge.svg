@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title desc">
+  <title id="title">Marquis Who's Who 2025 Honored Listee badge</title>
+  <desc id="desc">A circular blue and gold recognition badge noting Marquis Who's Who Honored Listee status for 2025.</desc>
+  <defs>
+    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#244c87" />
+      <stop offset="50%" stop-color="#325a9f" />
+      <stop offset="100%" stop-color="#244c87" />
+    </linearGradient>
+    <path id="outerArc" d="M300,56a244,244 0 1,1 0,488a244,244 0 1,1 0,-488" />
+    <path id="innerArc" d="M300,512a212,212 0 1,1 0,-424a212,212 0 1,1 0,424" />
+  </defs>
+  <circle cx="300" cy="300" r="290" fill="#f7f8fb" />
+  <circle cx="300" cy="300" r="260" fill="none" stroke="#e7eaf0" stroke-width="16" />
+  <circle cx="300" cy="300" r="244" fill="none" stroke="url(#ringGradient)" stroke-width="18" />
+  <circle cx="300" cy="300" r="214" fill="#fdfdfc" stroke="#c2c9d6" stroke-width="6" />
+
+  <text font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="700" fill="#244c87">
+    <textPath href="#outerArc" startOffset="50%" text-anchor="middle">HONORED LISTEE</textPath>
+  </text>
+  <text font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-size="24" font-weight="700" fill="#b78d33">
+    <textPath href="#innerArc" startOffset="50%" text-anchor="middle">Over 125 Years</textPath>
+  </text>
+
+  <text x="300" y="230" text-anchor="middle" font-family="'Georgia', 'Times New Roman', serif" font-size="26" fill="#b78d33">Est. 1898</text>
+  <text x="300" y="275" text-anchor="middle" font-family="'Georgia', 'Times New Roman', serif" font-size="34" fill="#2a4c8c" font-weight="700">Marquis</text>
+  <text x="300" y="320" text-anchor="middle" font-family="'Georgia', 'Times New Roman', serif" font-size="40" fill="#2a4c8c" font-weight="700">Who's Who</text>
+  <text x="300" y="375" text-anchor="middle" font-family="'Montserrat', 'Helvetica Neue', Arial, sans-serif" font-size="64" fill="#b78d33" font-weight="700">2025</text>
+</svg>

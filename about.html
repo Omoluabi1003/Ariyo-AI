@@ -79,6 +79,46 @@
       font-size: 2rem;
       color: #fff;
     }
+    section.honors {
+      background-color: #0f172a;
+      padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: clamp(1.5rem, 4vw, 2.5rem);
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .honors-text h3 {
+      margin: 0.2rem 0 0.6rem;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      color: #fff;
+    }
+    .honors-text p {
+      margin: 0.25rem 0;
+      color: #d5def7;
+    }
+    .honors-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--theme-color);
+    }
+    .honors-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .honors-badge img {
+      max-width: min(320px, 90vw);
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,0.35));
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(255,255,255,0));
+      padding: 0.75rem;
+    }
     section.about {
       background-color: #121212;
       padding: 4rem 2rem;
@@ -180,6 +220,25 @@
 
   <section class="banner">
     <h2>Who We Be</h2>
+  </section>
+
+  <section class="honors" aria-labelledby="honorsTitle">
+    <div class="honors-text">
+      <p class="honors-kicker">International recognition</p>
+      <h3 id="honorsTitle">Marquis Who's Who Honored Listee</h3>
+      <p>
+        Àríyò AI’s founder, <strong>Paul A.K. Iyogun</strong>, has been named a
+        <strong>2025 Honored Listee</strong> by <em>Marquis Who's Who</em>—a nod to the
+        culture-forward innovation, community love, and consistency behind this studio.
+      </p>
+      <p>
+        We’re proudly displaying the badge here so every visitor can see the craft, grit,
+        and global respect powering the music, tools, and Naija-first storytelling.
+      </p>
+    </div>
+    <div class="honors-badge">
+      <img src="img/marquis-whos-who-badge.svg" alt="Marquis Who's Who 2025 Honored Listee badge" loading="lazy" decoding="async" />
+    </div>
   </section>
 
   <section class="about">
