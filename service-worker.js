@@ -348,14 +348,14 @@ self.addEventListener('push', event => {
     }
   })();
 
-  const title = data.title || 'New playlist drops';
+  const title = data.title || 'New playlist update';
   const body = data.body || 'Fresh Naija vibes are ready. Tap to jump back in.';
   const url = data.url || '/';
   const options = {
     body,
     icon: '/icons/Ariyo.png',
     badge: '/icons/Ariyo.png',
-    tag: 'ariyo-ai-drop',
+    tag: 'ariyo-ai-alert',
     renotify: true,
     data: { url },
     actions: [

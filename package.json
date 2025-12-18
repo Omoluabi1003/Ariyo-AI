@@ -5,7 +5,6 @@
     "dev": "vite --host",
     "build": "node scripts/build-static.js",
     "preview": "vite preview",
-    "generate:drops": "node scripts/generate-drops.js",
     "test": "jest",
     "test:e2e": "playwright test",
     "lint": "eslint .",

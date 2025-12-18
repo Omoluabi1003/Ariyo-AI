@@ -5,7 +5,6 @@ This project now ships a serverless-friendly push pipeline for the PWA.
 ## Environment variables
 - `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` — generated with `npx web-push generate-vapid-keys`.
 - `VAPID_SUBJECT` — contact email or URL used in VAPID claims (e.g. `mailto:alerts@example.com`).
-- `NOTIFICATION_API_TOKEN` — bearer token required for `/api/notify/new-drop`.
 - `PUSH_SUBSCRIPTIONS_PATH` *(optional)* — override where subscriptions are stored. Defaults to `data/push-subscriptions.json`.
 
 ## Generating VAPID keys
@@ -20,19 +19,23 @@ npx web-push generate-vapid-keys
 3. `scripts/push-notifications.js` requests permission, subscribes with the VAPID public key from `/api/push/public-key`,
    and POSTs the `PushSubscription` JSON to `/api/push/subscribe` for storage.
 
-## Triggering notifications
-Use the authenticated endpoint to broadcast the latest drop:
-```bash
-curl -X POST https://your-domain/api/notify/new-drop \
-  -H "Authorization: Bearer $NOTIFICATION_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"New Drop on Àríyò AI","body":"A fresh track just landed. Tap to listen.","url":"/new-drop"}'
-```
+## Broadcasting notifications
+Use your own deployment script or backend job to load the stored subscriptions from `data/push-subscriptions.json` and send a payload via `web-push`. A minimal Node example:
 
-## Example payloads
-```json
-{"title":"New Drop on Àríyò AI","body":"A fresh track just landed. Tap to listen.","url":"/new-drop"}
-{"title":"Fresh Content Alert","body":"Something new is waiting for you inside the app.","url":"/latest"}
+```js
+const fs = require('fs');
+const webPush = require('web-push');
+
+webPush.setVapidDetails(process.env.VAPID_SUBJECT, process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+
+const payload = JSON.stringify({
+  title: 'Fresh Content Alert',
+  body: 'Something new is waiting for you inside the app.',
+  url: '/latest'
+});
+
+const subscriptions = JSON.parse(fs.readFileSync('data/push-subscriptions.json', 'utf8'));
+subscriptions.forEach((subscription) => webPush.sendNotification(subscription, payload));
 ```
 
 ## Notes
