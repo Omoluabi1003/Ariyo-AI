@@ -2,8 +2,8 @@ const { XMLParser } = require('fast-xml-parser');
 
 const SOURCES = [
   {
-    url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en',
-    tag: 'Global Headlines'
+    url: 'https://naijavibe.net/feed/',
+    tag: 'NaijaVibe Entertainment'
   },
   {
     url: 'https://feeds.bbci.co.uk/news/world/rss.xml',
