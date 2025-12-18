@@ -191,17 +191,29 @@ body[data-theme="light"] .edge-panel-hint {
 /* Header Styles */
 .header {
     padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
-    text-align: center;
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    font-weight: bold;
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+    font-weight: 800;
     font-family: 'Roboto Slab', 'Montserrat', sans-serif;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     position: relative;
-    color: #000;
-    -webkit-text-stroke: 1px #fff;
-    text-shadow: 0 0 2px #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    flex-wrap: wrap;
+    color: var(--surface-contrast);
+    -webkit-text-stroke: 0;
+    text-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.65rem, 2vw, 1rem);
+    flex: 1;
+    min-width: min(360px, 100%);
 }
 
 /* Container and Sidebar */
@@ -213,6 +225,71 @@ body[data-theme="light"] .edge-panel-hint {
     padding: 0 clamp(1rem, 4vw, 2rem);
     box-sizing: border-box;
     width: 100%;
+}
+
+.header-logo {
+    height: 64px;
+    width: auto;
+    flex: 0 0 auto;
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.header-title {
+    text-align: left;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+}
+
+.studio-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background: var(--honor-badge-bg);
+    color: var(--honor-badge-text);
+    border: 1px solid var(--honor-badge-border);
+    box-shadow: 0 10px 30px var(--honor-badge-shadow);
+    width: fit-content;
+    text-decoration: none;
+}
+
+.studio-badge__icon {
+    width: 38px;
+    height: auto;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+}
+
+.studio-badge__text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .header {
+        text-align: center;
+    }
+    .header-brand {
+        justify-content: center;
+    }
+    .header-title {
+        text-align: center;
+    }
+    .studio-badge {
+        align-self: center;
+    }
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 .sidebar {

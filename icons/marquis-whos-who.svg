@@ -1,0 +1,31 @@
+<svg width="200" height="48" viewBox="0 0 200 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Marquis Who's Who honored listee">
+  <defs>
+    <linearGradient id="badgeGradient" x1="0" y1="0" x2="200" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B8CFF"/>
+      <stop offset="0.5" stop-color="#8E5BFF"/>
+      <stop offset="1" stop-color="#F375B7"/>
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="10" y1="4" x2="50" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#D5E5FF" stop-opacity="0.65"/>
+    </linearGradient>
+    <clipPath id="badgeClip">
+      <rect x="1" y="1" width="198" height="46" rx="23"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#badgeClip)">
+    <rect x="1" y="1" width="198" height="46" rx="23" fill="url(#badgeGradient)" stroke="rgba(255,255,255,0.42)" stroke-width="2"/>
+    <g transform="translate(12 4)">
+      <path d="M28 40c-7.6-3.6-12-9.6-12-19.5V4.2C20 3 21 2 22.2 2h23.6C47 2 48 3 48 4.2v16.3C48 30.4 43.4 36.4 36 40h-8Z" fill="#0B1B3C" opacity="0.16"/>
+      <path d="M30 37.5c-6.1-3-9.6-7.8-9.6-15.6V7.6C20.4 6.7 21.1 6 22 6h20c0.9 0 1.6 0.7 1.6 1.6v14.3c0 7.8-3.5 12.6-9.6 15.6H30Z" fill="url(#shieldGradient)" stroke="rgba(53, 78, 128, 0.32)"/>
+      <path d="M24 27.5 27.8 12h3.4l3.4 10.6L38 12h3.3l-4.5 15.5h-3.5l-3.1-9.4-2.7 9.4H24Z" fill="#0F172A"/>
+      <circle cx="31.5" cy="13.5" r="2.5" fill="#8E5BFF" stroke="#0F172A" stroke-width="1.2"/>
+      <path d="M17.2 19.8c1.9-0.6 4.1-3 5.1-5.3l0.8 3.6c-1.4 1.7-3.6 3.2-5.9 3.5v-1.8Z" fill="#0F172A" opacity="0.3"/>
+      <path d="M46.8 19.8c-1.9-0.6-4.1-3-5.1-5.3l-0.8 3.6c1.4 1.7 3.6 3.2 5.9 3.5v-1.8Z" fill="#0F172A" opacity="0.3"/>
+    </g>
+    <g transform="translate(76 13)">
+      <text fill="#0F172A" fill-opacity="0.85" font-family="'Montserrat', 'Segoe UI', sans-serif" font-size="13" font-weight="700" letter-spacing="0.12px">Marquis Who's Who</text>
+      <text y="17" fill="#0F172A" fill-opacity="0.82" font-family="'Montserrat', 'Segoe UI', sans-serif" font-size="11" font-weight="600" letter-spacing="0.08px">Honored Listee</text>
+    </g>
+  </g>
+</svg>

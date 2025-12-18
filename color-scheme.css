@@ -9,6 +9,10 @@
   --surface-contrast: #f3fdf7;
   --surface-border: rgba(142, 91, 255, 0.25);
   --card-bg: linear-gradient(150deg, rgba(12, 20, 46, 0.9), rgba(12, 20, 46, 0.76));
+  --honor-badge-bg: rgba(255, 255, 255, 0.14);
+  --honor-badge-border: rgba(255, 255, 255, 0.28);
+  --honor-badge-text: #f3fdf7;
+  --honor-badge-shadow: rgba(12, 27, 60, 0.35);
 }
 
 :root[data-theme="light"] {
@@ -19,6 +23,10 @@
   --surface-contrast: #0f172a;
   --surface-border: rgba(111, 69, 255, 0.28);
   --card-bg: linear-gradient(140deg, #ffffff, #f5f2ff);
+  --honor-badge-bg: rgba(15, 23, 42, 0.08);
+  --honor-badge-border: rgba(15, 23, 42, 0.16);
+  --honor-badge-text: #0f172a;
+  --honor-badge-shadow: rgba(111, 69, 255, 0.22);
 }
 
 body {

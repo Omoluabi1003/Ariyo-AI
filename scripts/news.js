@@ -48,7 +48,7 @@
     button.setAttribute('aria-describedby', 'edgeLabelNews');
 
     const image = document.createElement('img');
-    image.src = 'https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI2.png';
+    image.src = 'icons/naija-vibes.svg';
     image.alt = 'Naija Vibes News icon';
 
     const label = document.createElement('span');
@@ -59,10 +59,8 @@
     button.append(image, label, createIconDot());
 
     const firstItem = edgeList.querySelector('.edge-panel-item');
-    const insertBeforeNode = firstItem ? firstItem.nextElementSibling || firstItem : null;
-
-    if (insertBeforeNode) {
-      edgeList.insertBefore(button, insertBeforeNode);
+    if (firstItem) {
+      edgeList.insertBefore(button, firstItem);
     } else {
       edgeList.appendChild(button);
     }
