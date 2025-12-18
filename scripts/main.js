@@ -945,8 +945,7 @@
         const contentMaxHeight = Math.min(availableHeight, Math.max(desiredContentHeight, EDGE_PANEL_MIN_HEIGHT));
 
         mainEdgePanelContent.style.maxHeight = `${contentMaxHeight}px`;
-        const needsScroll = mainEdgePanelContent.scrollHeight > contentMaxHeight + 1;
-        mainEdgePanelContent.style.overflowY = needsScroll ? 'auto' : 'hidden';
+        mainEdgePanelContent.style.overflowY = 'auto';
         mainEdgePanelContent.style.scrollPaddingBottom = '';
 
         mainEdgePanel.style.height = '';
