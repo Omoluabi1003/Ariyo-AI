@@ -24,6 +24,16 @@ const albums = [
             isLive: true,
             duration: null,
           },
+          {
+            id: 'naija-hits-playlist',
+            title: 'Naija Hits (Spotify Playlist)',
+            artist: 'Naija Hits',
+            url: 'https://open.spotify.com/playlist/10cSXhhNC1eddyCnGxU4y3',
+            src: 'https://open.spotify.com/playlist/10cSXhhNC1eddyCnGxU4y3',
+            sourceType: 'external',
+            isExternal: true,
+            duration: 0,
+          },
         ],
       },
       {

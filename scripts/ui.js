@@ -1,5 +1,6 @@
 function calculateAlbumDuration(album) {
   const promises = album.tracks.map(track => {
+    if (track.isExternal) return Promise.resolve(0);
     if (track.duration) return Promise.resolve(track.duration);
     return new Promise(resolve => {
       const tempAudio = new Audio();
