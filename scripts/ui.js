@@ -27,7 +27,8 @@ function populateAlbumList() {
     link.onclick = () => { selectAlbum(index); closeAlbumList(); };
 
     const img = document.createElement('img');
-    img.src = album.cover;
+    const coverSrc = album.cover || album.coverImage || '../../Logo.jpg';
+    img.src = coverSrc;
     img.alt = `${album.name} Album Cover`;
 
     const name = document.createElement('p');
