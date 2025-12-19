@@ -637,6 +637,11 @@ function createSelfHealAudio(player) {
     isLive: false
   };
 
+  const progressState = {
+    lastTime: 0,
+    lastAt: 0
+  };
+
   function log(message, extra = {}) {
     console.log(`[self-heal] ${message}`, extra);
   }
@@ -653,6 +658,13 @@ function createSelfHealAudio(player) {
     clearDurationTimer();
     state.durationTimer = setTimeout(() => {
       const invalidDuration = !player.duration || !isFinite(player.duration);
+      const recentlyProgressed = progressState.lastTime > 0 && (Date.now() - progressState.lastAt) < 8000;
+
+      if (invalidDuration && recentlyProgressed) {
+        log(`Duration invalid but playback is progressing; skipping heal.`, { reason });
+        return;
+      }
+
       if (invalidDuration) {
         log(`Duration invalid (${player.duration}). Triggering heal.`, { reason });
         heal(reason);
@@ -767,12 +779,19 @@ function createSelfHealAudio(player) {
     state.isLive = Boolean(options.live);
     state.lastKnownSrc = src || state.lastKnownSrc;
     state.lastTitle = title || state.lastTitle;
+    progressState.lastTime = 0;
+    progressState.lastAt = Date.now();
     if (state.isLive) {
       clearDurationTimer();
       return;
     }
     watchDuration('source-change');
   }
+
+  player.addEventListener('timeupdate', () => {
+    progressState.lastTime = player.currentTime || 0;
+    progressState.lastAt = Date.now();
+  });
 
   attach();
 
