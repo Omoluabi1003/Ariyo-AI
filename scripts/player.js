@@ -66,6 +66,7 @@
     }
     const audioContext = window.__ariyoAudioContext || (window.__ariyoAudioContext = new (window.AudioContext || window.webkitAudioContext)());
     let isAudioContextResumed = audioContext.state === 'running';
+    let audioWarmupRan = false;
 
     async function resumeAudioContext() {
         if (audioContext.state === 'suspended' && !isAudioContextResumed) {
@@ -80,6 +81,31 @@
         return audioContext.state;
     }
 
+    async function warmupAudioOutput() {
+      if (audioWarmupRan) return;
+      audioWarmupRan = true;
+
+      try {
+        await resumeAudioContext();
+
+        if (audioContext.state === 'running') {
+          const buffer = audioContext.createBuffer(1, 1, 22050);
+          const source = audioContext.createBufferSource();
+          source.buffer = buffer;
+          source.connect(audioContext.destination);
+          source.start(0);
+        }
+
+        audioPlayer.muted = false;
+        if (audioPlayer.volume === 0) {
+          audioPlayer.volume = 1;
+        }
+      } catch (error) {
+        console.warn('Audio warmup failed; will retry on next interaction.', error);
+        audioWarmupRan = false;
+      }
+    }
+
     const unlockHandler = () => {
       resumeAudioContext();
       document.removeEventListener('click', unlockHandler);
@@ -89,6 +115,7 @@
     document.addEventListener('click', unlockHandler, { passive: true });
     document.addEventListener('touchstart', unlockHandler, { passive: true });
     document.addEventListener('keydown', unlockHandler);
+    primeInitialBuffer();
 
     if (!existingAudioElement) {
         audioPlayer.id = 'audioPlayer';
@@ -340,6 +367,20 @@ function ensureInitialTrackLoaded(silent = true) {
   });
 
   return true;
+}
+
+function primeInitialBuffer() {
+  if (audioPlayer.src) return;
+
+  const kickoff = () => {
+    warmupAudioOutput().finally(() => ensureInitialTrackLoaded(true));
+  };
+
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(kickoff, { timeout: 1500 });
+  } else {
+    setTimeout(kickoff, 500);
+  }
 }
 
 function hideBufferingState() {
@@ -1630,6 +1671,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
+      await warmupAudioOutput();
       await resumeAudioContext();
       audioPlayer.autoplay = true;
       audioPlayer.muted = false;
@@ -1691,6 +1733,7 @@ async function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
+      await warmupAudioOutput();
       resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
@@ -2020,6 +2063,7 @@ async function selectRadio(src, title, index, logo) {
       console.log('[attemptPlay] called');
       userInitiatedPause = false;
       showPlaySpinner();
+      await warmupAudioOutput();
       await resumeAudioContext();
       ensureInitialTrackLoaded();
       const hasBufferedAudio = audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
