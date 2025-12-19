@@ -1291,44 +1291,75 @@ function removeTrackFromPlaylist(index) {
         const track = albums[albumIndex].tracks[index];
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration
-          ? ` (${formatTime(track.duration)})`
+          ? formatTime(track.duration)
           : track.isLive
-            ? ' (Live)'
+            ? 'Live'
             : '';
 
-        let titleSpan;
+        const item = document.createElement('div');
+        item.className = 'track-item';
+        item.addEventListener('click', () => {
+          currentAlbumIndex = albumIndex;
+          pendingAlbumIndex = null;
+          closeTrackList();
+          selectTrack(track.src, track.title, index);
+        });
+
+        const artwork = document.createElement('div');
+        artwork.className = 'track-artwork';
+        const coverUrl = track.cover || albums[albumIndex].cover;
+        if (coverUrl) {
+          artwork.style.backgroundImage = `url('${coverUrl}')`;
+        }
+        item.appendChild(artwork);
+
+        const textWrapper = document.createElement('div');
+        textWrapper.className = 'track-text';
+
+        const titleRow = document.createElement('div');
+        titleRow.className = 'track-title-row';
+
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'track-title';
+        titleSpan.textContent = track.title;
+        titleRow.appendChild(titleSpan);
+
+        let durationBadge = null;
+        if (displayDuration) {
+          durationBadge = document.createElement('span');
+          durationBadge.className = 'track-duration';
+          durationBadge.textContent = displayDuration;
+          titleRow.appendChild(durationBadge);
+        }
+
+        textWrapper.appendChild(titleRow);
+
+        const subtitle = document.createElement('div');
+        subtitle.className = 'track-subtitle';
+        subtitle.textContent = track.subtitle || track.rssSource || album.artist || album.name;
+        textWrapper.appendChild(subtitle);
+
+        if (track.description) {
+          const description = document.createElement('p');
+          description.className = 'track-description';
+          description.textContent = track.description;
+          textWrapper.appendChild(description);
+        }
+
+        item.appendChild(textWrapper);
+
+        const actions = document.createElement('div');
+        actions.className = 'track-actions';
+
         if (albumIndex === playlistAlbumIndex) {
-          const item = document.createElement('div');
-          item.className = 'track-item';
-          titleSpan = document.createElement('span');
-          titleSpan.textContent = `${track.title}${displayDuration}`;
-          item.appendChild(titleSpan);
-          item.addEventListener('click', () => {
-            currentAlbumIndex = albumIndex;
-            pendingAlbumIndex = null;
-            closeTrackList();
-            selectTrack(track.src, track.title, index);
-          });
           const removeBtn = document.createElement('button');
           removeBtn.textContent = '✖';
           removeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             removeTrackFromPlaylist(index);
           });
-          item.appendChild(removeBtn);
-          trackListContainer.appendChild(item);
+          actions.appendChild(removeBtn);
         } else {
-          const item = document.createElement('div');
-          item.className = 'track-item';
-          titleSpan = document.createElement('span');
-          titleSpan.textContent = `${track.title}${displayDuration}`;
-          item.appendChild(titleSpan);
-          item.addEventListener('click', () => {
-            currentAlbumIndex = albumIndex;
-            pendingAlbumIndex = null;
-            closeTrackList();
-            selectTrack(track.src, track.title, index);
-          });
           const addBtn = document.createElement('button');
           addBtn.textContent = '➕';
           addBtn.setAttribute('aria-label', 'Add to playlist');
@@ -1336,9 +1367,11 @@ function removeTrackFromPlaylist(index) {
             e.stopPropagation();
             addTrackToPlaylistByIndex(albumIndex, index);
           });
-          item.appendChild(addBtn);
-          trackListContainer.appendChild(item);
+          actions.appendChild(addBtn);
         }
+
+        item.appendChild(actions);
+        trackListContainer.appendChild(item);
 
         if (shouldPrefetchDurations && !track.duration && !track.isLive) {
           const tempAudio = new Audio();
@@ -1349,16 +1382,16 @@ function removeTrackFromPlaylist(index) {
             track.duration = tempAudio.duration;
             if (albumIndex === playlistAlbumIndex) {
               updateTrackListModal();
-            } else if (titleSpan) {
-              titleSpan.textContent = `${track.title} (${formatTime(track.duration)})`;
+            } else if (durationBadge) {
+              durationBadge.textContent = formatTime(track.duration);
             }
           });
           tempAudio.addEventListener('error', () => {
             track.duration = 0;
             if (albumIndex === playlistAlbumIndex) {
               updateTrackListModal();
-            } else if (titleSpan) {
-              titleSpan.textContent = `${track.title} (N/A)`;
+            } else if (durationBadge) {
+              durationBadge.textContent = 'N/A';
             }
           });
         }

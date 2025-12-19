@@ -5,7 +5,7 @@
   const AUDIO_URL_CACHE_KEY = 'ariyoAudioUrlCache';
   const AUDIO_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-  const collections = Array.isArray(window.RSS_COLLECTIONS) ? window.RSS_COLLECTIONS : [];
+  const collectionSeeds = Array.isArray(window.RSS_COLLECTIONS) ? window.RSS_COLLECTIONS : [];
   const defaultCover = window.RSS_DEFAULT_COVER || '/Logo.jpg';
 
   function readCache(key, ttlMs) {
@@ -33,7 +33,7 @@
   }
 
   function normalizeArtworkForCategory(category) {
-    const match = collections.find(item => item.category === category);
+    const match = collectionSeeds.find(item => item.category === category);
     return match?.cover || defaultCover;
   }
 
@@ -69,9 +69,15 @@
     return url;
   }
 
-  function normalizeTrack(item) {
+  function normalizeTrack(item, collectionMap) {
     const safeUrl = cacheAudioUrl(item.audioUrl);
-    const cover = item.artwork || normalizeArtworkForCategory(item.category);
+    const collection = collectionMap.get(item.feedId) || collectionMap.get(item.category);
+    const categoryCover = normalizeArtworkForCategory(collection?.category || item.category);
+    const cover = item.artwork || item.feedArtwork || collection?.artwork || categoryCover;
+    const subtitleParts = [item.source || collection?.title];
+    if (item.publishedAt) {
+      subtitleParts.push(new Date(item.publishedAt).toLocaleDateString());
+    }
     return {
       id: item.id || item.audioUrl,
       src: safeUrl,
@@ -83,16 +89,18 @@
       description: item.description,
       sourceType: 'rss',
       rssSource: item.source || item.category,
-      publishedAt: item.publishedAt
+      publishedAt: item.publishedAt,
+      feedId: item.feedId,
+      subtitle: subtitleParts.filter(Boolean).join(' • ')
     };
   }
 
-  function groupTracksByCollection(tracks) {
+  function groupTracksByFeed(tracks, collectionMap) {
     const grouped = new Map();
 
     tracks.forEach(track => {
-      const bucket = collections.find(item => item.category === track.category) || collections[0];
-      const key = bucket ? bucket.category : 'rss';
+      const bucket = collectionMap.get(track.feedId) || collectionMap.get(track.category) || {};
+      const key = track.feedId || track.rssSource || 'rss';
       if (!grouped.has(key)) {
         grouped.set(key, { meta: bucket, tracks: [] });
       }
@@ -103,15 +111,16 @@
       .filter(entry => entry.tracks.length)
       .map(entry => {
         const meta = entry.meta || {};
-        const cover = meta.cover || defaultCover;
-        const albumName = meta.name || meta.category || 'Podcasts';
+        const categoryCover = normalizeArtworkForCategory(meta.category || entry.tracks[0]?.category);
+        const cover = entry.tracks[0]?.cover || meta.artwork || categoryCover;
+        const albumName = meta.title || entry.tracks[0]?.rssSource || meta.category || 'Podcasts';
         return {
           name: albumName,
           cover,
           tracks: entry.tracks,
           rssFeed: true,
           releaseYear: new Date().getFullYear(),
-          artist: meta.name || 'Podcast Feeds'
+          artist: meta.title || 'Podcast Feed'
         };
       });
   }
@@ -142,11 +151,16 @@
       const incomingTracks = Array.isArray(payload?.tracks) ? payload.tracks : [];
       if (!incomingTracks.length) return;
 
+      const collections = Array.isArray(payload?.collections) ? payload.collections : [];
+      const collectionMap = new Map();
+      collectionSeeds.forEach(seed => collectionMap.set(seed.category, seed));
+      collections.forEach(meta => collectionMap.set(meta.id || meta.url || meta.category, meta));
+
       const normalized = incomingTracks
-        .map(normalizeTrack)
+        .map(item => normalizeTrack(item, collectionMap))
         .filter(track => track.src && track.title);
 
-      const newAlbums = groupTracksByCollection(normalized);
+      const newAlbums = groupTracksByFeed(normalized, collectionMap);
       if (!newAlbums.length) return;
 
       if (window.libraryState) {
