@@ -47,6 +47,20 @@ const SOURCES = [
   }
 ];
 
+const CURATED_STORIES = [
+  {
+    id: 'marquis-whos-who-2025',
+    title: 'Marquis Who’s Who honors Àríyò AI founder Paul A.K. Iyogun as a 2025 Honored Listee',
+    summary:
+      'International recognition for culture-forward innovation, community love, and steady storytelling coming out of Àríyò AI Media Studio.',
+    tag: 'International Recognition',
+    url: 'https://www.marquisswhoswho.com',
+    publishedAt: '2025-01-15T00:00:00Z',
+    image: '/img/marquis-whos-who-badge.svg',
+    pinned: true
+  }
+];
+
 const DEFAULT_IMAGE = '/img/news-fallback.svg';
 const KEYWORD_STOPWORDS = new Set([
   'the',
@@ -394,19 +408,21 @@ async function fetchFeed(source) {
   }
 }
 
-async function fetchAllNews() {
-  const feedResults = await Promise.allSettled(SOURCES.map(fetchFeed));
-  const collected = feedResults
-    .filter(result => result.status === 'fulfilled')
-    .flatMap(result => result.value);
+  async function fetchAllNews() {
+    const feedResults = await Promise.allSettled(SOURCES.map(fetchFeed));
+    const collected = feedResults
+      .filter(result => result.status === 'fulfilled')
+      .flatMap(result => result.value);
 
-  const uniqueByUrl = new Map();
-  collected.forEach(item => {
-    const key = item.url || item.id;
-    if (!uniqueByUrl.has(key)) {
-      uniqueByUrl.set(key, item);
-    }
-  });
+    const combined = [...CURATED_STORIES, ...collected];
+
+    const uniqueByUrl = new Map();
+    combined.forEach(item => {
+      const key = item.url || item.id;
+      if (!uniqueByUrl.has(key)) {
+        uniqueByUrl.set(key, item);
+      }
+    });
 
   const uniqueItems = Array.from(uniqueByUrl.values())
     .filter(item => item.title && item.summary)
