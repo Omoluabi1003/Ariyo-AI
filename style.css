@@ -227,6 +227,71 @@ body[data-theme="light"] .edge-panel-hint {
     width: 100%;
 }
 
+.badge-spotlight {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    padding: clamp(0.9rem, 2vw, 1.4rem);
+    margin: 0 auto;
+    width: min(1100px, 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: saturate(140%) blur(var(--glass-blur));
+    color: inherit;
+}
+
+.badge-spotlight__image {
+    width: clamp(110px, 18vw, 150px);
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.badge-spotlight__copy {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.badge-spotlight__eyebrow {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.badge-spotlight__title {
+    margin: 0;
+    font-weight: 800;
+    font-size: clamp(1.05rem, 2.8vw, 1.45rem);
+}
+
+.badge-spotlight__description {
+    margin: 0;
+    max-width: 56ch;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+body[data-theme="light"] .badge-spotlight {
+    background: linear-gradient(135deg, rgba(142, 91, 255, 0.08), rgba(142, 91, 255, 0.03));
+    border-color: rgba(142, 91, 255, 0.25);
+}
+
+@media (max-width: 640px) {
+    .badge-spotlight {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .badge-spotlight__copy {
+        justify-items: center;
+    }
+}
+
 .header-logo {
     height: 64px;
     width: auto;
