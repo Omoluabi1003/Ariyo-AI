@@ -154,6 +154,7 @@ let currentRadioIndex = -1;
 let shuffleQueue = [];
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 let userInitiatedPause = false;
+let lastKnownFiniteDuration = null;
 
 const networkRecoveryState = {
   active: false,
@@ -1503,6 +1504,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       pendingAlbumIndex = null;
       currentTrackIndex = index;
       currentRadioIndex = -1;
+      lastKnownFiniteDuration = null;
       const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
       const isLiveTrack = Boolean(track && track.isLive);
       showBufferingState('Loading your track...');
@@ -1560,6 +1562,7 @@ async function selectRadio(src, title, index, logo) {
       const station = radioStations[index];
       currentRadioIndex = index;
       currentTrackIndex = -1;
+      lastKnownFiniteDuration = null;
       shuffleQueue = [];
       updateNextTrackInfo();
       const params = new URLSearchParams(window.location.search);
@@ -1997,18 +2000,27 @@ function stopMusic() {
 function updateTrackTime() {
     const currentTime = audioPlayer.currentTime;
     const duration = audioPlayer.duration;
+    const hasFiniteDuration = Number.isFinite(duration) && duration > 0;
+
+    if (hasFiniteDuration) {
+      lastKnownFiniteDuration = duration;
+    }
 
     // 🔒 If it's a radio stream, don't format duration
-    if (currentRadioIndex >= 0 || !isFinite(duration)) {
+    if (currentRadioIndex >= 0) {
       trackDuration.textContent = `${formatTime(currentTime)} / Live`;
       seekBar.style.display = 'none'; // hide seekbar for radio
       recordPlaybackProgress(currentTime);
       return;
     }
 
-    if (!isNaN(duration) && duration > 0) {
-      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(duration)}`;
-      seekBar.value = (currentTime / duration) * 100;
+    const effectiveDuration = hasFiniteDuration
+      ? duration
+      : lastKnownFiniteDuration;
+
+    if (effectiveDuration && effectiveDuration > 0) {
+      trackDuration.textContent = `${formatTime(currentTime)} / ${formatTime(effectiveDuration)}`;
+      seekBar.value = Math.min((currentTime / effectiveDuration) * 100, 100);
       seekBar.style.display = 'block';
       schedulePlayerStateSave();
       recordPlaybackProgress(currentTime);
