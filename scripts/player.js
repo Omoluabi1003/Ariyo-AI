@@ -28,22 +28,23 @@
               /zeno\.fm$/i,
               /akamaized\.net$/i,
               /mystreaming\.net$/i,
-              /securenetsystems\.net$/i
+              /securenetsystems\.net$/i,
+              /github\.io$/i
             ];
             const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
 
-            // Only set CORS when we know the host sends the correct headers. Some podcast
-            // hosts (e.g., Anchor/Spotify) block CORS requests, which prevents audio from
-            // loading entirely if we force `crossorigin="anonymous"`.
-            if (!sameOrigin && !isAllowListed) {
-              element.removeAttribute('crossorigin');
-              return;
-            }
+            // Prefer to send credentials as anonymous so we can safely hook the audio into
+            // the Web Audio graph without the browser muting the stream. When a host is
+            // known to reject CORS entirely we fall back to removing the attribute after the
+            // first load attempt.
+            element.crossOrigin = 'anonymous';
 
-            if (sameOrigin || isAllowListed) {
-                element.crossOrigin = 'anonymous';
-            } else {
+            if (!sameOrigin && !isAllowListed) {
+              const removeOnError = () => {
+                element.removeEventListener('error', removeOnError);
                 element.removeAttribute('crossorigin');
+              };
+              element.addEventListener('error', removeOnError, { once: true });
             }
         } catch (e) {
             element.removeAttribute('crossorigin');
@@ -1610,7 +1611,9 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       cancelNetworkRecovery();
       clearSlowBufferRescue();
-      resumeAudioContext();
+      await resumeAudioContext();
+      audioPlayer.autoplay = true;
+      audioPlayer.muted = false;
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       pendingAlbumIndex = null;
       currentTrackIndex = index;
