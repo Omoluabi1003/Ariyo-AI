@@ -76,6 +76,7 @@
 
   const albumTrackMap = new Map();
   const allTracks = [];
+  const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
 
   albums.forEach((album, albumIndex) => {
     if (!album || !Array.isArray(album.tracks)) {
@@ -84,7 +85,7 @@
 
     const artist = album.artist || 'Omoluabi';
     const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : '2025';
-    const cover = album.cover || album.coverImage || '../../Logo.jpg';
+    const cover = album.cover || album.coverImage || fallbackCover;
     const albumName = album.name || album.title || `Album ${albumIndex + 1}`;
     const collectedTracks = [];
 
