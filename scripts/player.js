@@ -179,6 +179,9 @@ const bufferingHedge = {
   deadlineMs: 3000
 };
 
+const AUDIO_URL_CACHE_KEY = 'ariyoAudioUrlCache';
+const AUDIO_URL_TTL_MS = 24 * 60 * 60 * 1000;
+
 const audioHealer = createSelfHealAudio(audioPlayer);
 
 const PlaybackStatus = {
@@ -319,7 +322,7 @@ function ensureInitialTrackLoaded(silent = true) {
   const { albumIndex, trackIndex, track, album } = defaultSelection;
   applyTrackUiState(albumIndex, trackIndex);
   const normalizedSrc = normalizeMediaSrc(track.src);
-  const streamUrl = buildTrackFetchUrl(normalizedSrc);
+  const streamUrl = buildTrackFetchUrl(normalizedSrc, track);
   setCrossOrigin(audioPlayer, streamUrl);
   audioPlayer.src = streamUrl;
   audioHealer.trackSource(streamUrl, track.title, { live: false });
@@ -780,23 +783,67 @@ function createSelfHealAudio(player) {
   };
 }
 
-function buildTrackFetchUrl(src) {
+function loadAudioUrlCache() {
   try {
-    const hostname = new URL(src, window.location.origin).hostname;
+    const raw = localStorage.getItem(AUDIO_URL_CACHE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    const now = Date.now();
+    return Object.fromEntries(
+      Object.entries(parsed).filter(([, entry]) => entry && (now - entry.timestamp) < AUDIO_URL_TTL_MS)
+    );
+  } catch (error) {
+    return {};
+  }
+}
+
+function cacheResolvedAudioUrl(original, resolved) {
+  try {
+    const cache = loadAudioUrlCache();
+    cache[original] = { resolved, timestamp: Date.now() };
+    localStorage.setItem(AUDIO_URL_CACHE_KEY, JSON.stringify(cache));
+  } catch (error) {
+    console.warn('Unable to cache audio URL', error);
+  }
+}
+
+function getCachedAudioUrl(original) {
+  const cache = loadAudioUrlCache();
+  return cache[original]?.resolved || null;
+}
+
+window.cacheResolvedAudioUrl = cacheResolvedAudioUrl;
+window.getCachedAudioUrl = getCachedAudioUrl;
+
+function buildTrackFetchUrl(src, trackMeta = null) {
+  const normalizedSrc = normalizeMediaSrc(src);
+
+  const cachedUrl = getCachedAudioUrl(normalizedSrc);
+  if (cachedUrl) {
+    return cachedUrl;
+  }
+
+  if (trackMeta && trackMeta.sourceType === 'rss') {
+    cacheResolvedAudioUrl(normalizedSrc, normalizedSrc);
+    return normalizedSrc;
+  }
+
+  try {
+    const hostname = new URL(normalizedSrc, window.location.origin).hostname;
     const cacheSafeHosts = [
       /cdn\d+\.[^.]+\.ai$/i, // Suno
       /anchor\.fm$/i,
       /cloudfront\.net$/i
     ];
     if (cacheSafeHosts.some(pattern => pattern.test(hostname))) {
-      return src;
+      return normalizedSrc;
     }
   } catch (error) {
     console.warn('Unable to analyze track URL for cache busting:', error);
   }
 
-  const separator = src.includes('?') ? '&' : '?';
-  return `${src}${separator}t=${Date.now()}`;
+  const separator = normalizedSrc.includes('?') ? '&' : '?';
+  return `${normalizedSrc}${separator}t=${Date.now()}`;
 }
 
 async function attemptNetworkResume() {
@@ -1494,6 +1541,37 @@ function resolveTrackForDirection(direction) {
     };
 }
 
+function updateNeutralBufferMessage(message = 'Buffering this track...') {
+  const modalStatus = document.getElementById('statusMessage');
+  if (modalStatus) {
+    modalStatus.textContent = message;
+  }
+  showBufferingState(message);
+}
+
+function createPlaybackErrorHandler(trackMeta, normalizedSrc) {
+  let retried = false;
+
+  return () => {
+    updateNeutralBufferMessage();
+    if (retried) {
+      return;
+    }
+
+    retried = true;
+    const retryUrl = appendCacheBuster(buildTrackFetchUrl(normalizedSrc, trackMeta));
+    setCrossOrigin(audioPlayer, retryUrl);
+    audioPlayer.src = retryUrl;
+    audioHealer.trackSource(retryUrl, trackMeta.title, { live: Boolean(trackMeta.isLive) });
+    handleAudioLoad(retryUrl, trackMeta.title, false, {
+      live: Boolean(trackMeta.isLive),
+      silent: true,
+      onReady: hideBufferingState,
+      onError: () => updateNeutralBufferMessage('Still buffering…')
+    });
+  };
+}
+
 
 async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
@@ -1506,7 +1584,13 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       currentRadioIndex = -1;
       lastKnownFiniteDuration = null;
       const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
-      const isLiveTrack = Boolean(track && track.isLive);
+      const safeTrack = track || {};
+      const trackMeta = {
+        ...safeTrack,
+        title: safeTrack.title || title,
+        sourceType: safeTrack.sourceType || albums[currentAlbumIndex]?.sourceType || 'local'
+      };
+      const isLiveTrack = Boolean(trackMeta && trackMeta.isLive);
       showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
       hideRetryButton();
@@ -1517,13 +1601,14 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
         closeTrackList();
       }
 
-    const normalizedSrc = normalizeMediaSrc(src);
+    const normalizedSrc = normalizeMediaSrc(trackMeta?.src || src);
     const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
-    const streamUrl = buildTrackFetchUrl(resolvedSrc);
+    const streamUrl = buildTrackFetchUrl(resolvedSrc, trackMeta);
     setCrossOrigin(audioPlayer, streamUrl);
     audioPlayer.src = streamUrl;
     audioHealer.trackSource(streamUrl, title, { live: isLiveTrack });
     audioPlayer.currentTime = 0;
+    const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
     handleAudioLoad(streamUrl, title, false, {
       live: isLiveTrack,
       onReady: () => {
@@ -1532,12 +1617,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
           closeTrackList();
         }
       },
-      onError: () => {
-        const modalStatus = document.getElementById('statusMessage');
-        if (modalStatus) {
-          modalStatus.textContent = 'Unable to start playback. Please pick another track.';
-        }
-      }
+      onError: () => handlePlaybackError()
     });
 
     // Begin playback immediately after the user selects a track instead of waiting for
