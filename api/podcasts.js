@@ -4,11 +4,18 @@ const FEEDS = [
   { url: 'https://feed.podbean.com/djcruze/feed.xml', category: 'Hip Hop / American Rap' },
   { url: 'https://feeds.buzzsprout.com/1879513.rss', category: 'Hip Hop / American Rap' },
   { url: 'https://rss.com/podcasts/hip-hop-talking-heads/feed/', category: 'Hip Hop / American Rap' },
-  { url: 'https://podcasts.files.bbci.co.uk/b008mj7p.rss', category: 'Soul / R&B / Funk' },
-  { url: 'https://feeds.npr.org/510357/podcast.xml', category: 'Soul / R&B / Funk' }
+  { url: 'https://podcasts.files.bbci.co.uk/b008mj7p.rss', category: 'Soul/R&B/Funk' },
+  { url: 'https://feeds.npr.org/510357/podcast.xml', category: 'Soul/R&B/Funk' }
 ];
 
-const ALLOWED_AUDIO_TYPES = new Set(['audio/mpeg', 'audio/mp3']);
+const ALLOWED_AUDIO_TYPES = new Set([
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/x-m4a',
+  'audio/mp4',
+  'audio/aac',
+  'audio/m4a'
+]);
 const CACHE_WINDOW_MS = 12 * 60 * 60 * 1000; // 12 hours, within the required 6–24 hour window.
 
 const parser = new XMLParser({
@@ -139,18 +146,18 @@ function extractArtwork(entry = {}, fallback) {
   return fallback || null;
 }
 
-function normalizeEntry(entry, feedTitle, category, fallbackArtwork) {
+function normalizeEntry(entry, feedMeta) {
   const enclosure = extractEnclosure(entry);
   if (!enclosure || !enclosure.url) return null;
 
   const type = (enclosure.type || '').toLowerCase();
-  const isAllowedType = ALLOWED_AUDIO_TYPES.has(type) || /\.mp3($|\?)/i.test(enclosure.url);
+  const isAllowedType = ALLOWED_AUDIO_TYPES.has(type) || (!type && /\.(mp3|m4a)($|\?)/i.test(enclosure.url));
   if (!isAllowedType) return null;
 
   const title = truncateTitle(entry.title || entry['media:title'] || entry['itunes:title'] || 'Untitled Episode');
   const duration = parseDuration(entry['itunes:duration'] || entry.itunesDuration || entry.duration)
     || durationFromEnclosure(entry.enclosure);
-  const artwork = extractArtwork(entry, fallbackArtwork);
+  const artwork = extractArtwork(entry, feedMeta.artwork);
   const description = clampDescription(entry.description || entry.summary || entry['media:description']);
 
   return {
@@ -161,23 +168,34 @@ function normalizeEntry(entry, feedTitle, category, fallbackArtwork) {
     artwork,
     description,
     publishedAt: entry.pubDate || entry.published || entry.updated || null,
-    source: feedTitle,
-    category
+    source: feedMeta.title,
+    category: feedMeta.category,
+    feedId: feedMeta.id,
+    feedArtwork: feedMeta.artwork
   };
 }
 
 function parseFeed(xml, url, category) {
   const document = parser.parse(xml);
   const channel = document?.rss?.channel || document?.feed;
-  if (!channel) return [];
+  if (!channel) {
+    return {
+      tracks: [],
+      collection: { id: url, category, title: new URL(url).hostname, artwork: null }
+    };
+  }
 
   const feedTitle = channel.title?.text || channel.title || new URL(url).hostname;
   const items = toArray(channel.item || channel.entry || []);
   const fallbackArtwork = extractArtwork(channel, null);
+  const feedMeta = { id: url, category, title: feedTitle, artwork: fallbackArtwork };
 
-  return items
-    .map(item => normalizeEntry(item, feedTitle, category, fallbackArtwork))
-    .filter(Boolean);
+  return {
+    tracks: items
+      .map(item => normalizeEntry(item, feedMeta))
+      .filter(Boolean),
+    collection: feedMeta
+  };
 }
 
 async function fetchFeed(url, category) {
@@ -194,12 +212,21 @@ async function fetchAllFeeds() {
     return feedCache.payload;
   }
 
-  const results = await Promise.allSettled(
-    FEEDS.map(feed => fetchFeed(feed.url, feed.category))
-  );
+  const results = await Promise.allSettled(FEEDS.map(feed => fetchFeed(feed.url, feed.category)));
 
-  const tracks = results
-    .flatMap(result => result.status === 'fulfilled' ? result.value : [])
+  const tracks = [];
+  const collections = [];
+
+  results.forEach(result => {
+    if (result.status !== 'fulfilled') return;
+    const { tracks: feedTracks = [], collection } = result.value || {};
+    if (collection) {
+      collections.push(collection);
+    }
+    feedTracks.forEach(track => tracks.push(track));
+  });
+
+  const sortedTracks = tracks
     .filter(Boolean)
     .sort((a, b) => {
       const aDate = new Date(a.publishedAt || 0).getTime();
@@ -208,7 +235,7 @@ async function fetchAllFeeds() {
     })
     .slice(0, 120);
 
-  feedCache.payload = { tracks, fetchedAt: new Date().toISOString() };
+  feedCache.payload = { tracks: sortedTracks, collections, fetchedAt: new Date().toISOString() };
   feedCache.timestamp = Date.now();
 
   return feedCache.payload;
@@ -226,7 +253,7 @@ module.exports = async (req, res) => {
     const payload = await fetchAllFeeds();
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate');
+    res.setHeader('Cache-Control', 's-maxage=43200, stale-while-revalidate=21600');
     res.end(JSON.stringify(payload));
   } catch (error) {
     console.error('Failed to ingest podcast feeds', error);

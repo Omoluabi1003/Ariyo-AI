@@ -752,14 +752,14 @@ const libraryState = {
 
 window.RSS_COLLECTIONS = [
   {
-    name: 'Hip Hop & Rap Podcasts',
+    name: 'Hip Hop / American Rap',
     category: 'Hip Hop / American Rap',
     cover: `${BASE_URL}Playlist.jpg`,
     rssFeed: true
   },
   {
-    name: 'Soul, R&B & Funk Podcasts',
-    category: 'Soul / R&B / Funk',
+    name: 'Soul/R&B/Funk',
+    category: 'Soul/R&B/Funk',
     cover: `${BASE_URL}Street_Sense_Album_Cover.jpg`,
     rssFeed: true
   }
