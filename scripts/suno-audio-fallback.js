@@ -9,10 +9,12 @@
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     let resolved = src;
     try {
-      const res = await fetch(src, { method: 'HEAD', mode: 'no-cors', cache: 'no-store', signal: controller.signal });
-      if (!res.ok && res.type !== 'opaque') {
+      const res = await fetch(src, { method: 'HEAD', mode: 'cors', cache: 'no-store', signal: controller.signal });
+      const playable = res.ok || res.status === 206;
+
+      if (!playable || res.type === 'opaque') {
         const proxyRes = await fetch(proxy, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
-        if (proxyRes.ok) {
+        if (proxyRes.ok || proxyRes.status === 206) {
           resolved = proxy;
         }
       }
@@ -20,7 +22,7 @@
       console.warn('[suno-fallback] Direct Suno fetch failed, using proxy.', error);
       try {
         const proxyRes = await fetch(proxy, { method: 'HEAD', cache: 'no-store', signal: controller.signal });
-        if (proxyRes.ok) {
+        if (proxyRes.ok || proxyRes.status === 206) {
           resolved = proxy;
         }
       } catch (proxyErr) {
