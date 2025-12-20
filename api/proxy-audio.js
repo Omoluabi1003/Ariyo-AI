@@ -16,9 +16,9 @@ function isAllowedHost(url) {
 }
 
 module.exports = async (req, res) => {
-  if (req.method !== 'GET') {
+  if (!['GET', 'HEAD'].includes(req.method)) {
     res.statusCode = 405;
-    res.setHeader('Allow', 'GET');
+    res.setHeader('Allow', 'GET, HEAD');
     res.end('Method Not Allowed');
     return;
   }
@@ -56,11 +56,19 @@ module.exports = async (req, res) => {
     headers.Range = req.headers.range;
   }
 
+  const method = req.method === 'HEAD' ? 'HEAD' : 'GET';
+
   try {
-    const upstream = await fetch(url.toString(), {
+    let upstream = await fetch(url.toString(), {
+      method,
       headers,
       signal: controller.signal
     });
+
+    if (!upstream.ok && method === 'HEAD') {
+      // Some hosts reject HEAD requests; retry with GET so health checks still work.
+      upstream = await fetch(url.toString(), { headers, signal: controller.signal });
+    }
 
     if (!upstream.ok && upstream.status !== 206) {
       res.statusCode = upstream.status || 502;
@@ -78,7 +86,9 @@ module.exports = async (req, res) => {
     if (headers.Range) res.setHeader('Accept-Ranges', 'bytes');
     if (contentRange) res.setHeader('Content-Range', contentRange);
 
-    if (upstream.body && typeof upstream.body.getReader === 'function') {
+    if (req.method === 'HEAD') {
+      res.end();
+    } else if (upstream.body && typeof upstream.body.getReader === 'function') {
       const nodeStream = Readable.fromWeb(upstream.body);
       nodeStream.pipe(res);
     } else {
