@@ -1251,8 +1251,20 @@ function removeTrackFromPlaylist(index) {
 
     function loadLyrics(url) {
       lyricLines = [];
+
+      if (!lyricsContainer) {
+        console.warn('Lyrics container not found; skipping lyric rendering.');
+        return;
+      }
+
       lyricsContainer.innerHTML = '';
       if (!url) return;
+
+      if (typeof Lyric !== 'function') {
+        console.warn('Lyric parser unavailable; skipping lyric rendering.');
+        return;
+      }
+
       fetch(url)
         .then(res => res.text())
         .then(text => {
