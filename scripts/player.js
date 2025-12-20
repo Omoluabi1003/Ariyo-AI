@@ -1449,14 +1449,6 @@ function removeTrackFromPlaylist(index) {
           selectTrack(track.src, track.title, index);
         });
 
-        const artwork = document.createElement('div');
-        artwork.className = 'track-artwork';
-        const coverUrl = track.cover || albums[albumIndex].cover;
-        if (coverUrl) {
-          artwork.style.backgroundImage = `url('${coverUrl}')`;
-        }
-        item.appendChild(artwork);
-
         const textWrapper = document.createElement('div');
         textWrapper.className = 'track-text';
 
