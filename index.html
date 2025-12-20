@@ -393,6 +393,8 @@
               let usingFallback = false;
               let reconnectInterval = null;
               let hasLoadedPrimaryTrack = false;
+              const slowLoadTimeoutMs = 4500;
+              let slowLoadTimer = null;
               const mediaSessionSupported = 'mediaSession' in navigator;
 
               const updateSpeakerIcon = (playing) => {
@@ -447,6 +449,33 @@
                   }
               };
 
+              const clearSlowLoadGuard = () => {
+                  if (slowLoadTimer) {
+                      clearTimeout(slowLoadTimer);
+                      slowLoadTimer = null;
+                  }
+              };
+
+              const startSlowLoadGuard = () => {
+                  clearSlowLoadGuard();
+                  slowLoadTimer = setTimeout(() => {
+                      slowLoadTimer = null;
+
+                      if (userPaused || usingFallback) {
+                          return;
+                      }
+
+                      const hasProgress = audio.currentTime > 0 || audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+                      if (hasProgress) {
+                          return;
+                      }
+
+                      console.warn('Slow network detected, switching to offline welcome track.');
+                      playFallback(true);
+                      scheduleReconnect();
+                  }, slowLoadTimeoutMs);
+              };
+
               const playAudio = (force = false) => {
                   if (userPaused && !force) {
                       return;
@@ -476,6 +505,7 @@
                   audio.src = tracks[currentTrackIndex].src;
                   audio.load();
                   hasLoadedPrimaryTrack = true;
+                  startSlowLoadGuard();
                   updateMediaSession(tracks[currentTrackIndex]);
                   playAudio(force);
               };
@@ -485,6 +515,7 @@
                   audio.src = fallbackTrack.src;
                   audio.load();
                   hasLoadedPrimaryTrack = false;
+                  clearSlowLoadGuard();
                   updateMediaSession(fallbackTrack);
                   playAudio(force);
               };
@@ -564,6 +595,14 @@
 
               audio.addEventListener('error', handlePlaybackError);
               audio.addEventListener('stalled', handlePlaybackError);
+              ['playing', 'canplay', 'canplaythrough', 'loadeddata'].forEach(eventName => {
+                  audio.addEventListener(eventName, clearSlowLoadGuard);
+              });
+              audio.addEventListener('timeupdate', () => {
+                  if (audio.currentTime > 0) {
+                      clearSlowLoadGuard();
+                  }
+              });
 
               const timerProgress = document.getElementById('timer-progress');
               const autoEnterDelay = 105000; // milliseconds
