@@ -3,9 +3,7 @@ const { XMLParser } = require('fast-xml-parser');
 const FEEDS = [
   { url: 'https://feed.podbean.com/djcruze/feed.xml', category: 'Hip Hop / American Rap' },
   { url: 'https://feeds.buzzsprout.com/1879513.rss', category: 'Hip Hop / American Rap' },
-  { url: 'https://rss.com/podcasts/hip-hop-talking-heads/feed/', category: 'Hip Hop / American Rap' },
-  { url: 'https://podcasts.files.bbci.co.uk/b008mj7p.rss', category: 'Soul/R&B/Funk' },
-  { url: 'https://feeds.npr.org/510357/podcast.xml', category: 'Soul/R&B/Funk' }
+  { url: 'https://rss.com/podcasts/hip-hop-talking-heads/feed/', category: 'Hip Hop / American Rap' }
 ];
 
 const ALLOWED_AUDIO_TYPES = new Set([
