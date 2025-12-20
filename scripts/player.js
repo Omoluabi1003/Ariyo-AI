@@ -176,6 +176,15 @@ const quickStartDeadline = {
   timeoutMs: 2000
 };
 
+const offlineFallbackTrack = {
+  src: 'offline-audio.mp3',
+  title: 'Offline Vibes',
+  artist: 'Àríyò AI'
+};
+
+let offlineFallbackActive = false;
+const SLOW_FETCH_TIMEOUT_MS = 8000;
+
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
 let currentRadioIndex = -1;
@@ -342,6 +351,8 @@ function ensureInitialTrackLoaded(silent = true) {
     return true;
   }
 
+  resetOfflineFallback();
+
   const defaultSelection = getDefaultTrack();
   if (!defaultSelection) {
     return false;
@@ -477,6 +488,48 @@ function clearSlowBufferRescue() {
   slowBufferRescue.attempts = 0;
 }
 
+function resetOfflineFallback() {
+  offlineFallbackActive = false;
+}
+
+function activateOfflineFallback(reason = 'network') {
+  if (offlineFallbackActive) return;
+
+  offlineFallbackActive = true;
+  console.warn(`[offline-fallback] Activating fallback because: ${reason}`);
+  const { src, title, artist } = offlineFallbackTrack;
+
+  showBufferingState('Network is slow — playing offline vibes.');
+  if (trackInfo) {
+    trackInfo.textContent = title;
+  }
+  if (trackArtist) {
+    trackArtist.textContent = artist;
+  }
+  if (trackAlbum) {
+    trackAlbum.textContent = 'Album: Offline queue';
+  }
+
+  setCrossOrigin(audioPlayer, src);
+  audioPlayer.src = src;
+  audioHealer.trackSource(src, title, { live: false });
+
+  handleAudioLoad(src, title, false, {
+    silent: false,
+    autoPlay: true,
+    resumeTime: 0,
+    disableSlowGuard: true,
+    onReady: () => {
+      hideBufferingState();
+      setPlaybackStatus(PlaybackStatus.playing);
+    },
+    onError: () => {
+      setPlaybackStatus(PlaybackStatus.failed, { message: 'Network is too slow right now.' });
+      showRetryButton('Retry playback');
+    }
+  });
+}
+
 function clearBufferingHedge() {
   if (bufferingHedge.timerId) {
     clearTimeout(bufferingHedge.timerId);
@@ -508,6 +561,7 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
   slowBufferRescue.attempts += 1;
   const controller = new AbortController();
   slowBufferRescue.inFlight = controller;
+  const rescueTimeout = setTimeout(() => controller.abort('timeout'), SLOW_FETCH_TIMEOUT_MS);
 
   try {
     const resolvedSrc = await resolveSunoAudioSrc(src);
@@ -545,7 +599,13 @@ async function startSlowBufferRescue(src, title, resumeTime = null, autoPlay = t
         onError: callbacks.onError
       });
     }
+    const abortReason = controller.signal && 'reason' in controller.signal ? controller.signal.reason : null;
+    const abortedByTimeout = controller.signal.aborted && abortReason === 'timeout';
+    if (abortedByTimeout || slowBufferRescue.attempts >= slowBufferRescue.maxAttempts) {
+      activateOfflineFallback(abortedByTimeout ? 'rescue-timeout' : 'rescue-failed');
+    }
   } finally {
+    clearTimeout(rescueTimeout);
     slowBufferRescue.inFlight = null;
   }
 }
@@ -1669,6 +1729,7 @@ function createPlaybackErrorHandler(trackMeta, normalizedSrc) {
 
 async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
+      resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
       await warmupAudioOutput();
@@ -1731,6 +1792,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
 
 async function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
+      resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
       await warmupAudioOutput();
