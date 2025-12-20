@@ -2,6 +2,10 @@ const { Readable } = require('node:stream');
 
 const ALLOW = [
   /\.suno\.(?:ai|com)$/i,
+  /cdn\d*\.suno\.(?:ai|com)$/i,
+  /raw\.githubusercontent\.com$/i,
+  /githubusercontent\.com$/i,
+  /github\.io$/i,
   /streamguys1\.com$/i,
   /radio\.co$/i,
   /zeno\.fm$/i,

@@ -677,12 +677,31 @@
 
   function setCrossOrigin(url, element = getActiveAudio()) {
     try {
-      const { hostname } = new URL(url, window.location.href);
-      const allowList = ['raw.githubusercontent.com', 'githubusercontent.com', 'zeno.fm', 'streamguys1.com', 'suno.ai'];
-      if (allowList.some(host => hostname.endsWith(host))) {
-        element.crossOrigin = 'anonymous';
-      } else {
-        element.removeAttribute('crossorigin');
+      const target = new URL(url, window.location.href);
+      const sameOrigin = target.origin === window.location.origin;
+      const allowList = [
+        /\.suno\.(?:ai|com)$/i,
+        /cdn\d*\.suno\.(?:ai|com)$/i,
+        /raw\.githubusercontent\.com$/i,
+        /githubusercontent\.com$/i,
+        /github\.io$/i,
+        /streamguys1\.com$/i,
+        /radio\.co$/i,
+        /zeno\.fm$/i,
+        /akamaized\.net$/i,
+        /mystreaming\.net$/i,
+        /securenetsystems\.net$/i
+      ];
+      const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
+
+      element.crossOrigin = 'anonymous';
+
+      if (!sameOrigin && !isAllowListed) {
+        const removeOnError = () => {
+          element.removeEventListener('error', removeOnError);
+          element.removeAttribute('crossorigin');
+        };
+        element.addEventListener('error', removeOnError, { once: true });
       }
     } catch (_) {
       element.removeAttribute('crossorigin');
