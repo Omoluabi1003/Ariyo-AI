@@ -173,7 +173,7 @@ let lastTrackIndex = 0;
 let firstPlayGuardTimeoutId = null;
 const quickStartDeadline = {
   timerId: null,
-  timeoutMs: 3000
+  timeoutMs: 2000
 };
 
     let currentAlbumIndex = 0;
@@ -204,7 +204,7 @@ const playbackWatchdog = {
 
 const bufferingHedge = {
   timerId: null,
-  deadlineMs: 3000
+  deadlineMs: 1500
 };
 
 const AUDIO_URL_CACHE_KEY = 'ariyoAudioUrlCache';
@@ -317,7 +317,7 @@ function scheduleFirstPlayGuard() {
   }, 2500);
 }
 
-function showBufferingState(message = 'Settling your stream...') {
+function showBufferingState(message = 'Lining up your track...') {
   setPlaybackStatus(
     playbackStatus === PlaybackStatus.playing ? PlaybackStatus.buffering : PlaybackStatus.preparing,
     { message }
@@ -399,7 +399,7 @@ function setPlaybackStatus(status, options = {}) {
   playbackStatus = status;
 
   if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
-    const messageText = message || 'Preparing a smooth start...';
+    const messageText = message || 'Lining up your track...';
     if (bufferingMessage) {
       bufferingMessage.textContent = messageText;
     }
@@ -1635,7 +1635,7 @@ function resolveTrackForDirection(direction) {
     };
 }
 
-function updateNeutralBufferMessage(message = 'Buffering this track...') {
+function updateNeutralBufferMessage(message = 'Hunting for the best connection...') {
   const modalStatus = document.getElementById('statusMessage');
   if (modalStatus) {
     modalStatus.textContent = message;
@@ -1874,7 +1874,7 @@ async function selectRadio(src, title, index, logo) {
         playTimeout = setTimeout(() => {
           console.warn(`Timeout: ${title} is taking a while to buffer, retrying...`);
           startSlowBufferRescue(src, title, resumeTime, autoPlay, { onReady, onError: onErrorCallback });
-        }, 9000);
+        }, 5000);
       }
       handlerState.playTimeout = playTimeout;
 
@@ -2050,9 +2050,16 @@ async function selectRadio(src, title, index, logo) {
       }
     }
 
+    function shouldSpinVinyl() {
+      const readyState = typeof HTMLMediaElement !== 'undefined'
+        ? HTMLMediaElement.HAVE_CURRENT_DATA
+        : 2;
+      const hasAudibleState = (audioPlayer.currentTime || 0) > 0 || audioPlayer.readyState >= readyState;
+      return playbackStatus === PlaybackStatus.playing && !audioPlayer.paused && !audioPlayer.ended && hasAudibleState;
+    }
+
     function manageVinylRotation() {
-      const shouldSpin = !audioPlayer.paused && !audioPlayer.ended;
-      setTurntableSpin(shouldSpin);
+      setTurntableSpin(shouldSpinVinyl());
     }
 
     function playMusic() {
@@ -2070,7 +2077,7 @@ async function selectRadio(src, title, index, logo) {
       if (hasBufferedAudio) {
         hideBufferingState();
       } else if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
-        setPlaybackStatus(PlaybackStatus.preparing, { message: 'Preparing your audio...' });
+        setPlaybackStatus(PlaybackStatus.preparing, { message: 'Starting playback...' });
       }
       scheduleFirstPlayGuard();
       albumCover.style.display = 'block';
@@ -2181,6 +2188,13 @@ function updateTrackTime() {
     const duration = audioPlayer.duration;
     const hasFiniteDuration = Number.isFinite(duration) && duration > 0;
 
+    if (currentTime > 0 && playbackStatus !== PlaybackStatus.playing) {
+      hideBufferingState();
+      hidePlaySpinner();
+      setPlaybackStatus(PlaybackStatus.playing);
+      manageVinylRotation();
+    }
+
     if (hasFiniteDuration) {
       lastKnownFiniteDuration = duration;
     }
@@ -2289,6 +2303,9 @@ function updateTrackTime() {
       console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
       syncMediaSessionPlaybackState();
       clearFirstPlayGuard();
+      hideBufferingState();
+      hidePlaySpinner();
+      setPlaybackStatus(PlaybackStatus.playing);
     });
 
     audioPlayer.addEventListener('error', clearFirstPlayGuard);
