@@ -465,7 +465,18 @@ function ensureBackgroundPlayback(reason = 'hidden') {
     return;
   }
 
-  if (audioPlayer.paused || audioPlayer.ended) {
+  const haveCurrentData = typeof HTMLMediaElement !== 'undefined'
+    ? HTMLMediaElement.HAVE_CURRENT_DATA
+    : 2;
+
+  if (document.visibilityState === 'hidden') {
+    resumeAudioContext().catch(error => {
+      console.warn(`[background] Audio context resume failed during ${reason}:`, error);
+    });
+    ensureInitialTrackLoaded(true);
+  }
+
+  if (audioPlayer.paused || audioPlayer.ended || audioPlayer.readyState < haveCurrentData) {
     audioPlayer.play().then(() => {
       syncMediaSessionPlaybackState();
     }).catch(error => {
@@ -2385,24 +2396,10 @@ function updateTrackTime() {
       window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
     });
 
-    const BACKGROUND_PING_MS = 20000;
+    const BACKGROUND_PING_MS = 8000;
     setInterval(() => {
-      if (playbackStatus !== PlaybackStatus.playing) return;
       if (document.visibilityState !== 'hidden') return;
-
-      resumeAudioContext();
-      ensureInitialTrackLoaded(true);
-
-      const needsNudge = audioPlayer.paused || audioPlayer.ended;
-      const readyState = audioPlayer.readyState;
-      const haveCurrentData = typeof HTMLMediaElement !== 'undefined'
-        ? HTMLMediaElement.HAVE_CURRENT_DATA
-        : 2;
-      if (needsNudge || readyState < haveCurrentData) {
-        audioPlayer.play().catch(err => {
-          console.warn('[background] Unable to keep playback alive:', err);
-        });
-      }
+      ensureBackgroundPlayback('background-ping');
     }, BACKGROUND_PING_MS);
 
 function handleNetworkEvent(event) {
