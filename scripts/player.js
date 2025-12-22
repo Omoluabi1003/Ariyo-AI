@@ -294,16 +294,21 @@ function scheduleQuickStartDeadline(src, title, resumeTime = null) {
   }, quickStartDeadline.timeoutMs);
 }
 
-function scheduleFirstPlayGuard() {
-  clearFirstPlayGuard();
+  function scheduleFirstPlayGuard() {
+    clearFirstPlayGuard();
 
-  // If playback never transitions to "playing" after the user hits play,
-  // reload the current source and try again so the UI never appears frozen.
-  firstPlayGuardTimeoutId = setTimeout(() => {
-    if (playbackStatus === PlaybackStatus.playing || audioPlayer.currentTime > 0) {
-      clearFirstPlayGuard();
-      return;
-    }
+    // If playback never transitions to "playing" after the user hits play,
+    // reload the current source and try again so the UI never appears frozen.
+    firstPlayGuardTimeoutId = setTimeout(() => {
+      if (isTrackModalOpen()) {
+        console.log('[firstPlayGuard] Track list is open; deferring auto-recovery to avoid interrupting the user.');
+        return;
+      }
+
+      if (playbackStatus === PlaybackStatus.playing || audioPlayer.currentTime > 0) {
+        clearFirstPlayGuard();
+        return;
+      }
 
     console.warn('[firstPlayGuard] Playback did not start, retrying source load.');
     showBufferingState('Reconnecting your audio...');
@@ -333,8 +338,8 @@ function showBufferingState(message = 'Lining up your track...') {
   );
 }
 
-function getDefaultTrack() {
-  const fallbackAlbum = albums && albums.length ? albums[0] : null;
+  function getDefaultTrack() {
+    const fallbackAlbum = albums && albums.length ? albums[0] : null;
   const fallbackTrack = fallbackAlbum && fallbackAlbum.tracks && fallbackAlbum.tracks.length
     ? fallbackAlbum.tracks[0]
     : null;
@@ -343,8 +348,13 @@ function getDefaultTrack() {
     return null;
   }
 
-  return { albumIndex: 0, trackIndex: 0, track: fallbackTrack, album: fallbackAlbum };
-}
+    return { albumIndex: 0, trackIndex: 0, track: fallbackTrack, album: fallbackAlbum };
+  }
+
+  function isTrackModalOpen() {
+    const trackModal = document.getElementById('trackModal');
+    return Boolean(trackModal && getComputedStyle(trackModal).display !== 'none');
+  }
 
 function ensureInitialTrackLoaded(silent = true) {
   if (audioPlayer.src) {
@@ -1769,11 +1779,6 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       hideRetryButton();
       setTurntableSpin(false);
 
-      const trackModal = document.getElementById('trackModal');
-      if (trackModal && trackModal.style.display !== 'none') {
-        closeTrackList();
-      }
-
     const normalizedSrc = normalizeMediaSrc(trackMeta?.src || src);
     const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
     const streamUrl = buildTrackFetchUrl(resolvedSrc, trackMeta);
@@ -1785,10 +1790,8 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
     handleAudioLoad(streamUrl, title, false, {
       live: isLiveTrack,
       onReady: () => {
-        const trackModal = document.getElementById('trackModal');
-        if (trackModal && trackModal.style.display !== 'none') {
-          closeTrackList();
-        }
+        // Keep the track list open for non-user-initiated loads to avoid fighting the UI.
+        // The modal is explicitly closed by the track selection UI when needed.
       },
       onError: () => handlePlaybackError()
     });
@@ -1796,7 +1799,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
     // Begin playback immediately after the user selects a track instead of waiting for
     // metadata events. The autoplay safeguards in handleAudioLoad will keep the state
     // consistent if the play promise settles later.
-    attemptPlay();
+    await attemptPlay();
 
       updateMediaSession();
       showNowPlayingToast(title);
