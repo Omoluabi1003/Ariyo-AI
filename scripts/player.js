@@ -171,6 +171,10 @@ let lastTrackSrc = '';
 let lastTrackTitle = '';
 let lastTrackIndex = 0;
 let firstPlayGuardTimeoutId = null;
+const silentStartGuard = {
+  timerId: null,
+  timeoutMs: 4000
+};
 const quickStartDeadline = {
   timerId: null,
   timeoutMs: 2000
@@ -265,6 +269,13 @@ function clearFirstPlayGuard() {
   }
 }
 
+function clearSilentStartGuard() {
+  if (silentStartGuard.timerId) {
+    clearTimeout(silentStartGuard.timerId);
+    silentStartGuard.timerId = null;
+  }
+}
+
 function clearQuickStartDeadline() {
   if (quickStartDeadline.timerId) {
     clearTimeout(quickStartDeadline.timerId);
@@ -292,6 +303,30 @@ function scheduleQuickStartDeadline(src, title, resumeTime = null) {
     startSlowBufferRescue(src, title, resumePoint, true);
     attemptPlay();
   }, quickStartDeadline.timeoutMs);
+}
+
+function scheduleSilentStartGuard() {
+  clearSilentStartGuard();
+
+  if (!audioPlayer.src) return;
+
+  silentStartGuard.timerId = setTimeout(() => {
+    silentStartGuard.timerId = null;
+
+    const stuckAtStart = (audioPlayer.currentTime || 0) === 0;
+    const isBuffering = playbackStatus === PlaybackStatus.preparing || playbackStatus === PlaybackStatus.buffering;
+    if (!stuckAtStart || !isBuffering) return;
+
+    const source = captureCurrentSource();
+    const targetSrc = source?.src || audioPlayer.currentSrc || audioPlayer.src;
+    const title = source?.title || lastTrackTitle || trackInfo?.textContent || 'Track';
+
+    console.warn('[silent-start-guard] No audible progress detected; forcing recovery.');
+    startSlowBufferRescue(targetSrc, title, 0, true);
+    if (!networkRecoveryState.active) {
+      startNetworkRecovery('silent-start');
+    }
+  }, silentStartGuard.timeoutMs);
 }
 
   function scheduleFirstPlayGuard() {
@@ -2160,6 +2195,7 @@ async function selectRadio(src, title, index, logo) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Starting playback...' });
       }
       scheduleFirstPlayGuard();
+      scheduleSilentStartGuard();
       albumCover.style.display = 'block';
       if (typeof window !== 'undefined' && typeof window.stopYouTubePlayback === 'function') {
         try {
@@ -2236,6 +2272,7 @@ function pauseMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
     clearQuickStartDeadline();
+    clearSilentStartGuard();
     audioPlayer.pause();
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
@@ -2250,6 +2287,7 @@ function stopMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
     clearQuickStartDeadline();
+    clearSilentStartGuard();
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     manageVinylRotation();
@@ -2268,12 +2306,13 @@ function updateTrackTime() {
     const duration = audioPlayer.duration;
     const hasFiniteDuration = Number.isFinite(duration) && duration > 0;
 
-    if (currentTime > 0 && playbackStatus !== PlaybackStatus.playing) {
-      hideBufferingState();
-      hidePlaySpinner();
-      setPlaybackStatus(PlaybackStatus.playing);
-      manageVinylRotation();
-    }
+  if (currentTime > 0 && playbackStatus !== PlaybackStatus.playing) {
+    hideBufferingState();
+    hidePlaySpinner();
+    setPlaybackStatus(PlaybackStatus.playing);
+    manageVinylRotation();
+    clearSilentStartGuard();
+  }
 
     if (hasFiniteDuration) {
       lastKnownFiniteDuration = duration;
