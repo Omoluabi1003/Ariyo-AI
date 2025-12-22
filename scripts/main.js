@@ -1022,3 +1022,11 @@
 
     // Initial check
     checkForUpdates();
+
+    if (typeof window !== 'undefined') {
+      Object.assign(window, {
+        shareContent,
+        closeQRModal,
+        navigateToAbout
+      });
+    }

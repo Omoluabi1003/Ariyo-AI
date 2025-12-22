@@ -1151,3 +1151,16 @@ function showNowPlayingToast(trackTitle) {
     toast.classList.remove('show');
   }, 3000);
 }
+
+if (typeof window !== 'undefined') {
+  Object.assign(window, {
+    openAlbumList,
+    closeAlbumList,
+    openTrackList,
+    closeTrackList,
+    openPlaylist,
+    openRadioList,
+    closeRadioList,
+    showNowPlayingToast
+  });
+}

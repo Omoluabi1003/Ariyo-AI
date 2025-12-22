@@ -2521,3 +2521,18 @@ function previousTrack() {
   switchTrack(-1);
   showNowPlayingToast(trackInfo.textContent);
 }
+
+if (typeof window !== 'undefined') {
+  Object.assign(window, {
+    playMusic,
+    pauseMusic,
+    stopMusic,
+    nextTrack,
+    previousTrack,
+    toggleShuffle,
+    retryTrack,
+    addCurrentTrackToPlaylist,
+    toggleLyrics,
+    loadMoreStations
+  });
+}
