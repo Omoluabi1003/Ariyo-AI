@@ -9,6 +9,9 @@ const FALLBACK_VERSION = '1.16.0';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
+const INSTALL_TIMEOUT_MS = 8000;
+const MEDIA_PREFETCH_TIMEOUT_MS = 5000;
+
 async function notifyClientsOfUpdate(versionIdentifier) {
   try {
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
@@ -88,6 +91,24 @@ const PREFETCH_MEDIA = [
   'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3'
 ];
 const PREFETCH_MEDIA_SET = new Set(PREFETCH_MEDIA);
+
+function fetchWithTimeout(url, options = {}, timeout = INSTALL_TIMEOUT_MS) {
+  if (typeof AbortController === 'undefined') {
+    return fetch(url, options);
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+
+  return fetch(url, { ...options, signal: controller.signal })
+    .catch(error => {
+      if (controller.signal.aborted) {
+        console.warn('Fetch timed out:', url);
+      }
+      throw error;
+    })
+    .finally(() => clearTimeout(timer));
+}
 
 function setCacheNames(version) {
   CACHE_NAME = `${CACHE_PREFIX}-${version}`;
@@ -172,7 +193,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     (async () => {
       try {
-        const response = await fetch('/version.json', { cache: 'no-store' });
+        const response = await fetchWithTimeout('/version.json', { cache: 'no-store' });
         const data = await response.json();
         setCacheNames(data.version || FALLBACK_VERSION);
       } catch (error) {
@@ -181,19 +202,29 @@ self.addEventListener('install', event => {
       }
 
       const cache = await caches.open(CACHE_NAME);
-      await cache.addAll(CORE_ASSETS);
+
+      try {
+        await Promise.race([
+          cache.addAll(CORE_ASSETS),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('core cache timeout')), INSTALL_TIMEOUT_MS))
+        ]);
+      } catch (error) {
+        console.warn('Core assets cache warming timed out; continuing with available files.', error);
+      }
 
       const runtimeCache = await openRuntimeCache();
-      for (const url of PREFETCH_MEDIA) {
-        try {
-          const response = await fetch(url, { cache: 'no-store' });
-          if (response && response.ok) {
-            await runtimeCache.put(url, response.clone());
+      (async () => {
+        await Promise.allSettled(PREFETCH_MEDIA.map(async (url) => {
+          try {
+            const response = await fetchWithTimeout(url, { cache: 'no-store' }, MEDIA_PREFETCH_TIMEOUT_MS);
+            if (response && response.ok) {
+              await runtimeCache.put(url, response.clone());
+            }
+          } catch (error) {
+            console.warn('Skipping slow media prefetch:', url, error);
           }
-        } catch (error) {
-          console.error('Failed to prefetch media asset:', url, error);
-        }
-      }
+        }));
+      })();
     })()
   );
 });
