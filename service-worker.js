@@ -4,7 +4,7 @@ self.skipWaiting();
 self.clientsClaim && self.clientsClaim();
 
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v13';
+const CACHE_PREFIX = 'ariyo-ai-cache-v14';
 const FALLBACK_VERSION = '1.16.0';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
@@ -288,10 +288,17 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
-        const hasRangeRequest = event.request.headers.has('range');
-        if (hasRangeRequest) {
-            event.respondWith(fetch(event.request));
+    const isAudioRequest = event.request.destination === 'audio'
+      || /\.(mp3|aac|m3u8|m3u|ts|ogg|flac|wav)(\?|$)/i.test(url.pathname);
+    const hasRangeRequest = event.request.headers.has('range');
+    const isStreamPath = /\.m3u8($|\?)/i.test(url.pathname)
+      || /\.ts($|\?)/i.test(url.pathname)
+      || /stream|live/i.test(url.pathname);
+    const isRemoteAudio = isAudioRequest && url.origin !== self.location.origin;
+
+    if (isAudioRequest) {
+        if (hasRangeRequest || isStreamPath || isRemoteAudio) {
+            event.respondWith(fetch(event.request, { cache: 'no-store' }));
             return;
         }
 
@@ -304,7 +311,7 @@ self.addEventListener('fetch', event => {
 
             try {
                 const networkResponse = await fetch(event.request, { cache: 'no-store' });
-                if (networkResponse && networkResponse.ok) {
+                if (networkResponse && networkResponse.ok && networkResponse.status === 200 && !hasRangeRequest) {
                     await cache.put(event.request, networkResponse.clone());
                     await limitCacheSize(cache, 50);
                 }

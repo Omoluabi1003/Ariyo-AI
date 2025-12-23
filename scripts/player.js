@@ -3,6 +3,58 @@
     const existingAudioElement = document.getElementById('audioPlayer');
     const audioPlayer = existingAudioElement || document.createElement('audio');
 
+    const debugAudioEnabled = new URLSearchParams(window.location.search).get('debugAudio') === '1';
+
+    function createDebouncedSourceSetter(audioEl, delay = 120) {
+      let pending = null;
+      let timerId = null;
+      let lastApplied = audioEl.currentSrc || audioEl.src || '';
+
+      const apply = () => {
+        if (!pending) return false;
+        const { src, reason, forceReload } = pending;
+        pending = null;
+        timerId = null;
+        if (!forceReload && src === lastApplied) {
+          return false;
+        }
+        lastApplied = src;
+        audioEl.dataset.activeSrc = src;
+        audioEl.src = src;
+        if (debugAudioEnabled) {
+          logAudioDebug(`source-set (${reason || 'unknown'})`, audioEl);
+        }
+        return true;
+      };
+
+      const setSource = (nextSrc, { reason = 'set-source', forceReload = false } = {}) => {
+        const normalized = nextSrc || '';
+        if (!forceReload && normalized === lastApplied && !pending) {
+          return false;
+        }
+        pending = { src: normalized, reason, forceReload };
+        if (timerId) {
+          clearTimeout(timerId);
+        }
+        timerId = setTimeout(apply, delay);
+        return true;
+      };
+
+      setSource.flush = () => {
+        if (timerId) {
+          clearTimeout(timerId);
+          timerId = null;
+        }
+        return apply();
+      };
+
+      setSource.getLastApplied = () => lastApplied;
+
+      return setSource;
+    }
+
+    const setAudioSource = createDebouncedSourceSetter(audioPlayer);
+
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
         if (!trackTitle) return artistName;
@@ -13,6 +65,102 @@
         }
 
         return artistName;
+    }
+
+    const audioDebug = {
+      events: [],
+      panel: null,
+      listEl: null,
+      stateEl: null,
+      max: 50
+    };
+
+    function formatBuffered(audioEl) {
+      if (!audioEl || !audioEl.buffered || audioEl.buffered.length === 0) return '[]';
+      const ranges = [];
+      for (let i = 0; i < audioEl.buffered.length; i += 1) {
+        ranges.push(`[${audioEl.buffered.start(i).toFixed(2)}-${audioEl.buffered.end(i).toFixed(2)}]`);
+      }
+      return ranges.join(',');
+    }
+
+    function logAudioDebug(eventName, audioEl, extra = {}) {
+      if (!debugAudioEnabled) return;
+      const entry = {
+        at: new Date().toLocaleTimeString(),
+        event: eventName,
+        state: {
+          currentTime: Number.isFinite(audioEl.currentTime) ? audioEl.currentTime.toFixed(2) : 'n/a',
+          duration: Number.isFinite(audioEl.duration) ? audioEl.duration.toFixed(2) : '∞',
+          readyState: audioEl.readyState,
+          networkState: audioEl.networkState,
+          paused: audioEl.paused,
+          ended: audioEl.ended,
+          volume: audioEl.volume,
+          muted: audioEl.muted,
+          playbackRate: audioEl.playbackRate,
+          src: audioEl.src,
+          currentSrc: audioEl.currentSrc,
+          buffered: formatBuffered(audioEl),
+          error: audioEl.error ? `${audioEl.error.code}:${audioEl.error.message}` : null,
+        },
+        ...extra,
+      };
+
+      audioDebug.events.unshift(entry);
+      audioDebug.events = audioDebug.events.slice(0, audioDebug.max);
+
+      if (audioDebug.listEl) {
+        audioDebug.listEl.innerHTML = audioDebug.events
+          .map(ev => `<li><strong>${ev.at}</strong> • ${ev.event}<br><small>${JSON.stringify(ev.state)}</small></li>`)
+          .join('');
+      }
+
+      if (audioDebug.stateEl) {
+        audioDebug.stateEl.textContent = `src=${audioEl.currentSrc || audioEl.src || 'n/a'} | ready=${audioEl.readyState} | network=${audioEl.networkState}`;
+      }
+    }
+
+    function createAudioDebugPanel(audioEl) {
+      if (!debugAudioEnabled || audioDebug.panel) return;
+      const panel = document.createElement('section');
+      panel.style.position = 'fixed';
+      panel.style.bottom = '1rem';
+      panel.style.right = '1rem';
+      panel.style.width = '360px';
+      panel.style.maxHeight = '60vh';
+      panel.style.overflow = 'auto';
+      panel.style.background = 'rgba(0,0,0,0.85)';
+      panel.style.color = '#fff';
+      panel.style.zIndex = '9999';
+      panel.style.padding = '12px';
+      panel.style.border = '1px solid #444';
+      panel.style.borderRadius = '8px';
+      panel.innerHTML = `<header style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <strong>Playback Health</strong>
+        <span id="audioDebugState" style="font-size:12px;opacity:0.8;"></span>
+      </header>
+      <ol id="audioDebugList" style="font-size:12px;padding-left:18px;margin-top:8px;line-height:1.4;"></ol>`;
+      document.body.appendChild(panel);
+      audioDebug.panel = panel;
+      audioDebug.listEl = panel.querySelector('#audioDebugList');
+      audioDebug.stateEl = panel.querySelector('#audioDebugState');
+
+      const events = [
+        'loadstart','loadedmetadata','canplay','canplaythrough','play','playing','waiting','stalled',
+        'timeupdate','seeking','seeked','ended','pause','error','abort','emptied','durationchange',
+      ];
+
+      events.forEach(eventName => {
+        audioEl.addEventListener(eventName, evt => {
+          logAudioDebug(eventName, audioEl, {
+            detail: evt?.type || eventName,
+            timestamp: performance.now().toFixed(1),
+          });
+        });
+      });
+
+      logAudioDebug('debug-panel-mounted', audioEl);
     }
     function setCrossOrigin(element, url) {
       try {
@@ -115,6 +263,7 @@
     document.addEventListener('touchstart', unlockHandler, { passive: true });
     document.addEventListener('keydown', unlockHandler);
     primeInitialBuffer();
+    createAudioDebugPanel(audioPlayer);
 
     if (!existingAudioElement) {
         audioPlayer.id = 'audioPlayer';
@@ -407,7 +556,8 @@ function ensureInitialTrackLoaded(silent = true) {
   const normalizedSrc = normalizeMediaSrc(track.src);
   const streamUrl = buildTrackFetchUrl(normalizedSrc, track);
   setCrossOrigin(audioPlayer, streamUrl);
-  audioPlayer.src = streamUrl;
+  setAudioSource(streamUrl, { reason: 'initial-track', forceReload: true });
+  setAudioSource.flush();
   audioHealer.trackSource(streamUrl, track.title, { live: false });
   handleAudioLoad(streamUrl, track.title, false, {
     autoPlay: false,
@@ -417,7 +567,8 @@ function ensureInitialTrackLoaded(silent = true) {
       manageVinylRotation();
     },
     onError: () => {
-      audioPlayer.src = streamUrl;
+      setAudioSource(streamUrl, { reason: 'initial-track-retry', forceReload: true });
+      setAudioSource.flush();
     }
   });
 
@@ -566,7 +717,8 @@ function activateOfflineFallback(reason = 'network') {
   }
 
   setCrossOrigin(audioPlayer, src);
-  audioPlayer.src = src;
+  setAudioSource(src, { reason: 'offline-fallback', forceReload: true });
+  setAudioSource.flush();
   audioHealer.trackSource(src, title, { live: false });
 
   handleAudioLoad(src, title, false, {
@@ -1041,7 +1193,8 @@ async function attemptNetworkResume() {
     if (source.type === 'radio') {
       setCrossOrigin(audioPlayer, source.src);
       const reloadSrc = appendCacheBuster(source.src);
-      audioPlayer.src = reloadSrc;
+      setAudioSource(reloadSrc, { reason: 'network-recovery-radio', forceReload: true });
+      setAudioSource.flush();
       audioPlayer.currentTime = 0;
       handleAudioLoad(reloadSrc, source.title, true, {
         silent: true,
@@ -1068,7 +1221,8 @@ async function attemptNetworkResume() {
       if (!response.ok) throw new Error(`Status ${response.status}`);
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
-      audioPlayer.src = objectUrl;
+      setAudioSource(objectUrl, { reason: 'network-recovery-prefetch', forceReload: true });
+      setAudioSource.flush();
       handleAudioLoad(objectUrl, track.title, false, {
         silent: true,
         autoPlay: networkRecoveryState.wasPlaying,
@@ -1083,7 +1237,8 @@ async function attemptNetworkResume() {
         const fallbackSrc = appendCacheBuster(originalSrc);
         console.warn('[network-recovery] Direct stream fallback after CORS block.', { fallbackSrc });
         setCrossOrigin(audioPlayer, fallbackSrc);
-        audioPlayer.src = fallbackSrc;
+        setAudioSource(fallbackSrc, { reason: 'network-recovery-fallback', forceReload: true });
+        setAudioSource.flush();
         handleAudioLoad(fallbackSrc, trackTitle || source.title, false, {
           silent: true,
           autoPlay: networkRecoveryState.wasPlaying,
@@ -1774,7 +1929,8 @@ function createPlaybackErrorHandler(trackMeta, normalizedSrc) {
     retried = true;
     const retryUrl = appendCacheBuster(buildTrackFetchUrl(normalizedSrc, trackMeta));
     setCrossOrigin(audioPlayer, retryUrl);
-    audioPlayer.src = retryUrl;
+    setAudioSource(retryUrl, { reason: 'playback-error-retry', forceReload: true });
+    setAudioSource.flush();
     audioHealer.trackSource(retryUrl, trackMeta.title, { live: Boolean(trackMeta.isLive) });
     handleAudioLoad(retryUrl, trackMeta.title, false, {
       live: Boolean(trackMeta.isLive),
@@ -1817,7 +1973,8 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
     const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
     const streamUrl = buildTrackFetchUrl(resolvedSrc, trackMeta);
     setCrossOrigin(audioPlayer, streamUrl);
-    audioPlayer.src = streamUrl;
+    setAudioSource(streamUrl, { reason: 'select-track', forceReload: true });
+    setAudioSource.flush();
     audioHealer.trackSource(streamUrl, title, { live: isLiveTrack });
     audioPlayer.currentTime = 0;
     const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
@@ -1874,7 +2031,8 @@ async function selectRadio(src, title, index, logo) {
       const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
       const streamUrl = buildTrackFetchUrl(resolvedSrc);
       setCrossOrigin(audioPlayer, streamUrl);
-      audioPlayer.src = streamUrl;
+      setAudioSource(streamUrl, { reason: 'select-radio', forceReload: true });
+      setAudioSource.flush();
       audioHealer.trackSource(streamUrl, title, { live: true });
       audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
@@ -2098,7 +2256,8 @@ async function selectRadio(src, title, index, logo) {
           const retryUrl = appendCacheBuster(src);
           console.warn('[cors] Retrying audio without CORS headers.', { retryUrl, title });
           audioPlayer.removeAttribute('crossorigin');
-          audioPlayer.src = retryUrl;
+          setAudioSource(retryUrl, { reason: 'cors-retry', forceReload: true });
+          setAudioSource.flush();
           handleAudioLoad(retryUrl, title, false, {
             silent: false,
             autoPlay,
@@ -2174,7 +2333,15 @@ async function selectRadio(src, title, index, logo) {
         handlerState.quickStartId = requestAnimationFrame(quickStartCheck);
       }
 
-      audioPlayer.load(); // Force load
+      setAudioSource.flush();
+      const lastSource = setAudioSource.getLastApplied();
+      const shouldReload = !lastSource || audioPlayer.networkState === (HTMLMediaElement?.NETWORK_EMPTY || 0);
+      if (shouldReload) {
+        audioPlayer.load(); // Force load
+        logAudioDebug('load-called', audioPlayer, { reason: 'handleAudioLoad' });
+      } else {
+        logAudioDebug('load-skipped', audioPlayer, { reason: 'stable-source' });
+      }
 
       if (autoPlay && audioPlayer.paused) {
         attemptPlay();
