@@ -52,6 +52,8 @@
   const PLAYBACK_START_TIMEOUT_MS = 8000;
   const PLAYBACK_MAX_RETRIES = 2;
   const PLAYBACK_RETRY_DELAY_MS = 600;
+  const SOURCE_UPDATE_DEBOUNCE_MS = 150;
+  const DEBUG_AUDIO_ENABLED = new URLSearchParams(window.location.search).get('debugAudio') === '1';
 
   const deriveTrackArtist = (baseArtist, trackTitle) => {
     const artistName = baseArtist || 'Omoluabi';
@@ -166,6 +168,137 @@
   let lastProgressAt = Date.now();
   const preconnectedHosts = new Set();
 
+  const audioController = {
+    pendingSourceTimers: new Map(),
+    lastResolvedByDeck: new Map(),
+  };
+
+  const playbackHealth = (() => {
+    if (!DEBUG_AUDIO_ENABLED) {
+      return {
+        log: () => {},
+        updateState: () => {},
+      };
+    }
+
+    const panel = document.createElement('section');
+    panel.id = 'playbackHealthPanel';
+    panel.setAttribute('aria-label', 'Playback Health');
+    panel.innerHTML = `
+      <style>
+        #playbackHealthPanel {
+          position: fixed;
+          bottom: 12px;
+          right: 12px;
+          width: min(420px, 90vw);
+          max-height: 70vh;
+          overflow: auto;
+          background: rgba(12, 12, 12, 0.92);
+          color: #f4f4f4;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 10px;
+          padding: 12px;
+          font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+          font-size: 12px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+          z-index: 2147483647;
+        }
+        #playbackHealthPanel h3 {
+          margin: 0 0 6px 0;
+          font-size: 13px;
+        }
+        #playbackHealthPanel .health-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 6px;
+        }
+        #playbackHealthPanel .pill {
+          display: inline-block;
+          padding: 2px 6px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.08);
+          margin-right: 4px;
+        }
+        #playbackHealthPanel ul {
+          list-style: none;
+          padding: 0;
+          margin: 6px 0 0 0;
+        }
+        #playbackHealthPanel li {
+          margin-bottom: 4px;
+          border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+          padding-bottom: 4px;
+        }
+        #playbackHealthPanel code {
+          font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        }
+      </style>
+      <h3>Playback Health (debug only)</h3>
+      <div class="health-grid">
+        <div><strong>Active deck:</strong> <span id="healthDeck">A</span></div>
+        <div><strong>Src:</strong> <code id="healthSrc">-</code></div>
+        <div><strong>Ready:</strong> <span id="healthReady">-</span></div>
+        <div><strong>Network:</strong> <span id="healthNetwork">-</span></div>
+        <div><strong>Time:</strong> <span id="healthTime">0 / 0</span></div>
+        <div><strong>Buffered:</strong> <span id="healthBuffered">-</span></div>
+      </div>
+      <h4>Recent audio events</h4>
+      <ul id="healthEvents"></ul>
+    `;
+
+    document.body.appendChild(panel);
+
+    const eventList = panel.querySelector('#healthEvents');
+    const deckLabel = panel.querySelector('#healthDeck');
+    const srcLabel = panel.querySelector('#healthSrc');
+    const readyLabel = panel.querySelector('#healthReady');
+    const networkLabel = panel.querySelector('#healthNetwork');
+    const timeLabel = panel.querySelector('#healthTime');
+    const bufferedLabel = panel.querySelector('#healthBuffered');
+
+    const maxEvents = 50;
+    const readyStateText = ['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'];
+    const networkStateText = ['NETWORK_EMPTY', 'NETWORK_IDLE', 'NETWORK_LOADING', 'NETWORK_NO_SOURCE'];
+
+    function formatBuffered(audio) {
+      try {
+        if (!audio.buffered || audio.buffered.length === 0) return '—';
+        const ranges = [];
+        for (let i = 0; i < audio.buffered.length; i += 1) {
+          ranges.push(`${audio.buffered.start(i).toFixed(2)}-${audio.buffered.end(i).toFixed(2)}`);
+        }
+        return ranges.join(', ');
+      } catch (_) {
+        return 'n/a';
+      }
+    }
+
+    function updateState(audio) {
+      if (!audio) return;
+      deckLabel.textContent = activeDeckKey;
+      srcLabel.textContent = audio.currentSrc || audio.src || 'none';
+      readyLabel.textContent = readyStateText[audio.readyState] || audio.readyState;
+      networkLabel.textContent = networkStateText[audio.networkState] || audio.networkState;
+      const duration = Number.isFinite(audio.duration) ? audio.duration.toFixed(2) : '∞';
+      timeLabel.textContent = `${audio.currentTime.toFixed(2)} / ${duration}`;
+      bufferedLabel.textContent = formatBuffered(audio);
+    }
+
+    function log(eventName, detail = {}) {
+      const item = document.createElement('li');
+      const timestamp = new Date().toISOString().split('T')[1].replace('Z', '');
+      const info = typeof detail === 'string' ? detail : JSON.stringify(detail);
+      item.textContent = `${timestamp} • ${eventName}: ${info}`;
+      eventList.prepend(item);
+      while (eventList.children.length > maxEvents) {
+        eventList.removeChild(eventList.lastChild);
+      }
+      updateState(getActiveAudio());
+    }
+
+    return { log, updateState };
+  })();
+
   function getCrossfadeDurationForTrack(trackDurationSeconds) {
     if (!trackDurationSeconds || !Number.isFinite(trackDurationSeconds)) {
       return crossfadeDurationSeconds;
@@ -190,6 +323,8 @@
     A: createDeck(deckAudioA),
     B: createDeck(deckAudioB),
   };
+
+  ensureInlinePlayback();
 
   async function resumeAudioContext() {
     if (!audioContext || typeof audioContext.resume !== 'function') return;
@@ -246,6 +381,52 @@
 
   function getStandbyDeck() {
     return decks[getStandbyDeckKey()];
+  }
+
+  function ensureInlinePlayback() {
+    Object.values(decks).forEach(deck => {
+      if (!deck || !deck.audio) return;
+      deck.audio.setAttribute('playsinline', '');
+      deck.audio.playsInline = true;
+    });
+  }
+
+  function captureAudioState(audio) {
+    if (!audio) return {};
+    const toFixed = value => (Number.isFinite(value) ? Number(value).toFixed(3) : value);
+    return {
+      currentSrc: audio.currentSrc || audio.src || '',
+      currentTime: toFixed(audio.currentTime),
+      duration: toFixed(audio.duration),
+      readyState: audio.readyState,
+      networkState: audio.networkState,
+      paused: audio.paused,
+      ended: audio.ended,
+      seeking: audio.seeking,
+      volume: audio.volume,
+      muted: audio.muted,
+      playbackRate: audio.playbackRate,
+      buffered: (() => {
+        try {
+          if (!audio.buffered || audio.buffered.length === 0) return [];
+          const ranges = [];
+          for (let i = 0; i < audio.buffered.length; i += 1) {
+            ranges.push({ start: audio.buffered.start(i), end: audio.buffered.end(i) });
+          }
+          return ranges;
+        } catch (_) {
+          return [];
+        }
+      })(),
+      dataset: { ...audio.dataset },
+    };
+  }
+
+  function logDebug(eventName, detail = {}) {
+    playbackHealth.log(eventName, detail);
+    if (DEBUG_AUDIO_ENABLED) {
+      console.debug('[player:debug]', eventName, detail);
+    }
   }
 
   function resetStandbyDeck() {
@@ -515,17 +696,13 @@
 
       stallRecoveryAttempts += 1;
       showLoading('Reconnecting…', 'info');
-
-      try {
-        activeAudio.pause();
-        activeAudio.load();
-      } catch (_) {
-        // Ignore reload errors during stall recovery.
-      }
+      logDebug('stall-recovery', captureAudioState(activeAudio));
 
       try {
         await resumeAudioContext();
-        await activeAudio.play();
+        if (activeAudio.paused) {
+          await activeAudio.play();
+        }
       } catch (_) {
         // Some browsers will require an explicit user gesture; we surface status below.
       }
@@ -622,6 +799,7 @@
 
     resetPlaybackStartState();
     resetStallRecovery();
+    logDebug('playback-start', { deckKey, track: track ? track.title : 'unknown', src: track?.src });
     const audioEl = deck.audio;
     const state = {
       id: Date.now(),
@@ -893,7 +1071,7 @@
     if (!Number.isInteger(orderIndex) || playbackOrder.length <= 1) return;
     const track = allTracks[playbackOrder[orderIndex]];
     const currentTrackSrc = getActiveAudio().dataset.trackSrc;
-    if (!track || prefetchCache.has(track.src) || track.src === currentTrackSrc) return;
+    if (!track || isLiveStreamTrack(track) || prefetchCache.has(track.src) || track.src === currentTrackSrc) return;
 
     const prefetchAudio = new Audio();
     prefetchAudio.preload = 'auto';
@@ -1133,6 +1311,69 @@
     updateNextTrackLabel();
   }
 
+  function scheduleDeckSourceUpdate(deckKey, track, resolvedSrc, { preloadOnly = false, reason = 'track-change' } = {}) {
+    return new Promise(resolve => {
+      const existing = audioController.pendingSourceTimers.get(deckKey);
+      if (existing) {
+        clearTimeout(existing);
+      }
+
+      const timerId = setTimeout(() => {
+        audioController.pendingSourceTimers.delete(deckKey);
+        const deck = decks[deckKey];
+        if (!deck) return resolve(null);
+        const audio = deck.audio;
+        const previousResolved = audioController.lastResolvedByDeck.get(deckKey);
+        const isSameResolved = previousResolved === resolvedSrc;
+        const isSameTrack = audio.dataset.trackSrc === track.src;
+        const shouldSkipReload = isSameResolved && isSameTrack && !preloadOnly;
+
+        if (shouldSkipReload) {
+          logDebug('source:reuse', { deckKey, reason, src: resolvedSrc });
+          return resolve({ deck, track, updated: false });
+        }
+
+        setCrossOrigin(resolvedSrc, audio);
+        ensureInlinePlayback();
+        audio.autoplay = !preloadOnly;
+        audio.preload = preloadOnly ? 'metadata' : 'auto';
+        audio.dataset.trackSrc = track.src;
+        audio.dataset.isLive = String(isLiveStreamTrack(track));
+        audio.dataset.sourceType = track.sourceType || '';
+        audioController.lastResolvedByDeck.set(deckKey, resolvedSrc);
+
+        const didChangeSrc = audio.src !== resolvedSrc;
+        if (didChangeSrc) {
+          audio.src = resolvedSrc;
+          logDebug('source:apply', { deckKey, reason, src: resolvedSrc, preloadOnly });
+        }
+
+        if (didChangeSrc && !preloadOnly) {
+          try {
+            if (typeof audio.fastSeek === 'function') {
+              audio.fastSeek(0);
+            } else {
+              audio.currentTime = 0;
+            }
+          } catch (_) {
+            audio.currentTime = 0;
+          }
+
+          try {
+            audio.load();
+            logDebug('source:load-call', { deckKey, reason });
+          } catch (_) {
+            // Ignore browsers that block load() on active media elements.
+          }
+        }
+
+        return resolve({ deck, track, updated: didChangeSrc });
+      }, SOURCE_UPDATE_DEBOUNCE_MS);
+
+      audioController.pendingSourceTimers.set(deckKey, timerId);
+    });
+  }
+
   async function cueTrackOnDeck(deckKey, orderIndex, { updateUI = true, preloadOnly = false } = {}) {
     const trackIndex = playbackOrder[orderIndex];
     const track = allTracks[trackIndex];
@@ -1142,35 +1383,19 @@
     ensureAudioGraph(deck);
     const resolvedSrc = await resolveSunoAudioSrc(track.src);
     ensurePreconnect(resolvedSrc);
-    setCrossOrigin(resolvedSrc, deck.audio);
-    deck.audio.autoplay = !preloadOnly;
-    deck.audio.preload = preloadOnly ? 'metadata' : 'auto';
-
-    if (prefetchCache.has(track.src)) {
-      // Promote the prefetched response so play() can start immediately from cache.
-      deck.audio.src = prefetchCache.get(track.src).currentSrc || resolvedSrc;
-    } else {
-      deck.audio.src = resolvedSrc;
+    let effectiveSrc = resolvedSrc;
+    if (prefetchCache.has(track.src) && !isLiveStreamTrack(track)) {
+      effectiveSrc = prefetchCache.get(track.src).currentSrc || resolvedSrc;
+      logDebug('source:prefetch-promote', { deckKey, src: effectiveSrc });
     }
 
-    deck.audio.dataset.trackSrc = track.src;
-    deck.audio.dataset.isLive = String(isLiveStreamTrack(track));
-    deck.audio.dataset.sourceType = track.sourceType || '';
+    const scheduled = await scheduleDeckSourceUpdate(deckKey, track, effectiveSrc, {
+      preloadOnly,
+      reason: preloadOnly ? 'preload' : 'track-change',
+    });
 
-    if (typeof deck.audio.fastSeek === 'function') {
-      try {
-        deck.audio.fastSeek(0);
-      } catch (_) {
-        deck.audio.currentTime = 0;
-      }
-    } else {
-      deck.audio.currentTime = 0;
-    }
-
-    try {
-      deck.audio.load();
-    } catch (_) {
-      // Ignore load errors for browsers that block preloading.
+    if (!scheduled) {
+      return null;
     }
 
     resetStallRecovery();
@@ -1523,6 +1748,21 @@
     cleanupPrefetch(event.target.dataset.trackSrc);
   }
 
+  const DEBUG_AUDIO_EVENTS = [
+    'loadstart', 'loadedmetadata', 'canplay', 'canplaythrough', 'play', 'playing', 'waiting', 'stalled',
+    'timeupdate', 'seeking', 'seeked', 'ended', 'pause', 'error', 'abort', 'emptied', 'durationchange'
+  ];
+
+  function attachDebugEventLogging(deck) {
+    if (!DEBUG_AUDIO_ENABLED || !deck || !deck.audio) return;
+    DEBUG_AUDIO_EVENTS.forEach(eventName => {
+      deck.audio.addEventListener(eventName, event => {
+        logDebug(`event:${eventName}`, captureAudioState(event.target));
+        playbackHealth.updateState(event.target);
+      });
+    });
+  }
+
   Object.values(decks).forEach(deck => {
     const el = deck.audio;
     el.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -1533,7 +1773,10 @@
     el.addEventListener('canplay', handleCanPlay);
     el.addEventListener('ended', handleEnded);
     el.addEventListener('error', handleError);
+    attachDebugEventLogging(deck);
   });
+
+  playbackHealth.updateState(getActiveAudio());
 
   renderPlaylist();
   loadTrack(currentOrderIndex, { autoplay: false });
