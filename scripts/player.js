@@ -15,40 +15,39 @@
         return artistName;
     }
     function setCrossOrigin(element, url) {
-        try {
-            const target = new URL(url, window.location.origin);
-            const sameOrigin = target.origin === window.location.origin;
-            const allowList = [
-              /\.suno\.ai$/i,
-              /\.suno\.com$/i,
-              /raw\.githubusercontent\.com$/i,
-              /githubusercontent\.com$/i,
-              /streamguys1\.com$/i,
-              /radio\.co$/i,
-              /zeno\.fm$/i,
-              /akamaized\.net$/i,
-              /mystreaming\.net$/i,
-              /securenetsystems\.net$/i,
-              /github\.io$/i
-            ];
-            const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
+      try {
+        const target = new URL(url, window.location.origin);
+        const sameOrigin = target.origin === window.location.origin;
+        const allowList = [
+          /\.suno\.ai$/i,
+          /\.suno\.com$/i,
+          /raw\.githubusercontent\.com$/i,
+          /githubusercontent\.com$/i,
+          /streamguys1\.com$/i,
+          /radio\.co$/i,
+          /zeno\.fm$/i,
+          /akamaized\.net$/i,
+          /mystreaming\.net$/i,
+          /securenetsystems\.net$/i,
+          /github\.io$/i
+        ];
+        const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
 
-            // Prefer to send credentials as anonymous so we can safely hook the audio into
-            // the Web Audio graph without the browser muting the stream. When a host is
-            // known to reject CORS entirely we fall back to removing the attribute after the
-            // first load attempt.
-            element.crossOrigin = 'anonymous';
-
-            if (!sameOrigin && !isAllowListed) {
-              const removeOnError = () => {
-                element.removeEventListener('error', removeOnError);
-                element.removeAttribute('crossorigin');
-              };
-              element.addEventListener('error', removeOnError, { once: true });
-            }
-        } catch (e) {
-            element.removeAttribute('crossorigin');
+        // Only set crossOrigin when we are confident the host supplies CORS headers; otherwise
+        // avoid sending the attribute to prevent silent CORS blocks that leave the player stuck
+        // in a buffering state.
+        const shouldEnableCors = sameOrigin || isAllowListed;
+        if (shouldEnableCors) {
+          element.crossOrigin = 'anonymous';
+          element._corsEnabled = true;
+        } else {
+          element.removeAttribute('crossorigin');
+          element._corsEnabled = false;
         }
+      } catch (e) {
+        element.removeAttribute('crossorigin');
+        element._corsEnabled = false;
+      }
     }
 
     function normalizeMediaSrc(src) {
@@ -1937,7 +1936,8 @@ async function selectRadio(src, title, index, logo) {
         onReady = null,
         onError: onErrorCallback = null,
         disableSlowGuard = false,
-        live = currentRadioIndex >= 0
+        live = currentRadioIndex >= 0,
+        allowCorsRetry = true
       } = options;
 
       audioHealer.trackSource(src, title, { live });
@@ -1981,7 +1981,7 @@ async function selectRadio(src, title, index, logo) {
         }
       }
 
-      const handlerState = {};
+      const handlerState = { corsRetried: false };
       audioPlayer._loadHandlers = handlerState;
 
       let playTimeout = null;
@@ -2087,6 +2087,31 @@ async function selectRadio(src, title, index, logo) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
         console.error(`Album cover src: ${albumCover.src}`);
+
+        const corsBlocked = allowCorsRetry
+          && audioPlayer._corsEnabled
+          && (isLikelyCorsBlock(audioPlayer.error)
+            || (audioPlayer.error && audioPlayer.error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED));
+
+        if (corsBlocked && !handlerState.corsRetried) {
+          handlerState.corsRetried = true;
+          const retryUrl = appendCacheBuster(src);
+          console.warn('[cors] Retrying audio without CORS headers.', { retryUrl, title });
+          audioPlayer.removeAttribute('crossorigin');
+          audioPlayer.src = retryUrl;
+          handleAudioLoad(retryUrl, title, false, {
+            silent: false,
+            autoPlay,
+            resumeTime,
+            onReady,
+            onError: onErrorCallback,
+            disableSlowGuard: true,
+            live,
+            allowCorsRetry: false
+          });
+          attemptPlay();
+          return;
+        }
 
         if (!navigator.onLine || (audioPlayer.error && audioPlayer.error.code === MediaError.MEDIA_ERR_NETWORK)) {
           startNetworkRecovery('load-error');
