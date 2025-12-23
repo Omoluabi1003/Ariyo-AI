@@ -151,6 +151,7 @@
   const playbackLatencyMarks = new Map();
   const STALL_RECOVERY_DELAY_MS = 7000;
   const STALL_RECOVERY_ATTEMPTS = 2;
+  const PLAYBACK_PROGRESS_CHECK_MS = 2000;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   const DEFAULT_CROSSFADE_SECONDS = 6;
   const CROSSFADE_PRELOAD_SECONDS = 8;
@@ -166,6 +167,8 @@
   let stallRecoveryTimer = null;
   let stallRecoveryAttempts = 0;
   let lastProgressAt = Date.now();
+  let playbackMonitorId = null;
+  let lastObservedPosition = 0;
   const preconnectedHosts = new Set();
 
   const audioController = {
@@ -551,7 +554,33 @@
 
   const durationCache = new Map();
   const durationPromises = new Map();
+  const durationProbeQueue = [];
+  let activeDurationProbes = 0;
   const albumDurationState = new Map();
+  const DURATION_PROBE_CONCURRENCY = 3;
+  const DURATION_PROBE_TIMEOUT_MS = 8000;
+
+  function drainDurationProbeQueue() {
+    while (activeDurationProbes < DURATION_PROBE_CONCURRENCY && durationProbeQueue.length) {
+      const { task, resolve, reject } = durationProbeQueue.shift();
+      activeDurationProbes += 1;
+      Promise.resolve()
+        .then(task)
+        .then(resolve)
+        .catch(reject)
+        .finally(() => {
+          activeDurationProbes = Math.max(0, activeDurationProbes - 1);
+          drainDurationProbeQueue();
+        });
+    }
+  }
+
+  function enqueueDurationProbe(task) {
+    return new Promise((resolve, reject) => {
+      durationProbeQueue.push({ task, resolve, reject });
+      drainDurationProbeQueue();
+    });
+  }
 
   function requestTrackDuration(track, { disableCors = false } = {}) {
     return new Promise((resolve, reject) => {
@@ -564,10 +593,17 @@
         setCrossOrigin(track.src, audio);
       }
 
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        reject(new Error('Metadata probe timed out'));
+      }, DURATION_PROBE_TIMEOUT_MS);
+
       const cleanup = () => {
+        clearTimeout(timeoutId);
         audio.removeEventListener('loadedmetadata', handleSuccess);
         audio.removeEventListener('error', handleError);
         audio.removeAttribute('src');
+        audio.load();
       };
 
       const handleSuccess = () => {
@@ -584,13 +620,15 @@
       audio.addEventListener('error', handleError, { once: true });
 
       try {
-        resolveSunoAudioSrc(track.src).then(resolved => {
-          audio.src = resolved;
-          audio.load();
-        }).catch(error => {
-          cleanup();
-          reject(error);
-        });
+        resolveSunoAudioSrc(track.src)
+          .then(resolved => {
+            audio.src = resolved;
+            audio.load();
+          })
+          .catch(error => {
+            cleanup();
+            reject(error);
+          });
       } catch (error) {
         cleanup();
         reject(error);
@@ -607,7 +645,7 @@
       return durationPromises.get(track.src);
     }
 
-    const promise = (async () => {
+    const promise = enqueueDurationProbe(async () => {
       const attempts = [false, true];
       for (const disableCors of attempts) {
         try {
@@ -621,7 +659,7 @@
         }
       }
       return null;
-    })();
+    });
 
     durationPromises.set(track.src, promise);
     const result = await promise;
@@ -665,6 +703,12 @@
     loadingSpinner.style.display = 'none';
   }
 
+  function stopPlaybackMonitor() {
+    if (!playbackMonitorId) return;
+    clearInterval(playbackMonitorId);
+    playbackMonitorId = null;
+  }
+
   function resetStallRecovery() {
     if (stallRecoveryTimer) {
       clearTimeout(stallRecoveryTimer);
@@ -672,6 +716,7 @@
     stallRecoveryAttempts = 0;
     stallRecoveryTimer = null;
     lastProgressAt = Date.now();
+    stopPlaybackMonitor();
   }
 
   function notePlaybackProgress() {
@@ -683,14 +728,15 @@
     }
   }
 
-  function scheduleStallRecovery() {
-    if (stallRecoveryTimer) return;
-    stallRecoveryTimer = setTimeout(async () => {
+  function scheduleStallRecovery({ immediate = false } = {}) {
+    if (stallRecoveryTimer && !immediate) return;
+
+    const attemptRecovery = async () => {
       stallRecoveryTimer = null;
       const activeAudio = getActiveAudio();
       if (!activeAudio) return;
 
-      if (Date.now() - lastProgressAt < STALL_RECOVERY_DELAY_MS - 250) {
+      if (Date.now() - lastProgressAt < STALL_RECOVERY_DELAY_MS - 250 && !immediate) {
         return;
       }
 
@@ -712,7 +758,14 @@
       } else {
         setStatus('Trying to reconnect. Tap play if audio does not resume.', 'warning');
       }
-    }, STALL_RECOVERY_DELAY_MS);
+    };
+
+    if (immediate) {
+      stallRecoveryTimer = setTimeout(attemptRecovery, 0);
+      return;
+    }
+
+    stallRecoveryTimer = setTimeout(attemptRecovery, STALL_RECOVERY_DELAY_MS);
   }
 
   function ensurePreconnect(url) {
@@ -728,6 +781,31 @@
     } catch (_) {
       // Ignore malformed URLs or failures to create link tags.
     }
+  }
+
+  function startPlaybackMonitor() {
+    stopPlaybackMonitor();
+    const activeAudio = getActiveAudio();
+    if (!activeAudio) return;
+
+    lastObservedPosition = Number.isFinite(activeAudio.currentTime) ? activeAudio.currentTime : 0;
+    playbackMonitorId = setInterval(() => {
+      const audio = getActiveAudio();
+      if (!audio || audio.paused || audio.ended || audio.seeking) {
+        return;
+      }
+
+      const position = Number.isFinite(audio.currentTime) ? audio.currentTime : lastObservedPosition;
+      if (position !== lastObservedPosition) {
+        lastObservedPosition = position;
+        notePlaybackProgress();
+        return;
+      }
+
+      if (!stallRecoveryTimer && Date.now() - lastProgressAt >= STALL_RECOVERY_DELAY_MS) {
+        scheduleStallRecovery({ immediate: true });
+      }
+    }, PLAYBACK_PROGRESS_CHECK_MS);
   }
 
   function resetPlaybackStartState() {
@@ -1697,6 +1775,7 @@
   function handlePlaying(event) {
     if (event.target !== getActiveAudio()) return;
     notePlaybackProgress();
+    startPlaybackMonitor();
     logPlaybackStart(event.target.dataset.trackSrc);
     hideLoading();
     setStatus(`Now playing: ${trackInfo.textContent}`);
@@ -1770,6 +1849,7 @@
     el.addEventListener('playing', handlePlaying);
     el.addEventListener('pause', handlePause);
     el.addEventListener('waiting', handleWaiting);
+    el.addEventListener('stalled', handleWaiting);
     el.addEventListener('canplay', handleCanPlay);
     el.addEventListener('ended', handleEnded);
     el.addEventListener('error', handleError);
