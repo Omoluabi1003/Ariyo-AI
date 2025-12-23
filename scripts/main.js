@@ -986,15 +986,39 @@
         sidebarNav.removeAttribute('tabindex');
 
         const enforceSidebarVisibility = () => {
-            sidebarNav.removeAttribute('hidden');
-            sidebarNav.removeAttribute('aria-hidden');
-            sidebarNav.style.visibility = 'visible';
-            sidebarNav.style.opacity = '1';
+            let changed = false;
+
+            if (sidebarNav.hasAttribute('hidden')) {
+                sidebarNav.removeAttribute('hidden');
+                changed = true;
+            }
+
+            if (sidebarNav.getAttribute('aria-hidden') === 'true') {
+                sidebarNav.removeAttribute('aria-hidden');
+                changed = true;
+            }
+
+            if (sidebarNav.style.visibility !== 'visible') {
+                sidebarNav.style.visibility = 'visible';
+                changed = true;
+            }
+
+            if (sidebarNav.style.opacity !== '1') {
+                sidebarNav.style.opacity = '1';
+                changed = true;
+            }
+
+            return changed;
         };
 
         enforceSidebarVisibility();
 
-        const sidebarGuard = new MutationObserver(() => enforceSidebarVisibility());
+        const sidebarGuard = new MutationObserver(() => {
+            sidebarGuard.disconnect();
+            enforceSidebarVisibility();
+            sidebarGuard.observe(sidebarNav, { attributes: true, attributeFilter: ['hidden', 'style', 'aria-hidden', 'class'] });
+        });
+
         sidebarGuard.observe(sidebarNav, { attributes: true, attributeFilter: ['hidden', 'style', 'aria-hidden', 'class'] });
         window.addEventListener('beforeunload', () => sidebarGuard.disconnect());
     }
