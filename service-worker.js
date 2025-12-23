@@ -150,11 +150,8 @@ if (self.workbox) {
   );
 
   workbox.routing.registerRoute(
-    ({ url }) => url.pathname.endsWith('offline-audio.mp3') || url.pathname.endsWith('.mp3'),
-    new workbox.strategies.CacheFirst({
-      cacheName: `${CACHE_PREFIX}-audio-samples`,
-      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 50 })]
-    })
+    ({ request, url }) => request.destination === 'audio' || /\.(mp3|aac|m3u8|ts|ogg|opus)$/i.test(url.pathname),
+    new workbox.strategies.NetworkOnly()
   );
 
   workbox.routing.registerRoute(
@@ -282,39 +279,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // Always fetch manifest and icon assets from the network to avoid stale installs
-    if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
+    const hasRangeRequest = event.request.headers.has('range');
+    const isStreamPath = /\.(m3u8|ts|aac|mp3|flac|ogg|opus)(\?|$)/i.test(url.pathname);
+    const isAudioDestination = event.request.destination === 'audio';
+    if (isAudioDestination || isStreamPath || hasRangeRequest) {
         event.respondWith(fetch(event.request, { cache: 'no-store' }));
         return;
     }
 
-    if (event.request.destination === 'audio' || /\.mp3(\?|$)/.test(event.request.url)) {
-        const hasRangeRequest = event.request.headers.has('range');
-        if (hasRangeRequest) {
-            event.respondWith(fetch(event.request));
-            return;
-        }
-
-        event.respondWith((async () => {
-            const cache = await openRuntimeCache();
-            const cached = await cache.match(event.request);
-            if (cached) {
-                return cached;
-            }
-
-            try {
-                const networkResponse = await fetch(event.request, { cache: 'no-store' });
-                if (networkResponse && networkResponse.ok) {
-                    await cache.put(event.request, networkResponse.clone());
-                    await limitCacheSize(cache, 50);
-                }
-                return networkResponse;
-            } catch (error) {
-                console.error('Audio fetch failed:', error);
-                if (cached) return cached;
-                throw error;
-            }
-        })());
+    // Always fetch manifest and icon assets from the network to avoid stale installs
+    if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
+        event.respondWith(fetch(event.request, { cache: 'no-store' }));
         return;
     }
 
