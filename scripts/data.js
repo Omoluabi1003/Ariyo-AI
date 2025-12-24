@@ -158,6 +158,7 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+              { src: 'https://cdn1.suno.ai/c4520ca2-1c4e-4a0a-9ca3-b0d14cddb956.mp3', title: 'Ling Zing' },
               { src: 'https://cdn1.suno.ai/bd9f428d-77d2-4aee-b797-9c0d4913ebf4.mp3', title: 'Alafia' },
               { src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3', title: 'No Respect, No Me' },
               { src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3', title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)' },
@@ -373,6 +374,13 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Ling Zing',
+      src: 'https://cdn1.suno.ai/c4520ca2-1c4e-4a0a-9ca3-b0d14cddb956.mp3',
+      addedOn: '2025-12-24T04:00:00Z',
+      isFreshDrop: true
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'No Respect, No Me',

@@ -1514,16 +1514,12 @@ function removeTrackFromPlaylist(index) {
 
         textWrapper.appendChild(titleRow);
 
-        const subtitle = document.createElement('div');
-        subtitle.className = 'track-subtitle';
-        subtitle.textContent = track.subtitle || track.rssSource || album.artist || album.name;
-        textWrapper.appendChild(subtitle);
-
-        if (track.description) {
-          const description = document.createElement('p');
-          description.className = 'track-description';
-          description.textContent = track.description;
-          textWrapper.appendChild(description);
+        const subtitleText = track.subtitle || track.rssSource;
+        if (subtitleText) {
+          const subtitle = document.createElement('div');
+          subtitle.className = 'track-subtitle';
+          subtitle.textContent = subtitleText;
+          textWrapper.appendChild(subtitle);
         }
 
         item.appendChild(textWrapper);
