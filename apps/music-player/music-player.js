@@ -77,6 +77,8 @@
   }
 
   const albumTrackMap = new Map();
+  const albumDurationLoaded = new Set();
+  const trackDurationLabels = new Map();
   const allTracks = [];
   const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
 
@@ -672,6 +674,7 @@
     if (!state) return;
 
     if (arguments.length > 1) {
+      state.requested = true;
       if (Number.isFinite(durationSeconds)) {
         state.totalSeconds += durationSeconds;
       }
@@ -679,13 +682,54 @@
     }
 
     let label = ' • Unknown length';
-    if (state.totalSeconds > 0) {
+    if (!state.requested) {
+      label = ' • Open to calculate';
+    } else if (state.totalSeconds > 0) {
       label = ` • ${formatAlbumDuration(state.totalSeconds)}${state.pending > 0 ? '…' : ''}`;
     } else if (state.pending > 0) {
       label = ' • Calculating…';
     }
 
     state.element.textContent = label;
+  }
+
+  function loadAlbumDurations(albumIndex, tracks) {
+    if (!Number.isFinite(albumIndex) || !tracks || albumDurationLoaded.has(albumIndex)) {
+      return;
+    }
+
+    albumDurationLoaded.add(albumIndex);
+
+    const state = albumDurationState.get(albumIndex);
+    if (state) {
+      state.pending = tracks.filter(track => !isLiveStreamTrack(track)).length;
+      state.totalSeconds = 0;
+      state.requested = state.pending > 0;
+      updateAlbumDurationLabel(albumIndex);
+    }
+
+    tracks.forEach(track => {
+      if (isLiveStreamTrack(track)) return;
+      const durationLabel = trackDurationLabels.get(track.src);
+      if (durationLabel) {
+        durationLabel.textContent = 'Loading…';
+      }
+      loadTrackDuration(track)
+        .then(durationSeconds => {
+          if (durationLabel) {
+            durationLabel.textContent = Number.isFinite(durationSeconds)
+              ? formatTime(durationSeconds)
+              : 'Unknown length';
+          }
+          updateAlbumDurationLabel(albumIndex, durationSeconds);
+        })
+        .catch(() => {
+          if (durationLabel) {
+            durationLabel.textContent = 'Unknown length';
+          }
+          updateAlbumDurationLabel(albumIndex, null);
+        });
+    });
   }
 
   function setStatus(message, tone = 'info') {
@@ -1055,6 +1099,13 @@
     group.classList.add('is-open');
     const toggle = group.querySelector('.album-toggle');
     const list = group.querySelector('.album-track-list');
+    const albumIndex = Number(group.dataset.albumIndex);
+    if (Number.isFinite(albumIndex)) {
+      const tracks = albumTrackMap.get(albumIndex);
+      if (tracks) {
+        loadAlbumDurations(albumIndex, tracks);
+      }
+    }
     if (toggle) {
       toggle.setAttribute('aria-expanded', 'true');
     }
@@ -1235,11 +1286,11 @@
       const durationLabel = document.createElement('span');
       durationLabel.className = 'album-duration';
       meta.appendChild(durationLabel);
-      const pendingDurations = tracks.filter(track => !isLiveStreamTrack(track)).length;
       albumDurationState.set(albumIndex, {
         element: durationLabel,
-        pending: pendingDurations,
+        pending: 0,
         totalSeconds: 0,
+        requested: false,
       });
       updateAlbumDurationLabel(albumIndex);
 
@@ -1290,22 +1341,9 @@
 
         if (isLiveStreamTrack(track)) {
           trackDurationLabel.textContent = 'Live stream';
-          updateAlbumDurationLabel(albumIndex);
         } else {
-          trackDurationLabel.textContent = 'Loading…';
-          loadTrackDuration(track)
-            .then(durationSeconds => {
-              if (Number.isFinite(durationSeconds)) {
-                trackDurationLabel.textContent = formatTime(durationSeconds);
-              } else {
-                trackDurationLabel.textContent = 'Unknown length';
-              }
-              updateAlbumDurationLabel(albumIndex, durationSeconds);
-            })
-            .catch(() => {
-              trackDurationLabel.textContent = 'Unknown length';
-              updateAlbumDurationLabel(albumIndex, null);
-            });
+          trackDurationLabel.textContent = '—';
+          trackDurationLabels.set(track.src, trackDurationLabel);
         }
 
         listItem.appendChild(title);
