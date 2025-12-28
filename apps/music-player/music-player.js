@@ -49,10 +49,11 @@
   const djCrossfader = document.getElementById('djCrossfader');
 
   // Playback start safeguards. Adjust these values to tune responsiveness.
-  const PLAYBACK_START_TIMEOUT_MS = 8000;
+  const PLAYBACK_START_TIMEOUT_MS = 5000;
   const PLAYBACK_MAX_RETRIES = 2;
   const PLAYBACK_RETRY_DELAY_MS = 600;
-  const SOURCE_UPDATE_DEBOUNCE_MS = 150;
+  const SOURCE_UPDATE_DEBOUNCE_MS = 75;
+  const SOURCE_RESOLVE_TIMEOUT_MS = 1200;
   const DEBUG_AUDIO_ENABLED = new URLSearchParams(window.location.search).get('debugAudio') === '1';
 
   const deriveTrackArtist = (baseArtist, trackTitle) => {
@@ -1204,7 +1205,7 @@
 
     const prefetchAudio = new Audio();
     prefetchAudio.preload = 'auto';
-    const resolvedSrc = await resolveSunoAudioSrc(track.src);
+    const resolvedSrc = await resolveSunoAudioSrc(track.src, SOURCE_RESOLVE_TIMEOUT_MS);
     setCrossOrigin(resolvedSrc, prefetchAudio);
     prefetchAudio.src = resolvedSrc;
 
@@ -1497,7 +1498,7 @@
 
     const deck = decks[deckKey];
     ensureAudioGraph(deck);
-    const resolvedSrc = await resolveSunoAudioSrc(track.src);
+    const resolvedSrc = await resolveSunoAudioSrc(track.src, SOURCE_RESOLVE_TIMEOUT_MS);
     ensurePreconnect(resolvedSrc);
     let effectiveSrc = resolvedSrc;
     if (prefetchCache.has(track.src) && !isLiveStreamTrack(track)) {
