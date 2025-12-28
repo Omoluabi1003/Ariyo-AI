@@ -826,7 +826,7 @@ body[data-theme="light"] .badge-spotlight {
 .buffering-overlay.visible {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto;
+    pointer-events: none;
 }
 
 .buffering-content {

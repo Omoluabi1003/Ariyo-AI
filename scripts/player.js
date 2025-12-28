@@ -134,7 +134,9 @@
     if (!existingAudioElement && !audioPlayer.isConnected) {
         audioPlayer.id = 'audioPlayer';
     }
-    audioPlayer.preload = 'auto';
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const preferLightPreload = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
+    audioPlayer.preload = preferLightPreload ? 'none' : 'metadata';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');

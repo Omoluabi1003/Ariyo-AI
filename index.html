@@ -38,13 +38,34 @@
       window.addEventListener('touchstart', __ariyoUnlock, { passive: true, once: true });
       window.addEventListener('click', __ariyoUnlock, { passive: true, once: true });
     </script>
+    <script>
+      (function() {
+        const hideBootSpinner = () => {
+          const spinner = document.getElementById('bootSpinner');
+          if (!spinner) return;
+          spinner.classList.add('hidden');
+          spinner.setAttribute('aria-hidden', 'true');
+          spinner.style.pointerEvents = 'none';
+          setTimeout(() => spinner.remove(), 300);
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', hideBootSpinner, { once: true });
+        } else {
+          hideBootSpinner();
+        }
+
+        window.addEventListener('pageshow', hideBootSpinner, { once: true });
+        setTimeout(hideBootSpinner, 1800);
+      })();
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
     <script src="viewport-height.js" defer></script>
     <script src="scripts/theme-toggle.js" defer></script>
     <script src="scripts/deferred-init.js" defer></script>
-    <link rel="preload" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin>
-    <link rel="preload" as="audio" href="Omoluabi.mp3">
-    <link rel="preload" as="audio" href="offline-audio.mp3">
+    <link rel="prefetch" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin fetchpriority="low">
+    <link rel="prefetch" as="audio" href="Omoluabi.mp3" fetchpriority="low">
+    <link rel="prefetch" as="audio" href="offline-audio.mp3" fetchpriority="low">
     <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="index.css">
