@@ -61,6 +61,7 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'scripts/ui.js',
   'scripts/news.js',
   'scripts/main.js',
+  'scripts/audio-recovery-utils.js',
   'scripts/sw-controller.js',
   'scripts/push-notifications.js',
   'scripts/experience.js',
@@ -385,4 +386,3 @@ self.addEventListener('notificationclick', event => {
     })
   );
 });
-
