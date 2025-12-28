@@ -3,7 +3,13 @@ const { XMLParser } = require('fast-xml-parser');
 const FEEDS = [
   { url: 'https://feed.podbean.com/djcruze/feed.xml', category: 'Hip Hop / American Rap' },
   { url: 'https://feeds.buzzsprout.com/1879513.rss', category: 'Hip Hop / American Rap' },
-  { url: 'https://rss.com/podcasts/hip-hop-talking-heads/feed/', category: 'Hip Hop / American Rap' }
+  { url: 'https://rss.com/podcasts/hip-hop-talking-heads/feed/', category: 'Hip Hop / American Rap' },
+  { url: 'https://feeds.buzzsprout.com/217281.rss', category: 'Afrobeat' },
+  { url: 'https://feeds.soundcloud.com/users/soundcloud:users:211411884/sounds.rss', category: 'Afrobeat' },
+  { url: 'https://anchor.fm/s/31f26724/podcast/rss', category: 'Afrobeat' },
+  { url: 'https://www.spreaker.com/show/2572192/episodes/feed', category: 'Pop' },
+  { url: 'https://feeds.simplecast.com/TzbxCT1l', category: 'Pop' },
+  { url: 'https://rss.art19.com/pop-apologists', category: 'Pop' }
 ];
 
 const ALLOWED_AUDIO_TYPES = new Set([
