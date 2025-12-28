@@ -25,6 +25,27 @@
   <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
   <title>Àríyò AI - Smart Naija AI</title>
+  <script>
+    (function() {
+      const hideBootSpinner = () => {
+        const spinner = document.getElementById('bootSpinner');
+        if (!spinner) return;
+        spinner.classList.add('hidden');
+        spinner.setAttribute('aria-hidden', 'true');
+        spinner.style.pointerEvents = 'none';
+        setTimeout(() => spinner.remove(), 300);
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hideBootSpinner, { once: true });
+      } else {
+        hideBootSpinner();
+      }
+
+      window.addEventListener('pageshow', hideBootSpinner, { once: true });
+      setTimeout(hideBootSpinner, 1800);
+    })();
+  </script>
 
   <script type="application/ld+json">
   {
@@ -44,7 +65,7 @@
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet" />
   <link rel="preconnect" href="https://cdn1.suno.ai" crossorigin />
-  <link rel="preload" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin>
+  <link rel="prefetch" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin fetchpriority="low">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer integrity="sha384-3ve3u7etWcm2heCe4TswfZSAYSg2jR/EJxRHuKM5foOiKS8IJL/xRlvmjCaHELBz" crossorigin="anonymous"></script>
 
   <!-- Animations & Chat -->
