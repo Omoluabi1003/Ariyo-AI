@@ -1781,6 +1781,63 @@ function createPlaybackErrorHandler(trackMeta, normalizedSrc) {
   };
 }
 
+function primePlaybackSource({
+  normalizedSrc,
+  title,
+  trackMeta,
+  live = false,
+  isInitialLoad = false,
+  onReady = null,
+  onError = null
+}) {
+  const selectionToken = Symbol('playback-selection');
+  audioPlayer._selectionToken = selectionToken;
+
+  const immediateUrl = buildTrackFetchUrl(normalizedSrc, trackMeta);
+  setCrossOrigin(audioPlayer, immediateUrl);
+  audioPlayer.src = immediateUrl;
+  audioHealer.trackSource(immediateUrl, title, { live });
+  audioPlayer.currentTime = 0;
+  handleAudioLoad(immediateUrl, title, isInitialLoad, {
+    live,
+    onReady,
+    onError
+  });
+
+  resolveSunoAudioSrc(normalizedSrc)
+    .then(resolved => {
+      if (audioPlayer._selectionToken !== selectionToken) return;
+      if (!resolved || resolved === normalizedSrc) return;
+
+      const resolvedUrl = buildTrackFetchUrl(resolved, trackMeta);
+      const readyThreshold = typeof HTMLMediaElement !== 'undefined'
+        ? HTMLMediaElement.HAVE_CURRENT_DATA
+        : 2;
+      const isBuffering = playbackStatus === PlaybackStatus.preparing
+        || playbackStatus === PlaybackStatus.buffering;
+
+      if (audioPlayer.src !== immediateUrl || !isBuffering || audioPlayer.readyState >= readyThreshold) {
+        return;
+      }
+
+      setCrossOrigin(audioPlayer, resolvedUrl);
+      audioPlayer.src = resolvedUrl;
+      audioHealer.trackSource(resolvedUrl, title, { live });
+      audioPlayer.currentTime = 0;
+      handleAudioLoad(resolvedUrl, title, isInitialLoad, {
+        live,
+        onReady,
+        onError,
+        disableSlowGuard: true,
+        allowCorsRetry: false
+      });
+      attemptPlay();
+    })
+    .catch(error => {
+      console.warn('[player] Suno resolve skipped:', error);
+    });
+}
+
 
 async function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
@@ -1809,27 +1866,25 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       hideRetryButton();
       setTurntableSpin(false);
 
-    const normalizedSrc = normalizeMediaSrc(trackMeta?.src || src);
-    const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
-    const streamUrl = buildTrackFetchUrl(resolvedSrc, trackMeta);
-    setCrossOrigin(audioPlayer, streamUrl);
-    audioPlayer.src = streamUrl;
-    audioHealer.trackSource(streamUrl, title, { live: isLiveTrack });
-    audioPlayer.currentTime = 0;
-    const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
-    handleAudioLoad(streamUrl, title, false, {
-      live: isLiveTrack,
-      onReady: () => {
-        // Keep the track list open for non-user-initiated loads to avoid fighting the UI.
-        // The modal is explicitly closed by the track selection UI when needed.
-      },
-      onError: () => handlePlaybackError()
-    });
+      const normalizedSrc = normalizeMediaSrc(trackMeta?.src || src);
+      const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
+      primePlaybackSource({
+        normalizedSrc,
+        title,
+        trackMeta,
+        live: isLiveTrack,
+        isInitialLoad: false,
+        onReady: () => {
+          // Keep the track list open for non-user-initiated loads to avoid fighting the UI.
+          // The modal is explicitly closed by the track selection UI when needed.
+        },
+        onError: () => handlePlaybackError()
+      });
 
-    // Begin playback immediately after the user selects a track instead of waiting for
-    // metadata events. The autoplay safeguards in handleAudioLoad will keep the state
-    // consistent if the play promise settles later.
-    await attemptPlay();
+      // Begin playback immediately after the user selects a track instead of waiting for
+      // metadata events. The autoplay safeguards in handleAudioLoad will keep the state
+      // consistent if the play promise settles later.
+      await attemptPlay();
 
       updateMediaSession();
       showNowPlayingToast(title);
@@ -1867,12 +1922,6 @@ async function selectRadio(src, title, index, logo) {
       lastTrackSrc = normalizedSrc;
       lastTrackTitle = title;
       lastTrackIndex = index;
-      const resolvedSrc = await resolveSunoAudioSrc(normalizedSrc);
-      const streamUrl = buildTrackFetchUrl(resolvedSrc);
-      setCrossOrigin(audioPlayer, streamUrl);
-      audioPlayer.src = streamUrl;
-      audioHealer.trackSource(streamUrl, title, { live: true });
-      audioPlayer.currentTime = 0;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
       trackYear.textContent = '';
@@ -1888,7 +1937,13 @@ async function selectRadio(src, title, index, logo) {
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
       setTurntableSpin(false);
-      handleAudioLoad(streamUrl, title, true);
+      primePlaybackSource({
+        normalizedSrc,
+        title,
+        trackMeta: null,
+        live: true,
+        isInitialLoad: true
+      });
       updateMediaSession();
       showNowPlayingToast(title);
     }
