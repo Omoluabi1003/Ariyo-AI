@@ -71,10 +71,11 @@
 
   function normalizeTrack(item, collectionMap) {
     const safeUrl = cacheAudioUrl(item.audioUrl);
-    const collection = collectionMap.get(item.feedId) || collectionMap.get(item.category);
+    const feedKey = item.feedId || item.source || item.category;
+    const collection = collectionMap.get(feedKey) || collectionMap.get(item.category);
     const categoryCover = normalizeArtworkForCategory(collection?.category || item.category);
     const cover = item.artwork || item.feedArtwork || collection?.artwork || categoryCover;
-    const subtitleParts = [item.source || collection?.title];
+    const subtitleParts = [item.source || collection?.title || item.category];
     if (item.publishedAt) {
       subtitleParts.push(new Date(item.publishedAt).toLocaleDateString());
     }
@@ -88,9 +89,9 @@
       lrc: safeUrl.replace(/\.mp3($|\?.*$)/i, '.lrc'),
       description: item.description,
       sourceType: 'rss',
-      rssSource: item.source || item.category,
+      rssSource: item.source || collection?.title || item.category,
       publishedAt: item.publishedAt,
-      feedId: item.feedId,
+      feedId: feedKey,
       subtitle: subtitleParts.filter(Boolean).join(' • ')
     };
   }

@@ -764,6 +764,18 @@ window.RSS_COLLECTIONS = [
     category: 'Hip Hop / American Rap',
     cover: `${BASE_URL}Playlist.jpg`,
     rssFeed: true
+  },
+  {
+    name: 'Afrobeat',
+    category: 'Afrobeat',
+    cover: `${BASE_URL}Playlist.jpg`,
+    rssFeed: true
+  },
+  {
+    name: 'Pop',
+    category: 'Pop',
+    cover: `${BASE_URL}Playlist.jpg`,
+    rssFeed: true
   }
 ];
 
