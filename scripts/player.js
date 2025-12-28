@@ -1,7 +1,12 @@
 /* MUSIC PLAYER LOGIC */
     const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
     const existingAudioElement = document.getElementById('audioPlayer');
-    const audioPlayer = existingAudioElement || document.createElement('audio');
+    const sharedAudioElement = window.__ariyoAudioElement;
+    const audioPlayer = sharedAudioElement || existingAudioElement || document.createElement('audio');
+    if (!window.__ariyoAudioElement) {
+      window.__ariyoAudioElement = audioPlayer;
+    }
+    const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -23,12 +28,6 @@
           /\.suno\.com$/i,
           /raw\.githubusercontent\.com$/i,
           /githubusercontent\.com$/i,
-          /streamguys1\.com$/i,
-          /radio\.co$/i,
-          /zeno\.fm$/i,
-          /akamaized\.net$/i,
-          /mystreaming\.net$/i,
-          /securenetsystems\.net$/i,
           /github\.io$/i
         ];
         const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
@@ -54,7 +53,7 @@
       if (!src) return '';
       const trimmed = src.trim();
       if (/^\/\//.test(trimmed)) {
-        return `${window.location.protocol}${trimmed}`;
+        return `https:${trimmed}`;
       }
 
       if (/^http:\/\//i.test(trimmed)) {
@@ -62,6 +61,22 @@
       }
 
       return trimmed;
+    }
+
+    function isInsecureMediaSrc(src) {
+      return /^http:\/\//i.test(src || '');
+    }
+
+    function reportInsecureSource(title, src) {
+      const label = title || 'This stream';
+      const message = `${label} uses HTTP and is blocked on HTTPS. Choose another source.`;
+      console.warn('[security] Blocked insecure media URL:', src);
+      debugLog('insecure-source', { src, title: label });
+      setPlaybackStatus(PlaybackStatus.failed, { message });
+      showRetryButton('Choose another source');
+      if (trackInfo) {
+        trackInfo.textContent = message;
+      }
     }
     const audioContext = window.__ariyoAudioContext || (window.__ariyoAudioContext = new (window.AudioContext || window.webkitAudioContext)());
     let isAudioContextResumed = audioContext.state === 'running';
@@ -116,7 +131,7 @@
     document.addEventListener('keydown', unlockHandler);
     primeInitialBuffer();
 
-    if (!existingAudioElement) {
+    if (!existingAudioElement && !audioPlayer.isConnected) {
         audioPlayer.id = 'audioPlayer';
     }
     audioPlayer.preload = 'auto';
@@ -140,7 +155,7 @@
         stallRetryTimer = setTimeout(() => attemptPlay(), 3000);
       }
     });
-    if (!existingAudioElement) {
+    if (!existingAudioElement && !audioPlayer.isConnected) {
         document.body.appendChild(audioPlayer);
     }
     const albumCover = document.getElementById('albumCover');
@@ -198,11 +213,17 @@ let lastKnownFiniteDuration = null;
 
 const networkRecoveryState = {
   active: false,
-  intervalId: null,
+  timerId: null,
   attemptFn: null,
+  retryCount: 0,
+  maxRetries: 4,
+  baseDelayMs: 2000,
+  maxDelayMs: 15000,
+  cooldownMs: 20000,
   wasPlaying: false,
   resumeTime: 0,
-  source: null
+  source: null,
+  lastAttemptAt: 0
 };
 
 let networkRecoveryTimer = null;
@@ -219,10 +240,122 @@ const bufferingHedge = {
   deadlineMs: 1500
 };
 
+const TRACK_TIME_THROTTLE_MS = 250;
+let lastTrackTimeUiUpdateAt = 0;
+
 const AUDIO_URL_CACHE_KEY = 'ariyoAudioUrlCache';
 const AUDIO_URL_TTL_MS = 24 * 60 * 60 * 1000;
 
 const audioHealer = createSelfHealAudio(audioPlayer);
+
+const captureBufferedRanges = (audioEl) => {
+  try {
+    const ranges = [];
+    for (let i = 0; i < audioEl.buffered.length; i += 1) {
+      ranges.push([audioEl.buffered.start(i), audioEl.buffered.end(i)]);
+    }
+    return ranges;
+  } catch (error) {
+    return [];
+  }
+};
+
+const captureAudioState = () => ({
+  readyState: audioPlayer.readyState,
+  networkState: audioPlayer.networkState,
+  currentTime: Number.isFinite(audioPlayer.currentTime) ? Number(audioPlayer.currentTime.toFixed(3)) : audioPlayer.currentTime,
+  duration: Number.isFinite(audioPlayer.duration) ? Number(audioPlayer.duration.toFixed(3)) : audioPlayer.duration,
+  buffered: captureBufferedRanges(audioPlayer),
+  src: audioPlayer.currentSrc || audioPlayer.src,
+  preload: audioPlayer.preload,
+  crossOrigin: audioPlayer.getAttribute('crossorigin'),
+  volume: audioPlayer.volume,
+  muted: audioPlayer.muted,
+  paused: audioPlayer.paused,
+  error: audioPlayer.error ? { code: audioPlayer.error.code, message: audioPlayer.error.message } : null,
+  playbackStatus,
+  visibility: document.visibilityState,
+  online: navigator.onLine,
+  audioContext: window.__ariyoAudioContext ? window.__ariyoAudioContext.state : null
+});
+
+const debugState = {
+  panel: null,
+  logList: null
+};
+
+const debugLog = (eventName, detail = {}) => {
+  if (!DEBUG_AUDIO) return;
+  const payload = { event: eventName, ...detail, state: captureAudioState() };
+  console.log('[audio-debug]', payload);
+  if (debugState.logList) {
+    const item = document.createElement('li');
+    item.textContent = `${new Date().toLocaleTimeString()} ${eventName}`;
+    debugState.logList.prepend(item);
+    while (debugState.logList.children.length > 30) {
+      debugState.logList.removeChild(debugState.logList.lastChild);
+    }
+  }
+  if (debugState.panel) {
+    const stateEl = debugState.panel.querySelector('[data-audio-debug-state]');
+    if (stateEl) {
+      stateEl.textContent = JSON.stringify(captureAudioState(), null, 2);
+    }
+  }
+};
+
+const initDebugPanel = () => {
+  if (!DEBUG_AUDIO) return;
+  if (debugState.panel) return;
+  const panel = document.createElement('section');
+  panel.id = 'audioDebugPanel';
+  panel.innerHTML = `
+    <style>
+      #audioDebugPanel {
+        position: fixed;
+        bottom: 12px;
+        right: 12px;
+        width: min(420px, 90vw);
+        max-height: 70vh;
+        background: rgba(10, 10, 20, 0.9);
+        color: #f7f7f7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        border-radius: 12px;
+        padding: 12px;
+        z-index: 9999;
+        overflow: hidden;
+      }
+      #audioDebugPanel h3 {
+        margin: 0 0 8px;
+        font-size: 12px;
+        letter-spacing: 0.02em;
+      }
+      #audioDebugPanel pre {
+        margin: 0;
+        max-height: 220px;
+        overflow: auto;
+        white-space: pre-wrap;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 8px;
+        border-radius: 8px;
+      }
+      #audioDebugPanel ul {
+        margin: 8px 0 0;
+        padding-left: 16px;
+        max-height: 140px;
+        overflow: auto;
+      }
+    </style>
+    <h3>Audio Debug Panel (?debug=1)</h3>
+    <pre data-audio-debug-state></pre>
+    <ul data-audio-debug-log></ul>
+  `;
+  document.body.appendChild(panel);
+  debugState.panel = panel;
+  debugState.logList = panel.querySelector('[data-audio-debug-log]');
+  debugLog('debug-panel-init');
+};
 
 const PlaybackStatus = {
   idle: 'idle',
@@ -235,6 +368,36 @@ const PlaybackStatus = {
 };
 
 let playbackStatus = PlaybackStatus.idle;
+
+if (DEBUG_AUDIO) {
+  initDebugPanel();
+  const audioDebugEvents = [
+    'play', 'playing', 'pause', 'waiting', 'stalled', 'error', 'ended',
+    'timeupdate', 'canplay', 'canplaythrough', 'loadedmetadata',
+    'abort', 'emptied', 'seeking', 'seeked'
+  ];
+  audioDebugEvents.forEach(eventName => {
+    audioPlayer.addEventListener(eventName, () => {
+      debugLog(eventName, {
+        errorCode: audioPlayer.error ? audioPlayer.error.code : null
+      });
+    });
+  });
+  document.addEventListener('visibilitychange', () => {
+    debugLog('visibilitychange', { visibility: document.visibilityState });
+  });
+  window.addEventListener('popstate', () => {
+    debugLog('route-popstate', { url: window.location.href });
+  });
+  window.addEventListener('hashchange', () => {
+    debugLog('route-hashchange', { url: window.location.href });
+  });
+  if (window.__ariyoAudioContext) {
+    window.__ariyoAudioContext.addEventListener('statechange', () => {
+      debugLog('audiocontext-state', { state: window.__ariyoAudioContext.state });
+    });
+  }
+}
 const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
 let stallRetryTimer = null;
 
@@ -404,7 +567,14 @@ function ensureInitialTrackLoaded(silent = true) {
 
   const { albumIndex, trackIndex, track, album } = defaultSelection;
   applyTrackUiState(albumIndex, trackIndex);
+  if (isInsecureMediaSrc(track.src)) {
+    reportInsecureSource(track.title, track.src);
+    return false;
+  }
   const normalizedSrc = normalizeMediaSrc(track.src);
+  if (!normalizedSrc) {
+    return false;
+  }
   const streamUrl = buildTrackFetchUrl(normalizedSrc, track);
   setCrossOrigin(audioPlayer, streamUrl);
   audioPlayer.src = streamUrl;
@@ -710,6 +880,9 @@ function checkPlaybackHealth() {
   } else {
     console.warn('Playback has stalled. Attempting recovery.');
   }
+  if (attemptSoftRecovery('watchdog')) {
+    return;
+  }
   startNetworkRecovery('playback-stall');
 }
 
@@ -721,15 +894,17 @@ function startPlaybackWatchdog() {
 }
 
 function cancelNetworkRecovery() {
-  if (networkRecoveryState.intervalId) {
-    clearInterval(networkRecoveryState.intervalId);
-    networkRecoveryState.intervalId = null;
+  if (networkRecoveryState.timerId) {
+    clearTimeout(networkRecoveryState.timerId);
+    networkRecoveryState.timerId = null;
   }
   networkRecoveryState.active = false;
   networkRecoveryState.attemptFn = null;
+  networkRecoveryState.retryCount = 0;
   networkRecoveryState.source = null;
   networkRecoveryState.wasPlaying = false;
   networkRecoveryState.resumeTime = 0;
+  networkRecoveryState.lastAttemptAt = 0;
 }
 
 function captureCurrentSource() {
@@ -760,15 +935,17 @@ function captureCurrentSource() {
 }
 
 function finishNetworkRecovery() {
-  if (networkRecoveryState.intervalId) {
-    clearInterval(networkRecoveryState.intervalId);
-    networkRecoveryState.intervalId = null;
+  if (networkRecoveryState.timerId) {
+    clearTimeout(networkRecoveryState.timerId);
+    networkRecoveryState.timerId = null;
   }
   networkRecoveryState.active = false;
   networkRecoveryState.attemptFn = null;
+  networkRecoveryState.retryCount = 0;
   networkRecoveryState.source = null;
   networkRecoveryState.wasPlaying = false;
   networkRecoveryState.resumeTime = 0;
+  networkRecoveryState.lastAttemptAt = 0;
 }
 
 function appendCacheBuster(url) {
@@ -780,6 +957,51 @@ function isLikelyCorsBlock(error) {
   if (!error) return false;
   const message = String(error.message || '').toLowerCase();
   return error.name === 'TypeError' || message.includes('cors');
+}
+
+function computeRecoveryDelay(attempt) {
+  const helper = window.AriyoAudioRecoveryUtils && window.AriyoAudioRecoveryUtils.computeBackoffDelay;
+  if (typeof helper === 'function') {
+    return helper(attempt, networkRecoveryState.baseDelayMs, networkRecoveryState.maxDelayMs, 0.2);
+  }
+  const base = networkRecoveryState.baseDelayMs;
+  const max = networkRecoveryState.maxDelayMs;
+  const exponential = Math.min(max, base * Math.pow(2, Math.max(attempt - 1, 0)));
+  const jitter = exponential * 0.2 * Math.random();
+  return Math.round(exponential + jitter);
+}
+
+function attemptSoftRecovery(reason = 'soft-recover') {
+  if (!audioPlayer || audioPlayer.paused) return false;
+  const buffered = audioPlayer.buffered;
+  if (!buffered || buffered.length === 0) return false;
+  const currentTime = audioPlayer.currentTime || 0;
+
+  for (let i = 0; i < buffered.length; i += 1) {
+    const start = buffered.start(i);
+    const end = buffered.end(i);
+    if (currentTime >= start && currentTime <= end) {
+      const nudgeTarget = Math.min(end - 0.25, currentTime + 0.25);
+      if (Number.isFinite(nudgeTarget) && nudgeTarget > currentTime) {
+        audioPlayer.currentTime = nudgeTarget;
+        const playPromise = audioPlayer.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.catch(() => {});
+        }
+        debugLog('soft-recover-nudge', { reason, nudgeTarget });
+        return true;
+      }
+    }
+  }
+
+  const firstStart = buffered.start(0);
+  if (Number.isFinite(firstStart) && currentTime < firstStart) {
+    audioPlayer.currentTime = Math.max(firstStart - 0.1, 0);
+    debugLog('soft-recover-seek', { reason, target: audioPlayer.currentTime });
+    return true;
+  }
+
+  return false;
 }
 
 function createSelfHealAudio(player) {
@@ -1025,6 +1247,7 @@ function buildTrackFetchUrl(src, trackMeta = null) {
 async function attemptNetworkResume() {
   const source = networkRecoveryState.source;
   if (!source) return false;
+  debugLog('network-resume-attempt', { sourceType: source.type, src: source.src });
 
   return new Promise(async resolve => {
     let resolved = false;
@@ -1038,7 +1261,11 @@ async function attemptNetworkResume() {
     let originalSrc = source.src;
     let trackTitle = source.title;
 
-    if (source.type === 'radio') {
+  if (source.type === 'radio') {
+      if (isInsecureMediaSrc(source.src)) {
+        reportInsecureSource(source.title, source.src);
+        return resolveOnce(false);
+      }
       setCrossOrigin(audioPlayer, source.src);
       const reloadSrc = appendCacheBuster(source.src);
       audioPlayer.src = reloadSrc;
@@ -1079,6 +1306,7 @@ async function attemptNetworkResume() {
       });
     } catch (error) {
       console.error('Failed to fetch track during recovery:', error);
+      debugLog('network-resume-error', { message: error?.message || String(error) });
       if (isLikelyCorsBlock(error) && originalSrc) {
         const fallbackSrc = appendCacheBuster(originalSrc);
         console.warn('[network-recovery] Direct stream fallback after CORS block.', { fallbackSrc });
@@ -1107,6 +1335,7 @@ function startNetworkRecovery(reason = 'network') {
 
   stopPlaybackWatchdog(false);
   networkRecoveryState.active = true;
+  networkRecoveryState.retryCount = 0;
   networkRecoveryState.wasPlaying = !audioPlayer.paused && !audioPlayer.ended;
   const currentTime = audioPlayer.currentTime || 0;
   networkRecoveryState.resumeTime = currentRadioIndex === -1
@@ -1117,29 +1346,51 @@ function startNetworkRecovery(reason = 'network') {
   setPlaybackStatus(PlaybackStatus.buffering, { message: 'Reconnecting...' });
   document.getElementById('progressBar').style.display = 'none';
   console.log(`Starting network recovery due to: ${reason}`);
+  debugLog('network-recovery-start', { reason });
 
   const attemptReconnect = async () => {
     if (!networkRecoveryState.active) return;
+    if (networkRecoveryState.timerId) {
+      clearTimeout(networkRecoveryState.timerId);
+      networkRecoveryState.timerId = null;
+    }
     if (!navigator.onLine) {
       console.log('Waiting for network connection to return...');
       return;
     }
 
+    if (attemptSoftRecovery(`recovery-${reason}`)) {
+      finishNetworkRecovery();
+      return;
+    }
+
+    networkRecoveryState.lastAttemptAt = Date.now();
     const success = await attemptNetworkResume();
     if (success) {
       console.log('Network recovery successful.');
+      debugLog('network-recovery-success', { reason });
       finishNetworkRecovery();
       if (!audioPlayer.paused) {
         startPlaybackWatchdog();
       }
     } else {
+      networkRecoveryState.retryCount += 1;
+      debugLog('network-recovery-failure', { reason, attempt: networkRecoveryState.retryCount });
+      if (networkRecoveryState.retryCount > networkRecoveryState.maxRetries) {
+        console.warn('Network recovery exhausted. Please retry manually.');
+        setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback needs a tap to retry.' });
+        showRetryButton('Retry playback');
+        cancelNetworkRecovery();
+        return;
+      }
       console.log('Network recovery attempt failed, will retry.');
+      const delay = computeRecoveryDelay(networkRecoveryState.retryCount);
+      networkRecoveryState.timerId = setTimeout(attemptReconnect, delay);
     }
   };
 
   networkRecoveryState.attemptFn = attemptReconnect;
   attemptReconnect();
-  networkRecoveryState.intervalId = setInterval(attemptReconnect, 7000);
 }
 
 function savePlaylist() {
@@ -1866,7 +2117,16 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       hideRetryButton();
       setTurntableSpin(false);
 
-      const normalizedSrc = normalizeMediaSrc(trackMeta?.src || src);
+      const rawSrc = trackMeta?.src || src;
+      if (isInsecureMediaSrc(rawSrc)) {
+        reportInsecureSource(title, rawSrc);
+        return;
+      }
+      const normalizedSrc = normalizeMediaSrc(rawSrc);
+      if (!normalizedSrc) {
+        setPlaybackStatus(PlaybackStatus.failed, { message: 'This track is unavailable right now.' });
+        return;
+      }
       const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
       primePlaybackSource({
         normalizedSrc,
@@ -1918,7 +2178,15 @@ function selectRadio(src, title, index, logo) {
       }
       const newQuery = params.toString();
       window.history.replaceState({}, '', `${window.location.pathname}${newQuery ? '?' + newQuery : ''}`);
+      if (isInsecureMediaSrc(src)) {
+        reportInsecureSource(title, src);
+        return;
+      }
       const normalizedSrc = normalizeMediaSrc(src);
+      if (!normalizedSrc) {
+        setPlaybackStatus(PlaybackStatus.failed, { message: 'This station is unavailable right now.' });
+        return;
+      }
       lastTrackSrc = normalizedSrc;
       lastTrackTitle = title;
       lastTrackIndex = index;
@@ -2259,6 +2527,7 @@ function selectRadio(src, title, index, logo) {
 
     function attemptPlay() {
       console.log('[attemptPlay] called');
+      debugLog('attempt-play');
       userInitiatedPause = false;
       showPlaySpinner();
       void warmupAudioOutput();
@@ -2288,6 +2557,7 @@ function selectRadio(src, title, index, logo) {
       if (playPromise !== undefined) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
+          debugLog('playback-started');
           setPlaybackStatus(PlaybackStatus.playing);
           clearQuickStartDeadline();
           hidePlaySpinner();
@@ -2314,6 +2584,7 @@ function selectRadio(src, title, index, logo) {
           }
         }).catch(error => {
           console.error(`[attemptPlay] Autoplay was prevented for: ${trackInfo.textContent}. Error: ${error}`);
+          debugLog('playback-error', { error: error?.name || error?.message });
           handlePlayError(error, trackInfo.textContent);
         });
       }
@@ -2321,6 +2592,7 @@ function selectRadio(src, title, index, logo) {
 
     function handlePlayError(error, title) {
       clearQuickStartDeadline();
+      const isAutoplayBlocked = error && (error.name === 'NotAllowedError' || error.name === 'AbortError');
       if (!audioPlayer.src) {
         trackInfo.textContent = 'Choose a track to start playback.';
         hideRetryButton();
@@ -2328,7 +2600,10 @@ function selectRadio(src, title, index, logo) {
         return;
       }
 
-      setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback was interrupted. Tap play to resume.' });
+      setPlaybackStatus(
+        PlaybackStatus.failed,
+        { message: isAutoplayBlocked ? 'Tap play to enable audio.' : 'Playback was interrupted. Tap play to resume.' }
+      );
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       setTurntableSpin(false);
@@ -2341,7 +2616,7 @@ function selectRadio(src, title, index, logo) {
 
       // Surface retry control immediately to keep listeners in control
       hidePlaySpinner();
-      showRetryButton('Retry playback');
+      showRetryButton(isAutoplayBlocked ? 'Tap to enable audio' : 'Retry playback');
     }
 
 function pauseMusic() {
@@ -2381,6 +2656,11 @@ function updateTrackTime() {
     const currentTime = audioPlayer.currentTime;
     const duration = audioPlayer.duration;
     const hasFiniteDuration = Number.isFinite(duration) && duration > 0;
+    const now = Date.now();
+    if (currentTime > 0 && now - lastTrackTimeUiUpdateAt < TRACK_TIME_THROTTLE_MS) {
+      return;
+    }
+    lastTrackTimeUiUpdateAt = now;
 
   if (currentTime > 0 && playbackStatus !== PlaybackStatus.playing) {
     hideBufferingState();
@@ -2527,6 +2807,7 @@ function updateTrackTime() {
 function handleNetworkEvent(event) {
   if (networkRecoveryState.active) return;
   if (audioPlayer.paused) return;
+  debugLog('network-event', { type: event.type });
   if (!navigator.onLine) {
     startNetworkRecovery(event.type);
     return;
@@ -2535,6 +2816,12 @@ function handleNetworkEvent(event) {
   const haveFutureData = typeof HTMLMediaElement !== 'undefined'
     ? HTMLMediaElement.HAVE_FUTURE_DATA
     : 3;
+
+  if (audioPlayer.readyState >= haveFutureData) {
+    if (attemptSoftRecovery(event.type)) {
+      return;
+    }
+  }
 
   if (audioPlayer.readyState < haveFutureData) {
     if (networkRecoveryTimer) {
