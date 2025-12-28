@@ -1839,13 +1839,13 @@ function primePlaybackSource({
 }
 
 
-async function selectTrack(src, title, index, rebuildQueue = true) {
+function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
-      await warmupAudioOutput();
-      await resumeAudioContext();
+      void warmupAudioOutput();
+      void resumeAudioContext();
       audioPlayer.autoplay = true;
       audioPlayer.muted = false;
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
@@ -1884,7 +1884,7 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       // Begin playback immediately after the user selects a track instead of waiting for
       // metadata events. The autoplay safeguards in handleAudioLoad will keep the state
       // consistent if the play promise settles later.
-      await attemptPlay();
+      attemptPlay();
 
       updateMediaSession();
       showNowPlayingToast(title);
@@ -1893,13 +1893,13 @@ async function selectTrack(src, title, index, rebuildQueue = true) {
       }
     }
 
-async function selectRadio(src, title, index, logo) {
+function selectRadio(src, title, index, logo) {
       console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
-      await warmupAudioOutput();
-      resumeAudioContext();
+      void warmupAudioOutput();
+      void resumeAudioContext();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
       const station = radioStations[index];
@@ -2257,12 +2257,12 @@ async function selectRadio(src, title, index, logo) {
         attemptPlay();
     }
 
-    async function attemptPlay() {
+    function attemptPlay() {
       console.log('[attemptPlay] called');
       userInitiatedPause = false;
       showPlaySpinner();
-      await warmupAudioOutput();
-      await resumeAudioContext();
+      void warmupAudioOutput();
+      void resumeAudioContext();
       ensureInitialTrackLoaded();
       const hasBufferedAudio = audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
       if (hasBufferedAudio) {
