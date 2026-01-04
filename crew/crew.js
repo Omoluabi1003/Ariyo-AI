@@ -51,7 +51,7 @@ async function fetchJson(url, options = {}) {
 
 async function getSession() {
   try {
-    return await fetchJson('/api/crew/auth/session');
+    return await fetchJson('/api/auth/session');
   } catch (error) {
     return null;
   }

@@ -1,7 +1,7 @@
 const { sql } = require('@vercel/postgres');
 const { ensureSchema, getBrandVault } = require('./db');
 const { TOOL_DEFINITIONS, runTool } = require('./tools');
-const { SESSION_COOKIE, decodeSession, parseCookies } = require('./auth-utils');
+const { SESSION_COOKIE, decodeSession, parseCookies } = require('../auth/utils');
 
 const AGENT_PROMPTS = {
   Beacon: 'You are Beacon, a content strategist. Clarify the core narrative, campaign goals, and positioning.',

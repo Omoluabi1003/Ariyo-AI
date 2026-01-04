@@ -1,5 +1,5 @@
 const { getBrandVault, saveBrandVault } = require('./db');
-const { SESSION_COOKIE, decodeSession, parseCookies } = require('./auth-utils');
+const { SESSION_COOKIE, decodeSession, parseCookies } = require('../auth/utils');
 
 function requireAuth(req, res) {
   const cookies = parseCookies(req);
