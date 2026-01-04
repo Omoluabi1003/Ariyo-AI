@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   }
 
   const state = crypto.randomBytes(16).toString('hex');
-  const redirectUri = `${getBaseUrl(req)}/api/crew/auth/github/callback`;
+  const redirectUri = `${getBaseUrl(req)}/api/auth/callback/github`;
   const authUrl = new URL('https://github.com/login/oauth/authorize');
   authUrl.searchParams.set('client_id', clientId);
   authUrl.searchParams.set('redirect_uri', redirectUri);

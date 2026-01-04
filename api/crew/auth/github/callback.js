@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const redirectUri = `${getBaseUrl(req)}/api/crew/auth/github/callback`;
+  const redirectUri = `${getBaseUrl(req)}/api/auth/callback/github`;
   const tokenResponse = await exchangeCode(code, redirectUri);
 
   if (!tokenResponse.access_token) {
