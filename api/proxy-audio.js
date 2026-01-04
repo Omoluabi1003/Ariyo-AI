@@ -6,7 +6,40 @@ const ALLOW = [
   /raw\.githubusercontent\.com$/i,
   /githubusercontent\.com$/i,
   /github\.io$/i,
+  /cloudfront\.net$/i,
+  /anchor\.fm$/i,
+  /agidigbostream\.com\.ng$/i,
+  /asurahosting\.com$/i,
+  /instainternet\.com$/i,
+  /mixlr\.com$/i,
+  /fastcast4u\.com$/i,
+  /wnyc\.org$/i,
+  /webgateready\.com$/i,
+  /alonhosting\.com$/i,
+  /infomaniak\.ch$/i,
+  /radioca\.st$/i,
+  /servoserver\.com\.ng$/i,
+  /radionigeria\.gov\.ng$/i,
+  /ubc\.go\.ug$/i,
+  /listen2myradio\.com$/i,
+  /hearthis\.at$/i,
+  /rcast\.net$/i,
+  /gotright\.net$/i,
+  /ifastekpanel\.com$/i,
+  /radiorelax\.ua$/i,
+  /ihrhls\.com$/i,
+  /bbcmedia\.co\.uk$/i,
+  /streaming\.faajifmradio\.com$/i,
+  /myradiostream\.com$/i,
+  /musicradio\.com$/i,
+  /tunein\.cdnstream1\.com$/i,
+  /getaj\.net$/i,
+  /rte\.ie$/i,
+  /virginradio\.co\.uk$/i,
+  /talksport\.com$/i,
+  /galcom\.org$/i,
   /streamguys1\.com$/i,
+  /streamtheworld\.com$/i,
   /radio\.co$/i,
   /zeno\.fm$/i,
   /akamaized\.net$/i,
@@ -83,12 +116,15 @@ module.exports = async (req, res) => {
 
     const contentType = upstream.headers.get('content-type') || 'audio/mpeg';
     const contentRange = upstream.headers.get('content-range');
+    const contentLength = upstream.headers.get('content-length');
+    const isLiveStream = !contentLength && !contentRange;
 
     res.statusCode = upstream.status;
     res.setHeader('Content-Type', contentType);
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    if (headers.Range) res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Cache-Control', isLiveStream ? 'no-store' : 'public, max-age=3600');
+    res.setHeader('Accept-Ranges', 'bytes');
     if (contentRange) res.setHeader('Content-Range', contentRange);
+    if (contentLength) res.setHeader('Content-Length', contentLength);
 
     if (req.method === 'HEAD') {
       res.end();
