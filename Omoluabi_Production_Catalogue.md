@@ -3,7 +3,8 @@
 ![Omoluabi Productions Logo](Logo.jpg)
 
 ## Latest additions (now live in the catalogue player)
-- [Ling Zing](https://suno.com/s/TfHJWnUc68YFuOhi)
+- [Atmosphere Status](https://suno.com/s/ywZSBxvG8uShMofM)
+- [Ling Zing](https://suno.com/s/FLqKSUuzOE2369fa)
 - [Alafia](https://suno.com/s/jgatsjo6lHfzV6wj)
 - [No Respect, No Me](https://suno.com/s/Ixjj3GsLkyTXqYha)
 - [Make We No Meet  Who We Suppose Be (MWNMWWSB)](https://suno.com/s/nDWeQA7fycOHMqYw)
@@ -17,7 +18,8 @@
 - [Boda Yen](https://suno.com/s/7Ow0LQre3KMHRpLg)
 
 ## Full catalogue (includes the additions above)
-- [Ling Zing](https://suno.com/s/TfHJWnUc68YFuOhi)
+- [Atmosphere Status](https://suno.com/s/ywZSBxvG8uShMofM)
+- [Ling Zing](https://suno.com/s/FLqKSUuzOE2369fa)
 - [Alafia](https://suno.com/s/jgatsjo6lHfzV6wj)
 - [No Respect, No Me](https://suno.com/s/Ixjj3GsLkyTXqYha)
 - [Make We No Meet  Who We Suppose Be (MWNMWWSB)](https://suno.com/s/nDWeQA7fycOHMqYw)
