@@ -1,4 +1,4 @@
-const { SESSION_COOKIE, decodeSession, parseCookies } = require('../auth-utils');
+const { SESSION_COOKIE, decodeSession, parseCookies } = require('./utils');
 
 module.exports = async (req, res) => {
   const cookies = parseCookies(req);

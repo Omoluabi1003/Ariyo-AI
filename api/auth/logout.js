@@ -1,4 +1,4 @@
-const { clearCookie, SESSION_COOKIE } = require('../auth-utils');
+const { clearCookie, SESSION_COOKIE } = require('./utils');
 
 module.exports = async (req, res) => {
   res.setHeader('Set-Cookie', clearCookie(SESSION_COOKIE));

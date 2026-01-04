@@ -2,14 +2,16 @@ const crypto = require('crypto');
 const {
   STATE_COOKIE,
   getBaseUrl,
-  buildCookie
-} = require('../auth-utils');
+  buildCookie,
+  logAuthError
+} = require('./utils');
 
 module.exports = async (req, res) => {
-  const clientId = process.env.GITHUB_CLIENT_ID;
+  const clientId = process.env.GITHUB_ID;
   if (!clientId) {
+    logAuthError('Missing GITHUB_ID');
     res.statusCode = 500;
-    res.end('Missing GITHUB_CLIENT_ID');
+    res.end('Missing GITHUB_ID');
     return;
   }
 

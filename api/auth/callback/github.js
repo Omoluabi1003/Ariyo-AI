@@ -5,8 +5,9 @@ const {
   encodeSession,
   parseCookies,
   buildCookie,
-  clearCookie
-} = require('../../auth-utils');
+  clearCookie,
+  logAuthError
+} = require('../utils');
 
 async function exchangeCode(code, redirectUri) {
   const response = await fetch('https://github.com/login/oauth/access_token', {
@@ -16,12 +17,19 @@ async function exchangeCode(code, redirectUri) {
       Accept: 'application/json'
     },
     body: JSON.stringify({
-      client_id: process.env.GITHUB_CLIENT_ID,
-      client_secret: process.env.GITHUB_CLIENT_SECRET,
+      client_id: process.env.GITHUB_ID,
+      client_secret: process.env.GITHUB_SECRET,
       code,
       redirect_uri: redirectUri
     })
   });
+
+  if (!response.ok) {
+    logAuthError('GitHub token exchange failed', {
+      status: response.status,
+      statusText: response.statusText
+    });
+  }
 
   return response.json();
 }
@@ -30,9 +38,17 @@ async function fetchGitHubUser(token) {
   const response = await fetch('https://api.github.com/user', {
     headers: {
       Authorization: `Bearer ${token}`,
-      'User-Agent': 'Ariyo-AI-Crew-Console'
+      'User-Agent': 'Ariyo-AI'
     }
   });
+
+  if (!response.ok) {
+    logAuthError('GitHub user fetch failed', {
+      status: response.status,
+      statusText: response.statusText
+    });
+  }
+
   return response.json();
 }
 
@@ -42,6 +58,7 @@ module.exports = async (req, res) => {
   const storedState = cookies[STATE_COOKIE];
 
   if (!code || !state || state !== storedState) {
+    logAuthError('Invalid OAuth state', { hasCode: Boolean(code), hasState: Boolean(state) });
     res.statusCode = 400;
     res.end('Invalid OAuth state');
     return;
@@ -51,6 +68,7 @@ module.exports = async (req, res) => {
   const tokenResponse = await exchangeCode(code, redirectUri);
 
   if (!tokenResponse.access_token) {
+    logAuthError('Missing access token from GitHub');
     res.statusCode = 401;
     res.end('Unable to authenticate with GitHub');
     return;

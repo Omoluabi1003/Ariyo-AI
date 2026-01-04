@@ -1,15 +1,28 @@
 const crypto = require('crypto');
 
-const SESSION_COOKIE = 'crew_session';
-const STATE_COOKIE = 'crew_oauth_state';
+const SESSION_COOKIE = 'ariyo_session';
+const STATE_COOKIE = 'ariyo_oauth_state';
 
 function getBaseUrl(req) {
+  const configuredUrl = process.env.NEXTAUTH_URL;
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/$/, '');
+  }
   const protocol = req.headers['x-forwarded-proto'] || 'http';
   return `${protocol}://${req.headers.host}`;
 }
 
 function getSecret() {
-  return process.env.CREW_SESSION_SECRET || process.env.SESSION_SECRET || 'crew-console-dev-secret';
+  return process.env.NEXTAUTH_SECRET || 'ariyo-dev-secret';
+}
+
+function logAuthError(message, details) {
+  if (process.env.NODE_ENV === 'production') return;
+  if (details) {
+    console.warn(`[auth] ${message}`, details);
+    return;
+  }
+  console.warn(`[auth] ${message}`);
 }
 
 function sign(value) {
@@ -75,5 +88,6 @@ module.exports = {
   decodeSession,
   parseCookies,
   buildCookie,
-  clearCookie
+  clearCookie,
+  logAuthError
 };
