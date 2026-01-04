@@ -63,10 +63,6 @@ The command currently prints "No tests yet".
 
 See [docs/push-notifications.md](docs/push-notifications.md) for configuring VAPID keys, enabling client subscriptions, and triggering broadcast alerts.
 
-## Crew Console
-
-Crew Console adds a multi-agent workspace for content, outreach, and reporting inside Àríyò AI. Setup details, environment variables, and architecture notes live in [docs/crew-console.md](docs/crew-console.md).
-
 ## License
 
 This project is licensed under the MIT License.

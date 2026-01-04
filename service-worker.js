@@ -4,8 +4,8 @@ self.skipWaiting();
 self.clientsClaim && self.clientsClaim();
 
 // Bump cache prefix to force clients to refresh old caches
-const CACHE_PREFIX = 'ariyo-ai-cache-v13';
-const FALLBACK_VERSION = '1.16.0';
+const CACHE_PREFIX = 'ariyo-ai-cache-v14';
+const FALLBACK_VERSION = '1.16.1';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
 
@@ -53,13 +53,7 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   '/index.html',
   '/main.html',
   '/about.html',
-  '/crew/index.html',
-  '/crew/run/index.html',
-  '/crew/history/index.html',
-  '/crew/vault/index.html',
   '/offline-audio.mp3',
-  '/crew/crew.css',
-  '/crew/crew.js',
   'style.css',
   'color-scheme.css',
   'scripts/data.js',
