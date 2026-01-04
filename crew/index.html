@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crew Console — Àríyò AI</title>
+  <link rel="stylesheet" href="/color-scheme.css">
+  <link rel="stylesheet" href="/crew/crew.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <script src="/scripts/theme-toggle.js" defer></script>
+  <script src="/crew/crew.js" defer></script>
+</head>
+<body data-page="crew">
+  <div id="authGate" class="auth-gate auth-hidden" role="dialog" aria-live="polite" aria-modal="true">
+    <div class="auth-card">
+      <h2>Sign in to Crew Console</h2>
+      <p>Access the multi-agent workspace with your GitHub account.</p>
+      <a class="primary-button" href="/api/crew/auth/github">Continue with GitHub</a>
+    </div>
+  </div>
+  <div class="crew-shell">
+    <header class="crew-header">
+      <div class="crew-brand">
+        <img src="/Logo.jpg" alt="Àríyò AI logo">
+        <div>
+          <h1>Crew Console</h1>
+          <p>Multi-agent workflows for Ariyo AI.</p>
+        </div>
+      </div>
+      <nav class="crew-nav">
+        <a href="/crew/">Roster</a>
+        <a href="/crew/run/">Run</a>
+        <a href="/crew/history/">History</a>
+        <a href="/crew/vault/">Brand Vault</a>
+        <a href="/main.html">Studio</a>
+        <a href="/api/crew/auth/logout">Sign out</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+          <span class="theme-toggle-label">Light mode</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="crew-container">
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Agent roster</h2>
+            <p>Pick a specialist and launch a focused workflow.</p>
+          </div>
+          <a class="primary-button" href="/crew/run/">Run a workflow</a>
+        </div>
+        <div id="agentRoster" class="card-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Recent runs</h2>
+            <p>Review the latest deliverables from your crew.</p>
+          </div>
+        </div>
+        <div id="recentRuns" class="output-columns"></div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
