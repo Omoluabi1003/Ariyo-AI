@@ -20,6 +20,9 @@
   const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
   const albumCover = document.getElementById('albumCover');
   const turntableDisc = document.querySelector('.turntable-disc');
+  const turntableGrooves = document.querySelector('.turntable-grooves');
+  const turntableSheen = document.querySelector('.turntable-sheen');
+  const albumGrooveOverlay = document.querySelector('.album-groove-overlay');
   const trackInfo = document.getElementById('trackInfo');
   const trackArtist = document.getElementById('trackArtist');
   const trackAlbum = document.getElementById('trackAlbum');
@@ -1012,7 +1015,7 @@
   function updateSpinState() {
     const activeAudio = getActiveAudio();
     const shouldSpin = activeAudio && !activeAudio.paused && !activeAudio.ended && !activeAudio.seeking;
-    [turntableDisc, albumCover].forEach(element => {
+    [turntableDisc, albumCover, turntableGrooves, turntableSheen, albumGrooveOverlay].forEach(element => {
       if (!element) return;
       element.classList.toggle('spin', shouldSpin);
     });
