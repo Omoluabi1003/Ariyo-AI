@@ -11,7 +11,6 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
     "fast-xml-parser": "^5.3.3",
     "lyric-parser": "^1.0.1",
     "web-push": "^3.6.7"
