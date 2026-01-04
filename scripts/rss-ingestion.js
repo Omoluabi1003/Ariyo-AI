@@ -126,11 +126,14 @@
       });
   }
 
-  async function fetchFeedPayload() {
+  let activeController = null;
+  let ingestPromise = null;
+
+  async function fetchFeedPayload(signal) {
     const cached = readCache(FEED_CACHE_KEY, FEED_CACHE_TTL_MS);
     if (cached) return cached;
 
-    const response = await fetch(PODCAST_ENDPOINT, { cache: 'no-store' });
+    const response = await fetch(PODCAST_ENDPOINT, { cache: 'no-store', signal });
     if (!response.ok) throw new Error('Failed to load podcast feeds');
     const payload = await response.json();
     writeCache(FEED_CACHE_KEY, payload);
@@ -146,9 +149,13 @@
     }
   }
 
-  async function ingestFeeds() {
+  async function ingestFeeds(reason = 'manual') {
     try {
-      const payload = await fetchFeedPayload();
+      if (activeController) {
+        activeController.abort();
+      }
+      activeController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const payload = await fetchFeedPayload(activeController?.signal);
       const incomingTracks = Array.isArray(payload?.tracks) ? payload.tracks : [];
       if (!incomingTracks.length) return;
 
@@ -174,17 +181,30 @@
 
       refreshUi();
     } catch (error) {
-      console.warn('[rss-ingestion] Unable to hydrate podcast feeds:', error);
+      if (error?.name === 'AbortError') return;
+      console.warn('[rss-ingestion] Unable to hydrate podcast feeds:', error, { reason });
+    } finally {
+      activeController = null;
     }
   }
 
-  function scheduleIngestion() {
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setTimeout(ingestFeeds, 250);
-    } else {
-      document.addEventListener('DOMContentLoaded', () => ingestFeeds(), { once: true });
-    }
+  function requestRssIngestion({ reason = 'user', immediate = false } = {}) {
+    if (ingestPromise) return ingestPromise;
+    const run = () => ingestFeeds(reason);
+
+    ingestPromise = immediate
+      ? run()
+      : new Promise(resolve => {
+          const schedule = typeof requestIdleCallback === 'function'
+            ? cb => requestIdleCallback(cb, { timeout: 2000 })
+            : cb => setTimeout(cb, 500);
+          schedule(() => resolve(run()));
+        }).finally(() => {
+          ingestPromise = null;
+        });
+
+    return ingestPromise;
   }
 
-  scheduleIngestion();
+  window.requestRssIngestion = requestRssIngestion;
 })();

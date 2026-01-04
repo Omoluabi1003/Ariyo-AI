@@ -56,7 +56,8 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   '/offline-audio.mp3',
   'style.css',
   'color-scheme.css',
-  'scripts/data.js',
+  'scripts/data-lite.js',
+  'scripts/data-loader.js',
   'scripts/player.js',
   'scripts/ui.js',
   'scripts/news.js',
@@ -86,11 +87,8 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'apps/cycle-precision/cycle-precision.html'
 ];
 
-const PREFETCH_MEDIA = [
-  'Omoluabi.mp3',
-  'offline-audio.mp3',
-  'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3'
-];
+// Avoid prefetching large media during install; streaming should stay network-first.
+const PREFETCH_MEDIA = [];
 const PREFETCH_MEDIA_SET = new Set(PREFETCH_MEDIA);
 
 function fetchWithTimeout(url, options = {}, timeout = INSTALL_TIMEOUT_MS) {
@@ -158,6 +156,11 @@ if (self.workbox) {
   workbox.routing.registerRoute(
     ({ request }) => request.destination === 'document' && request.url.includes('playlist'),
     new workbox.strategies.NetworkFirst({ cacheName: `${CACHE_PREFIX}-playlist-pages` })
+  );
+
+  workbox.routing.registerRoute(
+    ({ url }) => url.pathname.startsWith('/api/podcasts'),
+    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-podcasts` })
   );
 
   workbox.routing.registerRoute(

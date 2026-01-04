@@ -60,6 +60,22 @@
       return trimmed;
     }
 
+    function ensurePreconnect(url) {
+      if (!url) return;
+      try {
+        const origin = new URL(url, window.location.href).origin;
+        if (preconnectedHosts.has(origin)) return;
+        const link = document.createElement('link');
+        link.rel = 'preconnect';
+        link.href = origin;
+        link.crossOrigin = 'anonymous';
+        document.head.appendChild(link);
+        preconnectedHosts.add(origin);
+      } catch (error) {
+        // Ignore invalid URLs.
+      }
+    }
+
     function isInsecureMediaSrc(src) {
       if (!/^http:\/\//i.test(src || '')) {
         return false;
@@ -142,8 +158,8 @@
         audioPlayer.id = 'audioPlayer';
     }
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const preferLightPreload = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
-    audioPlayer.preload = preferLightPreload ? 'none' : 'metadata';
+    const isSlowConnection = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
+    audioPlayer.preload = 'none';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
@@ -214,6 +230,9 @@ const offlineFallbackTrack = {
 
 let offlineFallbackActive = false;
 const SLOW_FETCH_TIMEOUT_MS = 8000;
+const preconnectedHosts = new Set();
+const TRACKS_PAGE_SIZE = isSlowConnection ? 20 : 50;
+const trackDisplayState = new Map();
 
     let currentAlbumIndex = 0;
     let currentTrackIndex = 0;
@@ -565,7 +584,7 @@ function showBufferingState(message = 'Lining up your track...') {
     return Boolean(trackModal && getComputedStyle(trackModal).display !== 'none');
   }
 
-function ensureInitialTrackLoaded(silent = true) {
+function ensureInitialTrackLoaded(silent = true, { primeSource = true } = {}) {
   if (audioPlayer.src) {
     return true;
   }
@@ -587,6 +606,10 @@ function ensureInitialTrackLoaded(silent = true) {
   if (!normalizedSrc) {
     return false;
   }
+  if (!primeSource) {
+    return true;
+  }
+
   const streamUrl = buildTrackFetchUrl(normalizedSrc, track);
   setCrossOrigin(audioPlayer, streamUrl);
   audioPlayer.src = streamUrl;
@@ -610,7 +633,7 @@ function primeInitialBuffer() {
   if (audioPlayer.src) return;
 
   const kickoff = () => {
-    warmupAudioOutput().finally(() => ensureInitialTrackLoaded(true));
+    warmupAudioOutput().finally(() => ensureInitialTrackLoaded(true, { primeSource: false }));
   };
 
   if (typeof requestIdleCallback === 'function') {
@@ -1713,10 +1736,14 @@ function removeTrackFromPlaylist(index) {
       const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
       const modal = document.getElementById('trackModal');
       const modalVisible = modal && getComputedStyle(modal).display !== 'none';
-      const shouldPrefetchDurations = prefetchDurations || modalVisible;
+      const shouldPrefetchDurations = (prefetchDurations || modalVisible) && !isSlowConnection;
       const album = albums[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
+      if (!album || !Array.isArray(album.tracks)) {
+        trackListContainer.innerHTML = '<p class="track-placeholder">Loading tracks…</p>';
+        return;
+      }
       trackModalTitle.textContent = album.name;
 
       const trackModalMeta = document.getElementById('trackModalMeta');
@@ -1741,6 +1768,10 @@ function removeTrackFromPlaylist(index) {
         }
       }
       trackListContainer.innerHTML = '';
+
+      if (album.rssFeed && typeof window.requestRssIngestion === 'function') {
+        window.requestRssIngestion({ reason: 'rss-track-list', immediate: false });
+      }
 
       const banner = document.getElementById('latestTracksBanner');
       const bannerCopy = document.getElementById('latestTracksCopy');
@@ -1834,7 +1865,13 @@ function removeTrackFromPlaylist(index) {
         }
       }
 
-      trackIndices.forEach(index => {
+      // Only render the first page so slow networks don't parse the full library at once.
+      const totalTracks = trackIndices.length;
+      const defaultLimit = albumIndex === playlistAlbumIndex ? totalTracks : TRACKS_PAGE_SIZE;
+      const currentLimit = trackDisplayState.get(albumIndex) || defaultLimit;
+      const visibleIndices = trackIndices.slice(0, currentLimit);
+
+      visibleIndices.forEach(index => {
         const track = albums[albumIndex].tracks[index];
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration
@@ -1932,11 +1969,26 @@ function removeTrackFromPlaylist(index) {
           });
         }
       });
+
+      if (totalTracks > currentLimit) {
+        const loadMore = document.createElement('button');
+        loadMore.type = 'button';
+        loadMore.className = 'track-load-more';
+        loadMore.textContent = 'Load more tracks';
+        loadMore.addEventListener('click', () => {
+          trackDisplayState.set(albumIndex, currentLimit + TRACKS_PAGE_SIZE);
+          updateTrackListModal();
+        });
+        trackListContainer.appendChild(loadMore);
+      }
       console.log(`Track list updated for album: ${albums[albumIndex].name}`);
     }
 
     const stationsPerPage = 6;
 let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+const STREAM_STATUS_CACHE_KEY = 'ariyoStreamStatusCache';
+const STREAM_STATUS_TTL_MS = 15 * 60 * 1000;
+let streamStatusCache = null;
 
 // Region Classifier
 function classifyStation(station) {
@@ -1948,14 +2000,45 @@ function classifyStation(station) {
   return "international";
 }
 
+function readStreamStatusCache() {
+  if (streamStatusCache) return streamStatusCache;
+  try {
+    const raw = localStorage.getItem(STREAM_STATUS_CACHE_KEY);
+    streamStatusCache = raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    streamStatusCache = {};
+  }
+  return streamStatusCache;
+}
+
+function writeStreamStatusCache(cache) {
+  try {
+    localStorage.setItem(STREAM_STATUS_CACHE_KEY, JSON.stringify(cache));
+  } catch (error) {
+    // ignore cache write errors
+  }
+}
+
 // Grouped Stations
-const groupedStations = { nigeria: [], westAfrica: [], international: [] };
-radioStations.forEach(station => {
-  const region = classifyStation(station);
-  groupedStations[region].push(station);
-});
+let groupedStations = { nigeria: [], westAfrica: [], international: [] };
+function buildGroupedStations() {
+  groupedStations = { nigeria: [], westAfrica: [], international: [] };
+  radioStations.forEach(station => {
+    const region = classifyStation(station);
+    groupedStations[region].push(station);
+  });
+}
+buildGroupedStations();
 
 async function checkStreamStatus(url) {
+      if (isSlowConnection) {
+        return 'unknown';
+      }
+      const cache = readStreamStatusCache();
+      const cached = cache[url];
+      if (cached && (Date.now() - cached.timestamp) < STREAM_STATUS_TTL_MS) {
+        return cached.status;
+      }
       return new Promise(resolve => {
         const testAudio = document.createElement('audio');
         let settled = false;
@@ -1970,6 +2053,8 @@ async function checkStreamStatus(url) {
           if (!settled) {
             settled = true;
             cleanup();
+            cache[url] = { status: 'online', timestamp: Date.now() };
+            writeStreamStatusCache(cache);
             resolve('online');
           }
         };
@@ -1978,6 +2063,8 @@ async function checkStreamStatus(url) {
           if (!settled) {
             settled = true;
             cleanup();
+            cache[url] = { status: 'offline', timestamp: Date.now() };
+            writeStreamStatusCache(cache);
             resolve('offline');
           }
         };
@@ -1995,6 +2082,8 @@ async function checkStreamStatus(url) {
           if (!settled) {
             settled = true;
             cleanup();
+            cache[url] = { status: 'offline', timestamp: Date.now() };
+            writeStreamStatusCache(cache);
             resolve('offline');
           }
         }, 10000); // fallback timeout
@@ -2003,6 +2092,7 @@ async function checkStreamStatus(url) {
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+      buildGroupedStations();
 
       ["nigeria", "westAfrica", "international"].forEach(region => {
         document.getElementById(`${region}-stations`).innerHTML = '';
@@ -2012,6 +2102,18 @@ async function checkStreamStatus(url) {
 
       console.log("Grouped and displayed radio stations by region");
     }
+
+function syncAlbumIndexToCurrentTrack() {
+  if (!lastTrackSrc) return;
+  for (let albumIdx = 0; albumIdx < albums.length; albumIdx += 1) {
+    const trackIdx = albums[albumIdx].tracks.findIndex(track => track.src === lastTrackSrc);
+    if (trackIdx >= 0) {
+      currentAlbumIndex = albumIdx;
+      currentTrackIndex = trackIdx;
+      return;
+    }
+  }
+}
 
 function loadMoreStations(region) {
   const container = document.getElementById(`${region}-stations`);
@@ -2030,6 +2132,10 @@ function loadMoreStations(region) {
     statusSpan.textContent = ' (Checking...)';
 
     checkStreamStatus(station.url).then(status => {
+        if (status === 'unknown') {
+            statusSpan.textContent = '';
+            return;
+        }
         statusSpan.textContent = status === 'online' ? ' (Online)' : ' (Offline)';
         statusSpan.style.color = status === 'online' ? 'lightgreen' : 'red';
         if (status !== 'online') {
@@ -2241,6 +2347,8 @@ function selectTrack(src, title, index, rebuildQueue = true) {
         setPlaybackStatus(PlaybackStatus.failed, { message: 'This track is unavailable right now.' });
         return;
       }
+      audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
+      ensurePreconnect(normalizedSrc);
       const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
       primePlaybackSource({
         normalizedSrc,
@@ -2303,6 +2411,8 @@ function selectRadio(src, title, index, logo) {
         setPlaybackStatus(PlaybackStatus.failed, { message: 'This station is unavailable right now.' });
         return;
       }
+      audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
+      ensurePreconnect(normalizedSrc);
       lastTrackSrc = normalizedSrc;
       lastTrackTitle = title;
       lastTrackIndex = index;
@@ -2649,6 +2759,7 @@ function selectRadio(src, title, index, logo) {
       showPlaySpinner();
       void warmupAudioOutput();
       void resumeAudioContext();
+      audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
       ensureInitialTrackLoaded();
       const hasBufferedAudio = audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
       if (hasBufferedAudio) {
@@ -3043,6 +3154,18 @@ function previousTrack() {
   switchTrack(-1);
   showNowPlayingToast(trackInfo.textContent);
 }
+
+window.addEventListener('ariyo:library-ready', event => {
+  if (event?.detail?.source !== 'full') return;
+  syncAlbumIndexToCurrentTrack();
+  buildGroupedStations();
+  if (typeof populateAlbumList === 'function') {
+    populateAlbumList();
+  }
+  if (isTrackModalOpen()) {
+    updateTrackListModal();
+  }
+});
 
 if (typeof window !== 'undefined') {
   Object.assign(window, {

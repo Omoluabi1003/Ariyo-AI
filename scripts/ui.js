@@ -31,6 +31,8 @@ function populateAlbumList() {
     const coverSrc = album.cover || album.coverImage || '../../Logo.jpg';
     img.src = coverSrc;
     img.alt = `${album.name} Album Cover`;
+    img.loading = 'lazy';
+    img.decoding = 'async';
 
     const name = document.createElement('p');
     name.textContent = `Album ${index + 1}: ${album.name}`;
@@ -44,7 +46,7 @@ function populateAlbumList() {
 
     const durationEl = document.createElement('p');
     durationEl.className = 'album-duration';
-    durationEl.textContent = 'Duration: …';
+    durationEl.textContent = `Tracks: ${album.tracks.length}`;
 
     const info = document.createElement('div');
     info.className = 'album-info';
@@ -55,13 +57,7 @@ function populateAlbumList() {
     link.appendChild(info);
     albumList.appendChild(link);
 
-    calculateAlbumDuration(album)
-      .then(total => {
-        durationEl.textContent = `Duration: ${formatTime(total)}`;
-      })
-      .catch(() => {
-        durationEl.textContent = 'Duration: N/A';
-      });
+    // Avoid preloading every track duration on open; it can stall slow networks.
   });
 }
 
@@ -97,6 +93,12 @@ function openAlbumList() {
       const modal = document.getElementById('albumModal');
       const modalContent = modal.querySelector('.modal-content');
 
+      if (typeof window.loadFullLibraryData === 'function') {
+        window.loadFullLibraryData({ reason: 'album-list', immediate: true }).then(() => {
+          populateAlbumList();
+        });
+      }
+
       populateAlbumList();
 
       modal.style.display = 'flex';
@@ -128,6 +130,11 @@ function openAlbumList() {
       const modal = document.getElementById('trackModal');
       modal.style.display = 'flex';
       updateTrackListModal(true);
+      if (typeof window.loadFullLibraryData === 'function') {
+        window.loadFullLibraryData({ reason: 'track-list', immediate: true }).then(() => {
+          updateTrackListModal(true);
+        });
+      }
       gsap.fromTo(modal.querySelector('.modal-content'),
         { scale: 0.8, opacity: 0, y: 50 },
         { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
@@ -159,6 +166,11 @@ function openAlbumList() {
 
     function openRadioList() {
       document.getElementById('main-content').classList.remove('about-us-active');
+      if (typeof window.loadFullLibraryData === 'function') {
+        window.loadFullLibraryData({ reason: 'radio-list', immediate: true }).then(() => {
+          updateRadioListModal();
+        });
+      }
       updateRadioListModal();
       const modal = document.getElementById('radioModal');
       const modalContent = modal.querySelector('.modal-content');
