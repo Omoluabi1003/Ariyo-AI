@@ -14,6 +14,7 @@
   - Omoluabi Tetris
   - Omoluabi Word Search
   - Ara Connect-4
+- **Crew Console:** Multi-agent AI workflows with brand governance, streaming outputs, and run history.
 - **Shareable Links:** Copy or share a URL that opens the app to a specific track (e.g., `main.html?album=kindness&track=locked-away`).
 
 ## Technologies Used
@@ -61,6 +62,10 @@ The command currently prints "No tests yet".
 ## Push notifications
 
 See [docs/push-notifications.md](docs/push-notifications.md) for configuring VAPID keys, enabling client subscriptions, and triggering broadcast alerts.
+
+## Crew Console
+
+Crew Console adds a multi-agent workspace for content, outreach, and reporting inside Àríyò AI. Setup details, environment variables, and architecture notes live in [docs/crew-console.md](docs/crew-console.md).
 
 ## License
 

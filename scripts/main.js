@@ -396,6 +396,10 @@
       aboutViewActive = true;
     }
 
+    function navigateToCrewConsole() {
+      window.location.href = '/crew/';
+    }
+
     function navigateToHome(pushState = true) {
       ensureAboutButtonReference();
       const mainContent = document.getElementById('main-content');
@@ -450,6 +454,7 @@
 
     window.navigateToAbout = navigateToAbout;
     window.navigateToHome = navigateToHome;
+    window.navigateToCrewConsole = navigateToCrewConsole;
 
     /* BACKGROUND CYCLER */
     const backgrounds = [

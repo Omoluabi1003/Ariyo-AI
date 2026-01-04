@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crew Console Run — Àríyò AI</title>
+  <link rel="stylesheet" href="/color-scheme.css">
+  <link rel="stylesheet" href="/crew/crew.css">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <script src="/scripts/theme-toggle.js" defer></script>
+  <script src="/crew/crew.js" defer></script>
+</head>
+<body data-page="crew-run">
+  <div id="authGate" class="auth-gate auth-hidden" role="dialog" aria-live="polite" aria-modal="true">
+    <div class="auth-card">
+      <h2>Sign in to Crew Console</h2>
+      <p>Access the multi-agent workspace with your GitHub account.</p>
+      <a class="primary-button" href="/api/crew/auth/github">Continue with GitHub</a>
+    </div>
+  </div>
+  <div class="crew-shell">
+    <header class="crew-header">
+      <div class="crew-brand">
+        <img src="/Logo.jpg" alt="Àríyò AI logo">
+        <div>
+          <h1>Crew Console</h1>
+          <p>Run multi-agent workflows with streaming output.</p>
+        </div>
+      </div>
+      <nav class="crew-nav">
+        <a href="/crew/">Roster</a>
+        <a href="/crew/run/">Run</a>
+        <a href="/crew/history/">History</a>
+        <a href="/crew/vault/">Brand Vault</a>
+        <a href="/main.html">Studio</a>
+        <a href="/api/crew/auth/logout">Sign out</a>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+          <span class="theme-toggle-label">Light mode</span>
+        </button>
+      </nav>
+    </header>
+
+    <main class="crew-container">
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Run console</h2>
+            <p>Select an agent, describe the goal, and stream deliverables in real time.</p>
+          </div>
+          <span class="notice-chip" id="runStatus">Idle</span>
+        </div>
+        <form id="runForm" class="form-grid">
+          <div class="form-field">
+            <label for="agentSelect">Agent</label>
+            <select id="agentSelect" name="agent" required></select>
+          </div>
+          <div class="form-field">
+            <label for="goalInput">Goal</label>
+            <input id="goalInput" name="goal" placeholder="Launch a regional campaign for Ariyo AI" required>
+          </div>
+          <div class="form-field" style="grid-column: 1 / -1;">
+            <label for="contextInput">Optional context</label>
+            <textarea id="contextInput" name="context" placeholder="Include timing, audience notes, or constraints."></textarea>
+          </div>
+          <div class="form-field" style="grid-column: 1 / -1;">
+            <button id="runButton" class="primary-button" type="submit">Run workflow</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h3>Streaming output</h3>
+        <div id="streamOutput" class="output-stream"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <div>
+            <h2>Deliverables</h2>
+            <p>Approve, copy, or export final assets.</p>
+          </div>
+          <div>
+            <button id="copyMarkdown" class="secondary-button">Copy to clipboard</button>
+            <button id="downloadMarkdown" class="secondary-button">Download .md</button>
+            <button id="exportJson" class="secondary-button">Export JSON</button>
+          </div>
+        </div>
+        <div class="output-columns">
+          <div class="output-card">
+            <h4>Summary</h4>
+            <div id="summaryOutput">Awaiting summary.</div>
+          </div>
+          <div class="output-card">
+            <h4>Deliverables</h4>
+            <div id="deliverablesOutput">Awaiting deliverables.</div>
+          </div>
+          <div class="output-card">
+            <h4>Next Actions</h4>
+            <div id="actionsOutput">Awaiting next actions.</div>
+          </div>
+          <div class="output-card">
+            <h4>Risks</h4>
+            <div id="risksOutput">Awaiting risks.</div>
+          </div>
+          <div class="output-card" style="grid-column: 1 / -1;">
+            <h4>JSON payload</h4>
+            <pre id="jsonOutput" class="output-stream">No JSON payload provided.</pre>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

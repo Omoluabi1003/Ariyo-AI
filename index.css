@@ -375,6 +375,23 @@ body[data-theme="light"] .feature-card:hover {
     color: rgba(226, 250, 233, 0.85);
 }
 
+.feature-link {
+    align-self: flex-start;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(142, 91, 255, 0.25);
+    color: inherit;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.feature-link:hover {
+    background: rgba(255, 127, 197, 0.35);
+    transform: translateY(-1px);
+}
+
 .experience-hints {
     display: flex;
     flex-direction: column;
