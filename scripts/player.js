@@ -28,7 +28,8 @@
           /\.suno\.com$/i,
           /raw\.githubusercontent\.com$/i,
           /githubusercontent\.com$/i,
-          /github\.io$/i
+          /github\.io$/i,
+          /cloudfront\.net$/i
         ];
         const isAllowListed = allowList.some(pattern => pattern.test(target.hostname));
 
@@ -56,15 +57,14 @@
         return `https:${trimmed}`;
       }
 
-      if (/^http:\/\//i.test(trimmed)) {
-        return trimmed.replace(/^http:\/\//i, 'https://');
-      }
-
       return trimmed;
     }
 
     function isInsecureMediaSrc(src) {
-      return /^http:\/\//i.test(src || '');
+      if (!/^http:\/\//i.test(src || '')) {
+        return false;
+      }
+      return !canProxyMediaSrc(src);
     }
 
     function reportInsecureSource(title, src) {
@@ -76,6 +76,16 @@
       showRetryButton('Choose another source');
       if (trackInfo) {
         trackInfo.textContent = message;
+      }
+    }
+
+    function ensureAudiblePlayback() {
+      if (audioPlayer.dataset.userMuted === 'true') {
+        return;
+      }
+      audioPlayer.muted = false;
+      if (audioPlayer.volume === 0) {
+        audioPlayer.volume = 1;
       }
     }
     const audioContext = window.__ariyoAudioContext || (window.__ariyoAudioContext = new (window.AudioContext || window.webkitAudioContext)());
@@ -110,10 +120,7 @@
           source.start(0);
         }
 
-        audioPlayer.muted = false;
-        if (audioPlayer.volume === 0) {
-          audioPlayer.volume = 1;
-        }
+        ensureAudiblePlayback();
       } catch (error) {
         console.warn('Audio warmup failed; will retry on next interaction.', error);
         audioWarmupRan = false;
@@ -142,6 +149,9 @@
     audioPlayer.setAttribute('playsinline', '');
     audioPlayer.setAttribute('controlsList', 'nodownload');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
+    audioPlayer.addEventListener('volumechange', () => {
+      audioPlayer.dataset.userMuted = audioPlayer.muted ? 'true' : 'false';
+    });
     audioPlayer.addEventListener('canplaythrough', hidePlaySpinner, { once: false });
     audioPlayer.addEventListener('playing', () => {
       clearBufferingHedge();
@@ -1215,10 +1225,105 @@ function getCachedAudioUrl(original) {
 window.cacheResolvedAudioUrl = cacheResolvedAudioUrl;
 window.getCachedAudioUrl = getCachedAudioUrl;
 
+const AUDIO_PROXY_PATH = '/api/proxy-audio';
+const DIRECT_MEDIA_HOSTS = [
+  /\.suno\.(?:ai|com)$/i,
+  /cdn\d*\.suno\.(?:ai|com)$/i,
+  /cloudfront\.net$/i,
+  /raw\.githubusercontent\.com$/i,
+  /githubusercontent\.com$/i,
+  /github\.io$/i
+];
+const PROXY_ALLOWED_HOSTS = [
+  /\.suno\.(?:ai|com)$/i,
+  /cdn\d*\.suno\.(?:ai|com)$/i,
+  /raw\.githubusercontent\.com$/i,
+  /githubusercontent\.com$/i,
+  /github\.io$/i,
+  /streamguys1\.com$/i,
+  /streamtheworld\.com$/i,
+  /zeno\.fm$/i,
+  /radio\.co$/i,
+  /akamaized\.net$/i,
+  /mystreaming\.net$/i,
+  /securenetsystems\.net$/i,
+  /asurahosting\.com$/i,
+  /agidigbostream\.com\.ng$/i,
+  /anchor\.fm$/i,
+  /instainternet\.com$/i,
+  /cloudfront\.net$/i,
+  /mixlr\.com$/i,
+  /fastcast4u\.com$/i,
+  /wnyc\.org$/i,
+  /webgateready\.com$/i,
+  /alonhosting\.com$/i,
+  /infomaniak\.ch$/i,
+  /radioca\.st$/i,
+  /servoserver\.com\.ng$/i,
+  /radionigeria\.gov\.ng$/i,
+  /ubc\.go\.ug$/i,
+  /listen2myradio\.com$/i,
+  /hearthis\.at$/i,
+  /rcast\.net$/i,
+  /gotright\.net$/i,
+  /ifastekpanel\.com$/i,
+  /radiorelax\.ua$/i,
+  /ihrhls\.com$/i,
+  /bbcmedia\.co\.uk$/i,
+  /streaming\.faajifmradio\.com$/i,
+  /myradiostream\.com$/i,
+  /musicradio\.com$/i,
+  /tunein\.cdnstream1\.com$/i,
+  /getaj\.net$/i,
+  /rte\.ie$/i,
+  /virginradio\.co\.uk$/i,
+  /talksport\.com$/i,
+  /galcom\.org$/i
+];
+
+function isProxyAllowedHost(url) {
+  return PROXY_ALLOWED_HOSTS.some(pattern => pattern.test(url.hostname));
+}
+
+function shouldProxyMediaUrl(url, trackMeta = null) {
+  if (url.origin === window.location.origin) return false;
+  if (!isProxyAllowedHost(url)) return false;
+  if (url.protocol === 'http:') return true;
+  const isDirect = DIRECT_MEDIA_HOSTS.some(pattern => pattern.test(url.hostname));
+  if (isDirect && !trackMeta?.forceProxy) return false;
+  return true;
+}
+
+function buildProxyUrl(src) {
+  return `${AUDIO_PROXY_PATH}?url=${encodeURIComponent(src)}`;
+}
+
+function canProxyMediaSrc(src) {
+  try {
+    const target = new URL(src, window.location.origin);
+    return isProxyAllowedHost(target);
+  } catch (error) {
+    return false;
+  }
+}
+
 function buildTrackFetchUrl(src, trackMeta = null) {
   const normalizedSrc = normalizeMediaSrc(src);
 
   const cachedUrl = getCachedAudioUrl(normalizedSrc);
+  const effectiveSrc = cachedUrl || normalizedSrc;
+  let targetUrl;
+  try {
+    targetUrl = new URL(effectiveSrc, window.location.origin);
+  } catch (error) {
+    targetUrl = null;
+  }
+
+  // Route cross-origin streams through the proxy to avoid CORS/mixed-content stalls.
+  if (targetUrl && shouldProxyMediaUrl(targetUrl, trackMeta)) {
+    return buildProxyUrl(effectiveSrc);
+  }
+
   if (cachedUrl) {
     return cachedUrl;
   }
@@ -1229,21 +1334,21 @@ function buildTrackFetchUrl(src, trackMeta = null) {
   }
 
   try {
-    const hostname = new URL(normalizedSrc, window.location.origin).hostname;
+    const hostname = new URL(effectiveSrc, window.location.origin).hostname;
     const cacheSafeHosts = [
       /cdn\d+\.[^.]+\.ai$/i, // Suno
       /anchor\.fm$/i,
       /cloudfront\.net$/i
     ];
     if (cacheSafeHosts.some(pattern => pattern.test(hostname))) {
-      return normalizedSrc;
+      return effectiveSrc;
     }
   } catch (error) {
     console.warn('Unable to analyze track URL for cache busting:', error);
   }
 
-  const separator = normalizedSrc.includes('?') ? '&' : '?';
-  return `${normalizedSrc}${separator}t=${Date.now()}`;
+  const separator = effectiveSrc.includes('?') ? '&' : '?';
+  return `${effectiveSrc}${separator}t=${Date.now()}`;
 }
 
 async function attemptNetworkResume() {
@@ -1268,8 +1373,9 @@ async function attemptNetworkResume() {
         reportInsecureSource(source.title, source.src);
         return resolveOnce(false);
       }
-      setCrossOrigin(audioPlayer, source.src);
-      const reloadSrc = appendCacheBuster(source.src);
+      const normalizedSrc = normalizeMediaSrc(source.src);
+      const reloadSrc = appendCacheBuster(buildTrackFetchUrl(normalizedSrc, { sourceType: 'stream', forceProxy: true }));
+      setCrossOrigin(audioPlayer, reloadSrc);
       audioPlayer.src = reloadSrc;
       audioPlayer.currentTime = 0;
       handleAudioLoad(reloadSrc, source.title, true, {
@@ -1292,7 +1398,7 @@ async function attemptNetworkResume() {
       originalSrc = track.src;
 
       const resolvedSrc = await resolveSunoAudioSrc(track.src);
-      const fetchUrl = buildTrackFetchUrl(resolvedSrc);
+      const fetchUrl = buildTrackFetchUrl(resolvedSrc, track);
       const response = await fetch(fetchUrl, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Status ${response.status}`);
       const blob = await response.blob();
@@ -1310,7 +1416,7 @@ async function attemptNetworkResume() {
       console.error('Failed to fetch track during recovery:', error);
       debugLog('network-resume-error', { message: error?.message || String(error) });
       if (isLikelyCorsBlock(error) && originalSrc) {
-        const fallbackSrc = appendCacheBuster(originalSrc);
+        const fallbackSrc = appendCacheBuster(buildTrackFetchUrl(originalSrc, track));
         console.warn('[network-recovery] Direct stream fallback after CORS block.', { fallbackSrc });
         setCrossOrigin(audioPlayer, fallbackSrc);
         audioPlayer.src = fallbackSrc;
@@ -1695,7 +1801,7 @@ function removeTrackFromPlaylist(index) {
               }
               currentAlbumIndex = albumIdx;
               pendingAlbumIndex = null;
-              closeTrackList();
+              closeTrackList(true);
               selectTrack(albums[albumIdx].tracks[trackIdx].src, albums[albumIdx].tracks[trackIdx].title, trackIdx);
             });
             bannerActions.appendChild(button);
@@ -1742,7 +1848,7 @@ function removeTrackFromPlaylist(index) {
         item.addEventListener('click', () => {
           currentAlbumIndex = albumIndex;
           pendingAlbumIndex = null;
-          closeTrackList();
+          closeTrackList(true);
           selectTrack(track.src, track.title, index);
         });
 
@@ -1805,8 +1911,9 @@ function removeTrackFromPlaylist(index) {
         if (shouldPrefetchDurations && !track.duration && !track.isLive) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
-          setCrossOrigin(tempAudio, track.src);
-          tempAudio.src = track.src;
+          const previewSrc = buildTrackFetchUrl(normalizeMediaSrc(track.src), track);
+          setCrossOrigin(tempAudio, previewSrc);
+          tempAudio.src = previewSrc;
           tempAudio.addEventListener('loadedmetadata', () => {
             track.duration = tempAudio.duration;
             if (albumIndex === playlistAlbumIndex) {
@@ -1875,11 +1982,13 @@ async function checkStreamStatus(url) {
           }
         };
 
-        setCrossOrigin(testAudio, url);
+        const normalized = normalizeMediaSrc(url);
+        const streamUrl = buildTrackFetchUrl(normalized, { sourceType: 'stream', forceProxy: true });
+        setCrossOrigin(testAudio, streamUrl);
         testAudio.preload = 'auto';
         testAudio.addEventListener('canplay', onCanPlay, { once: true });
         testAudio.addEventListener('error', onError, { once: true });
-        testAudio.src = url;
+        testAudio.src = streamUrl;
         testAudio.load();
 
         setTimeout(() => {
@@ -2100,7 +2209,10 @@ function selectTrack(src, title, index, rebuildQueue = true) {
       void warmupAudioOutput();
       void resumeAudioContext();
       audioPlayer.autoplay = true;
-      audioPlayer.muted = false;
+      ensureAudiblePlayback();
+      if (isTrackModalOpen()) {
+        closeTrackList(true);
+      }
       console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       pendingAlbumIndex = null;
       currentTrackIndex = index;
@@ -2162,6 +2274,8 @@ function selectRadio(src, title, index, logo) {
       clearSlowBufferRescue();
       void warmupAudioOutput();
       void resumeAudioContext();
+      audioPlayer.autoplay = true;
+      ensureAudiblePlayback();
       closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
       const station = radioStations[index];
@@ -2210,10 +2324,11 @@ function selectRadio(src, title, index, logo) {
       primePlaybackSource({
         normalizedSrc,
         title,
-        trackMeta: null,
+        trackMeta: { sourceType: 'stream', forceProxy: true },
         live: true,
         isInitialLoad: true
       });
+      attemptPlay();
       updateMediaSession();
       showNowPlayingToast(title);
     }

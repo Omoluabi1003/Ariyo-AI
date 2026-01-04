@@ -5,8 +5,9 @@ function calculateAlbumDuration(album) {
     return new Promise(resolve => {
       const tempAudio = new Audio();
       tempAudio.preload = 'metadata';
-      tempAudio.crossOrigin = 'anonymous';
-      tempAudio.src = track.src;
+      const previewSrc = buildTrackFetchUrl(normalizeMediaSrc(track.src), track);
+      setCrossOrigin(tempAudio, previewSrc);
+      tempAudio.src = previewSrc;
       tempAudio.addEventListener('loadedmetadata', () => {
         track.duration = tempAudio.duration;
         resolve(track.duration);
@@ -134,8 +135,14 @@ function openAlbumList() {
       console.log('Track list opened');
     }
 
-    function closeTrackList() {
+    function closeTrackList(immediate = false) {
       const modal = document.getElementById('trackModal');
+      if (immediate) {
+        modal.style.display = 'none';
+        pendingAlbumIndex = null;
+        console.log('Track list closed (immediate)');
+        return;
+      }
       gsap.to(modal.querySelector('.modal-content'),
         { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
           onComplete: () => { modal.style.display = 'none'; }
