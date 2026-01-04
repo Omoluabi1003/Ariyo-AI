@@ -2,7 +2,8 @@
   const BASE_URL = './';
 
   const OMOLUABI_TRACKS = [
-    { slug: 'ling-zing', title: 'Ling Zing', src: 'https://cdn1.suno.ai/c4520ca2-1c4e-4a0a-9ca3-b0d14cddb956.mp3' },
+    { slug: 'ling-zing', title: 'Ling Zing', src: 'https://cdn1.suno.ai/89b35923-5ce0-4464-9c68-931f06de6f69.mp3' },
+    { slug: 'atmosphere-status', title: 'Atmosphere Status', src: 'https://cdn1.suno.ai/2eee0551-4301-49df-b433-f58cacc9150a.mp3' },
     { slug: 'alafia', title: 'Alafia', src: 'https://cdn1.suno.ai/bd9f428d-77d2-4aee-b797-9c0d4913ebf4.mp3' },
     { slug: 'no-respect-no-me', title: 'No Respect, No Me', src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3' },
     {
@@ -83,6 +84,7 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    { albumName: 'Omoluabi Production Catalogue', slug: 'atmosphere-status', addedOn: '2026-01-04T21:49:18Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'ling-zing', addedOn: '2025-12-24T04:00:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'alafia', addedOn: '2025-12-13T09:20:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'no-respect-no-me', addedOn: '2025-12-13T09:15:00Z', isFreshDrop: true },
