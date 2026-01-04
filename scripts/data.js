@@ -1,4 +1,5 @@
 // Serve audio from the same origin as the app to avoid cross-origin playback
+(function () {
 // restrictions that can mute the player or break the Web Audio graph.
 const BASE_URL = '../../';
 const TOA_URL = 'https://raw.githubusercontent.com/Omoluabi1003/Terms-Of-Agreement/main/';
@@ -789,3 +790,11 @@ window.RSS_COLLECTIONS = [
 
 window.RSS_DEFAULT_COVER = RSS_DEFAULT_COVER;
 window.libraryState = libraryState;
+window.albums = albums;
+window.radioStations = radioStations;
+window.latestTracks = latestTracks;
+window.PLAYLIST_STORAGE_KEY = PLAYLIST_STORAGE_KEY;
+window.__ariyoLibraryHydrated = true;
+window.__ariyoLibraryMode = 'full';
+window.dispatchEvent(new CustomEvent('ariyo:library-ready', { detail: { source: 'full' } }));
+})();

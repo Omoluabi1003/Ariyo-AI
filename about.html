@@ -287,28 +287,43 @@
     &copy; <script>document.write(new Date().getFullYear())</script> Omoluabi Productions. All rights reserved.
   </footer>
   <script src="scripts/sw-controller.js" defer></script>
-  <script src="scripts/data.js"></script>
+  <script src="scripts/data-lite.js" defer></script>
+  <script src="scripts/data-loader.js" defer></script>
   <script>
     const albumCoversDiv = document.querySelector('.album-covers');
-    albumCoversDiv.innerHTML = '';
-    albums.forEach(album => {
-      const container = document.createElement('div');
-      container.style.textAlign = 'center';
 
-      const img = document.createElement('img');
-      img.src = album.cover;
-      img.alt = album.name + ' Album Cover';
+    function renderAlbumCovers() {
+      if (!albumCoversDiv || !Array.isArray(albums)) return;
+      albumCoversDiv.innerHTML = '';
+      albums.forEach(album => {
+        const container = document.createElement('div');
+        container.style.textAlign = 'center';
 
-      const p = document.createElement('p');
-      p.textContent = `${album.name} (${album.tracks.length} tracks)`;
-      p.style.color = '#fff';
-      p.style.fontSize = '0.8rem';
-      p.style.marginTop = '0.5rem';
+        const img = document.createElement('img');
+        img.src = album.cover;
+        img.alt = `${album.name} Album Cover`;
+        img.loading = 'lazy';
+        img.decoding = 'async';
 
-      container.appendChild(img);
-      container.appendChild(p);
-      albumCoversDiv.appendChild(container);
-    });
+        const p = document.createElement('p');
+        p.textContent = `${album.name} (${album.tracks.length} tracks)`;
+        p.style.color = '#fff';
+        p.style.fontSize = '0.8rem';
+        p.style.marginTop = '0.5rem';
+
+        container.appendChild(img);
+        container.appendChild(p);
+        albumCoversDiv.appendChild(container);
+      });
+    }
+
+    if (typeof albums !== 'undefined') {
+      renderAlbumCovers();
+    }
+    window.addEventListener('ariyo:library-ready', renderAlbumCovers);
+    if (typeof window.loadFullLibraryData === 'function') {
+      window.loadFullLibraryData({ reason: 'about', immediate: true }).then(renderAlbumCovers);
+    }
   </script>
   <script src="prevent-zoom.js"></script>
 </body>

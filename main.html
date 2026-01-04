@@ -64,7 +64,7 @@
 
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet" />
-  <link rel="preconnect" href="https://cdn1.suno.ai" crossorigin />
+  
   <link rel="prefetch" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin fetchpriority="low">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer integrity="sha384-3ve3u7etWcm2heCe4TswfZSAYSg2jR/EJxRHuKM5foOiKS8IJL/xRlvmjCaHELBz" crossorigin="anonymous"></script>
 
@@ -1531,7 +1531,7 @@
               <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
               <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
             </div>
-            <audio id="audioPlayer" preload="metadata" hidden aria-hidden="true"></audio>
+            <audio id="audioPlayer" preload="none" hidden aria-hidden="true"></audio>
           </div>
         </div>
       </div>
@@ -1791,17 +1791,18 @@
 
   <script src="scripts/sw-controller.js" defer></script>
   <script src="scripts/push-notifications.js" defer></script>
-  <script src="scripts/data.js"></script>
-  <script src="scripts/suno-audio-fallback.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js"></script>
-  <script src="scripts/audio-recovery-utils.js"></script>
-  <script src="scripts/player.js"></script>
-  <script src="scripts/ui.js"></script>
-  <script src="scripts/rss-ingestion.js"></script>
+  <script src="scripts/data-lite.js" defer></script>
+  <script src="scripts/data-loader.js" defer></script>
+  <script src="scripts/suno-audio-fallback.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js" defer></script>
+  <script src="scripts/audio-recovery-utils.js" defer></script>
+  <script src="scripts/player.js" defer></script>
+  <script src="scripts/ui.js" defer></script>
+  <script src="scripts/rss-ingestion.js" defer></script>
   <script src="scripts/news.js" defer></script>
-  <script src="scripts/main.js"></script>
-  <script src="user-tracking.js"></script>
-  <script src="prevent-zoom.js"></script>
+  <script src="scripts/main.js" defer></script>
+  <script src="user-tracking.js" defer></script>
+  <script src="prevent-zoom.js" defer></script>
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
     <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
