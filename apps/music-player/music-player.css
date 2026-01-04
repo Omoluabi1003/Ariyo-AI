@@ -7,6 +7,9 @@
   --player-radius: 24px;
   --turntable-size: clamp(180px, 26vw, 260px);
   --album-size: calc(var(--turntable-size) * 0.82);
+  --vinyl-spin-duration: 3.2s;
+  --vinyl-wobble-duration: 1.8s;
+  --vinyl-sheen-duration: 2.6s;
 }
 
 html,
@@ -116,6 +119,7 @@ body {
   height: 100%;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.85) 70%);
+  perspective: 900px;
   box-shadow:
     inset 0 12px 24px rgba(255, 255, 255, 0.08),
     inset 0 -12px 24px rgba(0, 0, 0, 0.6),
@@ -141,6 +145,8 @@ body {
     inset 0 12px 24px rgba(0, 0, 0, 0.75),
     inset 0 -12px 24px rgba(255, 255, 255, 0.12);
   overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .turntable-sheen,
@@ -159,6 +165,7 @@ body {
   mix-blend-mode: screen;
   opacity: 0.35;
   z-index: 4;
+  will-change: transform, opacity;
 }
 
 .turntable-grooves {
@@ -171,6 +178,7 @@ body {
   mix-blend-mode: overlay;
   opacity: 0.45;
   z-index: 1;
+  will-change: transform, opacity;
 }
 
 .album-cover {
@@ -188,6 +196,7 @@ body {
   border: none;
   z-index: 2;
   transition: transform 0.3s ease-in-out;
+  will-change: transform;
 }
 
 .album-groove-overlay {
@@ -210,6 +219,7 @@ body {
   box-shadow:
     inset 0 0 18px rgba(0, 0, 0, 0.55),
     inset 0 0 4px rgba(255, 255, 255, 0.15);
+  will-change: transform, opacity;
 }
 
 .turntable-label {
@@ -643,19 +653,74 @@ body {
 
 @keyframes spinDisc {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: rotate(90deg) rotateX(1deg) rotateY(-1deg);
+  }
+  50% {
+    transform: rotate(180deg) rotateX(0.6deg) rotateY(1deg);
+  }
+  75% {
+    transform: rotate(270deg) rotateX(-0.6deg) rotateY(0.6deg);
   }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(360deg) rotateX(0deg) rotateY(0deg);
   }
 }
 
 @keyframes spinAlbum {
   0% {
-    transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  35% {
+    transform: translate(-50.4%, -50.2%) rotate(0.6deg) scale(1.01);
+  }
+  70% {
+    transform: translate(-49.8%, -50.5%) rotate(-0.4deg) scale(0.995);
   }
   100% {
-    transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes grooveDrift {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.012);
+    opacity: 0.6;
+  }
+}
+
+@keyframes sheenSweep {
+  0%,
+  100% {
+    transform: rotate(0deg);
+    opacity: 0.35;
+  }
+  45% {
+    transform: rotate(6deg);
+    opacity: 0.55;
+  }
+  75% {
+    transform: rotate(-4deg);
+    opacity: 0.4;
+  }
+}
+
+@keyframes grooveShimmer {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-50.3%, -49.7%) scale(1.015);
+    opacity: 1;
   }
 }
 
@@ -669,11 +734,23 @@ body {
 }
 
 .turntable-disc.spin {
-  animation: spinDisc 3.5s linear infinite;
+  animation: spinDisc var(--vinyl-spin-duration) linear infinite;
 }
 
 .album-cover.spin {
-  animation: spinAlbum 3.5s linear infinite;
+  animation: spinAlbum var(--vinyl-wobble-duration) ease-in-out infinite;
+}
+
+.turntable-grooves.spin {
+  animation: grooveDrift var(--vinyl-wobble-duration) ease-in-out infinite;
+}
+
+.album-groove-overlay.spin {
+  animation: grooveShimmer var(--vinyl-sheen-duration) ease-in-out infinite;
+}
+
+.turntable-sheen.spin {
+  animation: sheenSweep var(--vinyl-sheen-duration) ease-in-out infinite;
 }
 
 @media (max-width: 1024px) {
@@ -732,4 +809,3 @@ body {
   white-space: nowrap;
   border: 0;
 }
-
