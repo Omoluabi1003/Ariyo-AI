@@ -164,6 +164,42 @@ function openAlbumList() {
       openTrackList();
     }
 
+    function isRadioModalDebugEnabled() {
+      if (typeof window === 'undefined') return false;
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('radioDebug') === '1' || params.get('debug') === '1') return true;
+      try {
+        return localStorage.getItem('radioDebug') === '1';
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function requestCloseRadioList(reason = 'unknown', detail = {}) {
+      const modal = document.getElementById('radioModal');
+      if (!modal) return;
+
+      const shouldLog = isRadioModalDebugEnabled()
+        || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+      if (shouldLog) {
+        const stack = new Error().stack;
+        console.debug('[radio-modal] close requested', {
+          reason,
+          detail,
+          isOpen: getComputedStyle(modal).display !== 'none',
+          stack
+        });
+      }
+
+      const allowedReasons = new Set(['close-button', 'station-playing', 'station-confirmed']);
+      if (!allowedReasons.has(reason)) {
+        return;
+      }
+
+      modal.style.display = 'none';
+      console.log('Radio list closed');
+    }
+
     function openRadioList() {
       document.getElementById('main-content').classList.remove('about-us-active');
       if (typeof window.loadFullLibraryData === 'function') {
@@ -190,10 +226,8 @@ function openAlbumList() {
       console.log('Radio list opened, animating...');
     }
 
-    function closeRadioList() {
-      const modal = document.getElementById('radioModal');
-      modal.style.display = 'none';
-      console.log('Radio list closed');
+    function closeRadioList(reason = 'unknown', detail = {}) {
+      requestCloseRadioList(reason, detail);
     }
 
 function toggleShuffle() {
@@ -1180,6 +1214,7 @@ if (typeof window !== 'undefined') {
     openPlaylist,
     openRadioList,
     closeRadioList,
+    requestCloseRadioList,
     showNowPlayingToast
   });
 }

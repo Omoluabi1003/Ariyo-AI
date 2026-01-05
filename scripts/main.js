@@ -570,13 +570,15 @@
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           albumCover.src = station.logo;
-          setCrossOrigin(audioPlayer, station.url);
-          audioHealer.trackSource(station.url, station.name, { live: true });
+          const normalizedStationUrl = normalizeMediaSrc(station.url);
+          const streamUrl = buildTrackFetchUrl(normalizedStationUrl, { sourceType: 'stream', forceProxy: true });
+          setCrossOrigin(audioPlayer, streamUrl);
+          audioHealer.trackSource(streamUrl, station.name, { live: true });
           trackInfo.textContent = `${station.name} - ${station.location}`;
           trackArtist.textContent = '';
           trackYear.textContent = '';
           trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-          handleAudioLoad(station.url, `${station.name} - ${station.location}`, true, {
+          handleAudioLoad(streamUrl, `${station.name} - ${station.location}`, true, {
             autoPlay: false,
             resumeTime: savedState.playbackPosition,
             onReady: () => {

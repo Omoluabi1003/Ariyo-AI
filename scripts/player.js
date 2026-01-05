@@ -234,9 +234,10 @@ const preconnectedHosts = new Set();
 const TRACKS_PAGE_SIZE = isSlowConnection ? 20 : 50;
 const trackDisplayState = new Map();
 
-    let currentAlbumIndex = 0;
-    let currentTrackIndex = 0;
+let currentAlbumIndex = 0;
+let currentTrackIndex = 0;
 let currentRadioIndex = -1;
+let pendingRadioSelection = null;
 let shuffleQueue = [];
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 let userInitiatedPause = false;
@@ -2037,10 +2038,56 @@ function isRadioDebugEnabled() {
 }
 
 const STREAM_PROBE_LOGGING = isNonProductionEnv();
+const RADIO_AUDIO_LOGGING = STREAM_PROBE_LOGGING || isRadioDebugEnabled();
 
 function logStreamProbe(eventName, payload) {
   if (!STREAM_PROBE_LOGGING) return;
   console.debug('[radio-probe]', eventName, payload);
+}
+
+function getAudioDebugState(audioElement) {
+  const error = audioElement?.error;
+  return {
+    paused: audioElement?.paused,
+    currentTime: audioElement?.currentTime,
+    readyState: audioElement?.readyState,
+    networkState: audioElement?.networkState,
+    muted: audioElement?.muted,
+    volume: audioElement?.volume,
+    src: audioElement?.src,
+    currentSrc: audioElement?.currentSrc,
+    error: error
+      ? { code: error.code, message: error.message || error.toString?.() }
+      : null
+  };
+}
+
+function logRadioAudioEvent(eventName, detail = {}) {
+  if (!RADIO_AUDIO_LOGGING) return;
+  console.debug('[radio-audio]', eventName, {
+    ...detail,
+    audio: getAudioDebugState(audioPlayer)
+  });
+}
+
+if (RADIO_AUDIO_LOGGING) {
+  [
+    'loadstart',
+    'loadedmetadata',
+    'canplay',
+    'playing',
+    'waiting',
+    'stalled',
+    'error',
+    'ended',
+    'pause'
+  ].forEach(eventName => {
+    audioPlayer.addEventListener(eventName, () => {
+      logRadioAudioEvent(`audio-${eventName}`, {
+        mode: currentRadioIndex >= 0 ? 'radio' : 'track'
+      });
+    });
+  });
 }
 
 function nowMs() {
@@ -2655,11 +2702,81 @@ function primePlaybackSource({
     .catch(error => {
       console.warn('[player] Suno resolve skipped:', error);
     });
+
+  if (trackMeta?.sourceType === 'stream') {
+    resolveRadioStreamUrl(normalizedSrc, title)
+      .then(resolved => {
+        if (audioPlayer._selectionToken !== selectionToken) return;
+        if (!resolved || !resolved.resolvedUrl || resolved.resolvedUrl === normalizedSrc) return;
+
+        const resolvedUrl = buildTrackFetchUrl(resolved.resolvedUrl, trackMeta);
+        const readyThreshold = typeof HTMLMediaElement !== 'undefined'
+          ? HTMLMediaElement.HAVE_CURRENT_DATA
+          : 2;
+        const isPlaying = playbackStatus === PlaybackStatus.playing;
+
+        if (audioPlayer.src !== immediateUrl || isPlaying || audioPlayer.readyState >= readyThreshold) {
+          return;
+        }
+
+        logRadioAudioEvent('stream-resolved', {
+          station: title,
+          resolvedUrl,
+          originalUrl: normalizedSrc
+        });
+
+        setCrossOrigin(audioPlayer, resolvedUrl);
+        audioPlayer.src = resolvedUrl;
+        audioHealer.trackSource(resolvedUrl, title, { live });
+        audioPlayer.currentTime = 0;
+        handleAudioLoad(resolvedUrl, title, isInitialLoad, {
+          live,
+          onReady,
+          onError,
+          disableSlowGuard: true,
+          allowCorsRetry: false
+        });
+        attemptPlay();
+      })
+      .catch(error => {
+        console.warn('[player] Radio resolve skipped:', error);
+      });
+  }
+}
+
+function setPendingRadioSelection({ index, title, src }) {
+  pendingRadioSelection = {
+    index,
+    title,
+    src,
+    requestedAt: Date.now()
+  };
+  logRadioAudioEvent('station-selected', {
+    stationIndex: index,
+    station: title,
+    url: src
+  });
+}
+
+function confirmPendingRadioSelection(reason, detail = {}) {
+  if (!pendingRadioSelection) return;
+  if (currentRadioIndex !== pendingRadioSelection.index) return;
+  const payload = {
+    stationIndex: pendingRadioSelection.index,
+    station: pendingRadioSelection.title,
+    url: pendingRadioSelection.src,
+    ...detail
+  };
+  pendingRadioSelection = null;
+  if (typeof window !== 'undefined' && typeof window.requestCloseRadioList === 'function') {
+    window.requestCloseRadioList(reason, payload);
+  }
 }
 
 
 function selectTrack(src, title, index, rebuildQueue = true) {
       console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
+      pendingRadioSelection = null;
       resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
@@ -2735,8 +2852,8 @@ function selectRadio(src, title, index, logo) {
       void resumeAudioContext();
       audioPlayer.autoplay = true;
       ensureAudiblePlayback();
-      closeRadioList();
       console.log(`[selectRadio] Selecting radio: ${title}`);
+      setPendingRadioSelection({ index, title, src });
       const station = radioStations[index];
       currentRadioIndex = index;
       currentTrackIndex = -1;
@@ -2762,6 +2879,13 @@ function selectRadio(src, title, index, logo) {
         setPlaybackStatus(PlaybackStatus.failed, { message: 'This station is unavailable right now.' });
         return;
       }
+      const initialStreamUrl = buildTrackFetchUrl(normalizedSrc, { sourceType: 'stream', forceProxy: true });
+      logRadioAudioEvent('stream-initial-url', {
+        stationIndex: index,
+        station: title,
+        originalUrl: normalizedSrc,
+        resolvedUrl: initialStreamUrl
+      });
       audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
       ensurePreconnect(normalizedSrc);
       lastTrackSrc = normalizedSrc;
@@ -2774,7 +2898,6 @@ function selectRadio(src, title, index, logo) {
       albumCover.src = logo;
       lyricsContainer.innerHTML = '';
       lyricLines = [];
-      closeRadioList();
       stopMusic();
       showBufferingState('Connecting to the station...');
       albumCover.style.display = 'none';
@@ -3360,6 +3483,11 @@ function updateTrackTime() {
       hideBufferingState();
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.playing);
+      if (currentRadioIndex >= 0) {
+        confirmPendingRadioSelection('station-playing', {
+          resolvedUrl: audioPlayer.currentSrc || audioPlayer.src
+        });
+      }
     });
 
     audioPlayer.addEventListener('error', clearFirstPlayGuard);
