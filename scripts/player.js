@@ -3542,7 +3542,6 @@ function updateTrackTime() {
       audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
       audioPlayer.addEventListener('timeupdate', updateTrackTime);    // reattach freshly
       updateTrackTime();  // update UI instantly
-      manageVinylRotation(); // spin the turntable if needed
       recordPlaybackProgress(audioPlayer.currentTime || 0);
       startPlaybackWatchdog();
       console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
@@ -3551,6 +3550,7 @@ function updateTrackTime() {
       hideBufferingState();
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.playing);
+      manageVinylRotation(); // spin the turntable if needed
       ensureAudiblePlayback();
       if (currentRadioIndex >= 0) {
         confirmPendingRadioSelection('station-playing', {
