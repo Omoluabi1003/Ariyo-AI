@@ -219,31 +219,84 @@
     const searchItems = [];
 
     const normalizeSearchText = (value) => value.toLowerCase().replace(/\s+/g, ' ').trim();
-    const addSearchItem = (label, result, searchText = label) => {
+    const buildSearchTokens = (...values) => values
+      .flat()
+      .filter(Boolean)
+      .map(value => normalizeSearchText(String(value)))
+      .filter(Boolean);
+    const addSearchItem = (label, result, searchTerms = []) => {
       searchItems.push({
         label,
         result,
-        searchText: normalizeSearchText(searchText)
+        searchTokens: buildSearchTokens(label, searchTerms)
       });
       searchMap[normalizeSearchText(label)] = result;
     };
 
-    const findSearchResult = (rawValue, { allowPartial = false } = {}) => {
+    const findExactSearchResult = (rawValue) => {
+      const normalized = normalizeSearchText(rawValue || '');
+      if (!normalized) {
+        return null;
+      }
+      return searchMap[normalized] || null;
+    };
+
+    const findPartialSearchResult = (rawValue) => {
       const normalized = normalizeSearchText(rawValue || '');
       if (!normalized) {
         return null;
       }
 
-      if (searchMap[normalized]) {
-        return searchMap[normalized];
+      let bestMatch = null;
+      let bestScore = Number.POSITIVE_INFINITY;
+
+      searchItems.forEach(item => {
+        item.searchTokens.forEach(token => {
+          const index = token.indexOf(normalized);
+          if (index === -1) {
+            return;
+          }
+
+          const score = index + token.length * 0.01;
+          if (score < bestScore) {
+            bestScore = score;
+            bestMatch = item.result;
+          }
+        });
+      });
+
+      return bestMatch;
+    };
+
+    const findSearchResult = (rawValue, { allowPartial = false } = {}) => {
+      const exactMatch = findExactSearchResult(rawValue);
+      if (exactMatch || !allowPartial) {
+        return exactMatch;
+      }
+      return findPartialSearchResult(rawValue);
+    };
+
+    const executeSearch = (rawValue, { allowPartial = false } = {}) => {
+      const result = findSearchResult(rawValue, { allowPartial });
+      if (!result) {
+        return false;
+      }
+      handleSearchSelection(result);
+      return true;
+    };
+
+    const commitSearch = (rawValue) => {
+      const normalized = normalizeSearchText(rawValue || '');
+      if (!normalized) {
+        return false;
       }
 
-      if (!allowPartial) {
-        return null;
+      const exactHandled = executeSearch(rawValue, { allowPartial: false });
+      if (exactHandled) {
+        return true;
       }
 
-      const match = searchItems.find(item => item.searchText.includes(normalized));
-      return match ? match.result : null;
+      return executeSearch(rawValue, { allowPartial: true });
     };
 
     const handleSearchSelection = (result) => {
@@ -267,14 +320,22 @@
       const albumOption = document.createElement('option');
       albumOption.value = albumLabel;
       searchSuggestions.appendChild(albumOption);
-      addSearchItem(albumLabel, { type: 'album', albumIndex }, album.name);
+      addSearchItem(albumLabel, { type: 'album', albumIndex }, [
+        album.name,
+        `album ${albumIndex + 1}`,
+        `album ${albumIndex + 1} ${album.name}`
+      ]);
 
       album.tracks.forEach((track, trackIndex) => {
         const label = `${track.title} - ${album.name}`;
         const option = document.createElement('option');
         option.value = label;
         searchSuggestions.appendChild(option);
-        addSearchItem(label, { type: 'track', albumIndex, trackIndex }, `${track.title} ${album.name}`);
+        addSearchItem(label, { type: 'track', albumIndex, trackIndex }, [
+          track.title,
+          album.name,
+          `${track.title} ${album.name}`
+        ]);
       });
     });
 
@@ -283,16 +344,17 @@
       const option = document.createElement('option');
       option.value = label;
       searchSuggestions.appendChild(option);
-      addSearchItem(label, { type: 'radio', index }, `${station.name} ${station.location}`);
+      addSearchItem(label, { type: 'radio', index }, [
+        station.name,
+        station.location,
+        `${station.name} ${station.location}`
+      ]);
     });
 
     searchInput.addEventListener('input', (e) => {
-      const result = findSearchResult(e.target.value, { allowPartial: false });
-      if (!result) {
-        return;
+      if (executeSearch(e.target.value, { allowPartial: false })) {
+        e.target.value = '';
       }
-      handleSearchSelection(result);
-      e.target.value = '';
     });
 
     searchInput.addEventListener('keydown', (e) => {
@@ -300,12 +362,15 @@
         return;
       }
 
-      const result = findSearchResult(e.target.value, { allowPartial: true });
-      if (!result) {
-        return;
+      if (commitSearch(e.target.value)) {
+        e.target.value = '';
       }
-      handleSearchSelection(result);
-      e.target.value = '';
+    });
+
+    searchInput.addEventListener('change', (e) => {
+      if (commitSearch(e.target.value)) {
+        e.target.value = '';
+      }
     });
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
