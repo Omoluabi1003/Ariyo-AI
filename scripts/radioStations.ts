@@ -140,6 +140,7 @@ async function probeWithAudio(url: string, timeoutMs = 8000): Promise<Validation
     }, timeoutMs);
 
     const cleanup = () => {
+      audio.removeEventListener('loadedmetadata', handleCanPlay);
       audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('error', handleError);
       window.clearTimeout(timer);
@@ -159,12 +160,49 @@ async function probeWithAudio(url: string, timeoutMs = 8000): Promise<Validation
       resolve('failed');
     };
 
-    audio.preload = 'none';
+    audio.preload = 'metadata';
+    audio.addEventListener('loadedmetadata', handleCanPlay, { once: true });
     audio.addEventListener('canplay', handleCanPlay, { once: true });
     audio.addEventListener('error', handleError, { once: true });
     audio.src = url;
     audio.load();
   });
+}
+
+const RADIO_PROXY_PATH = '/api/radio/proxy';
+
+function buildRadioProxyUrl(src: string) {
+  return `${RADIO_PROXY_PATH}?url=${encodeURIComponent(src)}`;
+}
+
+function looksLikePlaylist(url: string) {
+  return /\.(pls|m3u)(\?|$)/i.test(url) && !/\.m3u8(\?|$)/i.test(url);
+}
+
+function extractPlaylistStreamUrl(text: string) {
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const plsLine = lines.find(line => /^file\d+=/i.test(line));
+  if (plsLine) {
+    return plsLine.split('=').slice(1).join('=').trim();
+  }
+  const m3uLine = lines.find(line => !line.startsWith('#'));
+  return m3uLine || null;
+}
+
+async function resolvePlaylistUrl(url: string): Promise<string> {
+  if (!looksLikePlaylist(url) || typeof fetch === 'undefined') {
+    return url;
+  }
+  try {
+    const response = await fetch(buildRadioProxyUrl(url), { cache: 'no-store' });
+    if (!response.ok) return url;
+    const text = await response.text();
+    const candidate = extractPlaylistStreamUrl(text);
+    if (!candidate) return url;
+    return new URL(candidate, url).toString();
+  } catch (_err) {
+    return url;
+  }
 }
 
 async function probeWithFetch(url: string, timeoutMs = 6000): Promise<ValidationStatus> {
@@ -173,15 +211,18 @@ async function probeWithFetch(url: string, timeoutMs = 6000): Promise<Validation
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+    const response = await fetch(buildRadioProxyUrl(url), {
+      method: 'GET',
+      headers: { Range: 'bytes=0-1' },
+      cache: 'no-store',
+      signal: controller.signal
+    });
     clearTimeout(timer);
-    if (!response || (response.status >= 400 && response.type !== 'opaque')) {
-      return 'warning';
-    }
-    return 'ok';
+    if (!response || (response.status >= 400 && response.type !== 'opaque')) return 'warning';
+    return response.ok || response.status === 206 ? 'ok' : 'warning';
   } catch (_err) {
     clearTimeout(timer);
-    return 'failed';
+    return 'warning';
   }
 }
 
@@ -198,7 +239,8 @@ export async function validateRadioStations(stations: Station[]): Promise<Valida
     let message = 'Unknown';
 
     try {
-      const audioResult = await probeWithAudio(station.url);
+      const resolvedUrl = await resolvePlaylistUrl(station.url);
+      const audioResult = await probeWithAudio(resolvedUrl);
       if (audioResult === 'ok') {
         status = 'ok';
         message = 'Playable (audio probe)';
@@ -206,7 +248,7 @@ export async function validateRadioStations(stations: Station[]): Promise<Valida
         status = 'failed';
         message = 'Audio element error';
       } else {
-        const fetchResult = await probeWithFetch(station.url);
+        const fetchResult = await probeWithFetch(resolvedUrl);
         status = fetchResult;
         message = fetchResult === 'ok' ? 'Reachable (fetch probe)' : 'Network/CORS issue';
       }

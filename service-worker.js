@@ -154,6 +154,11 @@ if (self.workbox) {
   );
 
   workbox.routing.registerRoute(
+    ({ url }) => url.pathname.startsWith('/api/proxy-audio') || url.pathname.startsWith('/api/radio/proxy'),
+    new workbox.strategies.NetworkOnly()
+  );
+
+  workbox.routing.registerRoute(
     ({ request }) => request.destination === 'document' && request.url.includes('playlist'),
     new workbox.strategies.NetworkFirst({ cacheName: `${CACHE_PREFIX}-playlist-pages` })
   );
