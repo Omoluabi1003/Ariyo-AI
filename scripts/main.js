@@ -216,6 +216,7 @@
     const searchInput = document.getElementById('searchInput');
     const searchSuggestions = document.getElementById('searchSuggestions');
     const searchMap = {};
+    const searchItems = [];
 
     albums.forEach((album, albumIndex) => {
       const albumLabel = `Album ${albumIndex + 1}: ${album.name}`;
@@ -223,6 +224,10 @@
       albumOption.value = albumLabel;
       searchSuggestions.appendChild(albumOption);
       searchMap[albumLabel.toLowerCase()] = { type: 'album', albumIndex };
+      searchItems.push({
+        keywords: [album.name, albumLabel].map((value) => value.toLowerCase()),
+        result: { type: 'album', albumIndex },
+      });
 
       album.tracks.forEach((track, trackIndex) => {
         const label = `${track.title} - ${album.name}`;
@@ -230,6 +235,10 @@
         option.value = label;
         searchSuggestions.appendChild(option);
         searchMap[label.toLowerCase()] = { type: 'track', albumIndex, trackIndex };
+        searchItems.push({
+          keywords: [track.title, album.name, label].map((value) => value.toLowerCase()),
+          result: { type: 'track', albumIndex, trackIndex },
+        });
       });
     });
 
@@ -239,23 +248,62 @@
       option.value = label;
       searchSuggestions.appendChild(option);
       searchMap[label.toLowerCase()] = { type: 'radio', index };
+      searchItems.push({
+        keywords: [station.name, station.location, label].map((value) => value.toLowerCase()),
+        result: { type: 'radio', index },
+      });
     });
 
+    function resolveSearchResult(query) {
+      const key = query.trim().toLowerCase();
+      if (!key) {
+        return null;
+      }
+      const exact = searchMap[key];
+      if (exact) {
+        return exact;
+      }
+      const match = searchItems.find((item) => item.keywords.some((value) => value.includes(key)));
+      return match ? match.result : null;
+    }
+
+    function applySearchResult(result) {
+      if (!result) {
+        return false;
+      }
+      if (result.type === 'track') {
+        currentAlbumIndex = result.albumIndex;
+        const track = albums[result.albumIndex].tracks[result.trackIndex];
+        selectTrack(track.src, track.title, result.trackIndex);
+      } else if (result.type === 'radio') {
+        const station = radioStations[result.index];
+        selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
+      } else if (result.type === 'album') {
+        selectAlbum(result.albumIndex);
+      }
+      searchInput.value = '';
+      return true;
+    }
+
+    function commitSearch(query) {
+      return applySearchResult(resolveSearchResult(query));
+    }
+
     searchInput.addEventListener('input', (e) => {
-      const key = e.target.value.trim().toLowerCase();
-      const result = searchMap[key];
-      if (result) {
-        if (result.type === 'track') {
-          currentAlbumIndex = result.albumIndex;
-          const track = albums[result.albumIndex].tracks[result.trackIndex];
-          selectTrack(track.src, track.title, result.trackIndex);
-        } else if (result.type === 'radio') {
-          const station = radioStations[result.index];
-          selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
-        } else if (result.type === 'album') {
-          selectAlbum(result.albumIndex);
-        }
-        e.target.value = '';
+      const key = e.target.value.trim();
+      if (key && searchMap[key.toLowerCase()]) {
+        applySearchResult(searchMap[key.toLowerCase()]);
+      }
+    });
+
+    searchInput.addEventListener('change', (e) => {
+      commitSearch(e.target.value);
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commitSearch(e.target.value);
       }
     });
 
