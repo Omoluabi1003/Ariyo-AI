@@ -216,20 +216,65 @@
     const searchInput = document.getElementById('searchInput');
     const searchSuggestions = document.getElementById('searchSuggestions');
     const searchMap = {};
+    const searchItems = [];
+
+    const normalizeSearchText = (value) => value.toLowerCase().replace(/\s+/g, ' ').trim();
+    const addSearchItem = (label, result, searchText = label) => {
+      searchItems.push({
+        label,
+        result,
+        searchText: normalizeSearchText(searchText)
+      });
+      searchMap[normalizeSearchText(label)] = result;
+    };
+
+    const findSearchResult = (rawValue, { allowPartial = false } = {}) => {
+      const normalized = normalizeSearchText(rawValue || '');
+      if (!normalized) {
+        return null;
+      }
+
+      if (searchMap[normalized]) {
+        return searchMap[normalized];
+      }
+
+      if (!allowPartial) {
+        return null;
+      }
+
+      const match = searchItems.find(item => item.searchText.includes(normalized));
+      return match ? match.result : null;
+    };
+
+    const handleSearchSelection = (result) => {
+      if (!result) {
+        return;
+      }
+      if (result.type === 'track') {
+        currentAlbumIndex = result.albumIndex;
+        const track = albums[result.albumIndex].tracks[result.trackIndex];
+        selectTrack(track.src, track.title, result.trackIndex);
+      } else if (result.type === 'radio') {
+        const station = radioStations[result.index];
+        selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
+      } else if (result.type === 'album') {
+        selectAlbum(result.albumIndex);
+      }
+    };
 
     albums.forEach((album, albumIndex) => {
       const albumLabel = `Album ${albumIndex + 1}: ${album.name}`;
       const albumOption = document.createElement('option');
       albumOption.value = albumLabel;
       searchSuggestions.appendChild(albumOption);
-      searchMap[albumLabel.toLowerCase()] = { type: 'album', albumIndex };
+      addSearchItem(albumLabel, { type: 'album', albumIndex }, album.name);
 
       album.tracks.forEach((track, trackIndex) => {
         const label = `${track.title} - ${album.name}`;
         const option = document.createElement('option');
         option.value = label;
         searchSuggestions.appendChild(option);
-        searchMap[label.toLowerCase()] = { type: 'track', albumIndex, trackIndex };
+        addSearchItem(label, { type: 'track', albumIndex, trackIndex }, `${track.title} ${album.name}`);
       });
     });
 
@@ -238,25 +283,29 @@
       const option = document.createElement('option');
       option.value = label;
       searchSuggestions.appendChild(option);
-      searchMap[label.toLowerCase()] = { type: 'radio', index };
+      addSearchItem(label, { type: 'radio', index }, `${station.name} ${station.location}`);
     });
 
     searchInput.addEventListener('input', (e) => {
-      const key = e.target.value.trim().toLowerCase();
-      const result = searchMap[key];
-      if (result) {
-        if (result.type === 'track') {
-          currentAlbumIndex = result.albumIndex;
-          const track = albums[result.albumIndex].tracks[result.trackIndex];
-          selectTrack(track.src, track.title, result.trackIndex);
-        } else if (result.type === 'radio') {
-          const station = radioStations[result.index];
-          selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
-        } else if (result.type === 'album') {
-          selectAlbum(result.albumIndex);
-        }
-        e.target.value = '';
+      const result = findSearchResult(e.target.value, { allowPartial: false });
+      if (!result) {
+        return;
       }
+      handleSearchSelection(result);
+      e.target.value = '';
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') {
+        return;
+      }
+
+      const result = findSearchResult(e.target.value, { allowPartial: true });
+      if (!result) {
+        return;
+      }
+      handleSearchSelection(result);
+      e.target.value = '';
     });
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
