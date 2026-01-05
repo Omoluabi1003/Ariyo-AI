@@ -168,6 +168,8 @@
   let fadingDeckKey = null;
   let standbyPreloadedIndex = null;
   let audioContext = null;
+  let hasUserGesture = false;
+  let lastSpinState = false;
   let crossfaderFrame = null;
   let playbackStartState = null;
   let stallRecoveryTimer = null;
@@ -175,6 +177,7 @@
   let lastProgressAt = Date.now();
   let playbackMonitorId = null;
   let lastObservedPosition = 0;
+  let isBuffering = false;
   const preconnectedHosts = new Set();
 
   const audioController = {
@@ -335,11 +338,30 @@
 
   ensureInlinePlayback();
 
+  function markUserGesture(reason = 'interaction') {
+    if (hasUserGesture) return;
+    hasUserGesture = true;
+    console.info('[audio] user-gesture', { reason });
+  }
+
+  // iOS/Safari require AudioContext creation from a user gesture.
+  function getOrCreateAudioContext() {
+    if (!AudioContextClass) return null;
+    if (audioContext) return audioContext;
+    if (!hasUserGesture) return null;
+    audioContext = new AudioContextClass();
+    audioContext.addEventListener('statechange', () => {
+      console.info('[audio] AudioContext statechange:', audioContext.state);
+    });
+    return audioContext;
+  }
+
   async function resumeAudioContext() {
-    if (!audioContext || typeof audioContext.resume !== 'function') return;
+    const context = getOrCreateAudioContext();
+    if (!context || typeof context.resume !== 'function') return;
     try {
-      if (audioContext.state === 'suspended') {
-        await audioContext.resume();
+      if (context.state === 'suspended') {
+        await context.resume();
       }
     } catch (_) {
       // Ignore resume failures so playback attempts still proceed.
@@ -348,13 +370,13 @@
 
   function ensureAudioGraph(deck) {
     if (!AudioContextClass || deck.gainNode) return;
-    audioContext = audioContext || new AudioContext();
-    if (!audioContext) return;
+    const context = getOrCreateAudioContext();
+    if (!context) return;
     try {
-      deck.sourceNode = audioContext.createMediaElementSource(deck.audio);
-      deck.gainNode = audioContext.createGain();
+      deck.sourceNode = context.createMediaElementSource(deck.audio);
+      deck.gainNode = context.createGain();
       deck.gainNode.gain.value = Number(volumeControl.value || 1);
-      deck.sourceNode.connect(deck.gainNode).connect(audioContext.destination);
+      deck.sourceNode.connect(deck.gainNode).connect(context.destination);
     } catch (_) {
       deck.gainNode = null;
     }
@@ -362,18 +384,19 @@
 
   function unlockAudio() {
     if (!AudioContextClass) return;
-    audioContext = audioContext || new AudioContext();
-    if (!audioContext) return;
+    markUserGesture('unlock');
+    const context = getOrCreateAudioContext();
+    if (!context) return;
 
     resumeAudioContext();
 
-    if (audioContext.state === 'running') return;
+    if (context.state === 'running') return;
 
     try {
-      const buffer = audioContext.createBuffer(1, 1, 22050);
-      const source = audioContext.createBufferSource();
+      const buffer = context.createBuffer(1, 1, 22050);
+      const source = context.createBufferSource();
       source.buffer = buffer;
-      source.connect(audioContext.destination);
+      source.connect(context.destination);
       source.start();
     } catch (_) {
       // Ignore unlock failures; playback will retry on user gesture.
@@ -396,6 +419,7 @@
     Object.values(decks).forEach(deck => {
       if (!deck || !deck.audio) return;
       deck.audio.setAttribute('playsinline', '');
+      deck.audio.setAttribute('webkit-playsinline', '');
       deck.audio.playsInline = true;
     });
   }
@@ -429,6 +453,31 @@
       })(),
       dataset: { ...audio.dataset },
     };
+  }
+
+  function logAudioEvent(label, audio, detail = {}) {
+    if (!audio) return;
+    console.info('[audio]', {
+      label,
+      readyState: audio.readyState,
+      networkState: audio.networkState,
+      currentTime: Number.isFinite(audio.currentTime) ? Number(audio.currentTime.toFixed(3)) : audio.currentTime,
+      src: audio.currentSrc || audio.src,
+      audioContext: audioContext ? audioContext.state : null,
+      muted: audio.muted,
+      volume: audio.volume,
+      ...detail,
+    });
+  }
+
+  function ensureAudibleDeck(deck) {
+    if (!deck || !deck.audio) return;
+    if (deck.audio.muted) {
+      deck.audio.muted = false;
+    }
+    if (deck.audio.volume === 0) {
+      deck.audio.volume = 1;
+    }
   }
 
   function logDebug(eventName, detail = {}) {
@@ -926,6 +975,7 @@
     resetPlaybackStartState();
     resetStallRecovery();
     logDebug('playback-start', { deckKey, track: track ? track.title : 'unknown', src: track?.src });
+    logAudioEvent('play-attempt', deck.audio, { deckKey, track: track ? track.title : 'unknown' });
     const audioEl = deck.audio;
     const state = {
       id: Date.now(),
@@ -968,6 +1018,7 @@
         retryOrFailPlayback(state, new Error('playback timeout'));
       }, PLAYBACK_START_TIMEOUT_MS);
 
+      ensureAudibleDeck(deck);
       resumeAudioContext().finally(() => {
         const playPromise = audioEl.play();
         if (playPromise && typeof playPromise.catch === 'function') {
@@ -1014,11 +1065,20 @@
 
   function updateSpinState() {
     const activeAudio = getActiveAudio();
-    const shouldSpin = activeAudio && !activeAudio.paused && !activeAudio.ended && !activeAudio.seeking;
+    const shouldSpin = activeAudio
+      && !activeAudio.paused
+      && !activeAudio.ended
+      && !activeAudio.seeking
+      && !isBuffering;
     [turntableDisc, albumCover, turntableGrooves, turntableSheen, albumGrooveOverlay].forEach(element => {
       if (!element) return;
       element.classList.toggle('spin', shouldSpin);
     });
+
+    if (lastSpinState !== shouldSpin) {
+      lastSpinState = shouldSpin;
+      console.info('[vinyl] spin', { active: shouldSpin });
+    }
 
     const deckAPlaying = (activeDeckKey === 'A' && shouldSpin) || (isCrossfading && fadingDeckKey === 'A');
     const deckBPlaying = (activeDeckKey === 'B' && shouldSpin) || (isCrossfading && fadingDeckKey === 'B');
@@ -1623,8 +1683,11 @@
 
   async function playCurrentTrack() {
     const activeAudio = getActiveAudio();
+    markUserGesture('play');
+    logAudioEvent('play-attempt', activeAudio);
     ensureAudioGraph(getActiveDeck());
     await resumeAudioContext();
+    ensureAudibleDeck(getActiveDeck());
     const playPromise = activeAudio.play();
     if (playPromise) {
       playPromise.catch(() => {
@@ -1816,6 +1879,9 @@
 
   function handlePlaying(event) {
     if (event.target !== getActiveAudio()) return;
+    isBuffering = false;
+    logAudioEvent('playing', event.target);
+    ensureAudibleDeck(getActiveDeck());
     notePlaybackProgress();
     startPlaybackMonitor();
     logPlaybackStart(event.target.dataset.trackSrc);
@@ -1828,6 +1894,8 @@
 
   function handlePause(event) {
     if (event.target !== getActiveAudio()) return;
+    isBuffering = false;
+    logAudioEvent('pause', event.target);
     updateSpinState();
     resetStallRecovery();
     if (event.target.currentTime > 0 && event.target.currentTime < event.target.duration) {
@@ -1838,18 +1906,25 @@
 
   function handleWaiting(event) {
     if (event.target !== getActiveAudio()) return;
+    isBuffering = true;
+    logAudioEvent(event.type || 'waiting', event.target);
     showLoading('Buffering…', 'info');
     scheduleStallRecovery();
+    updateSpinState();
   }
 
   function handleCanPlay(event) {
     if (event.target !== getActiveAudio()) return;
+    isBuffering = false;
+    logAudioEvent('canplay', event.target);
     hideLoading();
     notePlaybackProgress();
   }
 
   function handleEnded(event) {
     if (event.target !== getActiveAudio() || isCrossfading) return;
+    isBuffering = false;
+    logAudioEvent('ended', event.target);
     resetStallRecovery();
     updateSpinState();
     setStatus('Track finished. Loading next…');
@@ -1858,7 +1933,10 @@
 
   function handleError(event) {
     if (event.target !== getActiveAudio()) return;
+    isBuffering = true;
+    logAudioEvent('error', event.target, { error: event?.error });
     resetStallRecovery();
+    updateSpinState();
     if (playbackStartState && playbackStartState.audioEl === event.target) {
       retryOrFailPlayback(playbackStartState, event?.error || event);
       return;
