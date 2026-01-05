@@ -104,35 +104,65 @@
         audioPlayer.volume = 1;
       }
     }
-    const audioContext = window.__ariyoAudioContext || (window.__ariyoAudioContext = new (window.AudioContext || window.webkitAudioContext)());
-    let isAudioContextResumed = audioContext.state === 'running';
+    let audioContext = window.__ariyoAudioContext || null;
+    let isAudioContextResumed = audioContext ? audioContext.state === 'running' : false;
     let audioWarmupRan = false;
+    let hasUserGesture = false;
+
+    // Only create the AudioContext after a user gesture to comply with autoplay rules.
+    function getOrCreateAudioContext() {
+      if (audioContext) return audioContext;
+      if (!hasUserGesture) {
+        return null;
+      }
+      const ContextCtor = window.AudioContext || window.webkitAudioContext;
+      if (!ContextCtor) return null;
+      audioContext = new ContextCtor();
+      window.__ariyoAudioContext = audioContext;
+      isAudioContextResumed = audioContext.state === 'running';
+      if (audioContext) {
+        audioContext.addEventListener('statechange', () => {
+          console.info('[audio] AudioContext statechange:', audioContext.state);
+        });
+      }
+      return audioContext;
+    }
 
     async function resumeAudioContext() {
-        if (audioContext.state === 'suspended' && !isAudioContextResumed) {
+        const context = getOrCreateAudioContext();
+        if (!context) {
+          console.info('[audio] AudioContext not created yet (awaiting user gesture).');
+          return null;
+        }
+        if (context.state === 'suspended' && !isAudioContextResumed) {
             try {
-                await audioContext.resume();
+                await context.resume();
                 isAudioContextResumed = true;
-                console.log('AudioContext resumed successfully.');
+                console.info('[audio] AudioContext resumed successfully.', context.state);
             } catch (err) {
-                console.error('AudioContext resume failed:', err);
+                console.error('[audio] AudioContext resume failed:', err);
             }
         }
-        return audioContext.state;
+        return context.state;
     }
 
     async function warmupAudioOutput() {
       if (audioWarmupRan) return;
+      if (!hasUserGesture) {
+        return;
+      }
+      const context = getOrCreateAudioContext();
+      if (!context) return;
       audioWarmupRan = true;
 
       try {
         await resumeAudioContext();
 
-        if (audioContext.state === 'running') {
-          const buffer = audioContext.createBuffer(1, 1, 22050);
-          const source = audioContext.createBufferSource();
+        if (context.state === 'running') {
+          const buffer = context.createBuffer(1, 1, 22050);
+          const source = context.createBufferSource();
           source.buffer = buffer;
-          source.connect(audioContext.destination);
+          source.connect(context.destination);
           source.start(0);
         }
 
@@ -144,6 +174,7 @@
     }
 
     const unlockHandler = () => {
+      hasUserGesture = true;
       resumeAudioContext();
       document.removeEventListener('click', unlockHandler);
       document.removeEventListener('touchstart', unlockHandler);
@@ -159,10 +190,11 @@
     }
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const isSlowConnection = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
-    audioPlayer.preload = 'none';
+    audioPlayer.preload = 'metadata';
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
+    audioPlayer.setAttribute('webkit-playsinline', '');
     audioPlayer.setAttribute('controlsList', 'nodownload');
     audioPlayer.addEventListener('contextmenu', e => e.preventDefault());
     audioPlayer.addEventListener('volumechange', () => {
@@ -175,7 +207,9 @@
     });
     audioPlayer.addEventListener('waiting', () => {
       showPlaySpinner();
+      setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
       scheduleBufferingHedgeFromSource();
+      manageVinylRotation();
     });
     audioPlayer.addEventListener('stalled', () => {
       showPlaySpinner();
@@ -336,6 +370,23 @@ const debugLog = (eventName, detail = {}) => {
   }
 };
 
+const logAudioEvent = (label, detail = {}) => {
+  const payload = {
+    label,
+    readyState: audioPlayer.readyState,
+    networkState: audioPlayer.networkState,
+    currentTime: Number.isFinite(audioPlayer.currentTime) ? Number(audioPlayer.currentTime.toFixed(3)) : audioPlayer.currentTime,
+    src: audioPlayer.currentSrc || audioPlayer.src,
+    audioContext: audioContext ? audioContext.state : null,
+    muted: audioPlayer.muted,
+    volume: audioPlayer.volume,
+    ...detail
+  };
+  console.info('[audio]', payload);
+};
+
+let lastSpinState = false;
+
 const initDebugPanel = () => {
   if (!DEBUG_AUDIO) return;
   if (debugState.panel) return;
@@ -430,6 +481,13 @@ if (DEBUG_AUDIO) {
     });
   }
 }
+['canplay', 'playing', 'stalled', 'error', 'waiting', 'pause', 'ended', 'loadedmetadata'].forEach(eventName => {
+  audioPlayer.addEventListener(eventName, () => {
+    logAudioEvent(eventName, {
+      errorCode: audioPlayer.error ? audioPlayer.error.code : null
+    });
+  });
+});
 const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
 let stallRetryTimer = null;
 
@@ -782,7 +840,6 @@ function activateOfflineFallback(reason = 'network') {
     disableSlowGuard: true,
     onReady: () => {
       hideBufferingState();
-      setPlaybackStatus(PlaybackStatus.playing);
     },
     onError: () => {
       setPlaybackStatus(PlaybackStatus.failed, { message: 'Network is too slow right now.' });
@@ -3219,7 +3276,12 @@ function selectRadio(src, title, index, logo) {
     }
 
     function manageVinylRotation() {
-      setTurntableSpin(shouldSpinVinyl());
+      const shouldSpin = shouldSpinVinyl();
+      setTurntableSpin(shouldSpin);
+      if (lastSpinState !== shouldSpin) {
+        lastSpinState = shouldSpin;
+        console.info('[vinyl] spin', { active: shouldSpin });
+      }
     }
 
     function playMusic() {
@@ -3228,13 +3290,24 @@ function selectRadio(src, title, index, logo) {
 
     function attemptPlay() {
       console.log('[attemptPlay] called');
+      logAudioEvent('play-attempt');
       debugLog('attempt-play');
       userInitiatedPause = false;
       showPlaySpinner();
+      hasUserGesture = true;
       void warmupAudioOutput();
       void resumeAudioContext();
       audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
-      ensureInitialTrackLoaded();
+      ensureAudiblePlayback();
+      if (!ensureInitialTrackLoaded()) {
+        hidePlaySpinner();
+        if (trackInfo) {
+          trackInfo.textContent = 'Choose a track to start playback.';
+        }
+        setPlaybackStatus(PlaybackStatus.idle);
+        manageVinylRotation();
+        return;
+      }
       const hasBufferedAudio = audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2);
       if (hasBufferedAudio) {
         hideBufferingState();
@@ -3260,7 +3333,6 @@ function selectRadio(src, title, index, logo) {
         playPromise.then(() => {
           console.log('[attemptPlay] Playback started successfully.');
           debugLog('playback-started');
-          setPlaybackStatus(PlaybackStatus.playing);
           clearQuickStartDeadline();
           hidePlaySpinner();
           const progressBarElement = document.getElementById('progressBar');
@@ -3270,11 +3342,9 @@ function selectRadio(src, title, index, logo) {
           if (lastTrackTitle) {
             trackInfo.textContent = lastTrackTitle;
           }
-          manageVinylRotation();
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
           recordPlaybackProgress(audioPlayer.currentTime || 0);
-          startPlaybackWatchdog();
           console.log(`Playing: ${trackInfo.textContent}`);
           schedulePlayerStateSave();
           if (isFirstPlay) {
@@ -3364,11 +3434,7 @@ function updateTrackTime() {
     }
     lastTrackTimeUiUpdateAt = now;
 
-  if (currentTime > 0 && playbackStatus !== PlaybackStatus.playing) {
-    hideBufferingState();
-    hidePlaySpinner();
-    setPlaybackStatus(PlaybackStatus.playing);
-    manageVinylRotation();
+  if (currentTime > 0) {
     clearSilentStartGuard();
   }
 
@@ -3455,8 +3521,8 @@ function updateTrackTime() {
 
     audioPlayer.addEventListener('ended', handleTrackEnded);
 
-    audioPlayer.addEventListener('play', manageVinylRotation);
     audioPlayer.addEventListener('pause', event => {
+      setPlaybackStatus(PlaybackStatus.paused);
       manageVinylRotation();
       if (event && event.target && event.target.paused) {
         stopPlaybackWatchdog();
@@ -3468,7 +3534,9 @@ function updateTrackTime() {
         syncMediaSessionPlaybackState();
       }
     });
-    audioPlayer.addEventListener('ended', manageVinylRotation);
+    audioPlayer.addEventListener('ended', () => {
+      manageVinylRotation();
+    });
 
     audioPlayer.addEventListener('playing', () => {
       audioPlayer.removeEventListener('timeupdate', updateTrackTime); // clear old listener
@@ -3483,6 +3551,7 @@ function updateTrackTime() {
       hideBufferingState();
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.playing);
+      ensureAudiblePlayback();
       if (currentRadioIndex >= 0) {
         confirmPendingRadioSelection('station-playing', {
           resolvedUrl: audioPlayer.currentSrc || audioPlayer.src
@@ -3490,8 +3559,18 @@ function updateTrackTime() {
       }
     });
 
-    audioPlayer.addEventListener('error', clearFirstPlayGuard);
-    audioPlayer.addEventListener('stalled', scheduleFirstPlayGuard);
+    audioPlayer.addEventListener('error', () => {
+      clearFirstPlayGuard();
+      hidePlaySpinner();
+      setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback failed. Tap retry to continue.' });
+      manageVinylRotation();
+      showRetryButton('Retry playback');
+    });
+    audioPlayer.addEventListener('stalled', () => {
+      scheduleFirstPlayGuard();
+      setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
+      manageVinylRotation();
+    });
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
