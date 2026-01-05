@@ -1345,6 +1345,51 @@ body[data-theme="light"] .dropdown {
     animation: gradient-glow 1.5s infinite alternate;
 }
 
+.radio-debug-panel {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.85rem;
+}
+
+.radio-debug-panel h4 {
+    margin: 0 0 0.5rem;
+    color: var(--theme-color);
+}
+
+.radio-debug-panel .radio-debug-note {
+    margin: 0 0 0.75rem;
+    color: #b9b9b9;
+}
+
+.radio-debug-panel .radio-debug-table {
+    max-height: 280px;
+    overflow: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.radio-debug-panel table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.radio-debug-panel th,
+.radio-debug-panel td {
+    text-align: left;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.radio-debug-panel td.debug-url {
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .track-list .track-item {
     display: flex;
     align-items: flex-start;

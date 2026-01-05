@@ -1249,6 +1249,7 @@ window.cacheResolvedAudioUrl = cacheResolvedAudioUrl;
 window.getCachedAudioUrl = getCachedAudioUrl;
 
 const AUDIO_PROXY_PATH = '/api/proxy-audio';
+const RADIO_PROXY_PATH = '/api/radio/proxy';
 const DIRECT_MEDIA_HOSTS = [
   /\.suno\.(?:ai|com)$/i,
   /cdn\d*\.suno\.(?:ai|com)$/i,
@@ -1321,6 +1322,10 @@ function buildProxyUrl(src) {
   return `${AUDIO_PROXY_PATH}?url=${encodeURIComponent(src)}`;
 }
 
+function buildRadioProxyUrl(src) {
+  return `${RADIO_PROXY_PATH}?url=${encodeURIComponent(src)}`;
+}
+
 function canProxyMediaSrc(src) {
   try {
     const target = new URL(src, window.location.origin);
@@ -1340,6 +1345,12 @@ function buildTrackFetchUrl(src, trackMeta = null) {
     targetUrl = new URL(effectiveSrc, window.location.origin);
   } catch (error) {
     targetUrl = null;
+  }
+
+  if (targetUrl && trackMeta?.sourceType === 'stream') {
+    if (targetUrl.protocol === 'http:' || (trackMeta.forceProxy && isProxyAllowedHost(targetUrl))) {
+      return buildRadioProxyUrl(effectiveSrc);
+    }
   }
 
   // Route cross-origin streams through the proxy to avoid CORS/mixed-content stalls.
@@ -1986,9 +1997,13 @@ function removeTrackFromPlaylist(index) {
 
     const stationsPerPage = 6;
 let stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
-const STREAM_STATUS_CACHE_KEY = 'ariyoStreamStatusCache';
-const STREAM_STATUS_TTL_MS = 15 * 60 * 1000;
-let streamStatusCache = null;
+const STREAM_STATUS_TTL_MS = 3 * 60 * 1000;
+const STREAM_STATUS_TIMEOUT_MS = 9000;
+const STREAM_STATUS_RETRY_DELAY_MS = 600;
+const STREAM_STATUS_MAX_RETRIES = 1;
+const streamStatusCache = new Map();
+const streamStatusInFlight = new Map();
+const streamProbeDetails = new Map();
 
 // Region Classifier
 function classifyStation(station) {
@@ -2000,23 +2015,109 @@ function classifyStation(station) {
   return "international";
 }
 
-function readStreamStatusCache() {
-  if (streamStatusCache) return streamStatusCache;
-  try {
-    const raw = localStorage.getItem(STREAM_STATUS_CACHE_KEY);
-    streamStatusCache = raw ? JSON.parse(raw) : {};
-  } catch (error) {
-    streamStatusCache = {};
+function isNonProductionEnv() {
+  if (typeof process !== 'undefined' && process.env && typeof process.env.NODE_ENV === 'string') {
+    return process.env.NODE_ENV !== 'production';
   }
-  return streamStatusCache;
+  if (typeof window !== 'undefined') {
+    return ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  }
+  return false;
 }
 
-function writeStreamStatusCache(cache) {
+function isRadioDebugEnabled() {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('radioDebug') === '1') return true;
   try {
-    localStorage.setItem(STREAM_STATUS_CACHE_KEY, JSON.stringify(cache));
+    return localStorage.getItem('radioDebug') === '1';
   } catch (error) {
-    // ignore cache write errors
+    return false;
   }
+}
+
+const STREAM_PROBE_LOGGING = isNonProductionEnv();
+
+function logStreamProbe(eventName, payload) {
+  if (!STREAM_PROBE_LOGGING) return;
+  console.debug('[radio-probe]', eventName, payload);
+}
+
+function nowMs() {
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    return performance.now();
+  }
+  return Date.now();
+}
+
+function getCachedStreamStatus(url) {
+  const cached = streamStatusCache.get(url);
+  if (!cached) return null;
+  if ((Date.now() - cached.timestamp) < STREAM_STATUS_TTL_MS) {
+    return cached;
+  }
+  streamStatusCache.delete(url);
+  return null;
+}
+
+function setCachedStreamStatus(url, status, detail) {
+  streamStatusCache.set(url, { status, timestamp: Date.now() });
+  if (detail) {
+    streamProbeDetails.set(url, detail);
+  }
+}
+
+function updateRadioDebugPanel() {
+  if (!isRadioDebugEnabled()) return;
+  const panel = document.getElementById('radioDebugPanel');
+  if (!panel) return;
+  panel.hidden = false;
+  const list = panel.querySelector('tbody');
+  if (!list) return;
+  list.innerHTML = '';
+  streamProbeDetails.forEach(detail => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${detail.name || 'Unknown'}</td>
+      <td>${detail.status}</td>
+      <td>${detail.via || '-'}</td>
+      <td>${detail.timingMs ? `${Math.round(detail.timingMs)}ms` : '-'}</td>
+      <td class="debug-url">${detail.resolvedUrl || detail.url || '-'}</td>
+      <td>${detail.errorType || '-'}</td>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function ensureRadioDebugPanel() {
+  if (!isRadioDebugEnabled()) return;
+  const modalContent = document.querySelector('#radioModal .modal-content');
+  if (!modalContent || document.getElementById('radioDebugPanel')) return;
+
+  const panel = document.createElement('div');
+  panel.id = 'radioDebugPanel';
+  panel.className = 'radio-debug-panel';
+  panel.hidden = true;
+  panel.innerHTML = `
+    <h4>Radio probe diagnostics</h4>
+    <p class="radio-debug-note">Dev-only view of stream checks (enable with ?radioDebug=1).</p>
+    <div class="radio-debug-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Station</th>
+            <th>Status</th>
+            <th>Probe</th>
+            <th>Timing</th>
+            <th>Resolved URL</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  `;
+  modalContent.appendChild(panel);
 }
 
 // Grouped Stations
@@ -2030,65 +2131,308 @@ function buildGroupedStations() {
 }
 buildGroupedStations();
 
-async function checkStreamStatus(url) {
+async function checkStreamStatus(url, stationName = '') {
       if (isSlowConnection) {
-        return 'unknown';
+        return { status: 'unavailable', reason: 'slow-network' };
       }
-      const cache = readStreamStatusCache();
-      const cached = cache[url];
-      if (cached && (Date.now() - cached.timestamp) < STREAM_STATUS_TTL_MS) {
-        return cached.status;
+
+      const cached = getCachedStreamStatus(url);
+      if (cached) {
+        return { status: cached.status, reason: 'cache' };
       }
-      return new Promise(resolve => {
-        const testAudio = document.createElement('audio');
-        let settled = false;
 
-        const cleanup = () => {
-          testAudio.removeEventListener('canplay', onCanPlay);
-          testAudio.removeEventListener('error', onError);
-          testAudio.src = '';
-        };
+      if (streamStatusInFlight.has(url)) {
+        return streamStatusInFlight.get(url);
+      }
 
-        const onCanPlay = () => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            cache[url] = { status: 'online', timestamp: Date.now() };
-            writeStreamStatusCache(cache);
-            resolve('online');
+      const probePromise = (async () => {
+        ensureRadioDebugPanel();
+        let attempt = 0;
+        let lastResult = null;
+        while (attempt <= STREAM_STATUS_MAX_RETRIES) {
+          attempt += 1;
+          lastResult = await probeStreamUrl(url, stationName);
+          if (lastResult.status === 'online') break;
+          if (lastResult.status === 'offline') break;
+          if (attempt <= STREAM_STATUS_MAX_RETRIES) {
+            await new Promise(resolve => setTimeout(resolve, STREAM_STATUS_RETRY_DELAY_MS));
           }
-        };
+        }
+        setCachedStreamStatus(url, lastResult.status, lastResult);
+        streamStatusInFlight.delete(url);
+        updateRadioDebugPanel();
+        return { status: lastResult.status, reason: lastResult.reason || lastResult.errorType || 'probe' };
+      })();
 
-        const onError = () => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            cache[url] = { status: 'offline', timestamp: Date.now() };
-            writeStreamStatusCache(cache);
-            resolve('offline');
-          }
-        };
-
-        const normalized = normalizeMediaSrc(url);
-        const streamUrl = buildTrackFetchUrl(normalized, { sourceType: 'stream', forceProxy: true });
-        setCrossOrigin(testAudio, streamUrl);
-        testAudio.preload = 'auto';
-        testAudio.addEventListener('canplay', onCanPlay, { once: true });
-        testAudio.addEventListener('error', onError, { once: true });
-        testAudio.src = streamUrl;
-        testAudio.load();
-
-        setTimeout(() => {
-          if (!settled) {
-            settled = true;
-            cleanup();
-            cache[url] = { status: 'offline', timestamp: Date.now() };
-            writeStreamStatusCache(cache);
-            resolve('offline');
-          }
-        }, 10000); // fallback timeout
-      });
+      streamStatusInFlight.set(url, probePromise);
+      return probePromise;
     }
+
+function classifyAudioError(audioElement) {
+  const code = audioElement?.error?.code;
+  const mediaError = typeof MediaError !== 'undefined' ? MediaError : {};
+  if (code && code === mediaError.MEDIA_ERR_NETWORK) {
+    return { status: 'offline', errorType: 'network' };
+  }
+  if (code && code === mediaError.MEDIA_ERR_DECODE) {
+    return { status: 'unavailable', errorType: 'decode' };
+  }
+  if (code && code === mediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+    return { status: 'unavailable', errorType: 'not-supported' };
+  }
+  if (code && code === mediaError.MEDIA_ERR_ABORTED) {
+    return { status: 'unavailable', errorType: 'aborted' };
+  }
+  return { status: 'offline', errorType: 'unknown-error' };
+}
+
+function looksLikePlaylist(url) {
+  return /\.(pls|m3u)(\?|$)/i.test(url) && !/\.m3u8(\?|$)/i.test(url);
+}
+
+function extractPlaylistStreamUrl(text, baseUrl) {
+  if (!text) return null;
+  const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const plsLine = lines.find(line => /^file\d+=/i.test(line));
+  if (plsLine) {
+    return plsLine.split('=').slice(1).join('=').trim();
+  }
+  const m3uLine = lines.find(line => !line.startsWith('#'));
+  if (m3uLine) {
+    return m3uLine;
+  }
+  return null;
+}
+
+async function resolveRadioStreamUrl(rawUrl, stationName) {
+  const normalized = normalizeMediaSrc(rawUrl);
+  if (!normalized) {
+    return { url: '', resolvedUrl: '', reason: 'invalid-url' };
+  }
+  if (!looksLikePlaylist(normalized)) {
+    return { url: normalized, resolvedUrl: normalized };
+  }
+
+  const playlistUrl = buildRadioProxyUrl(normalized);
+  const start = nowMs();
+  try {
+    const response = await fetch(playlistUrl, { cache: 'no-store' });
+    const timingMs = nowMs() - start;
+    if (!response.ok) {
+      logStreamProbe('playlist-fetch-failed', {
+        station: stationName,
+        url: normalized,
+        status: response.status,
+        timingMs
+      });
+      return { url: normalized, resolvedUrl: normalized, reason: `playlist-status-${response.status}` };
+    }
+    const text = await response.text();
+    const candidate = extractPlaylistStreamUrl(text, normalized);
+    if (!candidate) {
+      return { url: normalized, resolvedUrl: normalized, reason: 'playlist-empty' };
+    }
+    const resolved = new URL(candidate, normalized).toString();
+    logStreamProbe('playlist-resolved', {
+      station: stationName,
+      url: normalized,
+      resolved,
+      timingMs
+    });
+    return { url: normalized, resolvedUrl: resolved, playlist: true };
+  } catch (error) {
+    logStreamProbe('playlist-fetch-error', {
+      station: stationName,
+      url: normalized,
+      error: error?.message || String(error)
+    });
+    return { url: normalized, resolvedUrl: normalized, reason: 'playlist-fetch-error' };
+  }
+}
+
+async function probeWithAudio(url, stationName) {
+  return new Promise(resolve => {
+    const audio = new Audio();
+    let settled = false;
+    const start = nowMs();
+    const cleanup = () => {
+      audio.removeEventListener('loadedmetadata', onReady);
+      audio.removeEventListener('canplay', onReady);
+      audio.removeEventListener('error', onError);
+      audio.src = '';
+    };
+
+    const onReady = () => {
+      if (settled) return;
+      settled = true;
+      const timingMs = nowMs() - start;
+      const resolvedUrl = audio.currentSrc || audio.src;
+      cleanup();
+      resolve({
+        status: 'online',
+        via: 'audio',
+        timingMs,
+        resolvedUrl
+      });
+    };
+
+    const onError = () => {
+      if (settled) return;
+      settled = true;
+      const timingMs = nowMs() - start;
+      const classification = classifyAudioError(audio);
+      const resolvedUrl = audio.currentSrc || audio.src;
+      cleanup();
+      resolve({
+        status: classification.status,
+        via: 'audio',
+        timingMs,
+        resolvedUrl,
+        errorType: classification.errorType
+      });
+    };
+
+    setCrossOrigin(audio, url);
+    audio.preload = 'metadata';
+    audio.addEventListener('loadedmetadata', onReady, { once: true });
+    audio.addEventListener('canplay', onReady, { once: true });
+    audio.addEventListener('error', onError, { once: true });
+    audio.src = url;
+    audio.load();
+
+    setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      const timingMs = nowMs() - start;
+      cleanup();
+      resolve({
+        status: 'unavailable',
+        via: 'audio',
+        timingMs,
+        errorType: 'timeout'
+      });
+    }, STREAM_STATUS_TIMEOUT_MS);
+  });
+}
+
+async function probeWithFetch(url, stationName) {
+  if (typeof fetch === 'undefined') {
+    return { status: 'unavailable', via: 'fetch', errorType: 'no-fetch' };
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), STREAM_STATUS_TIMEOUT_MS);
+  const start = nowMs();
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { Range: 'bytes=0-1' },
+      cache: 'no-store',
+      signal: controller.signal
+    });
+    clearTimeout(timer);
+    const timingMs = nowMs() - start;
+    const isProxyBlock = response.status === 400 || response.status === 403;
+    const status = response.ok || response.status === 206
+      ? 'online'
+      : isProxyBlock
+        ? 'unavailable'
+        : 'offline';
+    const detail = {
+      status,
+      via: 'fetch',
+      timingMs,
+      httpStatus: response.status,
+      contentType: response.headers.get('content-type') || '',
+      resolvedUrl: response.headers.get('x-proxy-upstream') || response.url,
+      errorType: response.ok || response.status === 206 ? null : (isProxyBlock ? 'proxy-blocked' : 'http-error')
+    };
+    return detail;
+  } catch (error) {
+    clearTimeout(timer);
+    const timingMs = nowMs() - start;
+    const isCors = isLikelyCorsBlock(error);
+    return {
+      status: isCors ? 'unavailable' : 'offline',
+      via: 'fetch',
+      timingMs,
+      errorType: isCors ? 'cors' : (error?.name || 'fetch-error')
+    };
+  }
+}
+
+async function probeStreamUrl(rawUrl, stationName) {
+  const start = nowMs();
+  const resolved = await resolveRadioStreamUrl(rawUrl, stationName);
+  if (!resolved.resolvedUrl) {
+    return {
+      name: stationName,
+      url: rawUrl,
+      resolvedUrl: '',
+      status: 'unavailable',
+      via: 'resolver',
+      timingMs: Math.round(nowMs() - start),
+      errorType: resolved.reason || 'invalid-url'
+    };
+  }
+  const resolvedUrl = resolved.resolvedUrl || resolved.url;
+  let probeUrl = resolvedUrl;
+  try {
+    const probeTarget = new URL(resolvedUrl, window.location.origin);
+    if (probeTarget.protocol === 'http:') {
+      probeUrl = buildRadioProxyUrl(resolvedUrl);
+    }
+  } catch (error) {
+    probeUrl = resolvedUrl;
+  }
+
+  logStreamProbe('probe-start', {
+    station: stationName,
+    url: rawUrl,
+    resolvedUrl: probeUrl,
+    serviceWorkerActive: Boolean(navigator.serviceWorker && navigator.serviceWorker.controller)
+  });
+
+  const audioResult = await probeWithAudio(probeUrl, stationName);
+  if (audioResult.status === 'online') {
+    const detail = {
+      name: stationName,
+      url: rawUrl,
+      resolvedUrl: audioResult.resolvedUrl || probeUrl,
+      status: 'online',
+      via: audioResult.via,
+      timingMs: audioResult.timingMs
+    };
+    logStreamProbe('probe-audio-success', detail);
+    return detail;
+  }
+
+  const fetchResult = await probeWithFetch(buildRadioProxyUrl(resolved.resolvedUrl || resolved.url), stationName);
+  const finalStatus = fetchResult.status === 'online'
+    ? 'online'
+    : audioResult.status === 'offline'
+      ? 'offline'
+      : fetchResult.status;
+
+  const detail = {
+    name: stationName,
+    url: rawUrl,
+    resolvedUrl: audioResult.resolvedUrl || fetchResult.resolvedUrl || probeUrl,
+    status: finalStatus,
+    via: audioResult.status === 'offline' ? audioResult.via : fetchResult.via,
+    timingMs: Math.round(nowMs() - start),
+    httpStatus: fetchResult.httpStatus,
+    contentType: fetchResult.contentType,
+    errorType: audioResult.errorType || fetchResult.errorType || resolved.reason || null
+  };
+
+  if (finalStatus === 'offline') {
+    logStreamProbe('probe-offline', detail);
+  } else {
+    logStreamProbe('probe-unavailable', detail);
+  }
+  return detail;
+}
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
@@ -2131,14 +2475,21 @@ function loadMoreStations(region) {
     statusSpan.style.marginLeft = '10px';
     statusSpan.textContent = ' (Checking...)';
 
-    checkStreamStatus(station.url).then(status => {
-        if (status === 'unknown') {
-            statusSpan.textContent = '';
+    checkStreamStatus(station.url, station.name).then(result => {
+        const status = result.status;
+        if (status === 'checking') {
+            statusSpan.textContent = ' (Checking...)';
+            statusSpan.style.color = '';
+            return;
+        }
+        if (status === 'unavailable') {
+            statusSpan.textContent = ' (Unavailable)';
+            statusSpan.style.color = 'gold';
             return;
         }
         statusSpan.textContent = status === 'online' ? ' (Online)' : ' (Offline)';
         statusSpan.style.color = status === 'online' ? 'lightgreen' : 'red';
-        if (status !== 'online') {
+        if (status === 'offline') {
             stationLink.style.textDecoration = 'line-through';
         }
     });
