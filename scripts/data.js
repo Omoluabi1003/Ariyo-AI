@@ -29,6 +29,27 @@ const albums = [
         ],
       },
       {
+        id: 'q-91-1',
+        name: 'Q 91.1 FM',
+        title: 'Q 91.1 FM',
+        description: 'Treasure Coast R&B station based in Fort Pierce, Florida.',
+        coverImage: 'https://npr.brightspotcdn.com/dims4/default/50f1e62/2147483647/strip/true/crop/999x513+0+0/resize/234x120!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2F28%2F63%2F7e0c467348b4a2f63007b20e9a02%2Fq91-1-fm-logo.png',
+        cover: 'https://npr.brightspotcdn.com/dims4/default/50f1e62/2147483647/strip/true/crop/999x513+0+0/resize/234x120!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2F28%2F63%2F7e0c467348b4a2f63007b20e9a02%2Fq91-1-fm-logo.png',
+        type: 'radio',
+        tracks: [
+          {
+            id: 'q-91-1-live',
+            title: 'Q 91.1 FM (Live)',
+            artist: 'Q 91.1 FM',
+            url: 'https://playerservices.streamtheworld.com/api/livestream-redirect/WQCPFM.mp3',
+            src: 'https://playerservices.streamtheworld.com/api/livestream-redirect/WQCPFM.mp3',
+            sourceType: 'stream',
+            isLive: true,
+            duration: null,
+          },
+        ],
+      },
+      {
         name: 'Kindness',
         cover: `${BASE_URL}Kindness%20Cover%20Art.jpg`,
         tracks: [
