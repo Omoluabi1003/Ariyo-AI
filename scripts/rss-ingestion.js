@@ -180,6 +180,9 @@
       });
 
       refreshUi();
+      window.dispatchEvent(new CustomEvent('ariyo:library-updated', {
+        detail: { source: 'rss', albums: newAlbums.length, tracks: normalized.length }
+      }));
     } catch (error) {
       if (error?.name === 'AbortError') return;
       console.warn('[rss-ingestion] Unable to hydrate podcast feeds:', error, { reason });

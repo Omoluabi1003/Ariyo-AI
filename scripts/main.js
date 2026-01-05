@@ -419,34 +419,63 @@
       }
     };
 
-    albums.forEach((album, albumIndex) => {
-      const albumLabel = `Album ${albumIndex + 1}: ${album.name}`;
-      addSearchItem(albumLabel, { type: 'album', albumIndex }, [
-        album.name,
-        `album ${albumIndex + 1}`,
-        `album ${albumIndex + 1} ${album.name}`
-      ]);
-
-      album.tracks.forEach((track, trackIndex) => {
-        const label = `${track.title} - ${album.name}`;
-        addSearchItem(label, { type: 'track', albumIndex, trackIndex }, [
-          track.title,
-          album.name,
-          `${track.title} ${album.name}`
-        ]);
+    const resetSearchIndex = () => {
+      searchItems.length = 0;
+      Object.keys(searchMap).forEach((key) => {
+        delete searchMap[key];
       });
-    });
+    };
 
-    radioStations.forEach((station, index) => {
-      const label = `${station.name} (${station.location})`;
-      addSearchItem(label, { type: 'radio', index }, [
-        station.name,
-        station.location,
-        `${station.name} ${station.location}`
-      ]);
-    });
+    const buildSearchIndex = () => {
+      resetSearchIndex();
 
-    renderSearchSuggestions(searchItems);
+      if (Array.isArray(albums)) {
+        albums.forEach((album, albumIndex) => {
+          const albumLabel = `Album ${albumIndex + 1}: ${album.name}`;
+          addSearchItem(albumLabel, { type: 'album', albumIndex }, [
+            album.name,
+            album.artist,
+            `album ${albumIndex + 1}`,
+            `album ${albumIndex + 1} ${album.name}`
+          ]);
+
+          if (Array.isArray(album.tracks)) {
+            album.tracks.forEach((track, trackIndex) => {
+              const label = `${track.title} - ${album.name}`;
+              addSearchItem(label, { type: 'track', albumIndex, trackIndex }, [
+                track.title,
+                track.artist,
+                track.rssSource,
+                track.subtitle,
+                album.name,
+                album.artist,
+                `${track.title} ${album.name}`
+              ]);
+            });
+          }
+        });
+      }
+
+      if (Array.isArray(radioStations)) {
+        radioStations.forEach((station, index) => {
+          const label = `${station.name} (${station.location})`;
+          addSearchItem(label, { type: 'radio', index }, [
+            station.name,
+            station.location,
+            `${station.name} ${station.location}`,
+            `${station.name} radio`,
+            `${station.location} radio`
+          ]);
+        });
+      }
+
+      renderSearchSuggestions(searchItems);
+    };
+
+    buildSearchIndex();
+
+    window.addEventListener('ariyo:library-ready', buildSearchIndex);
+    window.addEventListener('ariyo:library-updated', buildSearchIndex);
 
     searchInput.addEventListener('input', (e) => {
       updateQuery(e.target.value);
