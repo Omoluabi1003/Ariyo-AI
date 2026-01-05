@@ -178,6 +178,11 @@
   let playbackMonitorId = null;
   let lastObservedPosition = 0;
   let isBuffering = false;
+  // FIX: event-driven playbackStatus
+  let playbackStatus = 'idle';
+  let lastError = null;
+  let bufferingTimeoutId = null;
+  let bufferingRecoveryAttempted = false;
   const preconnectedHosts = new Set();
 
   const audioController = {
@@ -322,7 +327,17 @@
     return Math.min(crossfadeDurationSeconds, cappedByTrackLength);
   }
 
+  function initializeDeckAudio(audioElement) {
+    if (!audioElement) return;
+    // FIX: persistent audio instance
+    audioElement.preload = 'metadata';
+    audioElement.playsInline = true;
+    audioElement.muted = false;
+    audioElement.volume = 1;
+  }
+
   function createDeck(audioElement) {
+    initializeDeckAudio(audioElement);
     return {
       audio: audioElement,
       gainNode: null,
@@ -422,6 +437,75 @@
       deck.audio.setAttribute('webkit-playsinline', '');
       deck.audio.playsInline = true;
     });
+  }
+
+  function getAudioErrorMessage(audio) {
+    if (!audio || !audio.error) return null;
+    const { code, message } = audio.error;
+    const fallback = typeof message === 'string' && message.trim() ? message : `Media error code ${code}`;
+    return fallback;
+  }
+
+  function resetBufferingTimeout() {
+    if (bufferingTimeoutId) {
+      clearTimeout(bufferingTimeoutId);
+      bufferingTimeoutId = null;
+    }
+  }
+
+  // FIX: buffering timeout + recovery
+  function startBufferingTimeout() {
+    if (bufferingTimeoutId) return;
+    bufferingTimeoutId = setTimeout(() => {
+      if (playbackStatus !== 'loading') return;
+      const activeAudio = getActiveAudio();
+      if (!activeAudio) return;
+      if (bufferingRecoveryAttempted) {
+        const message = 'Playback stalled or stream unreachable.';
+        console.error('[audio] buffer-timeout', { message });
+        setPlaybackStatus('error', 'buffer-timeout', message);
+        hideLoading();
+        setStatus(message, 'error');
+        postPanelStatus('error', trackInfo.textContent);
+        return;
+      }
+      bufferingRecoveryAttempted = true;
+      console.warn('[audio] buffer-timeout: recovery');
+      (async () => {
+        try {
+          activeAudio.load();
+          await resumeAudioContext();
+          await activeAudio.play();
+        } catch (error) {
+          const message = 'Playback stalled or stream unreachable.';
+          console.error('[audio] buffer-recovery-failed', { error });
+          setPlaybackStatus('error', 'buffer-recovery', message);
+          hideLoading();
+          setStatus(message, 'error');
+          postPanelStatus('error', trackInfo.textContent);
+        }
+      })();
+    }, 8000);
+  }
+
+  function setPlaybackStatus(nextStatus, eventName = 'state', errorMessage = null) {
+    if (playbackStatus === nextStatus && !errorMessage) return;
+    playbackStatus = nextStatus;
+    if (nextStatus === 'error') {
+      lastError = errorMessage || lastError;
+    } else {
+      lastError = null;
+    }
+    console.info('[audio] transition', { event: eventName, status: playbackStatus, lastError });
+
+    if (playbackStatus === 'loading') {
+      startBufferingTimeout();
+    } else {
+      resetBufferingTimeout();
+      bufferingRecoveryAttempted = false;
+    }
+
+    updateSpinState();
   }
 
   function captureAudioState(audio) {
@@ -962,6 +1046,7 @@
 
     resetPlaybackStartState();
     hideLoading();
+    setPlaybackStatus('error', 'playback-failed', 'Playback stalled or stream unreachable.');
     // Update this message to change the user-facing playback failure copy.
     setStatus('We could not start playback right now. Please check your connection and try again.', 'error');
     postPanelStatus('error', state.trackTitle || '');
@@ -1011,6 +1096,7 @@
     playbackStartState = state;
     markPlaybackSelection(track?.src);
     showLoading('Connecting…');
+    setPlaybackStatus('loading', 'play-attempt');
 
     const startAttempt = () => {
       if (!isActivePlaybackState(state)) return;
@@ -1020,6 +1106,18 @@
 
       ensureAudibleDeck(deck);
       resumeAudioContext().finally(() => {
+        console.info('[audio] pre-play', {
+          readyState: audioEl.readyState,
+          networkState: audioEl.networkState,
+          muted: audioEl.muted,
+          volume: audioEl.volume,
+          src: audioEl.currentSrc || audioEl.src,
+        });
+        try {
+          audioEl.load();
+        } catch (_) {
+          // Ignore load errors; play() will surface issues.
+        }
         const playPromise = audioEl.play();
         if (playPromise && typeof playPromise.catch === 'function') {
           playPromise.catch(err => retryOrFailPlayback(state, err));
@@ -1064,12 +1162,7 @@
   }
 
   function updateSpinState() {
-    const activeAudio = getActiveAudio();
-    const shouldSpin = activeAudio
-      && !activeAudio.paused
-      && !activeAudio.ended
-      && !activeAudio.seeking
-      && !isBuffering;
+    const shouldSpin = playbackStatus === 'playing';
     [turntableDisc, albumCover, turntableGrooves, turntableSheen, albumGrooveOverlay].forEach(element => {
       if (!element) return;
       element.classList.toggle('spin', shouldSpin);
@@ -1586,6 +1679,7 @@
       updateOverlayMetadata(deckKey, track);
       postPanelStatus('loading', track.title);
       prefetchUpcomingTracks(currentOrderIndex);
+      setPlaybackStatus('loading', 'track-select');
     }
 
     if (!preloadOnly) {
@@ -1678,19 +1772,30 @@
   }
 
   async function loadTrack(orderIndex, { autoplay = false } = {}) {
+    const trackIndex = playbackOrder[orderIndex];
+    const track = allTracks[trackIndex];
+    if (autoplay) {
+      // FIX: iOS gesture-safe play
+      markUserGesture('track-select');
+      console.info('[player] select', { orderIndex, src: track ? track.src : null });
+    }
     await transitionToOrderIndex(orderIndex, { autoplay, preferCrossfade: djAutoMixEnabled });
   }
 
   async function playCurrentTrack() {
     const activeAudio = getActiveAudio();
+    // FIX: iOS gesture-safe play
     markUserGesture('play');
+    setPlaybackStatus('loading', 'play-click');
     logAudioEvent('play-attempt', activeAudio);
     ensureAudioGraph(getActiveDeck());
     await resumeAudioContext();
     ensureAudibleDeck(getActiveDeck());
     const playPromise = activeAudio.play();
     if (playPromise) {
-      playPromise.catch(() => {
+      playPromise.catch(error => {
+        console.error('[audio] play-rejected', { error });
+        setPlaybackStatus('error', 'play-rejected', 'Playback blocked by your browser. Tap play again.');
         setStatus('Playback blocked by your browser. Tap play again.', 'warning');
         updateSpinState();
       });
@@ -1704,6 +1809,7 @@
       deck.audio.pause();
       deck.audio.currentTime = 0;
     });
+    setPlaybackStatus('paused', 'stop');
     updateSpinState();
     hideLoading();
     setStatus('Playback stopped.');
@@ -1844,6 +1950,13 @@
     progressBarFill.style.width = '0%';
   }
 
+  function handleLoadStart(event) {
+    if (event.target !== getActiveAudio()) return;
+    isBuffering = true;
+    logAudioEvent('loadstart', event.target);
+    setPlaybackStatus('loading', 'loadstart');
+  }
+
   async function handleTimeUpdate(event) {
     if (event.target !== getActiveAudio() || userSeeking) return;
     if (event.target.dataset.isLive === 'true') {
@@ -1882,6 +1995,8 @@
     isBuffering = false;
     logAudioEvent('playing', event.target);
     ensureAudibleDeck(getActiveDeck());
+    // FIX: vinyl rotation synced to 'playing'
+    setPlaybackStatus('playing', 'playing');
     notePlaybackProgress();
     startPlaybackMonitor();
     logPlaybackStart(event.target.dataset.trackSrc);
@@ -1896,6 +2011,9 @@
     if (event.target !== getActiveAudio()) return;
     isBuffering = false;
     logAudioEvent('pause', event.target);
+    if (!event.target.ended) {
+      setPlaybackStatus('paused', 'pause');
+    }
     updateSpinState();
     resetStallRecovery();
     if (event.target.currentTime > 0 && event.target.currentTime < event.target.duration) {
@@ -1908,6 +2026,7 @@
     if (event.target !== getActiveAudio()) return;
     isBuffering = true;
     logAudioEvent(event.type || 'waiting', event.target);
+    setPlaybackStatus('loading', event.type || 'waiting');
     showLoading('Buffering…', 'info');
     scheduleStallRecovery();
     updateSpinState();
@@ -1917,6 +2036,9 @@
     if (event.target !== getActiveAudio()) return;
     isBuffering = false;
     logAudioEvent('canplay', event.target);
+    if (playbackStatus !== 'playing') {
+      setPlaybackStatus('loading', event.type || 'canplay');
+    }
     hideLoading();
     notePlaybackProgress();
   }
@@ -1925,16 +2047,30 @@
     if (event.target !== getActiveAudio() || isCrossfading) return;
     isBuffering = false;
     logAudioEvent('ended', event.target);
+    setPlaybackStatus('paused', 'ended');
     resetStallRecovery();
     updateSpinState();
     setStatus('Track finished. Loading next…');
     playNextTrack(true);
   }
 
+  function handleStalled(event) {
+    if (event.target !== getActiveAudio()) return;
+    isBuffering = true;
+    logAudioEvent('stalled', event.target);
+    setPlaybackStatus('error', 'stalled', 'Playback stalled or stream unreachable.');
+    hideLoading();
+    setStatus('Playback stalled or stream unreachable.', 'error');
+    postPanelStatus('error', trackInfo.textContent);
+    updateSpinState();
+  }
+
   function handleError(event) {
     if (event.target !== getActiveAudio()) return;
     isBuffering = true;
-    logAudioEvent('error', event.target, { error: event?.error });
+    const errorMessage = getAudioErrorMessage(event.target);
+    logAudioEvent('error', event.target, { error: event?.error, audioError: errorMessage });
+    setPlaybackStatus('error', 'error', errorMessage || 'Audio playback error.');
     resetStallRecovery();
     updateSpinState();
     if (playbackStartState && playbackStartState.audioEl === event.target) {
@@ -1964,13 +2100,16 @@
 
   Object.values(decks).forEach(deck => {
     const el = deck.audio;
+    // FIX: event-driven playbackStatus
+    el.addEventListener('loadstart', handleLoadStart);
     el.addEventListener('loadedmetadata', handleLoadedMetadata);
     el.addEventListener('timeupdate', handleTimeUpdate);
     el.addEventListener('playing', handlePlaying);
     el.addEventListener('pause', handlePause);
     el.addEventListener('waiting', handleWaiting);
-    el.addEventListener('stalled', handleWaiting);
+    el.addEventListener('stalled', handleStalled);
     el.addEventListener('canplay', handleCanPlay);
+    el.addEventListener('canplaythrough', handleCanPlay);
     el.addEventListener('ended', handleEnded);
     el.addEventListener('error', handleError);
     attachDebugEventLogging(deck);
