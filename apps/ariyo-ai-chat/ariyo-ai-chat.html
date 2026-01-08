@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Ariyo AI Chatbot</title>
+  <link rel="stylesheet" href="./voice.css">
   <script async type='module' src='https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js'></script>
   <script src="../../viewport-height.js" defer></script>
   <style>
@@ -24,6 +25,7 @@
 </head>
 <body>
   <zapier-interfaces-chatbot-embed is-popup='false' chatbot-id='cm7s2oyu2000b3vmuwcwkj9kn'></zapier-interfaces-chatbot-embed>
+  <div id="ariyo-voice-root"></div>
   <script>
     (function () {
       const PANEL_ID = 'ariyoChatbotContainer';
@@ -110,6 +112,132 @@
         window.addEventListener('load', monitorEmbed, { once: true });
       }
     })();
+  </script>
+  <script src="./voice.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mountEl = document.getElementById('ariyo-voice-root');
+      const embed = document.querySelector('zapier-interfaces-chatbot-embed');
+
+      const queryDeep = (root, selector) => {
+        if (!root) return null;
+        const scope = root.shadowRoot || root;
+        const directMatch = scope.querySelector(selector);
+        if (directMatch) return directMatch;
+        const nodes = scope.querySelectorAll('*');
+        for (const node of nodes) {
+          if (node.shadowRoot) {
+            const found = queryDeep(node, selector);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const queryAllDeep = (root, selector) => {
+        const results = [];
+        if (!root) return results;
+        const scope = root.shadowRoot || root;
+        results.push(...scope.querySelectorAll(selector));
+        const nodes = scope.querySelectorAll('*');
+        for (const node of nodes) {
+          if (node.shadowRoot) {
+            results.push(...queryAllDeep(node, selector));
+          }
+        }
+        return results;
+      };
+
+      const getInputEl = () => queryDeep(embed, 'textarea, input[type="text"], input[type="search"]');
+
+      const setInputText = (text) => {
+        const input = getInputEl();
+        if (!input) return;
+        input.value = text;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.focus();
+      };
+
+      const assistantSelectors = [
+        '[data-message-author="assistant"]',
+        '[data-role="assistant"]',
+        '[data-testid="assistant-message"]',
+        '.assistant',
+        '.assistant-message',
+        '.message.assistant',
+        '.message.bot',
+        '.bot'
+      ];
+
+      const getLastAssistantText = () => {
+        if (!embed) return '';
+        let nodes = [];
+        assistantSelectors.forEach((selector) => {
+          nodes = nodes.concat(queryAllDeep(embed, selector));
+        });
+        if (!nodes.length) return '';
+        const last = nodes[nodes.length - 1];
+        return last && last.textContent ? last.textContent.trim() : '';
+      };
+
+      if (window.AriyoVoice && mountEl) {
+        window.AriyoVoice.mount({
+          mountEl,
+          getLastAssistantText,
+          setInputText,
+          getInputEl
+        });
+      }
+
+      let lastAssistantText = '';
+      const handleAssistantNode = (node) => {
+        if (!(node instanceof HTMLElement)) return;
+        let assistantNode = null;
+        for (const selector of assistantSelectors) {
+          if (node.matches && node.matches(selector)) {
+            assistantNode = node;
+            break;
+          }
+        }
+        if (!assistantNode) {
+          for (const selector of assistantSelectors) {
+            const found = node.querySelector ? node.querySelector(selector) : null;
+            if (found) {
+              assistantNode = found;
+              break;
+            }
+          }
+        }
+        if (assistantNode && assistantNode.textContent) {
+          const text = assistantNode.textContent.trim();
+          if (text && text !== lastAssistantText) {
+            lastAssistantText = text;
+            if (window.AriyoVoice) {
+              window.AriyoVoice.onAssistantMessage(text);
+            }
+          }
+        }
+      };
+
+      if (embed && embed.shadowRoot) {
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach(handleAssistantNode);
+          });
+        });
+        observer.observe(embed.shadowRoot, { childList: true, subtree: true });
+      }
+
+      setInterval(() => {
+        const text = getLastAssistantText();
+        if (text && text !== lastAssistantText) {
+          lastAssistantText = text;
+          if (window.AriyoVoice) {
+            window.AriyoVoice.onAssistantMessage(text);
+          }
+        }
+      }, 1500);
+    });
   </script>
   <script src="../../scripts/sw-controller.js" defer></script>
 </body>
