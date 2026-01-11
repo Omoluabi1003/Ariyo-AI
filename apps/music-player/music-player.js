@@ -92,7 +92,7 @@
     }
 
     const artist = album.artist || 'Omoluabi';
-    const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : '2025';
+    const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : null;
     const cover = album.cover || album.coverImage || fallbackCover;
     const albumName = album.name || album.title || `Album ${albumIndex + 1}`;
     const collectedTracks = [];
@@ -114,7 +114,7 @@
         cover,
         album: albumName,
         artist: deriveTrackArtist(track.artist || artist, title),
-        releaseYear,
+        releaseYear: typeof track.releaseYear !== 'undefined' ? track.releaseYear : releaseYear,
         albumIndex,
         albumTrackIndex: trackIndex,
         isLive: Boolean(track.isLive || track.sourceType === 'stream'),
@@ -1437,7 +1437,7 @@
       meta.className = 'album-meta';
       const releaseYear = (typeof album.releaseYear !== 'undefined' && album.releaseYear) ? album.releaseYear : tracks[0].releaseYear;
       const trackCount = tracks.length;
-      const safeYear = releaseYear || '2025';
+      const safeYear = releaseYear || 'Unknown';
       meta.textContent = `${safeYear} • ${trackCount} track${trackCount === 1 ? '' : 's'}`;
 
       const durationLabel = document.createElement('span');
@@ -1573,7 +1573,7 @@
     trackInfo.textContent = track.title;
     trackArtist.textContent = `Artist: ${track.artist}`;
     trackAlbum.textContent = `Album: ${track.album}`;
-    trackYear.textContent = `Release Year: ${track.releaseYear}`;
+    trackYear.textContent = `Release Year: ${track.releaseYear || 'Unknown'}`;
     albumCover.src = track.cover || '../../Logo.jpg';
     progressBarFill.style.width = '0%';
     seekBar.value = 0;

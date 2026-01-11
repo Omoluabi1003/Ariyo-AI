@@ -29,27 +29,6 @@ const albums = [
         ],
       },
       {
-        id: 'q-91-1',
-        name: 'Q 91.1 FM',
-        title: 'Q 91.1 FM',
-        description: 'Treasure Coast R&B station based in Fort Pierce, Florida.',
-        coverImage: 'https://npr.brightspotcdn.com/dims4/default/50f1e62/2147483647/strip/true/crop/999x513+0+0/resize/234x120!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2F28%2F63%2F7e0c467348b4a2f63007b20e9a02%2Fq91-1-fm-logo.png',
-        cover: 'https://npr.brightspotcdn.com/dims4/default/50f1e62/2147483647/strip/true/crop/999x513+0+0/resize/234x120!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2F28%2F63%2F7e0c467348b4a2f63007b20e9a02%2Fq91-1-fm-logo.png',
-        type: 'radio',
-        tracks: [
-          {
-            id: 'q-91-1-live',
-            title: 'Q 91.1 FM (Live)',
-            artist: 'Q 91.1 FM',
-            url: 'https://playerservices.streamtheworld.com/api/livestream-redirect/WQCPFM.mp3',
-            src: 'https://playerservices.streamtheworld.com/api/livestream-redirect/WQCPFM.mp3',
-            sourceType: 'stream',
-            isLive: true,
-            duration: null,
-          },
-        ],
-      },
-      {
         name: 'Kindness',
         cover: `${BASE_URL}Kindness%20Cover%20Art.jpg`,
         tracks: [
@@ -182,6 +161,7 @@ const albums = [
         tracks: [
               { src: 'https://cdn1.suno.ai/89b35923-5ce0-4464-9c68-931f06de6f69.mp3', title: 'Ling Zing' },
               { src: 'https://cdn1.suno.ai/2eee0551-4301-49df-b433-f58cacc9150a.mp3', title: 'Atmosphere Status' },
+              { src: 'https://cdn1.suno.ai/efdd1bda-f329-4cab-8183-3dadadb45ccc.mp3', title: 'Branama', releaseYear: 2026 },
               { src: 'https://cdn1.suno.ai/bd9f428d-77d2-4aee-b797-9c0d4913ebf4.mp3', title: 'Alafia' },
               { src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3', title: 'No Respect, No Me' },
               { src: 'https://cdn1.suno.ai/6297e776-d21e-4841-b625-0486d81ecfc8.mp3', title: 'Make We No Meet Who We Suppose Be (MWNMWWSB)' },
@@ -397,6 +377,13 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Branama',
+      src: 'https://cdn1.suno.ai/efdd1bda-f329-4cab-8183-3dadadb45ccc.mp3',
+      addedOn: '2026-01-10T15:04:57.170Z',
+      isFreshDrop: true
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Atmosphere Status',
@@ -653,6 +640,28 @@ const LATEST_TRACK_LIMIT = 2;
   }
 ];
 
+const releaseYearBySrc = new Map();
+latestTrackAnnouncements.forEach(track => {
+  const parsed = Date.parse(track.addedOn);
+  if (!Number.isNaN(parsed)) {
+    releaseYearBySrc.set(track.src, new Date(parsed).getUTCFullYear());
+  }
+});
+
+function applyReleaseYears(albumsList) {
+  if (!Array.isArray(albumsList)) return;
+  albumsList.forEach(album => {
+    if (!album || !Array.isArray(album.tracks)) return;
+    album.tracks.forEach(track => {
+      if (!track) return;
+      const knownYear = track.releaseYear ?? releaseYearBySrc.get(track.src) ?? null;
+      track.releaseYear = knownYear;
+    });
+  });
+}
+
+applyReleaseYears(albums);
+
 function normalizeLatestTracks(tracks) {
   if (!Array.isArray(tracks)) return [];
   const now = Date.now();
@@ -744,6 +753,7 @@ const radioStations = [
       { name: "NBS Solid 97.1 FM", location: "Nassarawa", url: "https://nbsradio1.radioca.st/;", logo: `${BASE_URL}Logo.jpg` },
       { name: "Vision Africa Radio", location: "Abia", url: "https://xstreamer.galcom.org:8443/VisionAfrica", logo: `${BASE_URL}Logo.jpg` },
       { name: "ITMP Radio", location: "Florida", url: "http://uk4freenew.listen2myradio.com:32739/stream", logo: `${BASE_URL}Logo.jpg` },
+      { name: "Q 91.1 FM", location: "Fort Pierce, Florida", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/WQCPFM.mp3", logo: "https://npr.brightspotcdn.com/dims4/default/50f1e62/2147483647/strip/true/crop/999x513+0+0/resize/234x120!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2F28%2F63%2F7e0c467348b4a2f63007b20e9a02%2Fq91-1-fm-logo.png" },
       { name: "Crest 106.1 FM", location: "Ondo", url: "https://stream-154.zeno.fm/9cgtkwg3teruv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI5Y2d0a3dnM3RlcnV2IiwiaG9zdCI6InN0cmVhbS0xNTQuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6IlI4MXQzdjhRUWhDQWdkODRsaWJtckEiLCJpYXQiOjE3NDM5MTI3NzQsImV4cCI6MTc0MzkxMjgzNH0.QiIm090_iZfI55MZu7WqKjm5inX-mmKanKQgGBBbA7w", logo: `${BASE_URL}Logo.jpg` },
       { name: "Eko FM", location: "Lagos", url: "https://servoserver.com.ng/ekofmradiolagos/stream/1/live.mp3", logo: `${BASE_URL}Logo.jpg` },
       { name: "Liveway Radio Network FM", location: "Lagos", url: "https://stream-173.zeno.fm/qc43ktn6n0quv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiJxYzQza3RuNm4wcXV2IiwiaG9zdCI6InN0cmVhbS0xNzMuemVuby5fbSIsInJ0dGwiOjUsImp0aSI6ImMtb0ZiQ3dtVE1hZUlEVU5YQ3BiVUEiLCJpYXQiOjE3NDM5MTMyODcsImV4cCI6MTc0MzkxMzM0N30.HVLieksgqvV_vsqRr9_rcDexkz6Lqeqeu7stKvuJr10", logo: `${BASE_URL}Logo.jpg` },
@@ -775,7 +785,6 @@ const radioStations = [
       { name: "Talk Sport", location: "London", url: "https://radio.talksport.com/stream", logo: `${BASE_URL}Logo.jpg` },
       { name: "Talk Sport 2", location: "London", url: "https://radio.talksport.com/stream2", logo: `${BASE_URL}Logo.jpg` },
       { name: "Joy FM", location: "Accra", url: "http://provisioning.streamtheworld.com/pls/JOY_FM.pls", logo: `${BASE_URL}Logo.jpg` },
-      { name: "Q 91.1 FM (WQCP)", location: "Fort Pierce, Florida", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/WQCPFM.mp3", logo: `${BASE_URL}Logo.jpg` },
       { name: "UBC Radio", location: "Kampala", url: "https://stream.ubc.go.ug/ubcradio", logo: `${BASE_URL}Logo.jpg` },
       { name: "Metro FM", location: "Johannesburg", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM.mp3", logo: `${BASE_URL}Logo.jpg` },
       { name: "Black Information Network", location: "USA", url: "https://cloud.revma.ihrhls.com/zc8729?rj-org=n2db-e2&rj-ttl=5&rj-tok=AAABlmL2wq8ALLTq8zLJ1wWRdw", logo: `${BASE_URL}Logo.jpg` },
