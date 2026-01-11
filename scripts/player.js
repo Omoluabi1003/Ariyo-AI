@@ -2640,8 +2640,8 @@ function applyTrackUiState(albumIndex, trackIndex) {
     trackInfo.textContent = track.title;
     const displayArtist = deriveTrackArtist(album.artist, track.title);
     trackArtist.textContent = `Artist: ${displayArtist}`;
-    const year = album.releaseYear || 2025;
-    trackYear.textContent = `Release Year: ${year}`;
+    const year = track.releaseYear ?? album.releaseYear ?? null;
+    trackYear.textContent = `Release Year: ${year || 'Unknown'}`;
     trackAlbum.textContent = `Album: ${album.name}`;
     albumCover.src = album.cover;
     loadLyrics(track.lrc);

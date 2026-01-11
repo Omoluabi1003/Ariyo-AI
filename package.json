@@ -8,7 +8,8 @@
     "test": "jest",
     "test:e2e": "playwright test",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "validate:release-years": "node scripts/validate-release-years.js"
   },
   "dependencies": {
     "fast-xml-parser": "^5.3.3",

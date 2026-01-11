@@ -4,6 +4,7 @@
   const OMOLUABI_TRACKS = [
     { slug: 'ling-zing', title: 'Ling Zing', src: 'https://cdn1.suno.ai/89b35923-5ce0-4464-9c68-931f06de6f69.mp3' },
     { slug: 'atmosphere-status', title: 'Atmosphere Status', src: 'https://cdn1.suno.ai/2eee0551-4301-49df-b433-f58cacc9150a.mp3' },
+    { slug: 'branama', title: 'Branama', src: 'https://cdn1.suno.ai/efdd1bda-f329-4cab-8183-3dadadb45ccc.mp3', releaseYear: 2026 },
     { slug: 'alafia', title: 'Alafia', src: 'https://cdn1.suno.ai/bd9f428d-77d2-4aee-b797-9c0d4913ebf4.mp3' },
     { slug: 'no-respect-no-me', title: 'No Respect, No Me', src: 'https://cdn1.suno.ai/692a7001-fadd-4e70-8727-07a168e4c8b5.mp3' },
     {
@@ -84,6 +85,7 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    { albumName: 'Omoluabi Production Catalogue', slug: 'branama', addedOn: '2026-01-10T15:04:57.170Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'atmosphere-status', addedOn: '2026-01-04T21:49:18Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'ling-zing', addedOn: '2025-12-24T04:00:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'alafia', addedOn: '2025-12-13T09:20:00Z', isFreshDrop: true },
@@ -114,6 +116,20 @@
     { albumName: 'Omoluabi Production Catalogue', slug: 'bread-crumb-effect', addedOn: '2024-05-09' },
     { albumName: 'Omoluabi Production Catalogue', slug: 'home-that-looks-safe', addedOn: '2024-05-06' }
   ];
+
+  const releaseYearBySlug = new Map();
+  LATEST_ANNOUNCEMENTS.forEach(announcement => {
+    const parsed = Date.parse(announcement.addedOn);
+    if (!Number.isNaN(parsed)) {
+      releaseYearBySlug.set(announcement.slug, new Date(parsed).getUTCFullYear());
+    }
+  });
+
+  OMOLUABI_TRACKS.forEach(track => {
+    if (!track) return;
+    const knownYear = track.releaseYear ?? releaseYearBySlug.get(track.slug) ?? null;
+    track.releaseYear = knownYear;
+  });
 
   const trackBySlug = OMOLUABI_TRACKS.reduce((map, track) => {
     map[track.slug] = track;
