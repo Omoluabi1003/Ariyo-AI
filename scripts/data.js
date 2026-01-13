@@ -159,6 +159,8 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+              { src: 'https://cdn1.suno.ai/d9360744-21e6-4de3-a2ec-a2558d09abfe.mp3', title: 'Priapism' },
+              { src: 'https://cdn1.suno.ai/3fa09300-e923-40d8-a764-b2e48f5b1668.mp3', title: 'Walk Away' },
               { src: 'https://cdn1.suno.ai/89b35923-5ce0-4464-9c68-931f06de6f69.mp3', title: 'Ling Zing' },
               { src: 'https://cdn1.suno.ai/2eee0551-4301-49df-b433-f58cacc9150a.mp3', title: 'Atmosphere Status' },
               { src: 'https://cdn1.suno.ai/efdd1bda-f329-4cab-8183-3dadadb45ccc.mp3', title: 'Branama', releaseYear: 2026 },
@@ -377,6 +379,20 @@ const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Priapism',
+      src: 'https://cdn1.suno.ai/d9360744-21e6-4de3-a2ec-a2558d09abfe.mp3',
+      addedOn: '2026-01-13T23:00:00Z',
+      isFreshDrop: true
+    },
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Walk Away',
+      src: 'https://cdn1.suno.ai/3fa09300-e923-40d8-a764-b2e48f5b1668.mp3',
+      addedOn: '2026-01-13T23:00:00Z',
+      isFreshDrop: true
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       title: 'Branama',
