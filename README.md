@@ -17,6 +17,12 @@
 - **Crew Console:** Multi-agent AI workflows with brand governance, streaming outputs, and run history.
 - **Shareable Links:** Copy or share a URL that opens the app to a specific track (e.g., `main.html?album=kindness&track=locked-away`).
 
+## Growth Opportunities (2026+)
+
+- **Amplify the cultural narrative:** Showcase the Yoruba-inspired storytelling through targeted marketing, editorial content, and social campaigns that differentiate Ariyo AI in the AI music landscape.
+- **Deepen AI transparency + playback trust:** Clarify how AI recommendations are generated, surface inline explanations, and strengthen media playback controls for consistent, reliable listening sessions.
+- **Optimize for Core Web Vitals + WCAG 2.2 AA:** Maintain a performance- and accessibility-first roadmap to improve SEO, inclusivity, and long-term user retention.
+
 ## Technologies Used
 
 - HTML
