@@ -23,6 +23,43 @@
 - **Deepen AI transparency + playback trust:** Clarify how AI recommendations are generated, surface inline explanations, and strengthen media playback controls for consistent, reliable listening sessions.
 - **Optimize for Core Web Vitals + WCAG 2.2 AA:** Maintain a performance- and accessibility-first roadmap to improve SEO, inclusivity, and long-term user retention.
 
+## 2026 Product Optimization Update (Single Consolidated Plan)
+
+- **Cultural narrative amplification**
+  - Add a rotating **“Àṣà Note”** (cultural note) block in the player header with bilingual microcopy (Yoruba + English) tied to each track to reinforce Yoruba storytelling without blocking global users.
+  - Introduce **Storyliner cards** per album with *Origin / Inspiration / Why it matters* to communicate Yoruba identity in short, skimmable modules.
+  - Extend shareable links with **“Proverb of the Day”** cards for lightweight cultural marketing loops (social-ready, low-lift).
+  - Sample track metadata snippet:
+    ```js
+    {
+      title: "Locked Away",
+      artist: "Omoluabi",
+      culturalNote: {
+        yo: "Ọ̀rọ̀ ọdún kì í tán l'ọ́jọ́ kan.",
+        en: "Wisdom isn't learned in a day."
+      }
+    }
+    ```
+
+- **AI transparency + playback UX trust**
+  - Add **“Why this track?”** cues on recommendations (e.g., “Picked because you played X” or “Tempo match: 78%”), keeping AI behavior understandable.
+  - Label AI-driven and non-AI content explicitly (**AI-curated**, **Live radio**) to clarify provenance and build trust.
+  - Surface a **resume prompt** on return if a recent session was saved (“Resume where you left off?”).
+  - Improve buffering/error clarity with “Reconnecting…” and “Saving your place…” states plus a one-tap retry.
+  - Sample resume prompt logic:
+    ```js
+    const saved = loadPlayerState();
+    if (saved) showToast(`Resume ${saved.title}?`, { action: () => resume(saved) });
+    ```
+
+- **Performance + accessibility (WCAG 2.2 AA + Core Web Vitals)**
+  - Add `preconnect` hints for CDNs/fonts and reserve layout space for hero art + loaders to reduce LCP/CLS.
+  - Defer non-critical UI panels with `requestIdleCallback` to improve INP.
+  - Ensure icon-only controls include `aria-label` and full keyboard navigation for player actions.
+  - Respect `prefers-reduced-motion` for animations/GSAP transitions.
+  - Extend structured data with `MusicRecording` and `RadioStation` schema for SEO.
+  - Maintain offline support while keeping audio network-first to prevent large cache bloat.
+
 ## Technologies Used
 
 - HTML
