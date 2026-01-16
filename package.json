@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "fast-xml-parser": "^5.3.3",
+    "howler": "^2.2.4",
     "lyric-parser": "^1.0.1",
     "web-push": "^3.6.7"
   },
