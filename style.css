@@ -24,13 +24,13 @@ body {
 
 body[data-theme="light"] {
     color: #0f172a;
-    background-color: #f6f7fb;
+    background-color: #eef1f6;
     text-shadow: none;
 }
 
 /* Light theme surface tuning */
 body[data-theme="light"] .sidebar {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(244, 246, 252, 0.95);
     border: 1px solid var(--surface-border);
     box-shadow: 0 16px 38px rgba(15, 23, 42, 0.12);
 }
@@ -47,13 +47,13 @@ body[data-theme="light"] .sidebar button:hover {
 }
 
 body[data-theme="light"] .content {
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(244, 246, 252, 0.96);
     border: 1px solid var(--surface-border);
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
 }
 
 body[data-theme="light"] .in-app-guide {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(245, 247, 253, 0.94);
     border-color: var(--surface-border);
     color: #0f172a;
 }
@@ -1650,7 +1650,7 @@ body[data-theme="light"] .edge-panel {
 }
 
 body[data-theme="light"] .edge-panel-item {
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(245, 247, 253, 0.92);
     color: #0f172a;
     box-shadow: 0 6px 14px rgba(17, 24, 39, 0.12);
 }

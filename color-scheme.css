@@ -17,16 +17,16 @@
 
 :root[data-theme="light"] {
   --theme-color: #6f45ff;
-  --gradient-start: #f1e9ff;
-  --gradient-end: #ffd9f0;
-  --surface-bg: rgba(255, 255, 255, 0.9);
+  --gradient-start: #e4e9f7;
+  --gradient-end: #f4dcec;
+  --surface-bg: rgba(244, 246, 252, 0.94);
   --surface-contrast: #0f172a;
-  --surface-border: rgba(111, 69, 255, 0.28);
-  --card-bg: linear-gradient(140deg, #ffffff, #f5f2ff);
-  --honor-badge-bg: rgba(15, 23, 42, 0.08);
-  --honor-badge-border: rgba(15, 23, 42, 0.16);
+  --surface-border: rgba(111, 69, 255, 0.22);
+  --card-bg: linear-gradient(140deg, #f8f9fe, #eef1fb);
+  --honor-badge-bg: rgba(15, 23, 42, 0.06);
+  --honor-badge-border: rgba(15, 23, 42, 0.14);
   --honor-badge-text: #0f172a;
-  --honor-badge-shadow: rgba(111, 69, 255, 0.22);
+  --honor-badge-shadow: rgba(111, 69, 255, 0.18);
 }
 
 body {
