@@ -113,10 +113,12 @@
   </section>
   </main>
 
-  <script src="../../scripts/sw-controller.js"></script>
-  <script src="../../data/media-library-source.js"></script>
+  <script src="../../scripts/sw-controller.js" defer></script>
+  <script src="../../scripts/data.js"></script>
   <script src="../../scripts/suno-audio-fallback.js"></script>
-  <script type="module" src="./music-player.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js" defer></script>
+  <script src="./lib/audio/engine.js" defer></script>
+  <script src="./music-player.js" defer></script>
   <script src="../../prevent-zoom.js"></script>
 </body>
 </html>

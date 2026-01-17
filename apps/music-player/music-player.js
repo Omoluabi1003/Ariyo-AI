@@ -1,7 +1,6 @@
-import { audioEngine } from './lib/audio/engine.js';
-
 (() => {
   const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
+  const audioEngine = window.audioEngine;
 
   const albumCover = document.getElementById('albumCover');
   const turntableDisc = document.querySelector('.turntable-disc');
@@ -32,6 +31,8 @@ import { audioEngine } from './lib/audio/engine.js';
   const crossfadeStatus = document.getElementById('crossfadeStatus');
 
   const SOURCE_RESOLVE_TIMEOUT_MS = 1200;
+  const PROGRESS_UPDATE_FPS = 30;
+
   if (!audioEngine) {
     statusMessage.textContent = 'Audio engine failed to initialize.';
     [playButton, pauseButton, stopButton, prevButton, nextButton].forEach(btn => btn.disabled = true);
@@ -50,26 +51,24 @@ import { audioEngine } from './lib/audio/engine.js';
     return artistName;
   };
 
-  const initPlayer = albumsData => {
-    const hasAlbums = Array.isArray(albumsData) && albumsData.length;
-    if (!hasAlbums) {
-      statusMessage.textContent = 'No tracks available. Please refresh the page.';
-      shuffleButton.disabled = true;
-      refreshButton.disabled = true;
-      [playButton, pauseButton, stopButton, prevButton, nextButton].forEach(btn => btn.disabled = true);
+  const hasAlbums = typeof albums !== 'undefined' && Array.isArray(albums) && albums.length;
+  if (!hasAlbums) {
+    statusMessage.textContent = 'No tracks available. Please refresh the page.';
+    shuffleButton.disabled = true;
+    refreshButton.disabled = true;
+    [playButton, pauseButton, stopButton, prevButton, nextButton].forEach(btn => btn.disabled = true);
+    return;
+  }
+
+  const albumTrackMap = new Map();
+  const trackDurationLabels = new Map();
+  const allTracks = [];
+  const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
+
+  albums.forEach((album, albumIndex) => {
+    if (!album || !Array.isArray(album.tracks)) {
       return;
     }
-
-    const albums = albumsData;
-    const albumTrackMap = new Map();
-    const trackDurationLabels = new Map();
-    const allTracks = [];
-    const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
-
-    albums.forEach((album, albumIndex) => {
-      if (!album || !Array.isArray(album.tracks)) {
-        return;
-      }
 
     const artist = album.artist || 'Omoluabi';
     const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : null;
@@ -111,30 +110,31 @@ import { audioEngine } from './lib/audio/engine.js';
     }
   });
 
-    allTracks.forEach((track, index) => {
-      track.globalIndex = index;
-    });
+  allTracks.forEach((track, index) => {
+    track.globalIndex = index;
+  });
 
-    if (!allTracks.length) {
-      statusMessage.textContent = 'No playable tracks were found.';
-      return;
-    }
+  if (!allTracks.length) {
+    statusMessage.textContent = 'No playable tracks were found.';
+    return;
+  }
 
-    const isLiveStreamTrack = track => Boolean(track && (track.isLive || track.sourceType === 'stream'));
+  const isLiveStreamTrack = track => Boolean(track && (track.isLive || track.sourceType === 'stream'));
 
-    let playbackOrder = allTracks.map((_, index) => index);
-    const baseOrder = [...playbackOrder];
-    let currentOrderIndex = 0;
-    let isShuffleEnabled = false;
-    let userSeeking = false;
-    let isLoading = false;
-    let currentTrack = allTracks[playbackOrder[currentOrderIndex]];
-    let currentDuration = currentTrack && currentTrack.duration ? currentTrack.duration : 0;
-    let currentSourceId = null;
-    let pendingSeekValue = 0;
-    let sourceRequestId = 0;
-    let pendingAutoplay = false;
-    let lastPauseRequested = false;
+  let playbackOrder = allTracks.map((_, index) => index);
+  const baseOrder = [...playbackOrder];
+  let currentOrderIndex = 0;
+  let isShuffleEnabled = false;
+  let userSeeking = false;
+  let isLoading = false;
+  let currentTrack = allTracks[playbackOrder[currentOrderIndex]];
+  let currentDuration = currentTrack && currentTrack.duration ? currentTrack.duration : 0;
+  let currentSourceId = null;
+  let progressFrame = null;
+  let pendingSeekValue = 0;
+  let sourceRequestId = 0;
+  let pendingAutoplay = false;
+  let lastPauseRequested = false;
 
   const formatTime = seconds => {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -161,8 +161,8 @@ import { audioEngine } from './lib/audio/engine.js';
   };
 
   const updateSpinState = () => {
-    const { status } = audioEngine.getSnapshot();
-    const isSpinning = status === 'playing' || isLoading;
+    const state = audioEngine.getState();
+    const isSpinning = state === 'playing' || isLoading;
     [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
       if (!element) return;
       element.classList.toggle('spin', isSpinning);
@@ -220,7 +220,7 @@ import { audioEngine } from './lib/audio/engine.js';
   };
 
   const updateProgressDisplay = (position, duration) => {
-    if (audioEngine.getSnapshot().isLive) {
+    if (audioEngine.isLive()) {
       trackDuration.textContent = 'Live • Afrobeats';
       progressBarFill.style.width = '0%';
       seekBar.value = 0;
@@ -234,12 +234,28 @@ import { audioEngine } from './lib/audio/engine.js';
     trackDuration.textContent = `${formatTime(safePosition)} / ${formatTime(safeDuration)}`;
   };
 
-  const handleTimeUpdate = ({ seek, duration }) => {
-    if (userSeeking) return;
-    if (Number.isFinite(duration)) {
-      currentDuration = duration;
-    }
-    updateProgressDisplay(seek, currentDuration);
+  const startProgressLoop = () => {
+    if (progressFrame) return;
+    const frameDelay = 1000 / PROGRESS_UPDATE_FPS;
+
+    const tick = () => {
+      progressFrame = null;
+      if (audioEngine.getState() !== 'playing') return;
+      if (!userSeeking) {
+        const position = audioEngine.seek();
+        currentDuration = audioEngine.getDuration() || currentDuration;
+        updateProgressDisplay(position, currentDuration);
+      }
+      progressFrame = window.setTimeout(tick, frameDelay);
+    };
+
+    progressFrame = window.setTimeout(tick, frameDelay);
+  };
+
+  const stopProgressLoop = () => {
+    if (!progressFrame) return;
+    window.clearTimeout(progressFrame);
+    progressFrame = null;
   };
 
   const collapseAlbumGroup = group => {
@@ -528,7 +544,7 @@ import { audioEngine } from './lib/audio/engine.js';
 
   const playCurrentTrack = async () => {
     if (!currentTrack) return;
-    if (audioEngine.getSnapshot().status === 'playing') return;
+    if (audioEngine.getState() === 'playing') return;
     lastPauseRequested = false;
     await ensureTrackLoaded({ autoplay: true });
   };
@@ -545,14 +561,14 @@ import { audioEngine } from './lib/audio/engine.js';
   const playNextTrack = async (autoAdvance = false) => {
     if (!playbackOrder.length) return;
     const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
-    const shouldAutoplay = autoAdvance || audioEngine.getSnapshot().status === 'playing';
+    const shouldAutoplay = autoAdvance || audioEngine.getState() === 'playing';
     await loadTrack(nextIndex, { autoplay: shouldAutoplay });
   };
 
   const playPreviousTrack = async () => {
     if (!playbackOrder.length) return;
     const prevIndex = (currentOrderIndex - 1 + playbackOrder.length) % playbackOrder.length;
-    const shouldAutoplay = audioEngine.getSnapshot().status === 'playing';
+    const shouldAutoplay = audioEngine.getState() === 'playing';
     await loadTrack(prevIndex, { autoplay: shouldAutoplay });
   };
 
@@ -603,43 +619,45 @@ import { audioEngine } from './lib/audio/engine.js';
   });
 
   seekBar.addEventListener('input', event => {
-    if (audioEngine.getSnapshot().isLive) return;
+    if (audioEngine.isLive()) return;
     userSeeking = true;
     const value = Number(event.target.value) || 0;
-    const duration = currentDuration || audioEngine.getSnapshot().duration;
+    const duration = currentDuration || audioEngine.getDuration();
     pendingSeekValue = duration ? (value / 100) * duration : 0;
     updateProgressDisplay(pendingSeekValue, duration);
   });
 
   seekBar.addEventListener('change', () => {
-    if (audioEngine.getSnapshot().isLive) return;
+    if (audioEngine.isLive()) return;
     audioEngine.seek(pendingSeekValue);
     userSeeking = false;
   });
 
-  audioEngine.on('state', event => {
-    const { status } = event;
-    if (status === 'loading') {
+  window.addEventListener('audioengine:state', event => {
+    const { state } = event.detail;
+    if (state === 'loading') {
       if (!isLoading) {
         showLoading('Connecting…');
       }
       return;
     }
 
-    if (status === 'playing') {
+    if (state === 'playing') {
       hideLoading();
       setStatus(`Now playing: ${currentTrack ? currentTrack.title : ''}`.trim());
+      startProgressLoop();
       updateSpinState();
       pendingAutoplay = false;
       lastPauseRequested = false;
       return;
     }
 
-    if (status === 'paused') {
+    if (state === 'paused') {
       hideLoading();
+      stopProgressLoop();
       updateSpinState();
-      if (!audioEngine.getSnapshot().isLive) {
-        updateProgressDisplay(audioEngine.seek(), currentDuration);
+      if (!audioEngine.isLive()) {
+        updateProgressDisplay(audioEngine.seek(), audioEngine.getDuration() || currentDuration);
       }
       setStatus(lastPauseRequested ? 'Playback paused.' : 'Ready to play.');
       pendingAutoplay = false;
@@ -647,31 +665,37 @@ import { audioEngine } from './lib/audio/engine.js';
       return;
     }
 
-    if (status === 'idle') {
+    if (state === 'idle') {
       hideLoading();
+      stopProgressLoop();
       updateSpinState();
       return;
     }
 
-    if (status === 'error') {
+    if (state === 'error') {
+      stopProgressLoop();
       handleLoadError('Playback error. Tap play to retry.');
     }
   });
 
-  audioEngine.on('time', payload => {
-    handleTimeUpdate(payload);
-    if (!audioEngine.getSnapshot().isLive) {
-      const duration = Number(payload.duration);
-      if (Number.isFinite(duration) && duration > 0) {
-        if (currentTrack && trackDurationLabels.has(currentTrack.src)) {
-          trackDurationLabels.get(currentTrack.src).textContent = formatTime(duration);
-          trackDurationLabels.delete(currentTrack.src);
-        }
+  window.addEventListener('audioengine:loaded', event => {
+    if (audioEngine.isLive()) {
+      currentDuration = 0;
+      return;
+    }
+    const duration = Number(event.detail.duration);
+    if (Number.isFinite(duration) && duration > 0) {
+      currentDuration = duration;
+      updateProgressDisplay(audioEngine.seek(), currentDuration);
+      if (currentTrack && trackDurationLabels.has(currentTrack.src)) {
+        trackDurationLabels.get(currentTrack.src).textContent = formatTime(duration);
+        trackDurationLabels.delete(currentTrack.src);
       }
     }
   });
 
-  audioEngine.on('end', () => {
+  window.addEventListener('audioengine:ended', () => {
+    stopProgressLoop();
     hideLoading();
     setStatus('Track finished. Loading next…');
     playNextTrack(true);
@@ -682,22 +706,4 @@ import { audioEngine } from './lib/audio/engine.js';
   updateTrackMetadata(currentTrack);
   updateNextTrackLabel();
   syncVolume(Number(volumeControl.value || 1));
-  };
-
-  const startPlayer = () => {
-    if (window.__ariyoLibraryHydrated) {
-      initPlayer(window.albums || []);
-      return;
-    }
-
-    window.addEventListener(
-      'ariyo:library-ready',
-      () => {
-        initPlayer(window.albums || []);
-      },
-      { once: true },
-    );
-  };
-
-  startPlayer();
 })();
