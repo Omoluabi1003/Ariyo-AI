@@ -256,29 +256,11 @@ const quickStartDeadline = {
   timeoutMs: 2000
 };
 
-let offlineFallbackTrack = {
-  src: null,
+const offlineFallbackTrack = {
+  src: 'offline-audio.mp3',
   title: 'Offline Vibes',
   artist: 'Àríyò AI'
 };
-
-const updateOfflineFallbackTrack = () => {
-  const fallbackAlbum = Array.isArray(window.albums) ? window.albums[0] : null;
-  const fallbackCandidate = fallbackAlbum && Array.isArray(fallbackAlbum.tracks) ? fallbackAlbum.tracks[0] : null;
-  if (fallbackCandidate && fallbackCandidate.src) {
-    offlineFallbackTrack = {
-      src: fallbackCandidate.src,
-      title: fallbackCandidate.title || offlineFallbackTrack.title,
-      artist: fallbackCandidate.artist || offlineFallbackTrack.artist
-    };
-  }
-};
-
-if (window.__ariyoLibraryHydrated) {
-  updateOfflineFallbackTrack();
-} else {
-  window.addEventListener('ariyo:library-ready', updateOfflineFallbackTrack, { once: true });
-}
 
 let offlineFallbackActive = false;
 const SLOW_FETCH_TIMEOUT_MS = 8000;
@@ -835,13 +817,6 @@ function activateOfflineFallback(reason = 'network') {
   offlineFallbackActive = true;
   console.warn(`[offline-fallback] Activating fallback because: ${reason}`);
   const { src, title, artist } = offlineFallbackTrack;
-
-  if (!src) {
-    showBufferingState('Network is slow — unable to load fallback audio.');
-    setPlaybackStatus(PlaybackStatus.failed, { message: 'Network is too slow right now.' });
-    showRetryButton('Retry playback');
-    return;
-  }
 
   showBufferingState('Network is slow — playing offline vibes.');
   if (trackInfo) {
