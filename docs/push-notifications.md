@@ -14,7 +14,7 @@ npx web-push generate-vapid-keys
 ```
 
 ## Client subscription flow
-1. Service worker registers automatically via `scripts/sw-controller.js`.
+1. Service worker registers automatically via `scripts/pwa-register.js`.
 2. Users click **Enable notifications** on `index.html` or inside `main.html`.
 3. `scripts/push-notifications.js` requests permission, subscribes with the VAPID public key from `/api/push/public-key`,
    and POSTs the `PushSubscription` JSON to `/api/push/subscribe` for storage.

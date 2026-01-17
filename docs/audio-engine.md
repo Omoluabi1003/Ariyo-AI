@@ -1,44 +1,56 @@
-# Audio Engine (Howler.js)
+# Audio engine (Howler.js)
 
-## Overview
-The music player uses a single, global Howler.js instance for playback. The engine lives in
-`apps/music-player/lib/audio/engine.js` and exposes a small API so the UI can load tracks
-and live streams without managing audio elements directly.
+This app uses a single Howler.js-backed engine for playback to avoid duplicate audio instances and to keep UI state consistent across actions.
 
-Key traits:
-- One `Howl` instance at a time (tracks and streams are mutually exclusive).
-- Tracks preload, streams do not.
-- Previous audio is always stopped/unloaded before loading a new source.
-- Playback errors are logged as warnings and surfaced to the UI without crashing.
-- A single play retry is attempted after an unlock gesture (mobile Safari behavior).
+## Location
+
+`apps/music-player/lib/audio/engine.js`
 
 ## API
-The engine is attached to `window.audioEngine` and provides:
 
-- `loadTrack({ id, url, title, artist, artwork })`
-- `loadStream({ id, url, title, region })`
-- `play()`
-- `pause()`
-- `stop()`
-- `seek(seconds)`
-- `setVolume(value)`
-- `mute(isMuted)`
-- `getState()` → `idle | loading | playing | paused | error`
-- `isLive()` → `true` for streams
-- `teardown()`
-- `getDuration()` → seconds (helper used by the UI)
+```js
+audioEngine.loadTrack({ id, url, title, artist, artwork });
+audioEngine.loadStream({ id, url, title, region, artwork });
+audioEngine.play();
+audioEngine.pause();
+audioEngine.stop();
+audioEngine.seek(seconds); // no-op when live
+audioEngine.setVolume(value); // 0..1
+audioEngine.mute(true);
+audioEngine.getSnapshot();
+```
 
-## UI Wiring
-The UI (see `apps/music-player/music-player.js`) calls the engine directly:
-- Play/pause/stop buttons map to `play()`, `pause()`, and `stop()`.
-- Track clicks call `loadTrack(...)` and then `play()`.
-- Live radio stations call `loadStream(...)` and then `play()`.
-- The seek bar calls `seek()` for on-demand tracks only.
+### Snapshot shape
 
-The engine emits browser events for state changes and lifecycle hooks:
-- `audioengine:state`
-- `audioengine:loaded`
-- `audioengine:ended`
-- `audioengine:error`
+```json
+{
+  "status": "idle|loading|playing|paused|error",
+  "isLive": false,
+  "seek": 0,
+  "duration": 0,
+  "volume": 1,
+  "muted": false,
+  "currentId": null,
+  "error": null
+}
+```
 
-These events keep the UI in sync with buffering, progress updates, and track transitions.
+## Events
+
+Subscribe to engine events using `on`/`off`:
+
+```js
+audioEngine.on('state', ({ status }) => {});
+audioEngine.on('time', ({ seek, duration }) => {});
+audioEngine.on('end', () => {});
+audioEngine.on('error', ({ type, error }) => {});
+audioEngine.on('sourcechange', ({ id, url, type }) => {});
+```
+
+`time` updates emit approximately every 250ms while playing.
+
+## Notes
+
+- Tracks preload to allow quick scrubbing and metadata updates.
+- Live streams skip preloading and disable seek operations.
+- The engine stops and unloads the active Howl before switching sources to prevent ghost audio.

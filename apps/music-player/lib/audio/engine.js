@@ -1,191 +1,242 @@
-(() => {
-  const HowlConstructor = window.Howl;
-  const HowlerGlobal = window.Howler;
+import { Howl, Howler } from 'howler';
 
-  if (!HowlConstructor) {
-    console.warn('[audio-engine] Howler.js not detected.');
-    window.audioEngine = {
-      loadTrack: () => {},
-      loadStream: () => {},
-      play: () => {},
-      pause: () => {},
-      stop: () => {},
-      seek: () => 0,
-      setVolume: () => {},
-      mute: () => {},
-      getState: () => 'error',
-      isLive: () => false,
-      teardown: () => {},
-      getDuration: () => 0,
-    };
-    return;
+const TIME_UPDATE_INTERVAL_MS = 250;
+
+class AudioEngine {
+  constructor() {
+    this.howl = null;
+    this.status = 'idle';
+    this.isLive = false;
+    this.volume = 1;
+    this.muted = false;
+    this.currentId = null;
+    this.error = null;
+    this.retryUnlock = false;
+    this.timeInterval = null;
+    this.listeners = new Map();
+
+    if (Howler) {
+      Howler.autoUnlock = true;
+    }
   }
 
-  if (HowlerGlobal) {
-    HowlerGlobal.autoUnlock = true;
+  on(event, handler) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event).add(handler);
   }
 
-  let howl = null;
-  let state = 'idle';
-  let isLiveSource = false;
-  let volume = 1;
-  let muted = false;
-  let retriedPlayUnlock = false;
+  off(event, handler) {
+    const handlers = this.listeners.get(event);
+    if (handlers) {
+      handlers.delete(handler);
+    }
+  }
 
-  const dispatch = (eventName, detail = {}) => {
-    window.dispatchEvent(new CustomEvent(`audioengine:${eventName}`, { detail }));
-  };
+  emit(event, detail) {
+    const handlers = this.listeners.get(event);
+    if (!handlers) return;
+    handlers.forEach(handler => handler(detail));
+  }
 
-  const setState = (nextState, detail = {}) => {
-    state = nextState;
-    dispatch('state', { state, ...detail });
-  };
+  setStatus(nextStatus, detail = {}) {
+    this.status = nextStatus;
+    if (nextStatus !== 'error') {
+      this.error = null;
+    }
+    this.emit('state', { status: this.status, ...detail });
+  }
 
-  const teardownHowl = () => {
-    if (!howl) return;
+  clearTimeInterval() {
+    if (this.timeInterval) {
+      window.clearInterval(this.timeInterval);
+      this.timeInterval = null;
+    }
+  }
+
+  startTimeInterval() {
+    if (this.timeInterval) return;
+    this.timeInterval = window.setInterval(() => {
+      if (!this.howl || this.status !== 'playing') return;
+      this.emit('time', {
+        seek: this.seek(),
+        duration: this.getDuration(),
+      });
+    }, TIME_UPDATE_INTERVAL_MS);
+  }
+
+  teardownHowl() {
+    this.clearTimeInterval();
+    if (!this.howl) return;
     try {
-      howl.stop();
-    } catch (_) {
-      // Ignore stop failures for already unloaded Howl instances.
+      this.howl.stop();
+    } catch (error) {
+      console.warn('[audio-engine] stop failed', error);
     }
     try {
-      howl.unload();
-    } catch (_) {
-      // Ignore unload failures.
+      this.howl.unload();
+    } catch (error) {
+      console.warn('[audio-engine] unload failed', error);
     }
-    howl = null;
-  };
+    this.howl = null;
+  }
 
-  const buildHowl = ({ url, preload }) => {
-    teardownHowl();
-    retriedPlayUnlock = false;
+  buildHowl({ url, preload }) {
+    this.teardownHowl();
+    this.retryUnlock = false;
 
-    howl = new HowlConstructor({
+    this.howl = new Howl({
       src: [url],
       html5: true,
       preload,
-      volume,
-      mute: muted,
+      volume: this.volume,
+      mute: this.muted,
       onload: () => {
-        if (state === 'loading') {
-          setState('paused');
+        if (this.status === 'loading') {
+          this.setStatus('paused');
         }
-        dispatch('loaded', { duration: howl.duration() });
+        this.emit('time', { seek: this.seek(), duration: this.getDuration() });
       },
       onplay: () => {
-        setState('playing');
-        dispatch('play');
+        this.setStatus('playing');
+        this.startTimeInterval();
       },
       onpause: () => {
-        setState('paused');
-        dispatch('pause');
+        this.setStatus('paused');
+        this.clearTimeInterval();
       },
       onstop: () => {
-        setState('paused');
-        dispatch('stop');
+        this.setStatus('paused');
+        this.clearTimeInterval();
       },
       onend: () => {
-        setState('idle');
-        dispatch('ended');
+        this.setStatus('idle');
+        this.clearTimeInterval();
+        this.emit('end');
       },
       onloaderror: (_id, error) => {
-        console.warn('[audio-engine] load error', error);
-        setState('error', { error });
-        dispatch('error', { type: 'load', error });
+        this.error = error;
+        this.setStatus('error', { error });
+        this.emit('error', { type: 'load', error });
       },
       onplayerror: (_id, error) => {
-        console.warn('[audio-engine] play error', error);
-        setState('error', { error });
-        dispatch('error', { type: 'play', error });
-        if (retriedPlayUnlock) return;
-        retriedPlayUnlock = true;
-        howl.once('unlock', () => {
-          console.info('[audio-engine] retrying play after unlock');
-          howl.play();
+        this.error = error;
+        this.setStatus('error', { error });
+        this.emit('error', { type: 'play', error });
+        if (this.retryUnlock) return;
+        this.retryUnlock = true;
+        this.howl.once('unlock', () => {
+          this.play();
         });
       },
     });
-  };
+  }
 
-  const audioEngine = {
-    loadTrack: ({ id, url, title, artist, artwork }) => {
-      if (!url) return;
-      isLiveSource = false;
-      setState('loading', { id, title, artist, artwork });
-      dispatch('source', { id, url, title, artist, artwork, type: 'track' });
-      buildHowl({ url, preload: true });
-    },
-    loadStream: ({ id, url, title, region }) => {
-      if (!url) return;
-      isLiveSource = true;
-      setState('loading', { id, title, region });
-      dispatch('source', { id, url, title, region, type: 'stream' });
-      buildHowl({ url, preload: false });
-    },
-    play: () => {
-      if (!howl) {
-        console.warn('[audio-engine] play requested without a source');
-        return;
-      }
-      try {
-        howl.play();
-      } catch (error) {
-        console.warn('[audio-engine] play threw', error);
-      }
-    },
-    pause: () => {
-      if (!howl) return;
-      try {
-        howl.pause();
-      } catch (error) {
-        console.warn('[audio-engine] pause threw', error);
-      }
-    },
-    stop: () => {
-      if (!howl) return;
-      try {
-        howl.stop();
-      } catch (error) {
-        console.warn('[audio-engine] stop threw', error);
-      }
-      setState('idle');
-    },
-    seek: seconds => {
-      if (!howl) return 0;
-      if (typeof seconds === 'number' && Number.isFinite(seconds)) {
-        try {
-          howl.seek(seconds);
-        } catch (error) {
-          console.warn('[audio-engine] seek threw', error);
-        }
-        return seconds;
-      }
-      const position = howl.seek();
-      return typeof position === 'number' ? position : 0;
-    },
-    setVolume: value => {
-      if (typeof value !== 'number' || Number.isNaN(value)) return;
-      volume = Math.min(1, Math.max(0, value));
-      if (howl) {
-        howl.volume(volume);
-      }
-    },
-    mute: isMuted => {
-      muted = Boolean(isMuted);
-      if (howl) {
-        howl.mute(muted);
-      }
-    },
-    getState: () => state,
-    isLive: () => isLiveSource,
-    teardown: () => {
-      teardownHowl();
-      state = 'idle';
-      isLiveSource = false;
-      dispatch('state', { state });
-    },
-    getDuration: () => (howl ? howl.duration() : 0),
-  };
+  loadTrack({ id, url, title, artist, artwork }) {
+    if (!url) return;
+    this.isLive = false;
+    this.currentId = id ?? null;
+    this.setStatus('loading', { id, title, artist, artwork });
+    this.emit('sourcechange', { id, url, title, artist, artwork, type: 'track' });
+    this.buildHowl({ url, preload: true });
+  }
 
-  window.audioEngine = audioEngine;
-})();
+  loadStream({ id, url, title, region, artwork }) {
+    if (!url) return;
+    this.isLive = true;
+    this.currentId = id ?? null;
+    this.setStatus('loading', { id, title, region, artwork });
+    this.emit('sourcechange', { id, url, title, region, artwork, type: 'stream' });
+    this.buildHowl({ url, preload: false });
+  }
+
+  play() {
+    if (!this.howl) {
+      console.warn('[audio-engine] play requested without a source');
+      return;
+    }
+    try {
+      this.howl.play();
+    } catch (error) {
+      this.error = error;
+      this.setStatus('error', { error });
+      this.emit('error', { type: 'play', error });
+    }
+  }
+
+  pause() {
+    if (!this.howl) return;
+    try {
+      this.howl.pause();
+    } catch (error) {
+      this.error = error;
+      this.setStatus('error', { error });
+      this.emit('error', { type: 'pause', error });
+    }
+  }
+
+  stop() {
+    if (this.howl) {
+      try {
+        this.howl.stop();
+      } catch (error) {
+        console.warn('[audio-engine] stop failed', error);
+      }
+    }
+    this.setStatus('idle');
+    this.clearTimeInterval();
+  }
+
+  seek(seconds) {
+    if (!this.howl) return 0;
+    if (this.isLive) return 0;
+    if (typeof seconds === 'number' && Number.isFinite(seconds)) {
+      try {
+        this.howl.seek(seconds);
+      } catch (error) {
+        console.warn('[audio-engine] seek failed', error);
+      }
+      return seconds;
+    }
+    const position = this.howl.seek();
+    return typeof position === 'number' ? position : 0;
+  }
+
+  setVolume(value) {
+    if (typeof value !== 'number' || Number.isNaN(value)) return;
+    this.volume = Math.min(1, Math.max(0, value));
+    if (this.howl) {
+      this.howl.volume(this.volume);
+    }
+  }
+
+  mute(value) {
+    this.muted = Boolean(value);
+    if (this.howl) {
+      this.howl.mute(this.muted);
+    }
+  }
+
+  getDuration() {
+    if (this.isLive) return null;
+    if (!this.howl) return null;
+    const duration = this.howl.duration();
+    return Number.isFinite(duration) ? duration : null;
+  }
+
+  getSnapshot() {
+    return {
+      status: this.status,
+      isLive: this.isLive,
+      seek: this.isLive ? 0 : this.seek(),
+      duration: this.getDuration(),
+      volume: this.volume,
+      muted: this.muted,
+      currentId: this.currentId,
+      error: this.error ? String(this.error) : undefined,
+    };
+  }
+}
+
+export const audioEngine = new AudioEngine();
