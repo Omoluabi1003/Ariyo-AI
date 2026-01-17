@@ -6,3 +6,7 @@ dist/
 coverage/
 playwright-report/
 test-results/
+**/*.mp3
+**/*.wav
+**/*.flac
+**/*.m4a

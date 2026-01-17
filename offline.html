@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#8E5BFF" />
+    <title>Àríyò AI — Offline</title>
+    <link rel="stylesheet" href="color-scheme.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      body {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+      }
+      .offline-card {
+        max-width: 520px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      }
+      .offline-card h1 {
+        margin-bottom: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-card" role="status" aria-live="polite">
+      <h1>You are offline</h1>
+      <p>
+        Àríyò AI is cached on your device, so you can still browse available content. Connect to the
+        internet to refresh playlists and stream audio.
+      </p>
+    </div>
+  </body>
+</html>

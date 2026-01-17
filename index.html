@@ -64,8 +64,6 @@
     <script src="scripts/theme-toggle.js" defer></script>
     <script src="scripts/deferred-init.js" defer></script>
     <link rel="prefetch" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin fetchpriority="low">
-    <link rel="prefetch" as="audio" href="Omoluabi.mp3" fetchpriority="low">
-    <link rel="prefetch" as="audio" href="offline-audio.mp3" fetchpriority="low">
     <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="color-scheme.css">
     <link rel="stylesheet" href="index.css">
@@ -409,7 +407,7 @@
                   { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" }
               ];
 
-              const fallbackTrack = { src: 'offline-audio.mp3', title: 'Offline Vibes' };
+              const fallbackTrack = tracks[0];
               let currentTrackIndex = Math.floor(Math.random() * tracks.length);
               let usingFallback = false;
               let reconnectInterval = null;
@@ -719,7 +717,7 @@
         }, 3000);
     </script>
     <script src="scripts/push-notifications.js" defer></script>
-    <script src="scripts/sw-controller.js" defer></script>
+    <script type="module" src="scripts/pwa-register.js"></script>
     <script src="background-rotator.js"></script>
     <script src="user-tracking.js"></script>
     <script src="prevent-zoom.js"></script>

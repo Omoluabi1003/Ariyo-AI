@@ -53,7 +53,6 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   '/index.html',
   '/main.html',
   '/about.html',
-  '/offline-audio.mp3',
   'style.css',
   'color-scheme.css',
   'scripts/data-lite.js',
