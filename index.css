@@ -557,14 +557,22 @@ body[data-theme="light"] .footer-note {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    z-index: 9999;
+    z-index: 900;
 }
 
 .watermark {
     position: absolute;
     font-size: clamp(1rem, 4vw, 2rem);
-    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.75);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
     white-space: nowrap;
+}
+
+body[data-theme="light"] .watermark {
+    color: rgba(15, 23, 42, 0.75);
+    text-shadow: 0 2px 6px rgba(15, 23, 42, 0.35), 0 0 12px rgba(255, 255, 255, 0.6);
 }
 
 .exploding-watermark span {

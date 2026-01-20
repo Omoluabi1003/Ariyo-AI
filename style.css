@@ -1225,22 +1225,56 @@ body[data-theme="light"] .dropdown {
 
 
 .close {
-    color: #aaa;
-    float: right;
-    font-size: 1.8rem;
-    font-weight: bold;
+    align-self: flex-end;
+    color: #fff;
+    font-size: 1.9rem;
+    font-weight: 700;
     position: sticky;
-    top: 0;
-    background: #222;
-    padding: 0.2rem 0.5rem;
-    z-index: 1;
+    top: 0.35rem;
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+    z-index: 3;
 }
 
 .close:hover,
 .close:focus {
-    color: black;
+    color: #0f172a;
+    background: #fff;
+    border-color: #fff;
     text-decoration: none;
     cursor: pointer;
+}
+
+.close:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 3px;
+}
+
+body[data-theme="light"] .close {
+    background: rgba(248, 250, 252, 0.96);
+    color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.85);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    text-shadow: none;
+}
+
+body[data-theme="light"] .close:hover,
+body[data-theme="light"] .close:focus {
+    background: #0f172a;
+    color: #fff;
+    border-color: #0f172a;
+}
+
+body[data-theme="light"] .close:focus-visible {
+    outline-color: rgba(15, 23, 42, 0.85);
 }
 
 /* Region headers in radio station modal */
