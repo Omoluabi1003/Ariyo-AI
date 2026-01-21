@@ -20,13 +20,16 @@ describe('watermark styling', () => {
 
     expect(watermarkBlock).toContain("font-family: 'Montserrat', sans-serif;");
     expect(watermarkBlock).toContain('font-weight: 400;');
-    expect(watermarkBlock).toContain('letter-spacing: 0.02em;');
-    expect(watermarkBlock).toContain('color: rgba(255, 255, 255, 0.035);');
-    expect(watermarkBlock).toContain('text-shadow: none;');
+    expect(watermarkBlock).toContain('letter-spacing: 0.03em;');
+    expect(watermarkBlock).toContain('color: var(--watermark-color);');
+    expect(watermarkBlock).toContain('opacity: var(--watermark-opacity);');
+    expect(watermarkBlock).toContain('text-shadow: var(--watermark-shadow);');
+    expect(watermarkBlock).toContain('-webkit-text-stroke: var(--watermark-stroke);');
 
-    const lightBlock = extractBlock(css, 'body\\[data-theme="light"\\] \\.watermark');
-    expect(lightBlock).toContain('color: rgba(15, 23, 42, 0.035);');
-    expect(lightBlock).toContain('text-shadow: none;');
+    const lightBlock = extractBlock(css, 'body\\[data-theme="light"\\]');
+    expect(lightBlock).toContain('--watermark-opacity: 0.2;');
+    expect(lightBlock).toContain('--watermark-color: rgba(0, 0, 0, 0.55);');
+    expect(lightBlock).toContain('--watermark-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);');
   });
 
   test('main.html mirrors subtle watermark styling', () => {
@@ -35,12 +38,15 @@ describe('watermark styling', () => {
 
     expect(watermarkBlock).toContain("font-family: 'Montserrat', sans-serif;");
     expect(watermarkBlock).toContain('font-weight: 400;');
-    expect(watermarkBlock).toContain('letter-spacing: 0.02em;');
-    expect(watermarkBlock).toContain('color: rgba(255, 255, 255, 0.035);');
-    expect(watermarkBlock).toContain('text-shadow: none;');
+    expect(watermarkBlock).toContain('letter-spacing: 0.03em;');
+    expect(watermarkBlock).toContain('color: var(--watermark-color);');
+    expect(watermarkBlock).toContain('opacity: var(--watermark-opacity);');
+    expect(watermarkBlock).toContain('text-shadow: var(--watermark-shadow);');
+    expect(watermarkBlock).toContain('-webkit-text-stroke: var(--watermark-stroke);');
 
-    const lightBlock = extractBlock(html, 'body\\[data-theme="light"\\] \\.watermark');
-    expect(lightBlock).toContain('color: rgba(15, 23, 42, 0.035);');
-    expect(lightBlock).toContain('text-shadow: none;');
+    const lightBlock = extractBlock(html, 'body\\[data-theme="light"\\]');
+    expect(lightBlock).toContain('--watermark-opacity: 0.2;');
+    expect(lightBlock).toContain('--watermark-color: rgba(0, 0, 0, 0.55);');
+    expect(lightBlock).toContain('--watermark-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);');
   });
 });

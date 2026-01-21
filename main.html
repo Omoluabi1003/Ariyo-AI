@@ -86,6 +86,11 @@
       --edge-panel-width: clamp(240px, 32vw, 320px);
       --edge-panel-handle-width: clamp(18px, 4vw, 26px);
       --edge-panel-visible-gap: clamp(8px, 2vw, 16px);
+      --watermark-opacity: 0.18;
+      --watermark-color: rgba(255, 255, 255, 0.55);
+      --watermark-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+      --watermark-stroke: 0.5px rgba(0, 0, 0, 0.35);
+      --watermark-scrim: rgba(0, 0, 0, 0.12);
     }
     html, body {
       height: 100%;
@@ -112,6 +117,11 @@
       background-color: #eef1f6;
       background-image: none;
       text-shadow: none;
+      --watermark-opacity: 0.2;
+      --watermark-color: rgba(0, 0, 0, 0.55);
+      --watermark-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
+      --watermark-stroke: 0.5px rgba(255, 255, 255, 0.25);
+      --watermark-scrim: rgba(255, 255, 255, 0.18);
     }
     a { text-decoration: none; }
     .header {
@@ -1184,19 +1194,38 @@
       overflow: hidden;
       z-index: 900;
     }
+    /* Visual QA: verify home watermarks in light/dark on hero, image, and video sections. */
     .watermark {
       position: absolute;
+      display: inline-block;
       font-family: 'Montserrat', sans-serif;
       font-size: clamp(0.85rem, 3.2vw, 1.5rem);
       font-weight: 400;
-      letter-spacing: 0.02em;
-      color: rgba(255, 255, 255, 0.035);
-      text-shadow: none;
+      letter-spacing: 0.03em;
+      color: var(--watermark-color);
+      opacity: var(--watermark-opacity);
+      text-shadow: var(--watermark-shadow);
+      -webkit-text-stroke: var(--watermark-stroke);
       white-space: nowrap;
+      z-index: 0;
     }
-    body[data-theme="light"] .watermark {
-      color: rgba(15, 23, 42, 0.035);
-      text-shadow: none;
+    .watermark--adaptive {
+      isolation: isolate;
+    }
+    .watermark--adaptive::before {
+      content: '';
+      position: absolute;
+      inset: -0.2em -0.45em;
+      background: var(--watermark-scrim);
+      border-radius: 999px;
+      opacity: 0.7;
+      filter: blur(4px);
+      z-index: -1;
+    }
+    @supports (mix-blend-mode: soft-light) {
+      .watermark--adaptive {
+        mix-blend-mode: soft-light;
+      }
     }
     .exploding-watermark span {
         display: inline-block;
@@ -1813,18 +1842,18 @@
   <script src="prevent-zoom.js" defer></script>
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
-    <div class="watermark exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-    <div class="watermark exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
+    <div class="watermark watermark--adaptive exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
   </div>
   <script>
     document.querySelectorAll('.exploding-watermark').forEach(watermark => {
