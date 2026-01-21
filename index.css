@@ -1,5 +1,10 @@
 :root {
     --app-height: 100vh;
+    --watermark-opacity: 0.18;
+    --watermark-color: rgba(255, 255, 255, 0.55);
+    --watermark-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --watermark-stroke: 0.5px rgba(0, 0, 0, 0.35);
+    --watermark-scrim: rgba(0, 0, 0, 0.12);
 }
 
 body {
@@ -31,6 +36,11 @@ body[data-theme="light"] {
         radial-gradient(150% 140% at 50% 85%, rgba(111, 69, 255, 0.16), rgba(222, 228, 241, 0.97) 70%);
     color: #0b1224;
     text-shadow: none;
+    --watermark-opacity: 0.2;
+    --watermark-color: rgba(0, 0, 0, 0.55);
+    --watermark-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
+    --watermark-stroke: 0.5px rgba(255, 255, 255, 0.25);
+    --watermark-scrim: rgba(255, 255, 255, 0.18);
 }
 
 .countdown {
@@ -560,20 +570,41 @@ body[data-theme="light"] .footer-note {
     z-index: 900;
 }
 
+/* Visual QA: verify home overlay watermarks in light/dark, plus hero/video imagery sections. */
 .watermark {
     position: absolute;
+    display: inline-block;
     font-family: 'Montserrat', sans-serif;
     font-size: clamp(0.85rem, 3.2vw, 1.5rem);
     font-weight: 400;
-    letter-spacing: 0.02em;
-    color: rgba(255, 255, 255, 0.035);
-    text-shadow: none;
+    letter-spacing: 0.03em;
+    color: var(--watermark-color);
+    opacity: var(--watermark-opacity);
+    text-shadow: var(--watermark-shadow);
+    -webkit-text-stroke: var(--watermark-stroke);
     white-space: nowrap;
+    z-index: 0;
 }
 
-body[data-theme="light"] .watermark {
-    color: rgba(15, 23, 42, 0.035);
-    text-shadow: none;
+.watermark--adaptive {
+    isolation: isolate;
+}
+
+.watermark--adaptive::before {
+    content: '';
+    position: absolute;
+    inset: -0.2em -0.45em;
+    background: var(--watermark-scrim);
+    border-radius: 999px;
+    opacity: 0.7;
+    filter: blur(4px);
+    z-index: -1;
+}
+
+@supports (mix-blend-mode: soft-light) {
+    .watermark--adaptive {
+        mix-blend-mode: soft-light;
+    }
 }
 
 .exploding-watermark span {
