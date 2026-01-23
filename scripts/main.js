@@ -876,6 +876,18 @@
         // shuffleMode = savedState.shuffleMode; // This line is updated below
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
+          if (typeof setPlaybackContext === 'function') {
+            setPlaybackContext({
+              mode: 'radio',
+              source: {
+                type: 'radio',
+                index: currentRadioIndex,
+                src: station?.url,
+                title: `${station.name} - ${station.location}`,
+                stationId: typeof resolveStationId === 'function' ? resolveStationId(station) : null
+              }
+            });
+          }
           albumCover.src = station.logo;
           const normalizedStationUrl = normalizeMediaSrc(station.url);
           const streamUrl = buildTrackFetchUrl(normalizedStationUrl, { sourceType: 'stream', forceProxy: true });

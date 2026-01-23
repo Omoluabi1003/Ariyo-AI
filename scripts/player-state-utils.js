@@ -9,6 +9,16 @@
    */
 
   /**
+   * @typedef {Object} LastPlayedState
+   * @property {'track'|'radio'} mode
+   * @property {string} [trackId]
+   * @property {string} [stationId]
+   * @property {string} srcUrl
+   * @property {number} positionSeconds
+   * @property {number} timestamp
+   */
+
+  /**
    * @param {ResumeState} state
    * @param {Array<{tracks?: Array<{title?: string}>}>} albums
    * @returns {boolean}
@@ -62,17 +72,60 @@
     return isValidResumeState(normalized, albums) ? normalized : null;
   }
 
+  /**
+   * @param {LastPlayedState} state
+   * @returns {boolean}
+   */
+  function isValidLastPlayedState(state) {
+    if (!state || typeof state !== 'object') return false;
+    if (state.mode !== 'track' && state.mode !== 'radio') return false;
+    const hasSrc = typeof state.srcUrl === 'string' && state.srcUrl.trim().length > 0;
+    const hasTimestamp = Number.isFinite(state.timestamp) && state.timestamp > 0;
+    const hasPosition = Number.isFinite(state.positionSeconds) && state.positionSeconds >= 0;
+    return Boolean(hasSrc && hasTimestamp && hasPosition);
+  }
+
+  /**
+   * @param {Object} raw
+   * @returns {LastPlayedState | null}
+   */
+  function normalizeLastPlayedState(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const mode = raw.mode === 'track' || raw.mode === 'radio' ? raw.mode : null;
+    if (!mode) return null;
+    const srcUrl = typeof raw.srcUrl === 'string' ? raw.srcUrl.trim() : '';
+    const trackId = typeof raw.trackId === 'string' ? raw.trackId.trim() : '';
+    const stationId = typeof raw.stationId === 'string' ? raw.stationId.trim() : '';
+    const positionSeconds = Number.isFinite(raw.positionSeconds)
+      ? raw.positionSeconds
+      : (Number.isFinite(raw.position) ? raw.position : 0);
+    const timestamp = Number.isFinite(raw.timestamp) ? raw.timestamp : NaN;
+    const normalized = {
+      mode,
+      srcUrl,
+      trackId: trackId || undefined,
+      stationId: stationId || undefined,
+      positionSeconds: positionSeconds >= 0 ? positionSeconds : 0,
+      timestamp
+    };
+    return isValidLastPlayedState(normalized) ? normalized : null;
+  }
+
   if (typeof window !== 'undefined') {
     window.AriyoPlayerStateUtils = {
       isValidResumeState,
-      normalizeResumeState
+      normalizeResumeState,
+      isValidLastPlayedState,
+      normalizeLastPlayedState
     };
   }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       isValidResumeState,
-      normalizeResumeState
+      normalizeResumeState,
+      isValidLastPlayedState,
+      normalizeLastPlayedState
     };
   }
 })();
