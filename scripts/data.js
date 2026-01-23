@@ -159,6 +159,8 @@ const albums = [
         name: 'Omoluabi Production Catalogue',
         cover: `${BASE_URL}Logo.jpg`,
         tracks: [
+              { src: 'https://cdn1.suno.ai/6c43cb2f-907e-488a-bc6d-cb8e582a189a.mp3', title: 'Is Love Conditional' },
+              { src: 'https://cdn1.suno.ai/6447e1d2-2133-450a-aff8-536263dab07f.mp3', title: 'Ostrich Effect' },
               { src: 'https://cdn1.suno.ai/d9360744-21e6-4de3-a2ec-a2558d09abfe.mp3', title: 'Priapism' },
               { src: 'https://cdn1.suno.ai/3fa09300-e923-40d8-a764-b2e48f5b1668.mp3', title: 'Walk Away' },
               { src: 'https://cdn1.suno.ai/33a016db-2740-4021-85a5-98ede3ac79fb.mp3', title: 'Flow No Be By Force' },
@@ -379,11 +381,25 @@ document.addEventListener('DOMContentLoaded', () => {
 const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;
 
-  const latestTrackAnnouncements = [
-    {
-      albumName: 'Omoluabi Production Catalogue',
-      title: 'Flow No Be By Force',
-      src: 'https://cdn1.suno.ai/33a016db-2740-4021-85a5-98ede3ac79fb.mp3',
+const latestTrackAnnouncements = [
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Is Love Conditional',
+    src: 'https://cdn1.suno.ai/6c43cb2f-907e-488a-bc6d-cb8e582a189a.mp3',
+    addedOn: '2026-02-12T10:00:00Z',
+    isFreshDrop: true
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Ostrich Effect',
+    src: 'https://cdn1.suno.ai/6447e1d2-2133-450a-aff8-536263dab07f.mp3',
+    addedOn: '2026-02-12T09:55:00Z',
+    isFreshDrop: true
+  },
+  {
+    albumName: 'Omoluabi Production Catalogue',
+    title: 'Flow No Be By Force',
+    src: 'https://cdn1.suno.ai/33a016db-2740-4021-85a5-98ede3ac79fb.mp3',
       addedOn: '2026-01-20T23:19:09Z',
       isFreshDrop: true
     },
