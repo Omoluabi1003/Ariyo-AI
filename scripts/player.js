@@ -319,6 +319,7 @@ const resumePromptState = {
   dismissedAtKey: 'ariyoResumePromptDismissedAt'
 };
 const PLAYER_STATE_STORAGE_KEY = 'ariyoPlayerState';
+let pendingResumeState = null;
 
 const offlineFallbackTrack = {
   src: 'offline-audio.mp3',
@@ -2030,33 +2031,38 @@ function removeTrackFromPlaylist(index) {
 
     window.addEventListener('beforeunload', () => schedulePlayerStateSave(true));
 
-    function loadPlayerState() {
+    function getSavedPlayerStateRaw() {
       const savedState = localStorage.getItem(PLAYER_STATE_STORAGE_KEY);
-      if (savedState) {
-        try {
-          const playerState = JSON.parse(savedState);
-          const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
-          if (ageInHours < 24) {
-            const normalized = window.AriyoPlayerStateUtils
-              ? window.AriyoPlayerStateUtils.normalizeResumeState(
-                playerState,
-                albums,
-                slugifyLabel,
-                Array.isArray(radioStations) ? radioStations : []
-              )
-              : null;
-            if (normalized) {
-              normalized.shuffleScope = playerState.shuffleScope || 'off';
-              normalized.shuffleMode = Boolean(playerState.shuffleMode);
-              devLog('resume-state-loaded', normalized);
-              return normalized;
-            }
-          }
-        } catch (error) {
-          console.error('Error loading player state:', error);
-          localStorage.removeItem(PLAYER_STATE_STORAGE_KEY);
-        }
+      if (!savedState) return null;
+      try {
+        return JSON.parse(savedState);
+      } catch (error) {
+        console.error('Error loading player state:', error);
+        localStorage.removeItem(PLAYER_STATE_STORAGE_KEY);
+        return null;
       }
+    }
+
+    function loadPlayerState() {
+      const playerState = getSavedPlayerStateRaw();
+      if (!playerState) return null;
+      const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
+      if (ageInHours >= 24) return null;
+      const normalized = window.AriyoPlayerStateUtils
+        ? window.AriyoPlayerStateUtils.normalizeResumeState(
+          playerState,
+          albums,
+          slugifyLabel,
+          Array.isArray(radioStations) ? radioStations : []
+        )
+        : null;
+      if (normalized) {
+        normalized.shuffleScope = playerState.shuffleScope || 'off';
+        normalized.shuffleMode = Boolean(playerState.shuffleMode);
+        devLog('resume-state-loaded', normalized);
+        return normalized;
+      }
+      pendingResumeState = playerState;
       return null;
     }
 
@@ -4356,6 +4362,20 @@ window.addEventListener('ariyo:library-ready', event => {
   }
   if (isTrackModalOpen()) {
     updateTrackListModal();
+  }
+  if (pendingResumeState && window.AriyoPlayerStateUtils) {
+    const normalized = window.AriyoPlayerStateUtils.normalizeResumeState(
+      pendingResumeState,
+      albums,
+      slugifyLabel,
+      Array.isArray(radioStations) ? radioStations : []
+    );
+    if (normalized) {
+      normalized.shuffleScope = pendingResumeState.shuffleScope || 'off';
+      normalized.shuffleMode = Boolean(pendingResumeState.shuffleMode);
+      pendingResumeState = null;
+      showResumePrompt(normalized);
+    }
   }
 });
 
