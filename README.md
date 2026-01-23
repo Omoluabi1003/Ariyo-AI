@@ -17,6 +17,34 @@
 - **Crew Console:** Multi-agent AI workflows with brand governance, streaming outputs, and run history.
 - **Shareable Links:** Copy or share a URL that opens the app to a specific track (e.g., `main.html?album=kindness&track=locked-away`).
 
+## Cultural metadata + recommendations
+
+- **Àṣà Note (track-level)**: add bilingual microcopy to a track with a `culturalNote` object.
+  ```js
+  {
+    title: "Locked Away",
+    culturalNote: {
+      yo: "Ọ̀rọ̀ ọdún kì í tán l'ọ́jọ́ kan.",
+      en: "Wisdom isn't learned in a day."
+    }
+  }
+  ```
+- **Storyliner (album-level)**: add album context with the `storyliner` object.
+  ```js
+  {
+    name: "Kindness",
+    storyliner: {
+      origin: "Lagos and Port Harcourt sessions shaped by community storytelling circles.",
+      inspiration: "Street wisdom, family conversations, and everyday resilience.",
+      whyItMatters: "Keeps community memory alive while spotlighting contemporary Afrobeats truth-telling."
+    }
+  }
+  ```
+- **Why this track? reasons**: the player surfaces short reasons for the upcoming track based on playback state.
+  - Album continuation when shuffle is off.
+  - Shuffle mix when shuffle is on.
+- **Proverb of the Day share cards**: shares use the current track’s `culturalNote` when available, otherwise a daily proverb from the local library. Use `share.html?card=proverb&album=<slug>&track=<slug>` to render the card without login.
+
 ## Growth Opportunities (2026+)
 
 - **Amplify the cultural narrative:** Showcase the Yoruba-inspired storytelling through targeted marketing, editorial content, and social campaigns that differentiate Ariyo AI in the AI music landscape.
@@ -94,13 +122,13 @@ Contributions are welcome! Please feel free to submit a pull request with any im
 
 ## Running Tests
 
-This project does not yet include automated tests. You can run the placeholder test script with:
+Run the unit tests with:
 
 ```bash
 npm test
 ```
 
-The command currently prints "No tests yet".
+The Jest suite covers utilities such as audio recovery helpers and cultural metadata selection.
 
 ## Push notifications
 

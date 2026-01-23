@@ -1,4 +1,29 @@
 // Serve audio from the same origin as the app to avoid cross-origin playback
+/**
+ * @typedef {Object} CulturalNote
+ * @property {string} yo
+ * @property {string} en
+ */
+/**
+ * @typedef {Object} Storyliner
+ * @property {string} [origin]
+ * @property {string} [inspiration]
+ * @property {string} [whyItMatters]
+ */
+/**
+ * @typedef {Object} Track
+ * @property {string} title
+ * @property {string} src
+ * @property {string} [id]
+ * @property {CulturalNote} [culturalNote]
+ */
+/**
+ * @typedef {Object} Album
+ * @property {string} name
+ * @property {string} cover
+ * @property {Storyliner} [storyliner]
+ * @property {Track[]} tracks
+ */
 (function () {
 // restrictions that can mute the player or break the Web Audio graph.
 const BASE_URL = '../../';
@@ -31,6 +56,11 @@ const albums = [
       {
         name: 'Kindness',
         cover: `${BASE_URL}Kindness%20Cover%20Art.jpg`,
+        storyliner: {
+          origin: 'Lagos and Port Harcourt sessions shaped by community storytelling circles.',
+          inspiration: 'Street wisdom, family conversations, and everyday resilience.',
+          whyItMatters: 'Keeps community memory alive while spotlighting contemporary Afrobeats truth-telling.'
+        },
         tracks: [
           { src: `${BASE_URL}A%20Very%20Good%20Bad%20Guy%20v3.mp3`, title: 'A Very Good Bad Guy v3' },
           { src: `${BASE_URL}Dem%20Wan%20Shut%20Me%20Up.mp3`, title: 'Dem Wan Shut Me Up' },
@@ -39,7 +69,14 @@ const albums = [
           { src: `${BASE_URL}Film%20Trick%20Election.mp3`, title: 'Film Trick Election' },
           { src: `${BASE_URL}Gbas%20Gbos.mp3`, title: 'Gbas Gbos' },
           { src: `${BASE_URL}Kindness%20(Remastered).mp3`, title: 'Kindness (Remastered)' },
-          { src: `${BASE_URL}Locked%20Away.mp3`, title: 'Locked Away' },
+          {
+            src: `${BASE_URL}Locked%20Away.mp3`,
+            title: 'Locked Away',
+            culturalNote: {
+              yo: "Ọ̀rọ̀ ọdún kì í tán l'ọ́jọ́ kan.",
+              en: "Wisdom isn't learned in a day."
+            }
+          },
           { src: `${BASE_URL}Multi%20choice%20palava.mp3`, title: 'Multi choice palava' },
           { src: `${BASE_URL}Na%20My%20Turn.mp3`, title: 'Na My Turn' },
           { src: `${BASE_URL}Ogoni%20Anthem%20(Remastered).mp3`, title: 'Ogoni Anthem (Remastered)' },

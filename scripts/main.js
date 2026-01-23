@@ -123,13 +123,66 @@
     }
 
     /* SHARE BUTTON (Web Share API) */
-    async function shareContent() {
+    function openShareMenu() {
+      const modal = document.getElementById('shareOptionsModal');
+      if (!modal) return;
+      modal.hidden = false;
+      const firstAction = modal.querySelector('.share-options-actions button');
+      if (firstAction) {
+        firstAction.focus();
+      }
+    }
+
+    function closeShareMenu() {
+      const modal = document.getElementById('shareOptionsModal');
+      if (!modal) return;
+      modal.hidden = true;
+    }
+
+    function getPlaybackCulturalNote(playbackContext) {
+      if (!playbackContext || playbackContext.type !== 'track') return null;
+      const album = albums.find(item => slugify(item.name) === playbackContext.albumSlug);
+      if (!album || !Array.isArray(album.tracks)) return null;
+      const track = album.tracks.find(item => slugify(item.title) === playbackContext.trackSlug);
+      return track ? track.culturalNote : null;
+    }
+
+    function formatProverbSharePayload(proverb, url) {
+      const safeUrl = ensureHttps(url);
+      const heading = 'Proverb of the Day';
+      const safeYo = proverb && proverb.yo ? proverb.yo : '';
+      const safeEn = proverb && proverb.en ? proverb.en : '';
+      const lines = [safeYo, safeEn].filter(Boolean).join('\n');
+      const shareText = `**${heading}**\n${lines}`.trim();
+      return {
+        heading,
+        url: safeUrl,
+        shareText,
+        qrText: `${shareText}\n${safeUrl}`.trim()
+      };
+    }
+
+    async function shareContent({ includeProverbCard = false } = {}) {
+      closeShareMenu();
       const shareTarget = normalizeShareTargetPath(window.location.href);
       shareTarget.search = '';
 
       const playbackContext = deriveActivePlaybackContext();
       const defaultTitle = "Àríyò AI - Smart Naija AI";
       let shareInfo = formatMusicSharePayload(defaultTitle, null, ensureHttps(shareTarget.toString()));
+
+      let proverbPayload = null;
+      if (includeProverbCard && window.AriyoProverbUtils) {
+        const culturalNote = getPlaybackCulturalNote(playbackContext);
+        const proverb = window.AriyoProverbUtils.resolveProverb({ culturalNote });
+        const cardUrl = new URL('share.html', shareTarget.toString());
+        cardUrl.searchParams.set('card', 'proverb');
+        if (playbackContext && playbackContext.type === 'track') {
+          cardUrl.searchParams.set('album', playbackContext.albumSlug);
+          cardUrl.searchParams.set('track', playbackContext.trackSlug);
+        }
+        proverbPayload = formatProverbSharePayload(proverb, cardUrl.toString());
+      }
 
       if (playbackContext && playbackContext.type === 'track') {
         shareTarget.searchParams.set('album', playbackContext.albumSlug);
@@ -146,15 +199,17 @@
         shareInfo = formatMusicSharePayload(playbackContext.title, null, shareTarget.toString());
       }
 
-      showQRCode(shareInfo.url, shareInfo.heading, shareInfo.qrText);
+      const activeShareInfo = proverbPayload || shareInfo;
+
+      showQRCode(activeShareInfo.url, activeShareInfo.heading, activeShareInfo.qrText);
 
       const sharePayload = {
-        title: shareInfo.heading,
-        text: shareInfo.shareText,
-        url: shareInfo.url
+        title: activeShareInfo.heading,
+        text: activeShareInfo.shareText,
+        url: activeShareInfo.url
       };
 
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareInfo.qrText)}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(activeShareInfo.qrText)}`;
 
       if (navigator.canShare) {
         try {
@@ -1298,6 +1353,8 @@
 
     if (typeof window !== 'undefined') {
       Object.assign(window, {
+        openShareMenu,
+        closeShareMenu,
         shareContent,
         closeQRModal,
         navigateToAbout
