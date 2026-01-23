@@ -1,0 +1,22 @@
+[
+  { "id": "p-001", "text": "A stitch in time saves nine.", "author": "Proverb" },
+  { "id": "p-002", "text": "Actions speak louder than words.", "author": "Proverb" },
+  { "id": "p-003", "text": "When in Rome, do as the Romans do.", "author": "Proverb" },
+  { "id": "p-004", "text": "The early bird catches the worm.", "author": "Proverb" },
+  { "id": "p-005", "text": "A journey of a thousand miles begins with a single step.", "author": "Proverb" },
+  { "id": "p-006", "text": "Fortune favors the bold.", "author": "Proverb" },
+  { "id": "p-007", "text": "Don’t count your chickens before they hatch.", "author": "Proverb" },
+  { "id": "p-008", "text": "Better late than never.", "author": "Proverb" },
+  { "id": "p-009", "text": "Measure twice, cut once.", "author": "Proverb" },
+  { "id": "p-010", "text": "You reap what you sow.", "author": "Proverb" },
+  { "id": "p-011", "text": "A bird in the hand is worth two in the bush.", "author": "Proverb" },
+  { "id": "p-012", "text": "Where there’s smoke, there’s fire.", "author": "Proverb" },
+  { "id": "p-013", "text": "Make hay while the sun shines.", "author": "Proverb" },
+  { "id": "p-014", "text": "A watched pot never boils.", "author": "Proverb" },
+  { "id": "p-015", "text": "Hope for the best, prepare for the worst.", "author": "Proverb" },
+  { "id": "p-016", "text": "Empty vessels make the most noise.", "author": "Proverb" },
+  { "id": "p-017", "text": "Necessity is the mother of invention.", "author": "Proverb" },
+  { "id": "p-018", "text": "No pain, no gain.", "author": "Proverb" },
+  { "id": "p-019", "text": "Practice makes perfect.", "author": "Proverb" },
+  { "id": "p-020", "text": "The pen is mightier than the sword.", "author": "Proverb" }
+]
