@@ -7,6 +7,11 @@
       window.__ariyoAudioElement = audioPlayer;
     }
     const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
+    const devLog = (...args) => {
+      if (DEBUG_AUDIO) {
+        console.info('[player]', ...args);
+      }
+    };
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -308,8 +313,10 @@ let asaRotationLines = [];
 let lastSaveStatusAt = 0;
 const resumePromptState = {
   storageKey: 'ariyoResumePromptShown',
-  dismissedKey: 'ariyoResumePromptDismissed'
+  dismissedKey: 'ariyoResumePromptDismissedKey',
+  dismissedAtKey: 'ariyoResumePromptDismissedAt'
 };
+const PLAYER_STATE_STORAGE_KEY = 'ariyoPlayerState';
 
 const offlineFallbackTrack = {
   src: 'offline-audio.mp3',
@@ -328,9 +335,11 @@ let currentTrackIndex = 0;
 let currentRadioIndex = -1;
 let pendingRadioSelection = null;
 let shuffleQueue = [];
+let nextTrackReasonState = null;
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 let userInitiatedPause = false;
 let lastKnownFiniteDuration = null;
+const radioStationHosts = new Set();
 
 const networkRecoveryState = {
   active: false,
@@ -1785,12 +1794,16 @@ function removeTrackFromPlaylist(index) {
       if (!nextInfo || currentRadioIndex !== -1) {
         if (nextInfo) nextInfo.textContent = '';
         if (nextTrackReasonRow) nextTrackReasonRow.hidden = true;
+        nextTrackReasonState = null;
         return;
       }
 
       const album = albums[currentAlbumIndex];
+      const nextTrackIndex = album && Array.isArray(album.tracks)
+        ? (currentTrackIndex + 1) % album.tracks.length
+        : -1;
       const sequentialNext = album && Array.isArray(album.tracks)
-        ? album.tracks[(currentTrackIndex + 1) % album.tracks.length]
+        ? album.tracks[nextTrackIndex]
         : null;
       const nextTrack = shuffleMode && shuffleQueue.length > 0
         ? shuffleQueue[0]
@@ -1799,23 +1812,32 @@ function removeTrackFromPlaylist(index) {
       if (!nextTrack) {
         nextInfo.textContent = '';
         if (nextTrackReasonRow) nextTrackReasonRow.hidden = true;
+        nextTrackReasonState = null;
         return;
       }
 
       nextInfo.textContent = `Next: ${nextTrack.title}`;
 
       const reason = shuffleMode
-        ? { type: 'USER_ACTION', label: 'From your shuffle mix' }
+        ? { type: 'AI_CURATED', label: 'AI curated' }
         : { type: 'ALBUM_CONTINUATION', label: 'Album continuation' };
 
       if (nextTrackReasonRow && nextTrackReason) {
-        nextTrackReason.textContent = `Why this track? ${reason.label}`;
+        const label = shuffleMode ? 'AI curated' : 'Album continuation';
+        nextTrackReason.textContent = `Why this track? ${label}`;
         nextTrackReasonRow.hidden = false;
       }
 
       if (aiCuratedBadge) {
         aiCuratedBadge.hidden = !shuffleMode;
       }
+
+      nextTrackReasonState = {
+        reason,
+        nextTrack,
+        albumIndex: shuffleMode ? nextTrack.albumIndex : currentAlbumIndex,
+        trackIndex: shuffleMode ? nextTrack.trackIndex : nextTrackIndex
+      };
     }
 
     function buildShuffleQueue() {
@@ -1856,32 +1878,125 @@ function removeTrackFromPlaylist(index) {
       updateNextTrackInfo();
     }
 
+    function buildTrackMetadataSummary(track, album, trackIndex) {
+      if (!track && !album) return '';
+      const pieces = [];
+      const artist = track?.artist || album?.artist;
+      if (artist) pieces.push(artist);
+      if (album?.name) pieces.push(`from ${album.name}`);
+      if (Number.isInteger(trackIndex) && trackIndex >= 0 && album?.tracks?.length) {
+        pieces.push(`track ${trackIndex + 1} of ${album.tracks.length}`);
+      }
+      return pieces.length ? ` (${pieces.join(' • ')})` : '';
+    }
+
+    function buildReasonTags(track) {
+      if (!track) return '';
+      const tags = [];
+      if (track.genre) tags.push(track.genre);
+      if (track.mood) tags.push(track.mood);
+      if (track.era) tags.push(track.era);
+      if (track.region) tags.push(track.region);
+      if (Array.isArray(track.tags)) tags.push(...track.tags);
+      if (typeof track.tags === 'string') tags.push(track.tags);
+      const unique = [...new Set(tags.map(tag => String(tag).trim()).filter(Boolean))];
+      return unique.length ? ` Tags: ${unique.join(', ')}.` : '';
+    }
+
+    function buildWhyThisTrackExplanation() {
+      if (!nextTrackReasonState) {
+        return 'Why this track? Chosen to keep the vibe flowing.';
+      }
+      const { reason, nextTrack, albumIndex, trackIndex } = nextTrackReasonState;
+      const album = albums[albumIndex];
+      const track = album?.tracks?.[trackIndex] || nextTrack;
+      const trackTitle = track?.title || nextTrack?.title || 'this pick';
+      const metadata = buildTrackMetadataSummary(track, album, trackIndex);
+      const tags = buildReasonTags(track);
+      if (reason.type === 'ALBUM_CONTINUATION') {
+        const albumName = album?.name || 'this album';
+        return `Why this track? Album continuation from ${albumName} to keep the story flowing. Next up: ${trackTitle}${metadata}.${tags || ' Picked to keep the album sequence intact.'}`;
+      }
+      return `Why this track? AI-curated to match your listening flow. Next up: ${trackTitle}${metadata}.${tags || ' Selected to keep the momentum moving.'}`;
+    }
+
+    function showWhyThisTrack() {
+      const explanation = buildWhyThisTrackExplanation();
+      updateInlineStatus(explanation, { showRetry: false });
+      devLog('why-this-track', { explanation, state: nextTrackReasonState });
+    }
+
+    if (nextTrackReasonRow) {
+      nextTrackReasonRow.setAttribute('role', 'button');
+      nextTrackReasonRow.tabIndex = 0;
+      let whyTrackHandled = false;
+      const triggerWhyTrack = () => {
+        if (whyTrackHandled) return;
+        whyTrackHandled = true;
+        showWhyThisTrack();
+        setTimeout(() => {
+          whyTrackHandled = false;
+        }, 250);
+      };
+      nextTrackReasonRow.addEventListener('click', triggerWhyTrack);
+      nextTrackReasonRow.addEventListener('pointerup', triggerWhyTrack);
+      nextTrackReasonRow.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          triggerWhyTrack();
+        }
+      });
+    }
+
     const saveStateConfig = {
       timerId: null,
       intervalMs: 4000
     };
 
-    function savePlayerState() {
+    function buildPlayerState(positionOverride = null) {
+      const timestamp = Date.now();
+      const position = Number.isFinite(positionOverride)
+        ? positionOverride
+        : (Number.isFinite(audioPlayer.currentTime) ? audioPlayer.currentTime : 0);
+      if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
+        const station = radioStations[currentRadioIndex];
+        return {
+          mode: 'radio',
+          stationIndex: currentRadioIndex,
+          stationId: station.name ? slugifyLabel(station.name) : '',
+          srcUrl: station.url || lastTrackSrc || '',
+          title: station.name || lastTrackTitle || 'Live radio',
+          position,
+          timestamp,
+          shuffleMode,
+          shuffleScope
+        };
+      }
+
       const track = albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks
         ? albums[currentAlbumIndex].tracks[currentTrackIndex]
         : null;
       const title = track && track.title ? track.title : lastTrackTitle;
       const trackId = track && track.id ? track.id : (title ? slugifyLabel(title) : '');
-      const position = Number.isFinite(audioPlayer.currentTime) ? audioPlayer.currentTime : 0;
-      const playerState = {
+      return {
+        mode: 'track',
         albumIndex: currentAlbumIndex,
         trackIndex: currentTrackIndex,
-        radioIndex: currentRadioIndex,
-        playbackPosition: position,
-        position,
+        srcUrl: (track && track.src) || lastTrackSrc || '',
         title,
         trackId,
-        shuffleMode: shuffleMode,
-        shuffleScope: shuffleScope, // Save shuffleScope
-        timestamp: new Date().getTime()
+        position,
+        timestamp,
+        shuffleMode,
+        shuffleScope
       };
-      localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
-      console.log('Player state saved:', playerState);
+    }
+
+    function savePlayerState(positionOverride = null) {
+      const playerState = buildPlayerState(positionOverride);
+      if (!playerState || !playerState.srcUrl) return;
+      localStorage.setItem(PLAYER_STATE_STORAGE_KEY, JSON.stringify(playerState));
+      devLog('resume-state-saved', playerState);
     }
 
     function schedulePlayerStateSave(immediate = false) {
@@ -1915,40 +2030,87 @@ function removeTrackFromPlaylist(index) {
     window.addEventListener('beforeunload', () => schedulePlayerStateSave(true));
 
     function loadPlayerState() {
-      const savedState = localStorage.getItem('ariyoPlayerState');
+      const savedState = localStorage.getItem(PLAYER_STATE_STORAGE_KEY);
       if (savedState) {
         try {
           const playerState = JSON.parse(savedState);
           const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
           if (ageInHours < 24) {
             const normalized = window.AriyoPlayerStateUtils
-              ? window.AriyoPlayerStateUtils.normalizeResumeState(playerState, albums, slugifyLabel)
+              ? window.AriyoPlayerStateUtils.normalizeResumeState(
+                playerState,
+                albums,
+                slugifyLabel,
+                Array.isArray(radioStations) ? radioStations : []
+              )
               : null;
             if (normalized) {
               normalized.shuffleScope = playerState.shuffleScope || 'off';
               normalized.shuffleMode = Boolean(playerState.shuffleMode);
+              devLog('resume-state-loaded', normalized);
               return normalized;
             }
           }
         } catch (error) {
           console.error('Error loading player state:', error);
-          localStorage.removeItem('ariyoPlayerState');
+          localStorage.removeItem(PLAYER_STATE_STORAGE_KEY);
         }
       }
       return null;
     }
 
+    function resolveResumeTrack(state) {
+      if (!state) return null;
+      const normalizedSrc = state.srcUrl ? normalizeMediaSrc(state.srcUrl) : '';
+      const targetId = state.trackId ? state.trackId.trim() : '';
+
+      if (targetId || normalizedSrc) {
+        for (let albumIndex = 0; albumIndex < albums.length; albumIndex += 1) {
+          const album = albums[albumIndex];
+          if (!album || !Array.isArray(album.tracks)) continue;
+          for (let trackIndex = 0; trackIndex < album.tracks.length; trackIndex += 1) {
+            const track = album.tracks[trackIndex];
+            if (!track) continue;
+            const trackId = track.id ? String(track.id) : slugifyLabel(track.title || '');
+            const trackSrc = track.src ? normalizeMediaSrc(track.src) : '';
+            if ((targetId && trackId === targetId) || (normalizedSrc && trackSrc === normalizedSrc)) {
+              return { albumIndex, trackIndex, track };
+            }
+          }
+        }
+      }
+
+      if (Number.isInteger(state.albumIndex) && Number.isInteger(state.trackIndex)) {
+        const album = albums[state.albumIndex];
+        const track = album && Array.isArray(album.tracks) ? album.tracks[state.trackIndex] : null;
+        if (track) {
+          return { albumIndex: state.albumIndex, trackIndex: state.trackIndex, track };
+        }
+      }
+
+      return null;
+    }
+
     function getResumePromptKey(state) {
-      return `${state.trackId}-${Math.floor(state.position)}`;
+      const baseId = state.mode === 'radio'
+        ? (state.stationId || state.srcUrl || 'radio')
+        : (state.trackId || state.srcUrl || `${state.albumIndex}-${state.trackIndex}`);
+      return `${state.mode}:${baseId}`;
     }
 
     function showResumePrompt(state) {
       if (!resumeToast || !resumeToastAction || !resumeToastDismiss) return;
       const promptKey = getResumePromptKey(state);
+      const promptTimestamp = Number.isFinite(state.timestamp) ? state.timestamp : 0;
       try {
         const shownKey = sessionStorage.getItem(resumePromptState.storageKey);
-        const dismissedKey = sessionStorage.getItem(resumePromptState.dismissedKey);
-        if (shownKey === promptKey || dismissedKey === promptKey) {
+        const dismissedKey = localStorage.getItem(resumePromptState.dismissedKey);
+        const dismissedAtRaw = localStorage.getItem(resumePromptState.dismissedAtKey);
+        const dismissedAt = Number(dismissedAtRaw) || 0;
+        if (shownKey === promptKey) {
+          return;
+        }
+        if (dismissedKey === promptKey && promptTimestamp <= dismissedAt) {
           return;
         }
         sessionStorage.setItem(resumePromptState.storageKey, promptKey);
@@ -1960,34 +2122,67 @@ function removeTrackFromPlaylist(index) {
         resumeToastTitle.textContent = 'Resume where you left off?';
       }
       if (resumeToastCopy) {
-        resumeToastCopy.textContent = `Resume ${state.title}`;
+        const label = state.mode === 'radio' ? `Resume live radio: ${state.title}` : `Resume ${state.title}`;
+        resumeToastCopy.textContent = label;
       }
       resumeToast.hidden = false;
       resumeToastAction.focus();
+      devLog('resume-prompt-show', state);
 
+      let resumeHandled = false;
       const handleDismiss = () => {
+        if (resumeHandled) return;
+        resumeHandled = true;
         resumeToast.hidden = true;
         try {
-          sessionStorage.setItem(resumePromptState.dismissedKey, promptKey);
+          localStorage.setItem(resumePromptState.dismissedKey, promptKey);
+          localStorage.setItem(resumePromptState.dismissedAtKey, String(Date.now()));
         } catch (error) {
           // Ignore storage errors.
         }
         resumeToastAction.removeEventListener('click', handleResume);
         resumeToastDismiss.removeEventListener('click', handleDismiss);
+        resumeToastAction.removeEventListener('pointerup', handleResume);
+        resumeToastDismiss.removeEventListener('pointerup', handleDismiss);
       };
 
       const handleResume = () => {
+        if (resumeHandled) return;
+        resumeHandled = true;
         resumeToast.hidden = true;
         resumeToastAction.removeEventListener('click', handleResume);
         resumeToastDismiss.removeEventListener('click', handleDismiss);
-        currentAlbumIndex = state.albumIndex;
-        currentTrackIndex = state.trackIndex;
+        resumeToastAction.removeEventListener('pointerup', handleResume);
+        resumeToastDismiss.removeEventListener('pointerup', handleDismiss);
+        devLog('resume-prompt-accept', state);
+        if (state.mode === 'radio') {
+          const stationIndex = Number.isInteger(state.stationIndex)
+            ? state.stationIndex
+            : radioStations.findIndex(station => slugifyLabel(station.name) === state.stationId);
+          const station = radioStations[stationIndex];
+          if (!station) {
+            updateInlineStatus('We could not resume that station right now.', { showRetry: false });
+            return;
+          }
+          selectRadio(station.url, `${station.name} - ${station.location || ''}`.trim(), stationIndex, station.logo);
+          return;
+        }
+
+        const resolved = resolveResumeTrack(state);
+        if (!resolved) {
+          updateInlineStatus('We could not resume that track right now.', { showRetry: false });
+          return;
+        }
+        currentAlbumIndex = resolved.albumIndex;
+        currentTrackIndex = resolved.trackIndex;
         updateTrackListModal();
-        selectTrack(albums[state.albumIndex].tracks[state.trackIndex].src, state.title, state.trackIndex, true, state.position);
+        selectTrack(resolved.track.src, resolved.track.title || state.title, resolved.trackIndex, true, state.position);
       };
 
       resumeToastAction.addEventListener('click', handleResume);
+      resumeToastAction.addEventListener('pointerup', handleResume);
       resumeToastDismiss.addEventListener('click', handleDismiss);
+      resumeToastDismiss.addEventListener('pointerup', handleDismiss);
     }
 
     function loadLyrics(url) {
@@ -2938,7 +3133,7 @@ function loadMoreStations(region) {
   }
 }
 
-    function selectAlbum(albumIndex) {
+function selectAlbum(albumIndex) {
       console.log("selectAlbum called with index: ", albumIndex);
       console.log(`Selecting album: ${albums[albumIndex].name}`);
       pendingAlbumIndex = albumIndex;
@@ -2946,6 +3141,55 @@ function loadMoreStations(region) {
       updateTrackListModal();
       openTrackList();
     }
+
+function getRadioStationHosts() {
+  if (radioStationHosts.size || !Array.isArray(radioStations)) {
+    return radioStationHosts;
+  }
+  radioStations.forEach(station => {
+    if (!station?.url) return;
+    try {
+      const hostname = new URL(station.url, window.location.origin).hostname;
+      if (hostname) {
+        radioStationHosts.add(hostname);
+      }
+    } catch (error) {
+      // Ignore invalid station URLs.
+    }
+  });
+  return radioStationHosts;
+}
+
+function isLikelyRadioSource(src) {
+  if (!src) return false;
+  const normalizedSrc = normalizeMediaSrc(src);
+  const stationMatch = Array.isArray(radioStations)
+    && radioStations.some(station => normalizeMediaSrc(station.url) === normalizedSrc);
+  if (stationMatch) return true;
+  try {
+    const target = new URL(normalizedSrc, window.location.origin);
+    const hosts = getRadioStationHosts();
+    const hostMatch = hosts.has(target.hostname);
+    const streamPattern = /(m3u8|\.m3u|\.pls|stream)/i.test(target.pathname);
+    return hostMatch && streamPattern;
+  } catch (error) {
+    return false;
+  }
+}
+
+function isRadioPlayback(track, srcUrl) {
+  if (currentRadioIndex >= 0) return true;
+  if (track && (track.isLive || track.sourceType === 'stream')) return true;
+  return isLikelyRadioSource(srcUrl || '');
+}
+
+function syncLiveRadioBadge(track = null, srcUrl = null) {
+  if (!liveRadioBadge) return;
+  const resolvedSrc = srcUrl || lastTrackSrc || '';
+  const isRadio = isRadioPlayback(track, resolvedSrc);
+  liveRadioBadge.hidden = !isRadio;
+  devLog('live-radio-badge', { isRadio, src: resolvedSrc, currentRadioIndex });
+}
 
 function applyTrackUiState(albumIndex, trackIndex) {
     const album = albums[albumIndex];
@@ -2972,9 +3216,7 @@ function applyTrackUiState(albumIndex, trackIndex) {
     trackYear.textContent = `Release Year: ${year || 'Unknown'}`;
     trackAlbum.textContent = `Album: ${album.name}`;
     updateAsaNote(track.culturalNote);
-    if (liveRadioBadge) {
-      liveRadioBadge.hidden = !(track.isLive || track.sourceType === 'stream');
-    }
+    syncLiveRadioBadge(track, track.src);
     albumCover.src = album.cover;
     loadLyrics(track.lrc);
     document.getElementById('progressBar').style.display = 'block';
@@ -3195,6 +3437,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) 
         title: safeTrack.title || title,
         sourceType: safeTrack.sourceType || albums[currentAlbumIndex]?.sourceType || 'local'
       };
+      savePlayerState(Number.isFinite(resumeTime) ? resumeTime : 0);
       const isLiveTrack = Boolean(trackMeta && trackMeta.isLive);
       showBufferingState('Loading your track...');
       albumCover.style.display = 'none';
@@ -3254,9 +3497,8 @@ function selectRadio(src, title, index, logo) {
       const station = radioStations[index];
       currentRadioIndex = index;
       updateAsaNote(null);
-      if (liveRadioBadge) {
-        liveRadioBadge.hidden = false;
-      }
+      syncLiveRadioBadge(null, src);
+      savePlayerState(0);
       if (window.AriyoSeo) {
         window.AriyoSeo.updateStructuredDataForPlayback({ type: 'radio', station });
       }
@@ -3627,7 +3869,7 @@ function selectRadio(src, title, index, logo) {
       setTurntableSpin(shouldSpin);
       if (lastSpinState !== shouldSpin) {
         lastSpinState = shouldSpin;
-        console.info('[vinyl] spin', { active: shouldSpin });
+        devLog('vinyl-spin', { active: shouldSpin });
       }
     }
 
@@ -3793,6 +4035,7 @@ function updateTrackTime() {
     if (currentRadioIndex >= 0) {
       trackDuration.textContent = `${formatTime(currentTime)} / Live`;
       seekBar.style.display = 'none'; // hide seekbar for radio
+      schedulePlayerStateSave();
       recordPlaybackProgress(currentTime);
       return;
     }
@@ -3811,6 +4054,7 @@ function updateTrackTime() {
       trackDuration.textContent = `${formatTime(currentTime)} / Loading...`;
       seekBar.style.display = 'block';
     }
+  manageVinylRotation();
   highlightLyric(currentTime);
   if (isNaN(duration) || duration <= 0) {
       recordPlaybackProgress(currentTime);
@@ -3898,6 +4142,7 @@ function updateTrackTime() {
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.playing);
       manageVinylRotation(); // spin the turntable if needed
+      syncLiveRadioBadge();
       ensureAudiblePlayback();
       if (currentRadioIndex >= 0) {
         confirmPendingRadioSelection('station-playing', {
