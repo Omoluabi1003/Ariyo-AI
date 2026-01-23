@@ -7,6 +7,13 @@
       window.__ariyoAudioElement = audioPlayer;
     }
     const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
+    const IS_DEV_ENV = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production')
+      || (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname));
+    const devLog = (...args) => {
+      if (IS_DEV_ENV) {
+        console.info(...args);
+      }
+    };
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -35,7 +42,7 @@
 
     /**
      * @typedef {Object} RecommendationReason
-     * @property {'RECENT_PLAY'|'TEMPO_MATCH'|'SIMILAR_ARTIST'|'ALBUM_CONTINUATION'|'USER_ACTION'} type
+     * @property {'RECENT_PLAY'|'TEMPO_MATCH'|'SIMILAR_ARTIST'|'ALBUM_CONTINUATION'|'USER_ACTION'|'AI_CURATED'} type
      * @property {string} label
      * @property {Object} [data]
      */
@@ -282,6 +289,20 @@
     const playButtonEl = document.getElementById('playButton');
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
+
+    if (nextTrackReasonRow) {
+      nextTrackReasonRow.setAttribute('role', 'button');
+      nextTrackReasonRow.tabIndex = 0;
+      const handleReasonTap = event => {
+        if (event?.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') return;
+        if (!nextTrackReasonState) return;
+        const message = buildTrackReasonExplanation(nextTrackReasonState);
+        devLog('[why-track] explanation', { message, reason: nextTrackReasonState.reason });
+        showTrackReasonToast(message);
+      };
+      nextTrackReasonRow.addEventListener('click', handleReasonTap);
+      nextTrackReasonRow.addEventListener('keydown', handleReasonTap);
+    }
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
 let shuffleScope = 'off'; // 'off', 'album', 'all', 'repeat'
@@ -331,6 +352,7 @@ let shuffleQueue = [];
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 let userInitiatedPause = false;
 let lastKnownFiniteDuration = null;
+let nextTrackReasonState = null;
 
 const networkRecoveryState = {
   active: false,
@@ -1780,32 +1802,133 @@ function removeTrackFromPlaylist(index) {
   }
 }
 
+    function getAlbumContinuationTarget(direction = 1) {
+      const album = albums[currentAlbumIndex];
+      if (!album || !Array.isArray(album.tracks) || album.tracks.length === 0) return null;
+
+      const ordered = album.tracks.map((track, idx) => {
+        const order = Number.isFinite(track.trackNumber)
+          ? Number(track.trackNumber)
+          : Number.isFinite(track.trackIndex)
+            ? Number(track.trackIndex)
+            : idx;
+        return { track, idx, order };
+      });
+
+      const shouldSort = ordered.some(entry => Number.isFinite(entry.order) && entry.order !== entry.idx);
+      if (shouldSort) {
+        ordered.sort((a, b) => a.order - b.order);
+      }
+
+      const currentEntry = ordered.find(entry => entry.idx === currentTrackIndex) || ordered[0];
+      if (!currentEntry) return null;
+      const currentPos = ordered.indexOf(currentEntry);
+      const nextPos = (currentPos + direction + ordered.length) % ordered.length;
+      const target = ordered[nextPos];
+      return target ? { track: target.track, trackIndex: target.idx } : null;
+    }
+
+    function derivePlaybackModeFromContext(src) {
+      if (currentRadioIndex >= 0) return 'radio';
+      const normalizedSrc = src ? normalizeMediaSrc(src) : '';
+      const matchesStation = normalizedSrc && radioStations.some(station => normalizeMediaSrc(station.url) === normalizedSrc);
+      const streamHints = [/\.m3u8$/i, /\/stream/i, /icecast|shoutcast/i, /radio/i];
+      const looksLikeRadio = normalizedSrc && streamHints.some(pattern => pattern.test(normalizedSrc));
+      return matchesStation || looksLikeRadio ? 'radio' : 'track';
+    }
+
+    function syncLiveRadioBadge(src) {
+      if (!liveRadioBadge) return;
+      const mode = derivePlaybackModeFromContext(src || lastTrackSrc);
+      liveRadioBadge.hidden = mode !== 'radio';
+    }
+
+    function buildTrackReasonExplanation({ reason, track, album }) {
+      const parts = [];
+      const metadata = [];
+
+      if (reason?.type === 'ALBUM_CONTINUATION') {
+        if (album?.name) {
+          parts.push(`Continuing "${album.name}" in order.`);
+        } else {
+          parts.push('Continuing the album sequence.');
+        }
+      } else if (reason?.type === 'AI_CURATED') {
+        parts.push('AI-curated to match your current vibe.');
+      } else if (reason?.type === 'USER_ACTION') {
+        parts.push('Picked from your shuffle mix.');
+      }
+
+      if (track?.genre) metadata.push(`Genre: ${track.genre}`);
+      if (track?.mood) metadata.push(`Mood: ${track.mood}`);
+      if (track?.era) metadata.push(`Era: ${track.era}`);
+      if (track?.region) metadata.push(`Region: ${track.region}`);
+      if (track?.tags) {
+        const tags = Array.isArray(track.tags)
+          ? track.tags
+          : typeof track.tags === 'string'
+            ? track.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+            : [];
+        if (tags.length) {
+          metadata.push(`Tags: ${tags.slice(0, 3).join(', ')}`);
+        }
+      }
+
+      if (metadata.length) {
+        parts.push(metadata.join(' • '));
+      }
+
+      if (!parts.length) {
+        return 'This pick keeps the flow going based on your current session.';
+      }
+
+      return parts.join(' ');
+    }
+
+    function showTrackReasonToast(message) {
+      const toast = document.getElementById('nowPlayingToast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (toast._reasonTimer) {
+        clearTimeout(toast._reasonTimer);
+      }
+      toast._reasonTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
     function updateNextTrackInfo() {
       const nextInfo = document.getElementById('nextTrackInfo');
       if (!nextInfo || currentRadioIndex !== -1) {
         if (nextInfo) nextInfo.textContent = '';
         if (nextTrackReasonRow) nextTrackReasonRow.hidden = true;
+        nextTrackReasonState = null;
         return;
       }
 
       const album = albums[currentAlbumIndex];
-      const sequentialNext = album && Array.isArray(album.tracks)
-        ? album.tracks[(currentTrackIndex + 1) % album.tracks.length]
-        : null;
+      const sequentialTarget = getAlbumContinuationTarget(1);
+      const sequentialNext = sequentialTarget ? sequentialTarget.track : null;
       const nextTrack = shuffleMode && shuffleQueue.length > 0
         ? shuffleQueue[0]
         : sequentialNext;
+      const nextTrackMeta = nextTrack && Number.isInteger(nextTrack.albumIndex) && Number.isInteger(nextTrack.trackIndex)
+        ? (albums[nextTrack.albumIndex]?.tracks?.[nextTrack.trackIndex] || nextTrack)
+        : nextTrack;
 
       if (!nextTrack) {
         nextInfo.textContent = '';
         if (nextTrackReasonRow) nextTrackReasonRow.hidden = true;
+        nextTrackReasonState = null;
         return;
       }
 
-      nextInfo.textContent = `Next: ${nextTrack.title}`;
+      const nextTitle = nextTrackMeta?.title || nextTrack?.title || 'Next track';
+      nextInfo.textContent = `Next: ${nextTitle}`;
 
       const reason = shuffleMode
-        ? { type: 'USER_ACTION', label: 'From your shuffle mix' }
+        ? { type: 'AI_CURATED', label: 'From your shuffle mix' }
         : { type: 'ALBUM_CONTINUATION', label: 'Album continuation' };
 
       if (nextTrackReasonRow && nextTrackReason) {
@@ -1816,6 +1939,12 @@ function removeTrackFromPlaylist(index) {
       if (aiCuratedBadge) {
         aiCuratedBadge.hidden = !shuffleMode;
       }
+
+      nextTrackReasonState = {
+        reason,
+        track: nextTrackMeta,
+        album
+      };
     }
 
     function buildShuffleQueue() {
@@ -1861,6 +1990,43 @@ function removeTrackFromPlaylist(index) {
       intervalMs: 4000
     };
 
+    function buildLastPlayedState() {
+      const timestamp = Date.now();
+      if (currentRadioIndex >= 0 && radioStations[currentRadioIndex]) {
+        const station = radioStations[currentRadioIndex];
+        return {
+          mode: 'radio',
+          radioIndex: currentRadioIndex,
+          stationId: station.id || slugifyLabel(station.name),
+          srcUrl: station.url || lastTrackSrc,
+          title: station.name ? `${station.name}${station.location ? ` - ${station.location}` : ''}` : (lastTrackTitle || 'Live radio'),
+          positionSeconds: 0,
+          timestamp
+        };
+      }
+
+      const album = albums[currentAlbumIndex];
+      const track = album && Array.isArray(album.tracks)
+        ? album.tracks[currentTrackIndex]
+        : null;
+      if (!track || !lastTrackSrc) {
+        return null;
+      }
+      const title = track.title || lastTrackTitle || 'Track';
+      const trackId = track.id || slugifyLabel(title);
+      const positionSeconds = Number.isFinite(audioPlayer.currentTime) ? audioPlayer.currentTime : 0;
+      return {
+        mode: 'track',
+        albumIndex: currentAlbumIndex,
+        trackIndex: currentTrackIndex,
+        trackId,
+        srcUrl: track.src || lastTrackSrc,
+        title,
+        positionSeconds,
+        timestamp
+      };
+    }
+
     function savePlayerState() {
       const track = albums[currentAlbumIndex] && albums[currentAlbumIndex].tracks
         ? albums[currentAlbumIndex].tracks[currentTrackIndex]
@@ -1868,6 +2034,7 @@ function removeTrackFromPlaylist(index) {
       const title = track && track.title ? track.title : lastTrackTitle;
       const trackId = track && track.id ? track.id : (title ? slugifyLabel(title) : '');
       const position = Number.isFinite(audioPlayer.currentTime) ? audioPlayer.currentTime : 0;
+      const lastPlayed = buildLastPlayedState();
       const playerState = {
         albumIndex: currentAlbumIndex,
         trackIndex: currentTrackIndex,
@@ -1878,10 +2045,11 @@ function removeTrackFromPlaylist(index) {
         trackId,
         shuffleMode: shuffleMode,
         shuffleScope: shuffleScope, // Save shuffleScope
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        lastPlayed
       };
       localStorage.setItem('ariyoPlayerState', JSON.stringify(playerState));
-      console.log('Player state saved:', playerState);
+      devLog('[resume] player state saved', playerState);
     }
 
     function schedulePlayerStateSave(immediate = false) {
@@ -1922,7 +2090,7 @@ function removeTrackFromPlaylist(index) {
           const ageInHours = (new Date().getTime() - playerState.timestamp) / (1000 * 60 * 60);
           if (ageInHours < 24) {
             const normalized = window.AriyoPlayerStateUtils
-              ? window.AriyoPlayerStateUtils.normalizeResumeState(playerState, albums, slugifyLabel)
+              ? window.AriyoPlayerStateUtils.normalizeResumeState(playerState, albums, slugifyLabel, radioStations)
               : null;
             if (normalized) {
               normalized.shuffleScope = playerState.shuffleScope || 'off';
@@ -1939,19 +2107,59 @@ function removeTrackFromPlaylist(index) {
     }
 
     function getResumePromptKey(state) {
-      return `${state.trackId}-${Math.floor(state.position)}`;
+      const id = state.mode === 'radio'
+        ? (state.stationId || state.srcUrl || 'station')
+        : (state.trackId || state.srcUrl || 'track');
+      const timestamp = Number.isFinite(state.timestamp) ? state.timestamp : 0;
+      return `${state.mode}-${id}-${timestamp}`;
+    }
+
+    function findResumeTrackMatch(state) {
+      if (!state || state.mode !== 'track') return null;
+      if (Number.isInteger(state.albumIndex) && Number.isInteger(state.trackIndex)) {
+        const album = albums[state.albumIndex];
+        const track = album && Array.isArray(album.tracks) ? album.tracks[state.trackIndex] : null;
+        if (track) {
+          return { albumIndex: state.albumIndex, trackIndex: state.trackIndex, track };
+        }
+      }
+      const match = albums.flatMap((album, albumIndex) => (
+        (album.tracks || []).map((track, trackIndex) => ({
+          albumIndex,
+          trackIndex,
+          track
+        }))
+      )).find(entry => {
+        const trackId = entry.track.id || slugifyLabel(entry.track.title || '');
+        return (state.trackId && trackId === state.trackId)
+          || (state.srcUrl && entry.track.src === state.srcUrl);
+      });
+      return match || null;
+    }
+
+    function findResumeStationMatch(state) {
+      if (!state || state.mode !== 'radio') return null;
+      if (Number.isInteger(state.radioIndex) && radioStations[state.radioIndex]) {
+        return { station: radioStations[state.radioIndex], index: state.radioIndex };
+      }
+      const match = radioStations.findIndex(station => {
+        const stationId = station.id || slugifyLabel(station.name || '');
+        return (state.stationId && stationId === state.stationId)
+          || (state.srcUrl && station.url === state.srcUrl);
+      });
+      return match >= 0 ? { station: radioStations[match], index: match } : null;
     }
 
     function showResumePrompt(state) {
       if (!resumeToast || !resumeToastAction || !resumeToastDismiss) return;
       const promptKey = getResumePromptKey(state);
       try {
-        const shownKey = sessionStorage.getItem(resumePromptState.storageKey);
-        const dismissedKey = sessionStorage.getItem(resumePromptState.dismissedKey);
+        const shownKey = localStorage.getItem(resumePromptState.storageKey);
+        const dismissedKey = localStorage.getItem(resumePromptState.dismissedKey);
         if (shownKey === promptKey || dismissedKey === promptKey) {
           return;
         }
-        sessionStorage.setItem(resumePromptState.storageKey, promptKey);
+        localStorage.setItem(resumePromptState.storageKey, promptKey);
       } catch (error) {
         // Ignore storage errors.
       }
@@ -1965,29 +2173,57 @@ function removeTrackFromPlaylist(index) {
       resumeToast.hidden = false;
       resumeToastAction.focus();
 
+      let resumeHandled = false;
       const handleDismiss = () => {
         resumeToast.hidden = true;
         try {
-          sessionStorage.setItem(resumePromptState.dismissedKey, promptKey);
+          localStorage.setItem(resumePromptState.dismissedKey, promptKey);
         } catch (error) {
           // Ignore storage errors.
         }
         resumeToastAction.removeEventListener('click', handleResume);
+        resumeToastAction.removeEventListener('pointerup', handleResume);
         resumeToastDismiss.removeEventListener('click', handleDismiss);
+        resumeToastDismiss.removeEventListener('pointerup', handleDismiss);
       };
 
       const handleResume = () => {
+        if (resumeHandled) return;
+        resumeHandled = true;
         resumeToast.hidden = true;
         resumeToastAction.removeEventListener('click', handleResume);
+        resumeToastAction.removeEventListener('pointerup', handleResume);
         resumeToastDismiss.removeEventListener('click', handleDismiss);
-        currentAlbumIndex = state.albumIndex;
-        currentTrackIndex = state.trackIndex;
+        resumeToastDismiss.removeEventListener('pointerup', handleDismiss);
+
+        if (state.mode === 'radio') {
+          const stationMatch = findResumeStationMatch(state);
+          if (!stationMatch) {
+            updateInlineStatus('Unable to resume that station.', { showRetry: false });
+            return;
+          }
+          const stationTitle = `${stationMatch.station.name}${stationMatch.station.location ? ` - ${stationMatch.station.location}` : ''}`;
+          devLog('[resume] radio resume', { station: stationTitle });
+          selectRadio(stationMatch.station.url, stationTitle, stationMatch.index, stationMatch.station.logo);
+          return;
+        }
+
+        const trackMatch = findResumeTrackMatch(state);
+        if (!trackMatch) {
+          updateInlineStatus('Unable to resume that track.', { showRetry: false });
+          return;
+        }
+        currentAlbumIndex = trackMatch.albumIndex;
+        currentTrackIndex = trackMatch.trackIndex;
         updateTrackListModal();
-        selectTrack(albums[state.albumIndex].tracks[state.trackIndex].src, state.title, state.trackIndex, true, state.position);
+        devLog('[resume] track resume', { title: trackMatch.track.title, positionSeconds: state.positionSeconds });
+        selectTrack(trackMatch.track.src, trackMatch.track.title, trackMatch.trackIndex, true, state.positionSeconds);
       };
 
       resumeToastAction.addEventListener('click', handleResume);
+      resumeToastAction.addEventListener('pointerup', handleResume);
       resumeToastDismiss.addEventListener('click', handleDismiss);
+      resumeToastDismiss.addEventListener('pointerup', handleDismiss);
     }
 
     function loadLyrics(url) {
@@ -2972,9 +3208,7 @@ function applyTrackUiState(albumIndex, trackIndex) {
     trackYear.textContent = `Release Year: ${year || 'Unknown'}`;
     trackAlbum.textContent = `Album: ${album.name}`;
     updateAsaNote(track.culturalNote);
-    if (liveRadioBadge) {
-      liveRadioBadge.hidden = !(track.isLive || track.sourceType === 'stream');
-    }
+    syncLiveRadioBadge(track?.src);
     albumCover.src = album.cover;
     loadLyrics(track.lrc);
     document.getElementById('progressBar').style.display = 'block';
@@ -3227,6 +3461,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) 
         },
         onError: () => handlePlaybackError()
       });
+      schedulePlayerStateSave(true);
 
       // Begin playback immediately after the user selects a track instead of waiting for
       // metadata events. The autoplay safeguards in handleAudioLoad will keep the state
@@ -3254,9 +3489,7 @@ function selectRadio(src, title, index, logo) {
       const station = radioStations[index];
       currentRadioIndex = index;
       updateAsaNote(null);
-      if (liveRadioBadge) {
-        liveRadioBadge.hidden = false;
-      }
+      syncLiveRadioBadge(src);
       if (window.AriyoSeo) {
         window.AriyoSeo.updateStructuredDataForPlayback({ type: 'radio', station });
       }
@@ -3316,6 +3549,7 @@ function selectRadio(src, title, index, logo) {
         live: true,
         isInitialLoad: true
       });
+      schedulePlayerStateSave(true);
       attemptPlay();
       updateMediaSession();
       showNowPlayingToast(title);
@@ -3615,11 +3849,8 @@ function selectRadio(src, title, index, logo) {
     }
 
     function shouldSpinVinyl() {
-      const readyState = typeof HTMLMediaElement !== 'undefined'
-        ? HTMLMediaElement.HAVE_CURRENT_DATA
-        : 2;
-      const hasAudibleState = (audioPlayer.currentTime || 0) > 0 || audioPlayer.readyState >= readyState;
-      return playbackStatus === PlaybackStatus.playing && !audioPlayer.paused && !audioPlayer.ended && hasAudibleState;
+      const isBuffering = playbackStatus === PlaybackStatus.preparing || playbackStatus === PlaybackStatus.buffering;
+      return playbackStatus === PlaybackStatus.playing && !audioPlayer.paused && !audioPlayer.ended && !isBuffering;
     }
 
     function manageVinylRotation() {
@@ -3627,7 +3858,7 @@ function selectRadio(src, title, index, logo) {
       setTurntableSpin(shouldSpin);
       if (lastSpinState !== shouldSpin) {
         lastSpinState = shouldSpin;
-        console.info('[vinyl] spin', { active: shouldSpin });
+        devLog('[vinyl] spin', { active: shouldSpin });
       }
     }
 
@@ -3793,6 +4024,7 @@ function updateTrackTime() {
     if (currentRadioIndex >= 0) {
       trackDuration.textContent = `${formatTime(currentTime)} / Live`;
       seekBar.style.display = 'none'; // hide seekbar for radio
+      schedulePlayerStateSave();
       recordPlaybackProgress(currentTime);
       return;
     }
@@ -4021,13 +4253,15 @@ function switchTrack(direction, isAuto = false) {
         updateNextTrackInfo();
       }
     } else { // No shuffle
-      const trackCount = albums[currentAlbumIndex].tracks.length;
-      currentTrackIndex = (currentTrackIndex + direction + trackCount) % trackCount;
-      selectTrack(
-        albums[currentAlbumIndex].tracks[currentTrackIndex].src,
-        albums[currentAlbumIndex].tracks[currentTrackIndex].title,
-        currentTrackIndex
-      );
+      const target = getAlbumContinuationTarget(direction);
+      if (target) {
+        currentTrackIndex = target.trackIndex;
+        selectTrack(
+          target.track.src,
+          target.track.title,
+          target.trackIndex
+        );
+      }
     }
   }
 
