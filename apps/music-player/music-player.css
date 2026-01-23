@@ -809,3 +809,14 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner,
+  .turntable-disc.spin,
+  .album-cover.spin,
+  .turntable-grooves.spin,
+  .album-groove-overlay.spin,
+  .turntable-sheen.spin {
+    animation: none !important;
+  }
+}

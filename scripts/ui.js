@@ -18,6 +18,42 @@ function calculateAlbumDuration(album) {
   return Promise.all(promises).then(durations => durations.reduce((a, b) => a + b, 0));
 }
 
+function prefersReducedMotion() {
+  return typeof window !== 'undefined'
+    && typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function animateModalIn(modalContent) {
+  if (!modalContent) return;
+  if (prefersReducedMotion() || typeof gsap === 'undefined') {
+    modalContent.style.opacity = '1';
+    modalContent.style.transform = 'translateY(0) scale(1)';
+    return;
+  }
+
+  gsap.fromTo(modalContent,
+    { scale: 0.8, opacity: 0, y: 50 },
+    { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+  );
+}
+
+function animateModalOut(modalContent, onComplete) {
+  if (!modalContent) return;
+  if (prefersReducedMotion() || typeof gsap === 'undefined') {
+    modalContent.style.opacity = '0';
+    modalContent.style.transform = 'translateY(20px) scale(0.96)';
+    if (typeof onComplete === 'function') {
+      onComplete();
+    }
+    return;
+  }
+
+  gsap.to(modalContent,
+    { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", onComplete }
+  );
+}
+
 function populateAlbumList() {
   const albumList = document.querySelector('.album-list');
   if (!albumList) return;
@@ -103,26 +139,13 @@ function openAlbumList() {
 
       modal.style.display = 'flex';
 
-      gsap.fromTo(modalContent,
-        { scale: 0.8, opacity: 0, y: 50 },
-        {
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out"
-        }
-      );
+      animateModalIn(modalContent);
       console.log('Album list opened, animating...');
     }
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
-      gsap.to(modal.querySelector('.modal-content'),
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
-          onComplete: () => { modal.style.display = 'none'; }
-        }
-      );
+      animateModalOut(modal.querySelector('.modal-content'), () => { modal.style.display = 'none'; });
       console.log('Album list closed');
     }
 
@@ -135,10 +158,7 @@ function openAlbumList() {
           updateTrackListModal(true);
         });
       }
-      gsap.fromTo(modal.querySelector('.modal-content'),
-        { scale: 0.8, opacity: 0, y: 50 },
-        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
-      );
+      animateModalIn(modal.querySelector('.modal-content'));
       console.log('Track list opened');
     }
 
@@ -150,11 +170,7 @@ function openAlbumList() {
         console.log('Track list closed (immediate)');
         return;
       }
-      gsap.to(modal.querySelector('.modal-content'),
-        { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in",
-          onComplete: () => { modal.style.display = 'none'; }
-        }
-      );
+      animateModalOut(modal.querySelector('.modal-content'), () => { modal.style.display = 'none'; });
       pendingAlbumIndex = null;
       console.log('Track list closed');
     }
@@ -213,16 +229,7 @@ function openAlbumList() {
 
       modal.style.display = 'flex';
 
-      gsap.fromTo(modalContent,
-        { scale: 0.8, opacity: 0, y: 50 },
-        {
-          scale: 1,
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out"
-        }
-      );
+      animateModalIn(modalContent);
       console.log('Radio list opened, animating...');
     }
 

@@ -25,6 +25,14 @@
   <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
   <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
   <title>Àríyò AI - Smart Naija AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <script>
     (function() {
       const hideBootSpinner = () => {
@@ -1413,13 +1421,13 @@
   </div>
   <div class="header">
     <div class="header-brand">
-      <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" />
+      <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" width="64" height="64" />
       <div class="header-titles">
         <span class="header-title">Àríyò AI Studio</span>
       </div>
     </div>
     <div class="header-actions">
-      <button class="share-button" aria-label="Share this page" onclick="shareContent()">
+      <button class="share-button" aria-label="Share this page" onclick="openShareMenu()">
         <i class="fas fa-share-alt" aria-hidden="true"></i>
       </button>
       <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
@@ -1484,6 +1492,8 @@
                     class="album-cover"
                     src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
                     alt="Album Cover"
+                    width="320"
+                    height="320"
                     onerror="this.onerror=null;this.src='Logo.jpg';"
                   />
                   <span class="album-groove-overlay" aria-hidden="true"></span>
@@ -1533,6 +1543,16 @@
               <div id="progressBarFill"></div>
             </div>
             <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
+            <div class="track-provenance" aria-live="polite">
+              <span id="liveRadioBadge" class="provenance-chip" hidden>Live radio</span>
+            </div>
+            <div id="asaNote" class="asa-note" aria-live="polite" hidden>
+              <p class="asa-note__eyebrow">Àṣà Note</p>
+              <div class="asa-note__body">
+                <span id="asaNoteYo" class="asa-note__line"></span>
+                <span id="asaNoteEn" class="asa-note__line"></span>
+              </div>
+            </div>
             <div class="player-meta-grid">
               <p class="track-details" id="trackArtist">Artist:</p>
               <p class="track-details" id="trackYear">Release Year: Unknown</p>
@@ -1540,6 +1560,14 @@
               <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
               <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p>
               <p id="nextTrackInfo" class="track-details" style="font-style: italic;"></p>
+              <div id="nextTrackReasonRow" class="track-reason-row" hidden>
+                <span id="nextTrackReason" class="track-reason-label"></span>
+                <span id="aiCuratedBadge" class="provenance-chip" hidden>AI-curated</span>
+              </div>
+            </div>
+            <div id="playbackStatusBanner" class="playback-status-banner" role="status" aria-live="polite" aria-atomic="true" hidden>
+              <span id="playbackStatusMessage"></span>
+              <button id="playbackRetryButton" type="button" class="status-retry-button" aria-label="Retry playback" hidden>Retry</button>
             </div>
             <input
               type="range"
@@ -1612,7 +1640,10 @@
   <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
   <div class="modal-content">
     <button class="close ripple shockwave" role="button" aria-label="Close radio list" onclick="requestCloseRadioList('close-button')">×</button>
-    <h3 id="radioModalTitle" class="modal-title">Choose A Radio Station</h3>
+    <div class="modal-title-row">
+      <h3 id="radioModalTitle" class="modal-title">Choose A Radio Station</h3>
+      <span class="provenance-chip">Live radio</span>
+    </div>
     <!-- Group: Nigeria -->
     <h4 class="radio-region-header">Nigeria</h4>
     <div id="nigeria-stations" class="radio-list"></div>
@@ -1797,6 +1828,24 @@
 </div>
 
 <!-- Share QR Code Modal -->
+  <div id="shareOptionsModal" class="share-options-modal" role="dialog" aria-modal="true" aria-labelledby="shareOptionsTitle" hidden>
+    <div class="share-options-content">
+      <button class="popup-close ripple shockwave" aria-label="Close share options" onclick="closeShareMenu()">×</button>
+      <h3 id="shareOptionsTitle" class="modal-title">Share this vibe</h3>
+      <p class="modal-tagline">Pick your share format:</p>
+      <div class="share-options-actions">
+        <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: false })">
+          <span class="badge-button__icon" aria-hidden="true">🔗</span>
+          <span class="badge-button__label">Standard share</span>
+        </button>
+        <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: true })">
+          <span class="badge-button__icon" aria-hidden="true">🪄</span>
+          <span class="badge-button__label">Share with Proverb card</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="qrModal" class="qr-modal" role="dialog" aria-labelledby="qrTitle" aria-modal="true">
     <div class="qr-content">
       <button class="popup-close ripple shockwave" aria-label="Close QR Code" onclick="closeQRModal()">×</button>
@@ -1809,6 +1858,16 @@
 
 <!-- 🎧 Now Playing Toast -->
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
+  <div id="resumeToast" class="resume-toast" role="dialog" aria-live="polite" aria-label="Resume playback prompt" hidden>
+    <div class="resume-toast__content">
+      <p class="resume-toast__title" id="resumeToastTitle">Resume where you left off?</p>
+      <p class="resume-toast__copy" id="resumeToastCopy"></p>
+    </div>
+    <div class="resume-toast__actions">
+      <button type="button" id="resumeToastAction" class="badge-button">Resume</button>
+      <button type="button" id="resumeToastDismiss" class="badge-button badge-button--ghost">Dismiss</button>
+    </div>
+  </div>
 
   <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
     <div class="notification-toast__content">
@@ -1831,6 +1890,10 @@
   <script src="scripts/data-lite.js" defer></script>
   <script src="scripts/data-loader.js" defer></script>
   <script src="scripts/suno-audio-fallback.js" defer></script>
+  <script src="scripts/idle-utils.js" defer></script>
+  <script src="scripts/proverb-utils.js" defer></script>
+  <script src="scripts/player-state-utils.js" defer></script>
+  <script src="scripts/seo.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js" defer></script>
   <script src="scripts/audio-recovery-utils.js" defer></script>
   <script src="scripts/player.js" defer></script>

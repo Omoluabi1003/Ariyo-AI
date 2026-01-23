@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Àríyò AI share card" />
+  <meta property="og:title" content="Àríyò AI share card" />
+  <meta property="og:description" content="Cultural proverb share card" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
+  <title>Àríyò AI Share Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --card-bg: #0b0b12;
+      --card-accent: #8E5BFF;
+      --card-text: #f9fafb;
+      --card-muted: rgba(255, 255, 255, 0.68);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      background: radial-gradient(circle at top, #1d1d33, #030306 70%);
+      color: var(--card-text);
+      padding: 1.5rem;
+    }
+    .share-card {
+      width: min(720px, 96vw);
+      background: var(--card-bg);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .share-card__eyebrow {
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--card-accent);
+      font-size: 0.75rem;
+    }
+    .share-card__title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      margin: 0;
+    }
+    .share-card__subtitle {
+      margin: 0;
+      color: var(--card-muted);
+      font-size: 0.95rem;
+    }
+    .share-card__proverb {
+      padding: 1.2rem 1.4rem;
+      border-radius: 18px;
+      background: rgba(142, 91, 255, 0.12);
+      border: 1px solid rgba(142, 91, 255, 0.35);
+      display: grid;
+      gap: 0.65rem;
+      font-size: 1.05rem;
+    }
+    .share-card__proverb span {
+      display: block;
+    }
+    .share-card__proverb span:last-child {
+      color: var(--card-muted);
+      font-size: 0.95rem;
+    }
+    .share-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--card-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="share-card" role="main">
+    <div>
+      <p class="share-card__eyebrow" id="shareCardHeading">Proverb of the Day</p>
+      <h1 class="share-card__title" id="shareCardTitle">Àríyò AI</h1>
+      <p class="share-card__subtitle" id="shareCardSubtitle">Cultural note spotlight</p>
+    </div>
+    <div class="share-card__proverb" aria-live="polite">
+      <span id="proverbYo"></span>
+      <span id="proverbEn"></span>
+    </div>
+    <div class="share-card__footer">
+      <span>Àríyò AI</span>
+      <span id="shareCardSource"></span>
+    </div>
+  </main>
+  <script src="scripts/data-lite.js"></script>
+  <script src="scripts/proverb-utils.js"></script>
+  <script src="scripts/share-card.js"></script>
+</body>
+</html>
