@@ -2185,11 +2185,16 @@ function removeTrackFromPlaylist(index) {
             }
             return `“${track.title}” from ${track.albumName}`;
           });
+          const hasFreshDrops = displayTracks.some(track => track.isFreshDrop);
           const intro = albumHighlights.length
-            ? `New in ${albumName}`
-            : trackMentions.length === 1
-              ? 'Latest arrival on Àríyò AI'
-              : 'Latest arrivals across Àríyò AI';
+            ? hasFreshDrops
+              ? `Fresh Drops in ${albumName}`
+              : `New in ${albumName}`
+            : hasFreshDrops
+              ? 'Fresh Drops'
+              : trackMentions.length === 1
+                ? 'Latest arrival on Àríyò AI'
+                : 'Latest arrivals across Àríyò AI';
           const landingVerb = trackMentions.length === 1 ? 'just landed' : 'have just landed';
           const actionPrompt = trackMentions.length === 1
             ? 'Tap the button below to play instantly.'
@@ -2197,9 +2202,7 @@ function removeTrackFromPlaylist(index) {
           const announcementCopy = trackMentions.length
             ? `${intro}: ${formatList(trackMentions)} ${landingVerb}. ${actionPrompt}`
             : '';
-          const newsNote = 'Àríyò AI Media Studio now streams Naija Vibe News alongside your playlists—open the news panel for fresh headlines.';
-          const combinedCopy = [announcementCopy.trim(), newsNote].filter(Boolean).join(' ');
-          bannerCopy.textContent = combinedCopy.trim();
+          bannerCopy.textContent = announcementCopy.trim();
           latestTracks.forEach(track => {
             const button = document.createElement('button');
             button.type = 'button';
@@ -2225,17 +2228,6 @@ function removeTrackFromPlaylist(index) {
             });
             bannerActions.appendChild(button);
           });
-          const newsButton = document.createElement('button');
-          newsButton.type = 'button';
-          newsButton.className = 'latest-track-button';
-          newsButton.textContent = '📰 Open Naija Vibe News';
-          newsButton.setAttribute('aria-label', 'Open the Naija Vibe News panel');
-          newsButton.addEventListener('click', () => {
-            if (typeof window.openPanel === 'function') {
-              window.openPanel('news-section');
-            }
-          });
-          bannerActions.appendChild(newsButton);
           banner.hidden = false;
         } else {
           banner.hidden = true;
@@ -2270,12 +2262,19 @@ function removeTrackFromPlaylist(index) {
 
         const item = document.createElement('div');
         item.className = 'track-item';
-        item.addEventListener('click', () => {
-          currentAlbumIndex = albumIndex;
-          pendingAlbumIndex = null;
-          closeTrackList(true);
-          selectTrack(track.src, track.title, index);
-        });
+        const externalUrl = track.shareUrl || track.sourceUrl || track.externalUrl;
+        const hasPlayableSrc = Boolean(track.src);
+        if (hasPlayableSrc) {
+          item.addEventListener('click', () => {
+            currentAlbumIndex = albumIndex;
+            pendingAlbumIndex = null;
+            closeTrackList(true);
+            selectTrack(track.src, track.title, index);
+          });
+        } else {
+          item.classList.add('track-item-disabled');
+          item.setAttribute('aria-disabled', 'true');
+        }
 
         const textWrapper = document.createElement('div');
         textWrapper.className = 'track-text';
@@ -2307,6 +2306,16 @@ function removeTrackFromPlaylist(index) {
         }
 
         item.appendChild(textWrapper);
+        if (!hasPlayableSrc && externalUrl) {
+          const externalCta = document.createElement('a');
+          externalCta.className = 'track-external-link';
+          externalCta.href = externalUrl;
+          externalCta.target = '_blank';
+          externalCta.rel = 'noopener noreferrer';
+          externalCta.textContent = 'Listen on Suno';
+          externalCta.addEventListener('click', event => event.stopPropagation());
+          item.appendChild(externalCta);
+        }
 
         const actions = document.createElement('div');
         actions.className = 'track-actions';
