@@ -17,7 +17,7 @@
     if (!state || typeof state !== 'object') return false;
     const hasTrackId = typeof state.trackId === 'string' && state.trackId.trim().length > 0;
     const hasTitle = typeof state.title === 'string' && state.title.trim().length > 0;
-    const hasPosition = Number.isFinite(state.position) && state.position > 0;
+    const hasPosition = Number.isFinite(state.position) && state.position >= 0;
     const hasAlbumIndex = Number.isInteger(state.albumIndex) && state.albumIndex >= 0 && state.albumIndex < albums.length;
     const album = hasAlbumIndex ? albums[state.albumIndex] : null;
     const hasTrackIndex = Number.isInteger(state.trackIndex)

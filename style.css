@@ -2111,6 +2111,13 @@ body[data-theme="light"] .edge-panel-privacy a {
 
 .track-reason-label {
     flex: 1;
+    background: transparent;
+    border: none;
+    color: inherit;
+    padding: 0;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
 }
 
 .playback-status-banner {

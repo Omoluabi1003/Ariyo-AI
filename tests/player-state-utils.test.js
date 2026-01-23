@@ -32,6 +32,7 @@ describe('player state utils', () => {
       title: 'Locked Away'
     };
     expect(isValidResumeState(valid, albums)).toBe(true);
-    expect(isValidResumeState({ ...valid, position: 0 }, albums)).toBe(false);
+    expect(isValidResumeState({ ...valid, position: 0 }, albums)).toBe(true);
+    expect(isValidResumeState({ ...valid, position: -1 }, albums)).toBe(false);
   });
 });

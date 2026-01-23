@@ -870,12 +870,23 @@
 
       const savedState = loadPlayerState();
       if (savedState) {
-        currentAlbumIndex = savedState.albumIndex;
-        currentTrackIndex = savedState.trackIndex;
-        currentRadioIndex = savedState.radioIndex;
-        // shuffleMode = savedState.shuffleMode; // This line is updated below
-        if (currentRadioIndex >= 0) {
-          const station = radioStations[currentRadioIndex];
+        const resumeTime = Number.isFinite(savedState.positionSeconds)
+          ? savedState.positionSeconds
+          : savedState.playbackPosition;
+        const resumeMode = savedState.mode === 'radio' || savedState.radioIndex >= 0;
+        let resolvedRadioIndex = resumeMode ? savedState.radioIndex : -1;
+
+        if (resumeMode && resolvedRadioIndex < 0 && savedState.stationId) {
+          resolvedRadioIndex = radioStations.findIndex(station => slugify(station.name) === savedState.stationId);
+        }
+        if (resumeMode && resolvedRadioIndex < 0 && savedState.srcUrl) {
+          const normalizedResumeUrl = normalizeMediaSrc(savedState.srcUrl) || savedState.srcUrl;
+          resolvedRadioIndex = radioStations.findIndex(station => normalizeMediaSrc(station.url) === normalizedResumeUrl);
+        }
+
+        if (resumeMode && resolvedRadioIndex >= 0) {
+          currentRadioIndex = resolvedRadioIndex;
+          const station = radioStations[resolvedRadioIndex];
           albumCover.src = station.logo;
           const normalizedStationUrl = normalizeMediaSrc(station.url);
           const streamUrl = buildTrackFetchUrl(normalizedStationUrl, { sourceType: 'stream', forceProxy: true });
@@ -887,13 +898,20 @@
           trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
           handleAudioLoad(streamUrl, `${station.name} - ${station.location}`, true, {
             autoPlay: false,
-            resumeTime: savedState.playbackPosition,
+            resumeTime: 0,
             onReady: () => {
               updateTrackTime();
               manageVinylRotation();
             }
           });
         } else {
+          currentRadioIndex = -1;
+          currentAlbumIndex = Number.isInteger(savedState.albumIndex) && savedState.albumIndex >= 0
+            ? savedState.albumIndex
+            : 0;
+          currentTrackIndex = Number.isInteger(savedState.trackIndex) && savedState.trackIndex >= 0
+            ? savedState.trackIndex
+            : 0;
           albumCover.src = albums[currentAlbumIndex].cover;
           const track = albums[currentAlbumIndex].tracks[currentTrackIndex];
           applyTrackUiState(currentAlbumIndex, currentTrackIndex);
@@ -902,7 +920,7 @@
           audioHealer.trackSource(streamUrl, track.title, { live: false });
           handleAudioLoad(streamUrl, track.title, false, {
             autoPlay: false,
-            resumeTime: savedState.playbackPosition,
+            resumeTime,
             onReady: () => {
               updateTrackTime();
               manageVinylRotation();
