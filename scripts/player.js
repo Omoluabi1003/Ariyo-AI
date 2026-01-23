@@ -4096,11 +4096,7 @@ function selectRadio(src, title, index, logo) {
     }
 
     function shouldSpinVinyl() {
-      const readyState = typeof HTMLMediaElement !== 'undefined'
-        ? HTMLMediaElement.HAVE_CURRENT_DATA
-        : 2;
-      const hasAudibleState = (audioPlayer.currentTime || 0) > 0 || audioPlayer.readyState >= readyState;
-      return !audioPlayer.paused && !audioPlayer.ended && hasAudibleState;
+      return !audioPlayer.paused && !audioPlayer.ended;
     }
 
     function manageVinylRotation() {
