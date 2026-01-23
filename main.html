@@ -1828,23 +1828,25 @@
 </div>
 
 <!-- Share QR Code Modal -->
-  <div id="shareOptionsModal" class="share-options-modal" role="dialog" aria-modal="true" aria-labelledby="shareOptionsTitle" hidden>
-    <div class="share-options-content">
-      <button class="popup-close ripple shockwave" aria-label="Close share options" onclick="closeShareMenu()">×</button>
-      <h3 id="shareOptionsTitle" class="modal-title">Share this vibe</h3>
-      <p class="modal-tagline">Pick your share format:</p>
-      <div class="share-options-actions">
-        <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: false })">
-          <span class="badge-button__icon" aria-hidden="true">🔗</span>
-          <span class="badge-button__label">Standard share</span>
-        </button>
-        <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: true })">
-          <span class="badge-button__icon" aria-hidden="true">🪄</span>
-          <span class="badge-button__label">Share with Proverb card</span>
-        </button>
+  <template id="shareOptionsTemplate">
+    <div id="shareOptionsModal" class="share-options-modal" role="dialog" aria-modal="true" aria-labelledby="shareOptionsTitle">
+      <div class="share-options-content">
+        <button class="popup-close ripple shockwave" aria-label="Close share options" onclick="closeShareMenu()">×</button>
+        <h3 id="shareOptionsTitle" class="modal-title">Share this vibe</h3>
+        <p class="modal-tagline">Pick your share format:</p>
+        <div class="share-options-actions">
+          <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: false })">
+            <span class="badge-button__icon" aria-hidden="true">🔗</span>
+            <span class="badge-button__label">Standard share</span>
+          </button>
+          <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: true })">
+            <span class="badge-button__icon" aria-hidden="true">🪄</span>
+            <span class="badge-button__label">Share with Proverb card</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </template>
 
   <div id="qrModal" class="qr-modal" role="dialog" aria-labelledby="qrTitle" aria-modal="true">
     <div class="qr-content">

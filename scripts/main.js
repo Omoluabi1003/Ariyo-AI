@@ -124,9 +124,14 @@
 
     /* SHARE BUTTON (Web Share API) */
     function openShareMenu() {
-      const modal = document.getElementById('shareOptionsModal');
+      let modal = document.getElementById('shareOptionsModal');
+      if (!modal) {
+        const template = document.getElementById('shareOptionsTemplate');
+        if (!template || !template.content) return;
+        document.body.appendChild(template.content.cloneNode(true));
+        modal = document.getElementById('shareOptionsModal');
+      }
       if (!modal) return;
-      modal.hidden = false;
       const firstAction = modal.querySelector('.share-options-actions button');
       if (firstAction) {
         firstAction.focus();
@@ -136,7 +141,7 @@
     function closeShareMenu() {
       const modal = document.getElementById('shareOptionsModal');
       if (!modal) return;
-      modal.hidden = true;
+      modal.remove();
     }
 
     function getPlaybackCulturalNote(playbackContext) {

@@ -2139,12 +2139,13 @@ body[data-theme="light"] .edge-panel-privacy a {
 .share-options-modal {
     position: fixed;
     inset: 0;
-    z-index: 1005;
+    z-index: 9998;
     background: rgba(0, 0, 0, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    pointer-events: auto;
 }
 
 .share-options-content {
@@ -2156,6 +2157,12 @@ body[data-theme="light"] .edge-panel-privacy a {
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
     display: grid;
     gap: 1rem;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    pointer-events: auto;
 }
 
 .share-options-actions {
