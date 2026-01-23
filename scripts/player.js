@@ -255,6 +255,14 @@
     const asaNote = document.getElementById('asaNote');
     const asaNoteYo = document.getElementById('asaNoteYo');
     const asaNoteEn = document.getElementById('asaNoteEn');
+    let asaNoteAttribution = document.getElementById('asaNoteAttribution');
+    if (asaNote && !asaNoteAttribution) {
+      asaNoteAttribution = document.createElement('div');
+      asaNoteAttribution.id = 'asaNoteAttribution';
+      asaNoteAttribution.style.fontSize = '0.75rem';
+      asaNoteAttribution.style.opacity = '0.8';
+      asaNote.appendChild(asaNoteAttribution);
+    }
     const nextTrackReasonRow = document.getElementById('nextTrackReasonRow');
     const nextTrackReason = document.getElementById('nextTrackReason');
     const aiCuratedBadge = document.getElementById('aiCuratedBadge');
@@ -305,6 +313,9 @@ const asaRotationRangeMs = {
 let asaRotationTimer = null;
 let asaRotationIndex = 0;
 let asaRotationLines = [];
+let asaNoteLastResponse = null;
+let asaNoteLastSeed = null;
+let asaNoteRequestId = 0;
 let lastSaveStatusAt = 0;
 const resumePromptState = {
   storageKey: 'ariyoResumePromptShown',
@@ -806,39 +817,109 @@ function scheduleAsaRotation() {
   }, interval);
 }
 
-function updateAsaNote(culturalNote) {
+/*
+type AsaNoteResponse = {
+  proverb_text: string;
+  author: string;
+  source: "ZenQuotes" | "Local";
+  attribution_html: string;
+};
+
+async function loadAsaNote(seed?: string): Promise<AsaNoteResponse> {
+  const qs = new URLSearchParams({ mode: "random" });
+  if (seed) qs.set("seed", seed);
+  const r = await fetch(`/api/asa-note?${qs.toString()}`);
+  if (!r.ok) throw new Error("asa-note fetch failed");
+  return (await r.json()) as AsaNoteResponse;
+}
+*/
+/**
+ * @typedef {Object} AsaNoteResponse
+ * @property {string} proverb_text
+ * @property {string} author
+ * @property {"ZenQuotes"|"Local"} source
+ * @property {string} attribution_html
+ */
+
+async function loadAsaNote(seed) {
+  const qs = new URLSearchParams({ mode: 'random' });
+  if (seed) qs.set('seed', seed);
+  const r = await fetch(`/api/asa-note?${qs.toString()}`);
+  if (!r.ok) throw new Error('asa-note fetch failed');
+  return await r.json();
+}
+
+/*
+<div>{asaNote.proverb_text}</div>
+<div>{asaNote.author}</div>
+
+{asaNote.source === "ZenQuotes" && asaNote.attribution_html ? (
+  <div
+    style={{ fontSize: "0.75rem", opacity: 0.8 }}
+    dangerouslySetInnerHTML={{ __html: asaNote.attribution_html }}
+  />
+) : null}
+*/
+function renderAsaNote(asaNoteData) {
   if (!asaNote || !asaNoteYo || !asaNoteEn) return;
-  const hasNote = culturalNote && typeof culturalNote.yo === 'string' && typeof culturalNote.en === 'string';
-  if (!hasNote) {
-    asaNote.hidden = true;
-    asaRotationLines = [];
-    clearAsaRotation();
-    return;
-  }
-
-  const yo = culturalNote.yo.trim();
-  const en = culturalNote.en.trim();
-  if (!yo || !en) {
-    asaNote.hidden = true;
-    asaRotationLines = [];
-    clearAsaRotation();
-    return;
-  }
-
   asaNote.hidden = false;
-  asaRotationLines = [yo, en];
+  asaRotationLines = [];
+  clearAsaRotation();
+  asaNoteYo.textContent = asaNoteData.proverb_text;
+  asaNoteEn.textContent = asaNoteData.author;
+  if (asaNoteAttribution) {
+    const showAttribution = asaNoteData.source === 'ZenQuotes' && asaNoteData.attribution_html;
+    if (showAttribution) {
+      asaNoteAttribution.innerHTML = asaNoteData.attribution_html;
+      asaNoteAttribution.style.display = 'block';
+    } else {
+      asaNoteAttribution.innerHTML = '';
+      asaNoteAttribution.style.display = 'none';
+    }
+  }
+}
 
-  if (prefersReducedMotion()) {
-    clearAsaRotation();
-    asaNoteYo.textContent = yo;
-    asaNoteEn.textContent = en;
-    return;
+function updateAsaNote(seed) {
+  if (!asaNote || !asaNoteYo || !asaNoteEn) return;
+  const normalizedSeed = typeof seed === 'string' && seed.trim() ? seed : undefined;
+
+  if (asaNoteLastResponse) {
+    renderAsaNote(asaNoteLastResponse);
+  } else {
+    asaNote.hidden = false;
+    asaNoteYo.textContent = 'Loading Àṣà Note...';
+    asaNoteEn.textContent = '';
+    if (asaNoteAttribution) {
+      asaNoteAttribution.innerHTML = '';
+      asaNoteAttribution.style.display = 'none';
+    }
   }
 
-  asaRotationIndex = 0;
-  asaNoteYo.textContent = yo;
-  asaNoteEn.textContent = '';
-  scheduleAsaRotation();
+  if (asaNoteLastSeed === normalizedSeed && asaNoteLastResponse) {
+    return;
+  }
+  asaNoteLastSeed = normalizedSeed;
+  const requestId = ++asaNoteRequestId;
+
+  loadAsaNote(normalizedSeed)
+    .then(value => {
+      if (requestId !== asaNoteRequestId) return;
+      asaNoteLastResponse = value;
+      renderAsaNote(value);
+    })
+    .catch(() => {
+      if (requestId !== asaNoteRequestId) return;
+      if (asaNoteLastResponse) {
+        renderAsaNote(asaNoteLastResponse);
+        return;
+      }
+      renderAsaNote({
+        proverb_text: 'Stay ready so you never have to get ready.',
+        author: 'Proverb',
+        source: 'Local',
+        attribution_html: ''
+      });
+    });
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -2971,7 +3052,8 @@ function applyTrackUiState(albumIndex, trackIndex) {
     const year = track.releaseYear ?? album.releaseYear ?? null;
     trackYear.textContent = `Release Year: ${year || 'Unknown'}`;
     trackAlbum.textContent = `Album: ${album.name}`;
-    updateAsaNote(track.culturalNote);
+    const asaNoteSeed = track.id ? track.id : (track.title ? slugifyLabel(track.title) : undefined);
+    updateAsaNote(asaNoteSeed);
     if (liveRadioBadge) {
       liveRadioBadge.hidden = !(track.isLive || track.sourceType === 'stream');
     }
@@ -3253,7 +3335,7 @@ function selectRadio(src, title, index, logo) {
       setPendingRadioSelection({ index, title, src });
       const station = radioStations[index];
       currentRadioIndex = index;
-      updateAsaNote(null);
+      updateAsaNote();
       if (liveRadioBadge) {
         liveRadioBadge.hidden = false;
       }
