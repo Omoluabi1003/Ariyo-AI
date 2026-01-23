@@ -1801,6 +1801,67 @@ function removeTrackFromPlaylist(index) {
       }
     }
 
+    function buildInternalTrackLink(album, track) {
+      if (!album || !track) return '';
+      try {
+        const target = new URL(window.location.href);
+        if (target.pathname.endsWith('/about.html')) {
+          target.pathname = target.pathname.replace(/about\.html$/, '/main.html');
+        } else if (target.pathname === '/' || target.pathname.endsWith('/index.html')) {
+          target.pathname = target.pathname.replace(/index\.html$/, 'main.html').replace(/\/$/, '/main.html');
+        }
+        target.search = '';
+        target.searchParams.set('album', slugify(album.name));
+        target.searchParams.set('track', slugify(track.title));
+        return target.toString();
+      } catch (error) {
+        return '';
+      }
+    }
+
+    function resolveTrackShareUrl(track, album) {
+      const explicit = track?.shareUrl;
+      if (explicit) {
+        try {
+          return new URL(explicit, window.location.origin).toString();
+        } catch (error) {
+          return explicit;
+        }
+      }
+      return buildInternalTrackLink(album, track);
+    }
+
+    function resolveTrackOpenUrl(track, album) {
+      const external = track?.sourceUrl || track?.externalUrl;
+      if (external) return external;
+      return resolveTrackShareUrl(track, album);
+    }
+
+    function isPlayableTrackSource(track) {
+      if (!track) return false;
+      if (track.isLive || track.sourceType === 'stream') return true;
+      const src = track.src || '';
+      return /\.(mp3|m4a|aac|ogg|wav|flac)(\?|$)/i.test(src);
+    }
+
+    function openTrackSource(track, album) {
+      const targetUrl = resolveTrackOpenUrl(track, album);
+      if (!targetUrl) return;
+      window.open(targetUrl, '_blank', 'noopener');
+    }
+
+    function shareTrackLink(track, album) {
+      const shareUrl = resolveTrackShareUrl(track, album);
+      if (!shareUrl) return;
+      const title = track?.title || 'Track';
+      const text = track?.artist ? `${title} by ${track.artist}` : title;
+      if (navigator.share) {
+        navigator.share({ title, text, url: shareUrl }).catch(() => {});
+        return;
+      }
+      window.open(shareUrl, '_blank', 'noopener');
+    }
+
     function updateTrackListModal(prefetchDurations = false) {
       const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
       const modal = document.getElementById('trackModal');
@@ -1866,11 +1927,13 @@ function removeTrackFromPlaylist(index) {
             }
             return `“${track.title}” from ${track.albumName}`;
           });
+          const uniqueBrands = new Set(displayTracks.map(track => track.artist).filter(Boolean));
+          const brandText = uniqueBrands.size === 1 ? ` from ${Array.from(uniqueBrands)[0]}` : '';
           const intro = albumHighlights.length
-            ? `New in ${albumName}`
+            ? `Fresh Drops${brandText} in ${albumName}`
             : trackMentions.length === 1
-              ? 'Latest arrival on Àríyò AI'
-              : 'Latest arrivals across Àríyò AI';
+              ? `Fresh Drop${brandText} on Àríyò AI`
+              : `Fresh Drops${brandText} on Àríyò AI`;
           const landingVerb = trackMentions.length === 1 ? 'just landed' : 'have just landed';
           const actionPrompt = trackMentions.length === 1
             ? 'Tap the button below to play instantly.'
@@ -1878,9 +1941,7 @@ function removeTrackFromPlaylist(index) {
           const announcementCopy = trackMentions.length
             ? `${intro}: ${formatList(trackMentions)} ${landingVerb}. ${actionPrompt}`
             : '';
-          const newsNote = 'Àríyò AI Media Studio now streams Naija Vibe News alongside your playlists—open the news panel for fresh headlines.';
-          const combinedCopy = [announcementCopy.trim(), newsNote].filter(Boolean).join(' ');
-          bannerCopy.textContent = combinedCopy.trim();
+          bannerCopy.textContent = announcementCopy.trim();
           latestTracks.forEach(track => {
             const button = document.createElement('button');
             button.type = 'button';
@@ -1899,6 +1960,11 @@ function removeTrackFromPlaylist(index) {
                 updateTrackListModal();
                 return;
               }
+              const selectedTrack = albums[albumIdx].tracks[trackIdx];
+              if (!isPlayableTrackSource(selectedTrack)) {
+                openTrackSource(selectedTrack, albums[albumIdx]);
+                return;
+              }
               currentAlbumIndex = albumIdx;
               pendingAlbumIndex = null;
               closeTrackList(true);
@@ -1906,17 +1972,6 @@ function removeTrackFromPlaylist(index) {
             });
             bannerActions.appendChild(button);
           });
-          const newsButton = document.createElement('button');
-          newsButton.type = 'button';
-          newsButton.className = 'latest-track-button';
-          newsButton.textContent = '📰 Open Naija Vibe News';
-          newsButton.setAttribute('aria-label', 'Open the Naija Vibe News panel');
-          newsButton.addEventListener('click', () => {
-            if (typeof window.openPanel === 'function') {
-              window.openPanel('news-section');
-            }
-          });
-          bannerActions.appendChild(newsButton);
           banner.hidden = false;
         } else {
           banner.hidden = true;
@@ -1942,6 +1997,7 @@ function removeTrackFromPlaylist(index) {
 
       visibleIndices.forEach(index => {
         const track = albums[albumIndex].tracks[index];
+        const canPlay = isPlayableTrackSource(track);
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration
           ? formatTime(track.duration)
@@ -1952,6 +2008,10 @@ function removeTrackFromPlaylist(index) {
         const item = document.createElement('div');
         item.className = 'track-item';
         item.addEventListener('click', () => {
+          if (!canPlay) {
+            openTrackSource(track, albums[albumIndex]);
+            return;
+          }
           currentAlbumIndex = albumIndex;
           pendingAlbumIndex = null;
           closeTrackList(true);
@@ -1992,6 +2052,34 @@ function removeTrackFromPlaylist(index) {
         const actions = document.createElement('div');
         actions.className = 'track-actions';
 
+        const hasShareData = track.shareUrl || track.sourceUrl || track.externalUrl;
+        const shareUrl = hasShareData ? resolveTrackShareUrl(track, albums[albumIndex]) : '';
+        const openUrl = hasShareData ? resolveTrackOpenUrl(track, albums[albumIndex]) : '';
+
+        if (hasShareData && shareUrl) {
+          const shareBtn = document.createElement('button');
+          shareBtn.type = 'button';
+          shareBtn.textContent = 'Share';
+          shareBtn.setAttribute('aria-label', `Share ${track.title}`);
+          shareBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shareTrackLink(track, albums[albumIndex]);
+          });
+          actions.appendChild(shareBtn);
+        }
+
+        if (hasShareData && openUrl) {
+          const openBtn = document.createElement('button');
+          openBtn.type = 'button';
+          openBtn.textContent = canPlay ? 'Open' : 'Listen on Suno';
+          openBtn.setAttribute('aria-label', `${canPlay ? 'Open' : 'Listen on Suno'} ${track.title}`);
+          openBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openTrackSource(track, albums[albumIndex]);
+          });
+          actions.appendChild(openBtn);
+        }
+
         if (albumIndex === playlistAlbumIndex) {
           const removeBtn = document.createElement('button');
           removeBtn.textContent = '✖';
@@ -2014,7 +2102,7 @@ function removeTrackFromPlaylist(index) {
         item.appendChild(actions);
         trackListContainer.appendChild(item);
 
-        if (shouldPrefetchDurations && !track.duration && !track.isLive) {
+        if (shouldPrefetchDurations && canPlay && !track.duration && !track.isLive) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
           const previewSrc = buildTrackFetchUrl(normalizeMediaSrc(track.src), track);
@@ -2638,7 +2726,7 @@ function applyTrackUiState(albumIndex, trackIndex) {
     lastTrackIndex = trackIndex;
 
     trackInfo.textContent = track.title;
-    const displayArtist = deriveTrackArtist(album.artist, track.title);
+    const displayArtist = deriveTrackArtist(track.artist || album.artist, track.title);
     trackArtist.textContent = `Artist: ${displayArtist}`;
     const year = track.releaseYear ?? album.releaseYear ?? null;
     trackYear.textContent = `Release Year: ${year || 'Unknown'}`;

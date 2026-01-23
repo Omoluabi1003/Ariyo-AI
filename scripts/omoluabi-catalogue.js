@@ -1,7 +1,26 @@
 (function (global) {
   const BASE_URL = './';
 
+  // Track fields: slug, title, src (audio), artist (optional), shareUrl (internal), sourceUrl (external), coverArt (optional).
   const OMOLUABI_TRACKS = [
+    {
+      slug: 'is-love-conditional',
+      title: 'Is Love Conditional',
+      artist: 'Omoluabi Productions',
+      src: 'https://cdn1.suno.ai/6c43cb2f-907e-488a-bc6d-cb8e582a189a.mp3',
+      shareUrl: '/main.html?album=omoluabi-production-catalogue&track=is-love-conditional',
+      sourceUrl: 'https://suno.com/s/MtLgCBp4MeCQcvIu',
+      coverArt: 'https://cdn2.suno.ai/image_6c43cb2f-907e-488a-bc6d-cb8e582a189a.jpeg'
+    },
+    {
+      slug: 'ostrich-effect',
+      title: 'Ostrich Effect',
+      artist: 'Omoluabi Productions',
+      src: 'https://cdn1.suno.ai/6447e1d2-2133-450a-aff8-536263dab07f.mp3',
+      shareUrl: '/main.html?album=omoluabi-production-catalogue&track=ostrich-effect',
+      sourceUrl: 'https://suno.com/s/MV51yVvEiROVD5zb',
+      coverArt: 'https://cdn2.suno.ai/image_6447e1d2-2133-450a-aff8-536263dab07f.jpeg'
+    },
     { slug: 'priapism', title: 'Priapism', src: 'https://cdn1.suno.ai/d9360744-21e6-4de3-a2ec-a2558d09abfe.mp3' },
     { slug: 'walk-away', title: 'Walk Away', src: 'https://cdn1.suno.ai/3fa09300-e923-40d8-a764-b2e48f5b1668.mp3' },
     { slug: 'flow-no-be-by-force', title: 'Flow No Be By Force', src: 'https://cdn1.suno.ai/33a016db-2740-4021-85a5-98ede3ac79fb.mp3' },
@@ -88,6 +107,8 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    { albumName: 'Omoluabi Production Catalogue', slug: 'is-love-conditional', addedOn: '2026-02-01T09:10:00Z', isFreshDrop: true },
+    { albumName: 'Omoluabi Production Catalogue', slug: 'ostrich-effect', addedOn: '2026-02-01T09:05:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'flow-no-be-by-force', addedOn: '2026-01-20T23:19:09Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'priapism', addedOn: '2026-01-13T23:00:00Z', isFreshDrop: true },
     { albumName: 'Omoluabi Production Catalogue', slug: 'walk-away', addedOn: '2026-01-13T23:00:00Z', isFreshDrop: true },
