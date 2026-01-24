@@ -41,26 +41,28 @@
         ended,
         waiting,
         readyState,
-        reducedMotion
+        reducedMotion,
+        isPlaying
       } = {}) => {
         const minimumReadyState = typeof HTMLMediaElement !== 'undefined'
           ? HTMLMediaElement.HAVE_CURRENT_DATA
           : 2;
         if (reducedMotion) return false;
         if (paused || ended) return false;
-        if (waiting) return false;
-        if (Number.isFinite(readyState) && readyState < minimumReadyState) return false;
+        if (waiting && !isPlaying) return false;
+        if (Number.isFinite(readyState) && readyState < minimumReadyState && !isPlaying) return false;
         return true;
       },
       deriveVinylSpinState: (audioElement, options = {}) => {
         if (!audioElement) return false;
-        const { waiting = false, reducedMotion = false } = options;
+        const { waiting = false, reducedMotion = false, isPlaying = false } = options;
         return fallbackVinylStateUtils.shouldVinylSpin({
           paused: audioElement.paused,
           ended: audioElement.ended,
           waiting,
           readyState: audioElement.readyState,
-          reducedMotion
+          reducedMotion,
+          isPlaying
         });
       }
     };
@@ -3940,11 +3942,13 @@ function selectRadio(src, title, index, logo) {
     }
 
     function shouldSpinVinyl() {
+      const isPlaying = playbackStatus === PlaybackStatus.playing;
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
           waiting: vinylWaiting,
-          reducedMotion: prefersReducedMotion()
+          reducedMotion: prefersReducedMotion(),
+          isPlaying
         });
       }
       return resolveSpinState({
@@ -3952,7 +3956,8 @@ function selectRadio(src, title, index, logo) {
         ended: audioPlayer.ended,
         waiting: vinylWaiting,
         readyState: audioPlayer.readyState,
-        reducedMotion: prefersReducedMotion()
+        reducedMotion: prefersReducedMotion(),
+        isPlaying
       });
     }
 
