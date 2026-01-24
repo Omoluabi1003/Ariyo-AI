@@ -323,9 +323,6 @@
       asaNoteAttribution.style.opacity = '0.8';
       asaNote.appendChild(asaNoteAttribution);
     }
-    const nextTrackReasonRow = document.getElementById('nextTrackReasonRow');
-    const nextTrackReason = document.getElementById('nextTrackReason');
-    const aiCuratedBadge = document.getElementById('aiCuratedBadge');
     const playbackStatusBanner = document.getElementById('playbackStatusBanner');
     const playbackStatusMessage = document.getElementById('playbackStatusMessage');
     const playbackRetryButton = document.getElementById('playbackRetryButton');
@@ -1965,30 +1962,10 @@ function removeTrackFromPlaylist(index) {
       return nextItem ? { ...nextItem, albumIndex: currentAlbumIndex } : null;
     }
 
-    function buildWhyThisTrackExplanation({ reason, album, currentTrack, nextTrack }) {
-      const safeReason = reason?.label || 'Selected for you';
-      const nextTitle = nextTrack?.title || 'this track';
-      const albumName = album?.name || 'this album';
-      const artist = album?.artist || currentTrack?.artist || nextTrack?.artist || '';
-      const artistCopy = artist ? ` by ${artist}` : '';
-      if (reason?.type === 'ALBUM_CONTINUATION') {
-        const ordered = getAlbumTrackOrder(album);
-        const position = ordered.findIndex(item => item.track === nextTrack) + 1;
-        const count = ordered.length;
-        const positionCopy = position > 0 && count > 0 ? ` Track ${position} of ${count}.` : '';
-        return `${safeReason}: continuing ${albumName}${artistCopy}. Up next is ${nextTitle}.${positionCopy}`;
-      }
-      if (reason?.type === 'USER_ACTION') {
-        return `${safeReason}: AI-curated from your shuffle mix based on recent plays and mood continuity. Up next is ${nextTitle}${artistCopy ? ` by ${artist}` : ''}.`;
-      }
-      return `${safeReason}: queued from ${albumName}${artistCopy}. Up next is ${nextTitle}.`;
-    }
-
     function updateNextTrackInfo() {
       const nextInfo = document.getElementById('nextTrackInfo');
       if (!nextInfo || playbackContext.mode === 'radio' || currentRadioIndex !== -1) {
         if (nextInfo) nextInfo.textContent = '';
-        if (nextTrackReasonRow) nextTrackReasonRow.hidden = true;
         return;
       }
 
@@ -2000,30 +1977,10 @@ function removeTrackFromPlaylist(index) {
 
       if (!nextTrack) {
         nextInfo.textContent = '';
-        if (nextTrackReasonRow) nextTrackReasonRow.hidden = true;
         return;
       }
 
       nextInfo.textContent = `Next: ${nextTrack.title || 'Up next'}`;
-
-      const reason = shuffleMode
-        ? { type: 'USER_ACTION', label: 'From your shuffle mix' }
-        : { type: 'ALBUM_CONTINUATION', label: 'Album continuation' };
-
-      if (nextTrackReasonRow && nextTrackReason) {
-        const explanation = buildWhyThisTrackExplanation({
-          reason,
-          album,
-          currentTrack: album?.tracks?.[currentTrackIndex],
-          nextTrack
-        });
-        nextTrackReason.textContent = `Why this track? ${explanation}`;
-        nextTrackReasonRow.hidden = false;
-      }
-
-      if (aiCuratedBadge) {
-        aiCuratedBadge.hidden = !shuffleMode;
-      }
     }
 
     function buildShuffleQueue() {
