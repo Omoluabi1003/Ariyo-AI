@@ -306,6 +306,9 @@
     }
     const albumCover = document.getElementById('albumCover');
     const turntableDisc = document.querySelector('.turntable-disc');
+    const turntableGrooves = document.querySelector('.turntable-grooves');
+    const turntableSheen = document.querySelector('.turntable-sheen');
+    const albumGrooveOverlay = document.querySelector('.album-groove-overlay');
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
@@ -4177,12 +4180,10 @@ function selectRadio(src, title, index, logo) {
     }
 
     function setTurntableSpin(isSpinning) {
-      albumCover.classList.remove('spin');
-      if (!turntableDisc) return;
-      turntableDisc.classList.remove('spin');
-      if (isSpinning) {
-        turntableDisc.classList.add('spin');
-      }
+      [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
+        if (!element) return;
+        element.classList.toggle('spin', isSpinning);
+      });
     }
 
     function shouldSpinVinyl() {
