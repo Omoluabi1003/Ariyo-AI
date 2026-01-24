@@ -72,13 +72,7 @@
 - **AI transparency + playback UX trust**
   - Add **“Why this track?”** cues on recommendations (e.g., “Picked because you played X” or “Tempo match: 78%”), keeping AI behavior understandable.
   - Label AI-driven and non-AI content explicitly (**AI-curated**, **Live radio**) to clarify provenance and build trust.
-  - Surface a **resume prompt** on return if a recent session was saved (“Resume where you left off?”).
   - Improve buffering/error clarity with “Reconnecting…” and “Saving your place…” states plus a one-tap retry.
-  - Sample resume prompt logic:
-    ```js
-    const saved = loadPlayerState();
-    if (saved) showToast(`Resume ${saved.title}?`, { action: () => resume(saved) });
-    ```
 
 - **Performance + accessibility (WCAG 2.2 AA + Core Web Vitals)**
   - Add `preconnect` hints for CDNs/fonts and reserve layout space for hero art + loaders to reduce LCP/CLS.

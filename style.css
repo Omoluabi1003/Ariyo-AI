@@ -2193,50 +2193,6 @@ body[data-theme="light"] .edge-panel-privacy a {
     flex-wrap: wrap;
 }
 
-.resume-toast {
-    position: fixed;
-    bottom: clamp(1rem, 4vw, 2rem);
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(10, 10, 20, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 18px;
-    padding: 0.85rem 1rem;
-    display: grid;
-    gap: 0.75rem;
-    width: min(520px, 92vw);
-    z-index: 1004;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
-}
-
-.resume-toast__content {
-    display: grid;
-    gap: 0.35rem;
-}
-
-.resume-toast__title {
-    margin: 0;
-    font-weight: 600;
-}
-
-.resume-toast__copy {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.85rem;
-}
-
-.resume-toast__actions {
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-}
-
-.badge-button--ghost {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #fff;
-}
-
 .storyliner-panel {
     margin-top: 0.85rem;
     border: 1px solid rgba(255, 255, 255, 0.15);
