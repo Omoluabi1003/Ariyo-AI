@@ -162,7 +162,9 @@
 
   const updateSpinState = () => {
     const state = audioEngine.getState();
-    const isSpinning = state === 'playing' || isLoading;
+    const isSpinning = state === 'playing'
+      || isLoading
+      || (pendingAutoplay && !lastPauseRequested && state !== 'error');
     [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
       if (!element) return;
       element.classList.toggle('spin', isSpinning);
