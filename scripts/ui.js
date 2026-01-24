@@ -24,6 +24,20 @@ function prefersReducedMotion() {
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function reportLibraryIssue(message) {
+  if (typeof window !== 'undefined' && typeof window.reportLibraryIssue === 'function') {
+    window.reportLibraryIssue(message);
+    return;
+  }
+  console.error(`[library] ${message}`);
+  const banner = document.getElementById('playbackStatusBanner');
+  const messageEl = document.getElementById('playbackStatusMessage');
+  if (banner && messageEl) {
+    banner.hidden = false;
+    messageEl.textContent = message;
+  }
+}
+
 function animateModalIn(modalContent) {
   if (!modalContent) return;
   if (prefersReducedMotion() || typeof gsap === 'undefined') {
@@ -58,7 +72,14 @@ function populateAlbumList() {
   const albumList = document.querySelector('.album-list');
   if (!albumList) return;
   albumList.innerHTML = '';
-  albums.forEach((album, index) => {
+  const albumCatalog = Array.isArray(window.albums)
+    ? window.albums
+    : (typeof albums !== 'undefined' && Array.isArray(albums) ? albums : []);
+  if (!albumCatalog.length) {
+    reportLibraryIssue('Albums are unavailable. Please refresh the page.');
+    return;
+  }
+  albumCatalog.forEach((album, index) => {
     const link = document.createElement('a');
     link.href = '#';
     link.addEventListener('click', event => {
