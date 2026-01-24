@@ -4636,6 +4636,7 @@ if (typeof window !== 'undefined') {
     retryTrack,
     addCurrentTrackToPlaylist,
     toggleLyrics,
-    loadMoreStations
+    loadMoreStations,
+    selectAlbum
   });
 }
