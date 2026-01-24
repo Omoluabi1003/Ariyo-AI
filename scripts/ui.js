@@ -176,14 +176,75 @@ function openAlbumList() {
       console.log('Album list closed');
     }
 
+    const trackModalState = {
+      lastFocusedElement: null,
+      keyHandler: null
+    };
+
+    function getFocusableElements(container) {
+      if (!container) return [];
+      const focusableSelectors = [
+        'button:not([disabled])',
+        '[href]',
+        'input:not([disabled])',
+        'select:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])'
+      ];
+      return Array.from(container.querySelectorAll(focusableSelectors.join(',')))
+        .filter(el => !el.hasAttribute('hidden') && el.getAttribute('aria-hidden') !== 'true');
+    }
+
+    function createTrackModalKeyHandler(modal) {
+      return event => {
+        if (!modal || modal.style.display === 'none') return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeTrackList();
+          return;
+        }
+        if (event.key !== 'Tab') return;
+        const focusable = getFocusableElements(modal);
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+
+        if (event.shiftKey && active === first) {
+          event.preventDefault();
+          last.focus({ preventScroll: true });
+          return;
+        }
+        if (!event.shiftKey && active === last) {
+          event.preventDefault();
+          first.focus({ preventScroll: true });
+        }
+      };
+    }
+
     function openTrackList() {
       const modal = document.getElementById('trackModal');
+      if (!modal) return;
+      trackModalState.lastFocusedElement = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
       modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      modal.setAttribute('aria-modal', 'true');
+      if (trackModalState.keyHandler) {
+        modal.removeEventListener('keydown', trackModalState.keyHandler);
+      }
+      trackModalState.keyHandler = createTrackModalKeyHandler(modal);
+      modal.addEventListener('keydown', trackModalState.keyHandler);
       updateTrackListModal(true);
       if (typeof window.loadFullLibraryData === 'function') {
         window.loadFullLibraryData({ reason: 'track-list', immediate: true }).then(() => {
           updateTrackListModal(true);
         });
+      }
+      const closeButton = modal.querySelector('.close');
+      if (closeButton instanceof HTMLElement) {
+        closeButton.focus({ preventScroll: true });
       }
       animateModalIn(modal.querySelector('.modal-content'));
       console.log('Track list opened');
@@ -191,14 +252,29 @@ function openAlbumList() {
 
     function closeTrackList(immediate = false) {
       const modal = document.getElementById('trackModal');
+      if (!modal) return;
+      if (trackModalState.keyHandler) {
+        modal.removeEventListener('keydown', trackModalState.keyHandler);
+        trackModalState.keyHandler = null;
+      }
+      modal.setAttribute('aria-hidden', 'true');
+      modal.setAttribute('aria-modal', 'false');
       if (immediate) {
         modal.style.display = 'none';
         pendingAlbumIndex = null;
+        if (trackModalState.lastFocusedElement && document.contains(trackModalState.lastFocusedElement)) {
+          trackModalState.lastFocusedElement.focus({ preventScroll: true });
+        }
+        trackModalState.lastFocusedElement = null;
         console.log('Track list closed (immediate)');
         return;
       }
       animateModalOut(modal.querySelector('.modal-content'), () => { modal.style.display = 'none'; });
       pendingAlbumIndex = null;
+      if (trackModalState.lastFocusedElement && document.contains(trackModalState.lastFocusedElement)) {
+        trackModalState.lastFocusedElement.focus({ preventScroll: true });
+      }
+      trackModalState.lastFocusedElement = null;
       console.log('Track list closed');
     }
 

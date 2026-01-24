@@ -2587,33 +2587,121 @@ function removeTrackFromPlaylist(index) {
     }
 
     function updateTrackListModal(prefetchDurations = false) {
-      const albumIndex = pendingAlbumIndex !== null ? pendingAlbumIndex : currentAlbumIndex;
       const modal = document.getElementById('trackModal');
       const modalVisible = modal && getComputedStyle(modal).display !== 'none';
       const shouldPrefetchDurations = (prefetchDurations || modalVisible) && !isSlowConnection;
       const albumCatalog = Array.isArray(window.albums)
         ? window.albums
         : (typeof albums !== 'undefined' && Array.isArray(albums) ? albums : []);
-      if (!albumCatalog.length) {
-        reportLibraryIssue('Tracks are unavailable. Please refresh the page.');
-      }
-      const album = albumCatalog[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
       if (!trackListContainer || !trackModalTitle) {
         console.warn('[player] Track modal elements are missing.');
         return;
       }
-      if (!album || !Array.isArray(album.tracks)) {
-        trackListContainer.innerHTML = '<p class="track-placeholder">Loading tracks…</p>';
+
+      const renderTrackModalState = (message, { status = 'loading', showRetry = false, onRetry } = {}) => {
+        trackListContainer.innerHTML = '';
+        const placeholder = document.createElement('div');
+        placeholder.className = `track-placeholder track-placeholder-${status}`;
+        const copy = document.createElement('p');
+        copy.textContent = message;
+        placeholder.appendChild(copy);
+
+        if (showRetry) {
+          const retryBtn = document.createElement('button');
+          retryBtn.type = 'button';
+          retryBtn.className = 'status-retry-button';
+          retryBtn.textContent = 'Retry';
+          retryBtn.addEventListener('click', () => {
+            if (typeof onRetry === 'function') {
+              onRetry();
+              return;
+            }
+            if (typeof window.loadFullLibraryData === 'function') {
+              window.loadFullLibraryData({ reason: 'track-modal-retry', immediate: true })
+                .finally(() => updateTrackListModal(true));
+              return;
+            }
+            updateTrackListModal(true);
+          });
+          placeholder.appendChild(retryBtn);
+        }
+
+        trackListContainer.appendChild(placeholder);
+      };
+
+      if (!albumCatalog.length) {
+        renderTrackModalState('Track not available.', { status: 'empty', showRetry: true });
+        reportLibraryIssue('Tracks are unavailable. Please refresh the page.');
         return;
       }
-      trackModalTitle.textContent = album.name;
+
+      const resolver = window.trackModalUtils?.resolveModalAlbum;
+      const describer = window.trackModalUtils?.describeTrackAvailability;
+      const resolved = typeof resolver === 'function'
+        ? resolver({ albums: albumCatalog, pendingAlbumIndex, currentAlbumIndex })
+        : {
+            album: albumCatalog[pendingAlbumIndex ?? currentAlbumIndex] || albumCatalog[0],
+            albumIndex: pendingAlbumIndex ?? currentAlbumIndex ?? 0,
+            usedFallback: false,
+            reason: null
+          };
+
+      let albumIndex = resolved.albumIndex;
+      let album = resolved.album;
+
+      if (!album || albumIndex < 0 || albumIndex >= albumCatalog.length) {
+        albumIndex = 0;
+        album = albumCatalog[albumIndex] || null;
+      }
+
+      if (pendingAlbumIndex !== null && pendingAlbumIndex !== albumIndex) {
+        pendingAlbumIndex = albumIndex;
+      }
+      if (currentAlbumIndex !== albumIndex) {
+        currentAlbumIndex = albumIndex;
+      }
 
       const trackModalMeta = document.getElementById('trackModalMeta');
       if (trackModalMeta) {
         trackModalMeta.innerHTML = '';
+      }
 
+      const availability = typeof describer === 'function'
+        ? describer(album)
+        : { status: album && Array.isArray(album.tracks) && album.tracks.length ? 'ready' : 'loading', message: 'Loading tracks…' };
+
+      if (availability.status !== 'ready') {
+        renderTrackModalState(availability.message || 'Loading tracks…', {
+          status: availability.status,
+          showRetry: availability.status !== 'loading',
+          onRetry: availability.status === 'empty'
+            ? () => {
+                if (album?.rssFeed && typeof window.requestRssIngestion === 'function') {
+                  window.requestRssIngestion({ reason: 'track-modal-empty', immediate: true })
+                    .finally(() => updateTrackListModal(true));
+                  return;
+                }
+                if (typeof window.loadFullLibraryData === 'function') {
+                  window.loadFullLibraryData({ reason: 'track-modal-empty', immediate: true })
+                    .finally(() => updateTrackListModal(true));
+                  return;
+                }
+                updateTrackListModal(true);
+              }
+            : undefined
+        });
+        if (availability.status === 'loading' && typeof window.loadFullLibraryData === 'function') {
+          window.loadFullLibraryData({ reason: 'track-modal-loading', immediate: true })
+            .then(() => updateTrackListModal(true));
+        }
+        return;
+      }
+
+      trackModalTitle.textContent = album.name;
+
+      if (trackModalMeta) {
         if (album.detailsUrl) {
           const docsLink = document.createElement('a');
           docsLink.href = album.detailsUrl;

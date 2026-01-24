@@ -568,8 +568,9 @@
         width: min(86vw, var(--edge-panel-width));
         right: calc(var(--edge-panel-visible-gap) - min(86vw, var(--edge-panel-width)));
         border-radius: 24px 0 0 24px;
-        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
+        top: 50%;
         bottom: auto;
+        transform: translateY(-50%);
         min-height: var(--edge-panel-min-height);
       }
       .edge-panel.visible {
@@ -794,7 +795,7 @@
         display: flex;
         flex-direction: column;
         overflow: visible;
-        min-height: var(--edge-panel-min-height);
+        min-height: min(var(--edge-panel-min-height), var(--edge-panel-max-height));
         max-height: min(
           var(--edge-panel-max-height),
           calc(
@@ -1056,8 +1057,9 @@
       }
       .edge-panel {
         right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
-        top: calc(var(--edge-panel-top-offset) + env(safe-area-inset-top));
+        top: 50%;
         bottom: auto;
+        transform: translateY(-50%);
       }
       .edge-panel.visible {
         right: var(--edge-panel-visible-gap);
@@ -1898,6 +1900,7 @@
   <script src="scripts/seo.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js" defer></script>
   <script src="scripts/audio-recovery-utils.js" defer></script>
+  <script src="scripts/track-modal-utils.js" defer></script>
   <script src="scripts/player.js" defer></script>
   <script src="scripts/ui.js" defer></script>
   <script src="scripts/rss-ingestion.js" defer></script>
