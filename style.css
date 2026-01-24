@@ -695,7 +695,7 @@ body[data-theme="light"] .badge-spotlight {
 }
 
 .turntable-disc.spin {
-    animation-duration: 4.5s;
+    animation: spinDisc 4.5s linear infinite;
 }
 
 .album-cover.spin,
@@ -704,12 +704,59 @@ body[data-theme="light"] .badge-spotlight {
     transform-origin: center;
 }
 
+@keyframes spinDisc {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 @keyframes spinCentered {
     0% {
         transform: translate(-50%, -50%) rotate(0deg);
     }
     100% {
         transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.turntable-grooves.spin {
+    animation: grooveDrift 1.8s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.turntable-sheen.spin {
+    animation: sheenSweep 2.6s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes grooveDrift {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.45;
+    }
+    50% {
+        transform: scale(1.012);
+        opacity: 0.6;
+    }
+}
+
+@keyframes sheenSweep {
+    0%,
+    100% {
+        transform: rotate(0deg);
+        opacity: 0.35;
+    }
+    45% {
+        transform: rotate(6deg);
+        opacity: 0.55;
+    }
+    75% {
+        transform: rotate(-4deg);
+        opacity: 0.4;
     }
 }
 
