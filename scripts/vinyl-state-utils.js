@@ -37,11 +37,4 @@
       deriveVinylSpinState
     };
   }
-
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-      shouldVinylSpin,
-      deriveVinylSpinState
-    };
-  }
 })();

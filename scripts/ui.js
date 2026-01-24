@@ -46,6 +46,8 @@ function animateModalIn(modalContent) {
     return;
   }
 
+  // Kill any lingering tweens to avoid stacking animations.
+  gsap.killTweensOf(modalContent);
   gsap.fromTo(modalContent,
     { scale: 0.8, opacity: 0, y: 50 },
     { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
@@ -63,6 +65,8 @@ function animateModalOut(modalContent, onComplete) {
     return;
   }
 
+  // Kill active tweens before animating out.
+  gsap.killTweensOf(modalContent);
   gsap.to(modalContent,
     { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", onComplete }
   );
@@ -315,6 +319,11 @@ function openAlbumList() {
         return;
       }
 
+      const modalContent = modal.querySelector('.modal-content');
+      if (modalContent && typeof gsap !== 'undefined') {
+        // Clean up lingering tweens when closing the modal without animations.
+        gsap.killTweensOf(modalContent);
+      }
       modal.style.display = 'none';
       console.log('Radio list closed');
     }
@@ -392,6 +401,10 @@ function toggleShuffle() {
       shuffleQueue = [];
       updateNextTrackInfo();
     }
+  }
+  if (shuffleBtn) {
+    const isActive = shuffleScope !== 'off' || shuffleMode;
+    shuffleBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   }
   savePlayerState();
 }
