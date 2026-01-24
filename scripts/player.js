@@ -512,7 +512,7 @@ const debugState = {
 const debugLog = (eventName, detail = {}) => {
   if (!DEBUG_AUDIO) return;
   const payload = { event: eventName, ...detail, state: captureAudioState() };
-  console.log('[audio-debug]', payload);
+  debugConsole('[audio-debug]', payload);
   if (debugState.logList) {
     const item = document.createElement('li');
     item.textContent = `${new Date().toLocaleTimeString()} ${eventName}`;
@@ -527,6 +527,11 @@ const debugLog = (eventName, detail = {}) => {
       stateEl.textContent = JSON.stringify(captureAudioState(), null, 2);
     }
   }
+};
+
+const debugConsole = (...args) => {
+  if (!DEBUG_AUDIO) return;
+  console.log(...args);
 };
 
 const logAudioEvent = (label, detail = {}) => {
@@ -748,7 +753,7 @@ function scheduleSilentStartGuard() {
     // reload the current source and try again so the UI never appears frozen.
     firstPlayGuardTimeoutId = setTimeout(() => {
       if (isTrackModalOpen()) {
-        console.log('[firstPlayGuard] Track list is open; deferring auto-recovery to avoid interrupting the user.');
+        debugConsole('[firstPlayGuard] Track list is open; deferring auto-recovery to avoid interrupting the user.');
         return;
       }
 
@@ -1442,7 +1447,7 @@ function createSelfHealAudio(player) {
   };
 
   function log(message, extra = {}) {
-    console.log(`[self-heal] ${message}`, extra);
+    debugConsole(`[self-heal] ${message}`, extra);
   }
 
   function clearDurationTimer() {
@@ -1873,7 +1878,7 @@ function startNetworkRecovery(reason = 'network') {
   hideRetryButton();
   setPlaybackStatus(PlaybackStatus.buffering, { message: 'Reconnecting...' });
   document.getElementById('progressBar').style.display = 'none';
-  console.log(`Starting network recovery due to: ${reason}`);
+  debugConsole(`Starting network recovery due to: ${reason}`);
   debugLog('network-recovery-start', { reason });
 
   const attemptReconnect = async () => {
@@ -1883,7 +1888,7 @@ function startNetworkRecovery(reason = 'network') {
       networkRecoveryState.timerId = null;
     }
     if (!navigator.onLine) {
-      console.log('Waiting for network connection to return...');
+      debugConsole('Waiting for network connection to return...');
       return;
     }
 
@@ -1895,7 +1900,7 @@ function startNetworkRecovery(reason = 'network') {
     networkRecoveryState.lastAttemptAt = Date.now();
     const success = await attemptNetworkResume();
     if (success) {
-      console.log('Network recovery successful.');
+      debugConsole('Network recovery successful.');
       debugLog('network-recovery-success', { reason });
       finishNetworkRecovery();
       if (!audioPlayer.paused) {
@@ -1911,7 +1916,7 @@ function startNetworkRecovery(reason = 'network') {
         cancelNetworkRecovery();
         return;
       }
-      console.log('Network recovery attempt failed, will retry.');
+      debugConsole('Network recovery attempt failed, will retry.');
       const delay = computeRecoveryDelay(networkRecoveryState.retryCount);
       networkRecoveryState.timerId = setTimeout(attemptReconnect, delay);
     }
@@ -2131,7 +2136,7 @@ function removeTrackFromPlaylist(index) {
       };
       persistLastPlayed(lastPlayedPayload);
       writeStorageItem(localStorage, PLAYER_STATE_STORAGE_KEY, JSON.stringify(playerState));
-      console.log('Player state saved:', playerState);
+      debugConsole('Player state saved:', playerState);
     }
 
     function schedulePlayerStateSave(immediate = false) {
@@ -2650,7 +2655,7 @@ function removeTrackFromPlaylist(index) {
         });
         trackListContainer.appendChild(loadMore);
       }
-      console.log(`Track list updated for album: ${albumCatalog[albumIndex].name}`);
+      debugConsole(`Track list updated for album: ${albumCatalog[albumIndex].name}`);
     }
 
     const stationsPerPage = 6;
@@ -3165,7 +3170,7 @@ async function probeStreamUrl(rawUrl, stationName) {
         loadMoreStations(region);
       });
 
-      console.log("Grouped and displayed radio stations by region");
+      debugConsole("Grouped and displayed radio stations by region");
     }
 
 function syncAlbumIndexToCurrentTrack() {
@@ -3235,13 +3240,13 @@ function loadMoreStations(region) {
 }
 
     function selectAlbum(albumIndex) {
-      console.log("selectAlbum called with index: ", albumIndex);
+      debugConsole("selectAlbum called with index: ", albumIndex);
       const album = albums[albumIndex];
       if (!album || !Array.isArray(album.tracks)) {
         console.warn('[player] Album selection failed: tracks are unavailable.', { albumIndex });
         return;
       }
-      console.log(`Selecting album: ${album.name}`);
+      debugConsole(`Selecting album: ${album.name}`);
       pendingAlbumIndex = albumIndex;
       currentRadioIndex = -1;
       updateTrackListModal();
@@ -3482,7 +3487,7 @@ function confirmPendingRadioSelection(reason, detail = {}) {
 
 
 function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) {
-      console.log(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
+      debugConsole(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       pendingRadioSelection = null;
       resetOfflineFallback();
       cancelNetworkRecovery();
@@ -3494,7 +3499,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) 
       if (isTrackModalOpen()) {
         closeTrackList(true);
       }
-      console.log(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      debugConsole(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
       pendingAlbumIndex = null;
       currentTrackIndex = index;
       currentRadioIndex = -1;
@@ -3553,7 +3558,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) 
     }
 
 function selectRadio(src, title, index, logo) {
-      console.log(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
+      debugConsole(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
@@ -3561,7 +3566,7 @@ function selectRadio(src, title, index, logo) {
       void resumeAudioContext();
       audioPlayer.autoplay = true;
       ensureAudiblePlayback();
-      console.log(`[selectRadio] Selecting radio: ${title}`);
+      debugConsole(`[selectRadio] Selecting radio: ${title}`);
       setPendingRadioSelection({ index, title, src });
       const station = radioStations[index];
       currentRadioIndex = index;
@@ -3799,27 +3804,27 @@ function selectRadio(src, title, index, logo) {
       };
 
       function onLoadedData() {
-        console.log('onLoadedData called');
+        debugConsole('onLoadedData called');
         handleReady();
       }
       handlerState.onLoadedData = onLoadedData;
 
       function onPlaying() {
-        console.log('onPlaying called');
+        debugConsole('onPlaying called');
         handleReady();
       }
       handlerState.onPlaying = onPlaying;
 
       function onCanPlayThrough() {
-        console.log("onCanPlayThrough called");
-        console.log(`Stream ${title} can play through`);
+        debugConsole("onCanPlayThrough called");
+        debugConsole(`Stream ${title} can play through`);
         handleReady();
       }
       handlerState.onCanPlayThrough = onCanPlayThrough;
 
       function onCanPlay() {
-        console.log("onCanPlay called");
-        console.log(`Stream ${title} can play`);
+        debugConsole("onCanPlay called");
+        debugConsole(`Stream ${title} can play`);
         handleReady();
       }
       handlerState.onCanPlay = onCanPlay;
@@ -3928,6 +3933,7 @@ function selectRadio(src, title, index, logo) {
     function setTurntableSpin(isSpinning) {
       [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
         if (!element) return;
+        element.classList.toggle('spin', isSpinning);
         element.classList.toggle('is-spinning', isSpinning);
         element.style.animationPlayState = isSpinning ? 'running' : 'paused';
       });
@@ -3952,11 +3958,12 @@ function selectRadio(src, title, index, logo) {
 
     function manageVinylRotation() {
       const shouldSpin = shouldSpinVinyl();
-      setTurntableSpin(shouldSpin);
-      if (lastSpinState !== shouldSpin) {
-        lastSpinState = shouldSpin;
-        console.info('[vinyl] spin', { active: shouldSpin });
+      if (lastSpinState === shouldSpin) {
+        return;
       }
+      setTurntableSpin(shouldSpin);
+      lastSpinState = shouldSpin;
+      debugConsole('[vinyl] spin', { active: shouldSpin });
     }
 
     function handleReducedMotionChange() {
@@ -3976,7 +3983,7 @@ function selectRadio(src, title, index, logo) {
     }
 
     function attemptPlay() {
-      console.log('[attemptPlay] called');
+      debugConsole('[attemptPlay] called');
       logAudioEvent('play-attempt');
       debugLog('attempt-play');
       userInitiatedPause = false;
@@ -4018,7 +4025,7 @@ function selectRadio(src, title, index, logo) {
       const playPromise = audioPlayer.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          console.log('[attemptPlay] Playback started successfully.');
+          debugConsole('[attemptPlay] Playback started successfully.');
           debugLog('playback-started');
           clearQuickStartDeadline();
           hidePlaySpinner();
@@ -4032,7 +4039,7 @@ function selectRadio(src, title, index, logo) {
           audioPlayer.removeEventListener('timeupdate', updateTrackTime);
           audioPlayer.addEventListener('timeupdate', updateTrackTime);
           recordPlaybackProgress(audioPlayer.currentTime || 0);
-          console.log(`Playing: ${trackInfo.textContent}`);
+          debugConsole(`Playing: ${trackInfo.textContent}`);
           schedulePlayerStateSave();
           if (isFirstPlay) {
             gsap.fromTo(albumCover,
@@ -4089,7 +4096,7 @@ function pauseMusic() {
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
-        console.log('Paused');
+        debugConsole('Paused');
         schedulePlayerStateSave(true);
         setPlaybackStatus(PlaybackStatus.paused);
     syncMediaSessionPlaybackState();
@@ -4108,7 +4115,7 @@ function stopMusic() {
         stopPlaybackWatchdog();
         seekBar.value = 0;
         trackDuration.textContent = '0:00 / 0:00';
-        console.log('Stopped');
+        debugConsole('Stopped');
         schedulePlayerStateSave(true);
         setPlaybackStatus(PlaybackStatus.stopped);
     syncMediaSessionPlaybackState();
@@ -4196,7 +4203,7 @@ function updateTrackTime() {
     });
 
     function handleTrackEnded() {
-      console.log("Track ended, selecting next track...");
+      debugConsole("Track ended, selecting next track...");
       audioPlayer.removeEventListener('timeupdate', updateTrackTime);
       manageVinylRotation();
       stopPlaybackWatchdog(false);
@@ -4246,7 +4253,7 @@ function updateTrackTime() {
       updateTrackTime();  // update UI instantly
       recordPlaybackProgress(audioPlayer.currentTime || 0);
       startPlaybackWatchdog();
-      console.log(`🎧 Time tracking active: ${trackInfo.textContent}`);
+      debugConsole(`🎧 Time tracking active: ${trackInfo.textContent}`);
       syncMediaSessionPlaybackState();
       clearFirstPlayGuard();
       hideBufferingState();
