@@ -1858,16 +1858,6 @@
 
 <!-- 🎧 Now Playing Toast -->
   <div id="nowPlayingToast" role="status" aria-live="polite"></div>
-  <div id="resumeToast" class="resume-toast" role="dialog" aria-live="polite" aria-label="Resume playback prompt" hidden>
-    <div class="resume-toast__content">
-      <p class="resume-toast__title" id="resumeToastTitle">Resume where you left off?</p>
-      <p class="resume-toast__copy" id="resumeToastCopy"></p>
-    </div>
-    <div class="resume-toast__actions">
-      <button type="button" id="resumeToastAction" class="badge-button">Resume</button>
-      <button type="button" id="resumeToastDismiss" class="badge-button badge-button--ghost">Dismiss</button>
-    </div>
-  </div>
 
   <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
     <div class="notification-toast__content">
@@ -1892,7 +1882,6 @@
   <script src="scripts/suno-audio-fallback.js" defer></script>
   <script src="scripts/idle-utils.js" defer></script>
   <script src="scripts/proverb-utils.js" defer></script>
-  <script src="scripts/player-state-utils.js" defer></script>
   <script src="scripts/seo.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js" defer></script>
   <script src="scripts/audio-recovery-utils.js" defer></script>
