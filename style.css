@@ -608,7 +608,7 @@ body[data-theme="light"] .badge-spotlight {
     transform-origin: center center;
     will-change: transform;
     z-index: 1;
-    animation: spinDisc 4.5s linear infinite;
+    animation: spinDisc 20s linear infinite;
     animation-play-state: paused;
 }
 
@@ -702,7 +702,7 @@ body[data-theme="light"] .badge-spotlight {
 
 .album-cover,
 .album-groove-overlay {
-    animation: spinCentered 4.5s linear infinite;
+    animation: spinCentered 20s linear infinite;
     transform-origin: center;
     animation-play-state: paused;
 }

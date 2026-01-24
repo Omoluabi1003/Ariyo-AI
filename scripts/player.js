@@ -3980,14 +3980,13 @@ function selectRadio(src, title, index, logo) {
     function setTurntableSpin(isSpinning) {
       [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
         if (!element) return;
-        element.classList.toggle('spin', isSpinning);
         element.classList.toggle('is-spinning', isSpinning);
         element.style.animationPlayState = isSpinning ? 'running' : 'paused';
       });
     }
 
     function shouldSpinVinyl() {
-      const isPlaying = playbackStatus === PlaybackStatus.playing;
+      const isPlaying = playbackStatus === PlaybackStatus.playing || (!audioPlayer.paused && !audioPlayer.ended);
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
