@@ -60,6 +60,7 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'scripts/data-lite.js',
   'scripts/data-loader.js',
   'scripts/player.js',
+  'scripts/vinyl-utils.js',
   'scripts/ui.js',
   'scripts/news.js',
   'scripts/main.js',

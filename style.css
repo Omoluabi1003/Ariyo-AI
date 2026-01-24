@@ -825,6 +825,11 @@ body[data-theme="light"] .badge-spotlight {
 
 .spin {
     animation: spin 3s linear infinite;
+    animation-play-state: running;
+}
+
+.spin.spin-paused {
+    animation-play-state: paused;
 }
 
 @keyframes spin {

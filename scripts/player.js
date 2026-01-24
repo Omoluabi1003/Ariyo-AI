@@ -340,6 +340,27 @@
     }
     const playButtonEl = document.getElementById('playButton');
     const progressBar = document.getElementById('progressBarFill');
+    const prefersReducedMotionQuery = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+    const resolveVinylSpinState = window.AriyoVinylUtils && typeof window.AriyoVinylUtils.resolveVinylSpinState === 'function'
+      ? window.AriyoVinylUtils.resolveVinylSpinState
+      : (audioState = {}, options = {}) => {
+        const prefersReducedMotion = Boolean(options.prefersReducedMotion);
+        if (prefersReducedMotion) return false;
+        const paused = Boolean(audioState.paused);
+        const ended = Boolean(audioState.ended);
+        const seeking = Boolean(audioState.seeking);
+        if (paused || ended || seeking) return false;
+        const readyState = Number.isFinite(audioState.readyState) ? audioState.readyState : null;
+        if (readyState !== null) {
+          const threshold = Number.isFinite(options.haveCurrentData)
+            ? options.haveCurrentData
+            : (typeof HTMLMediaElement !== 'undefined' ? HTMLMediaElement.HAVE_CURRENT_DATA : 2);
+          if (readyState < threshold) return false;
+        }
+        return true;
+      };
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleMode = false; // True if any shuffle is active
@@ -3891,16 +3912,15 @@ function selectRadio(src, title, index, logo) {
     function setTurntableSpin(isSpinning) {
       [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
         if (!element) return;
-        element.classList.toggle('spin', isSpinning);
+        element.classList.add('spin');
+        element.classList.toggle('spin-paused', !isSpinning);
       });
     }
 
     function shouldSpinVinyl() {
-      return (
-        playbackStatus === PlaybackStatus.playing
-        || playbackStatus === PlaybackStatus.preparing
-        || playbackStatus === PlaybackStatus.buffering
-      );
+      return resolveVinylSpinState(audioPlayer, {
+        prefersReducedMotion: prefersReducedMotionQuery?.matches
+      });
     }
 
     function manageVinylRotation() {
@@ -3911,6 +3931,16 @@ function selectRadio(src, title, index, logo) {
         console.info('[vinyl] spin', { active: shouldSpin });
       }
     }
+
+    if (prefersReducedMotionQuery) {
+      if (typeof prefersReducedMotionQuery.addEventListener === 'function') {
+        prefersReducedMotionQuery.addEventListener('change', manageVinylRotation);
+      } else if (typeof prefersReducedMotionQuery.addListener === 'function') {
+        prefersReducedMotionQuery.addListener(manageVinylRotation);
+      }
+    }
+
+    manageVinylRotation();
 
     function playMusic() {
         attemptPlay();
