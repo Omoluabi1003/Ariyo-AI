@@ -2600,6 +2600,10 @@ function removeTrackFromPlaylist(index) {
       const album = albumCatalog[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
+      if (!trackListContainer || !trackModalTitle) {
+        console.warn('[player] Track modal elements are missing.');
+        return;
+      }
       if (!album || !Array.isArray(album.tracks)) {
         trackListContainer.innerHTML = '<p class="track-placeholder">Loading tracks…</p>';
         return;
@@ -3438,7 +3442,12 @@ function loadMoreStations(region) {
 
     function selectAlbum(albumIndex) {
       console.log("selectAlbum called with index: ", albumIndex);
-      console.log(`Selecting album: ${albums[albumIndex].name}`);
+      const album = albums[albumIndex];
+      if (!album || !Array.isArray(album.tracks)) {
+        console.warn('[player] Album selection failed: tracks are unavailable.', { albumIndex });
+        return;
+      }
+      console.log(`Selecting album: ${album.name}`);
       pendingAlbumIndex = albumIndex;
       currentRadioIndex = -1;
       updateTrackListModal();
