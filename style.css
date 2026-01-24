@@ -608,6 +608,8 @@ body[data-theme="light"] .badge-spotlight {
     transform-origin: center center;
     will-change: transform;
     z-index: 1;
+    animation: spinDisc 4.5s linear infinite;
+    animation-play-state: paused;
 }
 
 .turntable-sheen,
@@ -694,14 +696,20 @@ body[data-theme="light"] .badge-spotlight {
     z-index: 5;
 }
 
-.turntable-disc.spin {
-    animation: spinDisc 4.5s linear infinite;
+.turntable-disc.is-spinning {
+    animation-play-state: running;
 }
 
-.album-cover.spin,
-.album-groove-overlay.spin {
+.album-cover,
+.album-groove-overlay {
     animation: spinCentered 4.5s linear infinite;
     transform-origin: center;
+    animation-play-state: paused;
+}
+
+.album-cover.is-spinning,
+.album-groove-overlay.is-spinning {
+    animation-play-state: running;
 }
 
 @keyframes spinDisc {
@@ -722,14 +730,24 @@ body[data-theme="light"] .badge-spotlight {
     }
 }
 
-.turntable-grooves.spin {
+.turntable-grooves {
     animation: grooveDrift 1.8s ease-in-out infinite;
     transform-origin: center;
+    animation-play-state: paused;
 }
 
-.turntable-sheen.spin {
+.turntable-grooves.is-spinning {
+    animation-play-state: running;
+}
+
+.turntable-sheen {
     animation: sheenSweep 2.6s ease-in-out infinite;
     transform-origin: center;
+    animation-play-state: paused;
+}
+
+.turntable-sheen.is-spinning {
+    animation-play-state: running;
 }
 
 @keyframes grooveDrift {
@@ -2349,7 +2367,12 @@ body[data-theme="light"] .edge-panel-privacy a {
 @media (prefers-reduced-motion: reduce) {
     .spin,
     .loading-spinner,
-    .nav-notification-dot.visible {
+    .nav-notification-dot.visible,
+    .turntable-disc,
+    .turntable-grooves,
+    .turntable-sheen,
+    .album-cover,
+    .album-groove-overlay {
         animation: none !important;
     }
     .edge-panel-content {

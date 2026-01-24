@@ -33,6 +33,25 @@
         && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
+    const vinylStateUtils = window.AriyoVinylStateUtils || {
+      shouldVinylSpin: ({
+        paused,
+        ended,
+        waiting,
+        readyState,
+        reducedMotion
+      } = {}) => {
+        const minimumReadyState = typeof HTMLMediaElement !== 'undefined'
+          ? HTMLMediaElement.HAVE_CURRENT_DATA
+          : 2;
+        if (reducedMotion) return false;
+        if (paused || ended) return false;
+        if (waiting) return false;
+        if (Number.isFinite(readyState) && readyState < minimumReadyState) return false;
+        return true;
+      }
+    };
+
     /**
      * @typedef {Object} RecommendationReason
      * @property {'RECENT_PLAY'|'TEMPO_MATCH'|'SIMILAR_ARTIST'|'ALBUM_CONTINUATION'|'USER_ACTION'} type
@@ -284,15 +303,18 @@
     audioPlayer.addEventListener('playing', () => {
       clearBufferingHedge();
       hidePlaySpinner();
+      vinylWaiting = false;
     });
     audioPlayer.addEventListener('waiting', () => {
       showPlaySpinner();
       setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
       scheduleBufferingHedgeFromSource();
+      vinylWaiting = true;
       manageVinylRotation();
     });
     audioPlayer.addEventListener('stalled', () => {
       showPlaySpinner();
+      vinylWaiting = true;
       if (!stallRetryTimer) {
         stallRetryTimer = setTimeout(() => attemptPlay(), 3000);
       }
@@ -509,6 +531,7 @@ const logAudioEvent = (label, detail = {}) => {
 };
 
 let lastSpinState = false;
+let vinylWaiting = false;
 
 const initDebugPanel = () => {
   if (!DEBUG_AUDIO) return;
@@ -3891,16 +3914,18 @@ function selectRadio(src, title, index, logo) {
     function setTurntableSpin(isSpinning) {
       [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
         if (!element) return;
-        element.classList.toggle('spin', isSpinning);
+        element.classList.toggle('is-spinning', isSpinning);
       });
     }
 
     function shouldSpinVinyl() {
-      return (
-        playbackStatus === PlaybackStatus.playing
-        || playbackStatus === PlaybackStatus.preparing
-        || playbackStatus === PlaybackStatus.buffering
-      );
+      return vinylStateUtils.shouldVinylSpin({
+        paused: audioPlayer.paused,
+        ended: audioPlayer.ended,
+        waiting: vinylWaiting,
+        readyState: audioPlayer.readyState,
+        reducedMotion: prefersReducedMotion()
+      });
     }
 
     function manageVinylRotation() {
@@ -4006,6 +4031,7 @@ function selectRadio(src, title, index, logo) {
       );
       albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
+      vinylWaiting = false;
       setTurntableSpin(false);
       console.error(`Error playing ${title}:`, error);
 
@@ -4025,6 +4051,7 @@ function pauseMusic() {
     clearQuickStartDeadline();
     clearSilentStartGuard();
     audioPlayer.pause();
+    vinylWaiting = false;
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
@@ -4041,6 +4068,7 @@ function stopMusic() {
     clearSilentStartGuard();
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
+    vinylWaiting = false;
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
@@ -4126,6 +4154,12 @@ function updateTrackTime() {
     });
 
     audioPlayer.addEventListener('loadedmetadata', updateTrackTime);
+    ['canplay', 'canplaythrough'].forEach(eventName => {
+      audioPlayer.addEventListener(eventName, () => {
+        vinylWaiting = false;
+        manageVinylRotation();
+      });
+    });
 
     function handleTrackEnded() {
       console.log("Track ended, selecting next track...");
@@ -4154,6 +4188,7 @@ function updateTrackTime() {
     audioPlayer.addEventListener('ended', handleTrackEnded);
 
     audioPlayer.addEventListener('pause', event => {
+      vinylWaiting = false;
       setPlaybackStatus(PlaybackStatus.paused);
       manageVinylRotation();
       if (event && event.target && event.target.paused) {
@@ -4167,6 +4202,7 @@ function updateTrackTime() {
       }
     });
     audioPlayer.addEventListener('ended', () => {
+      vinylWaiting = false;
       manageVinylRotation();
     });
 
@@ -4181,6 +4217,7 @@ function updateTrackTime() {
       clearFirstPlayGuard();
       hideBufferingState();
       hidePlaySpinner();
+      vinylWaiting = false;
       setPlaybackStatus(PlaybackStatus.playing);
       manageVinylRotation(); // spin the turntable if needed
       ensureAudiblePlayback();
@@ -4195,6 +4232,7 @@ function updateTrackTime() {
       clearFirstPlayGuard();
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback failed. Tap retry to continue.' });
+      vinylWaiting = false;
       manageVinylRotation();
       showRetryButton('Retry playback');
     });
