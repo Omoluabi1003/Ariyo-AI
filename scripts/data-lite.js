@@ -24,7 +24,12 @@
  * @property {Track[]} tracks
  */
 (function () {
-  const BASE_URL = '../../';
+  const BASE_URL = (() => {
+    if (typeof window === 'undefined') return './';
+    const path = window.location.pathname || '';
+    if (path.includes('/apps/')) return '../../';
+    return './';
+  })();
   const PLAYLIST_STORAGE_KEY = 'userPlaylist';
 
   const albums = [

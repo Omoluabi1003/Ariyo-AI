@@ -789,6 +789,7 @@ function ensureInitialTrackLoaded(silent = true, { primeSource = true } = {}) {
 
   const defaultSelection = getDefaultTrack();
   if (!defaultSelection) {
+    reportLibraryIssue('Music catalog unavailable. Please refresh the page.');
     return false;
   }
 
@@ -858,6 +859,11 @@ function updateInlineStatus(message, { showRetry = false } = {}) {
   if (playbackRetryButton) {
     playbackRetryButton.hidden = !showRetry;
   }
+}
+
+function reportLibraryIssue(message) {
+  console.error(`[library] ${message}`);
+  updateInlineStatus(message, { showRetry: false });
 }
 
 function clearAsaRotation() {
@@ -2585,7 +2591,13 @@ function removeTrackFromPlaylist(index) {
       const modal = document.getElementById('trackModal');
       const modalVisible = modal && getComputedStyle(modal).display !== 'none';
       const shouldPrefetchDurations = (prefetchDurations || modalVisible) && !isSlowConnection;
-      const album = albums[albumIndex];
+      const albumCatalog = Array.isArray(window.albums)
+        ? window.albums
+        : (typeof albums !== 'undefined' && Array.isArray(albums) ? albums : []);
+      if (!albumCatalog.length) {
+        reportLibraryIssue('Tracks are unavailable. Please refresh the page.');
+      }
+      const album = albumCatalog[albumIndex];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
       if (!album || !Array.isArray(album.tracks)) {
@@ -2629,7 +2641,7 @@ function removeTrackFromPlaylist(index) {
       if (banner && bannerCopy && bannerActions) {
         bannerActions.innerHTML = '';
         if (Array.isArray(latestTracks) && latestTracks.length) {
-          const albumName = albums[albumIndex].name;
+          const albumName = albumCatalog[albumIndex].name;
           const albumHighlights = latestTracks.filter(track => track.albumName === albumName);
           const displayTracks = albumHighlights.length ? albumHighlights : latestTracks;
           const formatList = items => {
@@ -2672,11 +2684,11 @@ function removeTrackFromPlaylist(index) {
             button.textContent = `▶ Play “${track.title}”`;
             button.setAttribute('aria-label', `Play the latest track ${track.title}`);
             button.addEventListener('click', () => {
-              const albumIdx = albums.findIndex(album => album.name === track.albumName);
+              const albumIdx = albumCatalog.findIndex(album => album.name === track.albumName);
               if (albumIdx === -1) {
                 return;
               }
-              const trackIdx = albums[albumIdx].tracks.findIndex(albumTrack => albumTrack.title === track.title && albumTrack.src === track.src);
+              const trackIdx = albumCatalog[albumIdx].tracks.findIndex(albumTrack => albumTrack.title === track.title && albumTrack.src === track.src);
               if (trackIdx === -1) {
                 pendingAlbumIndex = albumIdx;
                 currentAlbumIndex = albumIdx;
@@ -2686,7 +2698,7 @@ function removeTrackFromPlaylist(index) {
               currentAlbumIndex = albumIdx;
               pendingAlbumIndex = null;
               closeTrackList(true);
-              selectTrack(albums[albumIdx].tracks[trackIdx].src, albums[albumIdx].tracks[trackIdx].title, trackIdx);
+              selectTrack(albumCatalog[albumIdx].tracks[trackIdx].src, albumCatalog[albumIdx].tracks[trackIdx].title, trackIdx);
             });
             bannerActions.appendChild(button);
           });
@@ -2699,7 +2711,7 @@ function removeTrackFromPlaylist(index) {
       }
 
       // Build an array of track indices and shuffle them (except for playlist)
-      let trackIndices = albums[albumIndex].tracks.map((_, i) => i);
+      let trackIndices = albumCatalog[albumIndex].tracks.map((_, i) => i);
       if (albumIndex !== playlistAlbumIndex) {
         for (let i = trackIndices.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -2714,7 +2726,7 @@ function removeTrackFromPlaylist(index) {
       const visibleIndices = trackIndices.slice(0, currentLimit);
 
       visibleIndices.forEach(index => {
-        const track = albums[albumIndex].tracks[index];
+        const track = albumCatalog[albumIndex].tracks[index];
         // Use cached duration if available, otherwise fetch it
         const displayDuration = track.duration
           ? formatTime(track.duration)
@@ -2840,7 +2852,7 @@ function removeTrackFromPlaylist(index) {
         });
         trackListContainer.appendChild(loadMore);
       }
-      console.log(`Track list updated for album: ${albums[albumIndex].name}`);
+      console.log(`Track list updated for album: ${albumCatalog[albumIndex].name}`);
     }
 
     const stationsPerPage = 6;
@@ -3018,7 +3030,14 @@ function ensureRadioDebugPanel() {
 let groupedStations = { nigeria: [], westAfrica: [], international: [] };
 function buildGroupedStations() {
   groupedStations = { nigeria: [], westAfrica: [], international: [] };
-  radioStations.forEach(station => {
+  const stationList = Array.isArray(window.radioStations)
+    ? window.radioStations
+    : (typeof radioStations !== 'undefined' && Array.isArray(radioStations) ? radioStations : []);
+  if (!stationList.length) {
+    reportLibraryIssue('Radio stations are unavailable. Please refresh the page.');
+    return;
+  }
+  stationList.forEach(station => {
     const region = classifyStation(station);
     groupedStations[region].push(station);
   });
@@ -3330,11 +3349,21 @@ async function probeStreamUrl(rawUrl, stationName) {
 
     function updateRadioListModal() {
       stationDisplayCounts = { nigeria: 0, westAfrica: 0, international: 0 };
+      if (!Array.isArray(window.radioStations) || window.radioStations.length === 0) {
+        reportLibraryIssue('Radio stations are unavailable. Please refresh the page.');
+        return;
+      }
       buildGroupedStations();
 
       ["nigeria", "westAfrica", "international"].forEach(region => {
-        document.getElementById(`${region}-stations`).innerHTML = '';
-        document.querySelector(`button[onclick="loadMoreStations('${region}')"]`).style.display = 'inline-block';
+        const container = document.getElementById(`${region}-stations`);
+        if (container) {
+          container.innerHTML = '';
+        }
+        const loadMoreButton = document.querySelector(`button[onclick="loadMoreStations('${region}')"]`);
+        if (loadMoreButton) {
+          loadMoreButton.style.display = 'inline-block';
+        }
         loadMoreStations(region);
       });
 
@@ -3355,7 +3384,14 @@ function syncAlbumIndexToCurrentTrack() {
 
 function loadMoreStations(region) {
   const container = document.getElementById(`${region}-stations`);
-  const stations = groupedStations[region];
+  const stations = groupedStations[region] || [];
+  if (!container || !stations.length) {
+    const loadMoreButton = document.querySelector(`button[onclick="loadMoreStations('${region}')"]`);
+    if (loadMoreButton) {
+      loadMoreButton.style.display = 'none';
+    }
+    return;
+  }
   const start = stationDisplayCounts[region];
   const end = start + stationsPerPage;
 
@@ -4637,6 +4673,7 @@ if (typeof window !== 'undefined') {
     addCurrentTrackToPlaylist,
     toggleLyrics,
     loadMoreStations,
-    selectAlbum
+    selectAlbum,
+    reportLibraryIssue
   });
 }
