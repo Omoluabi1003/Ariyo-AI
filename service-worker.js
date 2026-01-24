@@ -65,7 +65,6 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'scripts/main.js',
   'scripts/idle-utils.js',
   'scripts/proverb-utils.js',
-  'scripts/player-state-utils.js',
   'scripts/seo.js',
   'scripts/share-card.js',
   'scripts/audio-recovery-utils.js',
