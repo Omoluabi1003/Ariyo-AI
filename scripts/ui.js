@@ -61,7 +61,13 @@ function populateAlbumList() {
   albums.forEach((album, index) => {
     const link = document.createElement('a');
     link.href = '#';
-    link.onclick = () => { selectAlbum(index); closeAlbumList(); };
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      if (typeof window.selectAlbum === 'function') {
+        window.selectAlbum(index);
+      }
+      closeAlbumList();
+    });
 
     const img = document.createElement('img');
     const coverSrc = album.cover || album.coverImage || '../../Logo.jpg';
