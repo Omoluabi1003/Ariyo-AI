@@ -320,17 +320,20 @@
       clearBufferingHedge();
       hidePlaySpinner();
       vinylWaiting = false;
+      clearWaitingRetry();
     });
     audioPlayer.addEventListener('waiting', () => {
       showPlaySpinner();
       setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
       scheduleBufferingHedgeFromSource();
       vinylWaiting = true;
+      scheduleWaitingRetry();
       manageVinylRotation();
     });
     audioPlayer.addEventListener('stalled', () => {
       showPlaySpinner();
       vinylWaiting = true;
+      scheduleWaitingRetry();
       if (!stallRetryTimer) {
         stallRetryTimer = setTimeout(() => attemptPlay(), 3000);
       }
@@ -657,6 +660,12 @@ if (DEBUG_AUDIO) {
 });
 const neutralFailureMessage = 'Playback paused—tap retry to keep the vibe going.';
 let stallRetryTimer = null;
+const waitingRetryState = {
+  timerId: null,
+  attempts: 0,
+  maxAttempts: 2,
+  timeoutMs: 6500
+};
 
 function showPlaySpinner() {
   if (playButtonEl) {
@@ -672,6 +681,42 @@ function hidePlaySpinner() {
     clearTimeout(stallRetryTimer);
     stallRetryTimer = null;
   }
+}
+
+function clearWaitingRetry() {
+  if (waitingRetryState.timerId) {
+    clearTimeout(waitingRetryState.timerId);
+    waitingRetryState.timerId = null;
+  }
+  waitingRetryState.attempts = 0;
+}
+
+function scheduleWaitingRetry() {
+  if (waitingRetryState.timerId) return;
+  if (audioPlayer.paused) return;
+
+  // Prevent infinite buffering when "waiting" persists for too long.
+  waitingRetryState.timerId = setTimeout(() => {
+    waitingRetryState.timerId = null;
+    if (audioPlayer.paused || !vinylWaiting) return;
+
+    const attemptLabel = `waiting-${waitingRetryState.attempts + 1}`;
+    if (attemptSoftRecovery(attemptLabel)) {
+      scheduleWaitingRetry();
+      return;
+    }
+
+    if (waitingRetryState.attempts < waitingRetryState.maxAttempts) {
+      waitingRetryState.attempts += 1;
+      console.warn('[buffering] Waiting too long, retrying playback...', { attempt: waitingRetryState.attempts });
+      attemptPlay();
+      scheduleWaitingRetry();
+      return;
+    }
+
+    waitingRetryState.attempts = 0;
+    startNetworkRecovery('waiting-timeout');
+  }, waitingRetryState.timeoutMs);
 }
 
 const slowBufferRescue = {
@@ -3935,14 +3980,13 @@ function selectRadio(src, title, index, logo) {
     function setTurntableSpin(isSpinning) {
       [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
         if (!element) return;
-        element.classList.toggle('spin', isSpinning);
         element.classList.toggle('is-spinning', isSpinning);
         element.style.animationPlayState = isSpinning ? 'running' : 'paused';
       });
     }
 
     function shouldSpinVinyl() {
-      const isPlaying = playbackStatus === PlaybackStatus.playing;
+      const isPlaying = playbackStatus === PlaybackStatus.playing || (!audioPlayer.paused && !audioPlayer.ended);
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
@@ -4235,6 +4279,7 @@ function updateTrackTime() {
 
     audioPlayer.addEventListener('pause', event => {
       vinylWaiting = false;
+      clearWaitingRetry();
       setPlaybackStatus(PlaybackStatus.paused);
       manageVinylRotation();
       if (event && event.target && event.target.paused) {
@@ -4249,6 +4294,7 @@ function updateTrackTime() {
     });
     audioPlayer.addEventListener('ended', () => {
       vinylWaiting = false;
+      clearWaitingRetry();
       manageVinylRotation();
     });
 
