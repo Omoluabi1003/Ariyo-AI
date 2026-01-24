@@ -71,7 +71,16 @@
     });
   }
 
+  function hasAlbumsLoaded() {
+    return Array.isArray(window.albums) && window.albums.length > 0;
+  }
+
   function scheduleIdleLoad() {
+    if (!hasAlbumsLoaded()) {
+      loadFullLibrary({ reason: 'bootstrap-missing', immediate: true });
+      return;
+    }
+
     if (isSlowConnection()) {
       return;
     }
