@@ -7,6 +7,10 @@
       window.__ariyoAudioElement = audioPlayer;
     }
     const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
+    const reducedMotionQuery = typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -28,12 +32,10 @@
     }
 
     function prefersReducedMotion() {
-      return typeof window !== 'undefined'
-        && typeof window.matchMedia === 'function'
-        && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      return Boolean(reducedMotionQuery && reducedMotionQuery.matches);
     }
 
-    const vinylStateUtils = window.AriyoVinylStateUtils || {
+    const fallbackVinylStateUtils = {
       shouldVinylSpin: ({
         paused,
         ended,
@@ -49,8 +51,20 @@
         if (waiting) return false;
         if (Number.isFinite(readyState) && readyState < minimumReadyState) return false;
         return true;
+      },
+      deriveVinylSpinState: (audioElement, options = {}) => {
+        if (!audioElement) return false;
+        const { waiting = false, reducedMotion = false } = options;
+        return fallbackVinylStateUtils.shouldVinylSpin({
+          paused: audioElement.paused,
+          ended: audioElement.ended,
+          waiting,
+          readyState: audioElement.readyState,
+          reducedMotion
+        });
       }
     };
+    const vinylStateUtils = window.AriyoVinylStateUtils || fallbackVinylStateUtils;
 
     /**
      * @typedef {Object} RecommendationReason
@@ -3915,11 +3929,19 @@ function selectRadio(src, title, index, logo) {
       [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
         if (!element) return;
         element.classList.toggle('is-spinning', isSpinning);
+        element.style.animationPlayState = isSpinning ? 'running' : 'paused';
       });
     }
 
     function shouldSpinVinyl() {
-      return vinylStateUtils.shouldVinylSpin({
+      const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
+      if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
+        return resolveSpinState(audioPlayer, {
+          waiting: vinylWaiting,
+          reducedMotion: prefersReducedMotion()
+        });
+      }
+      return resolveSpinState({
         paused: audioPlayer.paused,
         ended: audioPlayer.ended,
         waiting: vinylWaiting,
@@ -3934,6 +3956,18 @@ function selectRadio(src, title, index, logo) {
       if (lastSpinState !== shouldSpin) {
         lastSpinState = shouldSpin;
         console.info('[vinyl] spin', { active: shouldSpin });
+      }
+    }
+
+    function handleReducedMotionChange() {
+      manageVinylRotation();
+    }
+
+    if (reducedMotionQuery) {
+      if (typeof reducedMotionQuery.addEventListener === 'function') {
+        reducedMotionQuery.addEventListener('change', handleReducedMotionChange);
+      } else if (typeof reducedMotionQuery.addListener === 'function') {
+        reducedMotionQuery.addListener(handleReducedMotionChange);
       }
     }
 
