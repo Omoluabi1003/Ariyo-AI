@@ -3896,7 +3896,11 @@ function selectRadio(src, title, index, logo) {
     }
 
     function shouldSpinVinyl() {
-      return !audioPlayer.paused && !audioPlayer.ended;
+      return (
+        playbackStatus === PlaybackStatus.playing
+        || playbackStatus === PlaybackStatus.preparing
+        || playbackStatus === PlaybackStatus.buffering
+      );
     }
 
     function manageVinylRotation() {
