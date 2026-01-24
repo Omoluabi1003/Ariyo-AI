@@ -698,6 +698,21 @@ body[data-theme="light"] .badge-spotlight {
     animation-duration: 4.5s;
 }
 
+.album-cover.spin,
+.album-groove-overlay.spin {
+    animation: spinCentered 4.5s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes spinCentered {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
 .fire {
   font-size: 8px;
   filter: blur(0.5px);
