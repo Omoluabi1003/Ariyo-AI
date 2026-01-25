@@ -572,6 +572,7 @@
     if (audioEngine.getState() === 'playing') return;
     playIntent = true;
     userPauseRequested = false;
+    updateSpinState();
     await ensureTrackLoaded({ autoplay: true });
   };
 
