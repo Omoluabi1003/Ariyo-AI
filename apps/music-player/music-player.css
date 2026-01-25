@@ -167,6 +167,26 @@ body {
   animation-play-state: paused;
 }
 
+.turntable-disc {
+  animation: spinDisc var(--vinyl-spin-duration) linear infinite;
+}
+
+.album-cover {
+  animation: spinAlbum var(--vinyl-wobble-duration) ease-in-out infinite;
+}
+
+.turntable-grooves {
+  animation: grooveDrift var(--vinyl-wobble-duration) ease-in-out infinite;
+}
+
+.album-groove-overlay {
+  animation: grooveShimmer var(--vinyl-sheen-duration) ease-in-out infinite;
+}
+
+.turntable-sheen {
+  animation: sheenSweep var(--vinyl-sheen-duration) ease-in-out infinite;
+}
+
 .spinning {
   animation-play-state: running;
 }
@@ -745,26 +765,6 @@ body {
   }
 }
 
-.turntable-disc.spin {
-  animation: spinDisc var(--vinyl-spin-duration) linear infinite;
-}
-
-.album-cover.spin {
-  animation: spinAlbum var(--vinyl-wobble-duration) ease-in-out infinite;
-}
-
-.turntable-grooves.spin {
-  animation: grooveDrift var(--vinyl-wobble-duration) ease-in-out infinite;
-}
-
-.album-groove-overlay.spin {
-  animation: grooveShimmer var(--vinyl-sheen-duration) ease-in-out infinite;
-}
-
-.turntable-sheen.spin {
-  animation: sheenSweep var(--vinyl-sheen-duration) ease-in-out infinite;
-}
-
 @media (max-width: 1024px) {
   .player-shell {
     grid-template-columns: 1fr;
@@ -824,11 +824,11 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .loading-spinner,
-  .turntable-disc.spin,
-  .album-cover.spin,
-  .turntable-grooves.spin,
-  .album-groove-overlay.spin,
-  .turntable-sheen.spin {
+  .turntable-disc,
+  .album-cover,
+  .turntable-grooves,
+  .album-groove-overlay,
+  .turntable-sheen {
     animation: none !important;
   }
 }
