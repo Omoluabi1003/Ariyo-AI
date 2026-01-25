@@ -42,27 +42,36 @@
         waiting,
         readyState,
         reducedMotion,
-        isPlaying
+        isPlaying,
+        playIntent
       } = {}) => {
         const minimumReadyState = typeof HTMLMediaElement !== 'undefined'
           ? HTMLMediaElement.HAVE_CURRENT_DATA
           : 2;
+        const resolvedPlayIntent = typeof playIntent === 'boolean' ? playIntent : Boolean(isPlaying);
         if (reducedMotion) return false;
-        if (paused || ended) return false;
-        if (waiting && !isPlaying) return false;
-        if (Number.isFinite(readyState) && readyState < minimumReadyState && !isPlaying) return false;
+        if (ended) return false;
+        if (paused && !resolvedPlayIntent) return false;
+        if (waiting && !resolvedPlayIntent) return false;
+        if (Number.isFinite(readyState) && readyState < minimumReadyState && !resolvedPlayIntent) return false;
         return true;
       },
       deriveVinylSpinState: (audioElement, options = {}) => {
         if (!audioElement) return false;
-        const { waiting = false, reducedMotion = false, isPlaying = false } = options;
+        const {
+          waiting = false,
+          reducedMotion = false,
+          isPlaying = false,
+          playIntent
+        } = options;
         return fallbackVinylStateUtils.shouldVinylSpin({
           paused: audioElement.paused,
           ended: audioElement.ended,
           waiting,
           readyState: audioElement.readyState,
           reducedMotion,
-          isPlaying
+          isPlaying,
+          playIntent
         });
       }
     };
@@ -320,6 +329,7 @@
       clearBufferingHedge();
       hidePlaySpinner();
       vinylWaiting = false;
+      playIntent = true;
       clearWaitingRetry();
     });
     audioPlayer.addEventListener('waiting', () => {
@@ -327,12 +337,14 @@
       setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
       scheduleBufferingHedgeFromSource();
       vinylWaiting = true;
+      playIntent = true;
       scheduleWaitingRetry();
       manageVinylRotation();
     });
     audioPlayer.addEventListener('stalled', () => {
       showPlaySpinner();
       vinylWaiting = true;
+      playIntent = true;
       scheduleWaitingRetry();
       if (!stallRetryTimer) {
         stallRetryTimer = setTimeout(() => attemptPlay(), 3000);
@@ -556,6 +568,7 @@ const logAudioEvent = (label, detail = {}) => {
 
 let lastSpinState = false;
 let vinylWaiting = false;
+let playIntent = false;
 
 const initDebugPanel = () => {
   if (!DEBUG_AUDIO) return;
@@ -3989,13 +4002,15 @@ function selectRadio(src, title, index, logo) {
       const uiPlayMode = playbackStatus === PlaybackStatus.playing
         || playbackStatus === PlaybackStatus.buffering
         || playbackStatus === PlaybackStatus.preparing;
-      const isPlaying = uiPlayMode || (!audioPlayer.paused && !audioPlayer.ended);
+      const resolvedPlayIntent = playIntent || uiPlayMode;
+      const isPlaying = !audioPlayer.paused && !audioPlayer.ended;
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
           waiting: vinylWaiting,
           reducedMotion: prefersReducedMotion(),
-          isPlaying
+          isPlaying,
+          playIntent: resolvedPlayIntent
         });
       }
       return resolveSpinState({
@@ -4004,7 +4019,8 @@ function selectRadio(src, title, index, logo) {
         waiting: vinylWaiting,
         readyState: audioPlayer.readyState,
         reducedMotion: prefersReducedMotion(),
-        isPlaying
+        isPlaying,
+        playIntent: resolvedPlayIntent
       });
     }
 
@@ -4039,6 +4055,7 @@ function selectRadio(src, title, index, logo) {
       logAudioEvent('play-attempt');
       debugLog('attempt-play');
       userInitiatedPause = false;
+      playIntent = true;
       showPlaySpinner();
       hasUserGesture = true;
       void warmupAudioOutput();
@@ -4047,6 +4064,7 @@ function selectRadio(src, title, index, logo) {
       ensureAudiblePlayback();
       if (!ensureInitialTrackLoaded()) {
         hidePlaySpinner();
+        playIntent = false;
         if (trackInfo) {
           trackInfo.textContent = 'Choose a track to start playback.';
         }
@@ -4081,6 +4099,7 @@ function selectRadio(src, title, index, logo) {
           debugLog('playback-started');
           clearQuickStartDeadline();
           hidePlaySpinner();
+          playIntent = true;
           const progressBarElement = document.getElementById('progressBar');
           if (progressBarElement) {
             progressBarElement.style.display = 'block';
@@ -4106,10 +4125,12 @@ function selectRadio(src, title, index, logo) {
           handlePlayError(error, trackInfo.textContent);
         });
       }
+      manageVinylRotation();
     }
 
     function handlePlayError(error, title) {
       clearQuickStartDeadline();
+      playIntent = false;
       const isAutoplayBlocked = error && (error.name === 'NotAllowedError' || error.name === 'AbortError');
       if (!audioPlayer.src) {
         trackInfo.textContent = 'Choose a track to start playback.';
@@ -4145,6 +4166,7 @@ function pauseMusic() {
     clearSilentStartGuard();
     audioPlayer.pause();
     vinylWaiting = false;
+    playIntent = false;
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
@@ -4162,6 +4184,7 @@ function stopMusic() {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     vinylWaiting = false;
+    playIntent = false;
     manageVinylRotation();
         audioPlayer.removeEventListener('timeupdate', updateTrackTime);
         stopPlaybackWatchdog();
@@ -4283,6 +4306,7 @@ function updateTrackTime() {
     audioPlayer.addEventListener('pause', event => {
       vinylWaiting = false;
       clearWaitingRetry();
+      playIntent = false;
       setPlaybackStatus(PlaybackStatus.paused);
       manageVinylRotation();
       if (event && event.target && event.target.paused) {
@@ -4298,6 +4322,7 @@ function updateTrackTime() {
     audioPlayer.addEventListener('ended', () => {
       vinylWaiting = false;
       clearWaitingRetry();
+      playIntent = false;
       manageVinylRotation();
     });
 
@@ -4313,6 +4338,7 @@ function updateTrackTime() {
       hideBufferingState();
       hidePlaySpinner();
       vinylWaiting = false;
+      playIntent = true;
       setPlaybackStatus(PlaybackStatus.playing);
       manageVinylRotation(); // spin the turntable if needed
       ensureAudiblePlayback();
@@ -4328,12 +4354,14 @@ function updateTrackTime() {
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback failed. Tap retry to continue.' });
       vinylWaiting = false;
+      playIntent = false;
       manageVinylRotation();
       showRetryButton('Retry playback');
     });
     audioPlayer.addEventListener('stalled', () => {
       scheduleFirstPlayGuard();
       setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
+      playIntent = true;
       manageVinylRotation();
     });
 

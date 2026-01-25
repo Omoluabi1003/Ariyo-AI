@@ -18,7 +18,7 @@ describe('vinyl state utils', () => {
       waiting: false,
       readyState: 3,
       reducedMotion: false,
-      isPlaying: false
+      playIntent: false
     })).toBe(false);
 
     expect(shouldVinylSpin({
@@ -27,7 +27,7 @@ describe('vinyl state utils', () => {
       waiting: false,
       readyState: 3,
       reducedMotion: false,
-      isPlaying: false
+      playIntent: false
     })).toBe(false);
 
     expect(shouldVinylSpin({
@@ -36,7 +36,7 @@ describe('vinyl state utils', () => {
       waiting: true,
       readyState: 3,
       reducedMotion: false,
-      isPlaying: false
+      playIntent: false
     })).toBe(false);
   });
 
@@ -47,7 +47,7 @@ describe('vinyl state utils', () => {
       waiting: false,
       readyState: 1,
       reducedMotion: false,
-      isPlaying: false
+      playIntent: false
     })).toBe(false);
 
     expect(shouldVinylSpin({
@@ -56,7 +56,7 @@ describe('vinyl state utils', () => {
       waiting: false,
       readyState: 3,
       reducedMotion: true,
-      isPlaying: false
+      playIntent: false
     })).toBe(false);
   });
 
@@ -67,7 +67,7 @@ describe('vinyl state utils', () => {
       waiting: true,
       readyState: 1,
       reducedMotion: false,
-      isPlaying: true
+      playIntent: true
     })).toBe(true);
   });
 
@@ -90,7 +90,7 @@ describe('vinyl state utils', () => {
       readyState: 1
     };
 
-    expect(deriveVinylSpinState(audioElement, { waiting: true, reducedMotion: false, isPlaying: true })).toBe(true);
+    expect(deriveVinylSpinState(audioElement, { waiting: true, reducedMotion: false, playIntent: true })).toBe(true);
   });
 
   test('returns false when audio element is missing', () => {
