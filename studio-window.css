@@ -1,0 +1,207 @@
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--surface-contrast);
+  background: radial-gradient(circle at top, rgba(22, 35, 71, 0.95), rgba(3, 6, 18, 0.98));
+  display: flex;
+  flex-direction: column;
+}
+
+body[data-theme="light"] {
+  background: linear-gradient(180deg, #f2f4fa 0%, #e7ebf5 100%);
+  color: #0b1224;
+}
+
+.header {
+  padding: calc(1rem + env(safe-area-inset-top)) 1.5rem 1rem;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 800;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  flex-wrap: wrap;
+  color: var(--surface-contrast);
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.65rem, 2vw, 1rem);
+  flex: 1;
+  min-width: min(360px, 100%);
+}
+
+.header-logo {
+  height: 56px;
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.header-title {
+  line-height: 1.1;
+}
+
+.header-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.shell-link {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.shell-link:hover,
+.shell-link:focus-visible {
+  text-decoration: underline;
+}
+
+.studio-shell {
+  padding: clamp(1.5rem, 4vw, 3rem);
+  flex: 1;
+}
+
+.studio-window {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  background: var(--card-bg);
+  border-radius: 24px;
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.studio-window__meta h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.studio-window__meta p {
+  margin: 0 0 1rem;
+  opacity: 0.9;
+}
+
+.studio-window__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.studio-window__status {
+  min-height: 1.4rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.studio-window__frame {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  min-height: 520px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.studio-window__frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  min-height: 520px;
+}
+
+.embed-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--surface-border);
+  background: linear-gradient(135deg, rgba(142, 91, 255, 0.3), rgba(255, 127, 197, 0.25));
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.embed-button:hover,
+.embed-button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.embed-button.secondary {
+  background: transparent;
+}
+
+.app-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  padding: 1rem clamp(1rem, 4vw, 2rem);
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: saturate(130%) blur(0px);
+  background: rgba(0, 0, 0, 0.55);
+  margin: 0;
+}
+
+body[data-theme="light"] .app-footer {
+  color: rgba(15, 23, 42, 0.75);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.app-footer a {
+  color: var(--theme-color);
+  text-decoration: underline;
+}
+
+.app-footer__title {
+  font-weight: 600;
+  color: rgba(142, 91, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .header-logo {
+    height: 48px;
+  }
+}

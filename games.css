@@ -197,6 +197,12 @@ body[data-theme="light"] {
   background: transparent;
 }
 
+.embed-button.studio {
+  background: linear-gradient(135deg, rgba(142, 91, 255, 0.95), rgba(255, 127, 197, 0.85));
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
 .embed-note {
   font-size: 0.95rem;
   opacity: 0.9;
