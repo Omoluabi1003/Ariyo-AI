@@ -159,6 +159,18 @@ body {
   pointer-events: none;
 }
 
+.turntable-disc,
+.turntable-sheen,
+.turntable-grooves,
+.album-cover,
+.album-groove-overlay {
+  animation-play-state: paused;
+}
+
+.spinning {
+  animation-play-state: running;
+}
+
 .turntable-sheen {
   inset: 0;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0) 45%);

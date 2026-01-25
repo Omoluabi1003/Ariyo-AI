@@ -133,8 +133,8 @@
   let progressFrame = null;
   let pendingSeekValue = 0;
   let sourceRequestId = 0;
-  let pendingAutoplay = false;
-  let lastPauseRequested = false;
+  let playIntent = false;
+  let userPauseRequested = false;
 
   const formatTime = seconds => {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -160,15 +160,36 @@
     updateSpinState();
   };
 
+  const spinController = window.AriyoVinylSpinController;
+  const applySpinState = spinController && spinController.updateVinylSpinState
+    ? spinController.updateVinylSpinState
+    : (elements, isSpinning, options = {}) => {
+      const { spinClass = 'spin', activeClass = 'spinning' } = options;
+      const list = Array.isArray(elements) ? elements : [elements];
+      list.forEach(element => {
+        if (!element) return;
+        if (spinClass) {
+          element.classList.toggle(spinClass, isSpinning);
+        }
+        if (activeClass) {
+          element.classList.toggle(activeClass, isSpinning);
+        }
+        element.style.animationPlayState = isSpinning ? 'running' : 'paused';
+      });
+    };
+
+  const vinylElements = [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover];
+
+  const updateVinylSpinState = isSpinning => {
+    applySpinState(vinylElements, isSpinning, { spinClass: 'spin', activeClass: 'spinning' });
+  };
+
   const updateSpinState = () => {
     const state = audioEngine.getState();
     const isSpinning = state === 'playing'
       || isLoading
-      || (pendingAutoplay && !lastPauseRequested && state !== 'error');
-    [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
-      if (!element) return;
-      element.classList.toggle('spin', isSpinning);
-    });
+      || (playIntent && state !== 'error');
+    updateVinylSpinState(isSpinning);
   };
 
   const updateNextTrackLabel = () => {
@@ -504,8 +525,10 @@
     updateTrackMetadata(track);
 
     const sourceRequest = ++sourceRequestId;
-    pendingAutoplay = autoplay;
-    lastPauseRequested = false;
+    if (autoplay) {
+      playIntent = true;
+    }
+    userPauseRequested = false;
     showLoading(isLiveStreamTrack(track) ? 'Connecting to live stream…' : 'Loading track…');
 
     try {
@@ -547,13 +570,14 @@
   const playCurrentTrack = async () => {
     if (!currentTrack) return;
     if (audioEngine.getState() === 'playing') return;
-    lastPauseRequested = false;
+    playIntent = true;
+    userPauseRequested = false;
     await ensureTrackLoaded({ autoplay: true });
   };
 
   const stopPlayback = () => {
-    pendingAutoplay = false;
-    lastPauseRequested = false;
+    playIntent = false;
+    userPauseRequested = true;
     audioEngine.stop();
     updateProgressDisplay(0, currentDuration);
     hideLoading();
@@ -605,8 +629,8 @@
 
   playButton.addEventListener('click', playCurrentTrack);
   pauseButton.addEventListener('click', () => {
-    pendingAutoplay = false;
-    lastPauseRequested = true;
+    playIntent = false;
+    userPauseRequested = true;
     audioEngine.pause();
   });
   stopButton.addEventListener('click', stopPlayback);
@@ -648,22 +672,25 @@
       hideLoading();
       setStatus(`Now playing: ${currentTrack ? currentTrack.title : ''}`.trim());
       startProgressLoop();
+      playIntent = true;
+      userPauseRequested = false;
       updateSpinState();
-      pendingAutoplay = false;
-      lastPauseRequested = false;
       return;
     }
 
     if (state === 'paused') {
+      const wasUserPause = userPauseRequested;
+      if (wasUserPause) {
+        playIntent = false;
+      }
+      userPauseRequested = false;
       hideLoading();
       stopProgressLoop();
       updateSpinState();
       if (!audioEngine.isLive()) {
         updateProgressDisplay(audioEngine.seek(), audioEngine.getDuration() || currentDuration);
       }
-      setStatus(lastPauseRequested ? 'Playback paused.' : 'Ready to play.');
-      pendingAutoplay = false;
-      lastPauseRequested = false;
+      setStatus(wasUserPause ? 'Playback paused.' : 'Ready to play.');
       return;
     }
 
