@@ -73,6 +73,14 @@
           isPlaying,
           playIntent
         });
+      },
+      applyVinylSpinState: (elements, isSpinning, className = 'is-spinning') => {
+        if (!elements) return;
+        Array.from(elements).forEach(element => {
+          if (!element) return;
+          element.classList.toggle(className, isSpinning);
+          element.style.animationPlayState = isSpinning ? 'running' : 'paused';
+        });
       }
     };
     const vinylStateUtils = window.AriyoVinylStateUtils || fallbackVinylStateUtils;
@@ -3998,11 +4006,11 @@ function selectRadio(src, title, index, logo) {
     }
 
     function setTurntableSpin(isSpinning) {
-      [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover].forEach(element => {
-        if (!element) return;
-        element.classList.toggle('is-spinning', isSpinning);
-        element.style.animationPlayState = isSpinning ? 'running' : 'paused';
-      });
+      vinylStateUtils.applyVinylSpinState(
+        [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover],
+        isSpinning,
+        'is-spinning'
+      );
     }
 
     function shouldSpinVinyl() {
@@ -4310,6 +4318,14 @@ function updateTrackTime() {
     audioPlayer.addEventListener('ended', handleTrackEnded);
 
     audioPlayer.addEventListener('pause', event => {
+      const isBufferingPause = !userInitiatedPause
+        && (vinylWaiting
+          || playbackStatus === PlaybackStatus.buffering
+          || playbackStatus === PlaybackStatus.preparing);
+      if (isBufferingPause) {
+        manageVinylRotation();
+        return;
+      }
       vinylWaiting = false;
       setPlayIntent(false);
       clearWaitingRetry();
