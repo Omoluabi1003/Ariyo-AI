@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8E5BFF" />
+  <meta name="description" content="Explore fun, browser-based games and experiences integrated into Ariyo AI." />
+  <title>Games & Simulations | Àríyò AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="color-scheme.css" />
+  <link rel="stylesheet" href="games.css" />
+</head>
+<body>
+  <header class="games-header">
+    <div class="games-header__intro">
+      <a class="back-link" href="main.html" aria-label="Back to Ariyo AI Studio">← Back to Studio</a>
+      <h1>Games &amp; Simulations</h1>
+      <p>Explore fun, browser-based games and experiences integrated here.</p>
+    </div>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+      <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+      <span class="theme-toggle-label">Light mode</span>
+    </button>
+  </header>
+
+  <main class="games-layout">
+    <section class="games-grid" id="gamesGrid" aria-live="polite"></section>
+  </main>
+
+  <script src="scripts/theme-toggle.js" defer></script>
+  <script src="scripts/games.js" type="module"></script>
+</body>
+</html>

@@ -1475,6 +1475,7 @@
       <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave"><i class="fas fa-music" aria-hidden="true"></i> Choose A Track</button>
       <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave"><i class="fas fa-list" aria-hidden="true"></i> My Playlist</button>
       <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave"><i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations</button>
+      <button type="button" aria-label="Games and simulations" class="ripple shockwave" aria-controls="gamesHubContainer" data-open-target="gamesHubContainer" data-open-src="games.html"><i class="fas fa-gamepad" aria-hidden="true"></i> Games &amp; Simulations</button>
       <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
     </div>
     <div class="content" id="main-content">
@@ -1708,6 +1709,10 @@
                 <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube icon" />
                 <span class="edge-panel-label" id="edgeLabelYouTube"><strong>Watch Omoluabi Paul</strong>Latest videos &amp; performances</span>
             </button>
+            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="gamesHubContainer" data-open-target="gamesHubContainer" data-open-src="games.html" aria-describedby="edgeLabelGames" role="listitem">
+                <img src="icons/Ariyo.png" alt="Games hub icon" />
+                <span class="edge-panel-label" id="edgeLabelGames"><strong>Games Hub</strong>GeoFS, MyRetroTVs, and more</span>
+            </button>
             <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="pictureGameContainer" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html" aria-describedby="edgeLabelPicture" role="listitem">
                 <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game icon" />
                 <span class="edge-panel-label" id="edgeLabelPicture"><strong>Picture Game</strong>Guess-the-scene memory challenge</span>
@@ -1751,6 +1756,14 @@
     <h3 id="musicPlayerTitle" class="modal-title">Omoluabi Music Player</h3>
     <p id="musicPlayerTagline" class="modal-tagline">Dive into Àríyò AI’s curated catalogue without leaving the hub.</p>
     <iframe src="apps/music-player/music-player.html" data-default-src="apps/music-player/music-player.html" title="Omoluabi music player" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<!-- Games Hub Container -->
+<div id="gamesHubContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="gamesHubTitle" aria-describedby="gamesHubTagline">
+    <button class="popup-close ripple shockwave" data-close-target="gamesHubContainer" aria-label="Close Games Hub">×</button>
+    <h3 id="gamesHubTitle" class="modal-title">Games &amp; Simulations</h3>
+    <p id="gamesHubTagline" class="modal-tagline">Jump into GeoFS, MyRetroTVs, and more without leaving the studio.</p>
+    <iframe src="games.html" data-default-src="games.html" title="Games &amp; simulations hub" style="width: 100%; height: 100%; border: none;"></iframe>
 </div>
 
 <!-- Omoluabi Paul YouTube Container -->
