@@ -9,26 +9,34 @@
     waiting,
     readyState,
     reducedMotion,
-    isPlaying
+    isPlaying,
+    playIntent
   } = {}) {
     if (reducedMotion) return false;
     if (ended) return false;
-    if (paused && !isPlaying) return false;
-    if (waiting && !isPlaying) return false;
-    if (Number.isFinite(readyState) && readyState < DEFAULT_READY_STATE && !isPlaying) return false;
+    const hasPlayIntent = Boolean(playIntent || isPlaying);
+    if (paused && !hasPlayIntent) return false;
+    if (waiting && !hasPlayIntent) return false;
+    if (Number.isFinite(readyState) && readyState < DEFAULT_READY_STATE && !hasPlayIntent) return false;
     return true;
   }
 
   function deriveVinylSpinState(audioElement, options = {}) {
     if (!audioElement) return false;
-    const { waiting = false, reducedMotion = false, isPlaying = false } = options;
+    const {
+      waiting = false,
+      reducedMotion = false,
+      isPlaying = false,
+      playIntent = false
+    } = options;
     return shouldVinylSpin({
       paused: audioElement.paused,
       ended: audioElement.ended,
       waiting,
       readyState: audioElement.readyState,
       reducedMotion,
-      isPlaying
+      isPlaying,
+      playIntent
     });
   }
 
