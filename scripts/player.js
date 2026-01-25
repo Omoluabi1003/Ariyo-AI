@@ -556,6 +556,7 @@ const logAudioEvent = (label, detail = {}) => {
 
 let lastSpinState = false;
 let vinylWaiting = false;
+let playIntentActive = false;
 
 const initDebugPanel = () => {
   if (!DEBUG_AUDIO) return;
@@ -3986,7 +3987,10 @@ function selectRadio(src, title, index, logo) {
     }
 
     function shouldSpinVinyl() {
-      const isPlaying = playbackStatus === PlaybackStatus.playing || (!audioPlayer.paused && !audioPlayer.ended);
+      const uiPlayMode = playbackStatus === PlaybackStatus.playing
+        || playbackStatus === PlaybackStatus.buffering
+        || playbackStatus === PlaybackStatus.preparing;
+      const isPlaying = playIntentActive || uiPlayMode || (!audioPlayer.paused && !audioPlayer.ended);
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
@@ -4036,6 +4040,7 @@ function selectRadio(src, title, index, logo) {
       logAudioEvent('play-attempt');
       debugLog('attempt-play');
       userInitiatedPause = false;
+      playIntentActive = true;
       showPlaySpinner();
       hasUserGesture = true;
       void warmupAudioOutput();
@@ -4048,6 +4053,7 @@ function selectRadio(src, title, index, logo) {
           trackInfo.textContent = 'Choose a track to start playback.';
         }
         setPlaybackStatus(PlaybackStatus.idle);
+        playIntentActive = false;
         manageVinylRotation();
         return;
       }
@@ -4057,6 +4063,7 @@ function selectRadio(src, title, index, logo) {
       } else if (playbackStatus !== PlaybackStatus.playing && playbackStatus !== PlaybackStatus.paused) {
         setPlaybackStatus(PlaybackStatus.preparing, { message: 'Starting playback...' });
       }
+      manageVinylRotation();
       scheduleFirstPlayGuard();
       scheduleSilentStartGuard();
       albumCover.style.display = 'block';
@@ -4108,6 +4115,7 @@ function selectRadio(src, title, index, logo) {
     function handlePlayError(error, title) {
       clearQuickStartDeadline();
       const isAutoplayBlocked = error && (error.name === 'NotAllowedError' || error.name === 'AbortError');
+      playIntentActive = false;
       if (!audioPlayer.src) {
         trackInfo.textContent = 'Choose a track to start playback.';
         hideRetryButton();
@@ -4138,6 +4146,7 @@ function selectRadio(src, title, index, logo) {
 function pauseMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
+    playIntentActive = false;
     clearQuickStartDeadline();
     clearSilentStartGuard();
     audioPlayer.pause();
@@ -4154,6 +4163,7 @@ function pauseMusic() {
 function stopMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
+    playIntentActive = false;
     clearQuickStartDeadline();
     clearSilentStartGuard();
     audioPlayer.pause();
@@ -4279,6 +4289,7 @@ function updateTrackTime() {
 
     audioPlayer.addEventListener('pause', event => {
       vinylWaiting = false;
+      playIntentActive = false;
       clearWaitingRetry();
       setPlaybackStatus(PlaybackStatus.paused);
       manageVinylRotation();
@@ -4294,6 +4305,7 @@ function updateTrackTime() {
     });
     audioPlayer.addEventListener('ended', () => {
       vinylWaiting = false;
+      playIntentActive = false;
       clearWaitingRetry();
       manageVinylRotation();
     });
@@ -4310,6 +4322,7 @@ function updateTrackTime() {
       hideBufferingState();
       hidePlaySpinner();
       vinylWaiting = false;
+      playIntentActive = true;
       setPlaybackStatus(PlaybackStatus.playing);
       manageVinylRotation(); // spin the turntable if needed
       ensureAudiblePlayback();
@@ -4325,6 +4338,7 @@ function updateTrackTime() {
       hidePlaySpinner();
       setPlaybackStatus(PlaybackStatus.failed, { message: 'Playback failed. Tap retry to continue.' });
       vinylWaiting = false;
+      playIntentActive = false;
       manageVinylRotation();
       showRetryButton('Retry playback');
     });

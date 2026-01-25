@@ -12,7 +12,8 @@
     isPlaying
   } = {}) {
     if (reducedMotion) return false;
-    if (paused || ended) return false;
+    if (ended) return false;
+    if (paused && !isPlaying) return false;
     if (waiting && !isPlaying) return false;
     if (Number.isFinite(readyState) && readyState < DEFAULT_READY_STATE && !isPlaying) return false;
     return true;
@@ -33,6 +34,13 @@
 
   if (typeof window !== 'undefined') {
     window.AriyoVinylStateUtils = {
+      shouldVinylSpin,
+      deriveVinylSpinState
+    };
+  }
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
       shouldVinylSpin,
       deriveVinylSpinState
     };

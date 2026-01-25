@@ -11,13 +11,14 @@ describe('vinyl state utils', () => {
     })).toBe(true);
   });
 
-  test('stops when paused, ended, or waiting', () => {
+  test('stops when paused, ended, or waiting without play intent', () => {
     expect(shouldVinylSpin({
       paused: true,
       ended: false,
       waiting: false,
       readyState: 3,
-      reducedMotion: false
+      reducedMotion: false,
+      isPlaying: false
     })).toBe(false);
 
     expect(shouldVinylSpin({
@@ -25,7 +26,8 @@ describe('vinyl state utils', () => {
       ended: true,
       waiting: false,
       readyState: 3,
-      reducedMotion: false
+      reducedMotion: false,
+      isPlaying: false
     })).toBe(false);
 
     expect(shouldVinylSpin({
@@ -33,17 +35,19 @@ describe('vinyl state utils', () => {
       ended: false,
       waiting: true,
       readyState: 3,
-      reducedMotion: false
+      reducedMotion: false,
+      isPlaying: false
     })).toBe(false);
   });
 
-  test('respects reduced motion or insufficient readyState', () => {
+  test('respects reduced motion or insufficient readyState without play intent', () => {
     expect(shouldVinylSpin({
       paused: false,
       ended: false,
       waiting: false,
       readyState: 1,
-      reducedMotion: false
+      reducedMotion: false,
+      isPlaying: false
     })).toBe(false);
 
     expect(shouldVinylSpin({
@@ -51,8 +55,20 @@ describe('vinyl state utils', () => {
       ended: false,
       waiting: false,
       readyState: 3,
-      reducedMotion: true
+      reducedMotion: true,
+      isPlaying: false
     })).toBe(false);
+  });
+
+  test('keeps spinning when UI play intent is true during buffering', () => {
+    expect(shouldVinylSpin({
+      paused: true,
+      ended: false,
+      waiting: true,
+      readyState: 1,
+      reducedMotion: false,
+      isPlaying: true
+    })).toBe(true);
   });
 
   test('derives spin state from an audio element', () => {
@@ -65,6 +81,16 @@ describe('vinyl state utils', () => {
     expect(deriveVinylSpinState(audioElement, { waiting: false, reducedMotion: false })).toBe(true);
     expect(deriveVinylSpinState(audioElement, { waiting: true, reducedMotion: false })).toBe(false);
     expect(deriveVinylSpinState(audioElement, { waiting: false, reducedMotion: true })).toBe(false);
+  });
+
+  test('derives spinning state when play intent is true', () => {
+    const audioElement = {
+      paused: true,
+      ended: false,
+      readyState: 1
+    };
+
+    expect(deriveVinylSpinState(audioElement, { waiting: true, reducedMotion: false, isPlaying: true })).toBe(true);
   });
 
   test('returns false when audio element is missing', () => {
