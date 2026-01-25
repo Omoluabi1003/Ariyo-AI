@@ -21,6 +21,10 @@ const createActionButton = (text, className = '') => {
 export const createGameEmbedCard = (game) => {
   const card = document.createElement('article');
   card.className = 'game-card is-loading';
+  const studioWindowUrl = new URL('studio-window.html', window.location.href);
+  studioWindowUrl.searchParams.set('title', game.title);
+  studioWindowUrl.searchParams.set('url', game.url);
+  studioWindowUrl.searchParams.set('description', game.description);
 
   const heading = document.createElement('h2');
   heading.textContent = game.title;
@@ -50,13 +54,15 @@ export const createGameEmbedCard = (game) => {
     <p class="embed-note">We couldn't load ${game.title} here. Your browser may be blocking the embed.</p>
   `;
   const retryButton = createActionButton('Retry in studio');
+  const studioButton = createActionLink(studioWindowUrl.toString(), 'Launch in Studio Window', 'studio');
   const errorButton = createActionLink(game.url, `Open ${game.title} in a new tab`);
-  errorOverlay.append(retryButton, errorButton);
+  errorOverlay.append(retryButton, studioButton, errorButton);
 
   const actions = document.createElement('div');
   actions.className = 'embed-actions';
+  const launchButton = createActionLink(studioWindowUrl.toString(), 'Launch in Studio Window', 'studio');
   const reloadButton = createActionButton('Reload in studio', 'secondary');
-  actions.appendChild(reloadButton);
+  actions.append(launchButton, reloadButton);
 
   embed.append(iframe, loadingOverlay, errorOverlay);
 

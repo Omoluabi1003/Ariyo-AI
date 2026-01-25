@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#8E5BFF" />
+  <meta name="description" content="Launch games and simulations in the Ariyo AI Studio shell." />
+  <title>Studio Window | Àríyò AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="color-scheme.css" />
+  <link rel="stylesheet" href="studio-window.css" />
+</head>
+<body>
+  <header class="header studio-header">
+    <div class="header-brand">
+      <img class="header-logo" src="Ariyo AI icon.png" alt="Àríyò AI logo" />
+      <div class="header-titles">
+        <div class="header-title">Àríyò AI Studio</div>
+        <div class="header-subtitle">Games &amp; Simulations</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a class="shell-link" href="games.html" aria-label="Back to games and simulations">← Back to Games</a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+        <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+        <span class="theme-toggle-label">Light mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="studio-shell">
+    <section class="studio-window">
+      <div class="studio-window__meta">
+        <h1 id="studioGameTitle">Studio Window</h1>
+        <p id="studioGameDescription">Launch games and simulations in a Studio-branded shell.</p>
+        <div class="studio-window__actions">
+          <a class="embed-button secondary" id="studioGameDirect" href="games.html">Back to Games</a>
+        </div>
+        <p class="studio-window__status" id="studioGameStatus" role="status" aria-live="polite"></p>
+      </div>
+      <div class="studio-window__frame">
+        <iframe id="studioGameFrame" title="Studio game window" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p class="app-footer__title">Still in Studio</p>
+    <p>
+      Keep exploring, or head back to the main Studio hub.
+      <a href="main.html">Return to Studio</a>
+    </p>
+  </footer>
+
+  <script src="scripts/theme-toggle.js" defer></script>
+  <script src="scripts/studio-window.js" type="module"></script>
+</body>
+</html>
