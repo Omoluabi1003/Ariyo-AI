@@ -40,17 +40,29 @@
     });
   }
 
+  function applyVinylSpinState(elements, isSpinning, className = 'is-spinning') {
+    if (!elements) return;
+    const list = Array.from(elements);
+    list.forEach(element => {
+      if (!element) return;
+      element.classList.toggle(className, isSpinning);
+      element.style.animationPlayState = isSpinning ? 'running' : 'paused';
+    });
+  }
+
   if (typeof window !== 'undefined') {
     window.AriyoVinylStateUtils = {
       shouldVinylSpin,
-      deriveVinylSpinState
+      deriveVinylSpinState,
+      applyVinylSpinState
     };
   }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       shouldVinylSpin,
-      deriveVinylSpinState
+      deriveVinylSpinState,
+      applyVinylSpinState
     };
   }
 })();
