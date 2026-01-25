@@ -413,6 +413,7 @@ function toggleShuffle() {
 const PANEL_IDS = [
     'ariyoChatbotContainer',
     'sabiBibleContainer',
+    'gamesHubContainer',
     'pictureGameContainer',
     'musicPlayerContainer',
     'tetrisGameContainer',
@@ -456,6 +457,10 @@ const PANEL_LOAD_CONFIG = {
     musicPlayerContainer: {
         loadingMessage: 'Loading Omoluabi Player…',
         errorMessage: 'The music player is unavailable right now. Please retry in a moment.'
+    },
+    gamesHubContainer: {
+        loadingMessage: 'Loading Games Hub…',
+        errorMessage: 'The Games Hub couldn’t load. Please retry in a moment.'
     }
 };
 
