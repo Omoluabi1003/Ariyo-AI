@@ -10,6 +10,14 @@ const createActionLink = (href, text, className = '') => {
   return link;
 };
 
+const createActionButton = (text, className = '') => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `embed-button ${className}`.trim();
+  button.textContent = text;
+  return button;
+};
+
 export const createGameEmbedCard = (game) => {
   const card = document.createElement('article');
   card.className = 'game-card is-loading';
@@ -41,18 +49,35 @@ export const createGameEmbedCard = (game) => {
   errorOverlay.innerHTML = `
     <p class="embed-note">We couldn't load ${game.title} here. Your browser may be blocking the embed.</p>
   `;
+  const retryButton = createActionButton('Retry in studio');
   const errorButton = createActionLink(game.url, `Open ${game.title} in a new tab`);
-  errorOverlay.appendChild(errorButton);
+  errorOverlay.append(retryButton, errorButton);
 
   const actions = document.createElement('div');
   actions.className = 'embed-actions';
-  const openButton = createActionLink(game.url, `Open ${game.title} in a new tab`, 'secondary');
-  actions.appendChild(openButton);
+  const reloadButton = createActionButton('Reload in studio', 'secondary');
+  actions.appendChild(reloadButton);
 
   embed.append(iframe, loadingOverlay, errorOverlay);
 
   let isLoading = true;
   let hasError = false;
+  let timeoutId;
+
+  const startLoading = () => {
+    if (timeoutId) {
+      window.clearTimeout(timeoutId);
+    }
+    isLoading = true;
+    hasError = false;
+    card.classList.add('is-loading');
+    card.classList.remove('has-error');
+    timeoutId = window.setTimeout(() => {
+      if (isLoading) {
+        setError();
+      }
+    }, TIMEOUT_MS);
+  };
 
   const setLoaded = () => {
     if (hasError) return;
@@ -68,12 +93,6 @@ export const createGameEmbedCard = (game) => {
     card.classList.add('has-error');
   };
 
-  const timeoutId = window.setTimeout(() => {
-    if (isLoading) {
-      setError();
-    }
-  }, TIMEOUT_MS);
-
   iframe.addEventListener('load', () => {
     window.clearTimeout(timeoutId);
     if (isLoading) {
@@ -85,6 +104,19 @@ export const createGameEmbedCard = (game) => {
     window.clearTimeout(timeoutId);
     setError();
   });
+
+  const reloadEmbed = () => {
+    iframe.src = 'about:blank';
+    startLoading();
+    window.setTimeout(() => {
+      iframe.src = game.url;
+    }, 50);
+  };
+
+  reloadButton.addEventListener('click', reloadEmbed);
+  retryButton.addEventListener('click', reloadEmbed);
+
+  startLoading();
 
   card.append(heading, description, embed, actions);
   return card;
