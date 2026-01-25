@@ -1113,6 +1113,7 @@ document.addEventListener('visibilitychange', () => {
 function setPlaybackStatus(status, options = {}) {
   const { message } = options;
   playbackStatus = status;
+  manageVinylRotation();
 
   if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
     const messageText = message || 'Lining up your track...';
