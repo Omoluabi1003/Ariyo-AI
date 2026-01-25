@@ -3986,7 +3986,10 @@ function selectRadio(src, title, index, logo) {
     }
 
     function shouldSpinVinyl() {
-      const isPlaying = playbackStatus === PlaybackStatus.playing || (!audioPlayer.paused && !audioPlayer.ended);
+      const uiPlayMode = playbackStatus === PlaybackStatus.playing
+        || playbackStatus === PlaybackStatus.buffering
+        || playbackStatus === PlaybackStatus.preparing;
+      const isPlaying = uiPlayMode || (!audioPlayer.paused && !audioPlayer.ended);
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
