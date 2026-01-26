@@ -305,8 +305,12 @@
       analyzer.connect(ctx.destination);
     };
 
-    resumeAudioContext();
-    connectAnalyzer();
+    const unlockVisualizer = () => {
+      resumeAudioContext();
+      connectAnalyzer();
+    };
+
+    unlockVisualizer();
 
     const canvasContext = visualizerCanvas.getContext('2d');
     if (!canvasContext) return null;
@@ -604,7 +608,7 @@
     setReduceMotion();
     updateVisualizerState();
 
-    return () => {
+    const teardown = () => {
       stopLoop();
       if (resizeObserver) {
         resizeObserver.disconnect();
@@ -627,6 +631,8 @@
         prefersReducedMotion.removeListener(setReduceMotion);
       }
     };
+
+    return { teardown, unlock: unlockVisualizer };
   };
 
   const updateNextTrackLabel = () => {
@@ -1013,6 +1019,9 @@
     playIntent = true;
     userPauseRequested = false;
     updateSpinState();
+    if (visualizerControls && typeof visualizerControls.unlock === 'function') {
+      visualizerControls.unlock();
+    }
     if (window.Howler && window.Howler.ctx && window.Howler.ctx.state === 'suspended') {
       try {
         await window.Howler.ctx.resume();
@@ -1075,12 +1084,12 @@
     }
   };
 
-  let teardownVisualizer = null;
+  let visualizerControls = null;
   const ensureVisualizer = () => {
-    if (teardownVisualizer) return;
-    const teardown = setupAudioVisualizer();
-    if (teardown) {
-      teardownVisualizer = teardown;
+    if (visualizerControls) return;
+    const controls = setupAudioVisualizer();
+    if (controls) {
+      visualizerControls = controls;
       visualizerToggle.disabled = false;
     }
   };
@@ -1088,8 +1097,8 @@
   ensureVisualizer();
 
   window.addEventListener('beforeunload', () => {
-    if (teardownVisualizer) {
-      teardownVisualizer();
+    if (visualizerControls) {
+      visualizerControls.teardown();
     }
   });
 
