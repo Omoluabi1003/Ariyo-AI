@@ -78,9 +78,13 @@ function populateAlbumList() {
   albumList.innerHTML = '';
   const albumCatalog = Array.isArray(window.albums)
     ? window.albums
-    : (typeof albums !== 'undefined' && Array.isArray(albums) ? albums : []);
+    : (Array.isArray(window.libraryState?.local) ? window.libraryState.local : []);
   if (!albumCatalog.length) {
     reportLibraryIssue('Albums are unavailable. Please refresh the page.');
+    if (typeof window.loadFullLibraryData === 'function') {
+      window.loadFullLibraryData({ reason: 'album-list-empty', immediate: true })
+        .then(() => populateAlbumList());
+    }
     return;
   }
   albumCatalog.forEach((album, index) => {
