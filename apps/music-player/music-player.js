@@ -247,27 +247,61 @@
       }
     };
 
+    let mediaElementSource = null;
+    let mediaElementNode = null;
+
     const connectAnalyzer = () => {
-      if (!window.Howler || !window.Howler.masterGain || !window.Howler.ctx || !window.Howler.ctx.destination) {
+      if (!window.Howler || !window.Howler.ctx || !window.Howler.ctx.destination) {
         return;
       }
-      const { masterGain, ctx } = window.Howler;
+      const { ctx } = window.Howler;
       try {
         analyzer.disconnect();
       } catch (_) {
         // Ignore disconnect errors.
       }
+
+      if (window.Howler.usingWebAudio && window.Howler.masterGain) {
+        const { masterGain } = window.Howler;
+        try {
+          masterGain.disconnect(ctx.destination);
+        } catch (_) {
+          // Ignore disconnect errors.
+        }
+        try {
+          masterGain.disconnect(analyzer);
+        } catch (_) {
+          // Ignore disconnect errors.
+        }
+        masterGain.connect(analyzer);
+        analyzer.connect(ctx.destination);
+        return;
+      }
+
+      if (!audioEngine || typeof audioEngine.getAudioElement !== 'function') {
+        return;
+      }
+      const audioElement = audioEngine.getAudioElement();
+      if (!audioElement) {
+        return;
+      }
+      if (mediaElementNode !== audioElement) {
+        if (mediaElementSource) {
+          try {
+            mediaElementSource.disconnect();
+          } catch (_) {
+            // Ignore disconnect errors.
+          }
+        }
+        mediaElementSource = ctx.createMediaElementSource(audioElement);
+        mediaElementNode = audioElement;
+      }
       try {
-        masterGain.disconnect(ctx.destination);
+        mediaElementSource.disconnect();
       } catch (_) {
         // Ignore disconnect errors.
       }
-      try {
-        masterGain.disconnect(analyzer);
-      } catch (_) {
-        // Ignore disconnect errors.
-      }
-      masterGain.connect(analyzer);
+      mediaElementSource.connect(analyzer);
       analyzer.connect(ctx.destination);
     };
 
@@ -577,6 +611,15 @@
         resizeObserver = null;
       } else {
         window.removeEventListener('resize', resizeCanvases);
+      }
+      if (mediaElementSource) {
+        try {
+          mediaElementSource.disconnect();
+        } catch (_) {
+          // Ignore disconnect errors.
+        }
+        mediaElementSource = null;
+        mediaElementNode = null;
       }
       if (prefersReducedMotion.removeEventListener) {
         prefersReducedMotion.removeEventListener('change', setReduceMotion);

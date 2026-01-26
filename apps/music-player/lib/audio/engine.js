@@ -185,6 +185,18 @@
       dispatch('state', { state });
     },
     getDuration: () => (howl ? howl.duration() : 0),
+    getAudioElement: () => {
+      if (!howl || !howl._sounds || !howl._sounds.length) return null;
+      const soundNode = howl._sounds[0]._node;
+      if (!soundNode) return null;
+      if (typeof HTMLAudioElement !== 'undefined' && soundNode instanceof HTMLAudioElement) {
+        return soundNode;
+      }
+      if (soundNode.nodeName === 'AUDIO') {
+        return soundNode;
+      }
+      return null;
+    },
   };
 
   window.audioEngine = audioEngine;
