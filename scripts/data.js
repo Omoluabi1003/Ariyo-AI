@@ -329,6 +329,11 @@ const podcastFeedAlbums = [
   { name: 'Back2Basics', feedUrl: BACK2BASICS_FEED_URL }
 ];
 
+function getPodcastFeedByName(albumName) {
+  const match = podcastFeedAlbums.find(feed => feed.name === albumName);
+  return match?.feedUrl || null;
+}
+
 function parsePodcastFeed(xmlText) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
@@ -419,6 +424,15 @@ async function hydratePodcastAlbum(albumName, feedUrl) {
 document.addEventListener('DOMContentLoaded', () => {
   podcastFeedAlbums.forEach(feed => hydratePodcastAlbum(feed.name, feed.feedUrl));
 });
+
+window.refreshPodcastAlbum = (albumName) => {
+  const feedUrl = getPodcastFeedByName(albumName);
+  if (!feedUrl) {
+    console.warn(`No RSS feed configured for album: ${albumName}`);
+    return Promise.resolve(false);
+  }
+  return hydratePodcastAlbum(albumName, feedUrl);
+};
 
 const LATEST_TRACK_WINDOW_HOURS = 168;
 const LATEST_TRACK_LIMIT = 2;

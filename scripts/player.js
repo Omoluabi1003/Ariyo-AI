@@ -2588,8 +2588,27 @@ function removeTrackFromPlaylist(index) {
         if (album.rssFeed) {
           const feedNote = document.createElement('p');
           feedNote.className = 'track-meta-note';
-          feedNote.textContent = 'Tracks refresh automatically from the RSS feed.';
+          feedNote.textContent = 'Tracks refresh automatically from the RSS feed. Use refresh if a new episode is missing.';
           trackModalMeta.appendChild(feedNote);
+
+          if (typeof window.refreshPodcastAlbum === 'function') {
+            const refreshButton = document.createElement('button');
+            refreshButton.type = 'button';
+            refreshButton.className = 'track-meta-button';
+            refreshButton.textContent = 'Refresh episodes';
+            refreshButton.addEventListener('click', () => {
+              if (refreshButton.disabled) return;
+              const originalText = refreshButton.textContent;
+              refreshButton.textContent = 'Refreshing...';
+              refreshButton.disabled = true;
+              Promise.resolve(window.refreshPodcastAlbum(album.name))
+                .finally(() => {
+                  refreshButton.textContent = originalText;
+                  refreshButton.disabled = false;
+                });
+            });
+            trackModalMeta.appendChild(refreshButton);
+          }
         }
 
         renderStorylinerPanel(trackModalMeta, album);
