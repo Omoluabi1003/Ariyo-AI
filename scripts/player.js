@@ -361,7 +361,13 @@
     if (!existingAudioElement && !audioPlayer.isConnected) {
         document.body.appendChild(audioPlayer);
     }
-    const albumCover = document.getElementById('albumCover');
+    const trackThumbnail = document.getElementById('trackThumbnail');
+    if (trackThumbnail) {
+      trackThumbnail.addEventListener('error', () => {
+        trackThumbnail.src = 'Logo.jpg';
+        trackThumbnail.alt = 'Album art placeholder';
+      });
+    }
     const turntableDisc = document.querySelector('.turntable-disc');
     const turntableGrooves = document.querySelector('.turntable-grooves');
     const turntableSheen = document.querySelector('.turntable-sheen');
@@ -422,6 +428,7 @@
     const trackYear = document.getElementById('trackYear');
     const trackAlbum = document.getElementById('trackAlbum'); // Added for album display
     const trackDuration = document.getElementById('trackDuration');
+    const trackArtistInline = document.getElementById('trackArtistInline');
     const liveRadioBadge = document.getElementById('liveRadioBadge');
     const asaNote = document.getElementById('asaNote');
     const asaNoteYo = document.getElementById('asaNoteYo');
@@ -433,6 +440,23 @@
       asaNoteAttribution.style.fontSize = '0.75rem';
       asaNoteAttribution.style.opacity = '0.8';
       asaNote.appendChild(asaNoteAttribution);
+    }
+
+    const DEFAULT_THUMBNAIL_SRC = 'Logo.jpg';
+
+    function updateTrackThumbnail({ src, title, artist, album, isRadio = false } = {}) {
+      if (!trackThumbnail) return;
+      const resolvedSrc = src || DEFAULT_THUMBNAIL_SRC;
+      trackThumbnail.src = resolvedSrc;
+      if (isRadio) {
+        trackThumbnail.alt = title ? `Station artwork for ${title}` : 'Radio station artwork';
+        return;
+      }
+      const artistLabel = artist ? ` by ${artist}` : '';
+      const albumLabel = album ? ` (${album})` : '';
+      trackThumbnail.alt = title
+        ? `Album art for ${title}${artistLabel}${albumLabel}`
+        : 'Album art placeholder';
     }
     const playbackStatusBanner = document.getElementById('playbackStatusBanner');
     const playbackStatusMessage = document.getElementById('playbackStatusMessage');
@@ -1314,9 +1338,13 @@ function activateOfflineFallback(reason = 'network') {
   if (trackArtist) {
     trackArtist.textContent = artist;
   }
+  if (trackArtistInline) {
+    trackArtistInline.textContent = artist;
+  }
   if (trackAlbum) {
     trackAlbum.textContent = 'Album: Offline queue';
   }
+  updateTrackThumbnail({ title, artist });
 
   setCrossOrigin(audioPlayer, src);
   audioPlayer.src = src;
@@ -3465,6 +3493,9 @@ function applyTrackUiState(albumIndex, trackIndex) {
     trackInfo.textContent = track.title;
     const displayArtist = deriveTrackArtist(album.artist, track.title);
     trackArtist.textContent = `Artist: ${displayArtist}`;
+    if (trackArtistInline) {
+      trackArtistInline.textContent = displayArtist;
+    }
     const year = track.releaseYear ?? album.releaseYear ?? null;
     trackYear.textContent = `Release Year: ${year || 'Unknown'}`;
     trackAlbum.textContent = `Album: ${album.name}`;
@@ -3483,7 +3514,12 @@ function applyTrackUiState(albumIndex, trackIndex) {
         trackId: resolveTrackId(track, track.title)
       }
     });
-    albumCover.src = album.cover;
+    updateTrackThumbnail({
+      src: track.cover || album.cover,
+      title: track.title,
+      artist: displayArtist,
+      album: album.name
+    });
     loadLyrics(track.lrc);
     document.getElementById('progressBar').style.display = 'block';
     progressBar.style.width = '0%';
@@ -3704,7 +3740,6 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) 
       persistLastPlayed(buildLastPlayedPayload({ positionSeconds: 0 }));
       const isLiveTrack = Boolean(trackMeta && trackMeta.isLive);
       showBufferingState('Loading your track...');
-      albumCover.style.display = 'none';
       hideRetryButton();
       setTurntableSpin(false);
       resetWaveformState();
@@ -3814,14 +3849,16 @@ function selectRadio(src, title, index, logo) {
       lastTrackIndex = index;
       trackInfo.textContent = title;
       trackArtist.textContent = '';
+      if (trackArtistInline) {
+        trackArtistInline.textContent = '';
+      }
       trackYear.textContent = '';
       trackAlbum.textContent = 'Radio Stream'; // Clear album for radio
-      albumCover.src = logo;
+      updateTrackThumbnail({ src: logo, title, isRadio: true });
       lyricsContainer.innerHTML = '';
       lyricLines = [];
       stopMusic();
       showBufferingState('Connecting to the station...');
-      albumCover.style.display = 'none';
       hideRetryButton();
       document.getElementById('progressBar').style.display = 'block';
       progressBar.style.width = '0%';
@@ -3849,7 +3886,6 @@ function selectRadio(src, title, index, logo) {
     function retryTrackWithDelay() {
       trackInfo.textContent = 'Retrying...';
       showBufferingState('Retrying playback...');
-      albumCover.style.display = 'none';
       document.getElementById('progressBar').style.display = 'none';
       hideRetryButton();
       setTurntableSpin(false);
@@ -3955,7 +3991,6 @@ function selectRadio(src, title, index, logo) {
 
       const revealPlaybackUi = () => {
         if (!silent) {
-          albumCover.style.display = 'block';
           document.getElementById('progressBar').style.display = 'none';
         }
         hideRetryButton();
@@ -4027,7 +4062,9 @@ function selectRadio(src, title, index, logo) {
         if (audioPlayer.error) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
-        console.error(`Album cover src: ${albumCover.src}`);
+        if (trackThumbnail) {
+          console.error(`Track thumbnail src: ${trackThumbnail.src}`);
+        }
 
         const corsBlocked = allowCorsRetry
           && audioPlayer._corsEnabled
@@ -4389,6 +4426,7 @@ function selectRadio(src, title, index, logo) {
     }
 
     function setTurntableSpin(isSpinning) {
+      lastSpinState = isSpinning;
       setWaveformActive(isSpinning);
       vinylStateUtils.applyVinylSpinState(
         [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay],
@@ -4479,7 +4517,6 @@ function selectRadio(src, title, index, logo) {
       }
       scheduleFirstPlayGuard();
       scheduleSilentStartGuard();
-      albumCover.style.display = 'block';
       if (typeof window !== 'undefined' && typeof window.stopYouTubePlayback === 'function') {
         try {
           window.stopYouTubePlayback();
@@ -4510,8 +4547,9 @@ function selectRadio(src, title, index, logo) {
           recordPlaybackProgress(audioPlayer.currentTime || 0);
           debugConsole(`Playing: ${trackInfo.textContent}`);
           schedulePlayerStateSave();
-          if (isFirstPlay) {
-            gsap.fromTo(albumCover,
+          if (isFirstPlay && trackThumbnail) {
+            gsap.fromTo(
+              trackThumbnail,
               { scale: 1 },
               { scale: 1.1, yoyo: true, repeat: 1, duration: 0.3, ease: "bounce.out" }
             );
@@ -4540,7 +4578,6 @@ function selectRadio(src, title, index, logo) {
         PlaybackStatus.failed,
         { message: isAutoplayBlocked ? 'Tap play to enable audio.' : 'Playback was interrupted. Tap play to resume.' }
       );
-      albumCover.style.display = 'block';
       document.getElementById('progressBar').style.display = 'none';
       vinylWaiting = false;
       setPlayIntent(false);

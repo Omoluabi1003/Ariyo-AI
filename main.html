@@ -1516,17 +1516,6 @@
           <div class="player-visual">
             <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
               <canvas class="waveform-canvas" aria-hidden="true"></canvas>
-              <div class="waveform-art" aria-hidden="true">
-                <img
-                  id="albumCover"
-                  class="album-cover waveform-cover"
-                  src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-                  alt="Album Cover"
-                  width="320"
-                  height="320"
-                  onerror="this.onerror=null;this.src='Logo.jpg';"
-                />
-              </div>
             </div>
             <div id="bufferingOverlay" class="buffering-overlay" aria-live="polite" aria-atomic="true">
               <div class="buffering-ripple" aria-hidden="true"></div>
@@ -1546,7 +1535,22 @@
             <div id="progressBar" class="progress-bar">
               <div id="progressBarFill"></div>
             </div>
-            <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
+            <div class="now-playing" aria-live="polite">
+              <div class="now-playing-thumb">
+                <img
+                  id="trackThumbnail"
+                  src="Logo.jpg"
+                  alt="Album art placeholder"
+                  width="56"
+                  height="56"
+                  loading="lazy"
+                />
+              </div>
+              <div class="now-playing-text">
+                <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
+                <p class="track-artist-inline" id="trackArtistInline"></p>
+              </div>
+            </div>
             <div class="track-provenance" aria-live="polite">
               <span id="liveRadioBadge" class="provenance-chip" hidden>Live radio</span>
             </div>
