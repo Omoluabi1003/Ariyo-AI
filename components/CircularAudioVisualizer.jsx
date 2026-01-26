@@ -9,6 +9,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
   const sourceRef = useRef(null);
+  const audioElementRef = useRef(null);
   const rafRef = useRef(null);
   const dataArrayRef = useRef(null);
   const barLevelsRef = useRef(new Float32Array(BAR_COUNT));
@@ -20,6 +21,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
     (window.AudioContext || window.webkitAudioContext);
 
   useEffect(() => {
+    // Only spin up the audio graph after the first user-initiated play.
     if (!supportsAudio || !isPlaying || !audioRef?.current) {
       return;
     }
@@ -42,12 +44,20 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       analyserRef.current = analyser;
     }
 
-    if (!sourceRef.current) {
-      sourceRef.current = audioContextRef.current.createMediaElementSource(
-        audioRef.current
-      );
+    const currentAudioElement = audioRef.current;
+    if (
+      !sourceRef.current ||
+      (audioElementRef.current && audioElementRef.current !== currentAudioElement)
+    ) {
+      if (sourceRef.current) {
+        sourceRef.current.disconnect();
+      }
+
+      sourceRef.current =
+        audioContextRef.current.createMediaElementSource(currentAudioElement);
       sourceRef.current.connect(analyserRef.current);
       analyserRef.current.connect(audioContextRef.current.destination);
+      audioElementRef.current = currentAudioElement;
     }
 
     if (!dataArrayRef.current && analyserRef.current) {
@@ -142,6 +152,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
         analyser.getByteFrequencyData(dataArray);
       }
 
+      // Average low bins for a simple beat pulse / breathing glow.
       const basePulse = hasAudioData
         ? getLowFrequencyAverage(dataArray, 20) / 255
         : 0.15 + 0.1 * Math.sin(timestamp / 500);
