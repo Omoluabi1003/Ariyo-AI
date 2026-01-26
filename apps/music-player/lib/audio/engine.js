@@ -56,13 +56,13 @@
     howl = null;
   };
 
-  const buildHowl = ({ url, preload }) => {
+  const buildHowl = ({ url, preload, useHtml5 }) => {
     teardownHowl();
     retriedPlayUnlock = false;
 
     howl = new HowlConstructor({
       src: [url],
-      html5: true,
+      html5: Boolean(useHtml5),
       preload,
       volume,
       mute: muted,
@@ -113,14 +113,14 @@
       isLiveSource = false;
       setState('loading', { id, title, artist, artwork });
       dispatch('source', { id, url, title, artist, artwork, type: 'track' });
-      buildHowl({ url, preload: true });
+      buildHowl({ url, preload: true, useHtml5: false });
     },
     loadStream: ({ id, url, title, region }) => {
       if (!url) return;
       isLiveSource = true;
       setState('loading', { id, title, region });
       dispatch('source', { id, url, title, region, type: 'stream' });
-      buildHowl({ url, preload: false });
+      buildHowl({ url, preload: false, useHtml5: true });
     },
     play: () => {
       if (!howl) {
