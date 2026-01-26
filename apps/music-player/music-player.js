@@ -219,10 +219,14 @@
     if (!window.Howler || !window.Howler.ctx) {
       visualizerToggle.disabled = true;
       visualizerToggle.setAttribute('aria-pressed', 'false');
-      visualizerToggle.textContent = 'Visualizer Unavailable';
-      visualizerStatus.textContent = 'Unavailable';
+      visualizerToggle.textContent = 'Visualizer Loading';
+      visualizerStatus.textContent = 'Waiting for audio';
       return null;
     }
+
+    visualizerToggle.disabled = false;
+    visualizerToggle.setAttribute('aria-pressed', 'true');
+    visualizerToggle.textContent = 'Visualizer On';
 
     const analyzer = window.Howler.ctx.createAnalyser();
     analyzer.fftSize = 2048;
@@ -869,13 +873,25 @@
     }
   };
 
-  const teardownVisualizer = setupAudioVisualizer();
+  let teardownVisualizer = null;
+  const ensureVisualizer = () => {
+    if (teardownVisualizer) return;
+    const teardown = setupAudioVisualizer();
+    if (teardown) {
+      teardownVisualizer = teardown;
+      visualizerToggle.disabled = false;
+    }
+  };
+
+  ensureVisualizer();
 
   window.addEventListener('beforeunload', () => {
     if (teardownVisualizer) {
       teardownVisualizer();
     }
   });
+
+  window.addEventListener('audioengine:source', ensureVisualizer);
 
   playButton.addEventListener('click', playCurrentTrack);
   pauseButton.addEventListener('click', () => {
