@@ -4195,9 +4195,9 @@ function selectRadio(src, title, index, logo) {
       }
       const bassAvg = bassSum / bassBins;
       waveformState.beatAverage = waveformState.beatAverage * 0.9 + bassAvg * 0.1;
-      const now = performance.now();
-      if (bassAvg > waveformState.beatAverage * 1.25 && now - waveformState.lastBeatTime > 180) {
-        waveformState.lastBeatTime = now;
+      const beatNow = performance.now();
+      if (bassAvg > waveformState.beatAverage * 1.25 && beatNow - waveformState.lastBeatTime > 180) {
+        waveformState.lastBeatTime = beatNow;
         triggerWaveformBeat();
       }
       waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
