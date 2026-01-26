@@ -197,10 +197,22 @@ async function validateRadioStations(stations) {
   return results;
 }
 
-const globalStations = (typeof window !== 'undefined' && window.radioStations) || [];
-const mergedRadioStations = mergeRadioStations(globalStations, radioStationsNew);
+function refreshMergedRadioStations() {
+  const globalStations = (typeof window !== 'undefined' && window.radioStations) || [];
+  return mergeRadioStations(globalStations, radioStationsNew);
+}
+
+const mergedRadioStations = refreshMergedRadioStations();
 
 if (typeof window !== 'undefined') {
   window.mergedRadioStations = mergedRadioStations;
+  window.refreshMergedRadioStations = () => {
+    const nextMerged = refreshMergedRadioStations();
+    window.mergedRadioStations = nextMerged;
+    return nextMerged;
+  };
   window.validateRadioStations = validateRadioStations;
+  window.addEventListener('ariyo:library-ready', () => {
+    window.refreshMergedRadioStations();
+  });
 }

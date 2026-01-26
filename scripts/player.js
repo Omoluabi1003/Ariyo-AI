@@ -478,9 +478,13 @@ const syncLibraryState = ({ source = 'init' } = {}) => {
   const nextAlbums = Array.isArray(window.albums)
     ? window.albums
     : (Array.isArray(window.libraryState?.local) ? window.libraryState.local : []);
-  const nextStations = Array.isArray(window.radioStations)
+  const baseStations = Array.isArray(window.radioStations)
     ? window.radioStations
     : (Array.isArray(window.libraryState?.streams) ? window.libraryState.streams : []);
+  const mergedStations = Array.isArray(window.mergedRadioStations) ? window.mergedRadioStations : [];
+  const nextStations = mergedStations.length >= baseStations.length
+    ? mergedStations
+    : baseStations;
 
   if (!Array.isArray(window.albums) && nextAlbums.length) {
     window.albums = nextAlbums;
@@ -4821,6 +4825,9 @@ function handleGlobalShortcuts(event) {
 document.addEventListener('keydown', handleGlobalShortcuts);
 
 window.addEventListener('ariyo:library-ready', event => {
+  if (typeof window.refreshMergedRadioStations === 'function') {
+    window.refreshMergedRadioStations();
+  }
   syncLibraryState({ source: event?.detail?.source || 'library-ready' });
   if (event?.detail?.source !== 'full') return;
   syncAlbumIndexToCurrentTrack();
@@ -4830,6 +4837,10 @@ window.addEventListener('ariyo:library-ready', event => {
   }
   if (isTrackModalOpen()) {
     updateTrackListModal();
+  }
+  const radioModal = document.getElementById('radioModal');
+  if (radioModal && getComputedStyle(radioModal).display !== 'none') {
+    updateRadioListModal();
   }
 });
 
