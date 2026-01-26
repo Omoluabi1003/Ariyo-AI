@@ -240,8 +240,20 @@
     analyzer.fftSize = 2048;
     analyzer.smoothingTimeConstant = 0.82;
 
-    if (window.Howler.masterGain) {
-      window.Howler.masterGain.connect(analyzer);
+    if (window.Howler.masterGain && window.Howler.ctx.destination) {
+      const { masterGain, ctx } = window.Howler;
+      try {
+        masterGain.disconnect(ctx.destination);
+      } catch (_) {
+        // Ignore disconnect errors.
+      }
+      try {
+        masterGain.disconnect(analyzer);
+      } catch (_) {
+        // Ignore disconnect errors.
+      }
+      masterGain.connect(analyzer);
+      analyzer.connect(ctx.destination);
     }
 
     const canvasContext = visualizerCanvas.getContext('2d');
