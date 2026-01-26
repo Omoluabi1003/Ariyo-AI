@@ -43,22 +43,33 @@
       flex-direction: column;
       gap: 1.5rem;
     }
-    .share-card__eyebrow {
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: var(--card-accent);
-      font-size: 0.75rem;
-    }
     .share-card__title {
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-size: clamp(1.7rem, 3.6vw, 2.4rem);
       font-weight: 700;
       margin: 0;
     }
-    .share-card__subtitle {
-      margin: 0;
-      color: var(--card-muted);
+    .share-card__link {
+      margin: 0.45rem 0 0;
       font-size: 0.95rem;
+      color: var(--card-muted);
+      word-break: break-word;
+    }
+    .share-card__link a {
+      color: var(--card-text);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .share-card__qr {
+      display: flex;
+      justify-content: center;
+      padding: 0.5rem 0;
+    }
+    .share-card__qr img {
+      width: min(240px, 70vw);
+      height: auto;
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 0.65rem;
     }
     .share-card__proverb {
       padding: 1.2rem 1.4rem;
@@ -68,6 +79,13 @@
       display: grid;
       gap: 0.65rem;
       font-size: 1.05rem;
+    }
+    .share-card__proverb-heading {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.7rem;
+      color: var(--card-accent);
+      font-weight: 700;
     }
     .share-card__proverb span {
       display: block;
@@ -90,11 +108,14 @@
 <body>
   <main class="share-card" role="main">
     <div>
-      <p class="share-card__eyebrow" id="shareCardHeading">Proverb of the Day</p>
       <h1 class="share-card__title" id="shareCardTitle">Àríyò AI</h1>
-      <p class="share-card__subtitle" id="shareCardSubtitle">Cultural note spotlight</p>
+      <p class="share-card__link"><a id="shareCardLink" href="#">Share link</a></p>
+    </div>
+    <div class="share-card__qr">
+      <img id="shareCardQr" alt="QR code for track link" />
     </div>
     <div class="share-card__proverb" aria-live="polite">
+      <span class="share-card__proverb-heading">Proverb for the day</span>
       <span id="proverbYo"></span>
       <span id="proverbEn"></span>
     </div>
