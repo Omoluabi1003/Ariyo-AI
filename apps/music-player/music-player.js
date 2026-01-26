@@ -135,6 +135,10 @@
   let sourceRequestId = 0;
   let playIntent = false;
   let userPauseRequested = false;
+  let spinHoldUntil = 0;
+  let spinHoldTimer = null;
+
+  const LOADING_SPIN_GRACE_MS = 300;
 
   const formatTime = seconds => {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -147,10 +151,24 @@
     statusMessage.textContent = message;
   };
 
+  const scheduleSpinHold = durationMs => {
+    const now = Date.now();
+    spinHoldUntil = Math.max(spinHoldUntil, now + durationMs);
+    if (spinHoldTimer) {
+      window.clearTimeout(spinHoldTimer);
+    }
+    const remaining = Math.max(spinHoldUntil - now, 0);
+    spinHoldTimer = window.setTimeout(() => {
+      spinHoldTimer = null;
+      updateSpinState();
+    }, remaining);
+  };
+
   const showLoading = message => {
     isLoading = true;
     loadingSpinner.style.display = 'inline-block';
     setStatus(message);
+    scheduleSpinHold(LOADING_SPIN_GRACE_MS);
     updateSpinState();
   };
 
@@ -188,7 +206,8 @@
     const state = audioEngine.getState();
     const isSpinning = state === 'playing'
       || isLoading
-      || (playIntent && state !== 'error');
+      || (playIntent && state !== 'error')
+      || Date.now() < spinHoldUntil;
     updateVinylSpinState(isSpinning);
   };
 
