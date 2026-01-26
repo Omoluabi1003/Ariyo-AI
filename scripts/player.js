@@ -471,6 +471,34 @@ const preconnectedHosts = new Set();
 const TRACKS_PAGE_SIZE = isSlowConnection ? 20 : 50;
 const trackDisplayState = new Map();
 
+let albums = [];
+let radioStations = [];
+
+const syncLibraryState = ({ source = 'init' } = {}) => {
+  const nextAlbums = Array.isArray(window.albums)
+    ? window.albums
+    : (Array.isArray(window.libraryState?.local) ? window.libraryState.local : []);
+  const nextStations = Array.isArray(window.radioStations)
+    ? window.radioStations
+    : (Array.isArray(window.libraryState?.streams) ? window.libraryState.streams : []);
+
+  if (!Array.isArray(window.albums) && nextAlbums.length) {
+    window.albums = nextAlbums;
+  }
+  if (!Array.isArray(window.radioStations) && nextStations.length) {
+    window.radioStations = nextStations;
+  }
+
+  albums = nextAlbums;
+  radioStations = nextStations;
+
+  if (DEBUG_AUDIO) {
+    console.debug('[library-sync]', { source, albums: albums.length, stations: radioStations.length });
+  }
+};
+
+syncLibraryState({ source: 'bootstrap' });
+
 let currentAlbumIndex = 0;
 let currentTrackIndex = 0;
 let currentRadioIndex = -1;
@@ -2396,9 +2424,8 @@ function removeTrackFromPlaylist(index) {
       const modal = document.getElementById('trackModal');
       const modalVisible = modal && getComputedStyle(modal).display !== 'none';
       const shouldPrefetchDurations = (prefetchDurations || modalVisible) && !isSlowConnection;
-      const albumCatalog = Array.isArray(window.albums)
-        ? window.albums
-        : (typeof albums !== 'undefined' && Array.isArray(albums) ? albums : []);
+      syncLibraryState({ source: 'track-modal' });
+      const albumCatalog = Array.isArray(albums) ? albums : [];
       const trackListContainer = document.querySelector('.track-list');
       const trackModalTitle = document.getElementById('trackModalTitle');
       if (!trackListContainer || !trackModalTitle) {
@@ -2440,6 +2467,10 @@ function removeTrackFromPlaylist(index) {
       if (!albumCatalog.length) {
         renderTrackModalState('Track not available.', { status: 'empty', showRetry: true });
         reportLibraryIssue('Tracks are unavailable. Please refresh the page.');
+        if (typeof window.loadFullLibraryData === 'function') {
+          window.loadFullLibraryData({ reason: 'track-modal-empty', immediate: true })
+            .finally(() => updateTrackListModal(true));
+        }
         return;
       }
 
@@ -2927,10 +2958,9 @@ function ensureRadioDebugPanel() {
 // Grouped Stations
 let groupedStations = { nigeria: [], westAfrica: [], international: [] };
 function buildGroupedStations() {
+  syncLibraryState({ source: 'radio-groups' });
   groupedStations = { nigeria: [], westAfrica: [], international: [] };
-  const stationList = Array.isArray(window.radioStations)
-    ? window.radioStations
-    : (typeof radioStations !== 'undefined' && Array.isArray(radioStations) ? radioStations : []);
+  const stationList = Array.isArray(radioStations) ? radioStations : [];
   if (!stationList.length) {
     reportLibraryIssue('Radio stations are unavailable. Please refresh the page.');
     return;
@@ -3336,9 +3366,19 @@ function loadMoreStations(region) {
 
     function selectAlbum(albumIndex) {
       debugConsole("selectAlbum called with index: ", albumIndex);
+      syncLibraryState({ source: 'select-album' });
       const album = albums[albumIndex];
       if (!album || !Array.isArray(album.tracks)) {
         console.warn('[player] Album selection failed: tracks are unavailable.', { albumIndex });
+        if (typeof window.loadFullLibraryData === 'function') {
+          window.loadFullLibraryData({ reason: 'album-select', immediate: true })
+            .then(() => {
+              syncLibraryState({ source: 'album-select-retry' });
+              if (albums[albumIndex] && Array.isArray(albums[albumIndex].tracks)) {
+                selectAlbum(albumIndex);
+              }
+            });
+        }
         return;
       }
       debugConsole(`Selecting album: ${album.name}`);
@@ -4781,6 +4821,7 @@ function handleGlobalShortcuts(event) {
 document.addEventListener('keydown', handleGlobalShortcuts);
 
 window.addEventListener('ariyo:library-ready', event => {
+  syncLibraryState({ source: event?.detail?.source || 'library-ready' });
   if (event?.detail?.source !== 'full') return;
   syncAlbumIndexToCurrentTrack();
   buildGroupedStations();
