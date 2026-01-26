@@ -367,7 +367,9 @@
     const turntableSheen = document.querySelector('.turntable-sheen');
     const albumGrooveOverlay = document.querySelector('.album-groove-overlay');
     const waveformContainer = document.querySelector('.waveform-visual');
-    const waveformBars = Array.from(document.querySelectorAll('.waveform-bar'));
+    const waveformCanvas = waveformContainer?.querySelector('.waveform-canvas');
+    const waveformContext = waveformCanvas ? waveformCanvas.getContext('2d') : null;
+    const waveformBarCount = 72;
     const waveformState = {
       active: false,
       animationId: null,
@@ -379,12 +381,42 @@
       fallback: false,
       beatAverage: 0,
       silentDurationMs: 0,
-      lastSampleTime: null
+      lastSampleTime: null,
+      barLevels: new Float32Array(waveformBarCount),
+      rotation: 0,
+      lastFrameTime: 0
     };
     const waveformSilenceConfig = {
       maxSilentMs: 1600,
       silenceThreshold: 2
     };
+    const waveformSizing = {
+      innerRadiusRatio: 0.36,
+      maxBarLengthRatio: 0.32
+    };
+
+    const resizeWaveformCanvas = () => {
+      if (!waveformCanvas || !waveformContext) return;
+      const width = waveformContainer?.clientWidth || waveformCanvas.clientWidth || 0;
+      const height = waveformContainer?.clientHeight || waveformCanvas.clientHeight || 0;
+      if (!width || !height) return;
+      const ratio = window.devicePixelRatio || 1;
+      waveformCanvas.style.width = `${width}px`;
+      waveformCanvas.style.height = `${height}px`;
+      waveformCanvas.width = Math.max(1, Math.floor(width * ratio));
+      waveformCanvas.height = Math.max(1, Math.floor(height * ratio));
+      waveformContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+    };
+
+    if (waveformCanvas && waveformContext) {
+      resizeWaveformCanvas();
+      if (typeof ResizeObserver === 'function') {
+        const waveformResizeObserver = new ResizeObserver(() => resizeWaveformCanvas());
+        waveformResizeObserver.observe(waveformContainer || waveformCanvas);
+      } else {
+        window.addEventListener('resize', resizeWaveformCanvas);
+      }
+    }
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
@@ -4071,11 +4103,123 @@ function selectRadio(src, title, index, logo) {
       }
     }
 
+    function getFrequencySliceAverage(dataArray, index, barCount) {
+      if (!dataArray) return 0;
+      const sliceSize = Math.floor(dataArray.length / barCount) || 1;
+      const start = index * sliceSize;
+      const end = Math.min(start + sliceSize, dataArray.length);
+      let sum = 0;
+      for (let i = start; i < end; i += 1) {
+        sum += dataArray[i];
+      }
+      return sum / (end - start || 1);
+    }
+
+    function getLowFrequencyAverage(dataArray, maxIndex) {
+      if (!dataArray) return 0;
+      const end = Math.min(maxIndex, dataArray.length - 1);
+      let sum = 0;
+      for (let i = 0; i <= end; i += 1) {
+        sum += dataArray[i];
+      }
+      return sum / (end + 1);
+    }
+
+    function drawWaveformFrame({ dataArray, timestamp, isPlaying }) {
+      if (!waveformCanvas || !waveformContext) return;
+      const width = waveformCanvas.clientWidth || 0;
+      const height = waveformCanvas.clientHeight || 0;
+      if (!width || !height) return;
+
+      const ctx = waveformContext;
+      const radius = Math.min(width, height) / 2;
+      const innerRadius = radius * waveformSizing.innerRadiusRatio;
+      const maxBarLength = radius * waveformSizing.maxBarLengthRatio;
+
+      const delta = timestamp - (waveformState.lastFrameTime || timestamp);
+      waveformState.lastFrameTime = timestamp;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+
+      const hasAudioData = Boolean(dataArray && isPlaying);
+      const basePulse = hasAudioData
+        ? getLowFrequencyAverage(dataArray, 20) / 255
+        : 0.18 + 0.08 * Math.sin(timestamp / 550);
+      const glowIntensity = 0.22 + basePulse * 0.9;
+
+      const ringGradient = ctx.createRadialGradient(
+        0,
+        0,
+        innerRadius * 0.6,
+        0,
+        0,
+        innerRadius + maxBarLength
+      );
+      ringGradient.addColorStop(0, `rgba(255, 175, 95, ${glowIntensity})`);
+      ringGradient.addColorStop(0.6, `rgba(170, 120, 255, ${glowIntensity})`);
+      ringGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.beginPath();
+      ctx.strokeStyle = ringGradient;
+      ctx.lineWidth = innerRadius * 0.22;
+      ctx.shadowColor = `rgba(255, 140, 72, ${glowIntensity})`;
+      ctx.shadowBlur = 22;
+      ctx.arc(0, 0, innerRadius + maxBarLength * 0.25, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      const angleStep = (Math.PI * 2) / waveformBarCount;
+      const rotationSpeed = hasAudioData ? 0.002 : 0.0007;
+      waveformState.rotation += rotationSpeed * (delta / 16.6);
+
+      ctx.lineCap = 'round';
+      ctx.lineWidth = Math.max(1.5, radius * 0.012);
+
+      for (let i = 0; i < waveformBarCount; i += 1) {
+        const intensity = hasAudioData
+          ? getFrequencySliceAverage(dataArray, i, waveformBarCount) / 255
+          : 0.12 + 0.08 * Math.sin(timestamp / 700 + i);
+        const easedLevel = waveformState.barLevels[i]
+          + (intensity - waveformState.barLevels[i]) * 0.25;
+        waveformState.barLevels[i] = easedLevel;
+
+        const barLength = maxBarLength * (0.3 + easedLevel * 1.2);
+        const angle = i * angleStep + waveformState.rotation;
+        const startX = Math.cos(angle) * innerRadius;
+        const startY = Math.sin(angle) * innerRadius;
+        const endX = Math.cos(angle) * (innerRadius + barLength);
+        const endY = Math.sin(angle) * (innerRadius + barLength);
+
+        const hue = 20 + (i / waveformBarCount) * 240;
+        const saturation = 85 + easedLevel * 12;
+        const lightness = 52 + easedLevel * 20;
+
+        ctx.strokeStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+      }
+
+      const centerPulse = 0.85 + basePulse * 0.6;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255, 210, 150, ${0.25 + basePulse})`;
+      ctx.shadowColor = `rgba(255, 180, 120, ${0.6 + basePulse})`;
+      ctx.shadowBlur = 20 * centerPulse;
+      ctx.arc(0, 0, innerRadius * 0.2 * centerPulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
     function setWaveformIdle() {
-      if (!waveformBars.length) return;
-      waveformBars.forEach(bar => {
-        if (!bar) return;
-        bar.style.setProperty('--waveform-bar-scale', '0.14');
+      if (!waveformCanvas || !waveformContext) return;
+      drawWaveformFrame({
+        dataArray: null,
+        timestamp: performance.now(),
+        isPlaying: false
       });
     }
 
@@ -4090,7 +4234,7 @@ function selectRadio(src, title, index, logo) {
     }
 
     function connectWaveformAnalyser() {
-      if (waveformState.fallback || !waveformBars.length) return null;
+      if (waveformState.fallback || !waveformCanvas || !waveformContext) return null;
       const context = getOrCreateAudioContext();
       if (!context) return null;
       if (context.state === 'suspended') {
@@ -4142,6 +4286,7 @@ function selectRadio(src, title, index, logo) {
         return;
       }
       if (waveformState.fallback) {
+        setWaveformIdle();
         waveformState.animationId = null;
         return;
       }
@@ -4151,7 +4296,6 @@ function selectRadio(src, title, index, logo) {
         return;
       }
       analyser.getByteFrequencyData(waveformState.dataArray);
-      const barCount = waveformBars.length || 1;
       const binCount = waveformState.dataArray.length;
       let peak = 0;
       for (let i = 0; i < binCount; i += 1) {
@@ -4176,18 +4320,6 @@ function selectRadio(src, title, index, logo) {
         waveformState.animationId = null;
         return;
       }
-      const binsPerBar = Math.max(1, Math.floor(binCount / barCount));
-      for (let i = 0; i < barCount; i += 1) {
-        const start = i * binsPerBar;
-        const end = Math.min(binCount, start + binsPerBar);
-        let sum = 0;
-        for (let j = start; j < end; j += 1) {
-          sum += waveformState.dataArray[j];
-        }
-        const avg = sum / (end - start || 1);
-        const scale = 0.12 + (avg / 255) * 0.88;
-        waveformBars[i]?.style.setProperty('--waveform-bar-scale', scale.toFixed(3));
-      }
       const bassBins = Math.max(1, Math.floor(binCount * 0.12));
       let bassSum = 0;
       for (let i = 0; i < bassBins; i += 1) {
@@ -4200,11 +4332,18 @@ function selectRadio(src, title, index, logo) {
         waveformState.lastBeatTime = beatNow;
         triggerWaveformBeat();
       }
+      drawWaveformFrame({
+        dataArray: waveformState.dataArray,
+        timestamp: now,
+        isPlaying: true
+      });
       waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
     }
 
     function setWaveformActive(isActive) {
-      waveformState.active = Boolean(isActive && !prefersReducedMotion() && waveformBars.length);
+      waveformState.active = Boolean(
+        isActive && !prefersReducedMotion() && waveformCanvas && waveformContext
+      );
       if (waveformContainer) {
         waveformContainer.classList.toggle('is-active', waveformState.active);
       }
