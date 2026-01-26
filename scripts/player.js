@@ -377,7 +377,13 @@
       beatTimer: null,
       analyserConnected: false,
       fallback: false,
-      beatAverage: 0
+      beatAverage: 0,
+      silentDurationMs: 0,
+      lastSampleTime: null
+    };
+    const waveformSilenceConfig = {
+      maxSilentMs: 1600,
+      silenceThreshold: 2
     };
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
@@ -3606,6 +3612,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null) 
       albumCover.style.display = 'none';
       hideRetryButton();
       setTurntableSpin(false);
+      resetWaveformState();
 
       const rawSrc = trackMeta?.src || src;
       if (isInsecureMediaSrc(rawSrc)) {
@@ -3678,6 +3685,7 @@ function selectRadio(src, title, index, logo) {
       lastKnownFiniteDuration = null;
       shuffleQueue = [];
       updateNextTrackInfo();
+      resetWaveformState();
       const params = new URLSearchParams(window.location.search);
       params.delete('album');
       params.delete('track');
@@ -4027,10 +4035,23 @@ function selectRadio(src, title, index, logo) {
       });
     }
 
+    function resetWaveformState() {
+      waveformState.fallback = false;
+      waveformState.analyserConnected = false;
+      waveformState.beatAverage = 0;
+      waveformState.lastBeatTime = 0;
+      waveformState.silentDurationMs = 0;
+      waveformState.lastSampleTime = null;
+      waveformContainer?.classList.remove('is-fallback', 'beat');
+    }
+
     function connectWaveformAnalyser() {
       if (waveformState.fallback || !waveformBars.length) return null;
       const context = getOrCreateAudioContext();
       if (!context) return null;
+      if (context.state === 'suspended') {
+        void resumeAudioContext();
+      }
       if (!waveformState.analyser) {
         waveformState.analyser = context.createAnalyser();
         waveformState.analyser.fftSize = 512;
@@ -4088,6 +4109,29 @@ function selectRadio(src, title, index, logo) {
       analyser.getByteFrequencyData(waveformState.dataArray);
       const barCount = waveformBars.length || 1;
       const binCount = waveformState.dataArray.length;
+      let peak = 0;
+      for (let i = 0; i < binCount; i += 1) {
+        const value = waveformState.dataArray[i];
+        if (value > peak) {
+          peak = value;
+        }
+      }
+      const now = performance.now();
+      const lastSampleTime = waveformState.lastSampleTime ?? now;
+      const delta = now - lastSampleTime;
+      waveformState.lastSampleTime = now;
+      if (peak <= waveformSilenceConfig.silenceThreshold) {
+        waveformState.silentDurationMs += delta;
+      } else {
+        waveformState.silentDurationMs = 0;
+      }
+      if (waveformState.silentDurationMs >= waveformSilenceConfig.maxSilentMs) {
+        waveformState.fallback = true;
+        waveformContainer?.classList.add('is-fallback');
+        setWaveformIdle();
+        waveformState.animationId = null;
+        return;
+      }
       const binsPerBar = Math.max(1, Math.floor(binCount / barCount));
       for (let i = 0; i < barCount; i += 1) {
         const start = i * binsPerBar;
