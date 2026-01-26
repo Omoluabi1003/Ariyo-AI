@@ -366,6 +366,19 @@
     const turntableGrooves = document.querySelector('.turntable-grooves');
     const turntableSheen = document.querySelector('.turntable-sheen');
     const albumGrooveOverlay = document.querySelector('.album-groove-overlay');
+    const waveformContainer = document.querySelector('.waveform-visual');
+    const waveformBars = Array.from(document.querySelectorAll('.waveform-bar'));
+    const waveformState = {
+      active: false,
+      animationId: null,
+      analyser: null,
+      dataArray: null,
+      lastBeatTime: 0,
+      beatTimer: null,
+      analyserConnected: false,
+      fallback: false,
+      beatAverage: 0
+    };
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
     const trackYear = document.getElementById('trackYear');
@@ -4006,9 +4019,132 @@ function selectRadio(src, title, index, logo) {
       }
     }
 
+    function setWaveformIdle() {
+      if (!waveformBars.length) return;
+      waveformBars.forEach(bar => {
+        if (!bar) return;
+        bar.style.setProperty('--waveform-bar-scale', '0.14');
+      });
+    }
+
+    function connectWaveformAnalyser() {
+      if (waveformState.fallback || !waveformBars.length) return null;
+      const context = getOrCreateAudioContext();
+      if (!context) return null;
+      if (!waveformState.analyser) {
+        waveformState.analyser = context.createAnalyser();
+        waveformState.analyser.fftSize = 512;
+        waveformState.analyser.smoothingTimeConstant = 0.85;
+        waveformState.analyser.minDecibels = -90;
+        waveformState.analyser.maxDecibels = -10;
+        waveformState.dataArray = new Uint8Array(waveformState.analyser.frequencyBinCount);
+      }
+      try {
+        if (!audioPlayer.__ariyoMediaSource) {
+          audioPlayer.__ariyoMediaSource = context.createMediaElementSource(audioPlayer);
+        }
+        if (!audioPlayer.__ariyoMediaSourceConnected) {
+          audioPlayer.__ariyoMediaSource.connect(context.destination);
+          audioPlayer.__ariyoMediaSourceConnected = true;
+        }
+        if (!waveformState.analyserConnected) {
+          audioPlayer.__ariyoMediaSource.connect(waveformState.analyser);
+          waveformState.analyserConnected = true;
+        }
+      } catch (error) {
+        console.warn('[waveform] Unable to attach analyser; using fallback animation.', error);
+        waveformState.fallback = true;
+        waveformContainer?.classList.add('is-fallback');
+        return null;
+      }
+      return waveformState.analyser;
+    }
+
+    function triggerWaveformBeat() {
+      if (!waveformContainer) return;
+      waveformContainer.classList.add('beat');
+      if (waveformState.beatTimer) {
+        clearTimeout(waveformState.beatTimer);
+      }
+      waveformState.beatTimer = setTimeout(() => {
+        waveformContainer.classList.remove('beat');
+      }, 140);
+    }
+
+    function updateWaveformVisualization() {
+      if (!waveformState.active) {
+        waveformState.animationId = null;
+        return;
+      }
+      if (waveformState.fallback) {
+        waveformState.animationId = null;
+        return;
+      }
+      const analyser = connectWaveformAnalyser();
+      if (!analyser || !waveformState.dataArray) {
+        waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
+        return;
+      }
+      analyser.getByteFrequencyData(waveformState.dataArray);
+      const barCount = waveformBars.length || 1;
+      const binCount = waveformState.dataArray.length;
+      const binsPerBar = Math.max(1, Math.floor(binCount / barCount));
+      for (let i = 0; i < barCount; i += 1) {
+        const start = i * binsPerBar;
+        const end = Math.min(binCount, start + binsPerBar);
+        let sum = 0;
+        for (let j = start; j < end; j += 1) {
+          sum += waveformState.dataArray[j];
+        }
+        const avg = sum / (end - start || 1);
+        const scale = 0.12 + (avg / 255) * 0.88;
+        waveformBars[i]?.style.setProperty('--waveform-bar-scale', scale.toFixed(3));
+      }
+      const bassBins = Math.max(1, Math.floor(binCount * 0.12));
+      let bassSum = 0;
+      for (let i = 0; i < bassBins; i += 1) {
+        bassSum += waveformState.dataArray[i];
+      }
+      const bassAvg = bassSum / bassBins;
+      waveformState.beatAverage = waveformState.beatAverage * 0.9 + bassAvg * 0.1;
+      const now = performance.now();
+      if (bassAvg > waveformState.beatAverage * 1.25 && now - waveformState.lastBeatTime > 180) {
+        waveformState.lastBeatTime = now;
+        triggerWaveformBeat();
+      }
+      waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
+    }
+
+    function setWaveformActive(isActive) {
+      waveformState.active = Boolean(isActive && !prefersReducedMotion() && waveformBars.length);
+      if (waveformContainer) {
+        waveformContainer.classList.toggle('is-active', waveformState.active);
+      }
+      if (!waveformState.active) {
+        if (waveformState.animationId) {
+          cancelAnimationFrame(waveformState.animationId);
+          waveformState.animationId = null;
+        }
+        if (waveformState.beatTimer) {
+          clearTimeout(waveformState.beatTimer);
+          waveformState.beatTimer = null;
+        }
+        waveformContainer?.classList.remove('beat');
+        setWaveformIdle();
+        return;
+      }
+      if (!waveformState.animationId && typeof requestAnimationFrame === 'function') {
+        if (waveformState.fallback) {
+          return;
+        }
+        waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
+      }
+    }
+
     function setTurntableSpin(isSpinning) {
+      setWaveformActive(isSpinning);
       vinylStateUtils.applyVinylSpinState(
-        [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover],
+        [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay],
         isSpinning,
         'is-spinning'
       );
