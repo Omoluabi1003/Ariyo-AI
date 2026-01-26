@@ -29,6 +29,9 @@
   const djToggle = document.getElementById('djToggle');
   const crossfadeDurationSelect = document.getElementById('crossfadeDuration');
   const crossfadeStatus = document.getElementById('crossfadeStatus');
+  const visualizerCanvas = document.getElementById('audioVisualizer');
+  const visualizerToggle = document.getElementById('visualizerToggle');
+  const visualizerStatus = document.getElementById('visualizerStatus');
 
   const SOURCE_RESOLVE_TIMEOUT_MS = 1200;
   const PROGRESS_UPDATE_FPS = 30;
@@ -209,6 +212,225 @@
       || (playIntent && state !== 'error')
       || Date.now() < spinHoldUntil;
     updateVinylSpinState(isSpinning);
+  };
+
+  const setupAudioVisualizer = () => {
+    if (!visualizerCanvas || !visualizerToggle || !visualizerStatus) return null;
+    if (!window.Howler || !window.Howler.ctx) {
+      visualizerToggle.disabled = true;
+      visualizerToggle.setAttribute('aria-pressed', 'false');
+      visualizerToggle.textContent = 'Visualizer Unavailable';
+      visualizerStatus.textContent = 'Unavailable';
+      return null;
+    }
+
+    const analyzer = window.Howler.ctx.createAnalyser();
+    analyzer.fftSize = 2048;
+    analyzer.smoothingTimeConstant = 0.82;
+
+    if (window.Howler.masterGain) {
+      window.Howler.masterGain.connect(analyzer);
+    }
+
+    const canvasContext = visualizerCanvas.getContext('2d');
+    if (!canvasContext) return null;
+
+    const frequencyData = new Uint8Array(analyzer.frequencyBinCount);
+    const lastFrame = new Uint8Array(analyzer.frequencyBinCount);
+    const lowEnergyHistory = [];
+    const historySize = 30;
+
+    const barCount = 48;
+    let beatPulse = 0;
+    let animationFrameId = null;
+    let isPlaying = audioEngine.getState() === 'playing';
+    let isEnabled = true;
+    let reduceMotion = false;
+    let resizeObserver = null;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const setReduceMotion = () => {
+      reduceMotion = prefersReducedMotion.matches;
+      updateVisualizerState();
+    };
+
+    if (prefersReducedMotion.addEventListener) {
+      prefersReducedMotion.addEventListener('change', setReduceMotion);
+    } else if (prefersReducedMotion.addListener) {
+      prefersReducedMotion.addListener(setReduceMotion);
+    }
+
+    const setCanvasSize = (width, height) => {
+      const ratio = window.devicePixelRatio || 1;
+      visualizerCanvas.width = Math.max(1, Math.floor(width * ratio));
+      visualizerCanvas.height = Math.max(1, Math.floor(height * ratio));
+      canvasContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+    };
+
+    const handleResize = entries => {
+      entries.forEach(entry => {
+        const { width, height } = entry.contentRect;
+        setCanvasSize(width, height);
+        drawFrame({ dimmed: !isPlaying, useLastFrame: true });
+      });
+    };
+
+    resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(visualizerCanvas.parentElement || visualizerCanvas);
+
+    const setStatusText = () => {
+      if (!isEnabled) {
+        visualizerStatus.textContent = 'Off';
+        return;
+      }
+      visualizerStatus.textContent = isPlaying ? 'Live' : 'Paused';
+    };
+
+    const getLowEnergy = data => {
+      const nyquist = window.Howler.ctx.sampleRate / 2;
+      const lowStart = Math.max(0, Math.floor((20 / nyquist) * data.length));
+      const lowEnd = Math.min(data.length - 1, Math.floor((250 / nyquist) * data.length));
+      let sum = 0;
+      let count = 0;
+      for (let i = lowStart; i <= lowEnd; i += 1) {
+        sum += data[i];
+        count += 1;
+      }
+      return count ? sum / count / 255 : 0;
+    };
+
+    const updateBeatPulse = energy => {
+      lowEnergyHistory.push(energy);
+      if (lowEnergyHistory.length > historySize) {
+        lowEnergyHistory.shift();
+      }
+      const avgEnergy = lowEnergyHistory.reduce((acc, value) => acc + value, 0) / lowEnergyHistory.length;
+      const isBeat = energy > Math.max(0.15, avgEnergy * 1.35);
+      beatPulse = isBeat ? 1 : Math.max(beatPulse * 0.86, 0);
+    };
+
+    const drawFrame = ({ dimmed, useLastFrame } = {}) => {
+      const width = visualizerCanvas.clientWidth;
+      const height = visualizerCanvas.clientHeight;
+      if (!width || !height) return;
+
+      const data = useLastFrame ? lastFrame : frequencyData;
+      canvasContext.clearRect(0, 0, width, height);
+      canvasContext.fillStyle = 'rgba(5, 6, 16, 0.65)';
+      canvasContext.fillRect(0, 0, width, height);
+
+      const gradient = canvasContext.createLinearGradient(0, height, 0, 0);
+      gradient.addColorStop(0, '#2b3cff');
+      gradient.addColorStop(0.5, '#7b37ff');
+      gradient.addColorStop(0.85, '#ff3f7f');
+      gradient.addColorStop(1, '#ff9857');
+
+      canvasContext.fillStyle = gradient;
+      canvasContext.shadowColor = `rgba(108, 79, 255, ${0.45 + beatPulse * 0.35})`;
+      canvasContext.shadowBlur = 18 + beatPulse * 24;
+
+      const barGap = 3;
+      const availableWidth = width - barGap * (barCount - 1);
+      const barWidth = Math.max(2, availableWidth / barCount);
+
+      const binsPerBar = Math.max(1, Math.floor(data.length / barCount));
+      const maxBarHeight = height * 0.85;
+
+      for (let i = 0; i < barCount; i += 1) {
+        let sum = 0;
+        const start = i * binsPerBar;
+        const end = Math.min(data.length, start + binsPerBar);
+        for (let j = start; j < end; j += 1) {
+          sum += data[j];
+        }
+        const average = sum / (end - start || 1);
+        const lowBoost = i < 6 ? 1 + beatPulse * 0.45 : 1;
+        const barHeight = Math.max(4, (average / 255) * maxBarHeight * (1 + beatPulse * 0.2) * lowBoost);
+        const x = i * (barWidth + barGap);
+        const y = height - barHeight;
+        const opacity = dimmed ? 0.35 : 0.95;
+        canvasContext.globalAlpha = opacity;
+        canvasContext.fillRect(x, y, barWidth, barHeight);
+      }
+
+      canvasContext.globalAlpha = 1;
+      canvasContext.shadowBlur = 0;
+    };
+
+    const renderLoop = () => {
+      animationFrameId = window.requestAnimationFrame(renderLoop);
+      if (!isEnabled) return;
+      if (isPlaying) {
+        analyzer.getByteFrequencyData(frequencyData);
+        lastFrame.set(frequencyData);
+        const lowEnergy = getLowEnergy(frequencyData);
+        updateBeatPulse(lowEnergy);
+        drawFrame({ dimmed: false, useLastFrame: false });
+      } else {
+        beatPulse = Math.max(beatPulse * 0.92, 0);
+        drawFrame({ dimmed: true, useLastFrame: true });
+      }
+    };
+
+    const stopLoop = () => {
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+    };
+
+    const startLoop = () => {
+      if (!animationFrameId) {
+        animationFrameId = window.requestAnimationFrame(renderLoop);
+      }
+    };
+
+    const updateVisualizerState = () => {
+      setStatusText();
+      if (!isEnabled) {
+        stopLoop();
+        drawFrame({ dimmed: true, useLastFrame: true });
+        return;
+      }
+      if (reduceMotion) {
+        stopLoop();
+        drawFrame({ dimmed: !isPlaying, useLastFrame: true });
+        return;
+      }
+      startLoop();
+    };
+
+    visualizerToggle.addEventListener('click', () => {
+      isEnabled = !isEnabled;
+      visualizerToggle.setAttribute('aria-pressed', String(isEnabled));
+      visualizerToggle.textContent = isEnabled ? 'Visualizer On' : 'Visualizer Off';
+      updateVisualizerState();
+    });
+
+    window.addEventListener('audioengine:state', event => {
+      const nextState = event.detail && event.detail.state;
+      isPlaying = nextState === 'playing';
+      setStatusText();
+      if (reduceMotion) {
+        drawFrame({ dimmed: !isPlaying, useLastFrame: true });
+      }
+    });
+
+    setReduceMotion();
+    updateVisualizerState();
+
+    return () => {
+      stopLoop();
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+        resizeObserver = null;
+      }
+      if (prefersReducedMotion.removeEventListener) {
+        prefersReducedMotion.removeEventListener('change', setReduceMotion);
+      } else if (prefersReducedMotion.removeListener) {
+        prefersReducedMotion.removeListener(setReduceMotion);
+      }
+    };
   };
 
   const updateNextTrackLabel = () => {
@@ -646,6 +868,14 @@
       crossfadeStatus.textContent = 'DJ Mix off';
     }
   };
+
+  const teardownVisualizer = setupAudioVisualizer();
+
+  window.addEventListener('beforeunload', () => {
+    if (teardownVisualizer) {
+      teardownVisualizer();
+    }
+  });
 
   playButton.addEventListener('click', playCurrentTrack);
   pauseButton.addEventListener('click', () => {
