@@ -580,37 +580,16 @@ body[data-theme="light"] .badge-spotlight {
     overflow: hidden;
 }
 
-.waveform-bars {
-    display: grid;
-    grid-template-columns: repeat(28, 1fr);
-    align-items: end;
-    gap: 0.18rem;
-    width: min(320px, 78vw);
-    height: clamp(120px, 22vw, 160px);
-}
-
-.waveform-bar {
+.waveform-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
     height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.25));
-    transform: scaleY(var(--waveform-bar-scale, 0.14));
-    transform-origin: bottom;
-    transition: transform 0.12s ease;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+    pointer-events: none;
 }
 
-.waveform-visual.is-active .waveform-bar {
-    background: linear-gradient(180deg, var(--theme-color), rgba(255, 255, 255, 0.15));
-}
-
-.waveform-visual.beat .waveform-bar {
-    filter: brightness(1.25);
-    box-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
-}
-
-.waveform-visual.is-fallback .waveform-bar {
-    animation: waveformPulse 0.9s ease-in-out infinite;
-    animation-delay: calc(var(--bar-index, 0) * 0.03s);
+.waveform-visual.beat {
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 25px rgba(255, 168, 90, 0.35);
 }
 
 .waveform-visual .album-cover {
@@ -622,6 +601,7 @@ body[data-theme="light"] .badge-spotlight {
     transform: none;
     border-radius: 16px;
     clip-path: none;
+    z-index: 1;
 }
 
 @keyframes waveformPulse {
