@@ -419,7 +419,6 @@ const PANEL_IDS = [
     'sabiBibleContainer',
     'gamesHubContainer',
     'pictureGameContainer',
-    'musicPlayerContainer',
     'tetrisGameContainer',
     'wordSearchContainer',
     'connectFourContainer',
@@ -457,10 +456,6 @@ const PANEL_LOAD_CONFIG = {
         errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
         supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
         supportLinkLabel: 'Open channel on YouTube'
-    },
-    musicPlayerContainer: {
-        loadingMessage: 'Loading Omoluabi Player…',
-        errorMessage: 'The music player is unavailable right now. Please retry in a moment.'
     },
     gamesHubContainer: {
         loadingMessage: 'Loading Games Hub…',
@@ -908,18 +903,6 @@ window.stopYouTubePlayback = stopYouTubePlayback;
 function openPanel(targetId, trigger = null) {
     const panel = getPanelElement(targetId);
     if (!panel) return;
-
-    if (targetId === 'musicPlayerContainer') {
-        const mainAudio = document.getElementById('audioPlayer');
-        if (mainAudio && !mainAudio.paused) {
-            try {
-                mainAudio.pause();
-                mainAudio.currentTime = 0;
-            } catch (error) {
-                console.warn('Unable to stop main player when launching Omoluabi Player:', error);
-            }
-        }
-    }
 
     if (targetId === 'aboutModalContainer') {
         const iframe = panel.querySelector('iframe');

@@ -4171,7 +4171,7 @@ function selectRadio(src, title, index, logo) {
       ctx.shadowBlur = 0;
 
       const angleStep = (Math.PI * 2) / waveformBarCount;
-      const rotationSpeed = hasAudioData ? 0.002 : 0.0007;
+      const rotationSpeed = hasAudioData ? 0.002 : (isPlaying ? 0.0014 : 0.0007);
       waveformState.rotation += rotationSpeed * (delta / 16.6);
 
       ctx.lineCap = 'round';
@@ -4286,8 +4286,12 @@ function selectRadio(src, title, index, logo) {
         return;
       }
       if (waveformState.fallback) {
-        setWaveformIdle();
-        waveformState.animationId = null;
+        drawWaveformFrame({
+          dataArray: null,
+          timestamp: performance.now(),
+          isPlaying: true
+        });
+        waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
         return;
       }
       const analyser = connectWaveformAnalyser();
@@ -4361,9 +4365,6 @@ function selectRadio(src, title, index, logo) {
         return;
       }
       if (!waveformState.animationId && typeof requestAnimationFrame === 'function') {
-        if (waveformState.fallback) {
-          return;
-        }
         waveformState.animationId = requestAnimationFrame(updateWaveformVisualization);
       }
     }
