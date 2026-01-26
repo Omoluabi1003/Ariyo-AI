@@ -498,11 +498,17 @@ const asaRotationRangeMs = {
   min: 6000,
   max: 10000
 };
+const asaNoteRefreshRangeMs = {
+  min: 180000,
+  max: 300000
+};
 let asaRotationTimer = null;
+let asaNoteRefreshTimer = null;
 let asaRotationIndex = 0;
 let asaRotationLines = [];
 let asaNoteLastResponse = null;
 let asaNoteLastSeed = null;
+let asaNoteCurrentSeed = null;
 let asaNoteRequestId = 0;
 let lastSaveStatusAt = 0;
 const PLAYER_STATE_STORAGE_KEY = 'ariyoPlayerState';
@@ -1107,6 +1113,26 @@ function scheduleAsaRotation() {
   }, interval);
 }
 
+function clearAsaNoteRefresh() {
+  if (asaNoteRefreshTimer) {
+    clearTimeout(asaNoteRefreshTimer);
+    asaNoteRefreshTimer = null;
+  }
+}
+
+function scheduleAsaNoteRefresh() {
+  clearAsaNoteRefresh();
+  if (!asaNote || !asaNoteYo || document.hidden) {
+    return;
+  }
+  const interval = asaNoteRefreshRangeMs.min
+    + Math.floor(Math.random() * (asaNoteRefreshRangeMs.max - asaNoteRefreshRangeMs.min));
+  asaNoteRefreshTimer = setTimeout(() => {
+    updateAsaNote(asaNoteCurrentSeed, { forceRefresh: true });
+    scheduleAsaNoteRefresh();
+  }, interval);
+}
+
 /*
 type AsaNoteResponse = {
   proverb_text: string;
@@ -1169,9 +1195,10 @@ function renderAsaNote(asaNoteData) {
   }
 }
 
-function updateAsaNote(seed) {
+function updateAsaNote(seed, { forceRefresh = false } = {}) {
   if (!asaNote || !asaNoteYo || !asaNoteEn) return;
   const normalizedSeed = typeof seed === 'string' && seed.trim() ? seed : undefined;
+  asaNoteCurrentSeed = normalizedSeed;
 
   if (asaNoteLastResponse) {
     renderAsaNote(asaNoteLastResponse);
@@ -1185,7 +1212,9 @@ function updateAsaNote(seed) {
     }
   }
 
-  if (asaNoteLastSeed === normalizedSeed && asaNoteLastResponse) {
+  scheduleAsaNoteRefresh();
+
+  if (!forceRefresh && asaNoteLastSeed === normalizedSeed && asaNoteLastResponse) {
     return;
   }
   asaNoteLastSeed = normalizedSeed;
@@ -1215,8 +1244,10 @@ function updateAsaNote(seed) {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     clearAsaRotation();
+    clearAsaNoteRefresh();
   } else {
     scheduleAsaRotation();
+    scheduleAsaNoteRefresh();
   }
 });
 
