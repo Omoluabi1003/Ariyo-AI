@@ -359,10 +359,10 @@ function toggleShuffle() {
 
   // If we are in radio mode, shuffle only has on/off states
   if (currentRadioIndex !== -1) {
-    shuffleMode = !shuffleMode;
+    radioShuffleMode = !radioShuffleMode;
     shuffleQueue = [];
     updateNextTrackInfo();
-    if (shuffleMode) {
+    if (radioShuffleMode) {
       shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
       console.log('Shuffle mode: Radio');
@@ -374,40 +374,29 @@ function toggleShuffle() {
   }
   // If we are in album/track mode, cycle through off, repeat one, album, all
   else {
-    if (shuffleScope === 'off') {
-      shuffleScope = 'repeat';
-      shuffleMode = false;
+    shuffleState = (shuffleState + 1) % 4;
+    shuffleQueue = [];
+    if (shuffleState === 1) {
       shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
       shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
       console.log('Repeat mode: Single Track');
-      shuffleQueue = [];
-      updateNextTrackInfo();
-    } else if (shuffleScope === 'repeat') {
-      shuffleScope = 'album';
-      shuffleMode = true;
+    } else if (shuffleState === 2) {
       shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
       console.log('Shuffle mode: Album');
-      buildShuffleQueue();
-    } else if (shuffleScope === 'album') {
-      shuffleScope = 'all';
-      shuffleMode = true;
+    } else if (shuffleState === 3) {
       shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
       console.log('Shuffle mode: All');
-      buildShuffleQueue();
-    } else { // shuffleScope === 'all'
-      shuffleScope = 'off';
-      shuffleMode = false;
+    } else {
       shuffleBtn.innerHTML = '🔀';
       shuffleStatusInfo.textContent = 'Shuffle: Off';
       console.log('Shuffle mode: Off');
-      shuffleQueue = [];
-      updateNextTrackInfo();
     }
+    updateNextTrackInfo();
   }
   if (shuffleBtn) {
-    const isActive = shuffleScope !== 'off' || shuffleMode;
+    const isActive = currentRadioIndex !== -1 ? radioShuffleMode : shuffleState !== 0;
     shuffleBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   }
   savePlayerState();
