@@ -2,11 +2,11 @@
   const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
   const audioEngine = window.audioEngine;
 
-  const albumCover = document.getElementById('albumCover');
   const turntableDisc = document.querySelector('.turntable-disc');
   const turntableGrooves = document.querySelector('.turntable-grooves');
   const turntableSheen = document.querySelector('.turntable-sheen');
   const albumGrooveOverlay = document.querySelector('.album-groove-overlay');
+  const nowPlayingThumb = document.getElementById('nowPlayingThumb');
   const trackInfo = document.getElementById('trackInfo');
   const trackArtist = document.getElementById('trackArtist');
   const trackAlbum = document.getElementById('trackAlbum');
@@ -32,6 +32,14 @@
   const visualizerCanvas = document.getElementById('audioVisualizer');
   const visualizerToggle = document.getElementById('visualizerToggle');
   const visualizerStatus = document.getElementById('visualizerStatus');
+
+  if (nowPlayingThumb) {
+    nowPlayingThumb.onerror = () => {
+      nowPlayingThumb.onerror = null;
+      nowPlayingThumb.src = '../../Logo.jpg';
+      nowPlayingThumb.alt = 'Album cover unavailable';
+    };
+  }
 
   const SOURCE_RESOLVE_TIMEOUT_MS = 1200;
   const PROGRESS_UPDATE_FPS = 30;
@@ -199,7 +207,7 @@
       });
     };
 
-  const vinylElements = [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay, albumCover];
+  const vinylElements = [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay];
 
   const updateVinylSpinState = isSpinning => {
     applySpinState(vinylElements, isSpinning, { spinClass: 'spin', activeClass: 'spinning' });
@@ -239,6 +247,9 @@
     const canvasContext = visualizerCanvas.getContext('2d');
     if (!canvasContext) return null;
 
+    const circularCanvas = document.getElementById('circularVisualizer');
+    const circularContext = circularCanvas ? circularCanvas.getContext('2d') : null;
+
     const frequencyData = new Uint8Array(analyzer.frequencyBinCount);
     const lastFrame = new Uint8Array(analyzer.frequencyBinCount);
     const lowEnergyHistory = [];
@@ -264,23 +275,33 @@
       prefersReducedMotion.addListener(setReduceMotion);
     }
 
-    const setCanvasSize = (width, height) => {
+    const setCanvasSize = (canvas, context, width, height) => {
+      if (!canvas || !context) return;
       const ratio = window.devicePixelRatio || 1;
-      visualizerCanvas.width = Math.max(1, Math.floor(width * ratio));
-      visualizerCanvas.height = Math.max(1, Math.floor(height * ratio));
-      canvasContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+      canvas.width = Math.max(1, Math.floor(width * ratio));
+      canvas.height = Math.max(1, Math.floor(height * ratio));
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
 
     const handleResize = entries => {
       entries.forEach(entry => {
         const { width, height } = entry.contentRect;
-        setCanvasSize(width, height);
-        drawFrame({ dimmed: !isPlaying, useLastFrame: true });
+        if (entry.target === visualizerCanvas.parentElement || entry.target === visualizerCanvas) {
+          setCanvasSize(visualizerCanvas, canvasContext, width, height);
+        }
+        if (circularCanvas && circularContext && (entry.target === circularCanvas.parentElement || entry.target === circularCanvas)) {
+          setCanvasSize(circularCanvas, circularContext, width, height);
+        }
+        drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
+        drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
       });
     };
 
     resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(visualizerCanvas.parentElement || visualizerCanvas);
+    if (circularCanvas) {
+      resizeObserver.observe(circularCanvas.parentElement || circularCanvas);
+    }
 
     const setStatusText = () => {
       if (!isEnabled) {
@@ -313,7 +334,7 @@
       beatPulse = isBeat ? 1 : Math.max(beatPulse * 0.86, 0);
     };
 
-    const drawFrame = ({ dimmed, useLastFrame } = {}) => {
+    const drawBarsFrame = ({ dimmed, useLastFrame } = {}) => {
       const width = visualizerCanvas.clientWidth;
       const height = visualizerCanvas.clientHeight;
       if (!width || !height) return;
@@ -361,6 +382,66 @@
       canvasContext.shadowBlur = 0;
     };
 
+    const drawCircularFrame = ({ dimmed, useLastFrame } = {}) => {
+      if (!circularCanvas || !circularContext) return;
+      const width = circularCanvas.clientWidth;
+      const height = circularCanvas.clientHeight;
+      if (!width || !height) return;
+
+      const data = useLastFrame ? lastFrame : frequencyData;
+      const ctx = circularContext;
+      ctx.clearRect(0, 0, width, height);
+
+      const radius = Math.min(width, height) * 0.36;
+      const maxBarHeight = Math.min(width, height) * 0.16;
+      const barCount = 84;
+      const angleStep = (Math.PI * 2) / barCount;
+      const binsPerBar = Math.max(1, Math.floor(data.length / barCount));
+
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 2.2;
+
+      const ringGradient = ctx.createRadialGradient(0, 0, radius * 0.5, 0, 0, radius + maxBarHeight);
+      ringGradient.addColorStop(0, 'rgba(64, 113, 255, 0.65)');
+      ringGradient.addColorStop(0.55, 'rgba(142, 91, 255, 0.9)');
+      ringGradient.addColorStop(1, 'rgba(255, 120, 178, 0.85)');
+
+      ctx.strokeStyle = ringGradient;
+      ctx.globalAlpha = dimmed ? 0.4 : 0.95;
+      ctx.shadowColor = `rgba(142, 91, 255, ${0.35 + beatPulse * 0.35})`;
+      ctx.shadowBlur = 18 + beatPulse * 26;
+
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      for (let i = 0; i < barCount; i += 1) {
+        let sum = 0;
+        const start = i * binsPerBar;
+        const end = Math.min(data.length, start + binsPerBar);
+        for (let j = start; j < end; j += 1) {
+          sum += data[j];
+        }
+        const average = sum / (end - start || 1);
+        const strength = average / 255;
+        const barHeight = Math.max(2, strength * maxBarHeight * (1 + beatPulse * 0.45));
+        const angle = i * angleStep;
+        const x1 = Math.cos(angle) * radius;
+        const y1 = Math.sin(angle) * radius;
+        const x2 = Math.cos(angle) * (radius + barHeight);
+        const y2 = Math.sin(angle) * (radius + barHeight);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+      ctx.shadowBlur = 0;
+    };
+
     const renderLoop = () => {
       animationFrameId = window.requestAnimationFrame(renderLoop);
       if (!isEnabled) return;
@@ -369,10 +450,12 @@
         lastFrame.set(frequencyData);
         const lowEnergy = getLowEnergy(frequencyData);
         updateBeatPulse(lowEnergy);
-        drawFrame({ dimmed: false, useLastFrame: false });
+        drawBarsFrame({ dimmed: false, useLastFrame: false });
+        drawCircularFrame({ dimmed: false, useLastFrame: false });
       } else {
         beatPulse = Math.max(beatPulse * 0.92, 0);
-        drawFrame({ dimmed: true, useLastFrame: true });
+        drawBarsFrame({ dimmed: true, useLastFrame: true });
+        drawCircularFrame({ dimmed: true, useLastFrame: true });
       }
     };
 
@@ -393,12 +476,14 @@
       setStatusText();
       if (!isEnabled) {
         stopLoop();
-        drawFrame({ dimmed: true, useLastFrame: true });
+        drawBarsFrame({ dimmed: true, useLastFrame: true });
+        drawCircularFrame({ dimmed: true, useLastFrame: true });
         return;
       }
       if (reduceMotion) {
         stopLoop();
-        drawFrame({ dimmed: !isPlaying, useLastFrame: true });
+        drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
+        drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
         return;
       }
       startLoop();
@@ -416,7 +501,8 @@
       isPlaying = nextState === 'playing';
       setStatusText();
       if (reduceMotion) {
-        drawFrame({ dimmed: !isPlaying, useLastFrame: true });
+        drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
+        drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
       }
     });
 
@@ -477,7 +563,10 @@
     trackArtist.textContent = `Artist: ${track.artist}`;
     trackAlbum.textContent = `Album: ${track.album}`;
     trackYear.textContent = `Release Year: ${track.releaseYear || 'Unknown'}`;
-    albumCover.src = track.cover || '../../Logo.jpg';
+    if (nowPlayingThumb) {
+      nowPlayingThumb.src = track.cover || '../../Logo.jpg';
+      nowPlayingThumb.alt = `Album cover for ${track.title}`;
+    }
     progressBarFill.style.width = '0%';
     seekBar.value = 0;
     seekBar.disabled = isLive;

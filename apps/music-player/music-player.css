@@ -8,7 +8,6 @@
   --viz-size: clamp(220px, 26vw, 320px);
   --ring-thickness: clamp(14px, 4vw, 18px);
   --inner-padding: 8px;
-  --art-size: calc(var(--viz-size) - (2 * (var(--ring-thickness) + var(--inner-padding))));
   --vinyl-spin-duration: 3.2s;
   --vinyl-wobble-duration: 1.8s;
   --vinyl-sheen-duration: 2.6s;
@@ -153,9 +152,8 @@ body {
 
 .turntable-sheen,
 .turntable-grooves,
-.album-art,
-.album-cover,
 .album-groove-overlay,
+.circular-visualizer,
 .turntable-label {
   position: absolute;
   border-radius: 50%;
@@ -165,17 +163,13 @@ body {
 .turntable-disc,
 .turntable-sheen,
 .turntable-grooves,
-.album-cover,
-.album-groove-overlay {
+.album-groove-overlay,
+.circular-visualizer {
   animation-play-state: paused;
 }
 
 .turntable-disc {
   animation: spinDisc var(--vinyl-spin-duration) linear infinite;
-}
-
-.album-cover {
-  animation: spinAlbum var(--vinyl-wobble-duration) ease-in-out infinite;
 }
 
 .turntable-grooves {
@@ -216,32 +210,14 @@ body {
   will-change: transform, opacity;
 }
 
-.album-art {
-  width: var(--art-size);
-  height: var(--art-size);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-  z-index: 2;
-  pointer-events: none;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-}
-
-/* Visual check: iPhone + Android should show a full ring around centered circular art (no overlap). */
-
-.album-cover {
+.circular-visualizer {
   inset: 0;
   width: 100%;
   height: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 50%;
-  clip-path: circle(50% at 50% 50%);
-  transform-origin: center;
-  border: none;
-  transition: transform 0.3s ease-in-out;
-  will-change: transform;
+  z-index: 3;
+  opacity: 0.95;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 18px rgba(142, 91, 255, 0.25));
 }
 
 .album-groove-overlay {
@@ -483,6 +459,10 @@ body {
   margin: 0;
   font-size: clamp(1rem, 2.8vw, 1.3rem);
   font-weight: 700;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .track-details,
@@ -490,6 +470,37 @@ body {
   margin: 0;
   font-size: clamp(0.75rem, 2.4vw, 0.95rem);
   color: var(--player-muted);
+}
+
+.now-playing {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 2vw, 0.75rem);
+  min-width: 0;
+}
+
+.now-playing-thumb {
+  width: clamp(36px, 7vw, 56px);
+  height: clamp(36px, 7vw, 56px);
+  border-radius: 6px;
+  object-fit: cover;
+  object-position: center;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.now-playing-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.now-playing-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .progress-bar {
@@ -794,21 +805,6 @@ body {
   }
 }
 
-@keyframes spinAlbum {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-  35% {
-    transform: rotate(0.6deg) scale(1.01);
-  }
-  70% {
-    transform: rotate(-0.4deg) scale(0.995);
-  }
-  100% {
-    transform: rotate(0deg) scale(1);
-  }
-}
-
 @keyframes grooveDrift {
   0%,
   100% {
@@ -925,7 +921,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .loading-spinner,
   .turntable-disc,
-  .album-cover,
   .turntable-grooves,
   .album-groove-overlay,
   .turntable-sheen {

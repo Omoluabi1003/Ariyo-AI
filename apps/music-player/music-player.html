@@ -39,17 +39,8 @@
             <div class="turntable">
               <div class="turntable-disc">
                 <span class="turntable-grooves" aria-hidden="true"></span>
-                <div class="album-art" aria-hidden="true">
-                  <img
-                    id="albumCover"
-                    class="album-cover"
-                    src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-                    alt="Album Cover"
-                    width="320"
-                    height="320"
-                  />
-                  <span class="album-groove-overlay" aria-hidden="true"></span>
-                </div>
+                <canvas id="circularVisualizer" class="circular-visualizer" role="img" aria-label="Circular audio visualizer"></canvas>
+                <span class="album-groove-overlay" aria-hidden="true"></span>
                 <span class="turntable-label" aria-hidden="true"></span>
               </div>
               <span class="turntable-sheen" aria-hidden="true"></span>
@@ -61,14 +52,28 @@
           <div id="progressBar" class="progress-bar" role="presentation">
             <div id="progressBarFill"></div>
           </div>
-          <p class="track-info" id="trackInfo" aria-live="polite">A Very Good Bad Guy v3</p>
+          <div class="now-playing">
+            <img
+              id="nowPlayingThumb"
+              class="now-playing-thumb"
+              src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
+              alt="Album cover for A Very Good Bad Guy v3"
+              width="56"
+              height="56"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="now-playing-text" aria-live="polite">
+              <p class="track-info" id="trackInfo">A Very Good Bad Guy v3</p>
+              <p class="track-details now-playing-artist" id="trackArtist">Artist: Omoluabi</p>
+            </div>
+          </div>
           <div class="player-meta-grid">
-            <p class="track-details" id="trackArtist">Artist: Omoluabi</p>
-          <p class="track-details" id="trackAlbum">Album: Kindness</p>
-          <p class="track-details" id="trackYear">Release Year: Unknown</p>
-          <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
-          <p class="track-details" id="nextTrackInfo"></p>
-        </div>
+            <p class="track-details" id="trackAlbum">Album: Kindness</p>
+            <p class="track-details" id="trackYear">Release Year: Unknown</p>
+            <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+            <p class="track-details" id="nextTrackInfo"></p>
+          </div>
           <div class="visualizer-panel" aria-label="Audio visualizer">
             <div class="visualizer-header">
               <h3 class="visualizer-title">Visualizer</h3>
