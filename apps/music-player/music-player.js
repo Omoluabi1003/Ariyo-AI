@@ -240,8 +240,23 @@
     analyzer.fftSize = 2048;
     analyzer.smoothingTimeConstant = 0.82;
 
-    if (window.Howler.masterGain && window.Howler.ctx.destination) {
+    const resumeAudioContext = () => {
+      if (!window.Howler || !window.Howler.ctx) return;
+      if (window.Howler.ctx.state === 'suspended') {
+        window.Howler.ctx.resume().catch(() => {});
+      }
+    };
+
+    const connectAnalyzer = () => {
+      if (!window.Howler || !window.Howler.masterGain || !window.Howler.ctx || !window.Howler.ctx.destination) {
+        return;
+      }
       const { masterGain, ctx } = window.Howler;
+      try {
+        analyzer.disconnect();
+      } catch (_) {
+        // Ignore disconnect errors.
+      }
       try {
         masterGain.disconnect(ctx.destination);
       } catch (_) {
@@ -254,7 +269,10 @@
       }
       masterGain.connect(analyzer);
       analyzer.connect(ctx.destination);
-    }
+    };
+
+    resumeAudioContext();
+    connectAnalyzer();
 
     const canvasContext = visualizerCanvas.getContext('2d');
     if (!canvasContext) return null;
@@ -295,6 +313,23 @@
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
 
+    const resizeCanvases = () => {
+      const visualTarget = visualizerCanvas.parentElement || visualizerCanvas;
+      if (visualTarget) {
+        const { width, height } = visualTarget.getBoundingClientRect();
+        setCanvasSize(visualizerCanvas, canvasContext, width, height);
+      }
+      if (circularCanvas && circularContext) {
+        const circularTarget = circularCanvas.parentElement || circularCanvas;
+        if (circularTarget) {
+          const { width, height } = circularTarget.getBoundingClientRect();
+          setCanvasSize(circularCanvas, circularContext, width, height);
+        }
+      }
+      drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
+      drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
+    };
+
     const handleResize = entries => {
       entries.forEach(entry => {
         const { width, height } = entry.contentRect;
@@ -304,15 +339,20 @@
         if (circularCanvas && circularContext && (entry.target === circularCanvas.parentElement || entry.target === circularCanvas)) {
           setCanvasSize(circularCanvas, circularContext, width, height);
         }
-        drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
-        drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
       });
+      drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
+      drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
     };
 
-    resizeObserver = new ResizeObserver(handleResize);
-    resizeObserver.observe(visualizerCanvas.parentElement || visualizerCanvas);
-    if (circularCanvas) {
-      resizeObserver.observe(circularCanvas.parentElement || circularCanvas);
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', resizeCanvases, { passive: true });
+      resizeCanvases();
+    } else {
+      resizeObserver = new ResizeObserver(handleResize);
+      resizeObserver.observe(visualizerCanvas.parentElement || visualizerCanvas);
+      if (circularCanvas) {
+        resizeObserver.observe(circularCanvas.parentElement || circularCanvas);
+      }
     }
 
     const setStatusText = () => {
@@ -511,11 +551,20 @@
     window.addEventListener('audioengine:state', event => {
       const nextState = event.detail && event.detail.state;
       isPlaying = nextState === 'playing';
+      if (isPlaying) {
+        resumeAudioContext();
+        connectAnalyzer();
+      }
       setStatusText();
       if (reduceMotion) {
         drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
         drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
       }
+    });
+
+    window.addEventListener('audioengine:source', () => {
+      resumeAudioContext();
+      connectAnalyzer();
     });
 
     setReduceMotion();
@@ -526,6 +575,8 @@
       if (resizeObserver) {
         resizeObserver.disconnect();
         resizeObserver = null;
+      } else {
+        window.removeEventListener('resize', resizeCanvases);
       }
       if (prefersReducedMotion.removeEventListener) {
         prefersReducedMotion.removeEventListener('change', setReduceMotion);
@@ -919,6 +970,13 @@
     playIntent = true;
     userPauseRequested = false;
     updateSpinState();
+    if (window.Howler && window.Howler.ctx && window.Howler.ctx.state === 'suspended') {
+      try {
+        await window.Howler.ctx.resume();
+      } catch (_) {
+        // Ignore resume errors.
+      }
+    }
     await ensureTrackLoaded({ autoplay: true });
   };
 
