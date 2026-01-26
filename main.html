@@ -1516,15 +1516,17 @@
           <div class="player-visual">
             <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
               <canvas class="waveform-canvas" aria-hidden="true"></canvas>
-              <img
-                id="albumCover"
-                class="album-cover waveform-cover"
-                src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
-                alt="Album Cover"
-                width="320"
-                height="320"
-                onerror="this.onerror=null;this.src='Logo.jpg';"
-              />
+              <div class="waveform-art" aria-hidden="true">
+                <img
+                  id="albumCover"
+                  class="album-cover waveform-cover"
+                  src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Kindness%20Cover%20Art.jpg"
+                  alt="Album Cover"
+                  width="320"
+                  height="320"
+                  onerror="this.onerror=null;this.src='Logo.jpg';"
+                />
+              </div>
             </div>
             <div id="bufferingOverlay" class="buffering-overlay" aria-live="polite" aria-atomic="true">
               <div class="buffering-ripple" aria-hidden="true"></div>
