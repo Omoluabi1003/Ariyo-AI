@@ -1694,6 +1694,33 @@ body[data-theme="light"] .close:focus-visible {
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
 }
 
+.track-meta-button {
+    border: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.8rem;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.track-meta-button:hover,
+.track-meta-button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+}
+
+.track-meta-button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+    box-shadow: none;
+    transform: none;
+}
+
 .track-meta-note {
     color: #d1d5db;
     font-size: 0.95rem;
