@@ -32,6 +32,7 @@
 
   const SOURCE_RESOLVE_TIMEOUT_MS = 1200;
   const PROGRESS_UPDATE_FPS = 30;
+  const MIN_SPIN_GRACE_MS = 450;
 
   if (!audioEngine) {
     statusMessage.textContent = 'Audio engine failed to initialize.';
@@ -135,6 +136,8 @@
   let sourceRequestId = 0;
   let playIntent = false;
   let userPauseRequested = false;
+  let spinGraceUntil = 0;
+  let spinGraceTimeout = null;
 
   const formatTime = seconds => {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -147,16 +150,33 @@
     statusMessage.textContent = message;
   };
 
+  const scheduleSpinGraceUpdate = () => {
+    if (spinGraceTimeout) {
+      window.clearTimeout(spinGraceTimeout);
+      spinGraceTimeout = null;
+    }
+    const remaining = spinGraceUntil - Date.now();
+    if (remaining > 0) {
+      spinGraceTimeout = window.setTimeout(() => {
+        spinGraceTimeout = null;
+        updateSpinState();
+      }, remaining);
+    }
+  };
+
   const showLoading = message => {
     isLoading = true;
     loadingSpinner.style.display = 'inline-block';
     setStatus(message);
+    spinGraceUntil = Date.now() + MIN_SPIN_GRACE_MS;
+    scheduleSpinGraceUpdate();
     updateSpinState();
   };
 
   const hideLoading = () => {
     isLoading = false;
     loadingSpinner.style.display = 'none';
+    scheduleSpinGraceUpdate();
     updateSpinState();
   };
 
@@ -186,8 +206,10 @@
 
   const updateSpinState = () => {
     const state = audioEngine.getState();
+    const now = Date.now();
     const isSpinning = state === 'playing'
       || isLoading
+      || now < spinGraceUntil
       || (playIntent && state !== 'error');
     updateVinylSpinState(isSpinning);
   };
@@ -494,6 +516,7 @@
   };
 
   const handleLoadError = message => {
+    spinGraceUntil = 0;
     hideLoading();
     setStatus(message);
     updateSpinState();
@@ -579,6 +602,7 @@
   const stopPlayback = () => {
     playIntent = false;
     userPauseRequested = true;
+    spinGraceUntil = 0;
     audioEngine.stop();
     updateProgressDisplay(0, currentDuration);
     hideLoading();
@@ -632,6 +656,7 @@
   pauseButton.addEventListener('click', () => {
     playIntent = false;
     userPauseRequested = true;
+    spinGraceUntil = 0;
     audioEngine.pause();
   });
   stopButton.addEventListener('click', stopPlayback);
