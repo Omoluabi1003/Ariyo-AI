@@ -873,7 +873,7 @@
         currentAlbumIndex = savedState.albumIndex;
         currentTrackIndex = savedState.trackIndex;
         currentRadioIndex = savedState.radioIndex;
-        // shuffleMode = savedState.shuffleMode; // This line is updated below
+        // shuffleState restored below
         if (currentRadioIndex >= 0) {
           const station = radioStations[currentRadioIndex];
           if (typeof setPlaybackContext === 'function') {
@@ -930,29 +930,49 @@
         const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
         const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
 
-        shuffleMode = savedState.shuffleMode;
-        shuffleScope = savedState.shuffleScope;
+        const resolvedShuffleState = Number.isFinite(savedState.shuffleState)
+          ? savedState.shuffleState
+          : (savedState.shuffleScope === 'repeat'
+            ? 1
+            : (savedState.shuffleScope === 'album'
+              ? 2
+              : (savedState.shuffleScope === 'all' ? 3 : 0)));
+        shuffleState = resolvedShuffleState;
+        radioShuffleMode = Boolean(savedState.radioShuffleMode);
 
-        if (shuffleScope === 'repeat') {
-          shuffleMode = false;
+        if (currentRadioIndex !== -1) {
+          if (radioShuffleMode) {
+            shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
+            shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
+          } else {
+            shuffleBtn.innerHTML = '🔀';
+            shuffleStatusInfo.textContent = 'Shuffle: Off';
+          }
+        } else if (shuffleState === 1) {
           shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
           shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
-        } else if (shuffleScope === 'album') {
+        } else if (shuffleState === 2) {
           shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
           shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
-        } else if (shuffleScope === 'all') {
+        } else if (shuffleState === 3) {
           shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
           shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
-        } else { // off
+        } else {
           shuffleBtn.innerHTML = '🔀';
           shuffleStatusInfo.textContent = 'Shuffle: Off';
+        }
+        if (shuffleBtn) {
+          shuffleBtn.setAttribute(
+            'aria-pressed',
+            (currentRadioIndex !== -1 ? radioShuffleMode : shuffleState !== 0) ? 'true' : 'false'
+          );
         }
         buildShuffleQueue();
         console.log('Player restored from saved state:', savedState);
       } else {
         // Default state for a new session if no saved state
-        shuffleScope = 'off';
-        shuffleMode = false;
+        shuffleState = 0;
+        radioShuffleMode = false;
         document.getElementById('shuffleStatusInfo').textContent = 'Shuffle: Off';
         document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']").innerHTML = '🔀';
         buildShuffleQueue();
