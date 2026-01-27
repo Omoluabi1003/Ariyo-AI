@@ -376,6 +376,11 @@ function toggleShuffle() {
   else {
     shuffleState = (shuffleState + 1) % 4;
     shuffleQueue = [];
+    if (shuffleState === 2 || shuffleState === 3) {
+      if (typeof window.loadFullLibraryData === 'function') {
+        window.loadFullLibraryData({ reason: 'shuffle-toggle', immediate: true });
+      }
+    }
     if (shuffleState === 1) {
       shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
       shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
