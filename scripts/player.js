@@ -5119,6 +5119,9 @@ window.addEventListener('ariyo:library-ready', event => {
     window.refreshMergedRadioStations();
   }
   syncLibraryState({ source: event?.detail?.source || 'library-ready' });
+  if (isShuffleQueueMode() && currentRadioIndex === -1) {
+    buildShuffleQueue();
+  }
   if (event?.detail?.source !== 'full') return;
   syncAlbumIndexToCurrentTrack();
   buildGroupedStations();
