@@ -19,7 +19,6 @@
 
 ## Cultural metadata + recommendations
 
-- **Àṣà Note (track-level)**: add bilingual microcopy to a track with a `culturalNote` object.
   ```js
   {
     title: "Locked Away",
@@ -54,7 +53,6 @@
 ## 2026 Product Optimization Update (Single Consolidated Plan)
 
 - **Cultural narrative amplification**
-  - Add a rotating **“Àṣà Note”** (cultural note) block in the player header with bilingual microcopy (Yoruba + English) tied to each track to reinforce Yoruba storytelling without blocking global users.
   - Introduce **Storyliner cards** per album with *Origin / Inspiration / Why it matters* to communicate Yoruba identity in short, skimmable modules.
   - Extend shareable links with **“Proverb of the Day”** cards for lightweight cultural marketing loops (social-ready, low-lift).
   - Sample track metadata snippet:
