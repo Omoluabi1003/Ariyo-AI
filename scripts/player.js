@@ -2052,7 +2052,8 @@ function removeTrackFromPlaylist(index) {
       shuffleState: nextShuffleState,
       currentAlbumId,
       currentTrackId,
-      albums: albumList
+      albums: albumList,
+      consumeShuffle = true
     }) {
       if (!Array.isArray(albumList) || !albumList.length) return null;
       const currentAlbum = albumList[currentAlbumId];
@@ -2066,21 +2067,29 @@ function removeTrackFromPlaylist(index) {
         };
       }
 
-      if (nextShuffleState === 2) {
-        const pool = getAlbumTrackPool(currentAlbumId);
-        return pickRandomTrack(pool, { albumIndex: currentAlbumId, trackIndex: currentTrackId });
-      }
-
-      if (nextShuffleState === 3) {
-        const pool = albumList.flatMap((album, albumIndex) => {
-          if (!album || !Array.isArray(album.tracks)) return [];
-          return album.tracks.map((track, trackIndex) => ({
-            albumIndex,
-            trackIndex,
-            track
-          }));
-        });
-        return pickRandomTrack(pool, { albumIndex: currentAlbumId, trackIndex: currentTrackId });
+      if (nextShuffleState === 2 || nextShuffleState === 3) {
+        if (shuffleQueue.length === 0) {
+          buildShuffleQueue();
+        }
+        while (shuffleQueue.length > 0) {
+          const entry = consumeShuffle ? shuffleQueue.shift() : shuffleQueue[0];
+          if (!entry) {
+            break;
+          }
+          const album = albumList[entry.albumIndex];
+          const track = album?.tracks?.[entry.trackIndex];
+          if (track) {
+            return {
+              albumIndex: entry.albumIndex,
+              trackIndex: entry.trackIndex,
+              track
+            };
+          }
+          if (!consumeShuffle) {
+            break;
+          }
+        }
+        return null;
       }
 
       const sequentialNext = resolveAlbumContinuationTrack(1);
@@ -2106,7 +2115,8 @@ function removeTrackFromPlaylist(index) {
         shuffleState,
         currentAlbumId: currentAlbumIndex,
         currentTrackId: currentTrackIndex,
-        albums
+        albums,
+        consumeShuffle: false
       });
       nextTrackPreview = preview;
       nextTrackPreviewContext = {
@@ -2186,7 +2196,42 @@ function removeTrackFromPlaylist(index) {
 
     function buildShuffleQueue() {
       shuffleQueue = [];
-      updateNextTrackInfo();
+      if (shuffleState !== 2 && shuffleState !== 3) {
+        return;
+      }
+      if (shuffleState === 3) {
+        albums.forEach((album, albumIdx) => {
+          if (!album || !Array.isArray(album.tracks)) return;
+          album.tracks.forEach((track, trackIdx) => {
+            if (!(albumIdx === currentAlbumIndex && trackIdx === currentTrackIndex)) {
+              shuffleQueue.push({
+                albumIndex: albumIdx,
+                trackIndex: trackIdx,
+                title: track.title,
+                src: track.src
+              });
+            }
+          });
+        });
+      } else if (shuffleState === 2) {
+        const album = albums[currentAlbumIndex];
+        if (album && Array.isArray(album.tracks)) {
+          album.tracks.forEach((track, idx) => {
+            if (idx !== currentTrackIndex) {
+              shuffleQueue.push({
+                albumIndex: currentAlbumIndex,
+                trackIndex: idx,
+                title: track.title,
+                src: track.src
+              });
+            }
+          });
+        }
+      }
+      for (let i = shuffleQueue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffleQueue[i], shuffleQueue[j]] = [shuffleQueue[j], shuffleQueue[i]];
+      }
     }
 
     const saveStateConfig = {
@@ -3747,8 +3792,9 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       updateMediaSession();
       showNowPlayingToast(title);
       if (rebuildQueue) {
-        updateNextTrackInfo();
+        buildShuffleQueue();
       }
+      updateNextTrackInfo();
     }
 
 function selectRadio(src, title, index, logo) {
@@ -4891,7 +4937,12 @@ function switchTrack(direction, isAuto = false) {
     selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
   } else {
     const nextTrack = direction >= 0
-      ? getNextTrackPreview()
+      ? getNextTrack({
+        shuffleState,
+        currentAlbumId: currentAlbumIndex,
+        currentTrackId: currentTrackIndex,
+        albums
+      })
       : getPreviousTrack({
         shuffleState,
         currentAlbumId: currentAlbumIndex,
