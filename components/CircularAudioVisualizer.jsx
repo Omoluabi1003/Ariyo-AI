@@ -77,6 +77,24 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       return undefined;
     }
 
+    const restartAnimation = (element) => {
+      if (!element) {
+        return;
+      }
+      const previousAnimation = element.style.animation;
+      const previousWebkitAnimation = element.style.webkitAnimation;
+      element.style.webkitAnimation = "none";
+      element.style.animation = "none";
+      void element.offsetHeight;
+      element.style.webkitAnimation = previousWebkitAnimation;
+      element.style.animation = previousAnimation;
+    };
+
+    restartAnimation(canvas);
+    if (canvas.parentElement) {
+      restartAnimation(canvas.parentElement);
+    }
+
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       return undefined;
@@ -279,6 +297,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
   return (
     <canvas
       ref={canvasRef}
+      className="circular-visualizer"
       aria-hidden="true"
       style={{ width: "100%", height: "100%", display: "block" }}
     />

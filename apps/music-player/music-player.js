@@ -208,6 +208,22 @@
     };
 
   const vinylElements = [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay];
+  const safariAnimationElements = [...vinylElements, loadingSpinner];
+
+  const restartAnimations = elements => {
+    elements.forEach(element => {
+      if (!element) return;
+      const previousAnimation = element.style.animation;
+      const previousWebkitAnimation = element.style.webkitAnimation;
+      element.style.webkitAnimation = 'none';
+      element.style.animation = 'none';
+      void element.offsetHeight;
+      element.style.webkitAnimation = previousWebkitAnimation;
+      element.style.animation = previousAnimation;
+    });
+  };
+
+  window.requestAnimationFrame(() => restartAnimations(safariAnimationElements));
 
   const updateVinylSpinState = isSpinning => {
     applySpinState(vinylElements, isSpinning, { spinClass: 'spin', activeClass: 'spinning' });
