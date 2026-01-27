@@ -469,6 +469,8 @@ const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
 let shuffleState = 0; // 0 = off, 1 = repeat track, 2 = shuffle album, 3 = shuffle all
 let radioShuffleMode = false;
+let nextTrackPreview = null;
+let nextTrackPreviewContext = null;
 let isFirstPlay = true;
 let lastTrackSrc = '';
 let lastTrackTitle = '';
@@ -2090,6 +2092,45 @@ function removeTrackFromPlaylist(index) {
       };
     }
 
+    function resetNextTrackPreview() {
+      nextTrackPreview = null;
+      nextTrackPreviewContext = null;
+    }
+
+    function computeNextTrackPreview() {
+      if (playbackContext.mode === 'radio' || currentRadioIndex !== -1) {
+        resetNextTrackPreview();
+        return null;
+      }
+      const preview = getNextTrack({
+        shuffleState,
+        currentAlbumId: currentAlbumIndex,
+        currentTrackId: currentTrackIndex,
+        albums
+      });
+      nextTrackPreview = preview;
+      nextTrackPreviewContext = {
+        albumIndex: currentAlbumIndex,
+        trackIndex: currentTrackIndex,
+        shuffleState
+      };
+      return preview;
+    }
+
+    function getNextTrackPreview() {
+      if (!nextTrackPreviewContext) {
+        return computeNextTrackPreview();
+      }
+      if (
+        nextTrackPreviewContext.albumIndex !== currentAlbumIndex
+        || nextTrackPreviewContext.trackIndex !== currentTrackIndex
+        || nextTrackPreviewContext.shuffleState !== shuffleState
+      ) {
+        return computeNextTrackPreview();
+      }
+      return nextTrackPreview;
+    }
+
     function getPreviousTrack({
       shuffleState: previousShuffleState,
       currentAlbumId,
@@ -2138,22 +2179,8 @@ function removeTrackFromPlaylist(index) {
         return;
       }
 
-      const sequentialNext = resolveAlbumContinuationTrack(1);
-      if (shuffleState === 1) {
-        const album = albums[currentAlbumIndex];
-        const track = album?.tracks?.[currentTrackIndex];
-        nextInfo.textContent = `Next: ${track?.title || 'Repeat track'}`;
-        return;
-      }
-      if (shuffleState === 2) {
-        nextInfo.textContent = 'Next: Shuffle (Album)';
-        return;
-      }
-      if (shuffleState === 3) {
-        nextInfo.textContent = 'Next: Shuffle (All)';
-        return;
-      }
-      const nextTrack = sequentialNext ? sequentialNext.track : null;
+      const preview = getNextTrackPreview();
+      const nextTrack = preview?.track || null;
       nextInfo.textContent = nextTrack ? `Next: ${nextTrack.title || 'Up next'}` : '';
     }
 
@@ -3460,12 +3487,7 @@ function applyTrackUiState(albumIndex, trackIndex) {
 function resolveTrackForDirection(direction) {
     if (currentRadioIndex !== -1) return null;
     if (direction >= 0) {
-      const next = getNextTrack({
-        shuffleState,
-        currentAlbumId: currentAlbumIndex,
-        currentTrackId: currentTrackIndex,
-        albums
-      });
+      const next = getNextTrackPreview();
       return next
         ? {
           src: next.track?.src,
@@ -4869,12 +4891,7 @@ function switchTrack(direction, isAuto = false) {
     selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
   } else {
     const nextTrack = direction >= 0
-      ? getNextTrack({
-        shuffleState,
-        currentAlbumId: currentAlbumIndex,
-        currentTrackId: currentTrackIndex,
-        albums
-      })
+      ? getNextTrackPreview()
       : getPreviousTrack({
         shuffleState,
         currentAlbumId: currentAlbumIndex,
