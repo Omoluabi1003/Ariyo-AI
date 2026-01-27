@@ -5132,6 +5132,10 @@ window.addEventListener('ariyo:library-ready', event => {
   if (radioModal && getComputedStyle(radioModal).display !== 'none') {
     updateRadioListModal();
   }
+  if (isShuffleQueueMode()) {
+    buildShuffleQueue({ skipUpdate: true });
+    updateNextTrackInfo();
+  }
 });
 
 if (typeof window !== 'undefined') {
