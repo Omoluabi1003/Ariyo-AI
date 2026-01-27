@@ -121,6 +121,9 @@ body {
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.85) 70%);
   perspective: 900px;
+  -webkit-perspective: 900px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
   box-shadow:
     inset 0 12px 24px rgba(255, 255, 255, 0.08),
     inset 0 -12px 24px rgba(0, 0, 0, 0.6),
@@ -147,6 +150,11 @@ body {
     inset 0 -12px 24px rgba(255, 255, 255, 0.12);
   overflow: hidden;
   transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   will-change: transform;
 }
 
@@ -158,6 +166,8 @@ body {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .turntable-disc,
@@ -169,18 +179,22 @@ body {
 }
 
 .turntable-disc {
+  -webkit-animation: spinDisc var(--vinyl-spin-duration) linear infinite;
   animation: spinDisc var(--vinyl-spin-duration) linear infinite;
 }
 
 .turntable-grooves {
+  -webkit-animation: grooveDrift var(--vinyl-wobble-duration) ease-in-out infinite;
   animation: grooveDrift var(--vinyl-wobble-duration) ease-in-out infinite;
 }
 
 .album-groove-overlay {
+  -webkit-animation: grooveShimmer var(--vinyl-sheen-duration) ease-in-out infinite;
   animation: grooveShimmer var(--vinyl-sheen-duration) ease-in-out infinite;
 }
 
 .turntable-sheen {
+  -webkit-animation: sheenSweep var(--vinyl-sheen-duration) ease-in-out infinite;
   animation: sheenSweep var(--vinyl-sheen-duration) ease-in-out infinite;
 }
 
@@ -218,6 +232,9 @@ body {
   opacity: 0.95;
   mix-blend-mode: screen;
   filter: drop-shadow(0 0 18px rgba(142, 91, 255, 0.25));
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .album-groove-overlay {
@@ -239,6 +256,8 @@ body {
     inset 0 0 18px rgba(0, 0, 0, 0.55),
     inset 0 0 4px rgba(255, 255, 255, 0.15);
   will-change: transform, opacity;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .turntable-label {
@@ -258,8 +277,20 @@ body {
   border-radius: 50%;
   border: 4px solid rgba(255, 255, 255, 0.18);
   border-top-color: var(--player-accent);
+  -webkit-animation: spin 0.8s linear infinite;
   animation: spin 0.8s linear infinite;
   display: none;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359.9deg);
+            transform: rotate(359.9deg);
+  }
 }
 
 @keyframes spin {
@@ -267,7 +298,7 @@ body {
     transform: rotate(0deg);
   }
   100% {
-    transform: rotate(360deg);
+    transform: rotate(359.9deg);
   }
 }
 
@@ -787,60 +818,130 @@ body {
   letter-spacing: 0.01em;
 }
 
-@keyframes spinDisc {
+@-webkit-keyframes spinDisc {
   0% {
-    transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+    -webkit-transform: rotate(0deg) rotateX(0deg) rotateY(0deg) translateZ(0);
+            transform: rotate(0deg) rotateX(0deg) rotateY(0deg) translateZ(0);
   }
   25% {
-    transform: rotate(90deg) rotateX(1deg) rotateY(-1deg);
+    -webkit-transform: rotate(90deg) rotateX(1deg) rotateY(-1deg) translateZ(0);
+            transform: rotate(90deg) rotateX(1deg) rotateY(-1deg) translateZ(0);
   }
   50% {
-    transform: rotate(180deg) rotateX(0.6deg) rotateY(1deg);
+    -webkit-transform: rotate(180deg) rotateX(0.6deg) rotateY(1deg) translateZ(0);
+            transform: rotate(180deg) rotateX(0.6deg) rotateY(1deg) translateZ(0);
   }
   75% {
-    transform: rotate(270deg) rotateX(-0.6deg) rotateY(0.6deg);
+    -webkit-transform: rotate(270deg) rotateX(-0.6deg) rotateY(0.6deg) translateZ(0);
+            transform: rotate(270deg) rotateX(-0.6deg) rotateY(0.6deg) translateZ(0);
   }
   100% {
-    transform: rotate(360deg) rotateX(0deg) rotateY(0deg);
+    -webkit-transform: rotate(359.9deg) rotateX(0deg) rotateY(0deg) translateZ(0);
+            transform: rotate(359.9deg) rotateX(0deg) rotateY(0deg) translateZ(0);
+  }
+}
+
+@keyframes spinDisc {
+  0% {
+    transform: rotate(0deg) rotateX(0deg) rotateY(0deg) translateZ(0);
+  }
+  25% {
+    transform: rotate(90deg) rotateX(1deg) rotateY(-1deg) translateZ(0);
+  }
+  50% {
+    transform: rotate(180deg) rotateX(0.6deg) rotateY(1deg) translateZ(0);
+  }
+  75% {
+    transform: rotate(270deg) rotateX(-0.6deg) rotateY(0.6deg) translateZ(0);
+  }
+  100% {
+    transform: rotate(359.9deg) rotateX(0deg) rotateY(0deg) translateZ(0);
+  }
+}
+
+@-webkit-keyframes grooveDrift {
+  0%,
+  100% {
+    -webkit-transform: scale(1) translateZ(0);
+            transform: scale(1) translateZ(0);
+    opacity: 0.45;
+  }
+  50% {
+    -webkit-transform: scale(1.012) translateZ(0);
+            transform: scale(1.012) translateZ(0);
+    opacity: 0.6;
   }
 }
 
 @keyframes grooveDrift {
   0%,
   100% {
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
     opacity: 0.45;
   }
   50% {
-    transform: scale(1.012);
+    transform: scale(1.012) translateZ(0);
     opacity: 0.6;
+  }
+}
+
+@-webkit-keyframes sheenSweep {
+  0%,
+  100% {
+    -webkit-transform: rotate(0deg) translateZ(0);
+            transform: rotate(0deg) translateZ(0);
+    opacity: 0.35;
+  }
+  45% {
+    -webkit-transform: rotate(6deg) translateZ(0);
+            transform: rotate(6deg) translateZ(0);
+    opacity: 0.55;
+  }
+  75% {
+    -webkit-transform: rotate(-4deg) translateZ(0);
+            transform: rotate(-4deg) translateZ(0);
+    opacity: 0.4;
   }
 }
 
 @keyframes sheenSweep {
   0%,
   100% {
-    transform: rotate(0deg);
+    transform: rotate(0deg) translateZ(0);
     opacity: 0.35;
   }
   45% {
-    transform: rotate(6deg);
+    transform: rotate(6deg) translateZ(0);
     opacity: 0.55;
   }
   75% {
-    transform: rotate(-4deg);
+    transform: rotate(-4deg) translateZ(0);
     opacity: 0.4;
+  }
+}
+
+@-webkit-keyframes grooveShimmer {
+  0%,
+  100% {
+    -webkit-transform: scale(1) translateZ(0);
+            transform: scale(1) translateZ(0);
+    opacity: 0.85;
+  }
+  50% {
+    -webkit-transform: scale(1.015) translateZ(0);
+            transform: scale(1.015) translateZ(0);
+    opacity: 1;
   }
 }
 
 @keyframes grooveShimmer {
   0%,
   100% {
-    transform: scale(1);
+    transform: scale(1) translateZ(0);
     opacity: 0.85;
   }
   50% {
-    transform: scale(1.015);
+    transform: scale(1.015) translateZ(0);
     opacity: 1;
   }
 }

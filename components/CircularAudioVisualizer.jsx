@@ -234,6 +234,24 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
   }, [isPlaying, size]);
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const targets = document.querySelectorAll(
+      ".turntable-disc, .album-cover, .album-groove-overlay, .circular-visualizer"
+    );
+
+    targets.forEach((target) => {
+      target.style.webkitAnimation = "none";
+      target.style.animation = "none";
+      void target.offsetHeight;
+      target.style.webkitAnimation = "";
+      target.style.animation = "";
+    });
+  }, []);
+
+  useEffect(() => {
     return () => {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
@@ -280,6 +298,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
     <canvas
       ref={canvasRef}
       aria-hidden="true"
+      className="circular-visualizer"
       style={{ width: "100%", height: "100%", display: "block" }}
     />
   );
