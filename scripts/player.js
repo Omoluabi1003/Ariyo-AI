@@ -2048,6 +2048,19 @@ function removeTrackFromPlaylist(index) {
       return choice || null;
     }
 
+    function isShuffleQueueMode(state = shuffleState) {
+      return state === 2 || state === 3;
+    }
+
+    function ensureShuffleQueue() {
+      if (!isShuffleQueueMode()) {
+        return;
+      }
+      if (shuffleQueue.length === 0) {
+        buildShuffleQueue({ skipUpdate: true });
+      }
+    }
+
     function getNextTrack({
       shuffleState: nextShuffleState,
       currentAlbumId,
@@ -2066,21 +2079,18 @@ function removeTrackFromPlaylist(index) {
         };
       }
 
-      if (nextShuffleState === 2) {
-        const pool = getAlbumTrackPool(currentAlbumId);
-        return pickRandomTrack(pool, { albumIndex: currentAlbumId, trackIndex: currentTrackId });
-      }
-
-      if (nextShuffleState === 3) {
-        const pool = albumList.flatMap((album, albumIndex) => {
-          if (!album || !Array.isArray(album.tracks)) return [];
-          return album.tracks.map((track, trackIndex) => ({
-            albumIndex,
-            trackIndex,
-            track
-          }));
-        });
-        return pickRandomTrack(pool, { albumIndex: currentAlbumId, trackIndex: currentTrackId });
+      if (isShuffleQueueMode(nextShuffleState)) {
+        ensureShuffleQueue();
+        if (shuffleQueue.length === 0) return null;
+        const next = shuffleQueue[0];
+        const nextAlbum = albumList[next.albumIndex];
+        const nextTrack = nextAlbum?.tracks?.[next.trackIndex];
+        if (!nextTrack) return null;
+        return {
+          albumIndex: next.albumIndex,
+          trackIndex: next.trackIndex,
+          track: nextTrack
+        };
       }
 
       const sequentialNext = resolveAlbumContinuationTrack(1);
@@ -2184,9 +2194,51 @@ function removeTrackFromPlaylist(index) {
       nextInfo.textContent = nextTrack ? `Next: ${nextTrack.title || 'Up next'}` : '';
     }
 
-    function buildShuffleQueue() {
+    function buildShuffleQueue({ skipUpdate = false } = {}) {
       shuffleQueue = [];
-      updateNextTrackInfo();
+      if (!isShuffleQueueMode()) {
+        if (!skipUpdate) {
+          updateNextTrackInfo();
+        }
+        return;
+      }
+      if (shuffleState === 3) {
+        albums.forEach((album, albumIdx) => {
+          if (!album || !Array.isArray(album.tracks)) return;
+          album.tracks.forEach((track, trackIdx) => {
+            if (!(albumIdx === currentAlbumIndex && trackIdx === currentTrackIndex)) {
+              shuffleQueue.push({
+                albumIndex: albumIdx,
+                trackIndex: trackIdx,
+                title: track.title,
+                src: track.src
+              });
+            }
+          });
+        });
+      } else if (shuffleState === 2) {
+        const album = albums[currentAlbumIndex];
+        if (album && Array.isArray(album.tracks)) {
+          album.tracks.forEach((track, idx) => {
+            if (idx !== currentTrackIndex) {
+              shuffleQueue.push({
+                albumIndex: currentAlbumIndex,
+                trackIndex: idx,
+                title: track.title,
+                src: track.src
+              });
+            }
+          });
+        }
+      }
+      for (let i = shuffleQueue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffleQueue[i], shuffleQueue[j]] = [shuffleQueue[j], shuffleQueue[i]];
+      }
+      resetNextTrackPreview();
+      if (!skipUpdate) {
+        updateNextTrackInfo();
+      }
     }
 
     const saveStateConfig = {
@@ -3487,23 +3539,53 @@ function applyTrackUiState(albumIndex, trackIndex) {
 function resolveTrackForDirection(direction) {
     if (currentRadioIndex !== -1) return null;
     if (direction >= 0) {
-      const next = getNextTrackPreview();
+      if (shuffleState === 1) {
+        const album = albums[currentAlbumIndex];
+        const track = album?.tracks?.[currentTrackIndex];
+        return track
+          ? {
+            src: track.src,
+            title: track.title,
+            albumIndex: currentAlbumIndex,
+            trackIndex: currentTrackIndex
+          }
+          : null;
+      }
+      if (isShuffleQueueMode()) {
+        ensureShuffleQueue();
+        const next = shuffleQueue[0];
+        const album = next ? albums[next.albumIndex] : null;
+        const track = album?.tracks?.[next.trackIndex];
+        return track
+          ? {
+            src: track.src,
+            title: track.title,
+            albumIndex: next.albumIndex,
+            trackIndex: next.trackIndex
+          }
+          : null;
+      }
+      const next = resolveAlbumContinuationTrack(1);
       return next
         ? {
           src: next.track?.src,
           title: next.track?.title,
           albumIndex: next.albumIndex,
-          trackIndex: next.trackIndex
+          trackIndex: next.index
         }
         : null;
     }
-    const previous = resolveAlbumContinuationTrack(direction);
+    const previous = getPreviousTrack({
+      shuffleState,
+      currentAlbumId: currentAlbumIndex,
+      currentTrackId: currentTrackIndex
+    });
     if (!previous || !previous.track) return null;
     return {
       src: previous.track.src,
       title: previous.track.title,
       albumIndex: previous.albumIndex,
-      trackIndex: previous.index
+      trackIndex: previous.trackIndex
     };
 }
 
@@ -3747,7 +3829,11 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       updateMediaSession();
       showNowPlayingToast(title);
       if (rebuildQueue) {
-        updateNextTrackInfo();
+        if (isShuffleQueueMode()) {
+          buildShuffleQueue();
+        } else {
+          updateNextTrackInfo();
+        }
       }
     }
 
@@ -4713,22 +4799,14 @@ function updateTrackTime() {
 
       if (playbackContext.mode === 'radio' || currentRadioIndex !== -1) return; // Only advance albums/podcasts, not live radio
 
-      const next = getNextTrack({
-        shuffleState,
-        currentAlbumId: currentAlbumIndex,
-        currentTrackId: currentTrackIndex,
-        albums
-      });
-      if (!next || !next.track) return;
-
-      selectTrack(
-        next.track.src,
-        next.track.title,
-        next.trackIndex,
-        false,
-        null,
-        next.albumIndex
-      );
+      if (shuffleState === 1) {
+        const album = albums[currentAlbumIndex];
+        const track = album?.tracks?.[currentTrackIndex];
+        if (!track) return;
+        selectTrack(track.src, track.title, currentTrackIndex, false);
+        return;
+      }
+      switchTrack(1, true);
     }
 
     audioPlayer.addEventListener('ended', handleTrackEnded);
@@ -4890,22 +4968,54 @@ function switchTrack(direction, isAuto = false) {
     const station = radioStations[newIndex];
     selectRadio(station.url, `${station.name} - ${station.location}`, newIndex, station.logo);
   } else {
-    const nextTrack = direction >= 0
-      ? getNextTrackPreview()
-      : getPreviousTrack({
+    if (direction >= 0) {
+      if (shuffleState === 1) {
+        const album = albums[currentAlbumIndex];
+        const track = album?.tracks?.[currentTrackIndex];
+        if (!track) return;
+        selectTrack(track.src, track.title, currentTrackIndex, false);
+      } else if (isShuffleQueueMode()) {
+        ensureShuffleQueue();
+        const next = shuffleQueue.shift();
+        const album = next ? albums[next.albumIndex] : null;
+        const track = album?.tracks?.[next.trackIndex];
+        if (!next || !track) return;
+        selectTrack(
+          track.src,
+          track.title,
+          next.trackIndex,
+          false,
+          null,
+          next.albumIndex
+        );
+      } else {
+        const next = resolveAlbumContinuationTrack(direction);
+        if (!next || !next.track) return;
+        selectTrack(
+          next.track.src,
+          next.track.title,
+          next.index,
+          false,
+          null,
+          next.albumIndex
+        );
+      }
+    } else {
+      const previous = getPreviousTrack({
         shuffleState,
         currentAlbumId: currentAlbumIndex,
         currentTrackId: currentTrackIndex
       });
-    if (!nextTrack || !nextTrack.track) return;
-    selectTrack(
-      nextTrack.track.src,
-      nextTrack.track.title,
-      nextTrack.trackIndex,
-      false,
-      null,
-      nextTrack.albumIndex
-    );
+      if (!previous || !previous.track) return;
+      selectTrack(
+        previous.track.src,
+        previous.track.title,
+        previous.trackIndex,
+        false,
+        null,
+        previous.albumIndex
+      );
+    }
   }
 
   if (shouldAutoPlay) {
