@@ -11,6 +11,10 @@
       && typeof window.matchMedia === 'function'
       ? window.matchMedia('(prefers-reduced-motion: reduce)')
       : null;
+    const VISUALIZER_MOTION_STORAGE_KEY = 'ariyoVisualizerMotionOptIn';
+    const visualizerMotionToggle = document.getElementById('visualizerMotionToggle');
+    const visualizerMotionStatus = document.getElementById('visualizerMotionStatus');
+    let visualizerMotionOptIn = false;
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -33,6 +37,65 @@
 
     function prefersReducedMotion() {
       return Boolean(reducedMotionQuery && reducedMotionQuery.matches);
+    }
+
+    function readVisualizerMotionOptIn() {
+      if (typeof window === 'undefined') return false;
+      try {
+        return window.localStorage?.getItem(VISUALIZER_MOTION_STORAGE_KEY) === 'true';
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function writeVisualizerMotionOptIn(value) {
+      if (typeof window === 'undefined') return;
+      try {
+        window.localStorage?.setItem(VISUALIZER_MOTION_STORAGE_KEY, value ? 'true' : 'false');
+      } catch (error) {
+        // Ignore storage errors (private mode, blocked storage, etc.).
+      }
+    }
+
+    function isVisualizerMotionAllowed() {
+      return !prefersReducedMotion() || visualizerMotionOptIn;
+    }
+
+    function updateVisualizerMotionUI() {
+      const reducedMotion = prefersReducedMotion();
+
+      if (visualizerMotionToggle) {
+        if (reducedMotion) {
+          visualizerMotionToggle.disabled = false;
+          visualizerMotionToggle.checked = visualizerMotionOptIn;
+        } else {
+          visualizerMotionToggle.disabled = true;
+          visualizerMotionToggle.checked = true;
+        }
+      }
+
+      if (visualizerMotionStatus) {
+        if (reducedMotion && !visualizerMotionOptIn) {
+          visualizerMotionStatus.textContent =
+            'Visualizer static to respect Reduce Motion. Toggle to enable motion.';
+          visualizerMotionStatus.classList.add('is-static');
+        } else {
+          visualizerMotionStatus.textContent = '';
+          visualizerMotionStatus.classList.remove('is-static');
+        }
+      }
+    }
+
+    visualizerMotionOptIn = readVisualizerMotionOptIn();
+    updateVisualizerMotionUI();
+
+    if (visualizerMotionToggle) {
+      visualizerMotionToggle.addEventListener('change', (event) => {
+        visualizerMotionOptIn = Boolean(event.target?.checked);
+        writeVisualizerMotionOptIn(visualizerMotionOptIn);
+        updateVisualizerMotionUI();
+        setWaveformActive(shouldAnimateVisualizer());
+      });
     }
 
     const fallbackVinylStateUtils = {
@@ -4572,7 +4635,7 @@ function selectRadio(src, title, index, logo) {
 
     function setWaveformActive(isActive) {
       waveformState.active = Boolean(
-        isActive && !prefersReducedMotion() && waveformCanvas && waveformContext
+        isActive && isVisualizerMotionAllowed() && waveformCanvas && waveformContext
       );
       if (waveformContainer) {
         waveformContainer.classList.toggle('is-active', waveformState.active);
@@ -4597,7 +4660,7 @@ function selectRadio(src, title, index, logo) {
 
     function setTurntableSpin(isSpinning) {
       lastSpinState = isSpinning;
-      setWaveformActive(isSpinning);
+      setWaveformActive(shouldAnimateVisualizer());
       vinylStateUtils.applyVinylSpinState(
         [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay],
         isSpinning,
@@ -4605,17 +4668,20 @@ function selectRadio(src, title, index, logo) {
       );
     }
 
-    function shouldSpinVinyl() {
+    function shouldSpinVinyl({ reducedMotionOverride } = {}) {
       const uiPlayMode = playbackStatus === PlaybackStatus.playing
         || playbackStatus === PlaybackStatus.buffering
         || playbackStatus === PlaybackStatus.preparing;
       const isPlaying = !audioPlayer.paused && !audioPlayer.ended;
       const effectivePlayIntent = playIntent || uiPlayMode;
       const resolveSpinState = vinylStateUtils.deriveVinylSpinState || vinylStateUtils.shouldVinylSpin;
+      const reducedMotionValue = typeof reducedMotionOverride === 'boolean'
+        ? reducedMotionOverride
+        : prefersReducedMotion();
       if (resolveSpinState === vinylStateUtils.deriveVinylSpinState) {
         return resolveSpinState(audioPlayer, {
           waiting: vinylWaiting,
-          reducedMotion: prefersReducedMotion(),
+          reducedMotion: reducedMotionValue,
           isPlaying,
           playIntent: effectivePlayIntent
         });
@@ -4625,10 +4691,15 @@ function selectRadio(src, title, index, logo) {
         ended: audioPlayer.ended,
         waiting: vinylWaiting,
         readyState: audioPlayer.readyState,
-        reducedMotion: prefersReducedMotion(),
+        reducedMotion: reducedMotionValue,
         isPlaying,
         playIntent: effectivePlayIntent
       });
+    }
+
+    function shouldAnimateVisualizer() {
+      const reducedMotionValue = prefersReducedMotion() && !visualizerMotionOptIn;
+      return shouldSpinVinyl({ reducedMotionOverride: reducedMotionValue });
     }
 
     function manageVinylRotation() {
@@ -4642,7 +4713,9 @@ function selectRadio(src, title, index, logo) {
     }
 
     function handleReducedMotionChange() {
+      updateVisualizerMotionUI();
       manageVinylRotation();
+      setWaveformActive(shouldAnimateVisualizer());
     }
 
     if (reducedMotionQuery) {

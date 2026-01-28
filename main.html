@@ -1517,6 +1517,23 @@
             <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
               <canvas class="waveform-canvas" aria-hidden="true"></canvas>
             </div>
+            <div class="visualizer-actions" role="group" aria-label="Visualizer motion controls">
+              <label class="visualizer-toggle" for="visualizerMotionToggle">
+                <span class="visualizer-toggle__label">Visualizer motion</span>
+                <span class="visualizer-toggle__control">
+                  <input
+                    type="checkbox"
+                    id="visualizerMotionToggle"
+                    class="visualizer-toggle__input"
+                    aria-describedby="visualizerMotionStatus"
+                  />
+                  <span class="visualizer-toggle__track" aria-hidden="true">
+                    <span class="visualizer-toggle__thumb"></span>
+                  </span>
+                </span>
+              </label>
+              <p id="visualizerMotionStatus" class="visualizer-status" aria-live="polite"></p>
+            </div>
             <div id="bufferingOverlay" class="buffering-overlay" aria-live="polite" aria-atomic="true">
               <div class="buffering-ripple" aria-hidden="true"></div>
               <div class="buffering-ripple delayed" aria-hidden="true"></div>
