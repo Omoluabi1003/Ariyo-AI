@@ -31,6 +31,7 @@
   const crossfadeStatus = document.getElementById('crossfadeStatus');
   const visualizerCanvas = document.getElementById('audioVisualizer');
   const visualizerToggle = document.getElementById('visualizerToggle');
+  const visualizerMotionToggle = document.getElementById('visualizerMotionToggle');
   const visualizerStatus = document.getElementById('visualizerStatus');
 
   if (nowPlayingThumb) {
@@ -223,11 +224,14 @@
   };
 
   const setupAudioVisualizer = () => {
-    if (!visualizerCanvas || !visualizerToggle || !visualizerStatus) return null;
+    if (!visualizerCanvas || !visualizerToggle || !visualizerStatus || !visualizerMotionToggle) return null;
     if (!window.Howler || !window.Howler.ctx) {
       visualizerToggle.disabled = true;
       visualizerToggle.setAttribute('aria-pressed', 'false');
       visualizerToggle.textContent = 'Visualizer Loading';
+      visualizerMotionToggle.disabled = true;
+      visualizerMotionToggle.setAttribute('aria-pressed', 'false');
+      visualizerMotionToggle.textContent = 'Motion Override Off';
       visualizerStatus.textContent = 'Waiting for audio';
       return null;
     }
@@ -329,11 +333,26 @@
     let isPlaying = audioEngine.getState() === 'playing';
     let isEnabled = true;
     let reduceMotion = false;
+    let allowMotionOverride = false;
     let resizeObserver = null;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateMotionToggle = () => {
+      if (!reduceMotion) {
+        allowMotionOverride = false;
+        visualizerMotionToggle.disabled = true;
+        visualizerMotionToggle.setAttribute('aria-pressed', 'false');
+        visualizerMotionToggle.textContent = 'Motion Override Off';
+        return;
+      }
+      visualizerMotionToggle.disabled = false;
+      visualizerMotionToggle.setAttribute('aria-pressed', String(allowMotionOverride));
+      visualizerMotionToggle.textContent = allowMotionOverride ? 'Motion Override On' : 'Motion Override Off';
+    };
+
     const setReduceMotion = () => {
       reduceMotion = prefersReducedMotion.matches;
+      updateMotionToggle();
       updateVisualizerState();
     };
 
@@ -396,6 +415,10 @@
     const setStatusText = () => {
       if (!isEnabled) {
         visualizerStatus.textContent = 'Off';
+        return;
+      }
+      if (reduceMotion && !allowMotionOverride) {
+        visualizerStatus.textContent = 'Static (Reduce Motion)';
         return;
       }
       visualizerStatus.textContent = isPlaying ? 'Live' : 'Paused';
@@ -570,7 +593,7 @@
         drawCircularFrame({ dimmed: true, useLastFrame: true });
         return;
       }
-      if (reduceMotion) {
+      if (reduceMotion && !allowMotionOverride) {
         stopLoop();
         drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
         drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
@@ -586,6 +609,13 @@
       updateVisualizerState();
     });
 
+    visualizerMotionToggle.addEventListener('click', () => {
+      if (!reduceMotion) return;
+      allowMotionOverride = !allowMotionOverride;
+      updateMotionToggle();
+      updateVisualizerState();
+    });
+
     window.addEventListener('audioengine:state', event => {
       const nextState = event.detail && event.detail.state;
       isPlaying = nextState === 'playing';
@@ -594,7 +624,7 @@
         connectAnalyzer();
       }
       setStatusText();
-      if (reduceMotion) {
+      if (reduceMotion && !allowMotionOverride) {
         drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
         drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
       }

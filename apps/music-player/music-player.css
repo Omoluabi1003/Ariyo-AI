@@ -419,6 +419,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .visualizer-title {
@@ -426,6 +427,13 @@ body {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.visualizer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .visualizer-toggle {
@@ -457,6 +465,11 @@ body {
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
+}
+
+.visualizer-motion-toggle {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.7rem;
 }
 
 .visualizer-canvas-wrap {
