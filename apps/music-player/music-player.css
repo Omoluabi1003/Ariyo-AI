@@ -466,6 +466,12 @@ body {
   color: rgba(255, 255, 255, 0.65);
 }
 
+.visualizer-mode-advice {
+  margin: -0.35rem 0 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .visualizer-title {
   margin: 0;
   font-size: 0.95rem;

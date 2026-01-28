@@ -35,6 +35,7 @@
   const visualizerStatus = document.getElementById('visualizerStatus');
   const visualizerModeButtons = document.querySelectorAll('[data-visualizer-mode]');
   const visualizerModeStatus = document.getElementById('visualizerModeStatus');
+  const visualizerModeAdvice = document.getElementById('visualizerModeAdvice');
   const visualizerModeRoot = document.querySelector('.music-player');
 
   if (nowPlayingThumb) {
@@ -160,6 +161,13 @@
     if (!visualizerModeStatus) return;
     const label = mode === 'turntable' ? 'Turntable only' : mode === 'spectrum' ? 'Spectrum only' : 'Dual visuals';
     visualizerModeStatus.textContent = `Showing: ${label}`;
+    if (!visualizerModeAdvice) return;
+    const advice = mode === 'turntable'
+      ? 'Best for focus: keep the vinyl motion while reducing spectrum activity.'
+      : mode === 'spectrum'
+        ? 'Best for detail: highlight beats and vocals in the spectrum.'
+        : 'Best for most tracks: layered visuals with balanced motion.';
+    visualizerModeAdvice.textContent = advice;
   };
 
   const setVisualizerMode = mode => {
