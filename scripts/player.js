@@ -14,6 +14,19 @@
     const VISUALIZER_MOTION_STORAGE_KEY = 'ariyoVisualizerMotionOptIn';
     const visualizerMotionToggle = document.getElementById('visualizerMotionToggle');
     const visualizerMotionStatus = document.getElementById('visualizerMotionStatus');
+    const VISUALIZER_MODE_STORAGE_KEY = 'ariyoVisualizerMode';
+    const visualizerModeButtons = document.querySelectorAll('[data-main-visualizer-mode]');
+    const visualizerModeStatus = document.getElementById('visualizerModeStatus');
+    const musicPlayerRoot = document.querySelector('.music-player');
+    const VISUALIZER_MODE_LABELS = {
+      orb: '🧊 Orb',
+      'neon-bars': '📊 Neon Bars',
+      'particle-field': '✨ Particle Field',
+      'wireframe-lattice': '🕸️ Lattice',
+      'waveform-tunnel': '🚇 Wave Tunnel',
+      'holographic-rings': '🪩 Rings'
+    };
+    const VISUALIZER_MODES = Object.keys(VISUALIZER_MODE_LABELS);
     let visualizerMotionOptIn = false;
 
     function deriveTrackArtist(baseArtist, trackTitle) {
@@ -57,6 +70,41 @@
       }
     }
 
+    function readVisualizerMode() {
+      if (typeof window === 'undefined') return null;
+      try {
+        return window.localStorage?.getItem(VISUALIZER_MODE_STORAGE_KEY) || null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeVisualizerMode(value) {
+      if (typeof window === 'undefined') return;
+      try {
+        window.localStorage?.setItem(VISUALIZER_MODE_STORAGE_KEY, value);
+      } catch (error) {
+        // Ignore storage errors (private mode, blocked storage, etc.).
+      }
+    }
+
+    function setVisualizerMode(mode) {
+      const nextMode = VISUALIZER_MODES.includes(mode) ? mode : 'orb';
+      if (musicPlayerRoot) {
+        musicPlayerRoot.setAttribute('data-visualizer-mode', nextMode);
+      }
+      visualizerModeButtons.forEach((button) => {
+        const isActive = button.getAttribute('data-main-visualizer-mode') === nextMode;
+        button.classList.toggle('visualizer-selector__button--active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+      });
+      if (visualizerModeStatus) {
+        const label = VISUALIZER_MODE_LABELS[nextMode] || 'Visualizer';
+        visualizerModeStatus.textContent = `Showing: ${label}`;
+      }
+      writeVisualizerMode(nextMode);
+    }
+
     function isVisualizerMotionAllowed() {
       return !prefersReducedMotion() || visualizerMotionOptIn;
     }
@@ -88,6 +136,18 @@
 
     visualizerMotionOptIn = readVisualizerMotionOptIn();
     updateVisualizerMotionUI();
+
+    if (visualizerModeButtons.length) {
+      const storedMode = readVisualizerMode();
+      const initialMode = storedMode || musicPlayerRoot?.getAttribute('data-visualizer-mode') || 'orb';
+      setVisualizerMode(initialMode);
+      visualizerModeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const mode = button.getAttribute('data-main-visualizer-mode');
+          setVisualizerMode(mode);
+        });
+      });
+    }
 
     if (visualizerMotionToggle) {
       visualizerMotionToggle.addEventListener('change', (event) => {
