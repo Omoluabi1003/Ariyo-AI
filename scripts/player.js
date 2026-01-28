@@ -2052,10 +2052,20 @@ function removeTrackFromPlaylist(index) {
       return state === 2 || state === 3;
     }
 
+    function requestFullLibraryForShuffle(reason = 'shuffle-queue') {
+      if (!isShuffleQueueMode()) return;
+      if (typeof window === 'undefined') return;
+      if (window.__ariyoLibraryMode === 'full' || window.__ariyoLibraryHydrated) return;
+      if (typeof window.loadFullLibraryData === 'function') {
+        window.loadFullLibraryData({ reason, immediate: true });
+      }
+    }
+
     function ensureShuffleQueue() {
       if (!isShuffleQueueMode()) {
         return;
       }
+      requestFullLibraryForShuffle();
       if (shuffleQueue.length === 0) {
         buildShuffleQueue({ skipUpdate: true });
       }
@@ -2202,6 +2212,7 @@ function removeTrackFromPlaylist(index) {
         }
         return;
       }
+      requestFullLibraryForShuffle('shuffle-build');
       if (shuffleState === 3) {
         albums.forEach((album, albumIdx) => {
           if (!album || !Array.isArray(album.tracks)) return;
