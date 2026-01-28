@@ -28,6 +28,7 @@
     };
     const VISUALIZER_MODES = Object.keys(VISUALIZER_MODE_LABELS);
     let visualizerMotionOptIn = false;
+    let waveformReady = false;
 
     function deriveTrackArtist(baseArtist, trackTitle) {
         const artistName = baseArtist || 'Omoluabi';
@@ -103,6 +104,11 @@
         visualizerModeStatus.textContent = `Showing: ${label}`;
       }
       writeVisualizerMode(nextMode);
+      if (waveformReady) {
+        resetWaveformState();
+        resetVisualizerModeState();
+        setWaveformIdle();
+      }
     }
 
     function isVisualizerMotionAllowed() {
@@ -514,7 +520,10 @@
       zeroDataWarningIssued: false,
       barLevels: new Float32Array(waveformBarCount),
       rotation: 0,
-      lastFrameTime: 0
+      lastFrameTime: 0,
+      particles: [],
+      tunnelOffset: 0,
+      latticePhase: 0
     };
     const waveformSilenceConfig = {
       maxSilentMs: 1600,
@@ -524,6 +533,35 @@
       innerRadiusRatio: 0.36,
       maxBarLengthRatio: 0.32
     };
+
+    function getVisualizerMode() {
+      return musicPlayerRoot?.getAttribute('data-visualizer-mode') || 'orb';
+    }
+
+    function initializeVisualizerParticles() {
+      if (!waveformCanvas) return;
+      const width = waveformCanvas.clientWidth || 0;
+      const height = waveformCanvas.clientHeight || 0;
+      if (!width || !height) return;
+      const particleCount = Math.min(140, Math.max(60, Math.floor((width * height) / 14000)));
+      waveformState.particles = Array.from({ length: particleCount }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        size: 1 + Math.random() * 2.4,
+        hue: 180 + Math.random() * 160,
+        alpha: 0.4 + Math.random() * 0.6
+      }));
+    }
+
+    function resetVisualizerModeState() {
+      waveformState.barLevels.fill(0);
+      waveformState.rotation = 0;
+      waveformState.tunnelOffset = 0;
+      waveformState.latticePhase = 0;
+      initializeVisualizerParticles();
+    }
 
     const resizeWaveformCanvas = () => {
       if (!waveformCanvas || !waveformContext) return;
@@ -536,9 +574,11 @@
       waveformCanvas.width = Math.max(1, Math.floor(width * ratio));
       waveformCanvas.height = Math.max(1, Math.floor(height * ratio));
       waveformContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+      initializeVisualizerParticles();
     };
 
-    if (waveformCanvas && waveformContext) {
+    waveformReady = Boolean(waveformCanvas && waveformContext);
+    if (waveformReady) {
       resizeWaveformCanvas();
       if (typeof ResizeObserver === 'function') {
         const waveformResizeObserver = new ResizeObserver(() => resizeWaveformCanvas());
@@ -546,6 +586,8 @@
       } else {
         window.addEventListener('resize', resizeWaveformCanvas);
       }
+      resetVisualizerModeState();
+      setWaveformIdle();
     }
     const trackInfo = document.getElementById('trackInfo');
     const trackArtist = document.getElementById('trackArtist');
@@ -4523,29 +4565,43 @@ function selectRadio(src, title, index, logo) {
       return sum / (end + 1);
     }
 
-    function drawWaveformFrame({ dataArray, timestamp, isPlaying }) {
-      if (!waveformCanvas || !waveformContext) return;
-      const width = waveformCanvas.clientWidth || 0;
-      const height = waveformCanvas.clientHeight || 0;
-      if (!width || !height) return;
+    function getAverageAmplitude(dataArray) {
+      if (!dataArray) return 0;
+      let sum = 0;
+      for (let i = 0; i < dataArray.length; i += 1) {
+        sum += dataArray[i];
+      }
+      return sum / dataArray.length;
+    }
 
-      const ctx = waveformContext;
+    function getVisualizerPulse({ dataArray, timestamp, isPlaying }) {
+      const hasAudioData = Boolean(dataArray && isPlaying);
+      if (!hasAudioData) {
+        return {
+          basePulse: 0.18 + 0.08 * Math.sin(timestamp / 550),
+          energy: 0.2 + 0.1 * Math.sin(timestamp / 600),
+          hasAudioData: false
+        };
+      }
+      return {
+        basePulse: getLowFrequencyAverage(dataArray, 20) / 255,
+        energy: getAverageAmplitude(dataArray) / 255,
+        hasAudioData: true
+      };
+    }
+
+    function drawOrbVisualizer({ ctx, width, height, dataArray, timestamp, isPlaying }) {
       const radius = Math.min(width, height) / 2;
       const innerRadius = radius * waveformSizing.innerRadiusRatio;
       const maxBarLength = radius * waveformSizing.maxBarLengthRatio;
-
       const delta = timestamp - (waveformState.lastFrameTime || timestamp);
       waveformState.lastFrameTime = timestamp;
 
-      ctx.clearRect(0, 0, width, height);
+      const { basePulse, hasAudioData } = getVisualizerPulse({ dataArray, timestamp, isPlaying });
+      const glowIntensity = 0.22 + basePulse * 0.9;
+
       ctx.save();
       ctx.translate(width / 2, height / 2);
-
-      const hasAudioData = Boolean(dataArray && isPlaying);
-      const basePulse = hasAudioData
-        ? getLowFrequencyAverage(dataArray, 20) / 255
-        : 0.18 + 0.08 * Math.sin(timestamp / 550);
-      const glowIntensity = 0.22 + basePulse * 0.9;
 
       const ringGradient = ctx.createRadialGradient(
         0,
@@ -4610,6 +4666,195 @@ function selectRadio(src, title, index, logo) {
       ctx.fill();
 
       ctx.restore();
+    }
+
+    function drawNeonBars({ ctx, width, height, dataArray, timestamp, isPlaying }) {
+      const barCount = 48;
+      const gap = Math.max(2, width * 0.006);
+      const barWidth = (width - gap * (barCount - 1)) / barCount;
+      const maxHeight = height * 0.72;
+      const baseline = height * 0.88;
+      const { energy, hasAudioData } = getVisualizerPulse({ dataArray, timestamp, isPlaying });
+
+      ctx.save();
+      ctx.shadowColor = `rgba(74, 230, 255, ${0.2 + energy * 0.6})`;
+      ctx.shadowBlur = 18;
+
+      for (let i = 0; i < barCount; i += 1) {
+        const intensity = hasAudioData
+          ? getFrequencySliceAverage(dataArray, i, barCount) / 255
+          : 0.2 + 0.2 * Math.sin(timestamp / 700 + i);
+        const easedLevel = waveformState.barLevels[i]
+          + (intensity - waveformState.barLevels[i]) * 0.2;
+        waveformState.barLevels[i] = easedLevel;
+
+        const barHeight = maxHeight * (0.15 + easedLevel * 0.95);
+        const x = i * (barWidth + gap);
+        const y = baseline - barHeight;
+        const hue = 190 + i * 2;
+        ctx.fillStyle = `hsla(${hue}, 90%, 60%, ${0.5 + easedLevel * 0.5})`;
+        ctx.fillRect(x, y, barWidth, barHeight);
+      }
+
+      ctx.restore();
+    }
+
+    function drawParticleField({ ctx, width, height, dataArray, timestamp, isPlaying }) {
+      const { energy, basePulse } = getVisualizerPulse({ dataArray, timestamp, isPlaying });
+      if (!waveformState.particles.length) {
+        initializeVisualizerParticles();
+      }
+
+      const speedBoost = 0.6 + energy * 2;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      waveformState.particles.forEach((particle) => {
+        particle.x += particle.vx * speedBoost;
+        particle.y += particle.vy * speedBoost;
+        if (particle.x < -10) particle.x = width + 10;
+        if (particle.x > width + 10) particle.x = -10;
+        if (particle.y < -10) particle.y = height + 10;
+        if (particle.y > height + 10) particle.y = -10;
+
+        const alpha = particle.alpha * (0.3 + energy * 0.9);
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${particle.hue}, 85%, 70%, ${alpha})`;
+        ctx.arc(particle.x, particle.y, particle.size * (0.8 + basePulse), 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.restore();
+    }
+
+    function drawWireframeLattice({ ctx, width, height, dataArray, timestamp, isPlaying }) {
+      const { energy, hasAudioData } = getVisualizerPulse({ dataArray, timestamp, isPlaying });
+      const cols = 12;
+      const rows = 8;
+      const xStep = width / cols;
+      const yStep = height / rows;
+      const phaseSpeed = hasAudioData ? 0.015 : 0.008;
+      waveformState.latticePhase += phaseSpeed * (1 + energy);
+
+      ctx.save();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = `rgba(120, 255, 240, ${0.25 + energy * 0.45})`;
+
+      for (let y = 0; y <= rows; y += 1) {
+        ctx.beginPath();
+        for (let x = 0; x <= cols; x += 1) {
+          const xPos = x * xStep;
+          const yOffset = Math.sin(waveformState.latticePhase + x * 0.4 + y) * yStep * 0.18 * (0.5 + energy);
+          const yPos = y * yStep + yOffset;
+          if (x === 0) {
+            ctx.moveTo(xPos, yPos);
+          } else {
+            ctx.lineTo(xPos, yPos);
+          }
+        }
+        ctx.stroke();
+      }
+
+      for (let x = 0; x <= cols; x += 1) {
+        ctx.beginPath();
+        for (let y = 0; y <= rows; y += 1) {
+          const yPos = y * yStep;
+          const xOffset = Math.cos(waveformState.latticePhase + y * 0.35 + x) * xStep * 0.12 * (0.4 + energy);
+          const xPos = x * xStep + xOffset;
+          if (y === 0) {
+            ctx.moveTo(xPos, yPos);
+          } else {
+            ctx.lineTo(xPos, yPos);
+          }
+        }
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawWaveformTunnel({ ctx, width, height, dataArray, timestamp, isPlaying }) {
+      const { energy, basePulse } = getVisualizerPulse({ dataArray, timestamp, isPlaying });
+      const maxRadius = Math.min(width, height) * 0.48;
+      const ringCount = 12;
+      const spacing = maxRadius / ringCount;
+      waveformState.tunnelOffset += (0.8 + energy * 3);
+
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+
+      for (let i = 0; i < ringCount; i += 1) {
+        const radius = maxRadius - ((waveformState.tunnelOffset + i * spacing) % maxRadius);
+        const alpha = 0.08 + (1 - radius / maxRadius) * 0.5 * (0.4 + energy);
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(120, 180, 255, ${alpha})`;
+        ctx.lineWidth = 2 + (i % 3);
+        ctx.shadowColor = `rgba(90, 200, 255, ${alpha})`;
+        ctx.shadowBlur = 10 + basePulse * 14;
+        ctx.arc(0, 0, radius * (0.8 + basePulse * 0.25), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawHolographicRings({ ctx, width, height, dataArray, timestamp, isPlaying }) {
+      const { energy, basePulse } = getVisualizerPulse({ dataArray, timestamp, isPlaying });
+      const radius = Math.min(width, height) * 0.35;
+      const ringCount = 6;
+      const angleShift = timestamp / 1400;
+
+      ctx.save();
+      ctx.translate(width / 2, height / 2);
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = 0; i < ringCount; i += 1) {
+        const ringRadius = radius + i * (radius * 0.18);
+        const hue = 280 - i * 18;
+        ctx.beginPath();
+        ctx.strokeStyle = `hsla(${hue}, 90%, 70%, ${0.2 + energy * 0.6})`;
+        ctx.lineWidth = 2 + i * 0.3;
+        ctx.shadowColor = `hsla(${hue + 20}, 90%, 70%, ${0.3 + basePulse * 0.6})`;
+        ctx.shadowBlur = 16 + basePulse * 18;
+        const startAngle = angleShift + i * 0.6;
+        ctx.arc(0, 0, ringRadius, startAngle, startAngle + Math.PI * 1.4);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawWaveformFrame({ dataArray, timestamp, isPlaying }) {
+      if (!waveformCanvas || !waveformContext) return;
+      const width = waveformCanvas.clientWidth || 0;
+      const height = waveformCanvas.clientHeight || 0;
+      if (!width || !height) return;
+
+      const ctx = waveformContext;
+      ctx.clearRect(0, 0, width, height);
+
+      const mode = getVisualizerMode();
+      switch (mode) {
+        case 'neon-bars':
+          drawNeonBars({ ctx, width, height, dataArray, timestamp, isPlaying });
+          break;
+        case 'particle-field':
+          drawParticleField({ ctx, width, height, dataArray, timestamp, isPlaying });
+          break;
+        case 'wireframe-lattice':
+          drawWireframeLattice({ ctx, width, height, dataArray, timestamp, isPlaying });
+          break;
+        case 'waveform-tunnel':
+          drawWaveformTunnel({ ctx, width, height, dataArray, timestamp, isPlaying });
+          break;
+        case 'holographic-rings':
+          drawHolographicRings({ ctx, width, height, dataArray, timestamp, isPlaying });
+          break;
+        case 'orb':
+        default:
+          drawOrbVisualizer({ ctx, width, height, dataArray, timestamp, isPlaying });
+          break;
+      }
     }
 
     function setWaveformIdle() {
