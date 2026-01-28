@@ -1193,7 +1193,14 @@ function syncMediaSessionPlaybackState() {
 }
 
 function ensureBackgroundPlayback(reason = 'hidden') {
-  if (userInitiatedPause || playbackStatus !== PlaybackStatus.playing) {
+  if (userInitiatedPause) {
+    return;
+  }
+  if (
+    playbackStatus === PlaybackStatus.failed
+    || playbackStatus === PlaybackStatus.stopped
+    || playbackStatus === PlaybackStatus.idle
+  ) {
     return;
   }
 

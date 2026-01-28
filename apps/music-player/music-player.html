@@ -91,6 +91,26 @@
                 </button>
               </div>
             </div>
+            <div class="visualizer-options" role="radiogroup" aria-label="Visualization options">
+              <button
+                type="button"
+                class="visualizer-option"
+                role="radio"
+                aria-checked="true"
+                data-visualizer-mode="turntable"
+              >
+                Turntable
+              </button>
+              <button
+                type="button"
+                class="visualizer-option"
+                role="radio"
+                aria-checked="false"
+                data-visualizer-mode="spectrum"
+              >
+                Spectrum
+              </button>
+            </div>
             <div class="visualizer-canvas-wrap">
               <canvas id="audioVisualizer" role="img" aria-label="Audio spectrum visualizer"></canvas>
               <span id="visualizerStatus" class="visualizer-status" aria-live="polite">Paused</span>

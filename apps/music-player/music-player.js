@@ -33,6 +33,8 @@
   const visualizerToggle = document.getElementById('visualizerToggle');
   const visualizerMotionToggle = document.getElementById('visualizerMotionToggle');
   const visualizerStatus = document.getElementById('visualizerStatus');
+  const visualizerModeButtons = document.querySelectorAll('[data-visualizer-mode]');
+  const playerBody = document.querySelector('.player-body');
 
   if (nowPlayingThumb) {
     nowPlayingThumb.onerror = () => {
@@ -44,6 +46,33 @@
 
   const SOURCE_RESOLVE_TIMEOUT_MS = 1200;
   const PROGRESS_UPDATE_FPS = 30;
+  const VISUALIZER_MODE_STORAGE_KEY = 'ariyoVisualizerMode';
+
+  const applyVisualizerMode = mode => {
+    if (playerBody) {
+      playerBody.dataset.visualizerMode = mode;
+    }
+    visualizerModeButtons.forEach(button => {
+      const isActive = button.dataset.visualizerMode === mode;
+      button.setAttribute('aria-checked', String(isActive));
+    });
+    if (window.localStorage) {
+      window.localStorage.setItem(VISUALIZER_MODE_STORAGE_KEY, mode);
+    }
+  };
+
+  if (visualizerModeButtons.length) {
+    const savedMode = window.localStorage?.getItem(VISUALIZER_MODE_STORAGE_KEY);
+    const initialMode = savedMode || 'turntable';
+    applyVisualizerMode(initialMode);
+    visualizerModeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const mode = button.dataset.visualizerMode;
+        if (!mode) return;
+        applyVisualizerMode(mode);
+      });
+    });
+  }
 
   if (!audioEngine) {
     statusMessage.textContent = 'Audio engine failed to initialize.';

@@ -429,6 +429,37 @@ body {
   justify-content: flex-end;
 }
 
+.visualizer-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.visualizer-option {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.visualizer-option[aria-checked='true'] {
+  background: linear-gradient(90deg, rgba(64, 113, 255, 0.9), rgba(202, 72, 255, 0.9));
+  box-shadow: 0 8px 18px rgba(64, 113, 255, 0.35);
+}
+
+.visualizer-option:hover,
+.visualizer-option:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  outline: none;
+  transform: translateY(-1px);
+}
+
 .visualizer-title {
   margin: 0;
   font-size: 0.95rem;
@@ -497,6 +528,18 @@ body {
   background: rgba(0, 0, 0, 0.35);
   padding: 0.2rem 0.5rem;
   border-radius: 999px;
+}
+
+.player-body[data-visualizer-mode='turntable'] .visualizer-canvas-wrap {
+  display: none;
+}
+
+.player-body[data-visualizer-mode='spectrum'] .player-visual {
+  display: none;
+}
+
+.player-body[data-visualizer-mode='spectrum'] .player-main {
+  width: 100%;
 }
 
 .track-info {
