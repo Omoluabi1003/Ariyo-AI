@@ -421,6 +421,14 @@ body {
   gap: 0.75rem;
 }
 
+.visualizer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .visualizer-title {
   margin: 0;
   font-size: 0.95rem;
@@ -438,6 +446,11 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.visualizer-toggle-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .visualizer-toggle[aria-pressed='true'] {

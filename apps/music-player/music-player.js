@@ -31,6 +31,7 @@
   const crossfadeStatus = document.getElementById('crossfadeStatus');
   const visualizerCanvas = document.getElementById('audioVisualizer');
   const visualizerToggle = document.getElementById('visualizerToggle');
+  const visualizerMotionToggle = document.getElementById('visualizerMotionToggle');
   const visualizerStatus = document.getElementById('visualizerStatus');
 
   if (nowPlayingThumb) {
@@ -223,11 +224,14 @@
   };
 
   const setupAudioVisualizer = () => {
-    if (!visualizerCanvas || !visualizerToggle || !visualizerStatus) return null;
+    if (!visualizerCanvas || !visualizerToggle || !visualizerMotionToggle || !visualizerStatus) return null;
     if (!window.Howler || !window.Howler.ctx) {
       visualizerToggle.disabled = true;
       visualizerToggle.setAttribute('aria-pressed', 'false');
       visualizerToggle.textContent = 'Visualizer Loading';
+      visualizerMotionToggle.disabled = true;
+      visualizerMotionToggle.setAttribute('aria-pressed', 'false');
+      visualizerMotionToggle.textContent = 'Motion: Full';
       visualizerStatus.textContent = 'Waiting for audio';
       return null;
     }
@@ -329,11 +333,27 @@
     let isPlaying = audioEngine.getState() === 'playing';
     let isEnabled = true;
     let reduceMotion = false;
+    let motionOverride = false;
     let resizeObserver = null;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const shouldSuppressMotion = () => reduceMotion && !motionOverride;
+    const updateMotionToggle = () => {
+      if (!visualizerMotionToggle) return;
+      visualizerMotionToggle.disabled = !reduceMotion;
+      visualizerMotionToggle.setAttribute('aria-pressed', String(motionOverride));
+      if (!reduceMotion) {
+        visualizerMotionToggle.textContent = 'Motion: Full';
+        return;
+      }
+      visualizerMotionToggle.textContent = motionOverride ? 'Motion: Override' : 'Motion: Reduced';
+    };
     const setReduceMotion = () => {
       reduceMotion = prefersReducedMotion.matches;
+      if (!reduceMotion) {
+        motionOverride = false;
+      }
+      updateMotionToggle();
       updateVisualizerState();
     };
 
@@ -396,6 +416,14 @@
     const setStatusText = () => {
       if (!isEnabled) {
         visualizerStatus.textContent = 'Off';
+        return;
+      }
+      if (shouldSuppressMotion()) {
+        visualizerStatus.textContent = 'Static (reduced motion)';
+        return;
+      }
+      if (reduceMotion && motionOverride) {
+        visualizerStatus.textContent = isPlaying ? 'Live (override)' : 'Paused (override)';
         return;
       }
       visualizerStatus.textContent = isPlaying ? 'Live' : 'Paused';
@@ -570,7 +598,7 @@
         drawCircularFrame({ dimmed: true, useLastFrame: true });
         return;
       }
-      if (reduceMotion) {
+      if (shouldSuppressMotion()) {
         stopLoop();
         drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
         drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
@@ -586,6 +614,13 @@
       updateVisualizerState();
     });
 
+    visualizerMotionToggle.addEventListener('click', () => {
+      if (!reduceMotion) return;
+      motionOverride = !motionOverride;
+      updateMotionToggle();
+      updateVisualizerState();
+    });
+
     window.addEventListener('audioengine:state', event => {
       const nextState = event.detail && event.detail.state;
       isPlaying = nextState === 'playing';
@@ -594,7 +629,7 @@
         connectAnalyzer();
       }
       setStatusText();
-      if (reduceMotion) {
+      if (shouldSuppressMotion()) {
         drawBarsFrame({ dimmed: !isPlaying, useLastFrame: true });
         drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
       }
@@ -1094,6 +1129,15 @@
     }
   };
 
+  const forceResumeAudioContext = () => {
+    if (window.Howler && window.Howler.ctx && window.Howler.ctx.state === 'suspended') {
+      window.Howler.ctx.resume().catch(() => {});
+    }
+    if (visualizerControls && typeof visualizerControls.unlock === 'function') {
+      visualizerControls.unlock();
+    }
+  };
+
   ensureVisualizer();
 
   window.addEventListener('beforeunload', () => {
@@ -1104,7 +1148,11 @@
 
   window.addEventListener('audioengine:source', ensureVisualizer);
 
-  playButton.addEventListener('click', playCurrentTrack);
+  playButton.addEventListener('click', () => {
+    ensureVisualizer();
+    forceResumeAudioContext();
+    playCurrentTrack();
+  });
   pauseButton.addEventListener('click', () => {
     playIntent = false;
     userPauseRequested = true;

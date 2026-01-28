@@ -77,9 +77,19 @@
           <div class="visualizer-panel" aria-label="Audio visualizer">
             <div class="visualizer-header">
               <h3 class="visualizer-title">Visualizer</h3>
-              <button type="button" id="visualizerToggle" class="visualizer-toggle" aria-pressed="true">
-                Visualizer On
-              </button>
+              <div class="visualizer-actions">
+                <button
+                  type="button"
+                  id="visualizerMotionToggle"
+                  class="visualizer-toggle visualizer-toggle-secondary"
+                  aria-pressed="false"
+                >
+                  Motion: Full
+                </button>
+                <button type="button" id="visualizerToggle" class="visualizer-toggle" aria-pressed="true">
+                  Visualizer On
+                </button>
+              </div>
             </div>
             <div class="visualizer-canvas-wrap">
               <canvas id="audioVisualizer" role="img" aria-label="Audio spectrum visualizer"></canvas>
