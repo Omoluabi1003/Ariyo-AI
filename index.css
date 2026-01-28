@@ -119,6 +119,63 @@ a {
     gap: clamp(1.25rem, 3vw, 1.75rem);
 }
 
+.visualization-engine {
+    position: relative;
+    width: min(100%, 720px);
+    height: clamp(320px, 55vw, 520px);
+    margin: 0 auto;
+    border-radius: 24px;
+    overflow: hidden;
+    background: radial-gradient(circle at top, rgba(69, 243, 255, 0.18), rgba(5, 5, 13, 0.9));
+    border: 1px solid rgba(122, 247, 255, 0.2);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+}
+
+.visualizer-selector {
+    position: absolute;
+    left: 50%;
+    bottom: 1.25rem;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(6, 10, 22, 0.75);
+    border: 1px solid rgba(122, 247, 255, 0.2);
+    backdrop-filter: blur(12px);
+}
+
+.visualizer-selector__button {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    border: none;
+    color: #d9f7ff;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.visualizer-selector__button--active {
+    background: linear-gradient(120deg, rgba(69, 243, 255, 0.9), rgba(176, 87, 255, 0.85));
+    color: #05050d;
+    box-shadow: 0 0 18px rgba(122, 247, 255, 0.6);
+}
+
+.music-player {
+    display: grid;
+    gap: 1rem;
+}
+
+.music-player__header h2 {
+    margin-bottom: 0.35rem;
+}
+
+.music-player__visualizer {
+    width: 100%;
+}
+
 .hero-banner {
     display: flex;
     align-items: center;
