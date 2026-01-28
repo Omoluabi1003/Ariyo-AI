@@ -619,6 +619,10 @@ const MAX_TRACK_HISTORY = 50;
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
 let userInitiatedPause = false;
 let lastKnownFiniteDuration = null;
+let wakeLockSentinel = null;
+let wakeLockRetryTimer = null;
+let wakeLockPending = false;
+const WAKE_LOCK_RETRY_MS = 15000;
 
 const networkRecoveryState = {
   active: false,
@@ -732,6 +736,66 @@ const logAudioEvent = (label, detail = {}) => {
   };
   console.info('[audio]', payload);
 };
+
+function clearWakeLockRetry() {
+  if (wakeLockRetryTimer) {
+    clearTimeout(wakeLockRetryTimer);
+    wakeLockRetryTimer = null;
+  }
+}
+
+function releasePlaybackWakeLock() {
+  wakeLockPending = false;
+  clearWakeLockRetry();
+  if (!wakeLockSentinel) return;
+  wakeLockSentinel.release().catch(() => {
+    // Ignore release failures.
+  });
+  wakeLockSentinel = null;
+}
+
+function scheduleWakeLockRetry(reason = 'retry') {
+  if (wakeLockRetryTimer || playbackStatus !== PlaybackStatus.playing || userInitiatedPause) {
+    return;
+  }
+  wakeLockRetryTimer = setTimeout(() => {
+    wakeLockRetryTimer = null;
+    requestPlaybackWakeLock(`retry-${reason}`);
+  }, WAKE_LOCK_RETRY_MS);
+}
+
+function requestPlaybackWakeLock(reason = 'playback') {
+  if (!navigator.wakeLock || typeof navigator.wakeLock.request !== 'function') {
+    return;
+  }
+  if (wakeLockSentinel && !wakeLockSentinel.released) {
+    return;
+  }
+  if (document.visibilityState !== 'visible') {
+    wakeLockPending = true;
+    return;
+  }
+  wakeLockPending = false;
+  navigator.wakeLock.request('screen').then((sentinel) => {
+    wakeLockSentinel = sentinel;
+    clearWakeLockRetry();
+    if (DEBUG_AUDIO) {
+      console.info('[wake-lock] acquired', { reason });
+    }
+    sentinel.addEventListener('release', () => {
+      if (DEBUG_AUDIO) {
+        console.info('[wake-lock] released');
+      }
+      wakeLockSentinel = null;
+      scheduleWakeLockRetry('released');
+    });
+  }).catch((error) => {
+    if (DEBUG_AUDIO) {
+      console.warn('[wake-lock] request failed', { reason, error });
+    }
+    scheduleWakeLockRetry('failed');
+  });
+}
 
 let lastSpinState = false;
 let vinylWaiting = false;
@@ -1176,6 +1240,10 @@ function setPlaybackStatus(status, options = {}) {
     updateInlineStatus('', { showRetry: false });
   }
 
+  if (status === PlaybackStatus.paused || status === PlaybackStatus.stopped || status === PlaybackStatus.failed) {
+    releasePlaybackWakeLock();
+  }
+
   if ('mediaSession' in navigator) {
     const state = status === PlaybackStatus.playing
       ? 'playing'
@@ -1196,6 +1264,8 @@ function ensureBackgroundPlayback(reason = 'hidden') {
   if (userInitiatedPause || playbackStatus !== PlaybackStatus.playing) {
     return;
   }
+
+  requestPlaybackWakeLock(`background-${reason}`);
 
   const haveCurrentData = typeof HTMLMediaElement !== 'undefined'
     ? HTMLMediaElement.HAVE_CURRENT_DATA
@@ -5000,6 +5070,7 @@ function updateTrackTime() {
       if (document.visibilityState === 'hidden') {
         ensureBackgroundPlayback('hidden-pause');
       } else {
+        releasePlaybackWakeLock();
         syncMediaSessionPlaybackState();
       }
     });
@@ -5019,6 +5090,7 @@ function updateTrackTime() {
       setPlaybackStatus(PlaybackStatus.playing);
       manageVinylRotation(); // spin the turntable if needed
       ensureAudiblePlayback();
+      requestPlaybackWakeLock('playing');
       if (currentRadioIndex >= 0) {
         confirmPendingRadioSelection('station-playing', {
           resolvedUrl: audioPlayer.currentSrc || audioPlayer.src
@@ -5043,14 +5115,21 @@ function updateTrackTime() {
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
+        releasePlaybackWakeLock();
         ensureBackgroundPlayback('visibilitychange');
       } else {
+        if (wakeLockPending || playbackStatus === PlaybackStatus.playing) {
+          requestPlaybackWakeLock('visibilitychange');
+        }
         syncMediaSessionPlaybackState();
       }
     });
 
     ['pagehide', 'freeze'].forEach(eventName => {
-      window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
+      window.addEventListener(eventName, () => {
+        releasePlaybackWakeLock();
+        ensureBackgroundPlayback(eventName);
+      });
     });
 
     const BACKGROUND_PING_MS = 8000;
