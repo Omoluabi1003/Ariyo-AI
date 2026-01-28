@@ -608,6 +608,42 @@ body[data-theme="light"] .badge-spotlight {
     max-width: 260px;
 }
 
+.visualizer-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(6, 10, 22, 0.75);
+    border: 1px solid rgba(122, 247, 255, 0.2);
+    backdrop-filter: blur(12px);
+    margin: 0.35rem auto 0;
+    max-width: 320px;
+}
+
+.visualizer-selector__button {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: none;
+    color: #d9f7ff;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.visualizer-selector__button--active {
+    background: linear-gradient(120deg, rgba(69, 243, 255, 0.9), rgba(176, 87, 255, 0.85));
+    color: #05050d;
+    box-shadow: 0 0 18px rgba(122, 247, 255, 0.6);
+}
+
+.visualizer-mode-status {
+    margin: 0.1rem 0 0;
+}
+
 .visualizer-toggle {
     display: flex;
     align-items: center;
@@ -688,6 +724,31 @@ body[data-theme="light"] .badge-spotlight {
 
 .visualizer-status.is-static {
     color: rgba(255, 210, 150, 0.95);
+}
+
+.music-player[data-visualizer-mode='neon-bars'] .waveform-visual {
+    background: radial-gradient(circle at top, rgba(69, 243, 255, 0.2), rgba(11, 11, 11, 0.8));
+    border-color: rgba(69, 243, 255, 0.35);
+}
+
+.music-player[data-visualizer-mode='particle-field'] .waveform-visual {
+    background: radial-gradient(circle at 30% 30%, rgba(176, 87, 255, 0.25), rgba(11, 11, 11, 0.85));
+    border-color: rgba(176, 87, 255, 0.35);
+}
+
+.music-player[data-visualizer-mode='wireframe-lattice'] .waveform-visual {
+    background: radial-gradient(circle at 70% 20%, rgba(255, 185, 94, 0.22), rgba(11, 11, 11, 0.88));
+    border-color: rgba(255, 185, 94, 0.4);
+}
+
+.music-player[data-visualizer-mode='waveform-tunnel'] .waveform-visual {
+    background: radial-gradient(circle at 50% 70%, rgba(142, 91, 255, 0.28), rgba(11, 11, 11, 0.82));
+    border-color: rgba(142, 91, 255, 0.4);
+}
+
+.music-player[data-visualizer-mode='holographic-rings'] .waveform-visual {
+    background: radial-gradient(circle at 60% 30%, rgba(69, 243, 255, 0.2), rgba(176, 87, 255, 0.2), rgba(11, 11, 11, 0.78));
+    border-color: rgba(122, 247, 255, 0.35);
 }
 
 @media (max-width: 720px) {

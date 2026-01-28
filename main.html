@@ -1510,13 +1510,34 @@
         </div>
       <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
       <!-- Music Player -->
-      <div class="music-player">
+      <div class="music-player" data-visualizer-mode="orb">
         <h3>Music Player</h3>
           <div class="player-body">
           <div class="player-visual">
             <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
               <canvas class="waveform-canvas" aria-hidden="true"></canvas>
             </div>
+            <div class="visualizer-selector" role="tablist" aria-label="Visualizer styles">
+              <button type="button" class="visualizer-selector__button visualizer-selector__button--active" data-main-visualizer-mode="orb" aria-pressed="true">
+                🧊 Orb
+              </button>
+              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="neon-bars" aria-pressed="false">
+                📊 Neon Bars
+              </button>
+              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="particle-field" aria-pressed="false">
+                ✨ Particle Field
+              </button>
+              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="wireframe-lattice" aria-pressed="false">
+                🕸️ Lattice
+              </button>
+              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="waveform-tunnel" aria-pressed="false">
+                🚇 Wave Tunnel
+              </button>
+              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="holographic-rings" aria-pressed="false">
+                🪩 Rings
+              </button>
+            </div>
+            <p id="visualizerModeStatus" class="visualizer-status visualizer-mode-status" aria-live="polite"></p>
             <div class="visualizer-actions" role="group" aria-label="Visualizer motion controls">
               <label class="visualizer-toggle" for="visualizerMotionToggle">
                 <span class="visualizer-toggle__label">Visualizer motion</span>
