@@ -545,6 +545,12 @@ let currentTrackIndex = 0;
 let currentRadioIndex = -1;
 let pendingRadioSelection = null;
 let shuffleQueue = [];
+const shuffleQueueState = {
+  mode: null,
+  poolSignature: '',
+  currentTrackKey: '',
+  poolSize: 0
+};
 const trackHistory = [];
 const MAX_TRACK_HISTORY = 50;
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
@@ -2052,6 +2058,90 @@ function removeTrackFromPlaylist(index) {
       return state === 2 || state === 3;
     }
 
+    function buildTrackKey({ album, track, albumIndex, trackIndex }) {
+      const normalizedSrc = track?.src ? normalizeMediaSrc(track.src) : '';
+      if (normalizedSrc) return `src:${normalizedSrc}`;
+      const trackId = track?.id ? String(track.id) : '';
+      const albumSlug = album?.name ? slugifyLabel(album.name) : '';
+      if (trackId) {
+        return `id:${albumSlug || albumIndex}:${trackId}`;
+      }
+      const trackSlug = track?.title ? slugifyLabel(track.title) : '';
+      if (trackSlug) {
+        return `title:${albumSlug || albumIndex}:${trackSlug}`;
+      }
+      return `index:${albumSlug || albumIndex}:${trackIndex}`;
+    }
+
+    function getCurrentTrackKey() {
+      const album = albums[currentAlbumIndex];
+      const track = album?.tracks?.[currentTrackIndex];
+      return buildTrackKey({
+        album,
+        track,
+        albumIndex: currentAlbumIndex,
+        trackIndex: currentTrackIndex
+      });
+    }
+
+    function buildShufflePoolSnapshot() {
+      const pool = [];
+      const poolKeys = [];
+      const currentTrackKey = getCurrentTrackKey();
+
+      if (shuffleState === 3) {
+        albums.forEach((album, albumIdx) => {
+          if (!album || !Array.isArray(album.tracks)) return;
+          album.tracks.forEach((track, trackIdx) => {
+            const trackKey = buildTrackKey({
+              album,
+              track,
+              albumIndex: albumIdx,
+              trackIndex: trackIdx
+            });
+            if (trackKey === currentTrackKey) return;
+            pool.push({
+              albumIndex: albumIdx,
+              trackIndex: trackIdx,
+              title: track?.title,
+              src: track?.src,
+              trackKey
+            });
+            poolKeys.push(trackKey);
+          });
+        });
+      } else if (shuffleState === 2) {
+        const album = albums[currentAlbumIndex];
+        if (album && Array.isArray(album.tracks)) {
+          album.tracks.forEach((track, trackIdx) => {
+            const trackKey = buildTrackKey({
+              album,
+              track,
+              albumIndex: currentAlbumIndex,
+              trackIndex: trackIdx
+            });
+            if (trackKey === currentTrackKey) return;
+            pool.push({
+              albumIndex: currentAlbumIndex,
+              trackIndex: trackIdx,
+              title: track?.title,
+              src: track?.src,
+              trackKey
+            });
+            poolKeys.push(trackKey);
+          });
+        }
+      }
+
+      const poolSignature = poolKeys.slice().sort().join('|');
+      return {
+        pool,
+        poolSignature,
+        poolSize: pool.length,
+        currentTrackKey
+      };
+    }
+
     function requestFullLibraryForShuffle(reason = 'shuffle-queue') {
       if (!isShuffleQueueMode()) return;
       if (typeof window === 'undefined') return;
@@ -2066,8 +2156,13 @@ function removeTrackFromPlaylist(index) {
         return;
       }
       requestFullLibraryForShuffle();
-      if (shuffleQueue.length === 0) {
-        buildShuffleQueue({ skipUpdate: true });
+      const snapshot = buildShufflePoolSnapshot();
+      const isStale = shuffleQueue.length === 0
+        || shuffleQueueState.mode !== shuffleState
+        || shuffleQueueState.currentTrackKey !== snapshot.currentTrackKey
+        || shuffleQueueState.poolSignature !== snapshot.poolSignature;
+      if (isStale) {
+        buildShuffleQueue({ skipUpdate: true, snapshot });
       }
     }
 
@@ -2204,8 +2299,22 @@ function removeTrackFromPlaylist(index) {
       nextInfo.textContent = nextTrack ? `Next: ${nextTrack.title || 'Up next'}` : '';
     }
 
-    function buildShuffleQueue({ skipUpdate = false } = {}) {
+    function resetShuffleQueueState({ skipUpdate = false } = {}) {
       shuffleQueue = [];
+      shuffleQueueState.mode = null;
+      shuffleQueueState.poolSignature = '';
+      shuffleQueueState.currentTrackKey = '';
+      shuffleQueueState.poolSize = 0;
+      resetNextTrackPreview();
+      if (!skipUpdate) {
+        updateNextTrackInfo();
+      }
+    }
+
+    window.resetShuffleQueueState = resetShuffleQueueState;
+
+    function buildShuffleQueue({ skipUpdate = false, snapshot = null } = {}) {
+      resetShuffleQueueState({ skipUpdate: true });
       if (!isShuffleQueueMode()) {
         if (!skipUpdate) {
           updateNextTrackInfo();
@@ -2213,40 +2322,16 @@ function removeTrackFromPlaylist(index) {
         return;
       }
       requestFullLibraryForShuffle('shuffle-build');
-      if (shuffleState === 3) {
-        albums.forEach((album, albumIdx) => {
-          if (!album || !Array.isArray(album.tracks)) return;
-          album.tracks.forEach((track, trackIdx) => {
-            if (!(albumIdx === currentAlbumIndex && trackIdx === currentTrackIndex)) {
-              shuffleQueue.push({
-                albumIndex: albumIdx,
-                trackIndex: trackIdx,
-                title: track.title,
-                src: track.src
-              });
-            }
-          });
-        });
-      } else if (shuffleState === 2) {
-        const album = albums[currentAlbumIndex];
-        if (album && Array.isArray(album.tracks)) {
-          album.tracks.forEach((track, idx) => {
-            if (idx !== currentTrackIndex) {
-              shuffleQueue.push({
-                albumIndex: currentAlbumIndex,
-                trackIndex: idx,
-                title: track.title,
-                src: track.src
-              });
-            }
-          });
-        }
-      }
+      const poolSnapshot = snapshot || buildShufflePoolSnapshot();
+      shuffleQueue = [...poolSnapshot.pool];
       for (let i = shuffleQueue.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffleQueue[i], shuffleQueue[j]] = [shuffleQueue[j], shuffleQueue[i]];
       }
-      resetNextTrackPreview();
+      shuffleQueueState.mode = shuffleState;
+      shuffleQueueState.poolSignature = poolSnapshot.poolSignature;
+      shuffleQueueState.currentTrackKey = poolSnapshot.currentTrackKey;
+      shuffleQueueState.poolSize = poolSnapshot.poolSize;
       if (!skipUpdate) {
         updateNextTrackInfo();
       }
@@ -3878,8 +3963,7 @@ function selectRadio(src, title, index, logo) {
       }
       currentTrackIndex = -1;
       lastKnownFiniteDuration = null;
-      shuffleQueue = [];
-      updateNextTrackInfo();
+      resetShuffleQueueState();
       resetWaveformState();
       const params = new URLSearchParams(window.location.search);
       params.delete('album');
