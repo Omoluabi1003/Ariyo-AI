@@ -31,7 +31,7 @@
   </header>
 
   <main class="player-shell" role="main">
-    <section class="music-player" aria-labelledby="nowPlayingHeading">
+    <section class="music-player" aria-labelledby="nowPlayingHeading" data-visualizer-mode="dual">
       <h2 id="nowPlayingHeading" class="section-title">Now spinning</h2>
       <div class="player-body">
         <div class="player-visual">
@@ -91,8 +91,23 @@
                 </button>
               </div>
             </div>
+            <div class="visualizer-mode" role="group" aria-label="Visualization style">
+              <button type="button" class="visualizer-mode__button" data-visualizer-mode="dual" aria-pressed="true">
+                Dual
+              </button>
+              <button type="button" class="visualizer-mode__button" data-visualizer-mode="turntable" aria-pressed="false">
+                Turntable
+              </button>
+              <button type="button" class="visualizer-mode__button" data-visualizer-mode="spectrum" aria-pressed="false">
+                Spectrum
+              </button>
+            </div>
+            <p id="visualizerModeStatus" class="visualizer-mode-status" aria-live="polite">
+              Showing: Dual visuals
+            </p>
             <div class="visualizer-canvas-wrap">
               <canvas id="audioVisualizer" role="img" aria-label="Audio spectrum visualizer"></canvas>
+              <span class="visualizer-placeholder" aria-hidden="true">Spectrum hidden</span>
               <span id="visualizerStatus" class="visualizer-status" aria-live="polite">Paused</span>
             </div>
           </div>

@@ -33,6 +33,9 @@
   const visualizerToggle = document.getElementById('visualizerToggle');
   const visualizerMotionToggle = document.getElementById('visualizerMotionToggle');
   const visualizerStatus = document.getElementById('visualizerStatus');
+  const visualizerModeButtons = document.querySelectorAll('[data-visualizer-mode]');
+  const visualizerModeStatus = document.getElementById('visualizerModeStatus');
+  const visualizerModeRoot = document.querySelector('.music-player');
 
   if (nowPlayingThumb) {
     nowPlayingThumb.onerror = () => {
@@ -151,6 +154,24 @@
   let spinHoldTimer = null;
 
   const LOADING_SPIN_GRACE_MS = 300;
+  const VISUALIZER_MODES = ['dual', 'turntable', 'spectrum'];
+
+  const updateVisualizerModeStatus = mode => {
+    if (!visualizerModeStatus) return;
+    const label = mode === 'turntable' ? 'Turntable only' : mode === 'spectrum' ? 'Spectrum only' : 'Dual visuals';
+    visualizerModeStatus.textContent = `Showing: ${label}`;
+  };
+
+  const setVisualizerMode = mode => {
+    if (!visualizerModeRoot) return;
+    const nextMode = VISUALIZER_MODES.includes(mode) ? mode : 'dual';
+    visualizerModeRoot.setAttribute('data-visualizer-mode', nextMode);
+    visualizerModeButtons.forEach(button => {
+      const isActive = button.getAttribute('data-visualizer-mode') === nextMode;
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+    updateVisualizerModeStatus(nextMode);
+  };
 
   const formatTime = seconds => {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -1139,6 +1160,18 @@
   };
 
   ensureVisualizer();
+  if (visualizerModeRoot) {
+    const initialMode = visualizerModeRoot.getAttribute('data-visualizer-mode') || 'dual';
+    setVisualizerMode(initialMode);
+  }
+  visualizerModeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const mode = button.getAttribute('data-visualizer-mode');
+      if (mode) {
+        setVisualizerMode(mode);
+      }
+    });
+  });
 
   window.addEventListener('beforeunload', () => {
     if (visualizerControls) {

@@ -23,6 +23,7 @@
 
   if (HowlerGlobal) {
     HowlerGlobal.autoUnlock = true;
+    HowlerGlobal.autoSuspend = false;
   }
 
   let howl = null;
@@ -113,7 +114,7 @@
       isLiveSource = false;
       setState('loading', { id, title, artist, artwork });
       dispatch('source', { id, url, title, artist, artwork, type: 'track' });
-      buildHowl({ url, preload: true, useHtml5: false });
+      buildHowl({ url, preload: true, useHtml5: true });
     },
     loadStream: ({ id, url, title, region }) => {
       if (!url) return;
