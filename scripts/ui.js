@@ -356,12 +356,19 @@ function openAlbumList() {
 function toggleShuffle() {
   const shuffleBtn = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
   const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+  const resetQueue = typeof window.resetShuffleQueueState === 'function'
+    ? window.resetShuffleQueueState
+    : ({ skipUpdate = false } = {}) => {
+      shuffleQueue = [];
+      if (!skipUpdate) {
+        updateNextTrackInfo();
+      }
+    };
 
   // If we are in radio mode, shuffle only has on/off states
   if (currentRadioIndex !== -1) {
     radioShuffleMode = !radioShuffleMode;
-    shuffleQueue = [];
-    updateNextTrackInfo();
+    resetQueue();
     if (radioShuffleMode) {
       shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
       shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
@@ -375,7 +382,7 @@ function toggleShuffle() {
   // If we are in album/track mode, cycle through off, repeat one, album, all
   else {
     shuffleState = (shuffleState + 1) % 4;
-    shuffleQueue = [];
+    resetQueue({ skipUpdate: true });
     if (shuffleState === 2 || shuffleState === 3) {
       if (typeof window.loadFullLibraryData === 'function') {
         window.loadFullLibraryData({ reason: 'shuffle-toggle', immediate: true });
