@@ -570,17 +570,6 @@
     let aboutButtonGlobal = null;
     let originalAboutButtonText = '';
     let originalAboutButtonOnClick;
-    let currentVersion;
-    let pendingReloadVersion = null;
-    let shouldReloadOnControllerChange = false;
-    let reloadFallbackTimeoutId = null;
-
-    const cancelPendingReloadFallback = () => {
-      if (reloadFallbackTimeoutId) {
-        clearTimeout(reloadFallbackTimeoutId);
-        reloadFallbackTimeoutId = null;
-      }
-    };
 
     const ensureAboutButtonReference = () => {
       if (aboutButtonGlobal) {
@@ -593,59 +582,6 @@
         originalAboutButtonText = aboutButtonGlobal.textContent;
         originalAboutButtonOnClick = aboutButtonGlobal.onclick;
       }
-    };
-
-    const scheduleAppReload = (version) => {
-      const normalizedVersion = version || 'immediate';
-      if (pendingReloadVersion === normalizedVersion) {
-        return;
-      }
-
-      pendingReloadVersion = normalizedVersion;
-
-      if (!('serviceWorker' in navigator)) {
-        window.location.reload();
-        return;
-      }
-
-      shouldReloadOnControllerChange = true;
-      cancelPendingReloadFallback();
-
-      const swVersionSuffix = version ? `?v=${encodeURIComponent(version)}` : '';
-      navigator.serviceWorker.register(`/service-worker.js${swVersionSuffix}`).then(registration => {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          registrations.forEach(reg => {
-            if (registration && reg.scope !== registration.scope) {
-              reg.unregister();
-              return;
-            }
-            reg.update().catch(err => console.error('Service worker update failed:', err));
-            if (reg.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
-          });
-        }).catch(error => {
-          console.error('Failed to enumerate service worker registrations:', error);
-        });
-      }).catch(error => {
-        console.error('Service worker re-registration failed during update scheduling:', error);
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-          registrations.forEach(reg => {
-            reg.update().catch(err => console.error('Service worker update failed:', err));
-            if (reg.waiting) {
-              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-            }
-          });
-        }).catch(listError => {
-          console.error('Failed to enumerate service worker registrations after registration error:', listError);
-        });
-      });
-
-      reloadFallbackTimeoutId = setTimeout(() => {
-        if (shouldReloadOnControllerChange) {
-          window.location.reload();
-        }
-      }, 10000);
     };
 
     let aboutViewActive = false;
@@ -1021,50 +957,9 @@
     // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
 
-    // PWA Install Prompt
-    if ('serviceWorker' in navigator) {
-      // Reload the page when a new service worker activates
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (refreshing || !shouldReloadOnControllerChange) {
-          return;
-        }
-        refreshing = true;
-        cancelPendingReloadFallback();
-        window.location.reload();
-      });
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (!event.data || event.data.type !== 'SERVICE_WORKER_UPDATED') {
-          return;
-        }
-        scheduleAppReload(event.data.version || null);
-      });
-      window.addEventListener('load', async function() {
-        showIosInstallBanner();
-        let version = '';
-        try {
-          const res = await fetch('/version.json', { cache: 'no-store' });
-          const data = await res.json();
-          version = data.version;
-          currentVersion = version;
-        } catch (err) {
-          console.error('Failed to fetch version for SW registration:', err);
-        }
-        const swUrl = version ? `/service-worker.js?v=${encodeURIComponent(version)}` : '/service-worker.js';
-        navigator.serviceWorker.register(swUrl).then(function(registration) {
-          console.log('Service Worker registered with scope:', registration.scope);
-          navigator.serviceWorker.getRegistrations().then(registrations => {
-            registrations.forEach(reg => {
-              if (reg.scope !== registration.scope) {
-                reg.unregister();
-              }
-            });
-          });
-        }).catch(function(error) {
-          console.log('Service worker registration failed:', error);
-        });
-      });
-    }
+    window.addEventListener('load', () => {
+      showIosInstallBanner();
+    });
 
     let deferredPrompt;
     const installContainer = document.createElement('div');
@@ -1368,25 +1263,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Your other DOM-dependent code here
     });
-
-    // Check for updates
-    function checkForUpdates() {
-        fetch('/version.json', { cache: 'no-store' })
-            .then(response => response.json())
-            .then(data => {
-                if (currentVersion && currentVersion !== data.version) {
-                    scheduleAppReload(data.version);
-                }
-                currentVersion = data.version;
-            })
-            .catch(error => console.error('Error checking for updates:', error));
-    }
-
-    // Check for updates every 30 seconds for faster syncing
-    setInterval(checkForUpdates, 30000);
-
-    // Initial check
-    checkForUpdates();
 
     if (typeof window !== 'undefined') {
       Object.assign(window, {

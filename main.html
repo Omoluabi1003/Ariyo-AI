@@ -1871,6 +1871,13 @@
     </div>
     <button class="notification-toast__close" id="notificationClose" type="button" aria-label="Dismiss notification prompt">×</button>
   </aside>
+  <aside class="app-update-banner" id="appUpdateBanner" role="status" aria-live="polite" hidden>
+    <p class="app-update-banner__copy" id="appUpdateCopy">Update available. Refresh now.</p>
+    <div class="app-update-banner__actions">
+      <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
+      <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
+    </div>
+  </aside>
 
   <script src="scripts/sw-controller.js" defer></script>
   <script src="scripts/push-notifications.js" defer></script>
