@@ -3,7 +3,7 @@ import VisualizationEngine, {
   type VisualizationMode,
 } from "./VisualizationEngine";
 
-const DEFAULT_MODE: VisualizationMode = "orb";
+const DEFAULT_MODE: VisualizationMode = "neon-bars";
 
 type MusicPlayerProps = {
   analyser: AnalyserNode | null;

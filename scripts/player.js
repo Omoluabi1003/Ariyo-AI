@@ -90,7 +90,7 @@
     }
 
     function setVisualizerMode(mode) {
-      const nextMode = VISUALIZER_MODES.includes(mode) ? mode : 'orb';
+      const nextMode = VISUALIZER_MODES.includes(mode) ? mode : 'neon-bars';
       if (musicPlayerRoot) {
         musicPlayerRoot.setAttribute('data-visualizer-mode', nextMode);
       }
@@ -145,7 +145,7 @@
 
     if (visualizerModeButtons.length) {
       const storedMode = readVisualizerMode();
-      const initialMode = storedMode || musicPlayerRoot?.getAttribute('data-visualizer-mode') || 'orb';
+      const initialMode = storedMode || musicPlayerRoot?.getAttribute('data-visualizer-mode') || 'neon-bars';
       setVisualizerMode(initialMode);
       visualizerModeButtons.forEach((button) => {
         button.addEventListener('click', () => {
@@ -1363,7 +1363,7 @@ function syncMediaSessionPlaybackState() {
 }
 
 function ensureBackgroundPlayback(reason = 'hidden') {
-  if (userInitiatedPause || playbackStatus !== PlaybackStatus.playing) {
+  if (userInitiatedPause || (!playIntent && playbackStatus !== PlaybackStatus.playing)) {
     return;
   }
 
@@ -5359,14 +5359,20 @@ function updateTrackTime() {
         && (vinylWaiting
           || playbackStatus === PlaybackStatus.buffering
           || playbackStatus === PlaybackStatus.preparing);
+      const isBackgroundPause = !userInitiatedPause && document.visibilityState === 'hidden';
       if (isBufferingPause) {
         manageVinylRotation();
         return;
       }
       vinylWaiting = false;
-      setPlayIntent(false);
+      if (isBackgroundPause) {
+        setPlayIntent(true);
+        setPlaybackStatus(PlaybackStatus.playing);
+      } else {
+        setPlayIntent(false);
+        setPlaybackStatus(PlaybackStatus.paused);
+      }
       clearWaitingRetry();
-      setPlaybackStatus(PlaybackStatus.paused);
       manageVinylRotation();
       if (event && event.target && event.target.paused) {
         stopPlaybackWatchdog();
