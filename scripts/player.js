@@ -545,6 +545,7 @@ let currentTrackIndex = 0;
 let currentRadioIndex = -1;
 let pendingRadioSelection = null;
 let shuffleQueue = [];
+let shuffleQueueMeta = null;
 const trackHistory = [];
 const MAX_TRACK_HISTORY = 50;
 let pendingAlbumIndex = null; // Album selected from the modal but not yet playing
@@ -2048,6 +2049,67 @@ function removeTrackFromPlaylist(index) {
       return choice || null;
     }
 
+    function resetShuffleQueue() {
+      shuffleQueue = [];
+      shuffleQueueMeta = null;
+    }
+
+    function getTrackKey(track, albumIndex, trackIndex) {
+      const src = track?.src || '';
+      const normalized = normalizeMediaSrc(src);
+      if (normalized) return normalized;
+      if (src) return src;
+      return `${albumIndex}:${trackIndex}`;
+    }
+
+    function getCurrentTrackKey() {
+      if (lastTrackSrc) {
+        const normalized = normalizeMediaSrc(lastTrackSrc);
+        if (normalized) return normalized;
+        return lastTrackSrc;
+      }
+      const album = albums[currentAlbumIndex];
+      const track = album?.tracks?.[currentTrackIndex];
+      return getTrackKey(track, currentAlbumIndex, currentTrackIndex);
+    }
+
+    function getShufflePoolCount(state = shuffleState) {
+      if (!isShuffleQueueMode(state)) return 0;
+      if (state === 3) {
+        return albums.reduce((total, album) => {
+          if (!album || !Array.isArray(album.tracks)) return total;
+          return total + album.tracks.length;
+        }, 0);
+      }
+      const album = albums[currentAlbumIndex];
+      return album && Array.isArray(album.tracks) ? album.tracks.length : 0;
+    }
+
+    function buildShufflePool(state = shuffleState) {
+      if (!isShuffleQueueMode(state)) return [];
+      if (state === 3) {
+        const pool = [];
+        albums.forEach((album, albumIdx) => {
+          if (!album || !Array.isArray(album.tracks)) return;
+          album.tracks.forEach((track, trackIdx) => {
+            pool.push({ albumIndex: albumIdx, trackIndex: trackIdx, track });
+          });
+        });
+        return pool;
+      }
+      return getAlbumTrackPool(currentAlbumIndex);
+    }
+
+    function isShuffleQueueStale() {
+      if (!shuffleQueueMeta) return true;
+      if (shuffleQueueMeta.mode !== shuffleState) return true;
+      if (shuffleState === 2 && shuffleQueueMeta.albumIndex !== currentAlbumIndex) return true;
+      const totalTracks = getShufflePoolCount();
+      if (shuffleQueueMeta.totalTracks !== totalTracks) return true;
+      const currentTrackKey = getCurrentTrackKey();
+      return shuffleQueueMeta.currentTrackKey !== currentTrackKey;
+    }
+
     function isShuffleQueueMode(state = shuffleState) {
       return state === 2 || state === 3;
     }
@@ -2056,7 +2118,7 @@ function removeTrackFromPlaylist(index) {
       if (!isShuffleQueueMode()) {
         return;
       }
-      if (shuffleQueue.length === 0) {
+      if (shuffleQueue.length === 0 || isShuffleQueueStale()) {
         buildShuffleQueue({ skipUpdate: true });
       }
     }
@@ -2195,46 +2257,33 @@ function removeTrackFromPlaylist(index) {
     }
 
     function buildShuffleQueue({ skipUpdate = false } = {}) {
-      shuffleQueue = [];
+      resetShuffleQueue();
       if (!isShuffleQueueMode()) {
         if (!skipUpdate) {
           updateNextTrackInfo();
         }
         return;
       }
-      if (shuffleState === 3) {
-        albums.forEach((album, albumIdx) => {
-          if (!album || !Array.isArray(album.tracks)) return;
-          album.tracks.forEach((track, trackIdx) => {
-            if (!(albumIdx === currentAlbumIndex && trackIdx === currentTrackIndex)) {
-              shuffleQueue.push({
-                albumIndex: albumIdx,
-                trackIndex: trackIdx,
-                title: track.title,
-                src: track.src
-              });
-            }
-          });
-        });
-      } else if (shuffleState === 2) {
-        const album = albums[currentAlbumIndex];
-        if (album && Array.isArray(album.tracks)) {
-          album.tracks.forEach((track, idx) => {
-            if (idx !== currentTrackIndex) {
-              shuffleQueue.push({
-                albumIndex: currentAlbumIndex,
-                trackIndex: idx,
-                title: track.title,
-                src: track.src
-              });
-            }
-          });
-        }
-      }
+      const currentTrackKey = getCurrentTrackKey();
+      const pool = buildShufflePool();
+      shuffleQueue = pool
+        .filter(item => getTrackKey(item.track, item.albumIndex, item.trackIndex) !== currentTrackKey)
+        .map(item => ({
+          albumIndex: item.albumIndex,
+          trackIndex: item.trackIndex,
+          title: item.track?.title,
+          src: item.track?.src
+        }));
       for (let i = shuffleQueue.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffleQueue[i], shuffleQueue[j]] = [shuffleQueue[j], shuffleQueue[i]];
       }
+      shuffleQueueMeta = {
+        mode: shuffleState,
+        albumIndex: shuffleState === 2 ? currentAlbumIndex : null,
+        totalTracks: getShufflePoolCount(),
+        currentTrackKey
+      };
       resetNextTrackPreview();
       if (!skipUpdate) {
         updateNextTrackInfo();
@@ -3867,7 +3916,7 @@ function selectRadio(src, title, index, logo) {
       }
       currentTrackIndex = -1;
       lastKnownFiniteDuration = null;
-      shuffleQueue = [];
+      resetShuffleQueue();
       updateNextTrackInfo();
       resetWaveformState();
       const params = new URLSearchParams(window.location.search);
@@ -5147,6 +5196,7 @@ if (typeof window !== 'undefined') {
     previousTrack,
     toggleShuffle,
     retryTrack,
+    resetShuffleQueue,
     addCurrentTrackToPlaylist,
     toggleLyrics,
     loadMoreStations,

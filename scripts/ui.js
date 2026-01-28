@@ -360,7 +360,11 @@ function toggleShuffle() {
   // If we are in radio mode, shuffle only has on/off states
   if (currentRadioIndex !== -1) {
     radioShuffleMode = !radioShuffleMode;
-    shuffleQueue = [];
+    if (typeof window.resetShuffleQueue === 'function') {
+      window.resetShuffleQueue();
+    } else {
+      shuffleQueue = [];
+    }
     updateNextTrackInfo();
     if (radioShuffleMode) {
       shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
@@ -375,7 +379,11 @@ function toggleShuffle() {
   // If we are in album/track mode, cycle through off, repeat one, album, all
   else {
     shuffleState = (shuffleState + 1) % 4;
-    shuffleQueue = [];
+    if (typeof window.resetShuffleQueue === 'function') {
+      window.resetShuffleQueue();
+    } else {
+      shuffleQueue = [];
+    }
     if (shuffleState === 2 || shuffleState === 3) {
       if (typeof window.loadFullLibraryData === 'function') {
         window.loadFullLibraryData({ reason: 'shuffle-toggle', immediate: true });
