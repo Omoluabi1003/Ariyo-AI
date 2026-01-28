@@ -1,36 +1,43 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
-self.skipWaiting();
-self.clientsClaim && self.clientsClaim();
-
 // Bump cache prefix to force clients to refresh old caches
 const CACHE_PREFIX = 'ariyo-ai-cache-v14';
 const FALLBACK_VERSION = '1.16.1';
+const UPDATE_CHANNEL_NAME = 'ariyo-app-updates';
 let CACHE_NAME;
 let RUNTIME_CACHE_NAME;
+let ACTIVE_VERSION = null;
 
 const INSTALL_TIMEOUT_MS = 8000;
 const MEDIA_PREFETCH_TIMEOUT_MS = 5000;
 
 async function notifyClientsOfUpdate(versionIdentifier) {
+  const payload = {
+    type: 'APP_UPDATE_READY',
+    version: versionIdentifier || null
+  };
+
+  if (typeof BroadcastChannel !== 'undefined') {
+    try {
+      const channel = new BroadcastChannel(UPDATE_CHANNEL_NAME);
+      channel.postMessage(payload);
+      channel.close();
+    } catch (error) {
+      console.error('Failed to broadcast update message:', error);
+    }
+  }
+
   try {
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     await Promise.all(clients.map(async client => {
       try {
+        client.postMessage(payload);
         client.postMessage({
           type: 'SERVICE_WORKER_UPDATED',
           version: versionIdentifier || null
         });
       } catch (messageError) {
         console.error('Failed to notify client of service worker update:', messageError);
-      }
-
-      if (client.url && typeof client.navigate === 'function') {
-        try {
-          await client.navigate(client.url);
-        } catch (navigateError) {
-          console.error('Failed to auto-refresh client after service worker update:', navigateError);
-        }
       }
     }));
   } catch (error) {
@@ -45,6 +52,15 @@ self.addEventListener('message', event => {
 
   if (event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+
+  if (event.data.type === 'REQUEST_APP_VERSION') {
+    if (event.source && typeof event.source.postMessage === 'function') {
+      event.source.postMessage({
+        type: 'APP_VERSION',
+        version: ACTIVE_VERSION
+      });
+    }
   }
 });
 
@@ -117,7 +133,9 @@ function fetchWithTimeout(url, options = {}, timeout = INSTALL_TIMEOUT_MS) {
 }
 
 function setCacheNames(version) {
-  CACHE_NAME = `${CACHE_PREFIX}-${version}`;
+  const safeVersion = version || FALLBACK_VERSION;
+  ACTIVE_VERSION = safeVersion;
+  CACHE_NAME = `${CACHE_PREFIX}-${safeVersion}`;
   RUNTIME_CACHE_NAME = `${CACHE_NAME}-runtime`;
 }
 
@@ -201,8 +219,6 @@ async function limitCacheSize(cache, maxEntries = 50) {
 }
 
 self.addEventListener('install', event => {
-  // Activate this service worker immediately after installation
-  self.skipWaiting();
   event.waitUntil(
     (async () => {
       try {
@@ -282,10 +298,11 @@ self.addEventListener('activate', event => {
         console.error('Service worker self-update failed:', error);
       }
 
-      if (hadExistingCaches) {
-        const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
-          ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
-          : null;
+      const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
+        ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
+        : ACTIVE_VERSION;
+
+      if (hadExistingCaches && versionIdentifier) {
         await notifyClientsOfUpdate(versionIdentifier);
       }
     })()

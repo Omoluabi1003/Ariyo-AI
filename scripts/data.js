@@ -325,6 +325,13 @@ const albums = [
       }
     ];
 
+const CANONICAL_ALBUM_LEADS = ['Omoluabi Production Catalogue', 'Omoluabi Catalogue'];
+const leadAlbumIndex = albums.findIndex(album => CANONICAL_ALBUM_LEADS.includes(album?.name));
+if (leadAlbumIndex > 0) {
+  const [leadAlbum] = albums.splice(leadAlbumIndex, 1);
+  albums.unshift(leadAlbum);
+}
+
 const podcastFeedAlbums = [
   { name: 'Back2Basics', feedUrl: BACK2BASICS_FEED_URL }
 ];
@@ -788,14 +795,12 @@ function normalizeLatestTracks(tracks) {
 
 const latestTracks = normalizeLatestTracks(latestTrackAnnouncements);
 
-// Shuffle albums so they appear in a random order on each page load
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
-shuffle(albums);
 
 const PLAYLIST_STORAGE_KEY = 'userPlaylist';
 
