@@ -26,6 +26,10 @@ body {
     text-align: center;
     position: relative;
     transition: background 0.5s ease-in-out, background-color 0.5s ease-in-out;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y;
 }
 
 body[data-theme="light"] {
