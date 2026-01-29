@@ -455,7 +455,13 @@
       }
       searchSuggestions.innerHTML = '';
       const fragment = document.createDocumentFragment();
+      const seen = new Set();
       items.forEach((item) => {
+        const normalizedLabel = normalizeSearchText(item.label);
+        if (!normalizedLabel || seen.has(normalizedLabel)) {
+          return;
+        }
+        seen.add(normalizedLabel);
         const option = document.createElement('option');
         option.value = item.label;
         fragment.appendChild(option);
@@ -537,8 +543,30 @@
     window.addEventListener('ariyo:library-ready', buildSearchIndex);
     window.addEventListener('ariyo:library-updated', buildSearchIndex);
 
+    const handleSearchCommit = (value) => {
+      if (commitSearch(value)) {
+        searchInput.value = '';
+        updateQuery('');
+      }
+    };
+
+    const isReplacementSelection = (event) => {
+      if (!event || typeof event.inputType !== 'string') {
+        return false;
+      }
+      return [
+        'insertReplacementText',
+        'insertFromDrop',
+        'insertFromList',
+        'insertLineBreak'
+      ].includes(event.inputType);
+    };
+
     searchInput.addEventListener('input', (e) => {
       updateQuery(e.target.value);
+      if (isReplacementSelection(e) && findExactSearchResult(e.target.value)) {
+        handleSearchCommit(e.target.value);
+      }
     });
 
     searchInput.addEventListener('keydown', (e) => {
@@ -550,20 +578,16 @@
       if (SEARCH_DEBUG) {
         console.debug('[search] enter', { value: e.target.value });
       }
-      if (commitSearch(e.target.value)) {
-        e.target.value = '';
-        updateQuery('');
-      }
+      requestAnimationFrame(() => {
+        handleSearchCommit(e.target.value);
+      });
     });
 
     searchInput.addEventListener('change', (e) => {
       if (SEARCH_DEBUG) {
         console.debug('[search] selection', { value: e.target.value });
       }
-      if (commitSearch(e.target.value)) {
-        e.target.value = '';
-        updateQuery('');
-      }
+      handleSearchCommit(e.target.value);
     });
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
