@@ -274,163 +274,101 @@
 
     /* SEARCH BAR AUTO-COMPLETE */
     const searchInput = document.getElementById('searchInput');
-    const searchSuggestions = document.getElementById('searchSuggestions');
-    const searchMap = {};
-    const searchItems = [];
-    const SEARCH_MIN_CHARS = 2;
-    const SEARCH_SUGGESTION_LIMIT = 15;
-    const SEARCH_DEBUG = new URLSearchParams(window.location.search).get('debugSearch') === '1';
+    const searchDropdown = document.getElementById('searchDropdown');
+    const searchClearButton = document.getElementById('searchClearButton');
+    const searchCombobox = document.getElementById('searchCombobox');
+    const searchUtils = window.AriyoSearchUtils || {};
+    const normalizeSearchText = searchUtils.normalizeText || ((value) => String(value || '').toLowerCase().trim());
+    const SEARCH_TRACK_LIMIT = 7;
+    const SEARCH_STATION_LIMIT = 3;
+    const SEARCH_MAX_RESULTS = 10;
 
-    const normalizeSearchText = (value) => String(value || '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim();
-    const buildSearchTokens = (...values) => {
-      const tokens = new Set();
-      values.flat().filter(Boolean).forEach((value) => {
-        const normalized = normalizeSearchText(value);
-        if (!normalized) {
-          return;
+    const searchIndex = {
+      tracks: [],
+      stations: []
+    };
+
+    const searchState = {
+      query: '',
+      normalizedQuery: '',
+      results: [],
+      activeIndex: -1
+    };
+
+    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      '\'': '&#39;'
+    }[char]));
+
+    const normalizeForMatchMap = (value) => {
+      const normalizedChars = [];
+      const map = [];
+      let lastWasSpace = true;
+
+      for (let i = 0; i < value.length; i += 1) {
+        const raw = value[i];
+        let processed = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        if (!processed) {
+          continue;
         }
-        tokens.add(normalized);
-        normalized.split(' ').filter(Boolean).forEach(token => tokens.add(token));
-      });
-      return Array.from(tokens);
-    };
-    const addSearchItem = (label, result, searchTerms = []) => {
-      searchItems.push({
-        label,
-        result,
-        normalizedLabel: normalizeSearchText(label),
-        searchTokens: buildSearchTokens(label, searchTerms)
-      });
-      searchMap[normalizeSearchText(label)] = result;
-    };
 
-    const findExactSearchResult = (rawValue) => {
-      const normalized = normalizeSearchText(rawValue || '');
-      if (!normalized) {
-        return null;
-      }
-      return searchMap[normalized] || null;
-    };
+        processed = processed.toLowerCase();
+        const isWord = /[\p{L}\p{N}]/u.test(processed);
 
-    const isFuzzyMatch = (token, query) => {
-      let queryIndex = 0;
-      for (let i = 0; i < token.length; i += 1) {
-        if (token[i] === query[queryIndex]) {
-          queryIndex += 1;
-        }
-        if (queryIndex >= query.length) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    const getSearchSuggestions = (normalizedQuery) => {
-      const trimmedQuery = normalizeSearchText(normalizedQuery);
-      if (!trimmedQuery || trimmedQuery.length < SEARCH_MIN_CHARS) {
-        return [];
-      }
-
-      const ranked = [];
-      searchItems.forEach((item) => {
-        let bestMatch = null;
-        item.searchTokens.forEach((token) => {
-          if (!token) {
-            return;
+        if (!isWord) {
+          if (!lastWasSpace && normalizedChars.length) {
+            normalizedChars.push(' ');
+            map.push(i);
+            lastWasSpace = true;
           }
-          if (token.startsWith(trimmedQuery)) {
-            const score = { rank: 0, index: 0, length: token.length };
-            if (!bestMatch || score.rank < bestMatch.rank || score.index < bestMatch.index) {
-              bestMatch = score;
+          continue;
+        }
+
+        for (const char of processed) {
+          if (!/[\p{L}\p{N}]/u.test(char)) {
+            if (!lastWasSpace && normalizedChars.length) {
+              normalizedChars.push(' ');
+              map.push(i);
+              lastWasSpace = true;
             }
-            return;
+            continue;
           }
-          const includesIndex = token.indexOf(trimmedQuery);
-          if (includesIndex !== -1) {
-            const score = { rank: 1, index: includesIndex, length: token.length };
-            if (!bestMatch || score.rank < bestMatch.rank || score.index < bestMatch.index) {
-              bestMatch = score;
-            }
-            return;
-          }
-          if (isFuzzyMatch(token, trimmedQuery)) {
-            const score = { rank: 2, index: token.length - trimmedQuery.length, length: token.length };
-            if (!bestMatch || score.rank < bestMatch.rank || score.index < bestMatch.index) {
-              bestMatch = score;
-            }
-          }
-        });
+          normalizedChars.push(char);
+          map.push(i);
+          lastWasSpace = false;
+        }
+      }
 
-        if (bestMatch) {
-          ranked.push({
-            ...item,
-            matchRank: bestMatch.rank,
-            matchIndex: bestMatch.index,
-            matchLength: bestMatch.length
-          });
-        }
-      });
+      if (normalizedChars[normalizedChars.length - 1] === ' ') {
+        normalizedChars.pop();
+        map.pop();
+      }
 
-      ranked.sort((a, b) => {
-        if (a.matchRank !== b.matchRank) {
-          return a.matchRank - b.matchRank;
-        }
-        if (a.matchIndex !== b.matchIndex) {
-          return a.matchIndex - b.matchIndex;
-        }
-        if (a.matchLength !== b.matchLength) {
-          return a.matchLength - b.matchLength;
-        }
-        return a.label.localeCompare(b.label);
-      });
-
-      return ranked.slice(0, SEARCH_SUGGESTION_LIMIT);
+      return {
+        normalized: normalizedChars.join(''),
+        map
+      };
     };
 
-    const findPartialSearchResult = (rawValue) => {
-      const normalized = normalizeSearchText(rawValue || '');
-      if (!normalized) {
-        return null;
+    const highlightMatch = (text, normalizedQuery) => {
+      if (!normalizedQuery) {
+        return escapeHtml(text);
       }
-
-      const matches = getSearchSuggestions(normalized);
-      return matches.length ? matches[0].result : null;
-    };
-
-    const findSearchResult = (rawValue, { allowPartial = false } = {}) => {
-      const exactMatch = findExactSearchResult(rawValue);
-      if (exactMatch || !allowPartial) {
-        return exactMatch;
+      const { normalized, map } = normalizeForMatchMap(text);
+      const matchIndex = normalized.indexOf(normalizedQuery);
+      if (matchIndex === -1) {
+        return escapeHtml(text);
       }
-      return findPartialSearchResult(rawValue);
-    };
-
-    const executeSearch = (rawValue, { allowPartial = false } = {}) => {
-      const result = findSearchResult(rawValue, { allowPartial });
-      if (!result) {
-        return false;
+      const start = map[matchIndex];
+      const end = map[matchIndex + normalizedQuery.length - 1];
+      if (start == null || end == null) {
+        return escapeHtml(text);
       }
-      handleSearchSelection(result);
-      return true;
-    };
-
-    const commitSearch = (rawValue) => {
-      const normalized = normalizeSearchText(rawValue || '');
-      if (!normalized) {
-        return false;
-      }
-
-      const exactHandled = executeSearch(rawValue, { allowPartial: false });
-      if (exactHandled) {
-        return true;
-      }
-
-      return executeSearch(rawValue, { allowPartial: true });
+      return `${escapeHtml(text.slice(0, start))}<span class="search-match-highlight">${escapeHtml(text.slice(start, end + 1))}</span>${escapeHtml(text.slice(end + 1))}`;
     };
 
     const handleSearchSelection = (result) => {
@@ -443,53 +381,15 @@
         selectTrack(track.src, track.title, result.trackIndex);
       } else if (result.type === 'radio') {
         const station = radioStations[result.index];
-        selectRadio(station.url, `${station.name} - ${station.location}`, result.index, station.logo);
-      } else if (result.type === 'album') {
-        selectAlbum(result.albumIndex);
-      }
-    };
-
-    const renderSearchSuggestions = (items) => {
-      if (!searchSuggestions) {
-        return;
-      }
-      searchSuggestions.innerHTML = '';
-      const fragment = document.createDocumentFragment();
-      const seen = new Set();
-      items.forEach((item) => {
-        const normalizedLabel = normalizeSearchText(item.label);
-        if (!normalizedLabel || seen.has(normalizedLabel)) {
-          return;
-        }
-        seen.add(normalizedLabel);
-        const option = document.createElement('option');
-        option.value = item.label;
-        fragment.appendChild(option);
-      });
-      searchSuggestions.appendChild(fragment);
-    };
-
-    const updateQuery = (rawValue) => {
-      const normalized = normalizeSearchText(rawValue || '');
-      if (SEARCH_DEBUG) {
-        console.debug('[search] typing', { value: rawValue, normalized });
-      }
-      if (!normalized) {
-        renderSearchSuggestions(searchItems);
-        return;
-      }
-      const suggestions = getSearchSuggestions(normalized);
-      renderSearchSuggestions(suggestions);
-      if (SEARCH_DEBUG) {
-        console.debug('[search] suggestions', { count: suggestions.length });
+        const stationDetail = station.location || station.region || station.country || '';
+        const stationTitle = stationDetail ? `${station.name} - ${stationDetail}` : station.name;
+        selectRadio(station.url, stationTitle, result.index, station.logo);
       }
     };
 
     const resetSearchIndex = () => {
-      searchItems.length = 0;
-      Object.keys(searchMap).forEach((key) => {
-        delete searchMap[key];
-      });
+      searchIndex.tracks.length = 0;
+      searchIndex.stations.length = 0;
     };
 
     const buildSearchIndex = () => {
@@ -497,45 +397,247 @@
 
       if (Array.isArray(albums)) {
         albums.forEach((album, albumIndex) => {
-          const albumLabel = `Album ${albumIndex + 1}: ${album.name}`;
-          addSearchItem(albumLabel, { type: 'album', albumIndex }, [
-            album.name,
-            album.artist,
-            `album ${albumIndex + 1}`,
-            `album ${albumIndex + 1} ${album.name}`
-          ]);
-
-          if (Array.isArray(album.tracks)) {
-            album.tracks.forEach((track, trackIndex) => {
-              const label = `${track.title} - ${album.name}`;
-              addSearchItem(label, { type: 'track', albumIndex, trackIndex }, [
-                track.title,
-                track.artist,
-                track.rssSource,
-                track.subtitle,
-                album.name,
-                album.artist,
-                `${track.title} ${album.name}`
-              ]);
-            });
+          if (!Array.isArray(album.tracks)) {
+            return;
           }
+
+          album.tracks.forEach((track, trackIndex) => {
+            const title = track.title || track.name || `Track ${trackIndex + 1}`;
+            const artist = track.artist || album.artist || '';
+            const albumName = album.name || '';
+            const secondary = [artist, albumName].filter(Boolean).join(' • ');
+            const searchText = normalizeSearchText([
+              title,
+              artist,
+              albumName,
+              track.subtitle,
+              track.rssSource
+            ].filter(Boolean).join(' '));
+
+            searchIndex.tracks.push({
+              id: track.id || `${albumIndex}-${trackIndex}`,
+              type: 'track',
+              title,
+              secondary,
+              albumIndex,
+              trackIndex,
+              searchText
+            });
+          });
         });
       }
 
       if (Array.isArray(radioStations)) {
         radioStations.forEach((station, index) => {
-          const label = `${station.name} (${station.location})`;
-          addSearchItem(label, { type: 'radio', index }, [
-            station.name,
+          const name = station.name || `Station ${index + 1}`;
+          const secondary = station.region || station.country || station.location || '';
+          const searchText = normalizeSearchText([
+            name,
             station.location,
-            `${station.name} ${station.location}`,
-            `${station.name} radio`,
-            `${station.location} radio`
-          ]);
+            station.region,
+            station.country
+          ].filter(Boolean).join(' '));
+
+          searchIndex.stations.push({
+            id: station.id || `${index}-${name}`,
+            type: 'radio',
+            name,
+            secondary,
+            index,
+            searchText
+          });
         });
       }
 
-      renderSearchSuggestions(searchItems);
+      updateSearchResults();
+    };
+
+    const getSearchResults = (normalizedQuery) => {
+      if (!normalizedQuery) {
+        return [];
+      }
+
+      const trackMatches = searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
+      const stationMatches = searchIndex.stations.filter(item => item.searchText.includes(normalizedQuery));
+
+      const tracks = trackMatches.slice(0, SEARCH_TRACK_LIMIT);
+      const stations = stationMatches.slice(0, SEARCH_STATION_LIMIT);
+
+      return [...tracks, ...stations].slice(0, SEARCH_MAX_RESULTS);
+    };
+
+    const renderSearchDropdown = () => {
+      if (!searchDropdown) {
+        return;
+      }
+
+      searchDropdown.innerHTML = '';
+
+      if (!searchState.normalizedQuery) {
+        searchDropdown.hidden = true;
+        searchInput.setAttribute('aria-expanded', 'false');
+        searchInput.removeAttribute('aria-activedescendant');
+        return;
+      }
+
+      const trackResults = searchState.results.filter(result => result.type === 'track');
+      const stationResults = searchState.results.filter(result => result.type === 'radio');
+      const fragment = document.createDocumentFragment();
+      let optionIndex = 0;
+
+      const appendSection = (label, items) => {
+        if (!items.length) {
+          return;
+        }
+        const section = document.createElement('div');
+        section.className = 'search-dropdown-section';
+
+        const heading = document.createElement('div');
+        heading.className = 'search-dropdown-heading';
+        heading.textContent = label;
+        section.appendChild(heading);
+
+        items.forEach((item) => {
+          const option = document.createElement('div');
+          option.className = 'search-dropdown-option';
+          option.setAttribute('role', 'option');
+          option.dataset.index = String(optionIndex);
+          option.id = `search-option-${optionIndex}`;
+
+          const textWrapper = document.createElement('div');
+          textWrapper.className = 'search-option-text';
+
+          const primary = document.createElement('div');
+          primary.className = 'search-option-primary';
+          const primaryText = item.type === 'track' ? item.title : item.name;
+          primary.innerHTML = highlightMatch(primaryText, searchState.normalizedQuery);
+
+          textWrapper.appendChild(primary);
+
+          if (item.secondary) {
+            const secondary = document.createElement('div');
+            secondary.className = 'search-option-secondary';
+            secondary.textContent = item.secondary;
+            textWrapper.appendChild(secondary);
+          }
+
+          const badge = document.createElement('span');
+          badge.className = 'search-option-badge';
+          badge.textContent = item.type === 'track' ? 'TRACK' : 'STATION';
+
+          option.appendChild(textWrapper);
+          option.appendChild(badge);
+
+          option.addEventListener('click', () => {
+            selectSearchResult(optionIndex);
+          });
+
+          section.appendChild(option);
+          optionIndex += 1;
+        });
+
+        fragment.appendChild(section);
+      };
+
+      appendSection('Tracks', trackResults);
+      appendSection('Stations', stationResults);
+
+      if (!optionIndex) {
+        const empty = document.createElement('div');
+        empty.className = 'search-dropdown-option';
+        empty.textContent = 'No results found.';
+        empty.setAttribute('role', 'option');
+        empty.dataset.index = '-1';
+        fragment.appendChild(empty);
+      }
+
+      searchDropdown.appendChild(fragment);
+      searchDropdown.hidden = false;
+      searchInput.setAttribute('aria-expanded', 'true');
+
+      updateActiveOption();
+    };
+
+    const updateSearchResults = () => {
+      if (!searchInput) {
+        return;
+      }
+
+      searchState.normalizedQuery = normalizeSearchText(searchState.query);
+      searchState.results = getSearchResults(searchState.normalizedQuery);
+      searchState.activeIndex = -1;
+
+      renderSearchDropdown();
+      searchClearButton.hidden = !searchState.query;
+    };
+
+    const setSearchQuery = (value) => {
+      searchState.query = value;
+      searchInput.value = value;
+      updateSearchResults();
+    };
+
+    const closeSearchDropdown = ({ clearQuery = false } = {}) => {
+      if (clearQuery) {
+        setSearchQuery('');
+      }
+      searchDropdown.hidden = true;
+      searchInput.setAttribute('aria-expanded', 'false');
+      searchInput.removeAttribute('aria-activedescendant');
+      searchState.activeIndex = -1;
+    };
+
+    const updateActiveOption = () => {
+      const options = searchDropdown.querySelectorAll('.search-dropdown-option[role="option"]');
+      options.forEach((option) => {
+        const index = Number(option.dataset.index || '-1');
+        const isActive = index === searchState.activeIndex;
+        option.dataset.active = isActive ? 'true' : 'false';
+        option.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      if (searchState.activeIndex >= 0) {
+        searchInput.setAttribute('aria-activedescendant', `search-option-${searchState.activeIndex}`);
+      } else {
+        searchInput.removeAttribute('aria-activedescendant');
+      }
+    };
+
+    const moveActiveOption = (direction) => {
+      const options = searchDropdown.querySelectorAll('.search-dropdown-option[role="option"]');
+      const selectable = Array.from(options).filter(option => Number(option.dataset.index || '-1') >= 0);
+      if (!selectable.length) {
+        return;
+      }
+
+      const maxIndex = selectable.length - 1;
+      if (searchState.activeIndex === -1) {
+        searchState.activeIndex = direction > 0 ? 0 : maxIndex;
+      } else {
+        const nextIndex = searchState.activeIndex + direction;
+        if (nextIndex < 0) {
+          searchState.activeIndex = maxIndex;
+        } else if (nextIndex > maxIndex) {
+          searchState.activeIndex = 0;
+        } else {
+          searchState.activeIndex = nextIndex;
+        }
+      }
+
+      updateActiveOption();
+      const activeElement = document.getElementById(`search-option-${searchState.activeIndex}`);
+      if (activeElement) {
+        activeElement.scrollIntoView({ block: 'nearest' });
+      }
+    };
+
+    const selectSearchResult = (index) => {
+      const result = searchState.results[index];
+      if (!result) {
+        return;
+      }
+      handleSearchSelection(result);
+      closeSearchDropdown({ clearQuery: true });
     };
 
     buildSearchIndex();
@@ -543,51 +645,50 @@
     window.addEventListener('ariyo:library-ready', buildSearchIndex);
     window.addEventListener('ariyo:library-updated', buildSearchIndex);
 
-    const handleSearchCommit = (value) => {
-      if (commitSearch(value)) {
-        searchInput.value = '';
-        updateQuery('');
-      }
-    };
-
-    const isReplacementSelection = (event) => {
-      if (!event || typeof event.inputType !== 'string') {
-        return false;
-      }
-      return [
-        'insertReplacementText',
-        'insertFromDrop',
-        'insertFromList',
-        'insertLineBreak'
-      ].includes(event.inputType);
-    };
-
     searchInput.addEventListener('input', (e) => {
-      updateQuery(e.target.value);
-      if (isReplacementSelection(e) && findExactSearchResult(e.target.value)) {
-        handleSearchCommit(e.target.value);
+      setSearchQuery(e.target.value);
+    });
+
+    searchInput.addEventListener('focus', () => {
+      if (searchState.normalizedQuery) {
+        renderSearchDropdown();
       }
     });
 
     searchInput.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter') {
+      if (!searchState.normalizedQuery && e.key !== 'Escape') {
         return;
       }
 
-      e.preventDefault();
-      if (SEARCH_DEBUG) {
-        console.debug('[search] enter', { value: e.target.value });
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        moveActiveOption(1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        moveActiveOption(-1);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (searchState.activeIndex === -1 && searchState.results.length) {
+          selectSearchResult(0);
+          return;
+        }
+        selectSearchResult(searchState.activeIndex);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSearchDropdown({ clearQuery: true });
       }
-      requestAnimationFrame(() => {
-        handleSearchCommit(e.target.value);
-      });
     });
 
-    searchInput.addEventListener('change', (e) => {
-      if (SEARCH_DEBUG) {
-        console.debug('[search] selection', { value: e.target.value });
+    searchClearButton.addEventListener('click', () => {
+      closeSearchDropdown({ clearQuery: true });
+      searchInput.focus();
+    });
+
+    document.addEventListener('mousedown', (event) => {
+      if (!searchCombobox || searchCombobox.contains(event.target)) {
+        return;
       }
-      handleSearchCommit(e.target.value);
+      closeSearchDropdown({ clearQuery: false });
     });
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
