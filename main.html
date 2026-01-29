@@ -1469,8 +1469,15 @@
 
   <div class="container">
     <div class="sidebar" id="sidebarNavigation">
-      <input type="text" id="searchInput" class="search-bar" list="searchSuggestions" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations">
-      <datalist id="searchSuggestions"></datalist>
+      <div class="search-combobox" id="searchCombobox">
+        <div class="search-input-wrapper">
+          <input type="text" id="searchInput" class="search-bar" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations" role="combobox" aria-expanded="false" aria-controls="searchDropdown" aria-autocomplete="list">
+          <button type="button" id="searchClearButton" class="search-clear-button" aria-label="Clear search" hidden>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div id="searchDropdown" class="search-dropdown" role="listbox" aria-label="Search results" hidden></div>
+      </div>
       <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave"><i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album</button>
       <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave"><i class="fas fa-music" aria-hidden="true"></i> Choose A Track</button>
       <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave"><i class="fas fa-list" aria-hidden="true"></i> My Playlist</button>
@@ -1934,6 +1941,7 @@
   <script src="scripts/ui.js" defer></script>
   <script src="scripts/rss-ingestion.js" defer></script>
   <script src="scripts/news.js" defer></script>
+  <script src="scripts/search-utils.js" defer></script>
   <script src="scripts/main.js" defer></script>
   <script src="user-tracking.js" defer></script>
   <script src="prevent-zoom.js" defer></script>

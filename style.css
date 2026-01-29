@@ -390,6 +390,181 @@ body[data-theme="light"] .badge-spotlight {
     font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
+.search-combobox {
+    flex: 1 1 320px;
+    max-width: min(480px, 100%);
+    width: 100%;
+    position: relative;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-clear-button {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(0, 0, 0, 0.12);
+    color: #111;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body[data-theme='dark'] .search-clear-button,
+[data-theme='dark'] .search-clear-button {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.search-bar {
+    padding-right: 2.75rem;
+}
+
+.search-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: rgba(16, 16, 20, 0.96);
+    border-radius: 16px;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+    z-index: 60;
+    backdrop-filter: blur(18px);
+}
+
+.search-dropdown,
+.search-dropdown-option,
+.search-dropdown-heading,
+.search-option-secondary {
+    color: #fff;
+}
+
+body[data-theme='light'] .search-dropdown,
+[data-theme='light'] .search-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    color: #111;
+}
+
+body[data-theme='light'] .search-dropdown-heading,
+[data-theme='light'] .search-dropdown-heading,
+body[data-theme='light'] .search-option-secondary,
+[data-theme='light'] .search-option-secondary {
+    color: rgba(0, 0, 0, 0.6);
+}
+
+body[data-theme='light'] .search-dropdown-option,
+[data-theme='light'] .search-dropdown-option {
+    color: #111;
+}
+
+body[data-theme='light'] .search-dropdown-option:hover,
+body[data-theme='light'] .search-dropdown-option[data-active='true'],
+[data-theme='light'] .search-dropdown-option:hover,
+[data-theme='light'] .search-dropdown-option[data-active='true'] {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+body[data-theme='light'] .search-option-badge,
+[data-theme='light'] .search-option-badge {
+    background: rgba(0, 0, 0, 0.12);
+    color: #111;
+}
+
+body[data-theme='light'] .search-match-highlight,
+[data-theme='light'] .search-match-highlight {
+    color: #b45309;
+}
+
+.search-dropdown[hidden] {
+    display: none;
+}
+
+.search-dropdown-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.search-dropdown-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.65);
+    padding: 0.25rem 0.5rem 0;
+}
+
+.search-dropdown-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 12px;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.2s ease;
+}
+
+.search-dropdown-option:hover,
+.search-dropdown-option[data-active='true'] {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.search-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.search-option-primary {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-option-secondary {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.68);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-option-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    letter-spacing: 0.04em;
+}
+
+.search-match-highlight {
+    color: #ffd369;
+}
+
 .sidebar button {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
     color: white;
@@ -442,6 +617,10 @@ body[data-theme="light"] .badge-spotlight {
         width: 100%;
         max-width: none;
         font-size: 0.95rem;
+    }
+    .search-combobox {
+        width: 100%;
+        max-width: none;
     }
     .sidebar button {
         flex: 0 0 auto;
