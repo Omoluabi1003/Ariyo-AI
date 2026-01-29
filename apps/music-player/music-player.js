@@ -79,56 +79,89 @@
   const albumTrackMap = new Map();
   const trackDurationLabels = new Map();
   const allTracks = [];
+  const trackDataById = {};
   const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
+  const trackCatalogProvider = window.AriyoTrackCatalog
+    || window.AriyoTrackCatalogBuilder?.createTrackCatalogProvider?.(albums, { fallbackCover });
 
-  albums.forEach((album, albumIndex) => {
-    if (!album || !Array.isArray(album.tracks)) {
-      return;
-    }
-
-    const artist = album.artist || 'Omoluabi';
-    const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : null;
-    const cover = album.cover || album.coverImage || fallbackCover;
-    const albumName = album.name || album.title || `Album ${albumIndex + 1}`;
-    const collectedTracks = [];
-
-    album.tracks.forEach((track, trackIndex) => {
-      if (!track) {
-        return;
-      }
-
-      const trackSrc = track.src || track.url;
-      if (!trackSrc) {
-        return;
-      }
-
-      const title = track.title || `Track ${trackIndex + 1}`;
+  if (trackCatalogProvider?.trackCatalog?.length) {
+    trackCatalogProvider.trackCatalog.forEach(track => {
+      const location = trackCatalogProvider.trackLocationsById?.[track.id];
+      const albumIndex = location?.albumIndex ?? -1;
+      const trackIndex = location?.trackIndex ?? -1;
+      const album = albums[albumIndex] || {};
+      const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : null;
+      const albumName = track.albumTitle || album.name || album.title || `Album ${albumIndex + 1}`;
+      const originalTrack = album?.tracks?.[trackIndex] || {};
       const trackData = {
-        title,
-        src: trackSrc,
-        cover,
+        id: track.id,
+        title: track.title,
+        src: track.audioUrl,
+        cover: track.coverUrl || album.cover || album.coverImage || fallbackCover,
         album: albumName,
-        artist: deriveTrackArtist(track.artist || artist, title),
-        releaseYear: typeof track.releaseYear !== 'undefined' ? track.releaseYear : releaseYear,
+        artist: deriveTrackArtist(track.artist || album.artist, track.title),
+        releaseYear,
         albumIndex,
         albumTrackIndex: trackIndex,
-        isLive: Boolean(track.isLive || track.sourceType === 'stream'),
-        sourceType: track.sourceType || (track.isLive ? 'stream' : 'file'),
-        duration: typeof track.duration === 'number' ? track.duration : null,
+        isLive: Boolean(originalTrack.isLive || originalTrack.sourceType === 'stream'),
+        sourceType: originalTrack.sourceType || (originalTrack.isLive ? 'stream' : 'file'),
+        duration: Number.isFinite(track.durationSec) ? track.durationSec : null
       };
 
       allTracks.push(trackData);
-      collectedTracks.push(trackData);
+      trackDataById[track.id] = trackData;
+      const list = albumTrackMap.get(albumIndex) || [];
+      list.push(trackData);
+      albumTrackMap.set(albumIndex, list);
     });
+  } else {
+    albums.forEach((album, albumIndex) => {
+      if (!album || !Array.isArray(album.tracks)) {
+        return;
+      }
 
-    if (collectedTracks.length) {
-      albumTrackMap.set(albumIndex, collectedTracks);
-    }
-  });
+      const artist = album.artist || 'Omoluabi';
+      const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : null;
+      const cover = album.cover || album.coverImage || fallbackCover;
+      const albumName = album.name || album.title || `Album ${albumIndex + 1}`;
+      const collectedTracks = [];
 
-  allTracks.forEach((track, index) => {
-    track.globalIndex = index;
-  });
+      album.tracks.forEach((track, trackIndex) => {
+        if (!track) {
+          return;
+        }
+
+        const trackSrc = track.src || track.url;
+        if (!trackSrc) {
+          return;
+        }
+
+        const title = track.title || `Track ${trackIndex + 1}`;
+        const trackData = {
+          id: track.id || `${albumIndex}-${trackIndex}`,
+          title,
+          src: trackSrc,
+          cover,
+          album: albumName,
+          artist: deriveTrackArtist(track.artist || artist, title),
+          releaseYear: typeof track.releaseYear !== 'undefined' ? track.releaseYear : releaseYear,
+          albumIndex,
+          albumTrackIndex: trackIndex,
+          isLive: Boolean(track.isLive || track.sourceType === 'stream'),
+          sourceType: track.sourceType || (track.isLive ? 'stream' : 'file'),
+          duration: typeof track.duration === 'number' ? track.duration : null,
+        };
+
+        allTracks.push(trackData);
+        trackDataById[trackData.id] = trackData;
+        collectedTracks.push(trackData);
+      });
+
+      if (collectedTracks.length) {
+        albumTrackMap.set(albumIndex, collectedTracks);
+      }
+    });
+  }
 
   if (!allTracks.length) {
     statusMessage.textContent = 'No playable tracks were found.';
@@ -137,13 +170,13 @@
 
   const isLiveStreamTrack = track => Boolean(track && (track.isLive || track.sourceType === 'stream'));
 
-  let playbackOrder = allTracks.map((_, index) => index);
+  let playbackOrder = allTracks.map(track => track.id);
   const baseOrder = [...playbackOrder];
   let currentOrderIndex = 0;
   let isShuffleEnabled = false;
   let userSeeking = false;
   let isLoading = false;
-  let currentTrack = allTracks[playbackOrder[currentOrderIndex]];
+  let currentTrack = trackDataById[playbackOrder[currentOrderIndex]];
   let currentDuration = currentTrack && currentTrack.duration ? currentTrack.duration : 0;
   let currentSourceId = null;
   let progressFrame = null;
@@ -706,8 +739,8 @@
       return;
     }
     const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
-    const nextTrack = allTracks[playbackOrder[nextIndex]];
-    nextTrackInfo.textContent = `Next: ${nextTrack.title}`;
+    const nextTrack = trackDataById[playbackOrder[nextIndex]];
+    nextTrackInfo.textContent = nextTrack ? `Next: ${nextTrack.title}` : '';
   };
 
   const updatePlaylistHighlight = () => {
@@ -828,8 +861,8 @@
   const renderPlaylist = () => {
     playlistElement.innerHTML = '';
     const orderLookup = new Map();
-    playbackOrder.forEach((trackIndex, orderIndex) => {
-      orderLookup.set(trackIndex, orderIndex);
+    playbackOrder.forEach((trackId, orderIndex) => {
+      orderLookup.set(trackId, orderIndex);
     });
 
     albumTrackMap.forEach((tracks, albumIndex) => {
@@ -905,7 +938,7 @@
       trackList.setAttribute('aria-hidden', 'true');
 
       tracks.forEach(track => {
-        const orderIndex = orderLookup.get(track.globalIndex);
+        const orderIndex = orderLookup.get(track.id);
         if (typeof orderIndex !== 'number') {
           return;
         }
@@ -995,6 +1028,15 @@
   };
 
   const shufflePlaybackOrder = () => {
+    const currentTrackId = playbackOrder[currentOrderIndex];
+    if (trackCatalogProvider?.buildQueue) {
+      const shuffled = trackCatalogProvider.buildQueue('ALL_TRACKS', {
+        seed: Date.now(),
+        startTrackId: currentTrackId
+      });
+      updatePlaybackOrder(shuffled);
+      return;
+    }
     const shuffled = [...playbackOrder];
     for (let i = shuffled.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -1025,8 +1067,8 @@
   });
 
   const loadTrack = async (orderIndex, { autoplay = false } = {}) => {
-    const trackIndex = playbackOrder[orderIndex];
-    const track = allTracks[trackIndex];
+    const trackId = playbackOrder[orderIndex];
+    const track = trackDataById[trackId];
     if (!track) return;
 
     currentOrderIndex = orderIndex;
@@ -1047,10 +1089,10 @@
 
       currentSourceId = track.src;
       if (isLiveStreamTrack(track)) {
-        audioEngine.loadStream({ id: track.globalIndex, url: resolvedSrc, title: track.title, region: track.album });
+        audioEngine.loadStream({ id: track.id, url: resolvedSrc, title: track.title, region: track.album });
       } else {
         audioEngine.loadTrack({
-          id: track.globalIndex,
+          id: track.id,
           url: resolvedSrc,
           title: track.title,
           artist: track.artist,

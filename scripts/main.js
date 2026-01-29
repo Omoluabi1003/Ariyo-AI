@@ -371,11 +371,17 @@
       return `${escapeHtml(text.slice(0, start))}<span class="search-match-highlight">${escapeHtml(text.slice(start, end + 1))}</span>${escapeHtml(text.slice(end + 1))}`;
     };
 
+    const getTrackCatalogProvider = () => window.AriyoTrackCatalog || null;
+
     const handleSearchSelection = (result) => {
       if (!result) {
         return;
       }
       if (result.type === 'track') {
+        if (typeof window.selectTrackById === 'function' && result.trackId) {
+          window.selectTrackById(result.trackId);
+          return;
+        }
         currentAlbumIndex = result.albumIndex;
         const track = albums[result.albumIndex].tracks[result.trackIndex];
         selectTrack(track.src, track.title, result.trackIndex);
@@ -395,34 +401,30 @@
     const buildSearchIndex = () => {
       resetSearchIndex();
 
-      if (Array.isArray(albums)) {
-        albums.forEach((album, albumIndex) => {
-          if (!Array.isArray(album.tracks)) {
+      const catalogProvider = getTrackCatalogProvider();
+      if (catalogProvider?.trackCatalog?.length) {
+        catalogProvider.trackCatalog.forEach((track) => {
+          const location = catalogProvider.trackLocationsById?.[track.id];
+          if (!location) {
             return;
           }
+          const secondary = [track.artist, track.albumTitle].filter(Boolean).join(' • ');
+          const searchText = normalizeSearchText([
+            track.title,
+            track.artist,
+            track.albumTitle,
+            ...(track.tags || [])
+          ].filter(Boolean).join(' '));
 
-          album.tracks.forEach((track, trackIndex) => {
-            const title = track.title || track.name || `Track ${trackIndex + 1}`;
-            const artist = track.artist || album.artist || '';
-            const albumName = album.name || '';
-            const secondary = [artist, albumName].filter(Boolean).join(' • ');
-            const searchText = normalizeSearchText([
-              title,
-              artist,
-              albumName,
-              track.subtitle,
-              track.rssSource
-            ].filter(Boolean).join(' '));
-
-            searchIndex.tracks.push({
-              id: track.id || `${albumIndex}-${trackIndex}`,
-              type: 'track',
-              title,
-              secondary,
-              albumIndex,
-              trackIndex,
-              searchText
-            });
+          searchIndex.tracks.push({
+            id: track.id,
+            type: 'track',
+            title: track.title,
+            secondary,
+            trackId: track.id,
+            albumIndex: location.albumIndex,
+            trackIndex: location.trackIndex,
+            searchText
           });
         });
       }

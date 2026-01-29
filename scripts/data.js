@@ -926,6 +926,11 @@ window.albums = albums;
 window.radioStations = radioStations;
 window.latestTracks = latestTracks;
 window.PLAYLIST_STORAGE_KEY = PLAYLIST_STORAGE_KEY;
+if (window.AriyoTrackCatalogBuilder?.createTrackCatalogProvider) {
+  window.AriyoTrackCatalog = window.AriyoTrackCatalogBuilder.createTrackCatalogProvider(albums, {
+    fallbackCover: RSS_DEFAULT_COVER
+  });
+}
 window.__ariyoLibraryHydrated = true;
 window.__ariyoLibraryMode = 'full';
 window.dispatchEvent(new CustomEvent('ariyo:library-ready', { detail: { source: 'full' } }));

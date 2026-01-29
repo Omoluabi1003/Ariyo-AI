@@ -110,6 +110,11 @@
   ];
   window.RSS_DEFAULT_COVER = `${BASE_URL}Logo.jpg`;
   window.PLAYLIST_STORAGE_KEY = PLAYLIST_STORAGE_KEY;
+  if (window.AriyoTrackCatalogBuilder?.createTrackCatalogProvider) {
+    window.AriyoTrackCatalog = window.AriyoTrackCatalogBuilder.createTrackCatalogProvider(albums, {
+      fallbackCover: window.RSS_DEFAULT_COVER
+    });
+  }
   window.playlistAlbumIndex = albums.length - 1;
   window.libraryState = { local: albums, streams: radioStations, tracks: [] };
   window.__ariyoLibraryMode = 'lite';
