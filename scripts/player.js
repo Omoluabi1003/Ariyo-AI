@@ -675,6 +675,7 @@ const trackDisplayState = new Map();
 
 let albums = [];
 let radioStations = [];
+let trackCatalogProvider = null;
 
 const syncLibraryState = ({ source = 'init' } = {}) => {
   const nextAlbums = Array.isArray(window.albums)
@@ -697,6 +698,15 @@ const syncLibraryState = ({ source = 'init' } = {}) => {
 
   albums = nextAlbums;
   radioStations = nextStations;
+  if (window.AriyoTrackCatalog && typeof window.AriyoTrackCatalog.createProvider === 'function') {
+    trackCatalogProvider = window.AriyoTrackCatalog.createProvider(albums);
+    if (typeof window.AriyoTrackCatalog.setProvider === 'function') {
+      window.AriyoTrackCatalog.setProvider(trackCatalogProvider);
+    }
+    if (DEBUG_AUDIO) {
+      console.debug('[catalog-sync]', { source, tracks: trackCatalogProvider.trackCatalog.length });
+    }
+  }
 
   if (DEBUG_AUDIO) {
     console.debug('[library-sync]', { source, albums: albums.length, stations: radioStations.length });
@@ -714,7 +724,8 @@ const shuffleQueueState = {
   mode: null,
   poolSignature: '',
   currentTrackKey: '',
-  poolSize: 0
+  poolSize: 0,
+  seed: null
 };
 const trackHistory = [];
 const MAX_TRACK_HISTORY = 50;
@@ -2293,87 +2304,52 @@ function removeTrackFromPlaylist(index) {
       return state === 2 || state === 3;
     }
 
-    function buildTrackKey({ album, track, albumIndex, trackIndex }) {
-      const normalizedSrc = track?.src ? normalizeMediaSrc(track.src) : '';
-      if (normalizedSrc) return `src:${normalizedSrc}`;
-      const trackId = track?.id ? String(track.id) : '';
-      const albumSlug = album?.name ? slugifyLabel(album.name) : '';
-      if (trackId) {
-        return `id:${albumSlug || albumIndex}:${trackId}`;
+    function getCatalogProvider() {
+      if (trackCatalogProvider) return trackCatalogProvider;
+      if (window.AriyoTrackCatalog && typeof window.AriyoTrackCatalog.getProvider === 'function') {
+        trackCatalogProvider = window.AriyoTrackCatalog.getProvider();
       }
-      const trackSlug = track?.title ? slugifyLabel(track.title) : '';
-      if (trackSlug) {
-        return `title:${albumSlug || albumIndex}:${trackSlug}`;
+      if (!trackCatalogProvider && window.AriyoTrackCatalog && typeof window.AriyoTrackCatalog.createProvider === 'function') {
+        trackCatalogProvider = window.AriyoTrackCatalog.createProvider(albums);
+        if (typeof window.AriyoTrackCatalog.setProvider === 'function') {
+          window.AriyoTrackCatalog.setProvider(trackCatalogProvider);
+        }
       }
-      return `index:${albumSlug || albumIndex}:${trackIndex}`;
+      return trackCatalogProvider;
     }
 
-    function getCurrentTrackKey() {
+    function getCurrentTrackId() {
+      const provider = getCatalogProvider();
       const album = albums[currentAlbumIndex];
       const track = album?.tracks?.[currentTrackIndex];
-      return buildTrackKey({
-        album,
-        track,
-        albumIndex: currentAlbumIndex,
-        trackIndex: currentTrackIndex
-      });
+      const albumId = provider?.albumIdByIndex?.[currentAlbumIndex] || '';
+      return provider?.resolveTrackId ? provider.resolveTrackId(track, { albumId }) : '';
     }
 
     function buildShufflePoolSnapshot() {
-      const pool = [];
-      const poolKeys = [];
-      const currentTrackKey = getCurrentTrackKey();
+      const provider = getCatalogProvider();
+      const currentTrackId = getCurrentTrackId();
+      let poolIds = [];
 
-      if (shuffleState === 3) {
-        albums.forEach((album, albumIdx) => {
-          if (!album || !Array.isArray(album.tracks)) return;
-          album.tracks.forEach((track, trackIdx) => {
-            const trackKey = buildTrackKey({
-              album,
-              track,
-              albumIndex: albumIdx,
-              trackIndex: trackIdx
-            });
-            if (trackKey === currentTrackKey) return;
-            pool.push({
-              albumIndex: albumIdx,
-              trackIndex: trackIdx,
-              title: track?.title,
-              src: track?.src,
-              trackKey
-            });
-            poolKeys.push(trackKey);
-          });
-        });
-      } else if (shuffleState === 2) {
-        const album = albums[currentAlbumIndex];
-        if (album && Array.isArray(album.tracks)) {
-          album.tracks.forEach((track, trackIdx) => {
-            const trackKey = buildTrackKey({
-              album,
-              track,
-              albumIndex: currentAlbumIndex,
-              trackIndex: trackIdx
-            });
-            if (trackKey === currentTrackKey) return;
-            pool.push({
-              albumIndex: currentAlbumIndex,
-              trackIndex: trackIdx,
-              title: track?.title,
-              src: track?.src,
-              trackKey
-            });
-            poolKeys.push(trackKey);
-          });
+      if (provider) {
+        if (shuffleState === 3) {
+          poolIds = provider.trackCatalog.map(track => track.id);
+        } else if (shuffleState === 2) {
+          const albumId = provider.albumIdByIndex?.[currentAlbumIndex];
+          poolIds = albumId && provider.tracksByAlbumId[albumId]
+            ? provider.tracksByAlbumId[albumId].map(track => track.id)
+            : [];
         }
       }
 
-      const poolSignature = poolKeys.slice().sort().join('|');
+      const filteredPool = currentTrackId ? poolIds.filter(id => id !== currentTrackId) : poolIds;
+      const poolSignature = filteredPool.slice().sort().join('|');
+
       return {
-        pool,
+        pool: filteredPool,
         poolSignature,
-        poolSize: pool.length,
-        currentTrackKey
+        poolSize: filteredPool.length,
+        currentTrackKey: currentTrackId
       };
     }
 
@@ -2422,13 +2398,16 @@ function removeTrackFromPlaylist(index) {
       if (isShuffleQueueMode(nextShuffleState)) {
         ensureShuffleQueue();
         if (shuffleQueue.length === 0) return null;
-        const next = shuffleQueue[0];
-        const nextAlbum = albumList[next.albumIndex];
-        const nextTrack = nextAlbum?.tracks?.[next.trackIndex];
+        const provider = getCatalogProvider();
+        const nextTrackId = shuffleQueue[0];
+        const location = provider?.trackLocationById?.[nextTrackId];
+        if (!location) return null;
+        const nextAlbum = albumList[location.albumIndex];
+        const nextTrack = nextAlbum?.tracks?.[location.trackIndex];
         if (!nextTrack) return null;
         return {
-          albumIndex: next.albumIndex,
-          trackIndex: next.trackIndex,
+          albumIndex: location.albumIndex,
+          trackIndex: location.trackIndex,
           track: nextTrack
         };
       }
@@ -2540,6 +2519,7 @@ function removeTrackFromPlaylist(index) {
       shuffleQueueState.poolSignature = '';
       shuffleQueueState.currentTrackKey = '';
       shuffleQueueState.poolSize = 0;
+      shuffleQueueState.seed = null;
       resetNextTrackPreview();
       if (!skipUpdate) {
         updateNextTrackInfo();
@@ -2557,11 +2537,20 @@ function removeTrackFromPlaylist(index) {
         return;
       }
       requestFullLibraryForShuffle('shuffle-build');
+      const provider = getCatalogProvider();
       const poolSnapshot = snapshot || buildShufflePoolSnapshot();
-      shuffleQueue = [...poolSnapshot.pool];
-      for (let i = shuffleQueue.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffleQueue[i], shuffleQueue[j]] = [shuffleQueue[j], shuffleQueue[i]];
+      const seed = shuffleQueueState.seed || Date.now();
+      shuffleQueueState.seed = seed;
+      if (provider) {
+        const scope = shuffleState === 3 ? 'ALL_TRACKS' : 'ALBUM';
+        const albumId = provider.albumIdByIndex?.[currentAlbumIndex];
+        shuffleQueue = provider.buildQueue(scope, {
+          seed,
+          albumId,
+          startTrackId: poolSnapshot.currentTrackKey
+        });
+      } else {
+        shuffleQueue = poolSnapshot.pool;
       }
       shuffleQueueState.mode = shuffleState;
       shuffleQueueState.poolSignature = poolSnapshot.poolSignature;
@@ -2980,6 +2969,10 @@ function removeTrackFromPlaylist(index) {
         window.requestRssIngestion({ reason: 'rss-track-list', immediate: false });
       }
 
+      const provider = getCatalogProvider();
+      const albumId = provider?.albumIdByIndex?.[albumIndex];
+      const catalogTracks = albumId && provider?.tracksByAlbumId?.[albumId] ? provider.tracksByAlbumId[albumId] : [];
+
       const banner = document.getElementById('latestTracksBanner');
       const bannerCopy = document.getElementById('latestTracksCopy');
       const bannerActions = document.getElementById('latestTracksActions');
@@ -3061,39 +3054,45 @@ function removeTrackFromPlaylist(index) {
         }
       }
 
-      // Build an array of track indices and shuffle them (except for playlist)
-      let trackIndices = albumCatalog[albumIndex].tracks.map((_, i) => i);
-      if (albumIndex !== playlistAlbumIndex) {
-        for (let i = trackIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [trackIndices[i], trackIndices[j]] = [trackIndices[j], trackIndices[i]];
-        }
+      // Build an array of track ids (catalog-driven) and shuffle them (except for playlist)
+      let trackOrder = catalogTracks.length
+        ? catalogTracks.map(track => track.id)
+        : albumCatalog[albumIndex].tracks.map((_, i) => String(i));
+      if (albumIndex !== playlistAlbumIndex && catalogTracks.length && provider) {
+        const seed = Date.now();
+        trackOrder = provider.buildQueue('ALBUM', { seed, albumId });
       }
 
       // Only render the first page so slow networks don't parse the full library at once.
-      const totalTracks = trackIndices.length;
+      const totalTracks = trackOrder.length;
       const defaultLimit = albumIndex === playlistAlbumIndex ? totalTracks : TRACKS_PAGE_SIZE;
       const currentLimit = trackDisplayState.get(albumIndex) || defaultLimit;
-      const visibleIndices = trackIndices.slice(0, currentLimit);
+      const visibleIndices = trackOrder.slice(0, currentLimit);
 
       visibleIndices.forEach(index => {
-        const track = albumCatalog[albumIndex].tracks[index];
+        const catalogTrack = catalogTracks.length ? provider?.trackById?.[index] : null;
+        const location = catalogTrack && provider?.trackLocationById?.[catalogTrack.id]
+          ? provider.trackLocationById[catalogTrack.id]
+          : { albumIndex, trackIndex: Number(index) };
+        const track = albumCatalog[location.albumIndex]?.tracks?.[location.trackIndex];
+        if (!track && !catalogTrack) return;
         // Use cached duration if available, otherwise fetch it
-        const displayDuration = track.duration
-          ? formatTime(track.duration)
-          : track.isLive
+        const displayDuration = track?.duration || catalogTrack?.durationSec
+          ? formatTime(track?.duration || catalogTrack?.durationSec)
+          : track?.isLive || (catalogTrack?.tags || []).includes('live')
             ? 'Live'
             : '';
 
         const item = document.createElement('div');
         item.className = 'track-item';
-        const externalUrl = track.shareUrl || track.sourceUrl || track.externalUrl;
-        const hasPlayableSrc = Boolean(track.src);
+        const externalUrl = track?.shareUrl || track?.sourceUrl || track?.externalUrl;
+        const playableSrc = track?.src || catalogTrack?.audioUrl;
+        const hasPlayableSrc = Boolean(playableSrc);
         if (hasPlayableSrc) {
           item.addEventListener('click', () => {
             pendingAlbumIndex = null;
             closeTrackList(true);
-            selectTrack(track.src, track.title, index, true, null, albumIndex);
+            selectTrack(playableSrc, track?.title || catalogTrack?.title, location.trackIndex, true, null, location.albumIndex);
           });
         } else {
           item.classList.add('track-item-disabled');
@@ -3108,7 +3107,7 @@ function removeTrackFromPlaylist(index) {
 
         const titleSpan = document.createElement('span');
         titleSpan.className = 'track-title';
-        titleSpan.textContent = track.title;
+        titleSpan.textContent = track?.title || catalogTrack?.title || 'Untitled track';
         titleRow.appendChild(titleSpan);
 
         let durationBadge = null;
@@ -3121,7 +3120,7 @@ function removeTrackFromPlaylist(index) {
 
         textWrapper.appendChild(titleRow);
 
-        const subtitleText = track.subtitle || track.rssSource;
+        const subtitleText = track?.subtitle || track?.rssSource;
         if (subtitleText) {
           const subtitle = document.createElement('div');
           subtitle.className = 'track-subtitle';
@@ -3149,7 +3148,7 @@ function removeTrackFromPlaylist(index) {
           removeBtn.textContent = '✖';
           removeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            removeTrackFromPlaylist(index);
+            removeTrackFromPlaylist(location.trackIndex);
           });
           actions.appendChild(removeBtn);
         } else {
@@ -3158,7 +3157,7 @@ function removeTrackFromPlaylist(index) {
           addBtn.setAttribute('aria-label', 'Add to playlist');
           addBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            addTrackToPlaylistByIndex(albumIndex, index);
+            addTrackToPlaylistByIndex(location.albumIndex, location.trackIndex);
           });
           actions.appendChild(addBtn);
         }
@@ -3166,7 +3165,7 @@ function removeTrackFromPlaylist(index) {
         item.appendChild(actions);
         trackListContainer.appendChild(item);
 
-        if (shouldPrefetchDurations && !track.duration && !track.isLive) {
+        if (shouldPrefetchDurations && track && !track.duration && !track.isLive) {
           const tempAudio = new Audio();
           tempAudio.preload = 'metadata';
           const previewSrc = buildTrackFetchUrl(normalizeMediaSrc(track.src), track);
@@ -3884,15 +3883,17 @@ function resolveTrackForDirection(direction) {
       }
       if (isShuffleQueueMode()) {
         ensureShuffleQueue();
-        const next = shuffleQueue[0];
-        const album = next ? albums[next.albumIndex] : null;
-        const track = album?.tracks?.[next.trackIndex];
+        const provider = getCatalogProvider();
+        const nextTrackId = shuffleQueue[0];
+        const location = nextTrackId ? provider?.trackLocationById?.[nextTrackId] : null;
+        const album = location ? albums[location.albumIndex] : null;
+        const track = album?.tracks?.[location.trackIndex];
         return track
           ? {
             src: track.src,
             title: track.title,
-            albumIndex: next.albumIndex,
-            trackIndex: next.trackIndex
+            albumIndex: location.albumIndex,
+            trackIndex: location.trackIndex
           }
           : null;
       }
@@ -5534,17 +5535,19 @@ function switchTrack(direction, isAuto = false) {
         selectTrack(track.src, track.title, currentTrackIndex, false);
       } else if (isShuffleQueueMode()) {
         ensureShuffleQueue();
-        const next = shuffleQueue.shift();
-        const album = next ? albums[next.albumIndex] : null;
-        const track = album?.tracks?.[next.trackIndex];
-        if (!next || !track) return;
+        const provider = getCatalogProvider();
+        const nextTrackId = shuffleQueue.shift();
+        const location = nextTrackId ? provider?.trackLocationById?.[nextTrackId] : null;
+        const album = location ? albums[location.albumIndex] : null;
+        const track = album?.tracks?.[location.trackIndex];
+        if (!location || !track) return;
         selectTrack(
           track.src,
           track.title,
-          next.trackIndex,
+          location.trackIndex,
           false,
           null,
-          next.albumIndex
+          location.albumIndex
         );
       } else {
         const next = resolveAlbumContinuationTrack(direction);

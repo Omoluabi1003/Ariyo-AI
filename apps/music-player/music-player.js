@@ -76,75 +76,35 @@
     return;
   }
 
-  const albumTrackMap = new Map();
+  const trackCatalogApi = window.AriyoTrackCatalog || {};
+  const trackCatalogProvider = (trackCatalogApi.getProvider && trackCatalogApi.getProvider())
+    || (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
+  if (trackCatalogProvider && trackCatalogApi.setProvider) {
+    trackCatalogApi.setProvider(trackCatalogProvider);
+  }
+  const trackCatalog = trackCatalogProvider?.trackCatalog || [];
+  const trackById = trackCatalogProvider?.trackById || {};
+  const tracksByAlbumId = trackCatalogProvider?.tracksByAlbumId || {};
+  const albumIdByIndex = trackCatalogProvider?.albumIdByIndex || [];
   const trackDurationLabels = new Map();
-  const allTracks = [];
   const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
 
-  albums.forEach((album, albumIndex) => {
-    if (!album || !Array.isArray(album.tracks)) {
-      return;
-    }
-
-    const artist = album.artist || 'Omoluabi';
-    const releaseYear = typeof album.releaseYear !== 'undefined' ? album.releaseYear : null;
-    const cover = album.cover || album.coverImage || fallbackCover;
-    const albumName = album.name || album.title || `Album ${albumIndex + 1}`;
-    const collectedTracks = [];
-
-    album.tracks.forEach((track, trackIndex) => {
-      if (!track) {
-        return;
-      }
-
-      const trackSrc = track.src || track.url;
-      if (!trackSrc) {
-        return;
-      }
-
-      const title = track.title || `Track ${trackIndex + 1}`;
-      const trackData = {
-        title,
-        src: trackSrc,
-        cover,
-        album: albumName,
-        artist: deriveTrackArtist(track.artist || artist, title),
-        releaseYear: typeof track.releaseYear !== 'undefined' ? track.releaseYear : releaseYear,
-        albumIndex,
-        albumTrackIndex: trackIndex,
-        isLive: Boolean(track.isLive || track.sourceType === 'stream'),
-        sourceType: track.sourceType || (track.isLive ? 'stream' : 'file'),
-        duration: typeof track.duration === 'number' ? track.duration : null,
-      };
-
-      allTracks.push(trackData);
-      collectedTracks.push(trackData);
-    });
-
-    if (collectedTracks.length) {
-      albumTrackMap.set(albumIndex, collectedTracks);
-    }
-  });
-
-  allTracks.forEach((track, index) => {
-    track.globalIndex = index;
-  });
-
-  if (!allTracks.length) {
+  if (!trackCatalog.length) {
     statusMessage.textContent = 'No playable tracks were found.';
     return;
   }
 
-  const isLiveStreamTrack = track => Boolean(track && (track.isLive || track.sourceType === 'stream'));
+  const isLiveStreamTrack = track => Boolean(track && Array.isArray(track.tags) && track.tags.includes('live'));
 
-  let playbackOrder = allTracks.map((_, index) => index);
+  let playbackOrder = trackCatalog.map(track => track.id);
   const baseOrder = [...playbackOrder];
   let currentOrderIndex = 0;
   let isShuffleEnabled = false;
+  let shuffleSeed = null;
   let userSeeking = false;
   let isLoading = false;
-  let currentTrack = allTracks[playbackOrder[currentOrderIndex]];
-  let currentDuration = currentTrack && currentTrack.duration ? currentTrack.duration : 0;
+  let currentTrack = trackById[playbackOrder[currentOrderIndex]];
+  let currentDuration = currentTrack && currentTrack.durationSec ? currentTrack.durationSec : 0;
   let currentSourceId = null;
   let progressFrame = null;
   let pendingSeekValue = 0;
@@ -706,8 +666,9 @@
       return;
     }
     const nextIndex = (currentOrderIndex + 1) % playbackOrder.length;
-    const nextTrack = allTracks[playbackOrder[nextIndex]];
-    nextTrackInfo.textContent = `Next: ${nextTrack.title}`;
+    const nextTrackId = playbackOrder[nextIndex];
+    const nextTrack = trackById[nextTrackId];
+    nextTrackInfo.textContent = nextTrack ? `Next: ${nextTrack.title}` : '';
   };
 
   const updatePlaylistHighlight = () => {
@@ -736,11 +697,13 @@
   const updateTrackMetadata = track => {
     const isLive = isLiveStreamTrack(track);
     trackInfo.textContent = track.title;
-    trackArtist.textContent = `Artist: ${track.artist}`;
-    trackAlbum.textContent = `Album: ${track.album}`;
-    trackYear.textContent = `Release Year: ${track.releaseYear || 'Unknown'}`;
+    trackArtist.textContent = `Artist: ${track.artist || 'Omoluabi'}`;
+    trackAlbum.textContent = `Album: ${track.albumTitle || 'Unknown'}`;
+    const albumIndex = trackCatalogProvider?.albumIndexById?.[track.albumId];
+    const album = Number.isFinite(albumIndex) ? albums[albumIndex] : null;
+    trackYear.textContent = `Release Year: ${album?.releaseYear || 'Unknown'}`;
     if (nowPlayingThumb) {
-      nowPlayingThumb.src = track.cover || '../../Logo.jpg';
+      nowPlayingThumb.src = track.coverUrl || album?.cover || fallbackCover;
       nowPlayingThumb.alt = `Album cover for ${track.title}`;
     }
     progressBarFill.style.width = '0%';
@@ -828,11 +791,12 @@
   const renderPlaylist = () => {
     playlistElement.innerHTML = '';
     const orderLookup = new Map();
-    playbackOrder.forEach((trackIndex, orderIndex) => {
-      orderLookup.set(trackIndex, orderIndex);
+    playbackOrder.forEach((trackId, orderIndex) => {
+      orderLookup.set(trackId, orderIndex);
     });
 
-    albumTrackMap.forEach((tracks, albumIndex) => {
+    albumIdByIndex.forEach((albumId, albumIndex) => {
+      const tracks = tracksByAlbumId[albumId];
       if (!tracks || !tracks.length) {
         return;
       }
@@ -852,8 +816,8 @@
 
       const thumb = document.createElement('img');
       thumb.className = 'album-thumb';
-      thumb.src = tracks[0].cover || album.cover || '../../Logo.jpg';
-      thumb.alt = `${tracks[0].album} cover art`;
+      thumb.src = tracks[0].coverUrl || album.cover || fallbackCover;
+      thumb.alt = `${tracks[0].albumTitle || album.name || 'Album'} cover art`;
       thumb.loading = 'lazy';
       thumb.decoding = 'async';
       thumb.onerror = () => {
@@ -866,7 +830,7 @@
 
       const name = document.createElement('span');
       name.className = 'album-name';
-      name.textContent = tracks[0].album;
+      name.textContent = tracks[0].albumTitle || album.name || 'Untitled album';
 
       const meta = document.createElement('span');
       meta.className = 'album-meta';
@@ -877,8 +841,8 @@
 
       const durationLabel = document.createElement('span');
       durationLabel.className = 'album-duration';
-      const totalDuration = tracks.every(track => Number.isFinite(track.duration))
-        ? tracks.reduce((sum, track) => sum + track.duration, 0)
+      const totalDuration = tracks.every(track => Number.isFinite(track.durationSec))
+        ? tracks.reduce((sum, track) => sum + track.durationSec, 0)
         : 0;
       if (totalDuration > 0) {
         durationLabel.textContent = ` • ${formatTime(totalDuration)}`;
@@ -904,8 +868,8 @@
       trackList.setAttribute('role', 'list');
       trackList.setAttribute('aria-hidden', 'true');
 
-      tracks.forEach(track => {
-        const orderIndex = orderLookup.get(track.globalIndex);
+      tracks.forEach((track, albumTrackIndex) => {
+        const orderIndex = orderLookup.get(track.id);
         if (typeof orderIndex !== 'number') {
           return;
         }
@@ -914,6 +878,7 @@
         listItem.className = 'album-track';
         listItem.tabIndex = 0;
         listItem.dataset.orderIndex = orderIndex;
+        listItem.dataset.trackId = track.id;
 
         const title = document.createElement('span');
         title.className = 'album-track-title';
@@ -923,7 +888,7 @@
         trackMeta.className = 'album-track-meta';
         const trackLabel = isLiveStreamTrack(track)
           ? 'Live • Afrobeats'
-          : `Track ${track.albumTrackIndex + 1}`;
+          : `Track ${Number.isFinite(track.trackNumber) ? track.trackNumber : albumTrackIndex + 1}`;
         trackMeta.textContent = `${track.artist} • ${trackLabel}`;
 
         const trackDurationLabel = document.createElement('span');
@@ -932,11 +897,11 @@
 
         if (isLiveStreamTrack(track)) {
           trackDurationLabel.textContent = 'Live stream';
-        } else if (Number.isFinite(track.duration)) {
-          trackDurationLabel.textContent = formatTime(track.duration);
+        } else if (Number.isFinite(track.durationSec)) {
+          trackDurationLabel.textContent = formatTime(track.durationSec);
         } else {
           trackDurationLabel.textContent = '—';
-          trackDurationLabels.set(track.src, trackDurationLabel);
+          trackDurationLabels.set(track.audioUrl, trackDurationLabel);
         }
 
         listItem.appendChild(title);
@@ -995,12 +960,14 @@
   };
 
   const shufflePlaybackOrder = () => {
-    const shuffled = [...playbackOrder];
-    for (let i = shuffled.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    if (trackCatalogProvider && typeof trackCatalogProvider.buildQueue === 'function') {
+      const seed = shuffleSeed || Date.now();
+      shuffleSeed = seed;
+      const shuffled = trackCatalogProvider.buildQueue('ALL_TRACKS', { seed });
+      updatePlaybackOrder(shuffled);
+      return;
     }
-    updatePlaybackOrder(shuffled);
+    updatePlaybackOrder([...playbackOrder]);
   };
 
   const handleLoadError = message => {
@@ -1025,13 +992,13 @@
   });
 
   const loadTrack = async (orderIndex, { autoplay = false } = {}) => {
-    const trackIndex = playbackOrder[orderIndex];
-    const track = allTracks[trackIndex];
+    const trackId = playbackOrder[orderIndex];
+    const track = trackById[trackId];
     if (!track) return;
 
     currentOrderIndex = orderIndex;
     currentTrack = track;
-    currentDuration = track.duration || 0;
+    currentDuration = track.durationSec || 0;
     updateTrackMetadata(track);
 
     const sourceRequest = ++sourceRequestId;
@@ -1042,19 +1009,19 @@
     showLoading(isLiveStreamTrack(track) ? 'Connecting to live stream…' : 'Loading track…');
 
     try {
-      const resolvedSrc = await resolveWithTimeout(resolveSunoAudioSrc(track.src), SOURCE_RESOLVE_TIMEOUT_MS);
+      const resolvedSrc = await resolveWithTimeout(resolveSunoAudioSrc(track.audioUrl), SOURCE_RESOLVE_TIMEOUT_MS);
       if (sourceRequest !== sourceRequestId) return;
 
-      currentSourceId = track.src;
+      currentSourceId = track.audioUrl;
       if (isLiveStreamTrack(track)) {
-        audioEngine.loadStream({ id: track.globalIndex, url: resolvedSrc, title: track.title, region: track.album });
+        audioEngine.loadStream({ id: track.id, url: resolvedSrc, title: track.title, region: track.albumTitle });
       } else {
         audioEngine.loadTrack({
-          id: track.globalIndex,
+          id: track.id,
           url: resolvedSrc,
           title: track.title,
           artist: track.artist,
-          artwork: track.cover,
+          artwork: track.coverUrl,
         });
       }
 
@@ -1068,7 +1035,7 @@
   };
 
   const ensureTrackLoaded = async ({ autoplay = false } = {}) => {
-    if (currentTrack && currentSourceId === currentTrack.src) {
+    if (currentTrack && currentSourceId === currentTrack.audioUrl) {
       if (autoplay) {
         audioEngine.play();
       }
@@ -1124,9 +1091,11 @@
     shuffleButton.setAttribute('aria-pressed', String(isShuffleEnabled));
     if (isShuffleEnabled) {
       setStatus('Shuffle enabled.');
+      shuffleSeed = Date.now();
       shufflePlaybackOrder();
     } else {
       setStatus('Shuffle disabled.');
+      shuffleSeed = null;
       updatePlaybackOrder(baseOrder);
     }
   };
@@ -1203,7 +1172,10 @@
   prevButton.addEventListener('click', playPreviousTrack);
   nextButton.addEventListener('click', () => playNextTrack(false));
   shuffleButton.addEventListener('click', toggleShuffle);
-  refreshButton.addEventListener('click', shufflePlaybackOrder);
+  refreshButton.addEventListener('click', () => {
+    shuffleSeed = Date.now();
+    shufflePlaybackOrder();
+  });
 
   volumeControl.addEventListener('input', event => {
     const value = Number(event.target.value);
@@ -1282,9 +1254,9 @@
     if (Number.isFinite(duration) && duration > 0) {
       currentDuration = duration;
       updateProgressDisplay(audioEngine.seek(), currentDuration);
-      if (currentTrack && trackDurationLabels.has(currentTrack.src)) {
-        trackDurationLabels.get(currentTrack.src).textContent = formatTime(duration);
-        trackDurationLabels.delete(currentTrack.src);
+      if (currentTrack && trackDurationLabels.has(currentTrack.audioUrl)) {
+        trackDurationLabels.get(currentTrack.audioUrl).textContent = formatTime(duration);
+        trackDurationLabels.delete(currentTrack.audioUrl);
       }
     }
   });

@@ -279,13 +279,16 @@
     const searchCombobox = document.getElementById('searchCombobox');
     const searchUtils = window.AriyoSearchUtils || {};
     const normalizeSearchText = searchUtils.normalizeText || ((value) => String(value || '').toLowerCase().trim());
+    const trackCatalogApi = window.AriyoTrackCatalog || {};
+    let trackCatalogProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
     const SEARCH_TRACK_LIMIT = 7;
     const SEARCH_STATION_LIMIT = 3;
     const SEARCH_MAX_RESULTS = 10;
 
     const searchIndex = {
       tracks: [],
-      stations: []
+      stations: [],
+      tracksById: new Map()
     };
 
     const searchState = {
@@ -376,9 +379,17 @@
         return;
       }
       if (result.type === 'track') {
-        currentAlbumIndex = result.albumIndex;
-        const track = albums[result.albumIndex].tracks[result.trackIndex];
-        selectTrack(track.src, track.title, result.trackIndex);
+        const provider = trackCatalogProvider || (trackCatalogApi.getProvider && trackCatalogApi.getProvider());
+        const location = provider?.trackLocationById?.[result.trackId];
+        if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
+          currentAlbumIndex = location.albumIndex;
+          const track = albums[location.albumIndex].tracks[location.trackIndex];
+          selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
+          return;
+        }
+        if (result.src) {
+          selectTrack(result.src, result.title, result.trackIndex || 0);
+        }
       } else if (result.type === 'radio') {
         const station = radioStations[result.index];
         const stationDetail = station.location || station.region || station.country || '';
@@ -390,41 +401,64 @@
     const resetSearchIndex = () => {
       searchIndex.tracks.length = 0;
       searchIndex.stations.length = 0;
+      searchIndex.tracksById.clear();
     };
 
     const buildSearchIndex = () => {
       resetSearchIndex();
 
       if (Array.isArray(albums)) {
-        albums.forEach((album, albumIndex) => {
-          if (!Array.isArray(album.tracks)) {
-            return;
+        const provider = trackCatalogProvider
+          || (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
+        if (provider) {
+          trackCatalogProvider = provider;
+          if (trackCatalogApi.setProvider) {
+            trackCatalogApi.setProvider(provider);
           }
-
-          album.tracks.forEach((track, trackIndex) => {
-            const title = track.title || track.name || `Track ${trackIndex + 1}`;
-            const artist = track.artist || album.artist || '';
-            const albumName = album.name || '';
-            const secondary = [artist, albumName].filter(Boolean).join(' • ');
-            const searchText = normalizeSearchText([
-              title,
-              artist,
-              albumName,
-              track.subtitle,
-              track.rssSource
-            ].filter(Boolean).join(' '));
-
-            searchIndex.tracks.push({
-              id: track.id || `${albumIndex}-${trackIndex}`,
+          provider.trackCatalog.forEach((track) => {
+            const secondary = [track.artist, track.albumTitle].filter(Boolean).join(' • ');
+            const entry = {
+              id: track.id,
               type: 'track',
-              title,
+              trackId: track.id,
+              title: track.title,
               secondary,
-              albumIndex,
-              trackIndex,
-              searchText
+              src: track.audioUrl
+            };
+            searchIndex.tracks.push(entry);
+            searchIndex.tracksById.set(track.id, entry);
+          });
+        } else {
+          albums.forEach((album, albumIndex) => {
+            if (!Array.isArray(album.tracks)) {
+              return;
+            }
+
+            album.tracks.forEach((track, trackIndex) => {
+              const title = track.title || track.name || `Track ${trackIndex + 1}`;
+              const artist = track.artist || album.artist || '';
+              const albumName = album.name || '';
+              const secondary = [artist, albumName].filter(Boolean).join(' • ');
+              const searchText = normalizeSearchText([
+                title,
+                artist,
+                albumName,
+                track.subtitle,
+                track.rssSource
+              ].filter(Boolean).join(' '));
+
+              searchIndex.tracks.push({
+                id: track.id || `${albumIndex}-${trackIndex}`,
+                type: 'track',
+                title,
+                secondary,
+                albumIndex,
+                trackIndex,
+                searchText
+              });
             });
           });
-        });
+        }
       }
 
       if (Array.isArray(radioStations)) {
@@ -457,7 +491,10 @@
         return [];
       }
 
-      const trackMatches = searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
+      const provider = trackCatalogProvider || (trackCatalogApi.getProvider && trackCatalogApi.getProvider());
+      const trackMatches = provider
+        ? provider.searchTracks(normalizedQuery).map(track => searchIndex.tracksById.get(track.id)).filter(Boolean)
+        : searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
       const stationMatches = searchIndex.stations.filter(item => item.searchText.includes(normalizedQuery));
 
       const tracks = trackMatches.slice(0, SEARCH_TRACK_LIMIT);
