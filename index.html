@@ -586,7 +586,8 @@
               };
 
               speakerContainer.addEventListener('click', () => {
-                  if (!audio.src) {
+                  const hasSource = Boolean(audio.currentSrc || audio.getAttribute('src'));
+                  if (!hasSource) {
                       loadTrack(currentTrackIndex, true);
                       return;
                   }
