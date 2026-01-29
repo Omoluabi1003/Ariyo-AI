@@ -281,6 +281,8 @@
     const normalizeSearchText = searchUtils.normalizeText || ((value) => String(value || '').toLowerCase().trim());
     const trackCatalogApi = window.AriyoTrackCatalog || {};
     let trackCatalogProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+    let searchIndexRebuildTimer = null;
+    let lastCatalogTrackCount = 0;
     const SEARCH_TRACK_LIMIT = 7;
     const SEARCH_STATION_LIMIT = 3;
     const SEARCH_MAX_RESULTS = 10;
@@ -374,12 +376,20 @@
       return `${escapeHtml(text.slice(0, start))}<span class="search-match-highlight">${escapeHtml(text.slice(start, end + 1))}</span>${escapeHtml(text.slice(end + 1))}`;
     };
 
+    const getCurrentTrackCatalogProvider = () => {
+      const latestProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+      if (latestProvider && latestProvider !== trackCatalogProvider) {
+        trackCatalogProvider = latestProvider;
+      }
+      return trackCatalogProvider;
+    };
+
     const handleSearchSelection = (result) => {
       if (!result) {
         return;
       }
       if (result.type === 'track') {
-        const provider = trackCatalogProvider || (trackCatalogApi.getProvider && trackCatalogApi.getProvider());
+        const provider = getCurrentTrackCatalogProvider();
         const location = provider?.trackLocationById?.[result.trackId];
         if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
           currentAlbumIndex = location.albumIndex;
@@ -404,17 +414,35 @@
       searchIndex.tracksById.clear();
     };
 
-    const buildSearchIndex = () => {
-      resetSearchIndex();
-
+    const buildSearchIndex = ({ reason = 'manual', force = false } = {}) => {
+      let provider = null;
       if (Array.isArray(albums)) {
-        const provider = trackCatalogProvider
-          || (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
+        provider = getCurrentTrackCatalogProvider();
+        if (!provider && trackCatalogApi.createProvider) {
+          provider = trackCatalogApi.createProvider(albums);
+        }
         if (provider) {
           trackCatalogProvider = provider;
           if (trackCatalogApi.setProvider) {
             trackCatalogApi.setProvider(provider);
           }
+          const nextTrackCount = Array.isArray(provider.trackCatalog) ? provider.trackCatalog.length : 0;
+          if (!force && lastCatalogTrackCount && nextTrackCount <= lastCatalogTrackCount) {
+            console.log('[search] Skip rebuild (no new tracks yet).', {
+              reason,
+              trackCount: nextTrackCount
+            });
+            return;
+          }
+          lastCatalogTrackCount = nextTrackCount;
+          console.log('[search] Rebuilding index.', { reason, trackCount: nextTrackCount });
+        }
+      }
+
+      resetSearchIndex();
+
+      if (Array.isArray(albums)) {
+        if (provider) {
           provider.trackCatalog.forEach((track) => {
             const secondary = [track.artist, track.albumTitle].filter(Boolean).join(' • ');
             const entry = {
@@ -491,7 +519,7 @@
         return [];
       }
 
-      const provider = trackCatalogProvider || (trackCatalogApi.getProvider && trackCatalogApi.getProvider());
+      const provider = getCurrentTrackCatalogProvider();
       const trackMatches = provider
         ? provider.searchTracks(normalizedQuery).map(track => searchIndex.tracksById.get(track.id)).filter(Boolean)
         : searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
@@ -677,10 +705,31 @@
       closeSearchDropdown({ clearQuery: true });
     };
 
-    buildSearchIndex();
+    const scheduleSearchIndexRebuild = ({ reason, force = false } = {}) => {
+      if (searchIndexRebuildTimer) {
+        window.clearTimeout(searchIndexRebuildTimer);
+      }
+      searchIndexRebuildTimer = window.setTimeout(() => {
+        searchIndexRebuildTimer = null;
+        buildSearchIndex({ reason, force });
+      }, 300);
+    };
 
-    window.addEventListener('ariyo:library-ready', buildSearchIndex);
-    window.addEventListener('ariyo:library-updated', buildSearchIndex);
+    buildSearchIndex({ reason: 'initial' });
+
+    window.addEventListener('ariyo:library-ready', (event) => {
+      const isFullLoad = Boolean(event?.detail?.isFullLoad || event?.detail?.isFullLibrary);
+      if (trackCatalogApi.getProvider) {
+        trackCatalogProvider = trackCatalogApi.getProvider();
+      }
+      scheduleSearchIndexRebuild({ reason: 'library-ready', force: isFullLoad });
+    });
+    window.addEventListener('ariyo:library-updated', () => {
+      if (trackCatalogApi.getProvider) {
+        trackCatalogProvider = trackCatalogApi.getProvider();
+      }
+      scheduleSearchIndexRebuild({ reason: 'library-updated' });
+    });
 
     searchInput.addEventListener('input', (e) => {
       setSearchQuery(e.target.value);
