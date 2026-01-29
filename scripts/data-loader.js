@@ -43,6 +43,7 @@
         window.__ariyoLibraryHydrated = true;
         window.__ariyoLibraryMode = 'full';
         markCache();
+        window.dispatchEvent(new CustomEvent('ariyo:library-ready', { detail: { source: 'full' } }));
         resolve('loaded');
       };
       script.onerror = () => reject(new Error('Failed to load catalog'));
