@@ -308,10 +308,104 @@
       align-self: center;
       backdrop-filter: saturate(140%) blur(var(--glass-blur));
     }
-    .sidebar .search-bar {
+    .sidebar .search-panel {
       flex: 1 1 320px;
       max-width: min(480px, 100%);
       margin-bottom: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      position: relative;
+    }
+    .search-field {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 2.6rem 0.75rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .search-input:focus {
+      border-color: rgba(255, 127, 197, 0.75);
+      box-shadow: 0 0 0 2px rgba(255, 127, 197, 0.3);
+    }
+    .search-clear {
+      position: absolute;
+      right: 0.4rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .search-results {
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 10, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 0.35rem;
+      max-height: 320px;
+      overflow-y: auto;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+      z-index: 40;
+    }
+    .search-results-section {
+      padding: 0.35rem 0.4rem 0.2rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .search-result {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.5rem 0.65rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .search-result[data-active='true'] {
+      background: rgba(255, 127, 197, 0.2);
+      color: #fff;
+    }
+    .search-result-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .search-result-subtitle {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.65);
+    }
+    .search-result-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.2rem 0.4rem;
+      border-radius: 999px;
+      white-space: nowrap;
     }
     .sidebar button {
       background: linear-gradient(135deg, var(--theme-color), #333);
@@ -535,7 +629,7 @@
         background: rgba(255, 127, 197, 0.6);
         border-radius: 999px;
       }
-      .sidebar .search-bar {
+      .sidebar .search-panel {
         flex: 0 0 80%;
         min-width: 260px;
       }
@@ -1327,11 +1421,10 @@
         overflow-y: auto;
         scrollbar-width: thin;
       }
-      .sidebar .search-bar {
+      .sidebar .search-panel {
         flex: 0 0 auto;
         width: 100%;
         max-width: none;
-        font-size: 0.95rem;
       }
       .sidebar button {
         flex: 0 0 auto;
@@ -1469,14 +1562,12 @@
 
   <div class="container">
     <div class="sidebar" id="sidebarNavigation">
-      <div class="search-combobox" id="searchCombobox">
-        <div class="search-input-wrapper">
-          <input type="text" id="searchInput" class="search-bar" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations" role="combobox" aria-expanded="false" aria-controls="searchDropdown" aria-autocomplete="list">
-          <button type="button" id="searchClearButton" class="search-clear-button" aria-label="Clear search" hidden>
-            <span aria-hidden="true">×</span>
-          </button>
+      <div class="search-panel" id="searchPanel">
+        <div class="search-field">
+          <input type="search" id="searchInput" class="search-input" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list">
+          <button type="button" id="searchClear" class="search-clear" aria-label="Clear search" hidden>×</button>
         </div>
-        <div id="searchDropdown" class="search-dropdown" role="listbox" aria-label="Search results" hidden></div>
+        <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
       </div>
       <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave"><i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album</button>
       <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave"><i class="fas fa-music" aria-hidden="true"></i> Choose A Track</button>

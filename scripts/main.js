@@ -272,485 +272,398 @@
         .replace(/(^-|-$)+/g, '');
     }
 
-    /* SEARCH BAR AUTO-COMPLETE */
+    /* SEARCH BAR */
     const searchInput = document.getElementById('searchInput');
-    const searchDropdown = document.getElementById('searchDropdown');
-    const searchClearButton = document.getElementById('searchClearButton');
-    const searchCombobox = document.getElementById('searchCombobox');
-    const searchUtils = window.AriyoSearchUtils || {};
-    const normalizeSearchText = searchUtils.normalizeText || ((value) => String(value || '').toLowerCase().trim());
-    const trackCatalogApi = window.AriyoTrackCatalog || {};
-    let trackCatalogProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
-    let searchIndexRebuildTimeout = null;
-    let lastCatalogCount = 0;
-    const SEARCH_TRACK_LIMIT = 7;
-    const SEARCH_STATION_LIMIT = 3;
-    const SEARCH_MAX_RESULTS = 10;
+    const searchResults = document.getElementById('searchResults');
+    const searchClear = document.getElementById('searchClear');
+    const searchPanel = document.getElementById('searchPanel');
 
-    const searchIndex = {
-      tracks: [],
-      stations: [],
-      tracksById: new Map()
-    };
+    if (searchInput && searchResults && searchClear && searchPanel) {
+      const searchUtils = window.AriyoSearchUtils || {};
+      const normalizeSearchText = searchUtils.normalizeText || ((value) => String(value || '').toLowerCase().trim());
+      const trackCatalogApi = window.AriyoTrackCatalog || {};
+      let trackCatalogProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+      let searchIndexRebuildTimeout = null;
+      let lastCatalogCount = 0;
+      const SEARCH_TRACK_LIMIT = 7;
+      const SEARCH_STATION_LIMIT = 3;
+      const SEARCH_MAX_RESULTS = 10;
 
-    const searchState = {
-      query: '',
-      normalizedQuery: '',
-      results: [],
-      activeIndex: -1
-    };
-
-    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      '\'': '&#39;'
-    }[char]));
-
-    const normalizeForMatchMap = (value) => {
-      const normalizedChars = [];
-      const map = [];
-      let lastWasSpace = true;
-
-      for (let i = 0; i < value.length; i += 1) {
-        const raw = value[i];
-        let processed = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-        if (!processed) {
-          continue;
-        }
-
-        processed = processed.toLowerCase();
-        const isWord = /[\p{L}\p{N}]/u.test(processed);
-
-        if (!isWord) {
-          if (!lastWasSpace && normalizedChars.length) {
-            normalizedChars.push(' ');
-            map.push(i);
-            lastWasSpace = true;
-          }
-          continue;
-        }
-
-        for (const char of processed) {
-          if (!/[\p{L}\p{N}]/u.test(char)) {
-            if (!lastWasSpace && normalizedChars.length) {
-              normalizedChars.push(' ');
-              map.push(i);
-              lastWasSpace = true;
-            }
-            continue;
-          }
-          normalizedChars.push(char);
-          map.push(i);
-          lastWasSpace = false;
-        }
-      }
-
-      if (normalizedChars[normalizedChars.length - 1] === ' ') {
-        normalizedChars.pop();
-        map.pop();
-      }
-
-      return {
-        normalized: normalizedChars.join(''),
-        map
+      const searchIndex = {
+        tracks: [],
+        stations: []
       };
-    };
 
-    const highlightMatch = (text, normalizedQuery) => {
-      if (!normalizedQuery) {
-        return escapeHtml(text);
-      }
-      const { normalized, map } = normalizeForMatchMap(text);
-      const matchIndex = normalized.indexOf(normalizedQuery);
-      if (matchIndex === -1) {
-        return escapeHtml(text);
-      }
-      const start = map[matchIndex];
-      const end = map[matchIndex + normalizedQuery.length - 1];
-      if (start == null || end == null) {
-        return escapeHtml(text);
-      }
-      return `${escapeHtml(text.slice(0, start))}<span class="search-match-highlight">${escapeHtml(text.slice(start, end + 1))}</span>${escapeHtml(text.slice(end + 1))}`;
-    };
+      const searchState = {
+        query: '',
+        normalizedQuery: '',
+        results: [],
+        activeIndex: -1
+      };
 
-    const handleSearchSelection = (result) => {
-      if (!result) {
-        return;
-      }
-      if (result.type === 'track') {
-        const provider = trackCatalogProvider || (trackCatalogApi.getProvider && trackCatalogApi.getProvider());
-        const location = provider?.trackLocationById?.[result.trackId];
-        if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
-          currentAlbumIndex = location.albumIndex;
-          const track = albums[location.albumIndex].tracks[location.trackIndex];
-          selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
-          return;
-        }
-        if (result.src) {
-          selectTrack(result.src, result.title, result.trackIndex || 0);
-        }
-      } else if (result.type === 'radio') {
-        const station = radioStations[result.index];
-        const stationDetail = station.location || station.region || station.country || '';
-        const stationTitle = stationDetail ? `${station.name} - ${stationDetail}` : station.name;
-        selectRadio(station.url, stationTitle, result.index, station.logo);
-      }
-    };
+      const resetSearchIndex = () => {
+        searchIndex.tracks.length = 0;
+        searchIndex.stations.length = 0;
+      };
 
-    const resetSearchIndex = () => {
-      searchIndex.tracks.length = 0;
-      searchIndex.stations.length = 0;
-      searchIndex.tracksById.clear();
-    };
+      const buildTrackEntry = (track, { albumIndex, trackIndex, albumTitle } = {}) => {
+        const title = track.title || track.name || 'Untitled track';
+        const artist = track.artist || '';
+        const secondary = [artist, albumTitle].filter(Boolean).join(' • ');
+        const searchText = normalizeSearchText([
+          title,
+          artist,
+          albumTitle,
+          Array.isArray(track.tags) ? track.tags.join(' ') : '',
+          track.subtitle
+        ].filter(Boolean).join(' '));
 
-    const buildSearchIndex = ({ reason = 'init' } = {}) => {
-      resetSearchIndex();
+        return {
+          id: track.id || `${albumIndex || 0}-${trackIndex || 0}`,
+          type: 'track',
+          trackId: track.id,
+          title,
+          secondary,
+          albumIndex,
+          trackIndex,
+          src: track.audioUrl || track.src || track.url,
+          searchText
+        };
+      };
 
-      if (Array.isArray(albums)) {
-        const provider = (trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null)
-          || trackCatalogProvider
-          || (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
-        if (provider) {
-          trackCatalogProvider = provider;
-          if (trackCatalogApi.setProvider) {
-            trackCatalogApi.setProvider(provider);
-          }
-          provider.trackCatalog.forEach((track) => {
-            const secondary = [track.artist, track.albumTitle].filter(Boolean).join(' • ');
-            const entry = {
-              id: track.id,
-              type: 'track',
-              trackId: track.id,
-              title: track.title,
-              secondary,
-              src: track.audioUrl
-            };
-            searchIndex.tracks.push(entry);
-            searchIndex.tracksById.set(track.id, entry);
-          });
-          lastCatalogCount = provider.trackCatalog.length;
-        } else {
-          albums.forEach((album, albumIndex) => {
-            if (!Array.isArray(album.tracks)) {
-              return;
+      const buildSearchIndex = ({ reason = 'init' } = {}) => {
+        resetSearchIndex();
+
+        if (Array.isArray(albums)) {
+          const provider = (trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null)
+            || trackCatalogProvider
+            || (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
+          if (provider) {
+            trackCatalogProvider = provider;
+            if (trackCatalogApi.setProvider) {
+              trackCatalogApi.setProvider(provider);
             }
-
-            album.tracks.forEach((track, trackIndex) => {
-              const title = track.title || track.name || `Track ${trackIndex + 1}`;
-              const artist = track.artist || album.artist || '';
-              const albumName = album.name || '';
-              const secondary = [artist, albumName].filter(Boolean).join(' • ');
-              const searchText = normalizeSearchText([
-                title,
-                artist,
-                albumName,
-                track.subtitle,
-                track.rssSource
-              ].filter(Boolean).join(' '));
-
-              searchIndex.tracks.push({
-                id: track.id || `${albumIndex}-${trackIndex}`,
-                type: 'track',
-                title,
-                secondary,
-                albumIndex,
-                trackIndex,
-                searchText
+            provider.trackCatalog.forEach((track) => {
+              const entry = buildTrackEntry(track, { albumTitle: track.albumTitle });
+              searchIndex.tracks.push(entry);
+            });
+            lastCatalogCount = provider.trackCatalog.length;
+          } else {
+            albums.forEach((album, albumIndex) => {
+              if (!Array.isArray(album.tracks)) {
+                return;
+              }
+              const albumTitle = album.name || album.title || '';
+              album.tracks.forEach((track, trackIndex) => {
+                searchIndex.tracks.push(buildTrackEntry(track, { albumIndex, trackIndex, albumTitle }));
               });
             });
-          });
-          lastCatalogCount = searchIndex.tracks.length;
-        }
-      }
-
-      if (Array.isArray(radioStations)) {
-        radioStations.forEach((station, index) => {
-          const name = station.name || `Station ${index + 1}`;
-          const secondary = station.region || station.country || station.location || '';
-          const searchText = normalizeSearchText([
-            name,
-            station.location,
-            station.region,
-            station.country
-          ].filter(Boolean).join(' '));
-
-          searchIndex.stations.push({
-            id: station.id || `${index}-${name}`,
-            type: 'radio',
-            name,
-            secondary,
-            index,
-            searchText
-          });
-        });
-      }
-
-      updateSearchResults();
-      console.log('[search] index rebuilt', { reason, tracks: searchIndex.tracks.length });
-    };
-
-    const getSearchResults = (normalizedQuery) => {
-      if (!normalizedQuery) {
-        return [];
-      }
-
-      const provider = (trackCatalogApi.getProvider && trackCatalogApi.getProvider())
-        || trackCatalogProvider;
-      const trackMatches = provider
-        ? provider.searchTracks(normalizedQuery).map(track => searchIndex.tracksById.get(track.id)).filter(Boolean)
-        : searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
-      const stationMatches = searchIndex.stations.filter(item => item.searchText.includes(normalizedQuery));
-
-      const tracks = trackMatches.slice(0, SEARCH_TRACK_LIMIT);
-      const stations = stationMatches.slice(0, SEARCH_STATION_LIMIT);
-
-      return [...tracks, ...stations].slice(0, SEARCH_MAX_RESULTS);
-    };
-
-    const renderSearchDropdown = () => {
-      if (!searchDropdown) {
-        return;
-      }
-
-      searchDropdown.innerHTML = '';
-
-      if (!searchState.normalizedQuery) {
-        searchDropdown.hidden = true;
-        searchInput.setAttribute('aria-expanded', 'false');
-        searchInput.removeAttribute('aria-activedescendant');
-        return;
-      }
-
-      const trackResults = searchState.results.filter(result => result.type === 'track');
-      const stationResults = searchState.results.filter(result => result.type === 'radio');
-      const fragment = document.createDocumentFragment();
-      let optionIndex = 0;
-
-      const appendSection = (label, items) => {
-        if (!items.length) {
-          return;
-        }
-        const section = document.createElement('div');
-        section.className = 'search-dropdown-section';
-
-        const heading = document.createElement('div');
-        heading.className = 'search-dropdown-heading';
-        heading.textContent = label;
-        section.appendChild(heading);
-
-        items.forEach((item) => {
-          const option = document.createElement('div');
-          option.className = 'search-dropdown-option';
-          option.setAttribute('role', 'option');
-          option.dataset.index = String(optionIndex);
-          option.id = `search-option-${optionIndex}`;
-
-          const textWrapper = document.createElement('div');
-          textWrapper.className = 'search-option-text';
-
-          const primary = document.createElement('div');
-          primary.className = 'search-option-primary';
-          const primaryText = item.type === 'track' ? item.title : item.name;
-          primary.innerHTML = highlightMatch(primaryText, searchState.normalizedQuery);
-
-          textWrapper.appendChild(primary);
-
-          if (item.secondary) {
-            const secondary = document.createElement('div');
-            secondary.className = 'search-option-secondary';
-            secondary.textContent = item.secondary;
-            textWrapper.appendChild(secondary);
+            lastCatalogCount = searchIndex.tracks.length;
           }
+        }
 
-          const badge = document.createElement('span');
-          badge.className = 'search-option-badge';
-          badge.textContent = item.type === 'track' ? 'TRACK' : 'STATION';
+        if (Array.isArray(radioStations)) {
+          radioStations.forEach((station, index) => {
+            const name = station.name || `Station ${index + 1}`;
+            const secondary = station.region || station.country || station.location || '';
+            const searchText = normalizeSearchText([
+              name,
+              station.location,
+              station.region,
+              station.country
+            ].filter(Boolean).join(' '));
 
-          option.appendChild(textWrapper);
-          option.appendChild(badge);
-
-          option.addEventListener('click', () => {
-            selectSearchResult(optionIndex);
+            searchIndex.stations.push({
+              id: station.id || `${index}-${name}`,
+              type: 'radio',
+              name,
+              secondary,
+              index,
+              searchText
+            });
           });
+        }
 
-          section.appendChild(option);
-          optionIndex += 1;
-        });
-
-        fragment.appendChild(section);
+        updateSearchResults();
+        console.log('[search] index rebuilt', { reason, tracks: searchIndex.tracks.length });
       };
 
-      appendSection('Tracks', trackResults);
-      appendSection('Stations', stationResults);
+      const getSearchResults = (normalizedQuery) => {
+        if (!normalizedQuery) {
+          return [];
+        }
 
-      if (!optionIndex) {
-        const empty = document.createElement('div');
-        empty.className = 'search-dropdown-option';
-        empty.textContent = 'No results found.';
-        empty.setAttribute('role', 'option');
-        empty.dataset.index = '-1';
-        fragment.appendChild(empty);
-      }
+        const trackMatches = searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
+        const stationMatches = searchIndex.stations.filter(item => item.searchText.includes(normalizedQuery));
 
-      searchDropdown.appendChild(fragment);
-      searchDropdown.hidden = false;
-      searchInput.setAttribute('aria-expanded', 'true');
+        const tracks = trackMatches.slice(0, SEARCH_TRACK_LIMIT);
+        const stations = stationMatches.slice(0, SEARCH_STATION_LIMIT);
 
-      updateActiveOption();
-    };
+        return [...tracks, ...stations].slice(0, SEARCH_MAX_RESULTS);
+      };
 
-    const updateSearchResults = () => {
-      if (!searchInput) {
-        return;
-      }
+      const updateActiveOption = () => {
+        const options = searchResults.querySelectorAll('.search-result[role="option"]');
+        options.forEach((option) => {
+          const index = Number(option.dataset.index || '-1');
+          const isActive = index === searchState.activeIndex;
+          option.dataset.active = isActive ? 'true' : 'false';
+          option.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
 
-      searchState.normalizedQuery = normalizeSearchText(searchState.query);
-      searchState.results = getSearchResults(searchState.normalizedQuery);
-      searchState.activeIndex = -1;
+        if (searchState.activeIndex >= 0) {
+          searchInput.setAttribute('aria-activedescendant', `search-option-${searchState.activeIndex}`);
+        } else {
+          searchInput.removeAttribute('aria-activedescendant');
+        }
+      };
 
-      renderSearchDropdown();
-      searchClearButton.hidden = !searchState.query;
-    };
+      const renderSearchResults = () => {
+        searchResults.innerHTML = '';
 
-    const setSearchQuery = (value) => {
-      searchState.query = value;
-      searchInput.value = value;
-      updateSearchResults();
-    };
+        if (!searchState.normalizedQuery) {
+          searchResults.hidden = true;
+          searchInput.setAttribute('aria-expanded', 'false');
+          searchInput.removeAttribute('aria-activedescendant');
+          return;
+        }
 
-    const closeSearchDropdown = ({ clearQuery = false } = {}) => {
-      if (clearQuery) {
-        setSearchQuery('');
-      }
-      searchDropdown.hidden = true;
-      searchInput.setAttribute('aria-expanded', 'false');
-      searchInput.removeAttribute('aria-activedescendant');
-      searchState.activeIndex = -1;
-    };
+        const trackResults = searchState.results.filter(result => result.type === 'track');
+        const stationResults = searchState.results.filter(result => result.type === 'radio');
+        const fragment = document.createDocumentFragment();
+        let optionIndex = 0;
 
-    const updateActiveOption = () => {
-      const options = searchDropdown.querySelectorAll('.search-dropdown-option[role="option"]');
-      options.forEach((option) => {
-        const index = Number(option.dataset.index || '-1');
-        const isActive = index === searchState.activeIndex;
-        option.dataset.active = isActive ? 'true' : 'false';
-        option.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        const appendSection = (label, items) => {
+          if (!items.length) {
+            return;
+          }
+          const sectionLabel = document.createElement('div');
+          sectionLabel.className = 'search-results-section';
+          sectionLabel.textContent = label;
+          fragment.appendChild(sectionLabel);
+
+          items.forEach((item) => {
+            const option = document.createElement('div');
+            option.className = 'search-result';
+            option.setAttribute('role', 'option');
+            option.dataset.index = String(optionIndex);
+            option.id = `search-option-${optionIndex}`;
+
+            const textWrapper = document.createElement('div');
+            textWrapper.className = 'search-result-text';
+
+            const title = document.createElement('div');
+            title.className = 'search-result-title';
+            title.textContent = item.type === 'track' ? item.title : item.name;
+            textWrapper.appendChild(title);
+
+            if (item.secondary) {
+              const subtitle = document.createElement('div');
+              subtitle.className = 'search-result-subtitle';
+              subtitle.textContent = item.secondary;
+              textWrapper.appendChild(subtitle);
+            }
+
+            const badge = document.createElement('span');
+            badge.className = 'search-result-badge';
+            badge.textContent = item.type === 'track' ? 'Track' : 'Station';
+
+            option.appendChild(textWrapper);
+            option.appendChild(badge);
+
+            option.addEventListener('click', () => {
+              selectSearchResult(optionIndex);
+            });
+
+            fragment.appendChild(option);
+            optionIndex += 1;
+          });
+        };
+
+        appendSection('Tracks', trackResults);
+        appendSection('Stations', stationResults);
+
+        if (!optionIndex) {
+          const empty = document.createElement('div');
+          empty.className = 'search-result';
+          empty.textContent = 'No results found.';
+          empty.setAttribute('role', 'option');
+          empty.dataset.index = '-1';
+          fragment.appendChild(empty);
+        }
+
+        searchResults.appendChild(fragment);
+        searchResults.hidden = false;
+        searchInput.setAttribute('aria-expanded', 'true');
+
+        updateActiveOption();
+      };
+
+      const updateSearchResults = () => {
+        searchState.normalizedQuery = normalizeSearchText(searchState.query);
+        searchState.results = getSearchResults(searchState.normalizedQuery);
+        searchState.activeIndex = -1;
+
+        renderSearchResults();
+        searchClear.hidden = !searchState.query;
+      };
+
+      const setSearchQuery = (value) => {
+        searchState.query = value;
+        searchInput.value = value;
+        updateSearchResults();
+      };
+
+      const closeSearchResults = ({ clearQuery = false } = {}) => {
+        if (clearQuery) {
+          setSearchQuery('');
+        }
+        searchResults.hidden = true;
+        searchInput.setAttribute('aria-expanded', 'false');
+        searchInput.removeAttribute('aria-activedescendant');
+        searchState.activeIndex = -1;
+      };
+
+      const handleSearchSelection = (result) => {
+        if (!result) {
+          return;
+        }
+        if (result.type === 'track') {
+          const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : trackCatalogProvider;
+          const location = provider?.trackLocationById?.[result.trackId];
+          if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
+            currentAlbumIndex = location.albumIndex;
+            const track = albums[location.albumIndex].tracks[location.trackIndex];
+            selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
+            return;
+          }
+          if (Number.isInteger(result.albumIndex) && Number.isInteger(result.trackIndex)) {
+            currentAlbumIndex = result.albumIndex;
+            const track = albums[result.albumIndex]?.tracks?.[result.trackIndex];
+            if (track?.src || track?.title) {
+              selectTrack(track.src, track.title || result.title, result.trackIndex, true, null, result.albumIndex);
+              return;
+            }
+          }
+          if (result.src) {
+            selectTrack(result.src, result.title, result.trackIndex || 0);
+          }
+        } else if (result.type === 'radio') {
+          const station = radioStations[result.index];
+          if (!station) {
+            return;
+          }
+          const stationDetail = station.location || station.region || station.country || '';
+          const stationTitle = stationDetail ? `${station.name} - ${stationDetail}` : station.name;
+          selectRadio(station.url, stationTitle, result.index, station.logo);
+        }
+      };
+
+      const selectSearchResult = (index) => {
+        const result = searchState.results[index];
+        if (!result) {
+          return;
+        }
+        handleSearchSelection(result);
+        closeSearchResults({ clearQuery: true });
+      };
+
+      const moveActiveOption = (direction) => {
+        const options = searchResults.querySelectorAll('.search-result[role="option"]');
+        const selectable = Array.from(options).filter(option => Number(option.dataset.index || '-1') >= 0);
+        if (!selectable.length) {
+          return;
+        }
+
+        const maxIndex = selectable.length - 1;
+        if (searchState.activeIndex === -1) {
+          searchState.activeIndex = direction > 0 ? 0 : maxIndex;
+        } else {
+          const nextIndex = searchState.activeIndex + direction;
+          if (nextIndex < 0) {
+            searchState.activeIndex = maxIndex;
+          } else if (nextIndex > maxIndex) {
+            searchState.activeIndex = 0;
+          } else {
+            searchState.activeIndex = nextIndex;
+          }
+        }
+
+        updateActiveOption();
+        const activeElement = document.getElementById(`search-option-${searchState.activeIndex}`);
+        if (activeElement) {
+          activeElement.scrollIntoView({ block: 'nearest' });
+        }
+      };
+
+      buildSearchIndex();
+
+      const scheduleSearchIndexRebuild = (event) => {
+        if (searchIndexRebuildTimeout) {
+          window.clearTimeout(searchIndexRebuildTimeout);
+        }
+        const reason = event?.detail?.source || event?.type || 'catalog-update';
+        searchIndexRebuildTimeout = window.setTimeout(() => {
+          const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+          const providerCount = provider?.trackCatalog?.length || 0;
+          const isFullLoad = event?.detail?.isFullLoad || event?.detail?.source === 'full';
+          if (providerCount && providerCount <= lastCatalogCount && !isFullLoad) {
+            console.log('[search] index rebuild skipped', { reason, providerCount, lastCatalogCount });
+            return;
+          }
+          buildSearchIndex({ reason });
+        }, 300);
+      };
+
+      window.addEventListener('ariyo:library-ready', scheduleSearchIndexRebuild);
+      window.addEventListener('ariyo:library-updated', scheduleSearchIndexRebuild);
+
+      searchInput.addEventListener('input', (e) => {
+        setSearchQuery(e.target.value);
       });
 
-      if (searchState.activeIndex >= 0) {
-        searchInput.setAttribute('aria-activedescendant', `search-option-${searchState.activeIndex}`);
-      } else {
-        searchInput.removeAttribute('aria-activedescendant');
-      }
-    };
-
-    const moveActiveOption = (direction) => {
-      const options = searchDropdown.querySelectorAll('.search-dropdown-option[role="option"]');
-      const selectable = Array.from(options).filter(option => Number(option.dataset.index || '-1') >= 0);
-      if (!selectable.length) {
-        return;
-      }
-
-      const maxIndex = selectable.length - 1;
-      if (searchState.activeIndex === -1) {
-        searchState.activeIndex = direction > 0 ? 0 : maxIndex;
-      } else {
-        const nextIndex = searchState.activeIndex + direction;
-        if (nextIndex < 0) {
-          searchState.activeIndex = maxIndex;
-        } else if (nextIndex > maxIndex) {
-          searchState.activeIndex = 0;
-        } else {
-          searchState.activeIndex = nextIndex;
+      searchInput.addEventListener('focus', () => {
+        if (searchState.normalizedQuery) {
+          renderSearchResults();
         }
-      }
+      });
 
-      updateActiveOption();
-      const activeElement = document.getElementById(`search-option-${searchState.activeIndex}`);
-      if (activeElement) {
-        activeElement.scrollIntoView({ block: 'nearest' });
-      }
-    };
-
-    const selectSearchResult = (index) => {
-      const result = searchState.results[index];
-      if (!result) {
-        return;
-      }
-      handleSearchSelection(result);
-      closeSearchDropdown({ clearQuery: true });
-    };
-
-    buildSearchIndex();
-
-    const scheduleSearchIndexRebuild = (event) => {
-      if (searchIndexRebuildTimeout) {
-        window.clearTimeout(searchIndexRebuildTimeout);
-      }
-      const reason = event?.detail?.source || event?.type || 'catalog-update';
-      searchIndexRebuildTimeout = window.setTimeout(() => {
-        const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
-        const providerCount = provider?.trackCatalog?.length || 0;
-        const isFullLoad = event?.detail?.isFullLoad || event?.detail?.source === 'full';
-        if (providerCount && providerCount <= lastCatalogCount && !isFullLoad) {
-          console.log('[search] index rebuild skipped', { reason, providerCount, lastCatalogCount });
+      searchInput.addEventListener('keydown', (e) => {
+        if (!searchState.normalizedQuery && e.key !== 'Escape') {
           return;
         }
-        buildSearchIndex({ reason });
-      }, 300);
-    };
 
-    window.addEventListener('ariyo:library-ready', scheduleSearchIndexRebuild);
-    window.addEventListener('ariyo:library-updated', scheduleSearchIndexRebuild);
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          moveActiveOption(1);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          moveActiveOption(-1);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (searchState.activeIndex === -1 && searchState.results.length) {
+            selectSearchResult(0);
+            return;
+          }
+          selectSearchResult(searchState.activeIndex);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeSearchResults({ clearQuery: true });
+        }
+      });
 
-    searchInput.addEventListener('input', (e) => {
-      setSearchQuery(e.target.value);
-    });
+      searchClear.addEventListener('click', () => {
+        closeSearchResults({ clearQuery: true });
+        searchInput.focus();
+      });
 
-    searchInput.addEventListener('focus', () => {
-      if (searchState.normalizedQuery) {
-        renderSearchDropdown();
-      }
-    });
-
-    searchInput.addEventListener('keydown', (e) => {
-      if (!searchState.normalizedQuery && e.key !== 'Escape') {
-        return;
-      }
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        moveActiveOption(1);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        moveActiveOption(-1);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (searchState.activeIndex === -1 && searchState.results.length) {
-          selectSearchResult(0);
+      document.addEventListener('mousedown', (event) => {
+        if (searchPanel.contains(event.target)) {
           return;
         }
-        selectSearchResult(searchState.activeIndex);
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        closeSearchDropdown({ clearQuery: true });
-      }
-    });
-
-    searchClearButton.addEventListener('click', () => {
-      closeSearchDropdown({ clearQuery: true });
-      searchInput.focus();
-    });
-
-    document.addEventListener('mousedown', (event) => {
-      if (!searchCombobox || searchCombobox.contains(event.target)) {
-        return;
-      }
-      closeSearchDropdown({ clearQuery: false });
-    });
+        closeSearchResults({ clearQuery: false });
+      });
+    }
 
     /* NAVIGATE TO ABOUT PAGE & HOME */
     let aboutButtonGlobal = null;
