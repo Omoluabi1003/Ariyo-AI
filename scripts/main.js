@@ -656,6 +656,25 @@
         return true;
       };
 
+      const selectSearchTrackFallback = (result) => {
+        if (!result?.src) {
+          return false;
+        }
+        const fallbackLocation = resolveSearchTrackLocation(result);
+        if (fallbackLocation && selectTrackFromLocation(fallbackLocation)) {
+          return true;
+        }
+        const srcLocation = findTrackLocationBySrc(result.src);
+        const titleLocation = srcLocation ? null : findTrackLocationByTitle(result.title);
+        const location = srcLocation || titleLocation;
+        const fallbackAlbumIndex = Number.isInteger(location?.albumIndex) ? location.albumIndex : undefined;
+        const fallbackTrackIndex = Number.isInteger(location?.trackIndex)
+          ? location.trackIndex
+          : (Number.isInteger(result.trackIndex) ? result.trackIndex : 0);
+        selectTrack(result.src, result.title, fallbackTrackIndex, true, null, fallbackAlbumIndex);
+        return true;
+      };
+
       const handleSearchSelection = (result) => {
         if (!result) {
           return;
@@ -676,17 +695,11 @@
                 throw new Error('Track location unavailable after refresh.');
               })
               .catch(() => {
-                if (result.src) {
-                  const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-                  selectTrack(result.src, result.title, fallbackIndex);
-                }
+                selectSearchTrackFallback(result);
               });
             return;
           }
-          if (result.src) {
-            const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-            selectTrack(result.src, result.title, fallbackIndex);
-          }
+          selectSearchTrackFallback(result);
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];
           if (!station) {
