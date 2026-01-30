@@ -71,21 +71,45 @@
       return null;
     }
 
+    function resolveTrackLocationFromPlayback(playback) {
+      if (!playback) return null;
+      if (Number.isInteger(playback.albumIndex) && Number.isInteger(playback.trackIndex)) {
+        return { albumIndex: playback.albumIndex, trackIndex: playback.trackIndex };
+      }
+      const trackCatalogApi = window.AriyoTrackCatalog || {};
+      const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+      if (!provider) return null;
+      if (playback.trackId && provider.trackLocationById?.[playback.trackId]) {
+        return provider.trackLocationById[playback.trackId];
+      }
+      if (playback.src && provider.trackIdByAudioUrl?.[playback.src]) {
+        const trackId = provider.trackIdByAudioUrl[playback.src];
+        if (provider.trackLocationById?.[trackId]) {
+          return provider.trackLocationById[trackId];
+        }
+      }
+      return null;
+    }
+
     function deriveActivePlaybackContext() {
       const livePlayback = typeof captureCurrentSource === 'function' ? captureCurrentSource() : null;
+      const fallbackPlayback = livePlayback || window.AriyoPlaybackContext?.currentSource || null;
       const derivedPlayback = derivePlaybackFromUrl(window.location.href);
-      const playback = livePlayback || derivedPlayback;
+      const playback = fallbackPlayback || derivedPlayback;
 
       if (playback && playback.type === 'track') {
-        const album = albums[playback.albumIndex];
-        const track = album && album.tracks ? album.tracks[playback.trackIndex] : null;
-        if (album && track) {
+        const location = resolveTrackLocationFromPlayback(playback);
+        const album = location ? albums[location.albumIndex] : null;
+        const track = album && album.tracks ? album.tracks[location.trackIndex] : null;
+        const title = track?.title || playback.title;
+        const artist = track?.artist || playback.artist || album?.artist || null;
+        if (title) {
           return {
             type: 'track',
-            title: track.title,
-            artist: track.artist || album.artist,
-            albumSlug: slugify(album.name),
-            trackSlug: slugify(track.title)
+            title,
+            artist,
+            albumSlug: album ? slugify(album.name) : null,
+            trackSlug: track ? slugify(track.title) : null
           };
         }
       }
@@ -183,15 +207,19 @@
         const cardUrl = new URL('share.html', shareTarget.toString());
         cardUrl.searchParams.set('card', 'proverb');
         if (playbackContext && playbackContext.type === 'track') {
-          cardUrl.searchParams.set('album', playbackContext.albumSlug);
-          cardUrl.searchParams.set('track', playbackContext.trackSlug);
+          if (playbackContext.albumSlug && playbackContext.trackSlug) {
+            cardUrl.searchParams.set('album', playbackContext.albumSlug);
+            cardUrl.searchParams.set('track', playbackContext.trackSlug);
+          }
         }
         proverbPayload = formatProverbSharePayload(proverb, cardUrl.toString());
       }
 
       if (playbackContext && playbackContext.type === 'track') {
-        shareTarget.searchParams.set('album', playbackContext.albumSlug);
-        shareTarget.searchParams.set('track', playbackContext.trackSlug);
+        if (playbackContext.albumSlug && playbackContext.trackSlug) {
+          shareTarget.searchParams.set('album', playbackContext.albumSlug);
+          shareTarget.searchParams.set('track', playbackContext.trackSlug);
+        }
         shareInfo = formatMusicSharePayload(
           playbackContext.title,
           playbackContext.artist,
