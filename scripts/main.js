@@ -577,17 +577,43 @@
         return null;
       };
 
+      const selectTrackFromLocation = (location) => {
+        const album = albums?.[location.albumIndex];
+        const track = album?.tracks?.[location.trackIndex];
+        if (!track) {
+          return false;
+        }
+        pendingAlbumIndex = null;
+        selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
+        return true;
+      };
+
       const handleSearchSelection = (result) => {
         if (!result) {
           return;
         }
         if (result.type === 'track') {
           const location = resolveSearchTrackLocation(result);
-          if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
-            currentAlbumIndex = location.albumIndex;
-            const track = albums[location.albumIndex].tracks[location.trackIndex];
-            selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
-            return;
+          if (location) {
+            if (selectTrackFromLocation(location)) {
+              return;
+            }
+            if (typeof window.loadFullLibraryData === 'function') {
+              window.loadFullLibraryData({ reason: 'search-track-select', immediate: true })
+                .then(() => {
+                  const refreshedLocation = resolveSearchTrackLocation(result) || location;
+                  if (!selectTrackFromLocation(refreshedLocation)) {
+                    throw new Error('Track location unavailable after refresh.');
+                  }
+                })
+                .catch(() => {
+                  if (result.src) {
+                    const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
+                    selectTrack(result.src, result.title, fallbackIndex);
+                  }
+                });
+              return;
+            }
           }
           if (result.src) {
             const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
