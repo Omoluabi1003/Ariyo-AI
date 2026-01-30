@@ -678,14 +678,16 @@
               .catch(() => {
                 if (result.src) {
                   const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-                  selectTrack(result.src, result.title, fallbackIndex);
+                  const fallbackAlbumIndex = Number.isInteger(result.albumIndex) ? result.albumIndex : undefined;
+                  selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex);
                 }
               });
             return;
           }
           if (result.src) {
             const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-            selectTrack(result.src, result.title, fallbackIndex);
+            const fallbackAlbumIndex = Number.isInteger(result.albumIndex) ? result.albumIndex : undefined;
+            selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex);
           }
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];
