@@ -656,6 +656,26 @@
         return true;
       };
 
+      const buildSearchFallbackMeta = (result) => {
+        if (!result) {
+          return null;
+        }
+        const meta = {
+          title: result.title,
+          src: result.src
+        };
+        if (result.secondary) {
+          const parts = result.secondary.split(' • ').map(part => part.trim()).filter(Boolean);
+          if (parts.length === 1) {
+            meta.artist = parts[0];
+          } else if (parts.length > 1) {
+            meta.artist = parts[0];
+            meta.album = parts.slice(1).join(' • ');
+          }
+        }
+        return meta;
+      };
+
       const handleSearchSelection = (result) => {
         if (!result) {
           return;
@@ -678,14 +698,18 @@
               .catch(() => {
                 if (result.src) {
                   const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-                  selectTrack(result.src, result.title, fallbackIndex);
+                  const fallbackAlbumIndex = Number.isInteger(result.albumIndex) ? result.albumIndex : undefined;
+                  const fallbackMeta = buildSearchFallbackMeta(result);
+                  selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex, fallbackMeta);
                 }
               });
             return;
           }
           if (result.src) {
             const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-            selectTrack(result.src, result.title, fallbackIndex);
+            const fallbackAlbumIndex = Number.isInteger(result.albumIndex) ? result.albumIndex : undefined;
+            const fallbackMeta = buildSearchFallbackMeta(result);
+            selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex, fallbackMeta);
           }
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];

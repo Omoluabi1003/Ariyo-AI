@@ -3866,6 +3866,47 @@ function applyTrackUiState(albumIndex, trackIndex) {
     return track;
 }
 
+function applyFallbackTrackUiState({ title, artist, album, cover, src } = {}) {
+    const displayTitle = title || 'Unknown track';
+    const displayArtist = artist || 'Unknown';
+    const displayAlbum = album || 'Unknown';
+
+    if (trackInfo) {
+      trackInfo.textContent = displayTitle;
+    }
+    if (trackArtist) {
+      trackArtist.textContent = `Artist: ${displayArtist}`;
+    }
+    if (trackArtistInline) {
+      trackArtistInline.textContent = displayArtist;
+    }
+    if (trackYear) {
+      trackYear.textContent = 'Release Year: Unknown';
+    }
+    if (trackAlbum) {
+      trackAlbum.textContent = `Album: ${displayAlbum}`;
+    }
+
+    updateTrackThumbnail({
+      src: cover,
+      title: displayTitle,
+      artist: displayArtist,
+      album: displayAlbum
+    });
+
+    setPlaybackContext({
+      mode: 'track',
+      source: {
+        type: 'track',
+        title: displayTitle,
+        src
+      }
+    });
+
+    loadLyrics(null);
+    updateMediaSession();
+}
+
 function resolveTrackForDirection(direction) {
     if (currentRadioIndex !== -1) return null;
     if (direction >= 0) {
@@ -4083,7 +4124,7 @@ function confirmPendingRadioSelection(reason, detail = {}) {
 }
 
 
-function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex) {
+function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex, meta = null) {
       debugConsole(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       const previousAlbumIndex = currentAlbumIndex;
       const previousTrackIndex = currentTrackIndex;
@@ -4113,7 +4154,10 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       currentRadioIndex = -1;
       lastKnownFiniteDuration = null;
       const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
-      const safeTrack = track || {};
+      if (!track && meta) {
+        applyFallbackTrackUiState({ ...meta, title: meta.title || title, src });
+      }
+      const safeTrack = track || meta || {};
       const trackMeta = {
         ...safeTrack,
         title: safeTrack.title || title,
