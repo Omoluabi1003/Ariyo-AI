@@ -334,7 +334,7 @@
         searchIndex.stations.length = 0;
       };
 
-      const buildTrackEntry = (track, { albumIndex, trackIndex, albumTitle } = {}) => {
+      const buildTrackEntry = (track, { albumIndex, trackIndex, albumTitle, albumCover } = {}) => {
         const title = track.title || track.name || 'Untitled track';
         const artist = track.artist || '';
         const secondary = [artist, albumTitle].filter(Boolean).join(' • ');
@@ -351,6 +351,9 @@
           type: 'track',
           trackId: track.id,
           title,
+          artist,
+          albumTitle,
+          thumbnail: track.cover || track.coverUrl || track.thumbnail || track.image || track.artwork || albumCover,
           secondary,
           albumIndex,
           trackIndex,
@@ -375,6 +378,7 @@
               const location = provider.trackLocationById?.[track.id] || {};
               const entry = buildTrackEntry(track, {
                 albumTitle: track.albumTitle,
+                albumCover: track.coverUrl,
                 albumIndex: location.albumIndex,
                 trackIndex: location.trackIndex
               });
@@ -387,8 +391,14 @@
                 return;
               }
               const albumTitle = album.name || album.title || '';
+              const albumCover = album.cover || album.coverImage;
               album.tracks.forEach((track, trackIndex) => {
-                searchIndex.tracks.push(buildTrackEntry(track, { albumIndex, trackIndex, albumTitle }));
+                searchIndex.tracks.push(buildTrackEntry(track, {
+                  albumIndex,
+                  trackIndex,
+                  albumTitle,
+                  albumCover
+                }));
               });
             });
             lastCatalogCount = searchIndex.tracks.length;
@@ -632,6 +642,33 @@
         return findTrackLocationByTitle(result?.title);
       };
 
+      const parseSearchFallbackMetadata = (result) => {
+        if (!result || result.type !== 'track') {
+          return null;
+        }
+        const title = result.title || '';
+        let artist = result.artist || '';
+        let album = result.albumTitle || '';
+        if ((!artist || !album) && result.secondary) {
+          const parts = String(result.secondary)
+            .split('•')
+            .map(part => part.trim())
+            .filter(Boolean);
+          if (!artist && parts.length) {
+            [artist] = parts;
+          }
+          if (!album && parts.length > 1) {
+            album = parts.slice(1).join(' • ');
+          }
+        }
+        return {
+          title,
+          artist,
+          album,
+          thumbnail: result.thumbnail || ''
+        };
+      };
+
       const getTrackFromLocation = (location) => {
         if (!location || !Number.isInteger(location.albumIndex) || !Number.isInteger(location.trackIndex)) {
           return null;
@@ -679,7 +716,8 @@
                 if (result.src) {
                   const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
                   const fallbackAlbumIndex = Number.isInteger(result.albumIndex) ? result.albumIndex : undefined;
-                  selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex);
+                  const fallbackMeta = parseSearchFallbackMetadata(result);
+                  selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex, fallbackMeta);
                 }
               });
             return;
@@ -687,7 +725,8 @@
           if (result.src) {
             const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
             const fallbackAlbumIndex = Number.isInteger(result.albumIndex) ? result.albumIndex : undefined;
-            selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex);
+            const fallbackMeta = parseSearchFallbackMetadata(result);
+            selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex, fallbackMeta);
           }
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];
@@ -974,21 +1013,30 @@
     /* MEDIA SESSION API */
     function updateMediaSession() {
       if ('mediaSession' in navigator) {
+        const playbackContext = window.AriyoPlaybackContext || {};
+        const fallbackMeta = playbackContext.currentSource?.fallbackMeta || {};
+        const album = currentRadioIndex === -1 ? albums?.[currentAlbumIndex] : null;
         const track = currentRadioIndex === -1
-          ? albums[currentAlbumIndex].tracks[currentTrackIndex]
-          : radioStations[currentRadioIndex];
+          ? album?.tracks?.[currentTrackIndex]
+          : radioStations?.[currentRadioIndex];
+        const fallbackTitle = fallbackMeta.title || playbackContext.currentSource?.title || '';
+        const fallbackArtist = fallbackMeta.artist || playbackContext.currentSource?.artist || '';
+        const fallbackAlbum = fallbackMeta.album || playbackContext.currentSource?.album || '';
+        const fallbackArtwork = fallbackMeta.thumbnail || playbackContext.currentSource?.thumbnail || '';
         const artwork = currentRadioIndex === -1
-          ? albums[currentAlbumIndex].cover
-          : radioStations[currentRadioIndex].logo;
+          ? (track?.cover || album?.cover || fallbackArtwork)
+          : track?.logo;
 
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: currentRadioIndex === -1 ? track.title : track.name + ' - ' + track.location,
+          title: currentRadioIndex === -1
+            ? (track?.title || fallbackTitle || 'Track')
+            : track.name + ' - ' + track.location,
           artist: currentRadioIndex === -1
-            ? (typeof deriveTrackArtist === 'function'
-              ? deriveTrackArtist(albums[currentAlbumIndex].artist, track.title)
-              : (albums[currentAlbumIndex].artist || 'Omoluabi'))
+            ? (typeof deriveTrackArtist === 'function' && track?.title
+              ? deriveTrackArtist(album?.artist, track.title)
+              : (fallbackArtist || album?.artist || 'Omoluabi'))
             : '',
-          album: currentRadioIndex === -1 ? albums[currentAlbumIndex].name : '',
+          album: currentRadioIndex === -1 ? (album?.name || fallbackAlbum) : '',
           artwork: [
             { src: artwork, sizes: '96x96', type: 'image/jpeg' },
             { src: artwork, sizes: '128x128', type: 'image/jpeg' },
