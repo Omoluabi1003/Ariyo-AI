@@ -577,22 +577,33 @@
         return null;
       };
 
+      const selectTrackFromSearch = (result, { allowLibraryRefresh = true } = {}) => {
+        const location = resolveSearchTrackLocation(result);
+        if (location && albums?.[location.albumIndex]?.tracks?.[location.trackIndex]) {
+          currentAlbumIndex = location.albumIndex;
+          const track = albums[location.albumIndex].tracks[location.trackIndex];
+          selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
+          return;
+        }
+
+        if (location && allowLibraryRefresh && typeof window.loadFullLibraryData === 'function') {
+          window.loadFullLibraryData({ reason: 'search-select', immediate: true })
+            .then(() => selectTrackFromSearch(result, { allowLibraryRefresh: false }));
+          return;
+        }
+
+        if (result?.src) {
+          const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
+          selectTrack(result.src, result.title, fallbackIndex);
+        }
+      };
+
       const handleSearchSelection = (result) => {
         if (!result) {
           return;
         }
         if (result.type === 'track') {
-          const location = resolveSearchTrackLocation(result);
-          if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
-            currentAlbumIndex = location.albumIndex;
-            const track = albums[location.albumIndex].tracks[location.trackIndex];
-            selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
-            return;
-          }
-          if (result.src) {
-            const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-            selectTrack(result.src, result.title, fallbackIndex);
-          }
+          selectTrackFromSearch(result);
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];
           if (!station) {
