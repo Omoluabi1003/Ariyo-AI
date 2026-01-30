@@ -4083,7 +4083,7 @@ function confirmPendingRadioSelection(reason, detail = {}) {
 }
 
 
-function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex) {
+function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex, fallbackMeta = null) {
       debugConsole(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       const previousAlbumIndex = currentAlbumIndex;
       const previousTrackIndex = currentTrackIndex;
@@ -4107,16 +4107,29 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       if (isTrackModalOpen()) {
         closeTrackList(true);
       }
-      debugConsole(`[selectTrack] Selecting track: ${title} from album: ${albums[currentAlbumIndex].name}`);
+      const fallbackAlbumLabel = fallbackMeta?.album || '';
+      const albumLabel = albums?.[currentAlbumIndex]?.name || fallbackAlbumLabel || 'Unknown album';
+      debugConsole(`[selectTrack] Selecting track: ${title} from album: ${albumLabel}`);
       pendingAlbumIndex = null;
       currentTrackIndex = index;
       currentRadioIndex = -1;
       lastKnownFiniteDuration = null;
       const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
       const safeTrack = track || {};
+      const fallbackAlbum = albums?.[currentAlbumIndex] || null;
+      const fallbackInfo = {
+        title: (fallbackMeta && typeof fallbackMeta === 'object' ? fallbackMeta.title : null) || title || '',
+        artist: (fallbackMeta && typeof fallbackMeta === 'object' ? fallbackMeta.artist : null) || '',
+        album: (fallbackMeta && typeof fallbackMeta === 'object' ? fallbackMeta.album : null) || fallbackAlbum?.name || '',
+        thumbnail: (fallbackMeta && typeof fallbackMeta === 'object' ? fallbackMeta.thumbnail : null) || fallbackAlbum?.cover || ''
+      };
+      const resolvedTitle = safeTrack.title || fallbackInfo.title || title;
       const trackMeta = {
         ...safeTrack,
-        title: safeTrack.title || title,
+        title: resolvedTitle,
+        artist: safeTrack.artist || fallbackInfo?.artist,
+        album: safeTrack.album || fallbackInfo?.album,
+        cover: safeTrack.cover || fallbackInfo?.thumbnail,
         sourceType: safeTrack.sourceType || albums[currentAlbumIndex]?.sourceType || 'local'
       };
       persistLastPlayed(buildLastPlayedPayload({ positionSeconds: 0 }));
@@ -4127,6 +4140,40 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       resetWaveformState();
 
       const rawSrc = trackMeta?.src || src;
+      if (!track && (fallbackInfo.title || fallbackInfo.artist || fallbackInfo.album || fallbackInfo.thumbnail)) {
+        lastTrackSrc = rawSrc;
+        lastTrackTitle = resolvedTitle || title || 'Track';
+        lastTrackIndex = Number.isFinite(index) ? index : 0;
+        trackInfo.textContent = lastTrackTitle;
+        const fallbackArtist = fallbackInfo.artist || '';
+        trackArtist.textContent = fallbackArtist ? `Artist: ${fallbackArtist}` : '';
+        if (trackArtistInline) {
+          trackArtistInline.textContent = fallbackArtist;
+        }
+        trackYear.textContent = '';
+        trackAlbum.textContent = fallbackInfo.album ? `Album: ${fallbackInfo.album}` : 'Album: Unknown';
+        updateTrackThumbnail({
+          src: fallbackInfo.thumbnail,
+          title: lastTrackTitle,
+          artist: fallbackArtist,
+          album: fallbackInfo.album
+        });
+        lyricsContainer.innerHTML = '';
+        lyricLines = [];
+        setPlaybackContext({
+          mode: 'track',
+          source: {
+            type: 'track',
+            albumIndex: Number.isFinite(albumIndex) ? albumIndex : null,
+            trackIndex: Number.isFinite(index) ? index : null,
+            src: rawSrc,
+            title: lastTrackTitle,
+            sourceType: trackMeta.sourceType,
+            isLive: trackMeta.isLive,
+            fallbackMeta: fallbackInfo
+          }
+        });
+      }
       if (isInsecureMediaSrc(rawSrc)) {
         reportInsecureSource(title, rawSrc);
         return;
