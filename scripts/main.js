@@ -526,29 +526,38 @@
         searchState.activeIndex = -1;
       };
 
+      const resolveSearchTrackLocation = (result) => {
+        const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : trackCatalogProvider;
+        if (result?.trackId && provider?.trackLocationById?.[result.trackId]) {
+          return provider.trackLocationById[result.trackId];
+        }
+        if (result?.src && provider?.trackIdByAudioUrl?.[result.src]) {
+          const trackId = provider.trackIdByAudioUrl[result.src];
+          if (provider.trackLocationById?.[trackId]) {
+            return provider.trackLocationById[trackId];
+          }
+        }
+        if (Number.isInteger(result?.albumIndex) && Number.isInteger(result?.trackIndex)) {
+          return { albumIndex: result.albumIndex, trackIndex: result.trackIndex };
+        }
+        return null;
+      };
+
       const handleSearchSelection = (result) => {
         if (!result) {
           return;
         }
         if (result.type === 'track') {
-          const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : trackCatalogProvider;
-          const location = provider?.trackLocationById?.[result.trackId];
+          const location = resolveSearchTrackLocation(result);
           if (location && albums[location.albumIndex]?.tracks?.[location.trackIndex]) {
             currentAlbumIndex = location.albumIndex;
             const track = albums[location.albumIndex].tracks[location.trackIndex];
             selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
             return;
           }
-          if (Number.isInteger(result.albumIndex) && Number.isInteger(result.trackIndex)) {
-            currentAlbumIndex = result.albumIndex;
-            const track = albums[result.albumIndex]?.tracks?.[result.trackIndex];
-            if (track?.src || track?.title) {
-              selectTrack(track.src, track.title || result.title, result.trackIndex, true, null, result.albumIndex);
-              return;
-            }
-          }
           if (result.src) {
-            selectTrack(result.src, result.title, result.trackIndex || 0);
+            const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
+            selectTrack(result.src, result.title, fallbackIndex);
           }
         } else if (result.type === 'radio') {
           const station = radioStations[result.index];
