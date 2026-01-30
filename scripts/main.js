@@ -344,7 +344,12 @@
               trackCatalogApi.setProvider(provider);
             }
             provider.trackCatalog.forEach((track) => {
-              const entry = buildTrackEntry(track, { albumTitle: track.albumTitle });
+              const location = provider.trackLocationById?.[track.id] || {};
+              const entry = buildTrackEntry(track, {
+                albumTitle: track.albumTitle,
+                albumIndex: location.albumIndex,
+                trackIndex: location.trackIndex
+              });
               searchIndex.tracks.push(entry);
             });
             lastCatalogCount = provider.trackCatalog.length;
