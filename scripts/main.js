@@ -435,6 +435,57 @@
         return [...tracks, ...stations].slice(0, SEARCH_MAX_RESULTS);
       };
 
+      const normalizeTrackSrc = (value) => {
+        if (!value) {
+          return '';
+        }
+        try {
+          return new URL(value, window.location.href).href;
+        } catch (error) {
+          return String(value).trim();
+        }
+      };
+
+      const findTrackLocationBySrc = (src) => {
+        if (!src || !Array.isArray(albums)) {
+          return null;
+        }
+        const normalizedSrc = normalizeTrackSrc(src);
+        for (let albumIndex = 0; albumIndex < albums.length; albumIndex += 1) {
+          const album = albums[albumIndex];
+          if (!album || !Array.isArray(album.tracks)) {
+            continue;
+          }
+          for (let trackIndex = 0; trackIndex < album.tracks.length; trackIndex += 1) {
+            const track = album.tracks[trackIndex];
+            const candidateSrc = track?.src || track?.audioUrl || track?.url;
+            if (candidateSrc && normalizeTrackSrc(candidateSrc) === normalizedSrc) {
+              return { albumIndex, trackIndex };
+            }
+          }
+        }
+        return null;
+      };
+
+      const findTrackLocationByTitle = (title) => {
+        if (!title || !Array.isArray(albums)) {
+          return null;
+        }
+        const normalizedTitle = normalizeSearchText(title);
+        for (let albumIndex = 0; albumIndex < albums.length; albumIndex += 1) {
+          const album = albums[albumIndex];
+          if (!album || !Array.isArray(album.tracks)) {
+            continue;
+          }
+          const trackIndex = album.tracks.findIndex(track =>
+            normalizeSearchText(track?.title || track?.name) === normalizedTitle);
+          if (trackIndex >= 0) {
+            return { albumIndex, trackIndex };
+          }
+        }
+        return null;
+      };
+
       const updateActiveOption = () => {
         const options = searchResults.querySelectorAll('.search-result[role="option"]');
         options.forEach((option) => {
@@ -574,7 +625,11 @@
         if (Number.isInteger(result?.albumIndex) && Number.isInteger(result?.trackIndex)) {
           return { albumIndex: result.albumIndex, trackIndex: result.trackIndex };
         }
-        return null;
+        const srcLocation = findTrackLocationBySrc(result?.src);
+        if (srcLocation) {
+          return srcLocation;
+        }
+        return findTrackLocationByTitle(result?.title);
       };
 
       const getTrackFromLocation = (location) => {
@@ -583,7 +638,7 @@
         }
         const album = albums?.[location.albumIndex];
         const track = album?.tracks?.[location.trackIndex];
-        if (!album || !track || !track.src) {
+        if (!album || !track || !(track.src || track.audioUrl || track.url)) {
           return null;
         }
         return { album, track };
@@ -596,7 +651,8 @@
         }
         const { track } = resolved;
         pendingAlbumIndex = null;
-        selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
+        const resolvedSrc = track.src || track.audioUrl || track.url;
+        selectTrack(resolvedSrc, track.title, location.trackIndex, true, null, location.albumIndex);
         return true;
       };
 
