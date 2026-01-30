@@ -453,6 +453,7 @@
             option.setAttribute('role', 'option');
             option.dataset.index = String(optionIndex);
             option.id = `search-option-${optionIndex}`;
+            const currentIndex = optionIndex;
 
             const textWrapper = document.createElement('div');
             textWrapper.className = 'search-result-text';
@@ -477,7 +478,7 @@
             option.appendChild(badge);
 
             option.addEventListener('click', () => {
-              selectSearchResult(optionIndex);
+              selectSearchResult(currentIndex);
             });
 
             fragment.appendChild(option);
