@@ -577,12 +577,24 @@
         return null;
       };
 
-      const selectTrackFromLocation = (location) => {
+      const getTrackFromLocation = (location) => {
+        if (!location || !Number.isInteger(location.albumIndex) || !Number.isInteger(location.trackIndex)) {
+          return null;
+        }
         const album = albums?.[location.albumIndex];
         const track = album?.tracks?.[location.trackIndex];
-        if (!track) {
+        if (!album || !track || !track.src) {
+          return null;
+        }
+        return { album, track };
+      };
+
+      const selectTrackFromLocation = (location) => {
+        const resolved = getTrackFromLocation(location);
+        if (!resolved) {
           return false;
         }
+        const { track } = resolved;
         pendingAlbumIndex = null;
         selectTrack(track.src, track.title, location.trackIndex, true, null, location.albumIndex);
         return true;
@@ -594,26 +606,26 @@
         }
         if (result.type === 'track') {
           const location = resolveSearchTrackLocation(result);
-          if (location) {
-            if (selectTrackFromLocation(location)) {
-              return;
-            }
-            if (typeof window.loadFullLibraryData === 'function') {
-              window.loadFullLibraryData({ reason: 'search-track-select', immediate: true })
-                .then(() => {
-                  const refreshedLocation = resolveSearchTrackLocation(result) || location;
-                  if (!selectTrackFromLocation(refreshedLocation)) {
-                    throw new Error('Track location unavailable after refresh.');
-                  }
-                })
-                .catch(() => {
-                  if (result.src) {
-                    const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
-                    selectTrack(result.src, result.title, fallbackIndex);
-                  }
-                });
-              return;
-            }
+          if (location && selectTrackFromLocation(location)) {
+            return;
+          }
+          if (typeof window.loadFullLibraryData === 'function') {
+            window.loadFullLibraryData({ reason: 'search-track-select', immediate: true })
+              .then(() => {
+                trackCatalogProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : trackCatalogProvider;
+                const refreshedLocation = resolveSearchTrackLocation(result) || location;
+                if (selectTrackFromLocation(refreshedLocation)) {
+                  return;
+                }
+                throw new Error('Track location unavailable after refresh.');
+              })
+              .catch(() => {
+                if (result.src) {
+                  const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
+                  selectTrack(result.src, result.title, fallbackIndex);
+                }
+              });
+            return;
           }
           if (result.src) {
             const fallbackIndex = Number.isInteger(result.trackIndex) ? result.trackIndex : 0;
