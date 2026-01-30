@@ -275,14 +275,14 @@
     /* SEARCH BAR */
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
-    const searchClear = document.getElementById('searchClear');
     const searchPanel = document.getElementById('searchPanel');
 
-    if (searchInput && searchResults && searchClear && searchPanel) {
+    if (searchInput && searchResults && searchPanel) {
       const searchUtils = window.AriyoSearchUtils || {};
       const normalizeSearchText = searchUtils.normalizeText || ((value) => String(value || '').toLowerCase().trim());
       const trackCatalogApi = window.AriyoTrackCatalog || {};
       let trackCatalogProvider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+      const searchClear = document.getElementById('searchClear');
       let searchIndexRebuildTimeout = null;
       let lastCatalogCount = 0;
       const SEARCH_TRACK_LIMIT = 7;
@@ -505,7 +505,9 @@
         searchState.activeIndex = -1;
 
         renderSearchResults();
-        searchClear.hidden = !searchState.query;
+        if (searchClear) {
+          searchClear.hidden = !searchState.query;
+        }
       };
 
       const setSearchQuery = (value) => {
@@ -652,10 +654,12 @@
         }
       });
 
-      searchClear.addEventListener('click', () => {
-        closeSearchResults({ clearQuery: true });
-        searchInput.focus();
-      });
+      if (searchClear) {
+        searchClear.addEventListener('click', () => {
+          closeSearchResults({ clearQuery: true });
+          searchInput.focus();
+        });
+      }
 
       document.addEventListener('mousedown', (event) => {
         if (searchPanel.contains(event.target)) {

@@ -324,7 +324,7 @@
     }
     .search-input {
       width: 100%;
-      padding: 0.75rem 2.6rem 0.75rem 1rem;
+      padding: 0.75rem 1rem;
       border-radius: 999px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       background: rgba(0, 0, 0, 0.35);
@@ -336,23 +336,6 @@
     .search-input:focus {
       border-color: rgba(255, 127, 197, 0.75);
       box-shadow: 0 0 0 2px rgba(255, 127, 197, 0.3);
-    }
-    .search-clear {
-      position: absolute;
-      right: 0.4rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
     }
     .search-results {
       position: absolute;
@@ -1565,7 +1548,6 @@
       <div class="search-panel" id="searchPanel">
         <div class="search-field">
           <input type="search" id="searchInput" class="search-input" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list">
-          <button type="button" id="searchClear" class="search-clear" aria-label="Clear search" hidden>×</button>
         </div>
         <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
       </div>
