@@ -54,7 +54,6 @@
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', scheduleUpdate, { passive: true });
-      window.visualViewport.addEventListener('scroll', scheduleUpdate, { passive: true });
     }
   };
 
