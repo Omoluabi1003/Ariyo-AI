@@ -448,11 +448,12 @@
           fragment.appendChild(sectionLabel);
 
           items.forEach((item) => {
+            const currentIndex = optionIndex;
             const option = document.createElement('div');
             option.className = 'search-result';
             option.setAttribute('role', 'option');
-            option.dataset.index = String(optionIndex);
-            option.id = `search-option-${optionIndex}`;
+            option.dataset.index = String(currentIndex);
+            option.id = `search-option-${currentIndex}`;
 
             const textWrapper = document.createElement('div');
             textWrapper.className = 'search-result-text';
@@ -477,7 +478,7 @@
             option.appendChild(badge);
 
             option.addEventListener('click', () => {
-              selectSearchResult(optionIndex);
+              selectSearchResult(currentIndex);
             });
 
             fragment.appendChild(option);
