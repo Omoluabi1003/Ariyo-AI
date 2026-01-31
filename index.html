@@ -88,7 +88,7 @@
       @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body data-page="landing">
     <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading">
       <div class="boot-spinner-dot"></div>
     </div>
@@ -134,6 +134,7 @@
                         <span class="enter-label">Launch experience</span>
                     </button>
                 </div>
+                <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
             </div>
             <div class="feature-grid">
                 <article class="feature-card tour-step hero-animate" id="step1">
@@ -200,6 +201,22 @@
             <div class="app-update-banner__actions">
                 <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
                 <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
+            </div>
+        </aside>
+        <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
+            <div class="email-gate__card">
+                <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
+                <div class="email-gate__header">
+                    <p class="email-gate__eyebrow">Sign in</p>
+                    <h3 id="emailGateTitle">Continue with email</h3>
+                    <p class="email-gate__copy">Enter your email to unlock Àríyò AI. No password required.</p>
+                </div>
+                <form id="emailGateForm" class="email-gate__form">
+                    <label for="emailGateInput">Email address</label>
+                    <input type="email" id="emailGateInput" name="email" autocomplete="email" required placeholder="you@company.com">
+                    <button type="submit" class="enter-button inline">Continue</button>
+                </form>
+                <p class="email-gate__note">We only use this to personalize your experience and keep it professional—no spam.</p>
             </div>
         </aside>
 
@@ -302,6 +319,7 @@
       <div class="watermark watermark--adaptive exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
     </div>
 
+    <script src="scripts/email-gate.js" defer></script>
     <script src="scripts/experience.js" defer></script>
     <script>
         document.querySelectorAll('.exploding-watermark').forEach(watermark => {
@@ -317,19 +335,27 @@
 
         function enterApp() {
             clearTimeout(autoEnterTimeout);
-            const enterIcon = document.querySelector('.enter-icon');
-            const enterButton = document.querySelector('.enter-button');
-            if (enterButton) {
-                enterButton.classList.add('clicked');
+            const proceed = () => {
+                const enterIcon = document.querySelector('.enter-icon');
+                const enterButton = document.querySelector('.enter-button');
+                if (enterButton) {
+                    enterButton.classList.add('clicked');
+                }
+                if (enterIcon) {
+                    enterIcon.classList.add('clicked');
+                }
+                const audio = document.getElementById('welcomeAudio');
+                audio.pause();
+                setTimeout(() => {
+                    window.location.href = 'main.html';
+                }, 300);
+            };
+
+            if (typeof window.requireEmailAccess === 'function') {
+                window.requireEmailAccess(proceed);
+            } else {
+                proceed();
             }
-            if (enterIcon) {
-                enterIcon.classList.add('clicked');
-            }
-            const audio = document.getElementById('welcomeAudio');
-            audio.pause();
-            setTimeout(() => {
-                window.location.href = 'main.html';
-            }, 300);
         }
 
           document.addEventListener('DOMContentLoaded', () => {
