@@ -1107,6 +1107,10 @@ body[data-theme="light"] .footer-note {
     z-index: 12000;
 }
 
+.email-gate[hidden] {
+    display: none;
+}
+
 .email-gate__card {
     width: min(520px, 100%);
     background: rgba(20, 17, 36, 0.98);
