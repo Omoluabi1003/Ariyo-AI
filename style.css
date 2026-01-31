@@ -26,12 +26,6 @@ body {
     touch-action: pan-y;
 }
 
-body.app-shell {
-    height: var(--app-height, 100vh);
-    min-height: 0;
-    overflow: hidden;
-}
-
 body[data-theme="light"] {
     color: #0f172a;
     background-color: #eef1f6;
@@ -235,8 +229,6 @@ body[data-theme="light"] .edge-panel-hint {
     padding: 0 clamp(1rem, 4vw, 2rem);
     box-sizing: border-box;
     width: 100%;
-    flex: 1 1 auto;
-    min-height: 0;
 }
 
 .badge-spotlight {
@@ -624,7 +616,6 @@ body[data-theme='light'] .search-result-badge,
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
     padding-bottom: 20rem; /* Add padding to avoid overlap */
-    min-height: 0;
 }
 
 /* Music Player */
