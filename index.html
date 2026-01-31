@@ -71,7 +71,7 @@
     <link rel="stylesheet" href="index.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/Ariyo.png">
-    <script src="https://cdn.jsdelivr.net/npm/@motionone/dom/dist/motion.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@motionone/dom@10.18.0/dist/motion-umd.dev.js" defer></script>
     <style>
       #bootSpinner {
         position: fixed;
@@ -711,12 +711,17 @@
                 }
                 const isActive = stepIndex === index;
                 element.classList.toggle('feature-active', isActive);
-                gsap.to(element, {
-                    opacity: isActive ? 1 : 0.6,
-                    scale: isActive ? 1.02 : 1,
-                    duration: 0.6,
-                    ease: 'power2.out'
-                });
+                if (window.gsap) {
+                    gsap.to(element, {
+                        opacity: isActive ? 1 : 0.6,
+                        scale: isActive ? 1.02 : 1,
+                        duration: 0.6,
+                        ease: 'power2.out'
+                    });
+                } else {
+                    element.style.opacity = isActive ? '1' : '0.6';
+                    element.style.transform = isActive ? 'scale(1.02)' : 'scale(1)';
+                }
             });
         }
 
