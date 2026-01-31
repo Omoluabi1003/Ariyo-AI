@@ -2,16 +2,22 @@
   const STORAGE_KEY = 'ariyoAccessEmail';
   const ACCESS_HASH = '#email-access';
   let pendingCallback = null;
+  let inMemoryEmail = '';
 
   const getStoredEmail = () => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || '';
+      const stored = localStorage.getItem(STORAGE_KEY) || '';
+      if (stored) {
+        inMemoryEmail = stored;
+      }
+      return stored || inMemoryEmail;
     } catch (error) {
-      return '';
+      return inMemoryEmail;
     }
   };
 
   const setStoredEmail = (email) => {
+    inMemoryEmail = email;
     try {
       localStorage.setItem(STORAGE_KEY, email);
     } catch (error) {
