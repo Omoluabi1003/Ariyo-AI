@@ -7,6 +7,7 @@
       window.__ariyoAudioElement = audioPlayer;
     }
     const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
+    const INSTANT_PLAYBACK = true;
     const reducedMotionQuery = typeof window !== 'undefined'
       && typeof window.matchMedia === 'function'
       ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -449,7 +450,8 @@
     }
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     const isSlowConnection = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
-    audioPlayer.preload = 'metadata';
+    const resolvePreloadMode = () => (INSTANT_PLAYBACK ? 'auto' : (isSlowConnection ? 'metadata' : 'auto'));
+    audioPlayer.preload = resolvePreloadMode();
     audioPlayer.volume = 1;
     audioPlayer.muted = false;
     audioPlayer.setAttribute('playsinline', '');
@@ -468,7 +470,9 @@
       setPlayIntent(true);
     });
     audioPlayer.addEventListener('waiting', () => {
-      showPlaySpinner();
+      if (!INSTANT_PLAYBACK) {
+        showPlaySpinner();
+      }
       setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
       scheduleBufferingHedgeFromSource();
       vinylWaiting = true;
@@ -477,7 +481,9 @@
       manageVinylRotation();
     });
     audioPlayer.addEventListener('stalled', () => {
-      showPlaySpinner();
+      if (!INSTANT_PLAYBACK) {
+        showPlaySpinner();
+      }
       vinylWaiting = true;
       setPlayIntent(true);
       scheduleWaitingRetry();
@@ -1325,6 +1331,18 @@ function setPlaybackStatus(status, options = {}) {
   manageVinylRotation();
 
   if (status === PlaybackStatus.preparing || status === PlaybackStatus.buffering) {
+    if (INSTANT_PLAYBACK) {
+      updateInlineStatus('', { showRetry: false });
+      if (bufferingMessage) {
+        bufferingMessage.textContent = '';
+      }
+      hideBufferingState();
+      if (retryButton) {
+        retryButton.style.display = 'none';
+        retryButton.inert = true;
+      }
+      return;
+    }
     const messageText = message || 'Lining up your track...';
     const inlineMessage = /reconnecting|saving your place/i.test(messageText) ? messageText : '';
     updateInlineStatus(inlineMessage, { showRetry: false });
@@ -4212,7 +4230,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
         setPlaybackStatus(PlaybackStatus.failed, { message: 'This track is unavailable right now.' });
         return;
       }
-      audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
+      audioPlayer.preload = resolvePreloadMode();
       ensurePreconnect(normalizedSrc);
       const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
       primePlaybackSource({
@@ -4303,7 +4321,7 @@ function selectRadio(src, title, index, logo) {
         originalUrl: normalizedSrc,
         resolvedUrl: initialStreamUrl
       });
-      audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
+      audioPlayer.preload = resolvePreloadMode();
       ensurePreconnect(normalizedSrc);
       lastTrackSrc = normalizedSrc;
       lastTrackTitle = title;
@@ -5192,7 +5210,7 @@ function selectRadio(src, title, index, logo) {
       hasUserGesture = true;
       void warmupAudioOutput();
       void resumeAudioContext();
-      audioPlayer.preload = isSlowConnection ? 'metadata' : 'auto';
+      audioPlayer.preload = resolvePreloadMode();
       ensureAudiblePlayback();
       if (!ensureInitialTrackLoaded()) {
         hidePlaySpinner();
