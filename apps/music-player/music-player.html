@@ -31,7 +31,13 @@
   </header>
 
   <main class="player-shell" role="main">
-    <section class="music-player" aria-labelledby="nowPlayingHeading" data-visualizer-mode="dual">
+    <section
+      class="music-player"
+      aria-labelledby="nowPlayingHeading"
+      data-visualizer-mode="dual"
+      data-player-state="empty"
+      data-initial-track="none"
+    >
       <h2 id="nowPlayingHeading" class="section-title">Now spinning</h2>
       <div class="player-body">
         <div class="player-visual">
@@ -56,15 +62,15 @@
             <img
               id="nowPlayingThumb"
               class="now-playing-thumb"
-              src="../../Logo.jpg"
-              alt="No track selected"
+              src="../../music-player.png"
+              alt="Placeholder cover art"
               width="56"
               height="56"
               loading="lazy"
               decoding="async"
             />
             <div class="now-playing-text" aria-live="polite">
-              <p class="track-info" id="trackInfo">Select a track to start listening.</p>
+              <p class="track-info" id="trackInfo">No track selected.</p>
               <p class="track-details now-playing-artist" id="trackArtist">Artist: —</p>
             </div>
           </div>
