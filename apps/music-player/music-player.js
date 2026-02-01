@@ -38,10 +38,12 @@
   const visualizerModeAdvice = document.getElementById('visualizerModeAdvice');
   const visualizerModeRoot = document.querySelector('.music-player');
 
+  const placeholderCover = '../../music-player.png';
+
   if (nowPlayingThumb) {
     nowPlayingThumb.onerror = () => {
       nowPlayingThumb.onerror = null;
-      nowPlayingThumb.src = '../../Logo.jpg';
+      nowPlayingThumb.src = placeholderCover;
       nowPlayingThumb.alt = 'Album cover unavailable';
     };
   }
@@ -87,7 +89,7 @@
   const tracksByAlbumId = trackCatalogProvider?.tracksByAlbumId || {};
   const albumIdByIndex = trackCatalogProvider?.albumIdByIndex || [];
   const trackDurationLabels = new Map();
-  const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : '../../Logo.jpg';
+  const fallbackCover = typeof NAIJA_HITS_COVER !== 'undefined' ? NAIJA_HITS_COVER : placeholderCover;
 
   if (!trackCatalog.length) {
     statusMessage.textContent = 'No playable tracks were found.';
@@ -698,14 +700,19 @@
     }
   };
 
-  const updateTrackMetadata = track => {
+  const setPlayerState = state => {
+    if (!visualizerModeRoot || !state) return;
+    visualizerModeRoot.setAttribute('data-player-state', state);
+  };
+
+  const updateTrackMetadata = (track, { isPreview = false } = {}) => {
     if (!track) {
-      trackInfo.textContent = 'Select a track to start listening.';
+      trackInfo.textContent = 'No track selected.';
       trackArtist.textContent = 'Artist: —';
       trackAlbum.textContent = 'Album: —';
       trackYear.textContent = 'Release Year: —';
       if (nowPlayingThumb) {
-        nowPlayingThumb.src = fallbackCover;
+        nowPlayingThumb.src = placeholderCover;
         nowPlayingThumb.alt = 'No track selected';
       }
       progressBarFill.style.width = '0%';
@@ -713,13 +720,14 @@
       seekBar.disabled = true;
       seekBar.setAttribute('aria-disabled', 'true');
       trackDuration.textContent = '0:00 / 0:00';
+      setPlayerState('empty');
       updatePlaylistHighlight();
       updateNextTrackLabel();
       return;
     }
     const isLive = isLiveStreamTrack(track);
     trackInfo.textContent = track.title;
-    trackArtist.textContent = `Artist: ${track.artist || 'Omoluabi'}`;
+    trackArtist.textContent = `Artist: ${deriveTrackArtist(track.artist, track.title)}`;
     trackAlbum.textContent = `Album: ${track.albumTitle || 'Unknown'}`;
     const albumIndex = trackCatalogProvider?.albumIndexById?.[track.albumId];
     const album = Number.isFinite(albumIndex) ? albums[albumIndex] : null;
@@ -730,9 +738,11 @@
     }
     progressBarFill.style.width = '0%';
     seekBar.value = 0;
-    seekBar.disabled = isLive;
-    seekBar.setAttribute('aria-disabled', String(isLive));
-    trackDuration.textContent = isLive ? 'Live • Afrobeats' : '0:00 / 0:00';
+    const disableSeek = isLive || isPreview;
+    seekBar.disabled = disableSeek;
+    seekBar.setAttribute('aria-disabled', String(disableSeek));
+    trackDuration.textContent = isLive ? 'Live • Afrobeats' : isPreview ? 'Preview ready' : '0:00 / 0:00';
+    setPlayerState(isPreview ? 'preview' : 'ready');
     updatePlaylistHighlight();
     updateNextTrackLabel();
   };
@@ -1294,9 +1304,30 @@
     playNextTrack(true);
   });
 
+  const initializePlayerSelection = () => {
+    const initialMode = visualizerModeRoot?.getAttribute('data-initial-track') || 'none';
+    if (initialMode === 'random') {
+      const randomIndex = Math.floor(Math.random() * playbackOrder.length);
+      const previewTrackId = playbackOrder[randomIndex];
+      const previewTrack = trackById[previewTrackId];
+      if (previewTrack) {
+        currentOrderIndex = randomIndex;
+        currentTrack = previewTrack;
+        currentDuration = previewTrack.durationSec || 0;
+        currentSourceId = null;
+        updateTrackMetadata(previewTrack, { isPreview: true });
+        setStatus('Preview ready. Tap play to start listening.');
+        return;
+      }
+    }
+    currentTrack = null;
+    currentSourceId = null;
+    updateTrackMetadata(null);
+    setStatus('No track selected yet.');
+  };
+
   updateDjMixUi();
   renderPlaylist();
-  updateTrackMetadata(currentTrack);
-  updateNextTrackLabel();
+  initializePlayerSelection();
   syncVolume(Number(volumeControl.value || 1));
 })();

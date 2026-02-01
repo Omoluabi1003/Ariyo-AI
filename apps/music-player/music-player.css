@@ -130,6 +130,50 @@ body {
     0 24px 48px rgba(0, 0, 0, 0.55);
 }
 
+.music-player[data-player-state='empty'] .turntable {
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.9) 72%);
+  box-shadow:
+    inset 0 10px 22px rgba(255, 255, 255, 0.05),
+    inset 0 -10px 22px rgba(0, 0, 0, 0.7),
+    0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.music-player[data-player-state='empty'] .turntable-disc,
+.music-player[data-player-state='empty'] .turntable-grooves,
+.music-player[data-player-state='empty'] .album-groove-overlay,
+.music-player[data-player-state='empty'] .turntable-sheen {
+  filter: grayscale(0.8) brightness(0.85);
+  opacity: 0.7;
+}
+
+.music-player[data-player-state='empty'] .turntable-label {
+  background: radial-gradient(circle, #d6d6d6 0%, #b0b0b0 65%, #6b6b6b 100%);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
+}
+
+.music-player[data-player-state='empty'] .turntable-label::after {
+  content: 'No track';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.4rem, 1.2vw, 0.55rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.music-player[data-player-state='empty'] .circular-visualizer {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.music-player[data-player-state='empty'] .now-playing-thumb {
+  filter: grayscale(1);
+  opacity: 0.75;
+}
+
 .turntable::before {
   content: '';
   position: absolute;
