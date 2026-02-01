@@ -103,8 +103,8 @@
   let shuffleSeed = null;
   let userSeeking = false;
   let isLoading = false;
-  let currentTrack = trackById[playbackOrder[currentOrderIndex]];
-  let currentDuration = currentTrack && currentTrack.durationSec ? currentTrack.durationSec : 0;
+  let currentTrack = null;
+  let currentDuration = 0;
   let currentSourceId = null;
   let progressFrame = null;
   let pendingSeekValue = 0;
@@ -661,7 +661,7 @@
 
   const updateNextTrackLabel = () => {
     if (!nextTrackInfo) return;
-    if (playbackOrder.length <= 1) {
+    if (!currentTrack || playbackOrder.length <= 1) {
       nextTrackInfo.textContent = '';
       return;
     }
@@ -673,6 +673,10 @@
 
   const updatePlaylistHighlight = () => {
     const items = playlistElement.querySelectorAll('.album-track');
+    if (!currentTrack) {
+      items.forEach(item => item.removeAttribute('aria-current'));
+      return;
+    }
     let activeItem = null;
     items.forEach(item => {
       const orderIndex = Number(item.dataset.orderIndex);
@@ -695,6 +699,24 @@
   };
 
   const updateTrackMetadata = track => {
+    if (!track) {
+      trackInfo.textContent = 'Select a track to start listening.';
+      trackArtist.textContent = 'Artist: —';
+      trackAlbum.textContent = 'Album: —';
+      trackYear.textContent = 'Release Year: —';
+      if (nowPlayingThumb) {
+        nowPlayingThumb.src = fallbackCover;
+        nowPlayingThumb.alt = 'No track selected';
+      }
+      progressBarFill.style.width = '0%';
+      seekBar.value = 0;
+      seekBar.disabled = true;
+      seekBar.setAttribute('aria-disabled', 'true');
+      trackDuration.textContent = '0:00 / 0:00';
+      updatePlaylistHighlight();
+      updateNextTrackLabel();
+      return;
+    }
     const isLive = isLiveStreamTrack(track);
     trackInfo.textContent = track.title;
     trackArtist.textContent = `Artist: ${track.artist || 'Omoluabi'}`;
@@ -1045,11 +1067,15 @@
   };
 
   const playCurrentTrack = async () => {
-    if (!currentTrack) return;
     if (audioEngine.getState() === 'playing') return;
     playIntent = true;
     userPauseRequested = false;
     updateSpinState();
+    if (!currentTrack) {
+      const randomIndex = Math.floor(Math.random() * playbackOrder.length);
+      await loadTrack(randomIndex, { autoplay: true });
+      return;
+    }
     if (visualizerControls && typeof visualizerControls.unlock === 'function') {
       visualizerControls.unlock();
     }
