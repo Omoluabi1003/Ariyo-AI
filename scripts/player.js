@@ -1289,7 +1289,12 @@ function primeInitialBuffer() {
   if (audioPlayer.src) return;
 
   const kickoff = () => {
-    warmupAudioOutput().finally(() => ensureInitialTrackLoaded(true, { primeSource: false }));
+    warmupAudioOutput().finally(() => {
+      if (INSTANT_PLAYBACK) {
+        audioPlayer.preload = resolvePreloadMode();
+      }
+      ensureInitialTrackLoaded(true, { primeSource: INSTANT_PLAYBACK });
+    });
   };
 
   if (typeof requestIdleCallback === 'function') {
