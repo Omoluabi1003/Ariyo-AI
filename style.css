@@ -1403,6 +1403,8 @@ body[data-theme='light'] .search-result-badge,
     gap: clamp(0.3rem, 2vw, 0.6rem);
     padding: 0;
     width: 100%;
+    position: relative;
+    z-index: 2;
 }
 
 .music-controls.icons-only button {
