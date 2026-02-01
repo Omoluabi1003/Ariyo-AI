@@ -146,6 +146,17 @@
       return true;
     }
 
+    function resolvePendingSharedPlayback(reason = 'library') {
+      if (!pendingSharedPlayback) return false;
+      const { albumSlug, trackSlug } = pendingSharedPlayback;
+      const resolved = trySharedTrackPlayback(albumSlug, trackSlug);
+      if (resolved) {
+        console.log('[share] resolved pending playback', { reason, albumSlug, trackSlug });
+        pendingSharedPlayback = null;
+      }
+      return resolved;
+    }
+
     /* SHARE BUTTON (Web Share API) */
     function openShareMenu() {
       let modal = document.getElementById('shareOptionsModal');
@@ -1237,12 +1248,21 @@
 
       const hydratedAlbumSlug = slugify(event.detail?.albumName || '');
       if (hydratedAlbumSlug && hydratedAlbumSlug === pendingSharedPlayback.albumSlug) {
-        trySharedTrackPlayback(pendingSharedPlayback.albumSlug, pendingSharedPlayback.trackSlug);
+        resolvePendingSharedPlayback('podcast-hydrated');
       }
+    });
+
+    window.addEventListener('ariyo:library-ready', () => {
+      resolvePendingSharedPlayback('library-ready');
+    });
+
+    window.addEventListener('ariyo:library-updated', () => {
+      resolvePendingSharedPlayback('library-updated');
     });
 
     // Initialize player
     initializePlayer();
+    resolvePendingSharedPlayback('init');
 
     // Save state before unloading
     window.addEventListener('beforeunload', savePlayerState);
