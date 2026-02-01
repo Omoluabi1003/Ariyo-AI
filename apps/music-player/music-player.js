@@ -37,6 +37,7 @@
   const visualizerModeStatus = document.getElementById('visualizerModeStatus');
   const visualizerModeAdvice = document.getElementById('visualizerModeAdvice');
   const visualizerModeRoot = document.querySelector('.music-player');
+  const placeholderCover = nowPlayingThumb?.dataset.placeholderSrc || '../../music-player.png';
 
   if (nowPlayingThumb) {
     nowPlayingThumb.onerror = () => {
@@ -103,8 +104,8 @@
   let shuffleSeed = null;
   let userSeeking = false;
   let isLoading = false;
-  let currentTrack = trackById[playbackOrder[currentOrderIndex]];
-  let currentDuration = currentTrack && currentTrack.durationSec ? currentTrack.durationSec : 0;
+  let currentTrack = null;
+  let currentDuration = 0;
   let currentSourceId = null;
   let progressFrame = null;
   let pendingSeekValue = 0;
@@ -661,6 +662,10 @@
 
   const updateNextTrackLabel = () => {
     if (!nextTrackInfo) return;
+    if (!currentTrack) {
+      nextTrackInfo.textContent = '';
+      return;
+    }
     if (playbackOrder.length <= 1) {
       nextTrackInfo.textContent = '';
       return;
@@ -676,7 +681,7 @@
     let activeItem = null;
     items.forEach(item => {
       const orderIndex = Number(item.dataset.orderIndex);
-      const isActive = orderIndex === currentOrderIndex;
+      const isActive = Boolean(currentTrack) && orderIndex === currentOrderIndex;
       if (isActive) {
         item.setAttribute('aria-current', 'true');
         activeItem = item;
@@ -695,6 +700,31 @@
   };
 
   const updateTrackMetadata = track => {
+    if (!track) {
+      if (visualizerModeRoot) {
+        visualizerModeRoot.classList.add('is-empty');
+      }
+      trackInfo.textContent = 'Select a track to begin';
+      trackArtist.textContent = 'Artist: —';
+      trackAlbum.textContent = 'Album: —';
+      trackYear.textContent = 'Release Year: —';
+      if (nowPlayingThumb) {
+        nowPlayingThumb.src = placeholderCover;
+        nowPlayingThumb.alt = 'No track selected';
+      }
+      progressBarFill.style.width = '0%';
+      seekBar.value = 0;
+      seekBar.disabled = false;
+      seekBar.setAttribute('aria-disabled', 'false');
+      trackDuration.textContent = '0:00 / 0:00';
+      updatePlaylistHighlight();
+      updateNextTrackLabel();
+      return;
+    }
+
+    if (visualizerModeRoot) {
+      visualizerModeRoot.classList.remove('is-empty');
+    }
     const isLive = isLiveStreamTrack(track);
     trackInfo.textContent = track.title;
     trackArtist.textContent = `Artist: ${track.artist || 'Omoluabi'}`;
@@ -1045,7 +1075,13 @@
   };
 
   const playCurrentTrack = async () => {
-    if (!currentTrack) return;
+    if (!currentTrack) {
+      const randomIndex = Math.floor(Math.random() * playbackOrder.length);
+      currentOrderIndex = randomIndex;
+      currentTrack = trackById[playbackOrder[randomIndex]];
+      currentDuration = currentTrack?.durationSec || 0;
+      updateTrackMetadata(currentTrack);
+    }
     if (audioEngine.getState() === 'playing') return;
     playIntent = true;
     userPauseRequested = false;
@@ -1270,6 +1306,13 @@
 
   updateDjMixUi();
   renderPlaylist();
+  const shouldShowRandomTrack = Math.random() >= 0.5;
+  if (shouldShowRandomTrack) {
+    const randomIndex = Math.floor(Math.random() * playbackOrder.length);
+    currentOrderIndex = randomIndex;
+    currentTrack = trackById[playbackOrder[randomIndex]];
+    currentDuration = currentTrack?.durationSec || 0;
+  }
   updateTrackMetadata(currentTrack);
   updateNextTrackLabel();
   syncVolume(Number(volumeControl.value || 1));

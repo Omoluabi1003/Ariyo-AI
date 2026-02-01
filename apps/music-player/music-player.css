@@ -211,6 +211,11 @@ body {
   will-change: transform, opacity;
 }
 
+.music-player.is-empty .album-groove-overlay,
+.music-player.is-empty .turntable-label {
+  opacity: 0;
+}
+
 .turntable-grooves {
   inset: 14%;
   background: repeating-radial-gradient(circle at center,
