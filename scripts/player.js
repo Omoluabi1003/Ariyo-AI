@@ -985,6 +985,20 @@ const PlaybackStatus = {
 };
 
 let playbackStatus = PlaybackStatus.idle;
+const backgroundResumeState = {
+  timerId: null,
+  attempts: 0,
+  maxAttempts: 3,
+  delayMs: 1500
+};
+
+function clearBackgroundResume() {
+  if (backgroundResumeState.timerId) {
+    clearTimeout(backgroundResumeState.timerId);
+    backgroundResumeState.timerId = null;
+  }
+  backgroundResumeState.attempts = 0;
+}
 
 if (DEBUG_AUDIO) {
   initDebugPanel();
@@ -1394,12 +1408,27 @@ function ensureBackgroundPlayback(reason = 'hidden') {
   if (audioPlayer.paused || audioPlayer.ended || audioPlayer.readyState < haveCurrentData) {
     audioPlayer.play().then(() => {
       syncMediaSessionPlaybackState();
+      clearBackgroundResume();
     }).catch(error => {
       console.warn(`[background] Playback prevented during ${reason}:`, error);
+      scheduleBackgroundResume(reason);
     });
   } else {
     syncMediaSessionPlaybackState();
   }
+}
+
+function scheduleBackgroundResume(reason = 'hidden') {
+  if (backgroundResumeState.timerId) return;
+  if (backgroundResumeState.attempts >= backgroundResumeState.maxAttempts) return;
+  if (document.visibilityState !== 'hidden') return;
+  if (userInitiatedPause || (!playIntent && playbackStatus !== PlaybackStatus.playing)) return;
+  backgroundResumeState.attempts += 1;
+  backgroundResumeState.timerId = setTimeout(() => {
+    backgroundResumeState.timerId = null;
+    ensureBackgroundPlayback(`retry-${reason}-${backgroundResumeState.attempts}`);
+    scheduleBackgroundResume(reason);
+  }, backgroundResumeState.delayMs);
 }
 
 function clearSlowBufferRescue() {
@@ -5263,6 +5292,7 @@ function selectRadio(src, title, index, logo) {
 function pauseMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
+    clearBackgroundResume();
     clearQuickStartDeadline();
     clearSilentStartGuard();
     audioPlayer.pause();
@@ -5280,6 +5310,7 @@ function pauseMusic() {
 function stopMusic() {
     cancelNetworkRecovery();
     userInitiatedPause = true;
+    clearBackgroundResume();
     clearQuickStartDeadline();
     clearSilentStartGuard();
     audioPlayer.pause();
@@ -5428,6 +5459,7 @@ function updateTrackTime() {
 
       if (document.visibilityState === 'hidden') {
         ensureBackgroundPlayback('hidden-pause');
+        scheduleBackgroundResume('hidden-pause');
       } else {
         releasePlaybackWakeLock();
         syncMediaSessionPlaybackState();
@@ -5441,6 +5473,7 @@ function updateTrackTime() {
       startPlaybackWatchdog();
       debugConsole(`🎧 Time tracking active: ${trackInfo.textContent}`);
       syncMediaSessionPlaybackState();
+      clearBackgroundResume();
       clearFirstPlayGuard();
       hideBufferingState();
       hidePlaySpinner();
@@ -5476,7 +5509,9 @@ function updateTrackTime() {
       if (document.visibilityState === 'hidden') {
         releasePlaybackWakeLock();
         ensureBackgroundPlayback('visibilitychange');
+        scheduleBackgroundResume('visibilitychange');
       } else {
+        clearBackgroundResume();
         if (wakeLockPending || playbackStatus === PlaybackStatus.playing) {
           requestPlaybackWakeLock('visibilitychange');
         }
@@ -5488,6 +5523,7 @@ function updateTrackTime() {
       window.addEventListener(eventName, () => {
         releasePlaybackWakeLock();
         ensureBackgroundPlayback(eventName);
+        scheduleBackgroundResume(eventName);
       });
     });
 
