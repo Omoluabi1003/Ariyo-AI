@@ -1251,6 +1251,93 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
+    .email-gate-status {
+      margin: 0 auto 0.75rem;
+      padding: 0 1rem;
+      text-align: center;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.75);
+    }
+    .email-gate {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 7, 14, 0.72);
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      z-index: 12000;
+    }
+    .email-gate[hidden] {
+      display: none;
+    }
+    .email-gate__card {
+      width: min(520px, 100%);
+      background: rgba(20, 17, 36, 0.98);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+      padding: 2rem;
+      display: grid;
+      gap: 1.25rem;
+      position: relative;
+      color: #fff;
+    }
+    .email-gate__close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.6rem;
+      cursor: pointer;
+    }
+    .email-gate__eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.55);
+    }
+    .email-gate__copy,
+    .email-gate__note {
+      color: rgba(255,255,255,0.78);
+      line-height: 1.5;
+    }
+    .email-gate__form {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .email-gate__form input {
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 1rem;
+    }
+    .email-gate__form input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+    body[data-theme="light"] .email-gate {
+      background: rgba(241, 242, 249, 0.85);
+    }
+    body[data-theme="light"] .email-gate__card {
+      background: #fff;
+      color: #1b1b1b;
+      box-shadow: 0 30px 80px rgba(37, 40, 89, 0.18);
+    }
+    body[data-theme="light"] .email-gate__close,
+    body[data-theme="light"] .email-gate__copy,
+    body[data-theme="light"] .email-gate__note,
+    body[data-theme="light"] .email-gate__eyebrow,
+    body[data-theme="light"] .email-gate-status {
+      color: rgba(26, 28, 38, 0.75);
+    }
+    body[data-theme="light"] .email-gate__form input {
+      color: #1b1b1b;
+      background: rgba(142, 91, 255, 0.08);
+      border-color: rgba(142, 91, 255, 0.2);
+    }
     @keyframes float {
       0%   { transform: translateY(0px); }
       50%  { transform: translateY(-10px); }
@@ -1543,6 +1630,7 @@
       </button>
     </div>
   </div>
+  <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
 
   <div class="container">
     <div class="sidebar" id="sidebarNavigation">
@@ -1995,6 +2083,22 @@
     <div class="app-update-banner__actions">
       <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
       <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
+    </div>
+  </aside>
+  <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
+    <div class="email-gate__card">
+      <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
+      <div class="email-gate__header">
+        <p class="email-gate__eyebrow">Sign in</p>
+        <h3 id="emailGateTitle">Continue with email</h3>
+        <p class="email-gate__copy">Enter your email to unlock Àríyò AI. No password required.</p>
+      </div>
+      <form id="emailGateForm" class="email-gate__form">
+        <label for="emailGateInput">Email address</label>
+        <input type="email" id="emailGateInput" name="email" autocomplete="email" required placeholder="you@company.com">
+        <button type="submit" class="badge-button">Continue</button>
+      </form>
+      <p class="email-gate__note">We only use this to personalize your experience and keep it professional—no spam.</p>
     </div>
   </aside>
 
