@@ -1,7 +1,9 @@
 (function() {
   const STORAGE_KEY = 'ariyoAccessEmail';
+  const USER_ID_KEY = 'ariyoUserId';
   const ACCESS_HASH = '#email-access';
   const RETURN_URL_KEY = 'ariyoEmailGateReturnUrl';
+  const NOTIFY_ENDPOINT = 'https://formsubmit.co/ajax/pakiyogun10@gmail.com';
   let pendingCallback = null;
   let inMemoryEmail = '';
 
@@ -23,6 +25,19 @@
       localStorage.setItem(STORAGE_KEY, email);
     } catch (error) {
       // Storage not available.
+    }
+  };
+
+  const getOrCreateUserId = () => {
+    try {
+      let userId = localStorage.getItem(USER_ID_KEY) || '';
+      if (!userId && window.crypto?.randomUUID) {
+        userId = window.crypto.randomUUID();
+        localStorage.setItem(USER_ID_KEY, userId);
+      }
+      return userId;
+    } catch (error) {
+      return '';
     }
   };
 
@@ -100,10 +115,32 @@
       return;
     }
     const input = form.querySelector('input[type="email"]');
-    const email = input ? input.value.trim() : '';
+    const email = input ? input.value.trim().toLowerCase() : '';
     if (!email) return;
     setStoredEmail(email);
     updateStatus(email);
+    const userId = getOrCreateUserId();
+    const payload = {
+      subject: 'Ariyo AI email sign-in',
+      message: `Email gate sign-in: ${email}${userId ? ` (user ${userId})` : ''}`,
+      email,
+      userId,
+      page: window.location.href
+    };
+    if (navigator.sendBeacon) {
+      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      navigator.sendBeacon(NOTIFY_ENDPOINT, blob);
+    } else {
+      fetch(NOTIFY_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(() => {});
+    }
     hideModal();
     const returnUrl = safeReturnUrl(consumeReturnUrl());
     if (returnUrl) {
