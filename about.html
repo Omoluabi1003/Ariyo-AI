@@ -292,10 +292,22 @@
   <script>
     const albumCoversDiv = document.querySelector('.album-covers');
 
+    function getAlbumTrackCount(album, albumIndex) {
+      if (!album) return 0;
+      const fallbackTracks = Array.isArray(album.tracks) ? album.tracks : [];
+      const provider = window.AriyoTrackCatalog?.getProvider?.();
+      const albumId = Number.isInteger(albumIndex) ? provider?.albumIdByIndex?.[albumIndex] : null;
+      const catalogTracks = albumId ? provider?.tracksByAlbumId?.[albumId] : null;
+      if (Array.isArray(catalogTracks) && catalogTracks.length) {
+        return catalogTracks.length;
+      }
+      return fallbackTracks.filter(track => track && (track.title || track.name) && (track.src || track.url)).length;
+    }
+
     function renderAlbumCovers() {
       if (!albumCoversDiv || !Array.isArray(albums)) return;
       albumCoversDiv.innerHTML = '';
-      albums.forEach(album => {
+      albums.forEach((album, index) => {
         const container = document.createElement('div');
         container.style.textAlign = 'center';
 
@@ -306,7 +318,8 @@
         img.decoding = 'async';
 
         const p = document.createElement('p');
-        p.textContent = `${album.name} (${album.tracks.length} tracks)`;
+        const trackCount = getAlbumTrackCount(album, index);
+        p.textContent = `${album.name} (${trackCount} tracks)`;
         p.style.color = '#fff';
         p.style.fontSize = '0.8rem';
         p.style.marginTop = '0.5rem';

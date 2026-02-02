@@ -18,6 +18,18 @@ function calculateAlbumDuration(album) {
   return Promise.all(promises).then(durations => durations.reduce((a, b) => a + b, 0));
 }
 
+function getAlbumTrackCount(album, albumIndex) {
+  if (!album) return 0;
+  const fallbackTracks = Array.isArray(album.tracks) ? album.tracks : [];
+  const provider = window.AriyoTrackCatalog?.getProvider?.();
+  const albumId = Number.isInteger(albumIndex) ? provider?.albumIdByIndex?.[albumIndex] : null;
+  const catalogTracks = albumId ? provider?.tracksByAlbumId?.[albumId] : null;
+  if (Array.isArray(catalogTracks) && catalogTracks.length) {
+    return catalogTracks.length;
+  }
+  return fallbackTracks.filter(track => track && (track.title || track.name) && (track.src || track.url)).length;
+}
+
 function prefersReducedMotion() {
   return typeof window !== 'undefined'
     && typeof window.matchMedia === 'function'
@@ -117,7 +129,8 @@ function populateAlbumList() {
 
     const durationEl = document.createElement('p');
     durationEl.className = 'album-duration';
-    durationEl.textContent = `Tracks: ${album.tracks.length}`;
+    const trackCount = getAlbumTrackCount(album, index);
+    durationEl.textContent = `Tracks: ${trackCount}`;
 
     const info = document.createElement('div');
     info.className = 'album-info';

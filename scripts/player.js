@@ -2975,8 +2975,21 @@ function removeTrackFromPlaylist(index) {
       }
 
       trackModalTitle.textContent = album.name;
+      const provider = getCatalogProvider();
+      const albumId = provider?.albumIdByIndex?.[albumIndex];
+      const catalogTracks = albumId && provider?.tracksByAlbumId?.[albumId]
+        ? provider.tracksByAlbumId[albumId]
+        : [];
+      const fallbackCount = Array.isArray(album.tracks)
+        ? album.tracks.filter(track => track && (track.title || track.name) && (track.src || track.url)).length
+        : 0;
+      const trackCount = catalogTracks.length || fallbackCount;
 
       if (trackModalMeta) {
+        const countNote = document.createElement('p');
+        countNote.className = 'track-meta-note';
+        countNote.textContent = `Tracks: ${trackCount}`;
+        trackModalMeta.appendChild(countNote);
         if (album.detailsUrl) {
           const docsLink = document.createElement('a');
           docsLink.href = album.detailsUrl;
@@ -3020,10 +3033,6 @@ function removeTrackFromPlaylist(index) {
       if (album.rssFeed && typeof window.requestRssIngestion === 'function') {
         window.requestRssIngestion({ reason: 'rss-track-list', immediate: false });
       }
-
-      const provider = getCatalogProvider();
-      const albumId = provider?.albumIdByIndex?.[albumIndex];
-      const catalogTracks = albumId && provider?.tracksByAlbumId?.[albumId] ? provider.tracksByAlbumId[albumId] : [];
 
       const banner = document.getElementById('latestTracksBanner');
       const bannerCopy = document.getElementById('latestTracksCopy');
