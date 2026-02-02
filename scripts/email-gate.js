@@ -1,6 +1,7 @@
 (function() {
   const STORAGE_KEY = 'ariyoAccessEmail';
   const ACCESS_HASH = '#email-access';
+  const RETURN_URL_KEY = 'ariyoEmailGateReturnUrl';
   let pendingCallback = null;
   let inMemoryEmail = '';
 
@@ -22,6 +23,45 @@
       localStorage.setItem(STORAGE_KEY, email);
     } catch (error) {
       // Storage not available.
+    }
+  };
+
+  const getReturnUrl = () => {
+    try {
+      return sessionStorage.getItem(RETURN_URL_KEY) || '';
+    } catch (error) {
+      return '';
+    }
+  };
+
+  const setReturnUrl = (url) => {
+    if (!url) return;
+    try {
+      sessionStorage.setItem(RETURN_URL_KEY, url);
+    } catch (error) {
+      // Storage not available.
+    }
+  };
+
+  const consumeReturnUrl = () => {
+    const url = getReturnUrl();
+    if (!url) return '';
+    try {
+      sessionStorage.removeItem(RETURN_URL_KEY);
+    } catch (error) {
+      // Storage not available.
+    }
+    return url;
+  };
+
+  const safeReturnUrl = (value) => {
+    if (!value) return '';
+    try {
+      const url = new URL(value, window.location.origin);
+      if (url.origin !== window.location.origin) return '';
+      return `${url.pathname}${url.search}${url.hash}`;
+    } catch (error) {
+      return '';
     }
   };
 
@@ -65,6 +105,11 @@
     setStoredEmail(email);
     updateStatus(email);
     hideModal();
+    const returnUrl = safeReturnUrl(consumeReturnUrl());
+    if (returnUrl) {
+      window.location.assign(returnUrl);
+      return;
+    }
     if (pendingCallback) {
       pendingCallback(email);
       pendingCallback = null;
@@ -106,7 +151,17 @@
       showModal();
     }
 
+    if (storedEmail) {
+      const pendingReturn = safeReturnUrl(getReturnUrl());
+      if (pendingReturn) {
+        consumeReturnUrl();
+        window.location.replace(pendingReturn);
+      }
+    }
+
     if (document.body?.dataset.page === 'main' && !storedEmail) {
+      const returnUrl = safeReturnUrl(window.location.pathname + window.location.search + window.location.hash);
+      setReturnUrl(returnUrl);
       window.location.replace(`index.html${ACCESS_HASH}`);
     }
   });

@@ -1083,6 +1083,7 @@
       const stationParam = params.get('station');
       const albumParam = params.get('album');
       const trackParam = params.get('track');
+      const hasSharedRequest = Boolean(stationParam || (albumParam && trackParam));
       if (stationParam) {
         ensureHomeViewForSharedPlayback();
         const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
@@ -1103,6 +1104,10 @@
         if (foundTrack) return;
 
         pendingSharedPlayback = { albumSlug: albumParam, trackSlug: trackParam };
+      }
+
+      if (hasSharedRequest) {
+        return;
       }
 
       const savedState = loadPlayerState();
