@@ -324,13 +324,17 @@
       const searchClear = document.getElementById('searchClear');
       let searchIndexRebuildTimeout = null;
       let lastCatalogCount = 0;
+      let lastStationCount = 0;
+      let lastFeedCount = 0;
       const SEARCH_TRACK_LIMIT = 7;
       const SEARCH_STATION_LIMIT = 3;
       const SEARCH_MAX_RESULTS = 10;
+      const SEARCH_FEED_LIMIT = 3;
 
       const searchIndex = {
         tracks: [],
-        stations: []
+        stations: [],
+        feeds: []
       };
 
       const searchState = {
@@ -343,7 +347,20 @@
       const resetSearchIndex = () => {
         searchIndex.tracks.length = 0;
         searchIndex.stations.length = 0;
+        searchIndex.feeds.length = 0;
       };
+
+      const getStationList = () => {
+        if (Array.isArray(window.mergedRadioStations) && window.mergedRadioStations.length) {
+          return window.mergedRadioStations;
+        }
+        if (Array.isArray(window.radioStations)) {
+          return window.radioStations;
+        }
+        return Array.isArray(radioStations) ? radioStations : [];
+      };
+
+      const getRssAlbums = () => (Array.isArray(albums) ? albums.filter(album => album?.rssFeed) : []);
 
       const buildTrackEntry = (track, { albumIndex, trackIndex, albumTitle, albumCover } = {}) => {
         const title = track.title || track.name || 'Untitled track';
@@ -416,15 +433,18 @@
           }
         }
 
-        if (Array.isArray(radioStations)) {
-          radioStations.forEach((station, index) => {
+        const stationList = getStationList();
+        if (Array.isArray(stationList) && stationList.length) {
+          stationList.forEach((station, index) => {
             const name = station.name || `Station ${index + 1}`;
             const secondary = station.region || station.country || station.location || '';
             const searchText = normalizeSearchText([
               name,
               station.location,
               station.region,
-              station.country
+              station.country,
+              station.type,
+              'radio'
             ].filter(Boolean).join(' '));
 
             searchIndex.stations.push({
@@ -438,6 +458,32 @@
           });
         }
 
+        const rssAlbums = getRssAlbums();
+        if (rssAlbums.length) {
+          rssAlbums.forEach((album, index) => {
+            const name = album.name || album.title || `Podcast ${index + 1}`;
+            const secondary = album.artist || 'Podcast Feed';
+            const searchText = normalizeSearchText([
+              name,
+              album.artist,
+              album.category,
+              'podcast',
+              'rss'
+            ].filter(Boolean).join(' '));
+
+            searchIndex.feeds.push({
+              id: album.id || `rss-${index}-${name}`,
+              type: 'rss',
+              name,
+              secondary,
+              albumIndex: albums.indexOf(album),
+              searchText
+            });
+          });
+        }
+
+        lastStationCount = searchIndex.stations.length;
+        lastFeedCount = searchIndex.feeds.length;
         updateSearchResults();
         console.log('[search] index rebuilt', { reason, tracks: searchIndex.tracks.length });
       };
@@ -449,11 +495,13 @@
 
         const trackMatches = searchIndex.tracks.filter(item => item.searchText.includes(normalizedQuery));
         const stationMatches = searchIndex.stations.filter(item => item.searchText.includes(normalizedQuery));
+        const feedMatches = searchIndex.feeds.filter(item => item.searchText.includes(normalizedQuery));
 
         const tracks = trackMatches.slice(0, SEARCH_TRACK_LIMIT);
         const stations = stationMatches.slice(0, SEARCH_STATION_LIMIT);
+        const feeds = feedMatches.slice(0, SEARCH_FEED_LIMIT);
 
-        return [...tracks, ...stations].slice(0, SEARCH_MAX_RESULTS);
+        return [...tracks, ...stations, ...feeds].slice(0, SEARCH_MAX_RESULTS);
       };
 
       const normalizeTrackSrc = (value) => {
@@ -535,6 +583,7 @@
 
         const trackResults = searchState.results.filter(result => result.type === 'track');
         const stationResults = searchState.results.filter(result => result.type === 'radio');
+        const feedResults = searchState.results.filter(result => result.type === 'rss');
         const fragment = document.createDocumentFragment();
         let optionIndex = 0;
 
@@ -572,7 +621,13 @@
 
             const badge = document.createElement('span');
             badge.className = 'search-result-badge';
-            badge.textContent = item.type === 'track' ? 'Track' : 'Station';
+            if (item.type === 'track') {
+              badge.textContent = 'Track';
+            } else if (item.type === 'radio') {
+              badge.textContent = 'Station';
+            } else {
+              badge.textContent = 'Podcast';
+            }
 
             option.appendChild(textWrapper);
             option.appendChild(badge);
@@ -588,6 +643,7 @@
 
         appendSection('Tracks', trackResults);
         appendSection('Stations', stationResults);
+        appendSection('Podcasts', feedResults);
 
         if (!optionIndex) {
           const empty = document.createElement('div');
@@ -740,13 +796,22 @@
             selectTrack(result.src, result.title, fallbackIndex, true, null, fallbackAlbumIndex, fallbackMeta);
           }
         } else if (result.type === 'radio') {
-          const station = radioStations[result.index];
+          const stationList = getStationList();
+          const station = stationList[result.index];
           if (!station) {
             return;
           }
           const stationDetail = station.location || station.region || station.country || '';
           const stationTitle = stationDetail ? `${station.name} - ${stationDetail}` : station.name;
           selectRadio(station.url, stationTitle, result.index, station.logo);
+        } else if (result.type === 'rss') {
+          if (!Number.isInteger(result.albumIndex)) {
+            return;
+          }
+          pendingAlbumIndex = result.albumIndex;
+          if (typeof window.openTrackList === 'function') {
+            window.openTrackList();
+          }
         }
       };
 
@@ -797,9 +862,24 @@
         searchIndexRebuildTimeout = window.setTimeout(() => {
           const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
           const providerCount = provider?.trackCatalog?.length || 0;
+          const stationCount = getStationList().length;
+          const feedCount = getRssAlbums().length;
           const isFullLoad = event?.detail?.isFullLoad || event?.detail?.source === 'full';
-          if (providerCount && providerCount <= lastCatalogCount && !isFullLoad) {
-            console.log('[search] index rebuild skipped', { reason, providerCount, lastCatalogCount });
+          const shouldSkip = providerCount
+            && providerCount <= lastCatalogCount
+            && stationCount <= lastStationCount
+            && feedCount <= lastFeedCount
+            && !isFullLoad;
+          if (shouldSkip) {
+            console.log('[search] index rebuild skipped', {
+              reason,
+              providerCount,
+              lastCatalogCount,
+              stationCount,
+              lastStationCount,
+              feedCount,
+              lastFeedCount
+            });
             return;
           }
           buildSearchIndex({ reason });
