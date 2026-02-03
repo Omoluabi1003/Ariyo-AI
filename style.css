@@ -10,6 +10,12 @@ img {
     height: auto;
 }
 
+html,
+body {
+    height: var(--app-height, 100vh);
+    overflow: hidden;
+}
+
 /* General Body Styles */
 body {
     font-family: 'Montserrat', sans-serif;
@@ -17,13 +23,8 @@ body {
     background-color: #000;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
     position: relative;
     text-shadow: 1px 1px 2px #000;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    touch-action: pan-y;
 }
 
 body[data-theme="light"] {
@@ -76,6 +77,7 @@ body[data-theme="light"] .edge-panel-hint {
     --edge-panel-bottom-guard: 18rem;
     --edge-panel-max-height: 70vh;
     --glass-blur: 0px;
+    --header-height: 96px;
 }
 
 .news-banner { 
@@ -598,7 +600,8 @@ body[data-theme='light'] .search-result-badge,
     .content {
         flex: 1 1 auto;
         max-width: none;
-        padding-bottom: 12rem;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+        scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
     }
     .turntable-wrapper {
         --turntable-size: clamp(155px, 20vw, 220px);
@@ -609,13 +612,15 @@ body[data-theme='light'] .search-result-badge,
 .content {
     flex: 1;
     padding: 1.5rem;
+    height: calc(var(--app-height, 100vh) - var(--header-height) - env(safe-area-inset-top));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
-    padding-bottom: 20rem; /* Add padding to avoid overlap */
+    padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+    scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
 }
 
 /* Music Player */
