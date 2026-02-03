@@ -12,8 +12,9 @@ img {
 
 html,
 body {
-    height: var(--app-height, 100vh);
-    overflow: hidden;
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
 }
 
 /* General Body Styles */
@@ -599,8 +600,7 @@ body[data-theme='light'] .search-result-badge,
     .content {
         flex: 1 1 auto;
         max-width: none;
-        padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
-        scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+        padding-bottom: 1.5rem;
     }
     .turntable-wrapper {
         --turntable-size: clamp(155px, 20vw, 220px);
@@ -611,13 +611,9 @@ body[data-theme='light'] .search-result-badge,
 .content {
     flex: 1;
     padding: 1.5rem;
-    height: calc(var(--app-height, 100vh) - var(--header-height) - env(safe-area-inset-top));
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     opacity: 1;
     transition: opacity 0.5s ease-in-out;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
-    scroll-padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+    padding-bottom: 1.5rem;
 }
 
 /* Music Player */
@@ -2218,7 +2214,7 @@ body[data-theme="light"] .close:focus-visible {
         flex-direction: column;
     }
     .content {
-        padding-bottom: 10rem;
+        padding-bottom: 1.5rem;
     }
     .music-player {
         z-index: 1000; /* Ensure the music player is on top */
