@@ -20,14 +20,16 @@ function calculateAlbumDuration(album) {
 
 function getAlbumTrackCount(album, albumIndex) {
   if (!album) return 0;
-  const fallbackTracks = Array.isArray(album.tracks) ? album.tracks : [];
+  const fallbackTracks = Array.isArray(album.tracks)
+    ? album.tracks.filter(track => track)
+    : [];
   const provider = window.AriyoTrackCatalog?.getProvider?.();
   const albumId = Number.isInteger(albumIndex) ? provider?.albumIdByIndex?.[albumIndex] : null;
   const catalogTracks = albumId ? provider?.tracksByAlbumId?.[albumId] : null;
-  if (Array.isArray(catalogTracks) && catalogTracks.length) {
-    return catalogTracks.length;
+  if (fallbackTracks.length) {
+    return fallbackTracks.length;
   }
-  return fallbackTracks.filter(track => track && (track.title || track.name) && (track.src || track.url)).length;
+  return Array.isArray(catalogTracks) ? catalogTracks.length : 0;
 }
 
 function prefersReducedMotion() {
