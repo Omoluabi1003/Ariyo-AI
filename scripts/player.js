@@ -2980,10 +2980,10 @@ function removeTrackFromPlaylist(index) {
       const catalogTracks = albumId && provider?.tracksByAlbumId?.[albumId]
         ? provider.tracksByAlbumId[albumId]
         : [];
-      const fallbackCount = Array.isArray(album.tracks)
-        ? album.tracks.filter(track => track && (track.title || track.name) && (track.src || track.url)).length
-        : 0;
-      const trackCount = catalogTracks.length || fallbackCount;
+      const fallbackTracks = Array.isArray(album.tracks)
+        ? album.tracks.filter(track => track)
+        : [];
+      const trackCount = fallbackTracks.length || catalogTracks.length;
 
       if (trackModalMeta) {
         const countNote = document.createElement('p');
