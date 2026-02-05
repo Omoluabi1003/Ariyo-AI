@@ -10,6 +10,7 @@ let ACTIVE_VERSION = null;
 
 const INSTALL_TIMEOUT_MS = 8000;
 const MEDIA_PREFETCH_TIMEOUT_MS = 5000;
+const AUDIO_CACHE_NAME = `${CACHE_PREFIX}-audio`;
 
 async function notifyClientsOfUpdate(versionIdentifier) {
   const payload = {
@@ -175,7 +176,13 @@ if (self.workbox) {
 
   workbox.routing.registerRoute(
     ({ request, url }) => request.destination === 'audio' || /\.(mp3|aac|m3u8|ts|ogg|opus)$/i.test(url.pathname),
-    new workbox.strategies.NetworkOnly()
+    new workbox.strategies.NetworkFirst({
+      cacheName: AUDIO_CACHE_NAME,
+      networkTimeoutSeconds: 6,
+      plugins: [
+        new workbox.expiration.ExpirationPlugin({ maxEntries: 8, maxAgeSeconds: 7 * 24 * 60 * 60 })
+      ]
+    })
   );
 
   workbox.routing.registerRoute(
@@ -208,6 +215,11 @@ async function openRuntimeCache() {
     ensureFallbackCacheNames();
   }
   return caches.open(RUNTIME_CACHE_NAME);
+}
+
+async function openAudioCache() {
+  await cacheNameReady;
+  return caches.open(AUDIO_CACHE_NAME);
 }
 
 async function limitCacheSize(cache, maxEntries = 50) {
@@ -316,7 +328,27 @@ self.addEventListener('fetch', event => {
     const isStreamPath = /\.(m3u8|ts|aac|mp3|flac|ogg|opus)(\?|$)/i.test(url.pathname);
     const isAudioDestination = event.request.destination === 'audio';
     if (isAudioDestination || isStreamPath || hasRangeRequest) {
-        event.respondWith(fetch(event.request, { cache: 'no-store' }));
+        if (hasRangeRequest) {
+          event.respondWith(fetch(event.request, { cache: 'no-store' }));
+          return;
+        }
+        event.respondWith((async () => {
+          const cache = await openAudioCache();
+          try {
+            const response = await fetch(event.request, { cache: 'no-store' });
+            if (response && response.ok) {
+              await cache.put(event.request, response.clone());
+              await limitCacheSize(cache, 8);
+            }
+            return response;
+          } catch (error) {
+            const cached = await cache.match(event.request);
+            if (cached) {
+              return cached;
+            }
+            throw error;
+          }
+        })());
         return;
     }
 

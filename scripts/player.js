@@ -742,6 +742,11 @@ let wakeLockSentinel = null;
 let wakeLockRetryTimer = null;
 let wakeLockPending = false;
 const WAKE_LOCK_RETRY_MS = 15000;
+const SILENT_AUDIO_SRC = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=';
+const backgroundKeepAlive = {
+  audio: null,
+  active: false
+};
 
 const networkRecoveryState = {
   active: false,
@@ -881,6 +886,53 @@ function scheduleWakeLockRetry(reason = 'retry') {
     wakeLockRetryTimer = null;
     requestPlaybackWakeLock(`retry-${reason}`);
   }, WAKE_LOCK_RETRY_MS);
+}
+
+function getKeepAliveAudio() {
+  if (backgroundKeepAlive.audio) {
+    return backgroundKeepAlive.audio;
+  }
+  const audio = new Audio();
+  audio.src = SILENT_AUDIO_SRC;
+  audio.loop = true;
+  audio.preload = 'auto';
+  audio.volume = 0.001;
+  audio.setAttribute('playsinline', 'true');
+  audio.setAttribute('aria-hidden', 'true');
+  backgroundKeepAlive.audio = audio;
+  return audio;
+}
+
+function startBackgroundKeepAlive(reason = 'playback') {
+  if (backgroundKeepAlive.active || userInitiatedPause) {
+    return;
+  }
+  if (!playIntent && playbackStatus !== PlaybackStatus.playing) {
+    return;
+  }
+  const audio = getKeepAliveAudio();
+  backgroundKeepAlive.active = true;
+  const playPromise = audio.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(error => {
+      backgroundKeepAlive.active = false;
+      console.warn(`[background] Silent keep-alive blocked during ${reason}:`, error);
+    });
+  }
+}
+
+function stopBackgroundKeepAlive() {
+  if (!backgroundKeepAlive.audio) {
+    backgroundKeepAlive.active = false;
+    return;
+  }
+  try {
+    backgroundKeepAlive.audio.pause();
+    backgroundKeepAlive.audio.currentTime = 0;
+  } catch (error) {
+    // Ignore cleanup errors.
+  }
+  backgroundKeepAlive.active = false;
 }
 
 function requestPlaybackWakeLock(reason = 'playback') {
@@ -1438,6 +1490,7 @@ function ensureBackgroundPlayback(reason = 'hidden') {
       console.warn(`[background] Audio context resume failed during ${reason}:`, error);
     });
     ensureInitialTrackLoaded(true);
+    startBackgroundKeepAlive(`background-${reason}`);
   }
 
   if (audioPlayer.paused || audioPlayer.ended || audioPlayer.readyState < haveCurrentData) {
@@ -2277,8 +2330,22 @@ function savePlaylist() {
 
 function addTrackToPlaylistByIndex(albumIndex, trackIndex) {
   if (albumIndex === playlistAlbumIndex || trackIndex < 0) return;
-  const track = albums[albumIndex].tracks[trackIndex];
-  const playlist = albums[playlistAlbumIndex].tracks;
+  const album = albums[albumIndex];
+  if (!album || !Array.isArray(album.tracks)) {
+    alert('Select a track before adding it to your playlist.');
+    return;
+  }
+  const track = album.tracks[trackIndex];
+  if (!track) {
+    alert('Select a track before adding it to your playlist.');
+    return;
+  }
+  const playlistAlbum = albums[playlistAlbumIndex];
+  const playlist = playlistAlbum?.tracks;
+  if (!Array.isArray(playlist)) {
+    alert('Playlist is unavailable right now.');
+    return;
+  }
   if (!playlist.some(t => t.src === track.src)) {
     const trackToAdd = { ...track };
     if (!trackToAdd.lrc) {
@@ -2802,8 +2869,13 @@ function removeTrackFromPlaylist(index) {
     }
 
     function toggleLyrics() {
+      const currentAlbum = albums[currentAlbumIndex];
+      const currentTrack = currentAlbum?.tracks?.[currentTrackIndex];
       if (lyricsContainer.style.display === 'none' || !lyricsContainer.style.display) {
         lyricsContainer.style.display = 'block';
+        if (!currentTrack?.lrc) {
+          lyricsContainer.innerHTML = '<p>Lyrics are not available for this track yet.</p>';
+        }
       } else {
         lyricsContainer.style.display = 'none';
       }
@@ -4155,6 +4227,22 @@ function confirmPendingRadioSelection(reason, detail = {}) {
   }
 }
 
+function resetPlaybackForSourceSwitch() {
+  clearQuickStartDeadline();
+  clearSilentStartGuard();
+  clearBufferingHedge();
+  clearWaitingRetry();
+  clearSlowBufferRescue();
+  audioPlayer.pause();
+  try {
+    audioPlayer.currentTime = 0;
+  } catch (_) {}
+  audioPlayer.loop = false;
+  audioPlayer.preload = 'none';
+  audioHealer.clearDurationTimer();
+  stopBackgroundKeepAlive();
+}
+
 
 function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex, fallbackMeta = null) {
       debugConsole(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
@@ -4173,9 +4261,10 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       resetOfflineFallback();
       cancelNetworkRecovery();
       clearSlowBufferRescue();
+      resetPlaybackForSourceSwitch();
       void warmupAudioOutput();
       void resumeAudioContext();
-      audioPlayer.autoplay = true;
+      audioPlayer.autoplay = false;
       ensureAudiblePlayback();
       if (isTrackModalOpen()) {
         closeTrackList(true);
@@ -4295,9 +4384,10 @@ function selectRadio(src, title, index, logo) {
       trackHistory.length = 0;
       cancelNetworkRecovery();
       clearSlowBufferRescue();
+      resetPlaybackForSourceSwitch();
       void warmupAudioOutput();
       void resumeAudioContext();
-      audioPlayer.autoplay = true;
+      audioPlayer.autoplay = false;
       ensureAudiblePlayback();
       debugConsole(`[selectRadio] Selecting radio: ${title}`);
       setPendingRadioSelection({ index, title, src });
@@ -4658,10 +4748,6 @@ function selectRadio(src, title, index, logo) {
       }
 
       audioPlayer.load(); // Force load
-
-      if (autoPlay && audioPlayer.paused) {
-        attemptPlay();
-      }
     }
 
     function getFrequencySliceAverage(dataArray, index, barCount) {
@@ -5339,6 +5425,7 @@ function pauseMusic() {
     clearBackgroundResume();
     clearQuickStartDeadline();
     clearSilentStartGuard();
+    stopBackgroundKeepAlive();
     audioPlayer.pause();
     vinylWaiting = false;
     setPlayIntent(false);
@@ -5357,8 +5444,22 @@ function stopMusic() {
     clearBackgroundResume();
     clearQuickStartDeadline();
     clearSilentStartGuard();
+    clearBufferingHedge();
+    clearWaitingRetry();
+    clearSlowBufferRescue();
+    stopBackgroundKeepAlive();
+    audioHealer.clearDurationTimer();
     audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    try {
+      audioPlayer.currentTime = 0;
+    } catch (error) {
+      // Ignore seek reset errors.
+    }
+    audioPlayer.loop = false;
+    audioPlayer.preload = 'none';
+    try {
+      audioPlayer.load();
+    } catch (_) {}
     vinylWaiting = false;
     setPlayIntent(false);
     manageVinylRotation();
@@ -5487,6 +5588,7 @@ function updateTrackTime() {
         manageVinylRotation();
         return;
       }
+      stopBackgroundKeepAlive();
       vinylWaiting = false;
       if (isBackgroundPause) {
         setPlayIntent(true);
@@ -5527,6 +5629,7 @@ function updateTrackTime() {
       manageVinylRotation(); // spin the turntable if needed
       ensureAudiblePlayback();
       requestPlaybackWakeLock('playing');
+      startBackgroundKeepAlive('playing');
       if (currentRadioIndex >= 0) {
         confirmPendingRadioSelection('station-playing', {
           resolvedUrl: audioPlayer.currentSrc || audioPlayer.src
@@ -5559,7 +5662,16 @@ function updateTrackTime() {
         if (wakeLockPending || playbackStatus === PlaybackStatus.playing) {
           requestPlaybackWakeLock('visibilitychange');
         }
+        if (!userInitiatedPause && playIntent && audioPlayer.paused) {
+          ensureBackgroundPlayback('visibilitychange-visible');
+        }
         syncMediaSessionPlaybackState();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      if (!userInitiatedPause && playIntent && audioPlayer.paused) {
+        ensureBackgroundPlayback('focus');
       }
     });
 

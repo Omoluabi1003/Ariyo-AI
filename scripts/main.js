@@ -8,28 +8,26 @@
 
     /**
      * Builds a standardized, title-first share payload for music and radio experiences.
-     * - Always bolds the heading and places it on the first line.
-     * - Uses the "Title by Artist" phrasing to keep the artist close to the track name.
-     * - Keeps the URL out of the share text to avoid duplicate links in some share targets.
-     * - Ensures the URL is normalized to HTTPS and placed on its own line in QR payloads.
+     * Uses simple text (no markdown) to keep share targets readable across apps.
      *
      * @param {string} title - The track or station title; falls back to "Àríyò AI" when empty.
      * @param {string} [artist] - Optional artist name appended to the title with "by".
+     * @param {string[]} [details] - Optional detail lines (cultural notes, storyliner, etc.).
      * @param {string} url - The share target URL, automatically converted to HTTPS.
-     * @returns {{ heading: string, url: string, shareText: string, qrText: string }}
+     * @returns {{ heading: string, url: string, shareText: string }}
      */
-    function formatMusicSharePayload(title, artist, url) {
+    function formatMusicSharePayload(title, artist, details, url) {
       const safeUrl = ensureHttps(url);
       const safeTitle = (title || 'Àríyò AI').trim();
       const safeArtist = (artist || '').trim();
       const heading = safeArtist ? `${safeTitle} by ${safeArtist}` : safeTitle;
-      const boldHeading = `**${heading}**`;
+      const detailLines = Array.isArray(details) ? details.filter(Boolean) : [];
+      const shareText = [heading, ...detailLines].join('\n').trim();
 
       return {
         heading,
         url: safeUrl,
-        shareText: boldHeading,
-        qrText: `${boldHeading}\n${safeUrl}`
+        shareText
       };
     }
 
@@ -187,65 +185,128 @@
       return track ? track.culturalNote : null;
     }
 
+    function getPlaybackStoryliner(playbackContext) {
+      if (!playbackContext || playbackContext.type !== 'track') return null;
+      const album = albums.find(item => slugify(item.name) === playbackContext.albumSlug);
+      return album && album.storyliner ? album.storyliner : null;
+    }
+
     function formatProverbSharePayload(proverb, url) {
       const safeUrl = ensureHttps(url);
       const heading = 'Proverb of the Day';
       const safeYo = proverb && proverb.yo ? proverb.yo : '';
       const safeEn = proverb && proverb.en ? proverb.en : '';
       const lines = [safeYo, safeEn].filter(Boolean).join('\n');
-      const shareText = `**${heading}**\n${lines}`.trim();
+      const shareText = [heading, lines].filter(Boolean).join('\n').trim();
       return {
         heading,
         url: safeUrl,
-        shareText,
-        qrText: `${shareText}\n${safeUrl}`.trim()
+        shareText
       };
     }
 
-    async function shareContent({ includeProverbCard = false } = {}) {
-      closeShareMenu();
-      const shareTarget = normalizeShareTargetPath(window.location.href);
+    function formatStorylinerSummary(storyliner) {
+      if (!storyliner) return '';
+      const summaryParts = [
+        storyliner.origin ? `Origin: ${storyliner.origin}` : null,
+        storyliner.inspiration ? `Inspiration: ${storyliner.inspiration}` : null,
+        storyliner.whyItMatters ? `Why it matters: ${storyliner.whyItMatters}` : null
+      ].filter(Boolean);
+      return summaryParts.join(' • ');
+    }
+
+    function buildShareUrl(playbackContext, { includeProverbCard = false } = {}) {
+      const baseTarget = normalizeShareTargetPath(window.location.href);
+      const shareTarget = new URL('share.html', baseTarget.toString());
       shareTarget.search = '';
-
-      const playbackContext = deriveActivePlaybackContext();
-      const defaultTitle = "Àríyò AI - Smart Naija AI";
-      let shareInfo = formatMusicSharePayload(defaultTitle, null, ensureHttps(shareTarget.toString()));
-
-      let proverbPayload = null;
-      if (includeProverbCard && window.AriyoProverbUtils) {
-        const culturalNote = getPlaybackCulturalNote(playbackContext);
-        const proverb = window.AriyoProverbUtils.resolveProverb({ culturalNote });
-        const cardUrl = new URL('share.html', shareTarget.toString());
-        cardUrl.searchParams.set('card', 'proverb');
-        if (playbackContext && playbackContext.type === 'track') {
-          if (playbackContext.albumSlug && playbackContext.trackSlug) {
-            cardUrl.searchParams.set('album', playbackContext.albumSlug);
-            cardUrl.searchParams.set('track', playbackContext.trackSlug);
-          }
-        }
-        proverbPayload = formatProverbSharePayload(proverb, cardUrl.toString());
-      }
 
       if (playbackContext && playbackContext.type === 'track') {
         if (playbackContext.albumSlug && playbackContext.trackSlug) {
           shareTarget.searchParams.set('album', playbackContext.albumSlug);
           shareTarget.searchParams.set('track', playbackContext.trackSlug);
         }
+        if (includeProverbCard) {
+          shareTarget.searchParams.set('card', 'proverb');
+        }
+        return shareTarget.toString();
+      }
+
+      if (playbackContext && playbackContext.type === 'radio') {
+        if (playbackContext.stationSlug) {
+          shareTarget.searchParams.set('station', playbackContext.stationSlug);
+        }
+        return shareTarget.toString();
+      }
+
+      return baseTarget.toString();
+    }
+
+    async function copyShareLink(url) {
+      const safeUrl = ensureHttps(url);
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        try {
+          await navigator.clipboard.writeText(safeUrl);
+          alert('Link copied! Share it anywhere.');
+          return true;
+        } catch (error) {
+          console.warn('Clipboard copy failed:', error);
+        }
+      }
+      window.prompt('Copy this link to share:', safeUrl);
+      return false;
+    }
+
+    async function shareContent({ includeProverbCard = false } = {}) {
+      closeShareMenu();
+      const playbackContext = deriveActivePlaybackContext();
+      const defaultTitle = "Àríyò AI - Smart Naija AI";
+      const storyliner = getPlaybackStoryliner(playbackContext);
+      const storylinerSummary = formatStorylinerSummary(storyliner);
+      let shareInfo = formatMusicSharePayload(
+        defaultTitle,
+        null,
+        [],
+        buildShareUrl(playbackContext, { includeProverbCard })
+      );
+
+      let proverbPayload = null;
+      if (includeProverbCard && window.AriyoProverbUtils) {
+        const culturalNote = getPlaybackCulturalNote(playbackContext);
+        const proverb = window.AriyoProverbUtils.resolveProverb({ culturalNote });
+        proverbPayload = formatProverbSharePayload(
+          proverb,
+          buildShareUrl(playbackContext, { includeProverbCard: true })
+        );
+      }
+
+      if (playbackContext && playbackContext.type === 'track') {
+        const detailLines = [];
+        if (playbackContext.artist) {
+          detailLines.push(`Artist: ${playbackContext.artist}`);
+        }
+        const culturalNote = getPlaybackCulturalNote(playbackContext);
+        if (culturalNote) {
+          detailLines.push(`Cultural note: ${culturalNote}`);
+        }
+        if (storylinerSummary) {
+          detailLines.push(`Storyliner: ${storylinerSummary}`);
+        }
         shareInfo = formatMusicSharePayload(
           playbackContext.title,
           playbackContext.artist,
-          shareTarget.toString()
+          detailLines,
+          buildShareUrl(playbackContext, { includeProverbCard })
         );
       } else if (playbackContext && playbackContext.type === 'radio') {
-        shareTarget.searchParams.set('station', playbackContext.stationSlug);
-        shareTarget.searchParams.delete('album');
-        shareTarget.searchParams.delete('track');
-        shareInfo = formatMusicSharePayload(playbackContext.title, null, shareTarget.toString());
+        shareInfo = formatMusicSharePayload(
+          playbackContext.title,
+          null,
+          ['Listen live with Àríyò AI.'],
+          buildShareUrl(playbackContext, { includeProverbCard })
+        );
       }
 
       const activeShareInfo = proverbPayload || shareInfo;
-
-      showQRCode(activeShareInfo.url, activeShareInfo.heading, activeShareInfo.qrText);
 
       const sharePayload = {
         title: activeShareInfo.heading,
@@ -253,54 +314,18 @@
         url: activeShareInfo.url
       };
 
-      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(activeShareInfo.qrText)}`;
-
-      if (navigator.canShare) {
-        try {
-          const response = await fetch(qrCodeUrl);
-          const blob = await response.blob();
-          const file = new File([blob], 'qr-code.png', { type: 'image/png' });
-
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ ...sharePayload, files: [file] });
-            return;
-          }
-        } catch (err) {
-          console.error('QR share failed:', err);
-        }
-      }
-
       if (navigator.share) {
-        navigator.share(sharePayload).catch((err) => console.error("Share failed:", err));
+        try {
+          await navigator.share(sharePayload);
+          return;
+        } catch (err) {
+          console.error('Share failed:', err);
+        }
       } else {
-        alert("This browser keeps sharing simple—copy the link and keep the vibe moving.");
-      }
-    }
-
-    function showQRCode(url, heading, text) {
-      const modal = document.getElementById('qrModal');
-      const img = document.getElementById('qrImage');
-      const trackName = document.getElementById('qrTrackName');
-      const shareDetails = document.getElementById('qrShareDetails');
-      const safeHeading = heading || 'Àríyò AI';
-      const safeUrl = ensureHttps(url);
-      const formattedText = text || `**${safeHeading}**\n${safeUrl}`;
-      trackName.innerHTML = `<strong>${safeHeading}</strong>`;
-
-      if (shareDetails) {
-        shareDetails.innerHTML = `
-          <p class="qr-share-heading"><strong>${safeHeading}</strong></p>
-          <p class="qr-share-links"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a></p>
-        `;
+        console.info('Web Share API not supported; falling back to copy link.');
       }
 
-      img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(formattedText)}`;
-      modal.classList.add('active');
-    }
-
-    function closeQRModal() {
-      const modal = document.getElementById('qrModal');
-      modal.classList.remove('active');
+      await copyShareLink(activeShareInfo.url);
     }
 
     /* Utility to create URL-friendly slugs */
@@ -1158,6 +1183,23 @@
       }
     });
 
+    function announceResumePrompt(savedState) {
+      if (!savedState) return;
+      const resumePosition = Number.isFinite(savedState.playbackPosition) ? savedState.playbackPosition : 0;
+      const formatter = typeof formatTime === 'function'
+        ? formatTime
+        : (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+      const resumeMessage = resumePosition > 5
+        ? `Resume from ${formatter(resumePosition)}? Tap play to continue.`
+        : 'Ready when you are. Tap play to start.';
+      if (typeof setPlaybackStatus === 'function' && typeof PlaybackStatus !== 'undefined') {
+        setPlaybackStatus(PlaybackStatus.paused, { message: resumeMessage });
+      }
+      if (typeof setPlayIntent === 'function') {
+        setPlayIntent(false);
+      }
+    }
+
     function initializePlayer() {
       const params = new URLSearchParams(window.location.search);
       const stationParam = params.get('station');
@@ -1250,6 +1292,7 @@
           });
         }
         updateTrackListModal();
+        announceResumePrompt(savedState);
         const controls = document.querySelector(".music-controls.icons-only");
         // Updated section for shuffle button text:
         const shuffleBtn = controls.querySelector("button[aria-label='Toggle shuffle']");
@@ -1667,7 +1710,6 @@
         openShareMenu,
         closeShareMenu,
         shareContent,
-        closeQRModal,
         navigateToAbout
       });
     }
