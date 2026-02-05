@@ -1308,9 +1308,11 @@ function primeInitialBuffer() {
   };
 
   if (typeof requestIdleCallback === 'function') {
-    requestIdleCallback(kickoff, { timeout: 1500 });
+    requestIdleCallback(kickoff, { timeout: 400 });
+  } else if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(kickoff);
   } else {
-    setTimeout(kickoff, 500);
+    setTimeout(kickoff, 0);
   }
 }
 
