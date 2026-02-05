@@ -1130,6 +1130,23 @@ body {
   }
 }
 
+@media (hover: none) {
+  .music-controls.icons-only button {
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .music-controls.icons-only button:hover,
+  .music-controls.icons-only button:focus-visible {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .music-controls.icons-only .play-button:hover {
+    transform: none;
+    box-shadow: 0 0 10px var(--player-accent), 0 0 20px var(--player-accent) inset;
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

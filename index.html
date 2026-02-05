@@ -450,6 +450,7 @@
               const slowLoadTimeoutMs = 4500;
               let slowLoadTimer = null;
               const mediaSessionSupported = 'mediaSession' in navigator;
+              let wakeLock = null;
 
               const updateSpeakerIcon = (playing) => {
                   speakerContainer.setAttribute('aria-pressed', playing ? 'true' : 'false');
@@ -477,6 +478,40 @@
                       ]
                   });
                   navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+              };
+
+              const requestWakeLock = async () => {
+                  if (!('wakeLock' in navigator)) return;
+                  if (wakeLock) return;
+                  try {
+                      wakeLock = await navigator.wakeLock.request('screen');
+                      wakeLock.addEventListener('release', () => {
+                          wakeLock = null;
+                      });
+                  } catch (error) {
+                      console.log('Wake lock unavailable:', error);
+                  }
+              };
+
+              const releaseWakeLock = () => {
+                  if (!wakeLock) return;
+                  wakeLock.release().catch(() => {});
+                  wakeLock = null;
+              };
+
+              const registerMediaSessionHandlers = () => {
+                  if (!mediaSessionSupported) return;
+                  const safeHandler = (action, handler) => {
+                      try {
+                          navigator.mediaSession.setActionHandler(action, handler);
+                      } catch (error) {
+                          console.log(`MediaSession handler failed (${action}):`, error);
+                      }
+                  };
+                  safeHandler('play', () => playAudio(true));
+                  safeHandler('pause', () => pauseAudio(true));
+                  safeHandler('previoustrack', () => changeTrack(-1));
+                  safeHandler('nexttrack', () => changeTrack(1));
               };
 
               const ensureBackgroundPlayback = (reason) => {
@@ -539,6 +574,7 @@
                       userPaused = false;
                       updateSpeakerIcon(true);
                       updateMediaSession(tracks[currentTrackIndex] || fallbackTrack);
+                      requestWakeLock();
                   }).catch(error => {
                       console.log("Audio playback failed:", error);
                   });
@@ -551,6 +587,7 @@
                   }
                   isPlaying = false;
                   updateSpeakerIcon(false);
+                  releaseWakeLock();
               };
 
               const loadTrack = (index, force = false) => {
@@ -562,6 +599,13 @@
                   startSlowLoadGuard();
                   updateMediaSession(tracks[currentTrackIndex]);
                   playAudio(force);
+              };
+
+              const changeTrack = (direction) => {
+                  if (!tracks.length) return;
+                  const total = tracks.length;
+                  currentTrackIndex = (currentTrackIndex + direction + total) % total;
+                  loadTrack(currentTrackIndex, true);
               };
 
               const playFallback = (force = false) => {
@@ -629,6 +673,8 @@
                   }
               });
 
+              registerMediaSessionHandlers();
+
 
               window.addEventListener('offline', () => {
                   scheduleReconnect();
@@ -674,6 +720,9 @@
                       ensureBackgroundPlayback('visibilitychange');
                   } else if (mediaSessionSupported) {
                       navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+                      if (isPlaying) {
+                          requestWakeLock();
+                      }
                   }
               });
 
@@ -682,9 +731,18 @@
               });
 
               audio.addEventListener('pause', () => {
+                  if (userPaused) {
+                      return;
+                  }
                   if (document.visibilityState === 'hidden') {
                       ensureBackgroundPlayback('hidden-pause');
+                      return;
                   }
+                  setTimeout(() => {
+                      if (!userPaused && audio.paused) {
+                          ensureBackgroundPlayback('idle-pause');
+                      }
+                  }, 300);
               });
 
               const { animate, stagger } = window.motion || {};
