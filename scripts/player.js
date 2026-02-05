@@ -1222,16 +1222,26 @@ function showBufferingState(message = 'Lining up your track...') {
 }
 
   function getDefaultTrack() {
-    const fallbackAlbum = albums && albums.length ? albums[0] : null;
-  const fallbackTrack = fallbackAlbum && fallbackAlbum.tracks && fallbackAlbum.tracks.length
-    ? fallbackAlbum.tracks[0]
-    : null;
+    if (!albums || !albums.length) {
+      return null;
+    }
 
-  if (!fallbackAlbum || !fallbackTrack) {
-    return null;
-  }
+    const candidates = [];
+    albums.forEach((album, albumIndex) => {
+      if (!album || !Array.isArray(album.tracks)) return;
+      album.tracks.forEach((track, trackIndex) => {
+        if (track) {
+          candidates.push({ albumIndex, trackIndex, track, album });
+        }
+      });
+    });
 
-    return { albumIndex: 0, trackIndex: 0, track: fallbackTrack, album: fallbackAlbum };
+    if (!candidates.length) {
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    return candidates[randomIndex];
   }
 
   function isTrackModalOpen() {

@@ -1175,6 +1175,9 @@
             stationIndex,
             station.logo
           );
+          if (typeof attemptPlay === 'function') {
+            attemptPlay();
+          }
           return;
         }
       }
