@@ -4,7 +4,10 @@
 
   const titleEl = document.getElementById('shareCardTitle');
   const linkEl = document.getElementById('shareCardLink');
-  const qrEl = document.getElementById('shareCardQr');
+  const artworkEl = document.getElementById('shareCardArtwork');
+  const trackMetaEl = document.getElementById('shareCardTrack');
+  const albumMetaEl = document.getElementById('shareCardAlbum');
+  const audioMetaEl = document.getElementById('shareCardAudio');
   const proverbYoEl = document.getElementById('proverbYo');
   const proverbEnEl = document.getElementById('proverbEn');
   const sourceEl = document.getElementById('shareCardSource');
@@ -33,7 +36,7 @@
       .replace(/(^-|-$)+/g, '');
   }
 
-  function updateMeta({ title, description }) {
+  function updateMeta({ title, description, image }) {
     if (title) {
       document.title = title;
       const ogTitle = document.querySelector('meta[property="og:title"]');
@@ -44,6 +47,10 @@
       if (meta) meta.setAttribute('content', description);
       const ogDescription = document.querySelector('meta[property="og:description"]');
       if (ogDescription) ogDescription.setAttribute('content', description);
+    }
+    if (image) {
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) ogImage.setAttribute('content', image);
     }
   }
 
@@ -65,13 +72,37 @@
     return baseUrl.toString();
   }
 
-  function updateLinkAndQr({ albumSlug, trackSlug }) {
-    if (!linkEl || !qrEl) return;
+  function resolveUrl(value) {
+    if (!value) return '';
+    try {
+      return new URL(value, window.location.href).toString();
+    } catch (error) {
+      return value;
+    }
+  }
+
+  function updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData }) {
+    if (!linkEl) return;
     const shareUrl = safeUrl(buildShareUrl({ albumSlug, trackSlug }));
     linkEl.textContent = shareUrl;
     linkEl.setAttribute('href', shareUrl);
-    const qrPayload = `${shareUrl}`;
-    qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrPayload)}`;
+    const fallbackCover = resolveUrl('icons/Ariyo.png');
+    const cover = albumData && albumData.cover ? resolveUrl(albumData.cover) : fallbackCover;
+    if (artworkEl) {
+      artworkEl.src = cover;
+      artworkEl.alt = albumData ? `${albumData.name} album cover` : 'Àríyò AI cover art';
+    }
+    if (trackMetaEl) {
+      trackMetaEl.textContent = trackData ? safeText(trackData.title) : 'Select a track to share.';
+    }
+    if (albumMetaEl) {
+      albumMetaEl.textContent = albumData ? safeText(albumData.name) : 'Àríyò AI';
+    }
+    if (audioMetaEl) {
+      const audioSource = trackData && trackData.src ? resolveUrl(trackData.src) : shareUrl;
+      audioMetaEl.textContent = audioSource;
+    }
+    return { shareUrl, cover };
   }
 
   function renderProverbCard() {
@@ -103,11 +134,12 @@
     sourceEl.textContent = trackData
       ? `Shared from Àríyò AI • ${window.location.origin}`
       : `Shared from Àríyò AI • ${window.location.origin}`;
-    updateLinkAndQr({ albumSlug, trackSlug });
+    const metaInfo = updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData });
 
     updateMeta({
       title: `Proverb of the Day • ${title}`,
-      description: `${note.yo} — ${note.en}`.trim()
+      description: `${note.yo} — ${note.en}`.trim(),
+      image: metaInfo && metaInfo.cover
     });
   }
 
@@ -119,8 +151,13 @@
       linkEl.textContent = safeUrl(window.location.origin);
       linkEl.setAttribute('href', safeUrl(window.location.origin));
     }
-    if (qrEl) {
-      qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(safeUrl(window.location.origin))}`;
+    const fallbackCover = resolveUrl('icons/Ariyo.png');
+    if (artworkEl) {
+      artworkEl.src = fallbackCover;
+      artworkEl.alt = 'Àríyò AI cover art';
     }
+    if (trackMetaEl) trackMetaEl.textContent = 'Select a track to share.';
+    if (albumMetaEl) albumMetaEl.textContent = 'Àríyò AI';
+    if (audioMetaEl) audioMetaEl.textContent = safeUrl(window.location.origin);
   }
 })();
