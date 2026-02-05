@@ -12,6 +12,7 @@
   const root = document.documentElement;
   let isUpdateScheduled = false;
   let lastMetrics = null;
+  let initialized = false;
 
   const setViewportVars = () => {
     const viewport = window.visualViewport;
@@ -43,6 +44,8 @@
   };
 
   const init = () => {
+    if (initialized) return;
+    initialized = true;
     setViewportVars();
 
     window.addEventListener('resize', scheduleUpdate, { passive: true });
@@ -58,6 +61,7 @@
   };
 
   if (document.readyState === 'loading') {
+    init();
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     init();

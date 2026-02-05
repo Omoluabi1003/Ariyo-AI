@@ -60,7 +60,7 @@
 
   const isIdle = () => {
     if (document.hidden) {
-      return true;
+      return !isMediaPlaying();
     }
     const idleFor = Date.now() - lastInteraction;
     return idleFor > IDLE_THRESHOLD_MS && !isMediaPlaying();
