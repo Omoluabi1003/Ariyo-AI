@@ -172,12 +172,18 @@
       if (firstAction) {
         firstAction.focus();
       }
+      if (window.AriyoScrollLock?.lockScroll) {
+        window.AriyoScrollLock.lockScroll('modal:share');
+      }
     }
 
     function closeShareMenu() {
       const modal = document.getElementById('shareOptionsModal');
       if (!modal) return;
       modal.remove();
+      if (window.AriyoScrollLock?.unlockScroll) {
+        window.AriyoScrollLock.unlockScroll('modal:share');
+      }
     }
 
     function getPlaybackCulturalNote(playbackContext) {

@@ -4292,6 +4292,22 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       if (isTrackModalOpen()) {
         closeTrackList(true);
       }
+      if (window.AriyoScrollLock?.ensureUnlocked) {
+        window.AriyoScrollLock.ensureUnlocked({ reason: 'track-selection' });
+      }
+      if (DEBUG_AUDIO && window.AriyoScrollLock?.getActiveOverlays) {
+        const activeElement = document.activeElement;
+        const overlayLabels = window.AriyoScrollLock.getActiveOverlays()
+          .map(overlay => overlay.id || overlay.className || overlay.tagName)
+          .filter(Boolean);
+        debugLog('track-selection-ui', {
+          trackModalOpen: isTrackModalOpen(),
+          overlayCount: overlayLabels.length,
+          overlays: overlayLabels,
+          focusedElement: activeElement ? (activeElement.id || activeElement.className || activeElement.tagName) : null,
+          url: window.location.href
+        });
+      }
       const fallbackAlbumLabel = fallbackMeta?.album || '';
       const albumLabel = albums?.[currentAlbumIndex]?.name || fallbackAlbumLabel || 'Unknown album';
       debugConsole(`[selectTrack] Selecting track: ${title} from album: ${albumLabel}`);
