@@ -50,6 +50,25 @@
         .replace(/(^-|-$)+/g, '');
     }
 
+    function hasSharedPlaybackRequest() {
+      if (typeof window === 'undefined') return false;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const stationParam = params.get('station');
+        if (stationParam) {
+          return radioStations.some(station => slugifyLabel(station?.name) === stationParam);
+        }
+        const albumParam = params.get('album');
+        const trackParam = params.get('track');
+        if (albumParam && trackParam) {
+          return albums.some(album => slugifyLabel(album?.name) === albumParam);
+        }
+        return false;
+      } catch (error) {
+        return false;
+      }
+    }
+
     function prefersReducedMotion() {
       return Boolean(reducedMotionQuery && reducedMotionQuery.matches);
     }
@@ -1305,6 +1324,9 @@ function ensureInitialTrackLoaded(silent = true, { primeSource = true } = {}) {
   if (audioPlayer.src) {
     return true;
   }
+  if (hasSharedPlaybackRequest()) {
+    return false;
+  }
 
   resetOfflineFallback();
 
@@ -1349,6 +1371,7 @@ function ensureInitialTrackLoaded(silent = true, { primeSource = true } = {}) {
 
 function primeInitialBuffer() {
   if (audioPlayer.src) return;
+  if (hasSharedPlaybackRequest()) return;
 
   const kickoff = () => {
     warmupAudioOutput().finally(() => {
