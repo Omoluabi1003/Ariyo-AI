@@ -188,6 +188,9 @@ function openAlbumList() {
       populateAlbumList();
 
       modal.style.display = 'flex';
+      if (window.AriyoScrollLock?.lockScroll) {
+        window.AriyoScrollLock.lockScroll('modal:album');
+      }
 
       animateModalIn(modalContent);
       console.log('Album list opened, animating...');
@@ -195,6 +198,9 @@ function openAlbumList() {
 
     function closeAlbumList() {
       const modal = document.getElementById('albumModal');
+      if (window.AriyoScrollLock?.unlockScroll) {
+        window.AriyoScrollLock.unlockScroll('modal:album');
+      }
       animateModalOut(modal.querySelector('.modal-content'), () => { modal.style.display = 'none'; });
       console.log('Album list closed');
     }
@@ -265,6 +271,9 @@ function openAlbumList() {
           updateTrackListModal(true);
         });
       }
+      if (window.AriyoScrollLock?.lockScroll) {
+        window.AriyoScrollLock.lockScroll('modal:track');
+      }
       const closeButton = modal.querySelector('.close');
       if (closeButton instanceof HTMLElement) {
         closeButton.focus({ preventScroll: true });
@@ -276,6 +285,9 @@ function openAlbumList() {
     function closeTrackList(immediate = false) {
       const modal = document.getElementById('trackModal');
       if (!modal) return;
+      if (window.AriyoScrollLock?.unlockScroll) {
+        window.AriyoScrollLock.unlockScroll('modal:track');
+      }
       if (trackModalState.keyHandler) {
         modal.removeEventListener('keydown', trackModalState.keyHandler);
         trackModalState.keyHandler = null;
@@ -338,6 +350,10 @@ function openAlbumList() {
         return;
       }
 
+      if (window.AriyoScrollLock?.unlockScroll) {
+        window.AriyoScrollLock.unlockScroll('modal:radio');
+      }
+
       const modalContent = modal.querySelector('.modal-content');
       if (modalContent && typeof gsap !== 'undefined') {
         // Clean up lingering tweens when closing the modal without animations.
@@ -359,6 +375,9 @@ function openAlbumList() {
       const modalContent = modal.querySelector('.modal-content');
 
       modal.style.display = 'flex';
+      if (window.AriyoScrollLock?.lockScroll) {
+        window.AriyoScrollLock.lockScroll('modal:radio');
+      }
 
       animateModalIn(modalContent);
       console.log('Radio list opened, animating...');
@@ -932,6 +951,9 @@ function openPanel(targetId, trigger = null) {
 
     panel.style.display = 'block';
     panel.setAttribute('aria-hidden', 'false');
+    if (window.AriyoScrollLock?.lockScroll) {
+        window.AriyoScrollLock.lockScroll(`panel:${targetId}`);
+    }
     const opener = trigger || document.activeElement;
     if (opener) {
         panelLastTrigger.set(targetId, opener);
@@ -950,6 +972,9 @@ function closePanel(targetId) {
 
     panel.style.display = 'none';
     panel.setAttribute('aria-hidden', 'true');
+    if (window.AriyoScrollLock?.unlockScroll) {
+        window.AriyoScrollLock.unlockScroll(`panel:${targetId}`);
+    }
     const iframe = panel.querySelector('iframe');
     if (targetId !== 'youtubeModalContainer' && iframe && iframe.getAttribute('data-default-src')) {
         iframe.setAttribute('src', 'about:blank');
