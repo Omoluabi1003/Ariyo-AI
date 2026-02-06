@@ -140,6 +140,9 @@
       currentAlbumIndex = albumIndex;
       updateTrackListModal();
       selectTrack(album.tracks[trackIndex].src, album.tracks[trackIndex].title, trackIndex);
+      if (typeof attemptPlay === 'function') {
+        attemptPlay();
+      }
       pendingSharedPlayback = null;
       return true;
     }
@@ -217,7 +220,9 @@
 
     function buildShareUrl(playbackContext, { includeProverbCard = false } = {}) {
       const baseTarget = normalizeShareTargetPath(window.location.href);
-      const shareTarget = new URL('share.html', baseTarget.toString());
+      const shareTarget = includeProverbCard
+        ? new URL('share.html', baseTarget.toString())
+        : new URL(baseTarget.toString());
       shareTarget.search = '';
 
       if (playbackContext && playbackContext.type === 'track') {
@@ -225,6 +230,7 @@
           shareTarget.searchParams.set('album', playbackContext.albumSlug);
           shareTarget.searchParams.set('track', playbackContext.trackSlug);
         }
+        shareTarget.searchParams.set('autoplay', '1');
         if (includeProverbCard) {
           shareTarget.searchParams.set('card', 'proverb');
         }
@@ -235,6 +241,7 @@
         if (playbackContext.stationSlug) {
           shareTarget.searchParams.set('station', playbackContext.stationSlug);
         }
+        shareTarget.searchParams.set('autoplay', '1');
         return shareTarget.toString();
       }
 

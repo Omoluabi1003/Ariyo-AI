@@ -69,7 +69,40 @@
     if (trackSlug) {
       baseUrl.searchParams.set('track', trackSlug);
     }
+    if (albumSlug || trackSlug) {
+      baseUrl.searchParams.set('autoplay', '1');
+    }
     return baseUrl.toString();
+  }
+
+  function buildPlaybackUrl({ albumSlug, trackSlug, stationSlug }) {
+    const baseUrl = new URL('main.html', window.location.href);
+    baseUrl.search = '';
+    if (albumSlug && trackSlug) {
+      baseUrl.searchParams.set('album', albumSlug);
+      baseUrl.searchParams.set('track', trackSlug);
+    }
+    if (stationSlug) {
+      baseUrl.searchParams.set('station', stationSlug);
+    }
+    if (albumSlug || trackSlug || stationSlug) {
+      baseUrl.searchParams.set('autoplay', '1');
+    }
+    return baseUrl.toString();
+  }
+
+  function maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug }) {
+    const previewMode = params.get('preview') === '1';
+    if (previewMode) return false;
+    const hasTrackShare = albumSlug && trackSlug;
+    const hasStationShare = stationSlug;
+    if (!hasTrackShare && !hasStationShare) return false;
+    const playbackUrl = buildPlaybackUrl({ albumSlug, trackSlug, stationSlug });
+    if (playbackUrl) {
+      window.location.replace(playbackUrl);
+      return true;
+    }
+    return false;
   }
 
   function resolveUrl(value) {
@@ -109,6 +142,11 @@
     const albumSlug = params.get('album');
     const trackSlug = params.get('track');
     const albumOnlySlug = params.get('albumOnly');
+    const stationSlug = params.get('station');
+
+    if (maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug })) {
+      return;
+    }
 
     let trackData = null;
     let albumData = null;
@@ -146,6 +184,12 @@
   if (cardType === 'proverb') {
     renderProverbCard();
   } else {
+    const albumSlug = params.get('album');
+    const trackSlug = params.get('track');
+    const stationSlug = params.get('station');
+    if (maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug })) {
+      return;
+    }
     titleEl.textContent = 'Share a track to generate a card.';
     if (linkEl) {
       linkEl.textContent = safeUrl(window.location.origin);
