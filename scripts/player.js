@@ -493,6 +493,7 @@
         showPlaySpinner();
       }
       setPlaybackStatus(PlaybackStatus.buffering, { message: 'Buffering…' });
+      markAudioTimeline('waiting');
       scheduleBufferingHedgeFromSource();
       vinylWaiting = true;
       setPlayIntent(true);
@@ -505,6 +506,7 @@
       }
       vinylWaiting = true;
       setPlayIntent(true);
+      markAudioTimeline('stalled');
       scheduleWaitingRetry();
       if (!stallRetryTimer) {
         stallRetryTimer = setTimeout(() => attemptPlay(), 3000);
@@ -838,6 +840,163 @@ const captureAudioState = () => ({
 const debugState = {
   panel: null,
   logList: null
+};
+
+const interactionDebugState = {
+  selectionId: 0,
+  selectionStart: 0,
+  selectionLabel: '',
+  watchdogTimer: null,
+  renderCounters: new Map(),
+  renderWarningIssued: false,
+  timeline: null,
+  longTaskObserver: null
+};
+
+const now = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
+
+const getScrollLockSnapshot = () => {
+  const body = document.body;
+  const html = document.documentElement;
+  return {
+    lockCount: window.AriyoScrollLock?.getLockCount ? window.AriyoScrollLock.getLockCount() : 0,
+    lockReasons: window.AriyoScrollLock?.getLockReasons ? window.AriyoScrollLock.getLockReasons() : [],
+    overlays: window.AriyoScrollLock?.getActiveOverlays
+      ? window.AriyoScrollLock.getActiveOverlays().map(overlay => overlay.id || overlay.className || overlay.tagName)
+      : [],
+    body: body ? {
+      overflow: body.style.overflow || getComputedStyle(body).overflow,
+      position: body.style.position || getComputedStyle(body).position,
+      touchAction: body.style.touchAction || getComputedStyle(body).touchAction,
+      overscrollBehavior: body.style.overscrollBehavior || getComputedStyle(body).overscrollBehavior
+    } : null,
+    html: html ? {
+      overflow: html.style.overflow || getComputedStyle(html).overflow,
+      position: html.style.position || getComputedStyle(html).position,
+      touchAction: html.style.touchAction || getComputedStyle(html).touchAction,
+      overscrollBehavior: html.style.overscrollBehavior || getComputedStyle(html).overscrollBehavior
+    } : null
+  };
+};
+
+const recordRender = (label, count = 1) => {
+  if (!DEBUG_AUDIO || !interactionDebugState.selectionStart) return;
+  const elapsed = now() - interactionDebugState.selectionStart;
+  if (elapsed > 5000) return;
+  const nextCount = (interactionDebugState.renderCounters.get(label) || 0) + count;
+  interactionDebugState.renderCounters.set(label, nextCount);
+  if (nextCount > 150 && !interactionDebugState.renderWarningIssued) {
+    interactionDebugState.renderWarningIssued = true;
+    console.warn('[render-storm]', {
+      label,
+      count: nextCount,
+      elapsedMs: Math.round(elapsed),
+      selection: interactionDebugState.selectionLabel,
+      stack: new Error().stack,
+      scrollLock: getScrollLockSnapshot(),
+      playback: captureAudioState()
+    });
+  }
+};
+
+const startAudioTimeline = ({ label, trackId, sourceType }) => {
+  if (!DEBUG_AUDIO) return;
+  const start = now();
+  interactionDebugState.timeline = {
+    label,
+    trackId,
+    sourceType,
+    start,
+    events: [{ event: 'onTrackSelect', t: start, deltaMs: 0 }]
+  };
+};
+
+const markAudioTimeline = (event, detail = {}) => {
+  if (!DEBUG_AUDIO || !interactionDebugState.timeline) return;
+  const timestamp = now();
+  interactionDebugState.timeline.events.push({
+    event,
+    t: timestamp,
+    deltaMs: Math.round(timestamp - interactionDebugState.timeline.start),
+    ...detail
+  });
+};
+
+const flushAudioTimeline = (reason = 'complete') => {
+  if (!DEBUG_AUDIO || !interactionDebugState.timeline) return;
+  const { label, trackId, sourceType, events } = interactionDebugState.timeline;
+  console.groupCollapsed(`[audio-timeline] ${label} (${reason})`);
+  console.log({ trackId, sourceType, totalMs: Math.round(events[events.length - 1]?.deltaMs || 0) });
+  console.table(events.map(entry => ({
+    event: entry.event,
+    deltaMs: entry.deltaMs,
+    detail: entry.detail || null,
+    src: entry.src || null
+  })));
+  console.groupEnd();
+  interactionDebugState.timeline = null;
+};
+
+const startInteractionWatchdog = (payload) => {
+  if (!DEBUG_AUDIO) return;
+  interactionDebugState.selectionId += 1;
+  interactionDebugState.selectionStart = now();
+  interactionDebugState.selectionLabel = payload?.label || 'track-select';
+  interactionDebugState.renderCounters.clear();
+  interactionDebugState.renderWarningIssued = false;
+  if (interactionDebugState.watchdogTimer) {
+    clearTimeout(interactionDebugState.watchdogTimer);
+  }
+
+  interactionDebugState.watchdogTimer = setTimeout(() => {
+    const overlayVisible = Boolean(bufferingOverlay && bufferingOverlay.classList.contains('visible'));
+    const hasLoadingState = playbackStatus === PlaybackStatus.preparing || playbackStatus === PlaybackStatus.buffering;
+    const snapshot = {
+      selectedTrackId: playbackContext?.currentSource?.trackId || playbackContext?.currentSource?.src || null,
+      isTrackModalOpen: typeof isTrackModalOpen === 'function' ? isTrackModalOpen() : null,
+      isLoading: playbackStatus,
+      isLocked: window.AriyoScrollLock?.getLockCount ? window.AriyoScrollLock.getLockCount() : 0
+    };
+    if (!overlayVisible || !hasLoadingState) {
+      console.warn('[interaction-watchdog] UI did not show loading state within 100ms.', {
+        selection: interactionDebugState.selectionLabel,
+        stack: new Error().stack,
+        overlayVisible,
+        hasLoadingState,
+        payload,
+        snapshot,
+        scrollLock: getScrollLockSnapshot(),
+        playback: captureAudioState()
+      });
+    }
+  }, 100);
+};
+
+const ensureLongTaskObserver = () => {
+  if (!DEBUG_AUDIO || interactionDebugState.longTaskObserver || typeof PerformanceObserver === 'undefined') return;
+  try {
+    const observer = new PerformanceObserver(list => {
+      list.getEntries().forEach(entry => {
+        if (!interactionDebugState.selectionStart) return;
+        if (entry.duration < 50) return;
+        const elapsed = now() - interactionDebugState.selectionStart;
+        if (elapsed > 5000) return;
+        console.warn('[long-task]', {
+          duration: Math.round(entry.duration),
+          attribution: entry.attribution || null,
+          route: window.location.href,
+          selection: interactionDebugState.selectionLabel,
+          elapsedMs: Math.round(elapsed),
+          scrollLock: getScrollLockSnapshot(),
+          playback: captureAudioState()
+        });
+      });
+    });
+    observer.observe({ entryTypes: ['longtask'] });
+    interactionDebugState.longTaskObserver = observer;
+  } catch (error) {
+    console.warn('[long-task] Observer setup failed:', error);
+  }
 };
 
 const debugLog = (eventName, detail = {}) => {
@@ -1441,6 +1600,7 @@ function setPlaybackStatus(status, options = {}) {
     if (bufferingMessage) {
       bufferingMessage.textContent = messageText;
     }
+    markAudioTimeline('player-state-loading', { detail: messageText });
     if (bufferingOverlay) {
       bufferingOverlay.classList.add('visible');
     }
@@ -1460,6 +1620,8 @@ function setPlaybackStatus(status, options = {}) {
   if (status === PlaybackStatus.failed) {
     trackInfo.textContent = message || neutralFailureMessage;
     updateInlineStatus(message || neutralFailureMessage, { showRetry: true });
+    markAudioTimeline('player-state-failed', { detail: message || neutralFailureMessage });
+    flushAudioTimeline('failed');
     if (retryButton) {
       retryButton.style.display = 'block';
       retryButton.textContent = 'Retry';
@@ -1471,6 +1633,8 @@ function setPlaybackStatus(status, options = {}) {
   if (status === PlaybackStatus.playing) {
     hideRetryButton();
     updateInlineStatus('', { showRetry: false });
+    markAudioTimeline('player-state-playing');
+    flushAudioTimeline('playing');
   }
 
   if (status === PlaybackStatus.paused) {
@@ -2969,6 +3133,7 @@ function removeTrackFromPlaylist(index) {
       const modal = document.getElementById('trackModal');
       const modalVisible = modal && getComputedStyle(modal).display !== 'none';
       const shouldPrefetchDurations = (prefetchDurations || modalVisible) && !isSlowConnection;
+      recordRender('track-list-render');
       syncLibraryState({ source: 'track-modal' });
       const albumCatalog = Array.isArray(albums) ? albums : [];
       const trackListContainer = document.querySelector('.track-list');
@@ -3357,6 +3522,8 @@ function removeTrackFromPlaylist(index) {
           });
         }
       });
+
+      recordRender('track-list-item', visibleIndices.length);
 
       if (totalTracks > currentLimit) {
         const loadMore = document.createElement('button');
@@ -3976,7 +4143,7 @@ function loadMoreStations(region) {
       openTrackList();
     }
 
-function applyTrackUiState(albumIndex, trackIndex) {
+function applyTrackUiState(albumIndex, trackIndex, { deferHeavy = false } = {}) {
     const album = albums[albumIndex];
     if (!album || !album.tracks || !album.tracks[trackIndex]) return null;
 
@@ -4017,20 +4184,32 @@ function applyTrackUiState(albumIndex, trackIndex) {
         trackId: resolveTrackId(track, track.title)
       }
     });
-    updateTrackThumbnail({
-      src: track.cover || album.cover,
-      title: track.title,
-      artist: displayArtist,
-      album: album.name
-    });
-    loadLyrics(track.lrc);
-    document.getElementById('progressBar').style.display = 'block';
-    progressBar.style.width = '0%';
-    updateNextTrackInfo();
-    updateMediaSession();
-    if (window.AriyoSeo) {
-      window.AriyoSeo.updateStructuredDataForPlayback({ type: 'track', track, album });
+    const applyHeavyUpdates = () => {
+      updateTrackThumbnail({
+        src: track.cover || album.cover,
+        title: track.title,
+        artist: displayArtist,
+        album: album.name
+      });
+      loadLyrics(track.lrc);
+      document.getElementById('progressBar').style.display = 'block';
+      progressBar.style.width = '0%';
+      updateNextTrackInfo();
+      updateMediaSession();
+      if (window.AriyoSeo) {
+        window.AriyoSeo.updateStructuredDataForPlayback({ type: 'track', track, album });
+      }
+    };
+    if (deferHeavy) {
+      if (typeof window.runWhenIdle === 'function') {
+        window.runWhenIdle(applyHeavyUpdates, 400);
+      } else {
+        setTimeout(applyHeavyUpdates, 0);
+      }
+    } else {
+      applyHeavyUpdates();
     }
+    recordRender('player-ui');
     return track;
 }
 
@@ -4136,6 +4315,7 @@ function primePlaybackSource({
   const immediateUrl = buildTrackFetchUrl(normalizedSrc, trackMeta);
   setCrossOrigin(audioPlayer, immediateUrl);
   audioPlayer.src = immediateUrl;
+  markAudioTimeline('src-assigned', { src: immediateUrl });
   audioHealer.trackSource(immediateUrl, title, { live });
   audioPlayer.currentTime = 0;
   handleAudioLoad(immediateUrl, title, isInitialLoad, {
@@ -4163,6 +4343,7 @@ function primePlaybackSource({
 
       setCrossOrigin(audioPlayer, resolvedUrl);
       audioPlayer.src = resolvedUrl;
+      markAudioTimeline('src-resolved', { src: resolvedUrl });
       audioHealer.trackSource(resolvedUrl, title, { live });
       audioPlayer.currentTime = 0;
       handleAudioLoad(resolvedUrl, title, isInitialLoad, {
@@ -4203,6 +4384,7 @@ function primePlaybackSource({
 
         setCrossOrigin(audioPlayer, resolvedUrl);
         audioPlayer.src = resolvedUrl;
+        markAudioTimeline('src-stream-resolved', { src: resolvedUrl });
         audioHealer.trackSource(resolvedUrl, title, { live });
         audioPlayer.currentTime = 0;
         handleAudioLoad(resolvedUrl, title, isInitialLoad, {
@@ -4269,6 +4451,12 @@ function resetPlaybackForSourceSwitch() {
 
 function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex, fallbackMeta = null) {
       debugConsole(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
+      ensureLongTaskObserver();
+      startInteractionWatchdog({
+        label: `track:${title || 'unknown'}`,
+        trackIndex: index,
+        albumIndex
+      });
       const previousAlbumIndex = currentAlbumIndex;
       const previousTrackIndex = currentTrackIndex;
       if (Number.isFinite(albumIndex)) {
@@ -4280,6 +4468,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
         nextAlbumIndex: currentAlbumIndex,
         nextTrackIndex: index
       });
+      showBufferingState('Loading your track...');
       pendingRadioSelection = null;
       resetOfflineFallback();
       cancelNetworkRecovery();
@@ -4315,7 +4504,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       currentTrackIndex = index;
       currentRadioIndex = -1;
       lastKnownFiniteDuration = null;
-      const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex);
+      const track = applyTrackUiState(currentAlbumIndex, currentTrackIndex, { deferHeavy: true });
       const safeTrack = track || {};
       const fallbackAlbum = albums?.[currentAlbumIndex] || null;
       const fallbackInfo = {
@@ -4333,9 +4522,15 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
         cover: safeTrack.cover || fallbackInfo?.thumbnail,
         sourceType: safeTrack.sourceType || albums[currentAlbumIndex]?.sourceType || 'local'
       };
+      startAudioTimeline({
+        label: resolvedTitle || title || 'Track',
+        trackId: trackMeta?.id || trackMeta?.trackId || resolveTrackId(trackMeta, resolvedTitle),
+        sourceType: trackMeta?.sourceType || 'unknown'
+      });
+      markAudioTimeline('ui-loading');
+      markAudioTimeline('audio-element-reused', { detail: audioPlayer ? 'audioPlayer' : 'unknown' });
       persistLastPlayed(buildLastPlayedPayload({ positionSeconds: 0 }));
       const isLiveTrack = Boolean(trackMeta && trackMeta.isLive);
-      showBufferingState('Loading your track...');
       hideRetryButton();
       setTurntableSpin(false);
       resetWaveformState();
@@ -4387,6 +4582,7 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       audioPlayer.preload = resolvePreloadMode();
       ensurePreconnect(normalizedSrc);
       const handlePlaybackError = createPlaybackErrorHandler(trackMeta, normalizedSrc);
+      markAudioTimeline('src-normalized', { src: normalizedSrc });
       primePlaybackSource({
         normalizedSrc,
         title,
@@ -4409,10 +4605,17 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
       updateMediaSession();
       showNowPlayingToast(title);
       if (rebuildQueue) {
-        if (isShuffleQueueMode()) {
-          buildShuffleQueue();
+        const updateQueue = () => {
+          if (isShuffleQueueMode()) {
+            buildShuffleQueue();
+          } else {
+            updateNextTrackInfo();
+          }
+        };
+        if (typeof window.runWhenIdle === 'function') {
+          window.runWhenIdle(updateQueue, 600);
         } else {
-          updateNextTrackInfo();
+          setTimeout(updateQueue, 0);
         }
       }
     }
@@ -4666,12 +4869,14 @@ function selectRadio(src, title, index, logo) {
 
       function onLoadedData() {
         debugConsole('onLoadedData called');
+        markAudioTimeline('loadeddata');
         handleReady();
       }
       handlerState.onLoadedData = onLoadedData;
 
       function onPlaying() {
         debugConsole('onPlaying called');
+        markAudioTimeline('playing');
         handleReady();
       }
       handlerState.onPlaying = onPlaying;
@@ -4679,6 +4884,7 @@ function selectRadio(src, title, index, logo) {
       function onCanPlayThrough() {
         debugConsole("onCanPlayThrough called");
         debugConsole(`Stream ${title} can play through`);
+        markAudioTimeline('canplaythrough');
         handleReady();
       }
       handlerState.onCanPlayThrough = onCanPlayThrough;
@@ -4686,6 +4892,7 @@ function selectRadio(src, title, index, logo) {
       function onCanPlay() {
         debugConsole("onCanPlay called");
         debugConsole(`Stream ${title} can play`);
+        markAudioTimeline('canplay');
         handleReady();
       }
       handlerState.onCanPlay = onCanPlay;
@@ -4693,6 +4900,7 @@ function selectRadio(src, title, index, logo) {
       function onError() {
         clearPlayTimeout();
         console.error(`Audio error for ${title}:`, audioPlayer.error);
+        markAudioTimeline('error', { detail: audioPlayer.error?.message || audioPlayer.error?.code || 'unknown' });
         if (audioPlayer.error) {
           console.error(`Error code: ${audioPlayer.error.code}, Message: ${audioPlayer.error.message}`);
         }
