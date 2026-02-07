@@ -54,6 +54,11 @@
           }
         }
       ]
+    },
+    {
+      name: 'OfficialPaulInspires Spoken Word Series',
+      cover: `${BASE_URL}SpokenWordSeries_Logo.png`,
+      tracks: []
     }
   ];
 

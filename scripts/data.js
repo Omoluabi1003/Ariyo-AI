@@ -128,6 +128,11 @@ const albums = [
         ]
       },
       {
+        name: 'OfficialPaulInspires Spoken Word Series',
+        cover: `${BASE_URL}SpokenWordSeries_Logo.png`,
+        tracks: []
+      },
+      {
         name: 'Needs',
         cover: 'https://raw.githubusercontent.com/Omoluabi1003/afro-gospel-stream/main/FaithandB.jpg',
         tracks: [
