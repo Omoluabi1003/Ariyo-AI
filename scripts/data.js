@@ -130,7 +130,13 @@ const albums = [
       {
         name: 'OfficialPaulInspires Spoken Word Series',
         cover: `${BASE_URL}SpokenWordSeries_Logo.png`,
-        tracks: []
+        tracks: [
+          { src: 'https://cdn1.suno.ai/c366aac4-5bf4-4137-a021-65de1812af6e.mp3', title: 'Parking Lot Therapy' },
+          { src: 'https://cdn1.suno.ai/350fdbb1-c55d-4ee4-a7f6-5a3848fa3efd.mp3', title: 'When A Good Man Walks Away' },
+          { src: 'https://cdn1.suno.ai/ab730851-6c85-49e8-9816-bb26177e289d.mp3', title: 'Disrupted Career' },
+          { src: 'https://cdn1.suno.ai/e7832282-20ac-454e-a973-ae6bf196945e.mp3', title: 'Disappearing Dad' },
+          { src: 'https://cdn1.suno.ai/f027524b-c320-4b7b-96b2-223ccd05d62c.mp3', title: 'Broken Family' }
+        ]
       },
       {
         name: 'Needs',
