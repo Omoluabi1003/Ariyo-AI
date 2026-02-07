@@ -688,6 +688,21 @@ body[data-theme='light'] .search-result-badge,
     width: 100%;
 }
 
+.player-utility button {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0.6rem 0.85rem;
+    touch-action: manipulation;
+}
+
+@media (pointer: coarse) {
+    .player-utility button {
+        min-width: 56px;
+        min-height: 56px;
+        padding: 0.75rem 1rem;
+    }
+}
+
 .player-utility .retry-button {
     flex: 1 1 clamp(120px, 32%, 180px);
 }
