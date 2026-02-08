@@ -136,7 +136,8 @@ const albums = [
           { src: 'https://cdn1.suno.ai/ab730851-6c85-49e8-9816-bb26177e289d.mp3', title: 'Disrupted Career' },
           { src: 'https://cdn1.suno.ai/e7832282-20ac-454e-a973-ae6bf196945e.mp3', title: 'Disappearing Dad' },
           { src: 'https://cdn1.suno.ai/f027524b-c320-4b7b-96b2-223ccd05d62c.mp3', title: 'Broken Family' },
-          { src: 'https://cdn1.suno.ai/7bd022fe-15b9-4d05-afb0-41236b9711e2.mp3', title: 'The Parent That Stayed' }
+          { src: 'https://cdn1.suno.ai/7bd022fe-15b9-4d05-afb0-41236b9711e2.mp3', title: 'The Parent That Stayed' },
+          { src: 'https://cdn1.suno.ai/9dc0ee21-2c9b-4808-a021-7bed7e21affe.mp3', title: 'The Weight Chose You' }
         ]
       },
       {
