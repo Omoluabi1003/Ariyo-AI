@@ -65,6 +65,8 @@
         { src: 'https://cdn1.suno.ai/e7832282-20ac-454e-a973-ae6bf196945e.mp3', title: 'Disappearing Dad' },
         { src: 'https://cdn1.suno.ai/f027524b-c320-4b7b-96b2-223ccd05d62c.mp3', title: 'Broken Family' },
         { src: 'https://cdn1.suno.ai/7bd022fe-15b9-4d05-afb0-41236b9711e2.mp3', title: 'The Parent That Stayed' },
+        { src: 'https://cdn1.suno.ai/f790a2d3-92e2-4810-8aa2-b3290762a007.mp3', title: 'When Leadership is Branded As Control' },
+        { src: 'https://cdn1.suno.ai/51c5f94f-9cee-4114-b7d3-e3c21aee76d0.mp3', title: 'The Bed Is An Altar' },
         { src: 'https://cdn1.suno.ai/9dc0ee21-2c9b-4808-a021-7bed7e21affe.mp3', title: 'The Weight Chose You' }
       ]
     }
