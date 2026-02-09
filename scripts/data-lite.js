@@ -59,6 +59,8 @@
       name: 'OfficialPaulInspires Spoken Word Series',
       cover: `${BASE_URL}SpokenWordSeries_Logo.png`,
       tracks: [
+        { src: 'https://cdn1.suno.ai/215c4402-5ac9-445a-807a-dd4ffb541f64.mp3', title: 'Me After You' },
+        { src: 'https://cdn1.suno.ai/6ffc73cb-91af-466e-9dbe-c88fff9773bc.mp3', title: 'The Blessing in Staying Away' },
         { src: 'https://cdn1.suno.ai/c366aac4-5bf4-4137-a021-65de1812af6e.mp3', title: 'Parking Lot Therapy' },
         { src: 'https://cdn1.suno.ai/350fdbb1-c55d-4ee4-a7f6-5a3848fa3efd.mp3', title: 'When A Good Man Walks Away' },
         { src: 'https://cdn1.suno.ai/ab730851-6c85-49e8-9816-bb26177e289d.mp3', title: 'Disrupted Career' },
