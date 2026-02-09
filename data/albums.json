@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-02-09T00:15:40.013Z",
+  "albums": [
+    {
+      "id": "kindness",
+      "title": "Kindness",
+      "description": "Community-rooted Afrobeats and storytelling snapshots from Lagos and Port Harcourt.",
+      "genre": "Afrobeats",
+      "curator": "Àríyò AI",
+      "releaseYear": 2026,
+      "addedDate": "2026-01-26T02:28:22.000Z",
+      "tracks": [
+        {
+          "id": "a-very-good-bad-guy-v3",
+          "title": "A Very Good Bad Guy v3",
+          "description": "Opening reflections on resilience and streetwise grit.",
+          "durationSeconds": null,
+          "addedDate": "2026-01-26T02:28:22.000Z",
+          "filePath": "A Very Good Bad Guy v3.mp3"
+        },
+        {
+          "id": "dem-wan-shut-me-up",
+          "title": "Dem Wan Shut Me Up",
+          "description": "A pulsing anthem about speaking truth in public spaces.",
+          "durationSeconds": null,
+          "addedDate": "2026-01-26T02:28:22.000Z",
+          "filePath": "Dem Wan Shut Me Up.mp3"
+        },
+        {
+          "id": "efcc",
+          "title": "EFCC",
+          "description": "Noir-styled commentary on the hustle and accountability.",
+          "durationSeconds": null,
+          "addedDate": "2026-01-26T02:28:22.000Z",
+          "filePath": "EFCC.mp3"
+        }
+      ]
+    },
+    {
+      "id": "street-sense",
+      "title": "Street Sense",
+      "description": "Naija city tales and everyday wit for the open road.",
+      "genre": "Afrobeats",
+      "curator": "Àríyò AI",
+      "releaseYear": 2026,
+      "addedDate": "2026-01-26T02:28:22.000Z",
+      "tracks": [
+        {
+          "id": "na-we-dey",
+          "title": "Na We Dey",
+          "description": "Collective pride anthem with Lagos traffic energy.",
+          "durationSeconds": null,
+          "addedDate": "2026-01-26T02:28:22.000Z",
+          "filePath": "Na We Dey.mp3"
+        },
+        {
+          "id": "street-sense",
+          "title": "Street Sense",
+          "description": "Signature track capturing the album vibe.",
+          "durationSeconds": null,
+          "addedDate": "2026-01-26T02:28:22.000Z",
+          "filePath": "Street Sense.mp3"
+        }
+      ]
+    },
+    {
+      "id": "spoken-word-series",
+      "title": "OfficialPaulInspires Spoken Word Series",
+      "description": "OfficialPaulInspires spoken word narratives about family, leadership, and healing.",
+      "genre": "Spoken Word",
+      "curator": "OfficialPaulInspires",
+      "releaseYear": 2026,
+      "addedDate": "2026-02-07T19:37:13.000Z",
+      "tracks": [
+        {
+          "id": "parking-lot-therapy",
+          "title": "Parking Lot Therapy",
+          "description": "A quiet conversation turned reflection on growth.",
+          "durationSeconds": null,
+          "addedDate": "2026-02-15T12:00:00Z",
+          "filePath": "https://cdn1.suno.ai/c366aac4-5bf4-4137-a021-65de1812af6e.mp3"
+        },
+        {
+          "id": "when-a-good-man-walks-away",
+          "title": "When A Good Man Walks Away",
+          "description": "Stories of responsibility and the cost of absence.",
+          "durationSeconds": null,
+          "addedDate": "2026-02-15T12:00:00Z",
+          "filePath": "https://cdn1.suno.ai/350fdbb1-c55d-4ee4-a7f6-5a3848fa3efd.mp3"
+        },
+        {
+          "id": "disrupted-career",
+          "title": "Disrupted Career",
+          "description": "A spoken narrative on pivots and resilience.",
+          "durationSeconds": null,
+          "addedDate": "2026-02-15T12:00:00Z",
+          "filePath": "https://cdn1.suno.ai/ab730851-6c85-49e8-9816-bb26177e289d.mp3"
+        }
+      ]
+    }
+  ]
+}
