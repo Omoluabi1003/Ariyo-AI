@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-09T00:15:40.013Z",
+  "generatedAt": "2026-02-16T12:00:00.000Z",
   "albums": [
     {
       "id": "kindness",
@@ -72,6 +72,22 @@
       "releaseYear": 2026,
       "addedDate": "2026-02-07T19:37:13.000Z",
       "tracks": [
+        {
+          "id": "me-after-you",
+          "title": "Me After You",
+          "description": "A tender spoken reflection on what lingers after love.",
+          "durationSeconds": null,
+          "addedDate": "2026-02-16T10:00:00Z",
+          "filePath": "https://cdn1.suno.ai/215c4402-5ac9-445a-807a-dd4ffb541f64.mp3"
+        },
+        {
+          "id": "the-blessing-in-staying-away",
+          "title": "The Blessing in Staying Away",
+          "description": "A measured reminder that distance can be a gift.",
+          "durationSeconds": null,
+          "addedDate": "2026-02-16T09:55:00Z",
+          "filePath": "https://cdn1.suno.ai/6ffc73cb-91af-466e-9dbe-c88fff9773bc.mp3"
+        },
         {
           "id": "parking-lot-therapy",
           "title": "Parking Lot Therapy",
