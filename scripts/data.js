@@ -60,6 +60,7 @@ const albums = [
       },
       {
         name: 'Kindness',
+        releaseYear: 2026,
         cover: `${BASE_URL}Kindness%20Cover%20Art.jpg`,
         storyliner: {
           origin: 'Lagos and Port Harcourt sessions shaped by community storytelling circles.',
@@ -97,6 +98,7 @@ const albums = [
       },
       {
         name: 'Street Sense',
+        releaseYear: 2026,
         cover: `${BASE_URL}Street_Sense_Album_Cover.jpg`,
         tracks: [
           { src: `${BASE_URL}Na%20We%20Dey.mp3`, title: 'Na We Dey' },
@@ -129,6 +131,7 @@ const albums = [
       },
       {
         name: 'OfficialPaulInspires Spoken Word Series',
+        releaseYear: 2026,
         cover: `${BASE_URL}SpokenWordSeries_Logo.png`,
         tracks: [
           { src: 'https://cdn1.suno.ai/c366aac4-5bf4-4137-a021-65de1812af6e.mp3', title: 'Parking Lot Therapy' },
