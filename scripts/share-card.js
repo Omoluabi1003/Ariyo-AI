@@ -15,11 +15,17 @@
   const safeText = (value) => String(value || '').trim();
   const safeUrl = (value) => ensureHttps(String(value || '').trim());
 
-  function findTrackBySlug(albumSlug, trackSlug) {
+  function findTrackBySlug(albumSlug, trackSlug, trackId) {
     if (!Array.isArray(window.albums)) return null;
     const album = window.albums.find(item => slugify(item.name) === albumSlug);
     if (!album || !Array.isArray(album.tracks)) return null;
-    const track = album.tracks.find(item => slugify(item.title) === trackSlug);
+    let track = null;
+    if (trackId) {
+      track = album.tracks.find(item => String(item.id || '') === String(trackId));
+    }
+    if (!track && trackSlug) {
+      track = album.tracks.find(item => slugify(item.title) === trackSlug);
+    }
     if (!track) return null;
     return { album, track };
   }
@@ -61,7 +67,7 @@
       : `https://${url.replace(/^https?:\/\//i, '')}`;
   }
 
-  function buildShareUrl({ albumSlug, trackSlug }) {
+  function buildShareUrl({ albumSlug, trackSlug, trackId }) {
     const baseUrl = new URL('main.html', window.location.href);
     if (albumSlug) {
       baseUrl.searchParams.set('album', albumSlug);
@@ -69,18 +75,26 @@
     if (trackSlug) {
       baseUrl.searchParams.set('track', trackSlug);
     }
+    if (trackId) {
+      baseUrl.searchParams.set('tid', trackId);
+    }
     if (albumSlug || trackSlug) {
       baseUrl.searchParams.set('autoplay', '1');
     }
     return baseUrl.toString();
   }
 
-  function buildPlaybackUrl({ albumSlug, trackSlug, stationSlug }) {
+  function buildPlaybackUrl({ albumSlug, trackSlug, stationSlug, trackId }) {
     const baseUrl = new URL('main.html', window.location.href);
     baseUrl.search = '';
-    if (albumSlug && trackSlug) {
+    if (albumSlug && (trackSlug || trackId)) {
       baseUrl.searchParams.set('album', albumSlug);
-      baseUrl.searchParams.set('track', trackSlug);
+      if (trackSlug) {
+        baseUrl.searchParams.set('track', trackSlug);
+      }
+      if (trackId) {
+        baseUrl.searchParams.set('tid', trackId);
+      }
     }
     if (stationSlug) {
       baseUrl.searchParams.set('station', stationSlug);
@@ -91,13 +105,13 @@
     return baseUrl.toString();
   }
 
-  function maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug }) {
+  function maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug, trackId }) {
     const previewMode = params.get('preview') === '1';
     if (previewMode) return false;
-    const hasTrackShare = albumSlug && trackSlug;
+    const hasTrackShare = albumSlug && (trackSlug || trackId);
     const hasStationShare = stationSlug;
     if (!hasTrackShare && !hasStationShare) return false;
-    const playbackUrl = buildPlaybackUrl({ albumSlug, trackSlug, stationSlug });
+    const playbackUrl = buildPlaybackUrl({ albumSlug, trackSlug, stationSlug, trackId });
     if (playbackUrl) {
       window.location.replace(playbackUrl);
       return true;
@@ -114,9 +128,9 @@
     }
   }
 
-  function updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData }) {
+  function updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData, trackId }) {
     if (!linkEl) return;
-    const shareUrl = safeUrl(buildShareUrl({ albumSlug, trackSlug }));
+    const shareUrl = safeUrl(buildShareUrl({ albumSlug, trackSlug, trackId }));
     linkEl.textContent = shareUrl;
     linkEl.setAttribute('href', shareUrl);
     const fallbackCover = resolveUrl('icons/Ariyo.png');
@@ -141,17 +155,18 @@
   function renderProverbCard() {
     const albumSlug = params.get('album');
     const trackSlug = params.get('track');
+    const trackId = params.get('tid');
     const albumOnlySlug = params.get('albumOnly');
     const stationSlug = params.get('station');
 
-    if (maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug })) {
+    if (maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug, trackId })) {
       return;
     }
 
     let trackData = null;
     let albumData = null;
-    if (albumSlug && trackSlug) {
-      const result = findTrackBySlug(albumSlug, trackSlug);
+    if (albumSlug && (trackSlug || trackId)) {
+      const result = findTrackBySlug(albumSlug, trackSlug, trackId);
       if (result) {
         trackData = result.track;
         albumData = result.album;
@@ -172,7 +187,7 @@
     sourceEl.textContent = trackData
       ? `Shared from Àríyò AI • ${window.location.origin}`
       : `Shared from Àríyò AI • ${window.location.origin}`;
-    const metaInfo = updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData });
+    const metaInfo = updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData, trackId: trackData?.id || trackId });
 
     updateMeta({
       title: `Proverb of the Day • ${title}`,
@@ -186,8 +201,9 @@
   } else {
     const albumSlug = params.get('album');
     const trackSlug = params.get('track');
+    const trackId = params.get('tid');
     const stationSlug = params.get('station');
-    if (maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug })) {
+    if (maybeRedirectToPlayback({ albumSlug, trackSlug, stationSlug, trackId })) {
       return;
     }
     titleEl.textContent = 'Share a track to generate a card.';

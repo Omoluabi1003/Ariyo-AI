@@ -48,6 +48,7 @@
       const stationParam = params.get('station');
       const albumParam = params.get('album');
       const trackParam = params.get('track');
+      const trackIdParam = params.get('tid');
 
       if (stationParam) {
         const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
@@ -56,12 +57,23 @@
         }
       }
 
-      if (albumParam && trackParam) {
+      if (albumParam && (trackParam || trackIdParam)) {
         const albumIndex = albums.findIndex(a => slugify(a.name) === albumParam);
         if (albumIndex !== -1) {
-          const trackIndex = albums[albumIndex].tracks.findIndex(t => slugify(t.title) === trackParam);
+          let trackIndex = -1;
+          if (trackIdParam) {
+            const trackCatalogApi = window.AriyoTrackCatalog || {};
+            const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+            const location = provider?.trackLocationById?.[trackIdParam];
+            if (location && Number.isInteger(location.albumIndex) && Number.isInteger(location.trackIndex) && location.albumIndex === albumIndex) {
+              trackIndex = location.trackIndex;
+            }
+          }
+          if (trackIndex === -1 && trackParam) {
+            trackIndex = albums[albumIndex].tracks.findIndex(t => slugify(t.title) === trackParam);
+          }
           if (trackIndex !== -1) {
-            return { type: 'track', albumIndex, trackIndex };
+            return { type: 'track', albumIndex, trackIndex, trackId: trackIdParam || undefined };
           }
         }
       }
@@ -102,12 +114,14 @@
         const title = track?.title || playback.title;
         const artist = track?.artist || playback.artist || album?.artist || null;
         if (title) {
+          const trackId = track?.id || playback.trackId || null;
           return {
             type: 'track',
             title,
             artist,
             albumSlug: album ? slugify(album.name) : null,
-            trackSlug: track ? slugify(track.title) : null
+            trackSlug: track ? slugify(track.title) : null,
+            trackId
           };
         }
       }
@@ -129,12 +143,23 @@
       return null;
     }
 
-    function trySharedTrackPlayback(albumSlug, trackSlug) {
+    function trySharedTrackPlayback(albumSlug, trackSlug, trackId = null) {
       const albumIndex = albums.findIndex(a => slugify(a.name) === albumSlug);
       if (albumIndex === -1) return false;
 
       const album = albums[albumIndex];
-      const trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackSlug);
+      let trackIndex = -1;
+      if (trackId) {
+        const trackCatalogApi = window.AriyoTrackCatalog || {};
+        const provider = trackCatalogApi.getProvider ? trackCatalogApi.getProvider() : null;
+        const location = provider?.trackLocationById?.[trackId];
+        if (location && Number.isInteger(location.albumIndex) && Number.isInteger(location.trackIndex) && location.albumIndex === albumIndex) {
+          trackIndex = location.trackIndex;
+        }
+      }
+      if (trackIndex === -1 && trackSlug) {
+        trackIndex = album.tracks.findIndex(t => slugify(t.title) === trackSlug);
+      }
       if (trackIndex === -1) return false;
 
       currentAlbumIndex = albumIndex;
@@ -149,10 +174,10 @@
 
     function resolvePendingSharedPlayback(reason = 'library') {
       if (!pendingSharedPlayback) return false;
-      const { albumSlug, trackSlug } = pendingSharedPlayback;
-      const resolved = trySharedTrackPlayback(albumSlug, trackSlug);
+      const { albumSlug, trackSlug, trackId } = pendingSharedPlayback;
+      const resolved = trySharedTrackPlayback(albumSlug, trackSlug, trackId);
       if (resolved) {
-        console.log('[share] resolved pending playback', { reason, albumSlug, trackSlug });
+        console.log('[share] resolved pending playback', { reason, albumSlug, trackSlug, trackId });
         pendingSharedPlayback = null;
       }
       return resolved;
@@ -235,6 +260,9 @@
         if (playbackContext.albumSlug && playbackContext.trackSlug) {
           shareTarget.searchParams.set('album', playbackContext.albumSlug);
           shareTarget.searchParams.set('track', playbackContext.trackSlug);
+        }
+        if (playbackContext.trackId) {
+          shareTarget.searchParams.set('tid', playbackContext.trackId);
         }
         shareTarget.searchParams.set('autoplay', '1');
         if (includeProverbCard) {
@@ -1218,7 +1246,9 @@
       const stationParam = params.get('station');
       const albumParam = params.get('album');
       const trackParam = params.get('track');
-      const hasSharedRequest = Boolean(stationParam || (albumParam && trackParam));
+      const trackIdParam = params.get('tid');
+      const hasTrackRequest = Boolean(albumParam && (trackParam || trackIdParam));
+      const hasSharedRequest = Boolean(stationParam || hasTrackRequest);
       if (stationParam) {
         ensureHomeViewForSharedPlayback();
         const stationIndex = radioStations.findIndex(s => slugify(s.name) === stationParam);
@@ -1236,12 +1266,16 @@
           return;
         }
       }
-      if (albumParam && trackParam) {
+      if (hasTrackRequest) {
         ensureHomeViewForSharedPlayback();
-        const foundTrack = trySharedTrackPlayback(albumParam, trackParam);
+        const foundTrack = trySharedTrackPlayback(albumParam, trackParam, trackIdParam);
         if (foundTrack) return;
 
-        pendingSharedPlayback = { albumSlug: albumParam, trackSlug: trackParam };
+        pendingSharedPlayback = {
+          albumSlug: albumParam,
+          trackSlug: trackParam,
+          trackId: trackIdParam
+        };
       }
 
       if (hasSharedRequest) {
