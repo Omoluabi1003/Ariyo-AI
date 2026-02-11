@@ -2879,6 +2879,60 @@ function removeTrackFromPlaylist(index) {
       }
     }
 
+    function updateShuffleButtonState() {
+      const shuffleButton = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
+      const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
+      if (!shuffleButton || !shuffleStatusInfo) return;
+
+      if (currentRadioIndex !== -1 || playbackContext.mode === 'radio') {
+        if (radioShuffleMode) {
+          shuffleButton.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
+          shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
+        } else {
+          shuffleButton.innerHTML = '🔀';
+          shuffleStatusInfo.textContent = 'Shuffle: Off';
+        }
+        shuffleButton.setAttribute('aria-pressed', radioShuffleMode ? 'true' : 'false');
+        return;
+      }
+
+      if (shuffleState === 1) {
+        shuffleButton.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
+        shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
+      } else if (shuffleState === 2) {
+        shuffleButton.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
+        shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
+      } else if (shuffleState === 3) {
+        shuffleButton.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
+        shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
+      } else {
+        shuffleButton.innerHTML = '🔀';
+        shuffleStatusInfo.textContent = 'Shuffle: Off';
+      }
+
+      shuffleButton.setAttribute('aria-pressed', shuffleState !== 0 ? 'true' : 'false');
+    }
+
+    function toggleShuffle() {
+      const isRadioMode = playbackContext.mode === 'radio' || currentRadioIndex !== -1;
+
+      if (isRadioMode) {
+        radioShuffleMode = !radioShuffleMode;
+      } else {
+        radioShuffleMode = false;
+        shuffleState = (shuffleState + 1) % 4;
+        if (isShuffleQueueMode()) {
+          buildShuffleQueue({ skipUpdate: true });
+        } else {
+          resetShuffleQueueState({ skipUpdate: true });
+        }
+      }
+
+      updateShuffleButtonState();
+      updateNextTrackInfo();
+      schedulePlayerStateSave(true);
+    }
+
     const saveStateConfig = {
       timerId: null,
       intervalMs: 4000
