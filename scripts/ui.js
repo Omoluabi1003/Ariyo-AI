@@ -387,67 +387,6 @@ function openAlbumList() {
       requestCloseRadioList(reason, detail);
     }
 
-function toggleShuffle() {
-  const shuffleBtn = document.querySelector(".music-controls.icons-only button[aria-label='Toggle shuffle']");
-  const shuffleStatusInfo = document.getElementById('shuffleStatusInfo');
-  const resetQueue = typeof window.resetShuffleQueueState === 'function'
-    ? window.resetShuffleQueueState
-    : ({ skipUpdate = false } = {}) => {
-      shuffleQueue = [];
-      if (!skipUpdate) {
-        updateNextTrackInfo();
-      }
-    };
-
-  // If we are in radio mode, shuffle only has on/off states
-  if (currentRadioIndex !== -1) {
-    radioShuffleMode = !radioShuffleMode;
-    resetQueue();
-    if (radioShuffleMode) {
-      shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">R</span>';
-      shuffleStatusInfo.textContent = 'Shuffle: On (Radio)';
-      console.log('Shuffle mode: Radio');
-    } else {
-      shuffleBtn.innerHTML = '🔀';
-      shuffleStatusInfo.textContent = 'Shuffle: Off';
-      console.log('Shuffle mode: Off');
-    }
-  }
-  // If we are in album/track mode, cycle through off, repeat one, album, all
-  else {
-    shuffleState = (shuffleState + 1) % 4;
-    resetQueue({ skipUpdate: true });
-    if (shuffleState === 2 || shuffleState === 3) {
-      if (typeof window.loadFullLibraryData === 'function') {
-        window.loadFullLibraryData({ reason: 'shuffle-toggle', immediate: true });
-      }
-    }
-    if (shuffleState === 1) {
-      shuffleBtn.innerHTML = '🔂 <span class="shuffle-indicator">1</span>';
-      shuffleStatusInfo.textContent = 'Repeat: On (Single Track)';
-      console.log('Repeat mode: Single Track');
-    } else if (shuffleState === 2) {
-      shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">2</span>';
-      shuffleStatusInfo.textContent = 'Shuffle: On (Album)';
-      console.log('Shuffle mode: Album');
-    } else if (shuffleState === 3) {
-      shuffleBtn.innerHTML = '🔀 <span class="shuffle-indicator">3</span>';
-      shuffleStatusInfo.textContent = 'Shuffle: On (All Tracks)';
-      console.log('Shuffle mode: All');
-    } else {
-      shuffleBtn.innerHTML = '🔀';
-      shuffleStatusInfo.textContent = 'Shuffle: Off';
-      console.log('Shuffle mode: Off');
-    }
-    updateNextTrackInfo();
-  }
-  if (shuffleBtn) {
-    const isActive = currentRadioIndex !== -1 ? radioShuffleMode : shuffleState !== 0;
-    shuffleBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-  }
-  savePlayerState();
-}
-
 /* CHATBOT TOGGLE WITH US SPOOFING */
 const PANEL_IDS = [
     'ariyoChatbotContainer',
