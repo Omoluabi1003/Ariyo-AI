@@ -656,6 +656,13 @@
       playbackRetryButton.addEventListener('click', () => retryTrack());
     }
     const playButtonEl = document.getElementById('playButton');
+    const prevButtonEl = document.getElementById('prevButton');
+    const pauseButtonEl = document.getElementById('pauseButton');
+    const stopButtonEl = document.getElementById('stopButton');
+    const nextButtonEl = document.getElementById('nextButton');
+    const shuffleButtonEl = document.getElementById('shuffleButton');
+    const addToPlaylistButton = document.getElementById('addToPlaylistButton');
+    const lyricsToggleButton = document.getElementById('lyricsToggle');
     const progressBar = document.getElementById('progressBarFill');
 const lyricsContainer = document.getElementById('lyrics');
 let lyricLines = [];
@@ -6147,6 +6154,38 @@ function previousTrack() {
   switchTrack(-1);
   showNowPlayingToast(trackInfo.textContent);
 }
+
+function bindPlayerControlButtons() {
+  if (playButtonEl) {
+    playButtonEl.addEventListener('click', playMusic);
+  }
+  if (pauseButtonEl) {
+    pauseButtonEl.addEventListener('click', pauseMusic);
+  }
+  if (stopButtonEl) {
+    stopButtonEl.addEventListener('click', stopMusic);
+  }
+  if (nextButtonEl) {
+    nextButtonEl.addEventListener('click', nextTrack);
+  }
+  if (prevButtonEl) {
+    prevButtonEl.addEventListener('click', previousTrack);
+  }
+  if (shuffleButtonEl) {
+    shuffleButtonEl.addEventListener('click', toggleShuffle);
+  }
+  if (retryButton) {
+    retryButton.addEventListener('click', retryTrack);
+  }
+  if (addToPlaylistButton) {
+    addToPlaylistButton.addEventListener('click', addCurrentTrackToPlaylist);
+  }
+  if (lyricsToggleButton) {
+    lyricsToggleButton.addEventListener('click', toggleLyrics);
+  }
+}
+
+bindPlayerControlButtons();
 
 function isTypingTarget(target) {
   if (!target) return false;

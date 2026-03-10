@@ -1752,20 +1752,20 @@
               aria-controls="audioPlayer"
             />
             <div class="player-utility">
-              <button id="retryButton" class="retry-button" onclick="retryTrack()" aria-label="Retry loading track">Retry</button>
-              <button id="addToPlaylistButton" class="retry-button" onclick="addCurrentTrackToPlaylist()" aria-label="Add current track to playlist">Add to Playlist</button>
-              <button id="lyricsToggle" class="retry-button" onclick="toggleLyrics()" aria-label="Toggle lyrics">Lyrics</button>
+              <button id="retryButton" type="button" class="retry-button" aria-label="Retry loading track">Retry</button>
+              <button id="addToPlaylistButton" type="button" class="retry-button" aria-label="Add current track to playlist">Add to Playlist</button>
+              <button id="lyricsToggle" type="button" class="retry-button" aria-label="Toggle lyrics">Lyrics</button>
             </div>
             <div id="lyrics"></div>
             <div class="music-controls icons-only">
-              <button aria-label="Previous track" onclick="previousTrack()" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
-              <button aria-label="Play" onclick="playMusic()" title="Play" aria-controls="audioPlayer" class="ripple shockwave play-button" id="playButton">
+              <button id="prevButton" type="button" aria-label="Previous track" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
+              <button type="button" aria-label="Play" title="Play" aria-controls="audioPlayer" class="ripple shockwave play-button" id="playButton">
                 <span class="play-spinner" aria-hidden="true"></span>
               </button>
-              <button aria-label="Pause" onclick="pauseMusic()" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
-              <button aria-label="Stop" onclick="stopMusic()" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
-              <button aria-label="Next track" onclick="nextTrack()" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
-              <button aria-label="Toggle shuffle" onclick="toggleShuffle()" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
+              <button id="pauseButton" type="button" aria-label="Pause" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
+              <button id="stopButton" type="button" aria-label="Stop" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
+              <button id="nextButton" type="button" aria-label="Next track" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
+              <button id="shuffleButton" type="button" aria-label="Toggle shuffle" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
             </div>
             <audio id="audioPlayer" preload="metadata" playsinline webkit-playsinline hidden aria-hidden="true"></audio>
           </div>
