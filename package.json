@@ -12,7 +12,7 @@
     "validate:release-years": "node scripts/validate-release-years.js"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.3.3",
+    "fast-xml-parser": "^5.3.4",
     "howler": "^2.2.4",
     "lyric-parser": "^1.0.1",
     "web-push": "^3.6.7"
