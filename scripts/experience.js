@@ -109,39 +109,79 @@
     const installBtn = document.getElementById('installPwa');
     const statusText = document.getElementById('experienceStatus');
     if (!installBtn) return;
-    installBtn.disabled = true;
-    installBtn.setAttribute('aria-disabled', 'true');
+
+    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent || '');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    const disableInstallButton = () => {
+      installBtn.disabled = true;
+      installBtn.setAttribute('aria-disabled', 'true');
+    };
+
+    const enableInstallButton = () => {
+      installBtn.disabled = false;
+      installBtn.removeAttribute('aria-disabled');
+    };
+
+    if (isStandalone) {
+      disableInstallButton();
+      if (statusText) {
+        statusText.textContent = 'App installed — enjoy the full experience from your home screen!';
+      }
+    } else {
+      enableInstallButton();
+      if (statusText) {
+        statusText.textContent = isIos
+          ? 'Tap Install PWA, then use Safari Share → Add to Home Screen.'
+          : 'Tap Install PWA to add Àríyò AI to your home screen.';
+      }
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.disabled = false;
-      installBtn.removeAttribute('aria-disabled');
+      enableInstallButton();
       if (statusText) {
         statusText.textContent = 'Àríyò AI is ready to be installed on your device.';
       }
     });
+
     installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) {
+      if (isStandalone) {
         if (statusText) {
-          statusText.textContent = 'Install prompt will appear on supported devices. Use your browser menu to pin us anytime.';
+          statusText.textContent = 'Àríyò AI is already installed on this device.';
         }
         return;
       }
+
+      if (!deferredPrompt) {
+        if (statusText) {
+          statusText.textContent = isIos
+            ? 'In Safari, tap Share and choose Add to Home Screen to install Àríyò AI.'
+            : 'Install prompt is not available yet. Use your browser menu to install or pin this app.';
+        }
+        return;
+      }
+
       deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
+      const choice = await deferredPrompt.userChoice;
       deferredPrompt = null;
-      installBtn.disabled = true;
-      installBtn.setAttribute('aria-disabled', 'true');
-      if (statusText) {
-        statusText.textContent = 'Thanks for installing! You can now launch Àríyò AI from your home screen.';
+
+      if (choice && choice.outcome === 'accepted') {
+        disableInstallButton();
+        if (statusText) {
+          statusText.textContent = 'Thanks for installing! You can now launch Àríyò AI from your home screen.';
+        }
+      } else if (statusText) {
+        statusText.textContent = 'Install canceled. You can tap Install PWA again anytime.';
       }
     });
+
     window.addEventListener('appinstalled', () => {
       if (statusText) {
         statusText.textContent = 'App installed — enjoy the full experience from your home screen!';
       }
-      installBtn.disabled = true;
-      installBtn.setAttribute('aria-disabled', 'true');
+      disableInstallButton();
     });
   }
 
