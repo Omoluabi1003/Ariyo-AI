@@ -117,13 +117,16 @@
     if (normalizedVersion) {
       pendingVersion = normalizedVersion;
     }
-
-    const lastReloaded = getLastReloadedVersion();
-    if (normalizedVersion && lastReloaded === normalizedVersion) {
+    if (!normalizedVersion) {
       return;
     }
 
-    broadcastUpdate({ type: 'APP_UPDATE_READY', version: normalizedVersion || null, source });
+    const lastReloaded = getLastReloadedVersion();
+    if (lastReloaded === normalizedVersion) {
+      return;
+    }
+
+    broadcastUpdate({ type: 'APP_UPDATE_READY', version: normalizedVersion, source });
 
     if (isIdle()) {
       scheduleReload(normalizedVersion);

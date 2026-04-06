@@ -1,4 +1,8 @@
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
+try {
+  importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
+} catch (error) {
+  console.warn('Workbox failed to load; continuing with built-in service worker strategies.', error);
+}
 
 // Bump cache prefix to force clients to refresh old caches
 const CACHE_PREFIX = 'ariyo-ai-cache-v14';

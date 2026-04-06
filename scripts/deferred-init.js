@@ -43,6 +43,11 @@
   }
 
   function deferNonCritical() {
+    if (typeof deferExperienceInit === 'function') {
+      // Wire critical launch interactions immediately so fast user taps are not dropped.
+      deferExperienceInit();
+    }
+
     schedule(() => {
       if (typeof prepareDeferredIframes === 'function') prepareDeferredIframes();
       if (typeof startBackgroundRotator === 'function') startBackgroundRotator();
@@ -50,7 +55,6 @@
     }, 500);
 
     schedule(() => {
-      if (typeof deferExperienceInit === 'function') deferExperienceInit();
       if (typeof warmMiniGames === 'function') warmMiniGames();
     }, 1000);
   }

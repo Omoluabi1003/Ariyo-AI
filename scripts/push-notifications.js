@@ -129,9 +129,11 @@
     writePromptMeta('granted', 'subscribe');
   };
 
-  const permissionReady = () => {
+  const permissionReady = ({ silent = false } = {}) => {
     if (unsupported) {
-      setStatus('Push notifications are not supported on this device.', 'error');
+      if (!silent) {
+        setStatus('Push notifications are not supported on this device.', 'error');
+      }
       writePromptMeta('unsupported', 'system');
       return false;
     }
@@ -143,7 +145,9 @@
     }
 
     if (Notification.permission === 'denied') {
-      setStatus('Notifications are blocked in your browser settings.', 'error');
+      if (!silent) {
+        setStatus('Notifications are blocked in your browser settings.', 'error');
+      }
       writePromptMeta('denied', 'system');
       return false;
     }
@@ -206,7 +210,7 @@
   };
 
   const recordEngagement = () => {
-    if (!permissionReady()) {
+    if (!permissionReady({ silent: false })) {
       return;
     }
     openToast();
@@ -284,7 +288,7 @@
       return;
     }
 
-    if (!permissionReady()) {
+    if (!permissionReady({ silent: true })) {
       return;
     }
 
