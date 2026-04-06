@@ -8,6 +8,15 @@
     }
     const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
     const INSTANT_PLAYBACK = true;
+    const IS_APPLE_WEBKIT = (() => {
+      if (typeof navigator === 'undefined') return false;
+      const ua = navigator.userAgent || '';
+      const vendor = navigator.vendor || '';
+      const isAppleDevice = /iPad|iPhone|iPod|Macintosh/i.test(ua);
+      const isAppleEngine = /Apple/i.test(vendor) || /Safari/i.test(ua);
+      const isChromiumVariant = /CriOS|Chrome|Chromium|EdgiOS|FxiOS|OPiOS/i.test(ua);
+      return isAppleDevice && isAppleEngine && !isChromiumVariant;
+    })();
     const reducedMotionQuery = typeof window !== 'undefined'
       && typeof window.matchMedia === 'function'
       ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -4386,40 +4395,42 @@ function primePlaybackSource({
     resumeTime
   });
 
-  resolveSunoAudioSrc(normalizedSrc)
-    .then(resolved => {
-      if (audioPlayer._selectionToken !== selectionToken) return;
-      if (!resolved || resolved === normalizedSrc) return;
+  if (!IS_APPLE_WEBKIT) {
+    resolveSunoAudioSrc(normalizedSrc)
+      .then(resolved => {
+        if (audioPlayer._selectionToken !== selectionToken) return;
+        if (!resolved || resolved === normalizedSrc) return;
 
-      const resolvedUrl = buildTrackFetchUrl(resolved, trackMeta);
-      const readyThreshold = typeof HTMLMediaElement !== 'undefined'
-        ? HTMLMediaElement.HAVE_CURRENT_DATA
-        : 2;
-      const isBuffering = playbackStatus === PlaybackStatus.preparing
-        || playbackStatus === PlaybackStatus.buffering;
+        const resolvedUrl = buildTrackFetchUrl(resolved, trackMeta);
+        const readyThreshold = typeof HTMLMediaElement !== 'undefined'
+          ? HTMLMediaElement.HAVE_CURRENT_DATA
+          : 2;
+        const isBuffering = playbackStatus === PlaybackStatus.preparing
+          || playbackStatus === PlaybackStatus.buffering;
 
-      if (audioPlayer.src !== immediateUrl || !isBuffering || audioPlayer.readyState >= readyThreshold) {
-        return;
-      }
+        if (audioPlayer.src !== immediateUrl || !isBuffering || audioPlayer.readyState >= readyThreshold) {
+          return;
+        }
 
-      setCrossOrigin(audioPlayer, resolvedUrl);
-      audioPlayer.src = resolvedUrl;
-      markAudioTimeline('src-resolved', { src: resolvedUrl });
-      audioHealer.trackSource(resolvedUrl, title, { live });
-      audioPlayer.currentTime = 0;
-      handleAudioLoad(resolvedUrl, title, isInitialLoad, {
-        live,
-        onReady,
-        onError,
-        resumeTime,
-        disableSlowGuard: true,
-        allowCorsRetry: false
+        setCrossOrigin(audioPlayer, resolvedUrl);
+        audioPlayer.src = resolvedUrl;
+        markAudioTimeline('src-resolved', { src: resolvedUrl });
+        audioHealer.trackSource(resolvedUrl, title, { live });
+        audioPlayer.currentTime = 0;
+        handleAudioLoad(resolvedUrl, title, isInitialLoad, {
+          live,
+          onReady,
+          onError,
+          resumeTime,
+          disableSlowGuard: true,
+          allowCorsRetry: false
+        });
+        attemptPlay();
+      })
+      .catch(error => {
+        console.warn('[player] Suno resolve skipped:', error);
       });
-      attemptPlay();
-    })
-    .catch(error => {
-      console.warn('[player] Suno resolve skipped:', error);
-    });
+  }
 
   if (trackMeta?.sourceType === 'stream') {
     resolveRadioStreamUrl(normalizedSrc, title)
@@ -5658,7 +5669,7 @@ function selectRadio(src, title, index, logo) {
         }
       }
       // Avoid reloading when buffered audio is already present to keep playback instant
-      if (!hasBufferedAudio) {
+      if (!hasBufferedAudio && !IS_APPLE_WEBKIT) {
         try { audioPlayer.load(); } catch (_) {}
       }
       const playPromise = audioPlayer.play();
