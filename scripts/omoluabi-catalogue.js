@@ -23,7 +23,6 @@
     { slug: 'udo-don-cost', title: 'Udo Don Cost', src: 'https://cdn1.suno.ai/8d4e57ee-c330-495e-a9d0-75a861a4420f.mp3' },
     { slug: 'matasa-ku-tashi', title: 'Matasa Ku Tashi', src: 'https://cdn1.suno.ai/377a7311-7338-4a51-816a-96eacaef7bac.mp3' },
     { slug: 'feelings-fi-you-ft-steady', title: 'Feelings Fi You ft. Steady', src: 'https://cdn1.suno.ai/1dcdb3cf-5397-41d0-b005-f79055bf5a56.mp3' },
-    { slug: 'i-love-you', title: 'I Love You', src: 'https://cdn1.suno.ai/ab702e5a-f698-4e05-9463-499cbeccff67.mp3' },
     { slug: 'face-of-a-narcissist', title: 'Face Of A Narcissist', src: 'https://cdn1.suno.ai/4a173806-00d5-4528-be27-3f236df02c58.mp3' },
     { slug: 'growth-comes-with-goodbyes', title: 'Growth Comes With Goodbyes', src: 'https://cdn1.suno.ai/52e7e84c-205b-4439-9c59-7e21304ca168.mp3' },
     { slug: 'boda-yen', title: 'Boda Yen', src: 'https://cdn1.suno.ai/e75f0166-5134-4538-b33d-4bbdf708e53e.mp3' },
