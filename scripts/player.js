@@ -1355,6 +1355,20 @@ const slowBufferRescue = {
   attempts: 0,
   maxAttempts: 2
 };
+const stablePlaybackState = {
+  requestId: 0,
+  lastSelectionAt: 0,
+  minSelectionGapMs: 280
+};
+
+function beginStablePlaybackRequest() {
+  stablePlaybackState.requestId += 1;
+  return stablePlaybackState.requestId;
+}
+
+function isCurrentPlaybackRequest(requestId) {
+  return requestId === stablePlaybackState.requestId;
+}
 
 function clearFirstPlayGuard() {
   if (firstPlayGuardTimeoutId) {
@@ -4379,100 +4393,20 @@ function primePlaybackSource({
   onError = null,
   resumeTime = null
 }) {
-  const selectionToken = Symbol('playback-selection');
-  audioPlayer._selectionToken = selectionToken;
-
-  const immediateUrl = buildTrackFetchUrl(normalizedSrc, trackMeta);
-  setCrossOrigin(audioPlayer, immediateUrl);
-  audioPlayer.src = immediateUrl;
-  markAudioTimeline('src-assigned', { src: immediateUrl });
-  audioHealer.trackSource(immediateUrl, title, { live });
+  const requestId = stablePlaybackState.requestId;
+  const targetUrl = buildTrackFetchUrl(normalizedSrc, trackMeta);
+  setCrossOrigin(audioPlayer, targetUrl);
+  audioPlayer.src = targetUrl;
+  markAudioTimeline('src-assigned', { src: targetUrl });
+  audioHealer.trackSource(targetUrl, title, { live });
   audioPlayer.currentTime = 0;
-  handleAudioLoad(immediateUrl, title, isInitialLoad, {
+  handleAudioLoad(targetUrl, title, isInitialLoad, {
     live,
     onReady,
     onError,
-    resumeTime
+    resumeTime,
+    requestId
   });
-
-  if (!IS_APPLE_WEBKIT) {
-    resolveSunoAudioSrc(normalizedSrc)
-      .then(resolved => {
-        if (audioPlayer._selectionToken !== selectionToken) return;
-        if (!resolved || resolved === normalizedSrc) return;
-
-        const resolvedUrl = buildTrackFetchUrl(resolved, trackMeta);
-        const readyThreshold = typeof HTMLMediaElement !== 'undefined'
-          ? HTMLMediaElement.HAVE_CURRENT_DATA
-          : 2;
-        const isBuffering = playbackStatus === PlaybackStatus.preparing
-          || playbackStatus === PlaybackStatus.buffering;
-
-        if (audioPlayer.src !== immediateUrl || !isBuffering || audioPlayer.readyState >= readyThreshold) {
-          return;
-        }
-
-        setCrossOrigin(audioPlayer, resolvedUrl);
-        audioPlayer.src = resolvedUrl;
-        markAudioTimeline('src-resolved', { src: resolvedUrl });
-        audioHealer.trackSource(resolvedUrl, title, { live });
-        audioPlayer.currentTime = 0;
-        handleAudioLoad(resolvedUrl, title, isInitialLoad, {
-          live,
-          onReady,
-          onError,
-          resumeTime,
-          disableSlowGuard: true,
-          allowCorsRetry: false
-        });
-        attemptPlay();
-      })
-      .catch(error => {
-        console.warn('[player] Suno resolve skipped:', error);
-      });
-  }
-
-  if (trackMeta?.sourceType === 'stream') {
-    resolveRadioStreamUrl(normalizedSrc, title)
-      .then(resolved => {
-        if (audioPlayer._selectionToken !== selectionToken) return;
-        if (!resolved || !resolved.resolvedUrl || resolved.resolvedUrl === normalizedSrc) return;
-
-        const resolvedUrl = buildTrackFetchUrl(resolved.resolvedUrl, trackMeta);
-        const readyThreshold = typeof HTMLMediaElement !== 'undefined'
-          ? HTMLMediaElement.HAVE_CURRENT_DATA
-          : 2;
-        const isPlaying = playbackStatus === PlaybackStatus.playing;
-
-        if (audioPlayer.src !== immediateUrl || isPlaying || audioPlayer.readyState >= readyThreshold) {
-          return;
-        }
-
-        logRadioAudioEvent('stream-resolved', {
-          station: title,
-          resolvedUrl,
-          originalUrl: normalizedSrc
-        });
-
-        setCrossOrigin(audioPlayer, resolvedUrl);
-        audioPlayer.src = resolvedUrl;
-        markAudioTimeline('src-stream-resolved', { src: resolvedUrl });
-        audioHealer.trackSource(resolvedUrl, title, { live });
-        audioPlayer.currentTime = 0;
-        handleAudioLoad(resolvedUrl, title, isInitialLoad, {
-          live,
-          onReady,
-          onError,
-          resumeTime,
-          disableSlowGuard: true,
-          allowCorsRetry: false
-        });
-        attemptPlay();
-      })
-      .catch(error => {
-        console.warn('[player] Radio resolve skipped:', error);
-      });
-  }
 }
 
 function setPendingRadioSelection({ index, title, src }) {
@@ -4505,15 +4439,32 @@ function confirmPendingRadioSelection(reason, detail = {}) {
 }
 
 function resetPlaybackForSourceSwitch() {
+  beginStablePlaybackRequest();
   clearQuickStartDeadline();
   clearSilentStartGuard();
   clearBufferingHedge();
   clearWaitingRetry();
   clearSlowBufferRescue();
+  const previousHandlers = audioPlayer._loadHandlers;
+  if (previousHandlers) {
+    if (previousHandlers.onProgress) audioPlayer.removeEventListener('progress', previousHandlers.onProgress);
+    if (previousHandlers.onCanPlayThrough) audioPlayer.removeEventListener('canplaythrough', previousHandlers.onCanPlayThrough);
+    if (previousHandlers.onCanPlay) audioPlayer.removeEventListener('canplay', previousHandlers.onCanPlay);
+    if (previousHandlers.onLoadedData) audioPlayer.removeEventListener('loadeddata', previousHandlers.onLoadedData);
+    if (previousHandlers.onPlaying) audioPlayer.removeEventListener('playing', previousHandlers.onPlaying);
+    if (previousHandlers.onError) audioPlayer.removeEventListener('error', previousHandlers.onError);
+    if (previousHandlers.playTimeout) clearTimeout(previousHandlers.playTimeout);
+    if (previousHandlers.quickStartId && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(previousHandlers.quickStartId);
+    }
+    audioPlayer._loadHandlers = null;
+  }
   audioPlayer.pause();
   try {
     audioPlayer.currentTime = 0;
   } catch (_) {}
+  audioPlayer.removeAttribute('src');
+  audioPlayer.load();
   audioPlayer.loop = false;
   audioPlayer.preload = 'none';
   audioHealer.clearDurationTimer();
@@ -4522,6 +4473,12 @@ function resetPlaybackForSourceSwitch() {
 
 
 function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, albumIndex = currentAlbumIndex, fallbackMeta = null) {
+      const now = Date.now();
+      if (now - stablePlaybackState.lastSelectionAt < stablePlaybackState.minSelectionGapMs) {
+        debugConsole('[selectTrack] ignored rapid repeat selection');
+        return;
+      }
+      stablePlaybackState.lastSelectionAt = now;
       debugConsole(`[selectTrack] called with: src=${src}, title=${title}, index=${index}`);
       ensureLongTaskObserver();
       startInteractionWatchdog({
@@ -4693,6 +4650,12 @@ function selectTrack(src, title, index, rebuildQueue = true, resumeTime = null, 
     }
 
 function selectRadio(src, title, index, logo) {
+      const now = Date.now();
+      if (now - stablePlaybackState.lastSelectionAt < stablePlaybackState.minSelectionGapMs) {
+        debugConsole('[selectRadio] ignored rapid repeat selection');
+        return;
+      }
+      stablePlaybackState.lastSelectionAt = now;
       debugConsole(`[selectRadio] called with: src=${src}, title=${title}, index=${index}`);
       resetOfflineFallback();
       trackHistory.length = 0;
@@ -4814,7 +4777,7 @@ function selectRadio(src, title, index, logo) {
       retryButton.inert = false;
     }
 
-    function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
+function handleAudioLoad(src, title, isInitialLoad = true, options = {}) {
       const {
         silent = false,
         autoPlay = true,
@@ -4823,7 +4786,8 @@ function selectRadio(src, title, index, logo) {
         onError: onErrorCallback = null,
         disableSlowGuard = false,
         live = currentRadioIndex >= 0,
-        allowCorsRetry = true
+        allowCorsRetry = true,
+        requestId = stablePlaybackState.requestId
       } = options;
 
       audioHealer.trackSource(src, title, { live });
@@ -4840,6 +4804,7 @@ function selectRadio(src, title, index, logo) {
           onCanPlayThrough: prevCanPlayThrough,
           onCanPlay: prevCanPlay,
           onLoadedData: prevLoadedData,
+          onPlaying: prevPlaying,
           onError: prevError,
           quickStartId: prevQuickStartId,
           playTimeout: prevPlayTimeout
@@ -4855,6 +4820,9 @@ function selectRadio(src, title, index, logo) {
         }
         if (prevLoadedData) {
           audioPlayer.removeEventListener('loadeddata', prevLoadedData);
+        }
+        if (prevPlaying) {
+          audioPlayer.removeEventListener('playing', prevPlaying);
         }
         if (prevError) {
           audioPlayer.removeEventListener('error', prevError);
@@ -4907,6 +4875,7 @@ function selectRadio(src, title, index, logo) {
       };
 
       const handleReady = () => {
+        if (!isCurrentPlaybackRequest(requestId)) return;
         if (readyHandled) return;
         readyHandled = true;
         clearPlayTimeout();
@@ -4940,6 +4909,7 @@ function selectRadio(src, title, index, logo) {
       };
 
       function onLoadedData() {
+        if (!isCurrentPlaybackRequest(requestId)) return;
         debugConsole('onLoadedData called');
         markAudioTimeline('loadeddata');
         handleReady();
@@ -4947,6 +4917,7 @@ function selectRadio(src, title, index, logo) {
       handlerState.onLoadedData = onLoadedData;
 
       function onPlaying() {
+        if (!isCurrentPlaybackRequest(requestId)) return;
         debugConsole('onPlaying called');
         markAudioTimeline('playing');
         handleReady();
@@ -4954,6 +4925,7 @@ function selectRadio(src, title, index, logo) {
       handlerState.onPlaying = onPlaying;
 
       function onCanPlayThrough() {
+        if (!isCurrentPlaybackRequest(requestId)) return;
         debugConsole("onCanPlayThrough called");
         debugConsole(`Stream ${title} can play through`);
         markAudioTimeline('canplaythrough');
@@ -4962,6 +4934,7 @@ function selectRadio(src, title, index, logo) {
       handlerState.onCanPlayThrough = onCanPlayThrough;
 
       function onCanPlay() {
+        if (!isCurrentPlaybackRequest(requestId)) return;
         debugConsole("onCanPlay called");
         debugConsole(`Stream ${title} can play`);
         markAudioTimeline('canplay');
@@ -4970,6 +4943,7 @@ function selectRadio(src, title, index, logo) {
       handlerState.onCanPlay = onCanPlay;
 
       function onError() {
+        if (!isCurrentPlaybackRequest(requestId)) return;
         clearPlayTimeout();
         console.error(`Audio error for ${title}:`, audioPlayer.error);
         markAudioTimeline('error', { detail: audioPlayer.error?.message || audioPlayer.error?.code || 'unknown' });
@@ -4999,7 +4973,8 @@ function selectRadio(src, title, index, logo) {
             onError: onErrorCallback,
             disableSlowGuard: true,
             live,
-            allowCorsRetry: false
+            allowCorsRetry: false,
+            requestId
           });
           attemptPlay();
           return;
@@ -5036,6 +5011,7 @@ function selectRadio(src, title, index, logo) {
       if (!disableSlowGuard) {
         clearTimeout(slowBufferRescue.timerId);
         slowBufferRescue.timerId = setTimeout(() => {
+          if (!isCurrentPlaybackRequest(requestId)) return;
           if (readyHandled || audioPlayer.readyState >= (HTMLMediaElement?.HAVE_CURRENT_DATA || 2)) {
             return;
           }
@@ -5046,6 +5022,10 @@ function selectRadio(src, title, index, logo) {
       if (typeof requestAnimationFrame === 'function') {
         let quickStartAttempts = 0;
         const quickStartCheck = () => {
+          if (!isCurrentPlaybackRequest(requestId)) {
+            handlerState.quickStartId = null;
+            return;
+          }
           if (readyHandled) {
             handlerState.quickStartId = null;
             return;
