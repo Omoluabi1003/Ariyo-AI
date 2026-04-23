@@ -116,8 +116,11 @@
     </section>
   </main>
   <footer>
-    <p>&copy; 2024 Omoluabi Productions — <a href="index.html">Return to Àríyò AI</a></p>
+    <p>&copy; <span id="privacyYear"></span> Omoluabi Productions — <a href="index.html">Return to Àríyò AI</a></p>
   </footer>
+  <script>
+    document.getElementById('privacyYear').textContent = String(new Date().getFullYear());
+  </script>
   <script src="scripts/sw-controller.js" defer></script>
 </body>
 </html>
