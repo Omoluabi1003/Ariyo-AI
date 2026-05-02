@@ -1,116 +1,130 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Ariyo AI Chatbot</title>
-  <script async type='module' src='https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js'></script>
-  <script src="../../viewport-height.js" defer></script>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-    }
-    body {
-      display: flex;
-      min-height: var(--app-height, 100vh);
-    }
-    zapier-interfaces-chatbot-embed {
-      flex: 1;
-      height: var(--app-height, 100vh);
-      width: 100%;
-    }
-  </style>
-</head>
-<body>
-  <zapier-interfaces-chatbot-embed is-popup='false' chatbot-id='cm7s2oyu2000b3vmuwcwkj9kn'></zapier-interfaces-chatbot-embed>
-  <script>
-    (function () {
-      const PANEL_ID = 'ariyoChatbotContainer';
-      const SOURCE = 'edge-panel-app';
-
-      function isValidOrigin(origin) {
-        if (!origin) return false;
-        if (origin === 'null' || origin === 'about:blank') return false;
-        return !origin.startsWith('file:');
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Ariyo AI Chatbot</title>
+    <script
+      async
+      type="module"
+      src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"
+    ></script>
+    <script src="../../viewport-height.js" defer></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
       }
+      body {
+        display: flex;
+        min-height: var(--app-height, 100vh);
+      }
+      zapier-interfaces-chatbot-embed {
+        flex: 1;
+        height: var(--app-height, 100vh);
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <zapier-interfaces-chatbot-embed
+      is-popup="false"
+      chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
+    ></zapier-interfaces-chatbot-embed>
+    <script>
+      (function () {
+        const PANEL_ID = 'ariyoChatbotContainer';
+        const SOURCE = 'edge-panel-app';
 
-      function resolveTargetOrigin() {
-        try {
-          if (document.referrer) {
-            const referrerOrigin = new URL(document.referrer, window.location.href).origin;
-            if (isValidOrigin(referrerOrigin)) {
-              return referrerOrigin;
-            }
-          }
-        } catch (error) {
-          /* ignore invalid referrer */
+        function isValidOrigin(origin) {
+          if (!origin) return false;
+          if (origin === 'null' || origin === 'about:blank') return false;
+          return !origin.startsWith('file:');
         }
 
-        if (window.location) {
+        function resolveTargetOrigin() {
           try {
-            const currentOrigin = window.location.origin;
-            if (isValidOrigin(currentOrigin)) {
-              return currentOrigin;
+            if (document.referrer) {
+              const referrerOrigin = new URL(document.referrer, window.location.href).origin;
+              if (isValidOrigin(referrerOrigin)) {
+                return referrerOrigin;
+              }
             }
           } catch (error) {
-            /* ignore invalid current origin */
+            /* ignore invalid referrer */
           }
 
-          if (window.location.ancestorOrigins && window.location.ancestorOrigins.length) {
-            const ancestorOrigin = window.location.ancestorOrigins[0];
-            if (isValidOrigin(ancestorOrigin)) {
-              return ancestorOrigin;
+          if (window.location) {
+            try {
+              const currentOrigin = window.location.origin;
+              if (isValidOrigin(currentOrigin)) {
+                return currentOrigin;
+              }
+            } catch (error) {
+              /* ignore invalid current origin */
+            }
+
+            if (window.location.ancestorOrigins && window.location.ancestorOrigins.length) {
+              const ancestorOrigin = window.location.ancestorOrigins[0];
+              if (isValidOrigin(ancestorOrigin)) {
+                return ancestorOrigin;
+              }
             }
           }
+
+          return '*';
         }
 
-        return '*';
-      }
+        const targetOrigin = resolveTargetOrigin();
 
-      const targetOrigin = resolveTargetOrigin();
-
-      function postStatus(status, reason) {
-        if (!window.parent || window.parent === window) return;
-        const payload = { source: SOURCE, panelId: PANEL_ID, status };
-        if (reason) {
-          payload.reason = reason;
-        }
-        window.parent.postMessage(payload, targetOrigin);
-      }
-
-      function monitorEmbed() {
-        if (!window.customElements || typeof window.customElements.whenDefined !== 'function') {
-          postStatus('error', 'unsupported-browser');
-          return;
-        }
-
-        let readyTimeout = setTimeout(() => {
-          if (!window.customElements.get('zapier-interfaces-chatbot-embed')) {
-            postStatus('error', 'component-unavailable');
+        function postStatus(status, reason) {
+          if (!window.parent || window.parent === window) return;
+          const payload = { source: SOURCE, panelId: PANEL_ID, status };
+          if (reason) {
+            payload.reason = reason;
           }
-        }, 10000);
+          window.parent.postMessage(payload, targetOrigin);
+        }
 
-        window.customElements.whenDefined('zapier-interfaces-chatbot-embed').then(() => {
-          clearTimeout(readyTimeout);
-          const embed = document.querySelector('zapier-interfaces-chatbot-embed');
-          if (embed) {
-            postStatus('ready');
-          } else {
-            postStatus('error', 'missing-embed');
+        function monitorEmbed() {
+          if (!window.customElements || typeof window.customElements.whenDefined !== 'function') {
+            postStatus('error', 'unsupported-browser');
+            return;
           }
-        }).catch(() => {
-          postStatus('error', 'component-unavailable');
-        });
-      }
 
-      if (document.readyState === 'complete') {
-        monitorEmbed();
-      } else {
-        window.addEventListener('load', monitorEmbed, { once: true });
-      }
-    })();
-  </script>
-  <script src="../../scripts/sw-controller.js" defer></script>
-</body>
+          let readyTimeout = setTimeout(() => {
+            if (!window.customElements.get('zapier-interfaces-chatbot-embed')) {
+              postStatus('error', 'component-unavailable');
+            }
+          }, 10000);
+
+          window.customElements
+            .whenDefined('zapier-interfaces-chatbot-embed')
+            .then(() => {
+              clearTimeout(readyTimeout);
+              const embed = document.querySelector('zapier-interfaces-chatbot-embed');
+              if (embed) {
+                postStatus('ready');
+              } else {
+                postStatus('error', 'missing-embed');
+              }
+            })
+            .catch(() => {
+              postStatus('error', 'component-unavailable');
+            });
+        }
+
+        if (document.readyState === 'complete') {
+          monitorEmbed();
+        } else {
+          window.addEventListener('load', monitorEmbed, { once: true });
+        }
+      })();
+    </script>
+    <script src="../../scripts/sw-controller.js" defer></script>
+  </body>
 </html>

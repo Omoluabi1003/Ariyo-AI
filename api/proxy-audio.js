@@ -44,12 +44,12 @@ const ALLOW = [
   /zeno\.fm$/i,
   /akamaized\.net$/i,
   /mystreaming\.net$/i,
-  /securenetsystems\.net$/i
+  /securenetsystems\.net$/i,
 ];
 const REQUEST_TIMEOUT_MS = 25_000;
 
 function isAllowedHost(url) {
-  return ALLOW.some(rule => rule.test(url.hostname));
+  return ALLOW.some((rule) => rule.test(url.hostname));
 }
 
 module.exports = async (req, res) => {
@@ -99,7 +99,7 @@ module.exports = async (req, res) => {
     let upstream = await fetch(url.toString(), {
       method,
       headers,
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     if (!upstream.ok && method === 'HEAD') {

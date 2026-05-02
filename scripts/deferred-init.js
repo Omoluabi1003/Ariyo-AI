@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const schedule = (cb, timeout = 750) => {
     if (typeof requestIdleCallback === 'function') {
       requestIdleCallback(cb, { timeout });
@@ -20,7 +20,9 @@
     if (!welcomeAudio) return;
     welcomeAudio.preload = window.__IS_IOS__ ? 'auto' : 'metadata';
     if (window.__IS_IOS__) {
-      try { welcomeAudio.load(); } catch (_) {}
+      try {
+        welcomeAudio.load();
+      } catch (_) {}
     }
   }
 

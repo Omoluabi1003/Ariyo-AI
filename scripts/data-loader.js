@@ -12,7 +12,7 @@
   function shouldRefreshCache() {
     try {
       const timestamp = Number(localStorage.getItem(CACHE_KEY) || 0);
-      return !timestamp || (Date.now() - timestamp) > CACHE_TTL_MS;
+      return !timestamp || Date.now() - timestamp > CACHE_TTL_MS;
     } catch (error) {
       return true;
     }
@@ -66,7 +66,7 @@
       return Promise.resolve('deferred');
     }
 
-    return loadScript().catch(error => {
+    return loadScript().catch((error) => {
       console.warn('[catalog] Full catalog load failed:', error, { reason });
       return 'failed';
     });
@@ -86,9 +86,10 @@
       return;
     }
 
-    const schedule = typeof requestIdleCallback === 'function'
-      ? cb => requestIdleCallback(cb, { timeout: 2500 })
-      : cb => setTimeout(cb, 1200);
+    const schedule =
+      typeof requestIdleCallback === 'function'
+        ? (cb) => requestIdleCallback(cb, { timeout: 2500 })
+        : (cb) => setTimeout(cb, 1200);
 
     schedule(() => {
       loadFullLibrary({ reason: 'idle' });

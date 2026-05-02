@@ -151,7 +151,7 @@
       }
       setState('idle');
     },
-    seek: seconds => {
+    seek: (seconds) => {
       if (!howl) return 0;
       if (typeof seconds === 'number' && Number.isFinite(seconds)) {
         try {
@@ -164,14 +164,14 @@
       const position = howl.seek();
       return typeof position === 'number' ? position : 0;
     },
-    setVolume: value => {
+    setVolume: (value) => {
       if (typeof value !== 'number' || Number.isNaN(value)) return;
       volume = Math.min(1, Math.max(0, value));
       if (howl) {
         howl.volume(volume);
       }
     },
-    mute: isMuted => {
+    mute: (isMuted) => {
       muted = Boolean(isMuted);
       if (howl) {
         howl.mute(muted);

@@ -20,7 +20,7 @@ describe('proxy-audio handler', () => {
       setHeader: jest.fn((key, value) => {
         res.headers[key] = value;
       }),
-      end: jest.fn()
+      end: jest.fn(),
     };
     return res;
   }
@@ -30,21 +30,18 @@ describe('proxy-audio handler', () => {
       ok: false,
       status: 405,
       headers: { get: () => null },
-      body: null
+      body: null,
     };
 
     const getResponse = {
       ok: true,
       status: 200,
-      headers: { get: key => (key === 'content-type' ? 'audio/mpeg' : null) },
+      headers: { get: (key) => (key === 'content-type' ? 'audio/mpeg' : null) },
       arrayBuffer: () => Promise.resolve(Buffer.alloc(0)),
-      body: null
+      body: null,
     };
 
-    global.fetch = jest
-      .fn()
-      .mockResolvedValueOnce(headResponse)
-      .mockResolvedValueOnce(getResponse);
+    global.fetch = jest.fn().mockResolvedValueOnce(headResponse).mockResolvedValueOnce(getResponse);
 
     const res = createResponse();
 
@@ -52,9 +49,9 @@ describe('proxy-audio handler', () => {
       {
         method: 'HEAD',
         query: { url: 'https://cdn1.suno.ai/example.mp3' },
-        headers: {}
+        headers: {},
       },
-      res
+      res,
     );
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -62,11 +59,11 @@ describe('proxy-audio handler', () => {
       expect.objectContaining({
         method: 'HEAD',
         headers: {},
-        signal: expect.any(AbortSignal)
-      })
+        signal: expect.any(AbortSignal),
+      }),
     );
     expect(global.fetch.mock.calls[1][1]).toEqual(
-      expect.objectContaining({ headers: {}, signal: expect.any(AbortSignal) })
+      expect.objectContaining({ headers: {}, signal: expect.any(AbortSignal) }),
     );
     expect(res.statusCode).toBe(200);
     expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'audio/mpeg');

@@ -1,32 +1,32 @@
-const globals = require("globals");
+const globals = require('globals');
 
 module.exports = [
   {
-    ignores: ["dist/", "node_modules/", "*.config.js"],
+    ignores: ['dist/', 'node_modules/', '*.config.js'],
   },
   {
-    files: ["**/*.js"],
+    files: ['**/*.js'],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       globals: {
         ...globals.browser,
       },
     },
     plugins: {
-      prettier: require("eslint-plugin-prettier"),
+      prettier: require('eslint-plugin-prettier'),
     },
     rules: {
-      "prettier/prettier": "error",
+      'prettier/prettier': 'error',
     },
   },
   {
-    files: ["**/*.test.js"],
+    files: ['**/*.test.js'],
     plugins: {
-      jest: require("eslint-plugin-jest"),
+      jest: require('eslint-plugin-jest'),
     },
     rules: {
-      ...require("eslint-plugin-jest").configs.recommended.rules,
+      ...require('eslint-plugin-jest').configs.recommended.rules,
     },
   },
 ];

@@ -14,7 +14,7 @@ body {
   color: var(--surface-contrast);
 }
 
-body[data-theme="light"] {
+body[data-theme='light'] {
   background: linear-gradient(180deg, #f2f4fa 0%, #e7ebf5 100%);
   color: #0b1224;
 }
@@ -184,7 +184,9 @@ body[data-theme="light"] {
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .embed-button:hover,

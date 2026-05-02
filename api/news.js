@@ -3,48 +3,48 @@ const { XMLParser } = require('fast-xml-parser');
 const SOURCES = [
   {
     url: 'https://naijavibe.net/feed/',
-    tag: 'NaijaVibe Entertainment'
+    tag: 'NaijaVibe Entertainment',
   },
   {
     url: 'https://feeds.bbci.co.uk/news/world/rss.xml',
-    tag: 'BBC World'
+    tag: 'BBC World',
   },
   {
     url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
-    tag: 'NYT World'
+    tag: 'NYT World',
   },
   {
     url: 'https://www.aljazeera.com/xml/rss/all.xml',
-    tag: 'Al Jazeera'
+    tag: 'Al Jazeera',
   },
   {
     url: 'https://apnews.com/hub/ap-top-news?output=rss',
-    tag: 'AP Top News'
+    tag: 'AP Top News',
   },
   {
     url: 'https://news.google.com/rss/search?q=foreign%20entertainment%20OR%20hollywood%20OR%20bollywood%20OR%20k-pop&hl=en&gl=US&ceid=US:en',
-    tag: 'Foreign Entertainment'
+    tag: 'Foreign Entertainment',
   },
   {
     url: 'https://news.google.com/rss/search?q=Nigerian%20diaspora%20OR%20Nigerians%20abroad&hl=en&gl=NG&ceid=NG:en',
-    tag: 'Diaspora'
+    tag: 'Diaspora',
   },
   {
     url: 'https://news.google.com/rss/search?q=Nollywood%20OR%20Afrobeats%20OR%20Nigerian%20entertainment&hl=en&gl=NG&ceid=NG:en',
-    tag: 'Entertainment NG'
+    tag: 'Entertainment NG',
   },
   {
     url: 'https://news.google.com/rss/search?q=Nigerian%20artists%20abroad%20OR%20Nigerian%20entertainers%20global&hl=en&gl=US&ceid=US:en',
-    tag: 'Global Entertainment'
+    tag: 'Global Entertainment',
   },
   {
     url: 'https://guardian.ng/feed',
-    tag: 'Guardian Nigeria'
+    tag: 'Guardian Nigeria',
   },
   {
     url: 'https://www.premiumtimesng.com/feed',
-    tag: 'Premium Times'
-  }
+    tag: 'Premium Times',
+  },
 ];
 
 const CURATED_STORIES = [
@@ -57,8 +57,8 @@ const CURATED_STORIES = [
     url: 'https://www.marquisswhoswho.com',
     publishedAt: '2025-01-15T00:00:00Z',
     image: '/img/marquis-whos-who-badge.svg',
-    pinned: true
-  }
+    pinned: true,
+  },
 ];
 
 const DEFAULT_IMAGE = '/img/news-fallback.svg';
@@ -97,13 +97,13 @@ const KEYWORD_STOPWORDS = new Set([
   'as',
   'news',
   'update',
-  'story'
+  'story',
 ]);
 const parser = new XMLParser({
   ignoreAttributes: false,
   removeNSPrefix: true,
   attributeNamePrefix: '',
-  textNodeName: 'text'
+  textNodeName: 'text',
 });
 
 function decodeHtml(input = '') {
@@ -116,7 +116,9 @@ function decodeHtml(input = '') {
 }
 
 function stripHtml(html = '') {
-  return decodeHtml(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+  return decodeHtml(html.replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function toArray(value) {
@@ -205,16 +207,16 @@ function extractMediaContent(entry) {
   if (!media.length) return null;
 
   const ranked = media
-    .map(item => {
+    .map((item) => {
       const url = getUrlFrom(item);
       const width = Number(item.width || item['media:width'] || item['@_width'] || 0) || 0;
       const height = Number(item.height || item['media:height'] || item['@_height'] || 0) || 0;
       return { url, area: width * height };
     })
-    .filter(item => Boolean(item.url))
+    .filter((item) => Boolean(item.url))
     .sort((a, b) => b.area - a.area);
 
-  return ranked[0]?.url || ranked.find(item => item.url)?.url || null;
+  return ranked[0]?.url || ranked.find((item) => item.url)?.url || null;
 }
 
 function extractInlineImage(html = '') {
@@ -225,7 +227,9 @@ function extractInlineImage(html = '') {
 
 function findImage(entry, baseLink) {
   const inlineImage =
-    extractInlineImage(entry['content:encoded']) || extractInlineImage(entry.description) || extractInlineImage(entry.summary);
+    extractInlineImage(entry['content:encoded']) ||
+    extractInlineImage(entry.description) ||
+    extractInlineImage(entry.summary);
 
   const candidates = [
     extractMediaContent(entry),
@@ -233,7 +237,7 @@ function findImage(entry, baseLink) {
     getUrlFrom(entry.content),
     getUrlFrom(entry['media:thumbnail']),
     getUrlFrom(entry.image),
-    inlineImage
+    inlineImage,
   ];
 
   for (const candidate of candidates) {
@@ -254,7 +258,7 @@ async function fetchOpenGraphImage(url) {
     const response = await fetch(url, {
       signal: controller.signal,
       headers: { 'User-Agent': 'AriyoAI-NewsFetcher/1.0' },
-      redirect: 'follow'
+      redirect: 'follow',
     });
 
     if (!response.ok || !response.headers.get('content-type')?.includes('text/html')) {
@@ -283,7 +287,7 @@ function parseDate(entry) {
 
 function normalizeEntry(entry, tag) {
   const link = unwrapGoogleNewsUrl(
-    typeof entry.link === 'string' ? entry.link : entry.link?.href || entry.link?.[0]?.href
+    typeof entry.link === 'string' ? entry.link : entry.link?.href || entry.link?.[0]?.href,
   );
   const title = decodeHtml(entry.title || 'Untitled');
   const summary = stripHtml(entry.description || entry.summary || entry.text || '');
@@ -298,7 +302,7 @@ function normalizeEntry(entry, tag) {
     summary: summary || title,
     image,
     publishedAt,
-    tag
+    tag,
   };
 }
 
@@ -308,7 +312,7 @@ function extractKeywords(text = '') {
     .replace(/[^a-z0-9\s]/gi, ' ')
     .split(/\s+/)
     .filter(Boolean)
-    .filter(token => !KEYWORD_STOPWORDS.has(token));
+    .filter((token) => !KEYWORD_STOPWORDS.has(token));
 }
 
 function hashColor(input) {
@@ -323,11 +327,9 @@ function hashColor(input) {
 function buildKeywordImage(item) {
   const keywords = new Set();
 
-  [item.title, item.summary, item.tag]
-    .filter(Boolean)
-    .forEach(text => {
-      extractKeywords(text).forEach(token => keywords.add(token));
-    });
+  [item.title, item.summary, item.tag].filter(Boolean).forEach((text) => {
+    extractKeywords(text).forEach((token) => keywords.add(token));
+  });
 
   if (!keywords.size) return null;
 
@@ -391,7 +393,7 @@ async function fetchFeed(source) {
   try {
     const response = await fetch(source.url, {
       signal: controller.signal,
-      headers: { 'User-Agent': 'AriyoAI-NewsFetcher/1.0' }
+      headers: { 'User-Agent': 'AriyoAI-NewsFetcher/1.0' },
     });
 
     if (!response.ok) {
@@ -400,32 +402,29 @@ async function fetchFeed(source) {
 
     const xml = await response.text();
     const parsed = parser.parse(xml);
-    const items =
-      parsed?.rss?.channel?.item || parsed?.feed?.entry || parsed?.channel?.item || parsed?.entries || [];
-    return toArray(items).map(item => normalizeEntry(item, source.tag));
+    const items = parsed?.rss?.channel?.item || parsed?.feed?.entry || parsed?.channel?.item || parsed?.entries || [];
+    return toArray(items).map((item) => normalizeEntry(item, source.tag));
   } finally {
     clearTimeout(timeout);
   }
 }
 
-  async function fetchAllNews() {
-    const feedResults = await Promise.allSettled(SOURCES.map(fetchFeed));
-    const collected = feedResults
-      .filter(result => result.status === 'fulfilled')
-      .flatMap(result => result.value);
+async function fetchAllNews() {
+  const feedResults = await Promise.allSettled(SOURCES.map(fetchFeed));
+  const collected = feedResults.filter((result) => result.status === 'fulfilled').flatMap((result) => result.value);
 
-    const combined = [...CURATED_STORIES, ...collected];
+  const combined = [...CURATED_STORIES, ...collected];
 
-    const uniqueByUrl = new Map();
-    combined.forEach(item => {
-      const key = item.url || item.id;
-      if (!uniqueByUrl.has(key)) {
-        uniqueByUrl.set(key, item);
-      }
-    });
+  const uniqueByUrl = new Map();
+  combined.forEach((item) => {
+    const key = item.url || item.id;
+    if (!uniqueByUrl.has(key)) {
+      uniqueByUrl.set(key, item);
+    }
+  });
 
   const uniqueItems = Array.from(uniqueByUrl.values())
-    .filter(item => item.title && item.summary)
+    .filter((item) => item.title && item.summary)
     .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
     .slice(0, 30);
 

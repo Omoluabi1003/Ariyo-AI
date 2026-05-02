@@ -9,29 +9,22 @@ const FEEDS = [
   { url: 'https://anchor.fm/s/31f26724/podcast/rss', category: 'Afrobeat' },
   { url: 'https://www.spreaker.com/show/2572192/episodes/feed', category: 'Pop' },
   { url: 'https://feeds.simplecast.com/TzbxCT1l', category: 'Pop' },
-  { url: 'https://rss.art19.com/pop-apologists', category: 'Pop' }
+  { url: 'https://rss.art19.com/pop-apologists', category: 'Pop' },
 ];
 
-const ALLOWED_AUDIO_TYPES = new Set([
-  'audio/mpeg',
-  'audio/mp3',
-  'audio/x-m4a',
-  'audio/mp4',
-  'audio/aac',
-  'audio/m4a'
-]);
+const ALLOWED_AUDIO_TYPES = new Set(['audio/mpeg', 'audio/mp3', 'audio/x-m4a', 'audio/mp4', 'audio/aac', 'audio/m4a']);
 const CACHE_WINDOW_MS = 12 * 60 * 60 * 1000; // 12 hours, within the required 6–24 hour window.
 
 const parser = new XMLParser({
   ignoreAttributes: false,
   removeNSPrefix: true,
   attributeNamePrefix: '',
-  textNodeName: 'text'
+  textNodeName: 'text',
 });
 
 const feedCache = {
   timestamp: 0,
-  payload: null
+  payload: null,
 };
 
 function toArray(value) {
@@ -45,7 +38,10 @@ function truncateTitle(title = '') {
 }
 
 function stripHtml(html = '') {
-  return String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  return String(html)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function clampDescription(text = '') {
@@ -68,13 +64,9 @@ function parseDuration(value) {
     }
 
     const parts = trimmed.split(':').map(Number);
-    if (parts.every(num => Number.isFinite(num))) {
-      const [h, m, s] = parts.length === 3
-        ? parts
-        : parts.length === 2
-          ? [0, parts[0], parts[1]]
-          : [0, 0, parts[0]];
-      return (h * 3600) + (m * 60) + s;
+    if (parts.every((num) => Number.isFinite(num))) {
+      const [h, m, s] = parts.length === 3 ? parts : parts.length === 2 ? [0, parts[0], parts[1]] : [0, 0, parts[0]];
+      return h * 3600 + m * 60 + s;
     }
   }
 
@@ -109,7 +101,7 @@ function extractEnclosure(entry = {}) {
     const enclosure = entry.enclosure;
     return {
       url: resolveUrl(enclosure.url || enclosure.href),
-      type: enclosure.type
+      type: enclosure.type,
     };
   }
 
@@ -118,15 +110,15 @@ function extractEnclosure(entry = {}) {
     const content = Array.isArray(mediaContent) ? mediaContent[0] : mediaContent;
     return {
       url: resolveUrl(content.url || content.src),
-      type: content.type
+      type: content.type,
     };
   }
 
-  const atomLinks = toArray(entry.link).filter(link => link.rel === 'enclosure');
+  const atomLinks = toArray(entry.link).filter((link) => link.rel === 'enclosure');
   if (atomLinks.length) {
     return {
       url: resolveUrl(atomLinks[0].href || atomLinks[0].url),
-      type: atomLinks[0].type
+      type: atomLinks[0].type,
     };
   }
 
@@ -159,8 +151,9 @@ function normalizeEntry(entry, feedMeta) {
   if (!isAllowedType) return null;
 
   const title = truncateTitle(entry.title || entry['media:title'] || entry['itunes:title'] || 'Untitled Episode');
-  const duration = parseDuration(entry['itunes:duration'] || entry.itunesDuration || entry.duration)
-    || durationFromEnclosure(entry.enclosure);
+  const duration =
+    parseDuration(entry['itunes:duration'] || entry.itunesDuration || entry.duration) ||
+    durationFromEnclosure(entry.enclosure);
   const artwork = extractArtwork(entry, feedMeta.artwork);
   const description = clampDescription(entry.description || entry.summary || entry['media:description']);
 
@@ -175,7 +168,7 @@ function normalizeEntry(entry, feedMeta) {
     source: feedMeta.title,
     category: feedMeta.category,
     feedId: feedMeta.id,
-    feedArtwork: feedMeta.artwork
+    feedArtwork: feedMeta.artwork,
   };
 }
 
@@ -185,7 +178,7 @@ function parseFeed(xml, url, category) {
   if (!channel) {
     return {
       tracks: [],
-      collection: { id: url, category, title: new URL(url).hostname, artwork: null }
+      collection: { id: url, category, title: new URL(url).hostname, artwork: null },
     };
   }
 
@@ -195,10 +188,8 @@ function parseFeed(xml, url, category) {
   const feedMeta = { id: url, category, title: feedTitle, artwork: fallbackArtwork };
 
   return {
-    tracks: items
-      .map(item => normalizeEntry(item, feedMeta))
-      .filter(Boolean),
-    collection: feedMeta
+    tracks: items.map((item) => normalizeEntry(item, feedMeta)).filter(Boolean),
+    collection: feedMeta,
   };
 }
 
@@ -212,22 +203,22 @@ async function fetchFeed(url, category) {
 }
 
 async function fetchAllFeeds() {
-  if (feedCache.payload && (Date.now() - feedCache.timestamp) < CACHE_WINDOW_MS) {
+  if (feedCache.payload && Date.now() - feedCache.timestamp < CACHE_WINDOW_MS) {
     return feedCache.payload;
   }
 
-  const results = await Promise.allSettled(FEEDS.map(feed => fetchFeed(feed.url, feed.category)));
+  const results = await Promise.allSettled(FEEDS.map((feed) => fetchFeed(feed.url, feed.category)));
 
   const tracks = [];
   const collections = [];
 
-  results.forEach(result => {
+  results.forEach((result) => {
     if (result.status !== 'fulfilled') return;
     const { tracks: feedTracks = [], collection } = result.value || {};
     if (collection) {
       collections.push(collection);
     }
-    feedTracks.forEach(track => tracks.push(track));
+    feedTracks.forEach((track) => tracks.push(track));
   });
 
   const sortedTracks = tracks

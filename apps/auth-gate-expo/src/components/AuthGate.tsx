@@ -1,15 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import {
-  Animated,
-  Easing,
-  Keyboard,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  useColorScheme,
-} from 'react-native';
+import { Animated, Easing, Keyboard, Pressable, StyleSheet, Text, TextInput, View, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { isValidEmail } from '../utils/email';
 import { useAuthStore } from '../store/useAuthStore';
@@ -111,7 +101,13 @@ const AuthGate = () => {
 
   return (
     <SafeAreaView style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
-      <Animated.View style={[styles.card, isDark ? styles.cardDark : styles.cardLight, { opacity: fadeOut, transform: [{ translateY }] }]}>
+      <Animated.View
+        style={[
+          styles.card,
+          isDark ? styles.cardDark : styles.cardLight,
+          { opacity: fadeOut, transform: [{ translateY }] },
+        ]}
+      >
         <View style={styles.logoWrapper}>
           <Text style={[styles.logoText, isDark ? styles.logoTextDark : styles.logoTextLight]}>MyApp</Text>
           <Text style={[styles.subtitle, isDark ? styles.subtitleDark : styles.subtitleLight]}>
@@ -153,9 +149,7 @@ const AuthGate = () => {
             pressed && canContinue && styles.buttonPressed,
           ]}
         >
-          <Text style={[styles.buttonText, isDark ? styles.buttonTextDark : styles.buttonTextLight]}>
-            Continue
-          </Text>
+          <Text style={[styles.buttonText, isDark ? styles.buttonTextDark : styles.buttonTextLight]}>Continue</Text>
         </Pressable>
 
         <Text style={[styles.hintText, isDark ? styles.hintTextDark : styles.hintTextLight]}>

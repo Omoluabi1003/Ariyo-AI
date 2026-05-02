@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const STORAGE_KEY = 'ariyoAccessEmail';
   const USER_ID_KEY = 'ariyoUserId';
   const ACCESS_HASH = '#email-access';
@@ -125,7 +125,7 @@
       message: `Email gate sign-in: ${email}${userId ? ` (user ${userId})` : ''}`,
       email,
       userId,
-      page: window.location.href
+      page: window.location.href,
     };
     if (navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
@@ -135,10 +135,10 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         body: JSON.stringify(payload),
-        keepalive: true
+        keepalive: true,
       }).catch(() => {});
     }
     hideModal();

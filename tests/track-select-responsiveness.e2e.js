@@ -9,10 +9,13 @@ test('track selection shows loading quickly and keeps scroll available', async (
 
   const start = Date.now();
   await firstTrack.click();
-  await page.waitForFunction(() => {
-    const overlay = document.getElementById('bufferingOverlay');
-    return Boolean(overlay && overlay.classList.contains('visible'));
-  }, { timeout: 1500 });
+  await page.waitForFunction(
+    () => {
+      const overlay = document.getElementById('bufferingOverlay');
+      return Boolean(overlay && overlay.classList.contains('visible'));
+    },
+    { timeout: 1500 },
+  );
 
   const elapsed = Date.now() - start;
   expect(elapsed).toBeLessThan(800);

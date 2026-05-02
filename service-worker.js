@@ -19,7 +19,7 @@ const AUDIO_CACHE_NAME = `${CACHE_PREFIX}-audio`;
 async function notifyClientsOfUpdate(versionIdentifier) {
   const payload = {
     type: 'APP_UPDATE_READY',
-    version: versionIdentifier || null
+    version: versionIdentifier || null,
   };
 
   if (typeof BroadcastChannel !== 'undefined') {
@@ -34,23 +34,25 @@ async function notifyClientsOfUpdate(versionIdentifier) {
 
   try {
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    await Promise.all(clients.map(async client => {
-      try {
-        client.postMessage(payload);
-        client.postMessage({
-          type: 'SERVICE_WORKER_UPDATED',
-          version: versionIdentifier || null
-        });
-      } catch (messageError) {
-        console.error('Failed to notify client of service worker update:', messageError);
-      }
-    }));
+    await Promise.all(
+      clients.map(async (client) => {
+        try {
+          client.postMessage(payload);
+          client.postMessage({
+            type: 'SERVICE_WORKER_UPDATED',
+            version: versionIdentifier || null,
+          });
+        } catch (messageError) {
+          console.error('Failed to notify client of service worker update:', messageError);
+        }
+      }),
+    );
   } catch (error) {
     console.error('Failed to broadcast service worker update to clients:', error);
   }
 }
 
-self.addEventListener('message', event => {
+self.addEventListener('message', (event) => {
   if (!event.data) {
     return;
   }
@@ -63,7 +65,7 @@ self.addEventListener('message', event => {
     if (event.source && typeof event.source.postMessage === 'function') {
       event.source.postMessage({
         type: 'APP_VERSION',
-        version: ACTIVE_VERSION
+        version: ACTIVE_VERSION,
       });
     }
   }
@@ -112,7 +114,7 @@ const CORE_ASSETS = self.__WB_MANIFEST || [
   'apps/connect-four/connect-four.html',
   'apps/connect-four/connect-four.css',
   'apps/connect-four/connect-four.js',
-  'apps/cycle-precision/cycle-precision.html'
+  'apps/cycle-precision/cycle-precision.html',
 ];
 
 // Avoid prefetching large media during install; streaming should stay network-first.
@@ -128,7 +130,7 @@ function fetchWithTimeout(url, options = {}, timeout = INSTALL_TIMEOUT_MS) {
   const timer = setTimeout(() => controller.abort(), timeout);
 
   return fetch(url, { ...options, signal: controller.signal })
-    .catch(error => {
+    .catch((error) => {
       if (controller.signal.aborted) {
         console.warn('Fetch timed out:', url);
       }
@@ -151,7 +153,7 @@ async function initializeCacheNamesFromExistingCaches() {
 
   const cacheNames = await caches.keys();
   const primaryCache = cacheNames
-    .filter(name => name.startsWith(`${CACHE_PREFIX}-`) && !name.endsWith('-runtime'))
+    .filter((name) => name.startsWith(`${CACHE_PREFIX}-`) && !name.endsWith('-runtime'))
     .sort()
     .pop();
 
@@ -175,7 +177,7 @@ const cacheNameReady = initializeCacheNamesFromExistingCaches();
 if (self.workbox) {
   workbox.routing.registerRoute(
     ({ url }) => url.pathname.startsWith('/apps/'),
-    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-games` })
+    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-games` }),
   );
 
   workbox.routing.registerRoute(
@@ -183,25 +185,23 @@ if (self.workbox) {
     new workbox.strategies.NetworkFirst({
       cacheName: AUDIO_CACHE_NAME,
       networkTimeoutSeconds: 6,
-      plugins: [
-        new workbox.expiration.ExpirationPlugin({ maxEntries: 8, maxAgeSeconds: 7 * 24 * 60 * 60 })
-      ]
-    })
+      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 8, maxAgeSeconds: 7 * 24 * 60 * 60 })],
+    }),
   );
 
   workbox.routing.registerRoute(
     ({ url }) => url.pathname.startsWith('/api/proxy-audio') || url.pathname.startsWith('/api/radio/proxy'),
-    new workbox.strategies.NetworkOnly()
+    new workbox.strategies.NetworkOnly(),
   );
 
   workbox.routing.registerRoute(
     ({ request }) => request.destination === 'document' && request.url.includes('playlist'),
-    new workbox.strategies.NetworkFirst({ cacheName: `${CACHE_PREFIX}-playlist-pages` })
+    new workbox.strategies.NetworkFirst({ cacheName: `${CACHE_PREFIX}-playlist-pages` }),
   );
 
   workbox.routing.registerRoute(
     ({ url }) => url.pathname.startsWith('/api/podcasts'),
-    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-podcasts` })
+    new workbox.strategies.StaleWhileRevalidate({ cacheName: `${CACHE_PREFIX}-podcasts` }),
   );
 
   workbox.routing.registerRoute(
@@ -209,7 +209,7 @@ if (self.workbox) {
     new workbox.strategies.NetworkFirst({
       cacheName: `${CACHE_PREFIX}-news`,
       networkTimeoutSeconds: 8,
-    })
+    }),
   );
 }
 
@@ -234,7 +234,7 @@ async function limitCacheSize(cache, maxEntries = 50) {
   }
 }
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       try {
@@ -251,7 +251,7 @@ self.addEventListener('install', event => {
       try {
         await Promise.race([
           cache.addAll(CORE_ASSETS),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('core cache timeout')), INSTALL_TIMEOUT_MS))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('core cache timeout')), INSTALL_TIMEOUT_MS)),
         ]);
       } catch (error) {
         console.warn('Core assets cache warming timed out; continuing with available files.', error);
@@ -259,22 +259,24 @@ self.addEventListener('install', event => {
 
       const runtimeCache = await openRuntimeCache();
       (async () => {
-        await Promise.allSettled(PREFETCH_MEDIA.map(async (url) => {
-          try {
-            const response = await fetchWithTimeout(url, { cache: 'no-store' }, MEDIA_PREFETCH_TIMEOUT_MS);
-            if (response && response.ok) {
-              await runtimeCache.put(url, response.clone());
+        await Promise.allSettled(
+          PREFETCH_MEDIA.map(async (url) => {
+            try {
+              const response = await fetchWithTimeout(url, { cache: 'no-store' }, MEDIA_PREFETCH_TIMEOUT_MS);
+              if (response && response.ok) {
+                await runtimeCache.put(url, response.clone());
+              }
+            } catch (error) {
+              console.warn('Skipping slow media prefetch:', url, error);
             }
-          } catch (error) {
-            console.warn('Skipping slow media prefetch:', url, error);
-          }
-        }));
+          }),
+        );
       })();
-    })()
+    })(),
   );
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       await cacheNameReady;
@@ -292,18 +294,18 @@ self.addEventListener('activate', event => {
 
       const cachesToKeep = new Set([CACHE_NAME, RUNTIME_CACHE_NAME]);
       const cacheNames = await caches.keys();
-      const hadExistingCaches = cacheNames.some(name => {
+      const hadExistingCaches = cacheNames.some((name) => {
         if (!name.startsWith(`${CACHE_PREFIX}-`)) {
           return false;
         }
         return name !== CACHE_NAME && name !== RUNTIME_CACHE_NAME;
       });
       await Promise.all(
-        cacheNames.map(name => {
+        cacheNames.map((name) => {
           if (!cachesToKeep.has(name)) {
             return caches.delete(name);
           }
-        })
+        }),
       );
 
       await self.clients.claim();
@@ -314,107 +316,112 @@ self.addEventListener('activate', event => {
         console.error('Service worker self-update failed:', error);
       }
 
-      const versionIdentifier = CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
-        ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
-        : ACTIVE_VERSION;
+      const versionIdentifier =
+        CACHE_NAME && CACHE_NAME.startsWith(`${CACHE_PREFIX}-`)
+          ? CACHE_NAME.slice(`${CACHE_PREFIX}-`.length)
+          : ACTIVE_VERSION;
 
       if (hadExistingCaches && versionIdentifier) {
         await notifyClientsOfUpdate(versionIdentifier);
       }
-    })()
+    })(),
   );
 });
 
-self.addEventListener('fetch', event => {
-    const url = new URL(event.request.url);
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
 
-    const hasRangeRequest = event.request.headers.has('range');
-    const isStreamPath = /\.(m3u8|ts|aac|mp3|flac|ogg|opus)(\?|$)/i.test(url.pathname);
-    const isAudioDestination = event.request.destination === 'audio';
-    if (isAudioDestination || isStreamPath || hasRangeRequest) {
-        if (hasRangeRequest) {
-          event.respondWith(fetch(event.request, { cache: 'no-store' }));
-          return;
-        }
-        event.respondWith((async () => {
-          const cache = await openAudioCache();
-          try {
-            const response = await fetch(event.request, { cache: 'no-store' });
-            if (response && response.ok) {
-              await cache.put(event.request, response.clone());
-              await limitCacheSize(cache, 8);
-            }
-            return response;
-          } catch (error) {
-            const cached = await cache.match(event.request);
-            if (cached) {
-              return cached;
-            }
-            throw error;
-          }
-        })());
-        return;
+  const hasRangeRequest = event.request.headers.has('range');
+  const isStreamPath = /\.(m3u8|ts|aac|mp3|flac|ogg|opus)(\?|$)/i.test(url.pathname);
+  const isAudioDestination = event.request.destination === 'audio';
+  if (isAudioDestination || isStreamPath || hasRangeRequest) {
+    if (hasRangeRequest) {
+      event.respondWith(fetch(event.request, { cache: 'no-store' }));
+      return;
     }
-
-    // Always fetch manifest and icon assets from the network to avoid stale installs
-    if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
-        event.respondWith(fetch(event.request, { cache: 'no-store' }));
-        return;
-    }
-
-    event.respondWith((async () => {
-        await cacheNameReady;
-
-        if (!CACHE_NAME) {
-            try {
-                const response = await fetch('/version.json', { cache: 'no-store' });
-                const data = await response.json();
-                setCacheNames(data.version);
-            } catch (error) {
-                console.error('Failed to establish cache name during fetch:', error);
-                ensureFallbackCacheNames();
-            }
-        }
-
-        if (event.request.mode === 'navigate') {
-            try {
-                const networkResponse = await fetch(event.request);
-                const cache = await caches.open(CACHE_NAME);
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
-            } catch (error) {
-                const cachedResponse = await caches.match(event.request);
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                return caches.match('/index.html');
-            }
-        }
-
-        const cachedResponse = await caches.match(event.request);
-        if (cachedResponse) {
-            return cachedResponse;
-        }
-
+    event.respondWith(
+      (async () => {
+        const cache = await openAudioCache();
         try {
-            const networkResponse = await fetch(event.request);
-            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-                const runtimeCache = await openRuntimeCache();
-                await limitCacheSize(runtimeCache);
-                await runtimeCache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
+          const response = await fetch(event.request, { cache: 'no-store' });
+          if (response && response.ok) {
+            await cache.put(event.request, response.clone());
+            await limitCacheSize(cache, 8);
+          }
+          return response;
         } catch (error) {
-            console.error('Fetch failed:', error);
-            const fallbackResponse = await caches.match('/index.html');
-            if (fallbackResponse) {
-                return fallbackResponse;
-            }
+          const cached = await cache.match(event.request);
+          if (cached) {
+            return cached;
+          }
+          throw error;
         }
-    })());
+      })(),
+    );
+    return;
+  }
+
+  // Always fetch manifest and icon assets from the network to avoid stale installs
+  if (url.pathname.endsWith('manifest.json') || url.pathname.includes('/icons/')) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    return;
+  }
+
+  event.respondWith(
+    (async () => {
+      await cacheNameReady;
+
+      if (!CACHE_NAME) {
+        try {
+          const response = await fetch('/version.json', { cache: 'no-store' });
+          const data = await response.json();
+          setCacheNames(data.version);
+        } catch (error) {
+          console.error('Failed to establish cache name during fetch:', error);
+          ensureFallbackCacheNames();
+        }
+      }
+
+      if (event.request.mode === 'navigate') {
+        try {
+          const networkResponse = await fetch(event.request);
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        } catch (error) {
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return caches.match('/index.html');
+        }
+      }
+
+      const cachedResponse = await caches.match(event.request);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      try {
+        const networkResponse = await fetch(event.request);
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const runtimeCache = await openRuntimeCache();
+          await limitCacheSize(runtimeCache);
+          await runtimeCache.put(event.request, networkResponse.clone());
+        }
+        return networkResponse;
+      } catch (error) {
+        console.error('Fetch failed:', error);
+        const fallbackResponse = await caches.match('/index.html');
+        if (fallbackResponse) {
+          return fallbackResponse;
+        }
+      }
+    })(),
+  );
 });
 
-self.addEventListener('push', event => {
+self.addEventListener('push', (event) => {
   const data = (() => {
     try {
       return event.data ? event.data.json() : {};
@@ -433,24 +440,22 @@ self.addEventListener('push', event => {
     tag: 'ariyo-ai-alert',
     renotify: true,
     data: { url },
-    actions: [
-      { action: 'open', title: 'Open Ariyò AI', icon: '/icons/Ariyo.png' }
-    ]
+    actions: [{ action: 'open', title: 'Open Ariyò AI', icon: '/icons/Ariyo.png' }],
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener('notificationclick', event => {
+self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = new URL(event.notification?.data?.url || '/', self.location.origin).href;
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientsArr => {
-      const client = clientsArr.find(c => c.url.startsWith(targetUrl));
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
+      const client = clientsArr.find((c) => c.url.startsWith(targetUrl));
       if (client) {
         return client.focus();
       }
       return clients.openWindow(targetUrl);
-    })
+    }),
   );
 });

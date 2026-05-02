@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type AriyoAudioPlayerProps = {
   src: string;
@@ -18,20 +18,19 @@ const VIEWBOX_WIDTH = 100;
 const VIEWBOX_HEIGHT = 60;
 
 const formatTime = (seconds: number) => {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 const buildSmoothPath = (yValues: Float32Array) => {
   const points = yValues.length;
   const width = VIEWBOX_WIDTH;
   const height = VIEWBOX_HEIGHT;
-  if (points === 0) return "";
+  if (points === 0) return '';
   const step = width / (points - 1);
   let d = `M 0 ${clamp(yValues[0], 0, height)}`;
   for (let i = 1; i < points - 1; i += 1) {
@@ -53,8 +52,8 @@ const buildSmoothPath = (yValues: Float32Array) => {
 
 const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
   src,
-  title = "Untitled audio",
-  className = "",
+  title = 'Untitled audio',
+  className = '',
   autoPlay = false,
   initialPlaybackRate = 1,
   onClose,
@@ -68,9 +67,7 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
   const rafRef = useRef<number | null>(null);
   const timeRef = useRef(0);
   const yValuesRef = useRef<Float32Array>(new Float32Array(WAVEFORM_SAMPLES));
-  const overlayValuesRef = useRef<Float32Array>(
-    new Float32Array(WAVEFORM_SAMPLES),
-  );
+  const overlayValuesRef = useRef<Float32Array>(new Float32Array(WAVEFORM_SAMPLES));
 
   const bluePathRef = useRef<SVGPathElement | null>(null);
   const greenPathRef = useRef<SVGPathElement | null>(null);
@@ -88,11 +85,8 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   const cyclePlaybackRate = () => {
-    const currentIndex = PLAYBACK_RATES.findIndex(
-      (rate) => rate === playbackRate,
-    );
-    const nextRate =
-      PLAYBACK_RATES[(currentIndex + 1) % PLAYBACK_RATES.length];
+    const currentIndex = PLAYBACK_RATES.findIndex((rate) => rate === playbackRate);
+    const nextRate = PLAYBACK_RATES[(currentIndex + 1) % PLAYBACK_RATES.length];
     setPlaybackRate(nextRate);
   };
 
@@ -100,9 +94,11 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
     if (audioContextRef.current || !audioRef.current) return;
     const AudioContextConstructor =
       window.AudioContext ||
-      (window as typeof window & {
-        webkitAudioContext?: typeof AudioContext;
-      }).webkitAudioContext;
+      (
+        window as typeof window & {
+          webkitAudioContext?: typeof AudioContext;
+        }
+      ).webkitAudioContext;
     if (!AudioContextConstructor) return;
     const context = new AudioContextConstructor();
     const sourceNode = context.createMediaElementSource(audioRef.current);
@@ -167,9 +163,9 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
     }
     const echoPath = buildSmoothPath(overlayValues);
 
-    bluePath.setAttribute("d", corePath);
-    greenPath.setAttribute("d", overlayPath);
-    purplePath.setAttribute("d", echoPath);
+    bluePath.setAttribute('d', corePath);
+    greenPath.setAttribute('d', overlayPath);
+    purplePath.setAttribute('d', echoPath);
   }, []);
 
   const startRafLoop = useCallback(() => {
@@ -216,9 +212,9 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
       onDownload();
       return;
     }
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = src;
-    link.download = src.split("/").pop() || "audio";
+    link.download = src.split('/').pop() || 'audio';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -248,18 +244,18 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
       setVisualActive(false);
     };
 
-    audio.addEventListener("loadedmetadata", handleLoaded);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener('loadedmetadata', handleLoaded);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener("loadedmetadata", handleLoaded);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener('loadedmetadata', handleLoaded);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 
@@ -299,7 +295,7 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
   const waveformClasses = useMemo(
     () =>
       `absolute inset-0 flex items-center justify-center transition-all duration-300 ${
-        visualActive ? "opacity-100 scale-100" : "opacity-0 scale-95"
+        visualActive ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
       }`,
     [visualActive],
   );
@@ -327,29 +323,9 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
                     <stop offset="100%" stopColor="#60a5fa" />
                   </linearGradient>
                 </defs>
-                <path
-                  ref={purplePathRef}
-                  d=""
-                  fill="none"
-                  stroke="#a78bfa"
-                  strokeOpacity="0.35"
-                  strokeWidth="2.5"
-                />
-                <path
-                  ref={greenPathRef}
-                  d=""
-                  fill="none"
-                  stroke="#34d399"
-                  strokeOpacity="0.75"
-                  strokeWidth="2.6"
-                />
-                <path
-                  ref={bluePathRef}
-                  d=""
-                  fill="none"
-                  stroke="url(#ariyoWaveBlue)"
-                  strokeWidth="3"
-                />
+                <path ref={purplePathRef} d="" fill="none" stroke="#a78bfa" strokeOpacity="0.35" strokeWidth="2.5" />
+                <path ref={greenPathRef} d="" fill="none" stroke="#34d399" strokeOpacity="0.75" strokeWidth="2.6" />
+                <path ref={bluePathRef} d="" fill="none" stroke="url(#ariyoWaveBlue)" strokeWidth="3" />
               </svg>
             </div>
           )}
@@ -409,10 +385,7 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
                 ref={progressBarRef}
                 role="presentation"
               >
-                <div
-                  className="h-full rounded-full bg-[#60a5fa]"
-                  style={{ width: `${progressPercent}%` }}
-                />
+                <div className="h-full rounded-full bg-[#60a5fa]" style={{ width: `${progressPercent}%` }} />
               </div>
               <div className="flex items-center justify-between text-xs text-white/70">
                 <span>{formatTime(currentTime)}</span>
@@ -438,7 +411,7 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
                   }}
                   aria-label="Like"
                   className={`rounded-full border border-white/10 px-2 py-1 text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                    liked ? "bg-blue-500/30 text-white" : "text-white/70"
+                    liked ? 'bg-blue-500/30 text-white' : 'text-white/70'
                   }`}
                 >
                   👍
@@ -451,7 +424,7 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
                   }}
                   aria-label="Dislike"
                   className={`rounded-full border border-white/10 px-2 py-1 text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                    disliked ? "bg-blue-500/30 text-white" : "text-white/70"
+                    disliked ? 'bg-blue-500/30 text-white' : 'text-white/70'
                   }`}
                 >
                   👎
@@ -470,28 +443,20 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
                 <button
                   type="button"
                   onClick={handlePlayPause}
-                  aria-label={isPlaying ? "Pause" : "Play"}
+                  aria-label={isPlaying ? 'Pause' : 'Play'}
                   className={`flex h-14 w-14 items-center justify-center rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                     isPlaying
-                      ? "bg-[#3b82f6] text-white shadow-[0_0_18px_rgba(59,130,246,0.6)]"
-                      : "bg-white/10 text-white"
+                      ? 'bg-[#3b82f6] text-white shadow-[0_0_18px_rgba(59,130,246,0.6)]'
+                      : 'bg-white/10 text-white'
                   }`}
                 >
                   {isPlaying ? (
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6"
-                      fill="currentColor"
-                    >
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
                       <rect x="6" y="5" width="4" height="14" rx="1" />
                       <rect x="14" y="5" width="4" height="14" rx="1" />
                     </svg>
                   ) : (
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6"
-                      fill="currentColor"
-                    >
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor">
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   )}

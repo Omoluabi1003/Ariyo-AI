@@ -5,16 +5,14 @@ function startBackgroundRotator() {
     'Naija AI3.png',
     'Naija AI4.png',
     'Naija AI5.png',
-    'Naija AI6.png'
+    'Naija AI6.png',
   ];
 
   // Select three random images on each load
-  const images = allImages
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3);
+  const images = allImages.sort(() => Math.random() - 0.5).slice(0, 3);
 
   // Preload images to avoid flashes during transitions
-  images.forEach(src => {
+  images.forEach((src) => {
     const img = new Image();
     img.src = src;
   });
@@ -25,7 +23,7 @@ function startBackgroundRotator() {
 
   const layers = [bg1, bg2];
   let activeIndex = 0; // index of currently visible layer
-  let imageIndex = 0;  // index in images array
+  let imageIndex = 0; // index in images array
 
   // Initialize first image
   layers[activeIndex].style.backgroundImage = `url('${images[imageIndex]}')`;
@@ -52,4 +50,3 @@ function startBackgroundRotator() {
 }
 
 window.startBackgroundRotator = startBackgroundRotator;
-

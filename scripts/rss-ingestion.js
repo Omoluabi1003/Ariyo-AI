@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const PODCAST_ENDPOINT = '/api/podcasts';
   const FEED_CACHE_KEY = 'ariyoPodcastFeedCache';
   const FEED_CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
@@ -13,7 +13,7 @@
       const raw = localStorage.getItem(key);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (!parsed.timestamp || (Date.now() - parsed.timestamp) > ttlMs) {
+      if (!parsed.timestamp || Date.now() - parsed.timestamp > ttlMs) {
         localStorage.removeItem(key);
         return null;
       }
@@ -33,7 +33,7 @@
   }
 
   function normalizeArtworkForCategory(category) {
-    const match = collectionSeeds.find(item => item.category === category);
+    const match = collectionSeeds.find((item) => item.category === category);
     return match?.cover || defaultCover;
   }
 
@@ -44,7 +44,7 @@
       const parsed = JSON.parse(raw);
       const now = Date.now();
       return Object.fromEntries(
-        Object.entries(parsed).filter(([, entry]) => entry && (now - entry.timestamp) < AUDIO_CACHE_TTL_MS)
+        Object.entries(parsed).filter(([, entry]) => entry && now - entry.timestamp < AUDIO_CACHE_TTL_MS),
       );
     } catch (error) {
       return {};
@@ -92,14 +92,14 @@
       rssSource: item.source || collection?.title || item.category,
       publishedAt: item.publishedAt,
       feedId: feedKey,
-      subtitle: subtitleParts.filter(Boolean).join(' • ')
+      subtitle: subtitleParts.filter(Boolean).join(' • '),
     };
   }
 
   function groupTracksByFeed(tracks, collectionMap) {
     const grouped = new Map();
 
-    tracks.forEach(track => {
+    tracks.forEach((track) => {
       const bucket = collectionMap.get(track.feedId) || collectionMap.get(track.category) || {};
       const key = track.feedId || track.rssSource || 'rss';
       if (!grouped.has(key)) {
@@ -109,8 +109,8 @@
     });
 
     return Array.from(grouped.values())
-      .filter(entry => entry.tracks.length)
-      .map(entry => {
+      .filter((entry) => entry.tracks.length)
+      .map((entry) => {
         const meta = entry.meta || {};
         const categoryCover = normalizeArtworkForCategory(meta.category || entry.tracks[0]?.category);
         const cover = entry.tracks[0]?.cover || meta.artwork || categoryCover;
@@ -121,7 +121,7 @@
           tracks: entry.tracks,
           rssFeed: true,
           releaseYear: new Date().getFullYear(),
-          artist: meta.title || 'Podcast Feed'
+          artist: meta.title || 'Podcast Feed',
         };
       });
   }
@@ -161,12 +161,12 @@
 
       const collections = Array.isArray(payload?.collections) ? payload.collections : [];
       const collectionMap = new Map();
-      collectionSeeds.forEach(seed => collectionMap.set(seed.category, seed));
-      collections.forEach(meta => collectionMap.set(meta.id || meta.url || meta.category, meta));
+      collectionSeeds.forEach((seed) => collectionMap.set(seed.category, seed));
+      collections.forEach((meta) => collectionMap.set(meta.id || meta.url || meta.category, meta));
 
       const normalized = incomingTracks
-        .map(item => normalizeTrack(item, collectionMap))
-        .filter(track => track.src && track.title);
+        .map((item) => normalizeTrack(item, collectionMap))
+        .filter((track) => track.src && track.title);
 
       const newAlbums = groupTracksByFeed(normalized, collectionMap);
       if (!newAlbums.length) return;
@@ -175,14 +175,16 @@
         window.libraryState.tracks = normalized;
       }
 
-      newAlbums.forEach(album => {
+      newAlbums.forEach((album) => {
         albums.push(album);
       });
 
       refreshUi();
-      window.dispatchEvent(new CustomEvent('ariyo:library-updated', {
-        detail: { source: 'rss', albums: newAlbums.length, tracks: normalized.length }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('ariyo:library-updated', {
+          detail: { source: 'rss', albums: newAlbums.length, tracks: normalized.length },
+        }),
+      );
     } catch (error) {
       if (error?.name === 'AbortError') return;
       console.warn('[rss-ingestion] Unable to hydrate podcast feeds:', error, { reason });
@@ -197,10 +199,11 @@
 
     ingestPromise = immediate
       ? run()
-      : new Promise(resolve => {
-          const schedule = typeof requestIdleCallback === 'function'
-            ? cb => requestIdleCallback(cb, { timeout: 2000 })
-            : cb => setTimeout(cb, 500);
+      : new Promise((resolve) => {
+          const schedule =
+            typeof requestIdleCallback === 'function'
+              ? (cb) => requestIdleCallback(cb, { timeout: 2000 })
+              : (cb) => setTimeout(cb, 500);
           schedule(() => resolve(run()));
         }).finally(() => {
           ingestPromise = null;

@@ -10,7 +10,7 @@ const DEFAULT_ALBUM_DIR = 'data/albums';
 // Add known or planned releases here.
 const releaseYearOverrides = {
   'OfficialPaulInspires Spoken Word Series': 2026,
-  'Spoken Word Series': 2026
+  'Spoken Word Series': 2026,
 };
 
 const args = new Set(process.argv.slice(2));
@@ -100,7 +100,7 @@ function getCommitMessagesForFile(filePath) {
   if (!output) return [];
   return output
     .split('\x1e')
-    .map(message => message.trim())
+    .map((message) => message.trim())
     .filter(Boolean);
 }
 
@@ -110,7 +110,7 @@ function parseYearFromText(text) {
     /release(?:-|\s*)year\s*[:=]?\s*(20\d{2})/i,
     /release\s*:\s*(20\d{2})/i,
     /\[(20\d{2})\]/,
-    /(?:added album|edition|release)\D*(20\d{2})/i
+    /(?:added album|edition|release)\D*(20\d{2})/i,
   ];
   for (const pattern of patterns) {
     const match = text.match(pattern);
@@ -129,10 +129,10 @@ function parseYearFromCommitMessage(filePath) {
 function parseYearFromHistoryForAlbum({ filePath, albumName, albumId }) {
   const messages = getCommitMessagesForFile(filePath);
   if (!messages.length) return null;
-  const needles = [albumName, albumId].filter(Boolean).map(value => value.toLowerCase());
+  const needles = [albumName, albumId].filter(Boolean).map((value) => value.toLowerCase());
   for (const message of messages) {
     const lower = message.toLowerCase();
-    if (needles.length && !needles.some(needle => lower.includes(needle))) {
+    if (needles.length && !needles.some((needle) => lower.includes(needle))) {
       continue;
     }
     const parsed = parseYearFromText(message);
@@ -149,13 +149,7 @@ function parseYearFromGitAddedDate(filePath) {
   return parsed.getUTCFullYear();
 }
 
-function determineReleaseYear({
-  albumName,
-  albumId,
-  filePath,
-  overrides,
-  useHistorySearch
-}) {
+function determineReleaseYear({ albumName, albumId, filePath, overrides, useHistorySearch }) {
   if (overrides[albumName] != null) {
     const overrideYear = overrides[albumName];
     logInfo(`[${albumName}] \u2192 using manual override \u2192 ${overrideYear}`);
@@ -181,9 +175,7 @@ function determineReleaseYear({
       logInfo(`[${albumName}] \u2192 git addition year ${addedYear} \u2192 accepted (historical)`);
       return addedYear;
     }
-    logInfo(
-      `[${albumName}] \u2192 git addition year ${addedYear} \u2192 SKIPPED (not historical) \u2192 no value set`
-    );
+    logInfo(`[${albumName}] \u2192 git addition year ${addedYear} \u2192 SKIPPED (not historical) \u2192 no value set`);
   } else {
     logInfo(`[${albumName}] \u2192 git addition year unavailable \u2192 no value set`);
   }
@@ -198,7 +190,7 @@ function updateAlbumRecord({ album, albumName, albumId, filePath, overrides, use
     albumId,
     filePath,
     overrides,
-    useHistorySearch
+    useHistorySearch,
   });
   album.releaseYear = nextYear;
 }
@@ -223,7 +215,7 @@ function updateAlbumsJson(filePath, overrides) {
   const payload = loadAlbumFile(filePath);
   const useHistorySearch = true;
   if (Array.isArray(payload?.albums)) {
-    payload.albums.forEach(album => {
+    payload.albums.forEach((album) => {
       const albumName = album.title || album.id || 'Unknown Album';
       updateAlbumRecord({
         album,
@@ -231,7 +223,7 @@ function updateAlbumsJson(filePath, overrides) {
         albumId: album.id,
         filePath,
         overrides,
-        useHistorySearch
+        useHistorySearch,
       });
     });
   } else if (payload && typeof payload === 'object') {
@@ -244,7 +236,7 @@ function updateAlbumsJson(filePath, overrides) {
         albumId: album.id || key,
         filePath,
         overrides,
-        useHistorySearch
+        useHistorySearch,
       });
     });
   } else {
@@ -257,8 +249,8 @@ function updateAlbumsJson(filePath, overrides) {
 function updateAlbumDirectory(dirPath, overrides) {
   const entries = fs.readdirSync(dirPath, { withFileTypes: true });
   entries
-    .filter(entry => entry.isFile() && entry.name.endsWith('.json'))
-    .forEach(entry => {
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+    .forEach((entry) => {
       const filePath = path.join(dirPath, entry.name);
       const payload = loadAlbumFile(filePath);
       const albumName = payload?.title || payload?.name || payload?.id || entry.name;
@@ -268,7 +260,7 @@ function updateAlbumDirectory(dirPath, overrides) {
         albumId: payload?.id,
         filePath,
         overrides,
-        useHistorySearch: false
+        useHistorySearch: false,
       });
       writeAlbumFile(filePath, payload);
     });

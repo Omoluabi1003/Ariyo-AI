@@ -12,7 +12,7 @@
   const state = {
     count: 0,
     reasons: new Map(),
-    restore: null
+    restore: null,
   };
 
   const captureStyles = () => ({
@@ -24,14 +24,14 @@
       paddingRight: body.style.paddingRight,
       touchAction: body.style.touchAction,
       overscrollBehavior: body.style.overscrollBehavior,
-      height: body.style.height
+      height: body.style.height,
     },
     html: {
       overflow: html.style.overflow,
       touchAction: html.style.touchAction,
       overscrollBehavior: html.style.overscrollBehavior,
-      height: html.style.height
-    }
+      height: html.style.height,
+    },
   });
 
   const applyStyles = (target, styles) => {
@@ -72,10 +72,10 @@
       '.news-panel',
       '.overlay',
       '.backdrop',
-      '[data-overlay]'
+      '[data-overlay]',
     ];
     const nodes = document.querySelectorAll(selectors.join(','));
-    return Array.from(nodes).filter(node => {
+    return Array.from(nodes).filter((node) => {
       if (!(node instanceof HTMLElement)) return false;
       const style = window.getComputedStyle(node);
       const hiddenByAttr = node.getAttribute('aria-hidden') === 'true';
@@ -129,7 +129,7 @@
     if (window?.console) {
       console.warn('[scroll-lock] Reset lingering scroll locks', {
         reason,
-        previousLocks
+        previousLocks,
       });
     }
     return true;
@@ -145,7 +145,7 @@
     ensureUnlocked,
     getLockCount,
     getLockReasons,
-    getActiveOverlays
+    getActiveOverlays,
   };
 
   window.AriyoScrollLock = scrollLockApi;

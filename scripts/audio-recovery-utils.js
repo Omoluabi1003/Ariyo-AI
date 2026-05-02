@@ -10,13 +10,13 @@
 
   if (typeof window !== 'undefined') {
     window.AriyoAudioRecoveryUtils = {
-      computeBackoffDelay
+      computeBackoffDelay,
     };
   }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-      computeBackoffDelay
+      computeBackoffDelay,
     };
   }
 })();

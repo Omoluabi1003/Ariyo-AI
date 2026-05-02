@@ -19,15 +19,16 @@
 
 ## Cultural metadata + recommendations
 
-  ```js
-  {
-    title: "Locked Away",
-    culturalNote: {
-      yo: "Ọ̀rọ̀ ọdún kì í tán l'ọ́jọ́ kan.",
-      en: "Wisdom isn't learned in a day."
-    }
+```js
+{
+  title: "Locked Away",
+  culturalNote: {
+    yo: "Ọ̀rọ̀ ọdún kì í tán l'ọ́jọ́ kan.",
+    en: "Wisdom isn't learned in a day."
   }
-  ```
+}
+```
+
 - **Storyliner (album-level)**: add album context with the `storyliner` object.
   ```js
   {
@@ -53,7 +54,7 @@
 ## 2026 Product Optimization Update (Single Consolidated Plan)
 
 - **Cultural narrative amplification**
-  - Introduce **Storyliner cards** per album with *Origin / Inspiration / Why it matters* to communicate Yoruba identity in short, skimmable modules.
+  - Introduce **Storyliner cards** per album with _Origin / Inspiration / Why it matters_ to communicate Yoruba identity in short, skimmable modules.
   - Extend shareable links with **“Proverb of the Day”** cards for lightweight cultural marketing loops (social-ready, low-lift).
   - Sample track metadata snippet:
     ```js

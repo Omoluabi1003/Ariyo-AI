@@ -52,22 +52,18 @@ const ALLOW_HOSTS = [
   /capitalfm\.co\.ke$/i,
   /radio\.co\.za$/i,
   /mediahubaustralia\.com$/i,
-  /radio\.tunein\.com$/i
+  /radio\.tunein\.com$/i,
 ];
-const DENY_HOSTS = [
-  /^localhost$/i,
-  /\.local$/i,
-  /\.internal$/i
-];
+const DENY_HOSTS = [/^localhost$/i, /\.local$/i, /\.internal$/i];
 const ALLOW_ALL_PUBLIC_HOSTS = true;
 const REQUEST_TIMEOUT_MS = 25_000;
 const MAX_CONTENT_LENGTH = 10 * 1024 * 1024;
 
 function isAllowedHost(url) {
-  if (DENY_HOSTS.some(rule => rule.test(url.hostname))) {
+  if (DENY_HOSTS.some((rule) => rule.test(url.hostname))) {
     return false;
   }
-  if (ALLOW_HOSTS.some(rule => rule.test(url.hostname))) {
+  if (ALLOW_HOSTS.some((rule) => rule.test(url.hostname))) {
     return true;
   }
   return ALLOW_ALL_PUBLIC_HOSTS;
@@ -76,7 +72,7 @@ function isAllowedHost(url) {
 function isPrivateIp(ip) {
   if (!ip) return false;
   if (net.isIPv4(ip)) {
-    const parts = ip.split('.').map(part => parseInt(part, 10));
+    const parts = ip.split('.').map((part) => parseInt(part, 10));
     if (parts[0] === 10) return true;
     if (parts[0] === 127) return true;
     if (parts[0] === 169 && parts[1] === 254) return true;
@@ -86,7 +82,12 @@ function isPrivateIp(ip) {
   }
   if (net.isIPv6(ip)) {
     const normalized = ip.toLowerCase();
-    return normalized === '::1' || normalized.startsWith('fc') || normalized.startsWith('fd') || normalized.startsWith('fe80');
+    return (
+      normalized === '::1' ||
+      normalized.startsWith('fc') ||
+      normalized.startsWith('fd') ||
+      normalized.startsWith('fe80')
+    );
   }
   return false;
 }
@@ -98,7 +99,7 @@ async function resolvesToPrivateIp(hostname) {
   }
   try {
     const results = await dns.lookup(hostname, { all: true });
-    return results.some(result => isPrivateIp(result.address));
+    return results.some((result) => isPrivateIp(result.address));
   } catch (error) {
     return true;
   }
@@ -166,7 +167,7 @@ module.exports = async (req, res) => {
       method,
       headers,
       signal: controller.signal,
-      redirect: 'follow'
+      redirect: 'follow',
     });
 
     if (!upstream.ok && method === 'HEAD') {

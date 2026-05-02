@@ -1,8 +1,8 @@
 function calculateAlbumDuration(album) {
-  const promises = album.tracks.map(track => {
+  const promises = album.tracks.map((track) => {
     if (track.isLive || track.sourceType === 'stream') return Promise.resolve(track.duration || 0);
     if (typeof track.duration === 'number') return Promise.resolve(track.duration);
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const tempAudio = new Audio();
       tempAudio.preload = 'metadata';
       const previewSrc = buildTrackFetchUrl(normalizeMediaSrc(track.src), track);
@@ -15,14 +15,12 @@ function calculateAlbumDuration(album) {
       tempAudio.addEventListener('error', () => resolve(0));
     });
   });
-  return Promise.all(promises).then(durations => durations.reduce((a, b) => a + b, 0));
+  return Promise.all(promises).then((durations) => durations.reduce((a, b) => a + b, 0));
 }
 
 function getAlbumTrackCount(album, albumIndex) {
   if (!album) return 0;
-  const fallbackTracks = Array.isArray(album.tracks)
-    ? album.tracks.filter(track => track)
-    : [];
+  const fallbackTracks = Array.isArray(album.tracks) ? album.tracks.filter((track) => track) : [];
   const provider = window.AriyoTrackCatalog?.getProvider?.();
   const albumId = Number.isInteger(albumIndex) ? provider?.albumIdByIndex?.[albumIndex] : null;
   const catalogTracks = albumId ? provider?.tracksByAlbumId?.[albumId] : null;
@@ -33,9 +31,11 @@ function getAlbumTrackCount(album, albumIndex) {
 }
 
 function prefersReducedMotion() {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 function reportLibraryIssue(message) {
@@ -62,9 +62,10 @@ function animateModalIn(modalContent) {
 
   // Kill any lingering tweens to avoid stacking animations.
   gsap.killTweensOf(modalContent);
-  gsap.fromTo(modalContent,
+  gsap.fromTo(
+    modalContent,
     { scale: 0.8, opacity: 0, y: 50 },
-    { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+    { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
   );
 }
 
@@ -81,9 +82,7 @@ function animateModalOut(modalContent, onComplete) {
 
   // Kill active tweens before animating out.
   gsap.killTweensOf(modalContent);
-  gsap.to(modalContent,
-    { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: "power2.in", onComplete }
-  );
+  gsap.to(modalContent, { scale: 0.8, opacity: 0, y: 50, duration: 0.3, ease: 'power2.in', onComplete });
 }
 
 function populateAlbumList() {
@@ -92,19 +91,20 @@ function populateAlbumList() {
   albumList.innerHTML = '';
   const albumCatalog = Array.isArray(window.albums)
     ? window.albums
-    : (Array.isArray(window.libraryState?.local) ? window.libraryState.local : []);
+    : Array.isArray(window.libraryState?.local)
+      ? window.libraryState.local
+      : [];
   if (!albumCatalog.length) {
     reportLibraryIssue('Albums are unavailable. Please refresh the page.');
     if (typeof window.loadFullLibraryData === 'function') {
-      window.loadFullLibraryData({ reason: 'album-list-empty', immediate: true })
-        .then(() => populateAlbumList());
+      window.loadFullLibraryData({ reason: 'album-list-empty', immediate: true }).then(() => populateAlbumList());
     }
     return;
   }
   albumCatalog.forEach((album, index) => {
     const link = document.createElement('a');
     link.href = '#';
-    link.addEventListener('click', event => {
+    link.addEventListener('click', (event) => {
       event.preventDefault();
       if (typeof window.selectAlbum === 'function') {
         window.selectAlbum(index);
@@ -121,7 +121,7 @@ function populateAlbumList() {
 
     const name = document.createElement('p');
     name.textContent = `Album ${index + 1}: ${album.name}`;
-    if (typeof latestTracks !== 'undefined' && latestTracks.some(track => track.albumName === album.name)) {
+    if (typeof latestTracks !== 'undefined' && latestTracks.some((track) => track.albumName === album.name)) {
       const badge = document.createElement('span');
       badge.className = 'album-new-badge';
       badge.textContent = 'NEW';
@@ -175,266 +175,269 @@ function prepareDeferredIframes() {
 }
 
 function openAlbumList() {
-      document.getElementById('main-content').classList.remove('about-us-active');
-      const modal = document.getElementById('albumModal');
-      const modalContent = modal.querySelector('.modal-content');
+  document.getElementById('main-content').classList.remove('about-us-active');
+  const modal = document.getElementById('albumModal');
+  const modalContent = modal.querySelector('.modal-content');
 
-      if (typeof window.loadFullLibraryData === 'function') {
-        window.loadFullLibraryData({ reason: 'album-list', immediate: true }).then(() => {
-          populateAlbumList();
-        });
-      }
-
+  if (typeof window.loadFullLibraryData === 'function') {
+    window.loadFullLibraryData({ reason: 'album-list', immediate: true }).then(() => {
       populateAlbumList();
+    });
+  }
 
-      modal.style.display = 'flex';
-      if (window.AriyoScrollLock?.lockScroll) {
-        window.AriyoScrollLock.lockScroll('modal:album');
-      }
+  populateAlbumList();
 
-      animateModalIn(modalContent);
-      console.log('Album list opened, animating...');
+  modal.style.display = 'flex';
+  if (window.AriyoScrollLock?.lockScroll) {
+    window.AriyoScrollLock.lockScroll('modal:album');
+  }
+
+  animateModalIn(modalContent);
+  console.log('Album list opened, animating...');
+}
+
+function closeAlbumList() {
+  const modal = document.getElementById('albumModal');
+  if (window.AriyoScrollLock?.unlockScroll) {
+    window.AriyoScrollLock.unlockScroll('modal:album');
+  }
+  animateModalOut(modal.querySelector('.modal-content'), () => {
+    modal.style.display = 'none';
+  });
+  console.log('Album list closed');
+}
+
+const trackModalState = {
+  lastFocusedElement: null,
+  keyHandler: null,
+};
+
+function getFocusableElements(container) {
+  if (!container) return [];
+  const focusableSelectors = [
+    'button:not([disabled])',
+    '[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ];
+  return Array.from(container.querySelectorAll(focusableSelectors.join(','))).filter(
+    (el) => !el.hasAttribute('hidden') && el.getAttribute('aria-hidden') !== 'true',
+  );
+}
+
+function createTrackModalKeyHandler(modal) {
+  return (event) => {
+    if (!modal || modal.style.display === 'none') return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeTrackList();
+      return;
     }
+    if (event.key !== 'Tab') return;
+    const focusable = getFocusableElements(modal);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
 
-    function closeAlbumList() {
-      const modal = document.getElementById('albumModal');
-      if (window.AriyoScrollLock?.unlockScroll) {
-        window.AriyoScrollLock.unlockScroll('modal:album');
-      }
-      animateModalOut(modal.querySelector('.modal-content'), () => { modal.style.display = 'none'; });
-      console.log('Album list closed');
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus({ preventScroll: true });
+      return;
     }
-
-    const trackModalState = {
-      lastFocusedElement: null,
-      keyHandler: null
-    };
-
-    function getFocusableElements(container) {
-      if (!container) return [];
-      const focusableSelectors = [
-        'button:not([disabled])',
-        '[href]',
-        'input:not([disabled])',
-        'select:not([disabled])',
-        'textarea:not([disabled])',
-        '[tabindex]:not([tabindex="-1"])'
-      ];
-      return Array.from(container.querySelectorAll(focusableSelectors.join(',')))
-        .filter(el => !el.hasAttribute('hidden') && el.getAttribute('aria-hidden') !== 'true');
+    if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus({ preventScroll: true });
     }
+  };
+}
 
-    function createTrackModalKeyHandler(modal) {
-      return event => {
-        if (!modal || modal.style.display === 'none') return;
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          closeTrackList();
-          return;
-        }
-        if (event.key !== 'Tab') return;
-        const focusable = getFocusableElements(modal);
-        if (!focusable.length) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        const active = document.activeElement;
-
-        if (event.shiftKey && active === first) {
-          event.preventDefault();
-          last.focus({ preventScroll: true });
-          return;
-        }
-        if (!event.shiftKey && active === last) {
-          event.preventDefault();
-          first.focus({ preventScroll: true });
-        }
-      };
-    }
-
-    function openTrackList() {
-      const modal = document.getElementById('trackModal');
-      if (!modal) return;
-      trackModalState.lastFocusedElement = document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-      modal.style.display = 'flex';
-      modal.setAttribute('aria-hidden', 'false');
-      modal.setAttribute('aria-modal', 'true');
-      if (trackModalState.keyHandler) {
-        modal.removeEventListener('keydown', trackModalState.keyHandler);
-      }
-      trackModalState.keyHandler = createTrackModalKeyHandler(modal);
-      modal.addEventListener('keydown', trackModalState.keyHandler);
+function openTrackList() {
+  const modal = document.getElementById('trackModal');
+  if (!modal) return;
+  trackModalState.lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  modal.style.display = 'flex';
+  modal.setAttribute('aria-hidden', 'false');
+  modal.setAttribute('aria-modal', 'true');
+  if (trackModalState.keyHandler) {
+    modal.removeEventListener('keydown', trackModalState.keyHandler);
+  }
+  trackModalState.keyHandler = createTrackModalKeyHandler(modal);
+  modal.addEventListener('keydown', trackModalState.keyHandler);
+  updateTrackListModal(true);
+  if (typeof window.loadFullLibraryData === 'function') {
+    window.loadFullLibraryData({ reason: 'track-list', immediate: true }).then(() => {
       updateTrackListModal(true);
-      if (typeof window.loadFullLibraryData === 'function') {
-        window.loadFullLibraryData({ reason: 'track-list', immediate: true }).then(() => {
-          updateTrackListModal(true);
-        });
-      }
-      if (window.AriyoScrollLock?.lockScroll) {
-        window.AriyoScrollLock.lockScroll('modal:track');
-      }
-      const closeButton = modal.querySelector('.close');
-      if (closeButton instanceof HTMLElement) {
-        closeButton.focus({ preventScroll: true });
-      }
-      animateModalIn(modal.querySelector('.modal-content'));
-      console.log('Track list opened');
+    });
+  }
+  if (window.AriyoScrollLock?.lockScroll) {
+    window.AriyoScrollLock.lockScroll('modal:track');
+  }
+  const closeButton = modal.querySelector('.close');
+  if (closeButton instanceof HTMLElement) {
+    closeButton.focus({ preventScroll: true });
+  }
+  animateModalIn(modal.querySelector('.modal-content'));
+  console.log('Track list opened');
+}
+
+function closeTrackList(immediate = false) {
+  const modal = document.getElementById('trackModal');
+  if (!modal) return;
+  if (window.AriyoScrollLock?.unlockScroll) {
+    window.AriyoScrollLock.unlockScroll('modal:track');
+  }
+  if (trackModalState.keyHandler) {
+    modal.removeEventListener('keydown', trackModalState.keyHandler);
+    trackModalState.keyHandler = null;
+  }
+  modal.setAttribute('aria-hidden', 'true');
+  modal.setAttribute('aria-modal', 'false');
+  if (immediate) {
+    modal.style.display = 'none';
+    pendingAlbumIndex = null;
+    if (trackModalState.lastFocusedElement && document.contains(trackModalState.lastFocusedElement)) {
+      trackModalState.lastFocusedElement.focus({ preventScroll: true });
     }
+    trackModalState.lastFocusedElement = null;
+    console.log('Track list closed (immediate)');
+    return;
+  }
+  animateModalOut(modal.querySelector('.modal-content'), () => {
+    modal.style.display = 'none';
+  });
+  pendingAlbumIndex = null;
+  if (trackModalState.lastFocusedElement && document.contains(trackModalState.lastFocusedElement)) {
+    trackModalState.lastFocusedElement.focus({ preventScroll: true });
+  }
+  trackModalState.lastFocusedElement = null;
+  console.log('Track list closed');
+}
 
-    function closeTrackList(immediate = false) {
-      const modal = document.getElementById('trackModal');
-      if (!modal) return;
-      if (window.AriyoScrollLock?.unlockScroll) {
-        window.AriyoScrollLock.unlockScroll('modal:track');
-      }
-      if (trackModalState.keyHandler) {
-        modal.removeEventListener('keydown', trackModalState.keyHandler);
-        trackModalState.keyHandler = null;
-      }
-      modal.setAttribute('aria-hidden', 'true');
-      modal.setAttribute('aria-modal', 'false');
-      if (immediate) {
-        modal.style.display = 'none';
-        pendingAlbumIndex = null;
-        if (trackModalState.lastFocusedElement && document.contains(trackModalState.lastFocusedElement)) {
-          trackModalState.lastFocusedElement.focus({ preventScroll: true });
-        }
-        trackModalState.lastFocusedElement = null;
-        console.log('Track list closed (immediate)');
-        return;
-      }
-      animateModalOut(modal.querySelector('.modal-content'), () => { modal.style.display = 'none'; });
-      pendingAlbumIndex = null;
-      if (trackModalState.lastFocusedElement && document.contains(trackModalState.lastFocusedElement)) {
-        trackModalState.lastFocusedElement.focus({ preventScroll: true });
-      }
-      trackModalState.lastFocusedElement = null;
-      console.log('Track list closed');
-    }
+function openPlaylist() {
+  pendingAlbumIndex = playlistAlbumIndex;
+  openTrackList();
+}
 
-    function openPlaylist() {
-      pendingAlbumIndex = playlistAlbumIndex;
-      openTrackList();
-    }
+function isRadioModalDebugEnabled() {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('radioDebug') === '1' || params.get('debug') === '1') return true;
+  try {
+    return localStorage.getItem('radioDebug') === '1';
+  } catch (error) {
+    return false;
+  }
+}
 
-    function isRadioModalDebugEnabled() {
-      if (typeof window === 'undefined') return false;
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('radioDebug') === '1' || params.get('debug') === '1') return true;
-      try {
-        return localStorage.getItem('radioDebug') === '1';
-      } catch (error) {
-        return false;
-      }
-    }
+function requestCloseRadioList(reason = 'unknown', detail = {}) {
+  const modal = document.getElementById('radioModal');
+  if (!modal) return;
 
-    function requestCloseRadioList(reason = 'unknown', detail = {}) {
-      const modal = document.getElementById('radioModal');
-      if (!modal) return;
+  const shouldLog = isRadioModalDebugEnabled() || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (shouldLog) {
+    const stack = new Error().stack;
+    console.debug('[radio-modal] close requested', {
+      reason,
+      detail,
+      isOpen: getComputedStyle(modal).display !== 'none',
+      stack,
+    });
+  }
 
-      const shouldLog = isRadioModalDebugEnabled()
-        || ['localhost', '127.0.0.1'].includes(window.location.hostname);
-      if (shouldLog) {
-        const stack = new Error().stack;
-        console.debug('[radio-modal] close requested', {
-          reason,
-          detail,
-          isOpen: getComputedStyle(modal).display !== 'none',
-          stack
-        });
-      }
+  const allowedReasons = new Set(['close-button', 'station-playing', 'station-confirmed']);
+  if (!allowedReasons.has(reason)) {
+    return;
+  }
 
-      const allowedReasons = new Set(['close-button', 'station-playing', 'station-confirmed']);
-      if (!allowedReasons.has(reason)) {
-        return;
-      }
+  if (window.AriyoScrollLock?.unlockScroll) {
+    window.AriyoScrollLock.unlockScroll('modal:radio');
+  }
 
-      if (window.AriyoScrollLock?.unlockScroll) {
-        window.AriyoScrollLock.unlockScroll('modal:radio');
-      }
+  const modalContent = modal.querySelector('.modal-content');
+  if (modalContent && typeof gsap !== 'undefined') {
+    // Clean up lingering tweens when closing the modal without animations.
+    gsap.killTweensOf(modalContent);
+  }
+  modal.style.display = 'none';
+  console.log('Radio list closed');
+}
 
-      const modalContent = modal.querySelector('.modal-content');
-      if (modalContent && typeof gsap !== 'undefined') {
-        // Clean up lingering tweens when closing the modal without animations.
-        gsap.killTweensOf(modalContent);
-      }
-      modal.style.display = 'none';
-      console.log('Radio list closed');
-    }
-
-    function openRadioList() {
-      document.getElementById('main-content').classList.remove('about-us-active');
-      if (typeof window.loadFullLibraryData === 'function') {
-        window.loadFullLibraryData({ reason: 'radio-list', immediate: true }).then(() => {
-          updateRadioListModal();
-        });
-      }
+function openRadioList() {
+  document.getElementById('main-content').classList.remove('about-us-active');
+  if (typeof window.loadFullLibraryData === 'function') {
+    window.loadFullLibraryData({ reason: 'radio-list', immediate: true }).then(() => {
       updateRadioListModal();
-      const modal = document.getElementById('radioModal');
-      const modalContent = modal.querySelector('.modal-content');
+    });
+  }
+  updateRadioListModal();
+  const modal = document.getElementById('radioModal');
+  const modalContent = modal.querySelector('.modal-content');
 
-      modal.style.display = 'flex';
-      if (window.AriyoScrollLock?.lockScroll) {
-        window.AriyoScrollLock.lockScroll('modal:radio');
-      }
+  modal.style.display = 'flex';
+  if (window.AriyoScrollLock?.lockScroll) {
+    window.AriyoScrollLock.lockScroll('modal:radio');
+  }
 
-      animateModalIn(modalContent);
-      console.log('Radio list opened, animating...');
-    }
+  animateModalIn(modalContent);
+  console.log('Radio list opened, animating...');
+}
 
-    function closeRadioList(reason = 'unknown', detail = {}) {
-      requestCloseRadioList(reason, detail);
-    }
+function closeRadioList(reason = 'unknown', detail = {}) {
+  requestCloseRadioList(reason, detail);
+}
 
 /* CHATBOT TOGGLE WITH US SPOOFING */
 const PANEL_IDS = [
-    'ariyoChatbotContainer',
-    'sabiBibleContainer',
-    'gamesHubContainer',
-    'pictureGameContainer',
-    'tetrisGameContainer',
-    'wordSearchContainer',
-    'connectFourContainer',
-    'cyclePrecisionContainer',
-    'youtubeModalContainer',
-    'aboutModalContainer',
-    'news-section'
+  'ariyoChatbotContainer',
+  'sabiBibleContainer',
+  'gamesHubContainer',
+  'pictureGameContainer',
+  'tetrisGameContainer',
+  'wordSearchContainer',
+  'connectFourContainer',
+  'cyclePrecisionContainer',
+  'youtubeModalContainer',
+  'aboutModalContainer',
+  'news-section',
 ];
 
 const panelRegistry = {};
 
 const PANEL_LOAD_CONFIG = {
-    ariyoChatbotContainer: {
-        loadingMessage: 'Connecting to Àríyò AI…',
-        errorMessage: 'Àríyò AI couldn’t start. Please check your internet connection and try again.',
-        errorMessages: {
-            'component-unavailable': 'Àríyò AI is taking too long to respond. Please retry in a few moments.',
-            'missing-embed': 'We couldn’t initialise the Àríyò AI chat window. Try again.',
-            'unsupported-browser': 'This browser version doesn’t support the chatbot embed. Please upgrade or switch browsers.'
-        },
-        handshake: true
+  ariyoChatbotContainer: {
+    loadingMessage: 'Connecting to Àríyò AI…',
+    errorMessage: 'Àríyò AI couldn’t start. Please check your internet connection and try again.',
+    errorMessages: {
+      'component-unavailable': 'Àríyò AI is taking too long to respond. Please retry in a few moments.',
+      'missing-embed': 'We couldn’t initialise the Àríyò AI chat window. Try again.',
+      'unsupported-browser':
+        'This browser version doesn’t support the chatbot embed. Please upgrade or switch browsers.',
     },
-    sabiBibleContainer: {
-        loadingMessage: 'Opening Sabi Bible…',
-        errorMessage: 'Sabi Bible couldn’t load. Check your internet connection and try again.',
-        errorMessages: {
-            'component-unavailable': 'Sabi Bible is still waking up. Tap retry in a few seconds.',
-            'missing-embed': 'We couldn’t initialise Sabi Bible. Please retry.',
-            'unsupported-browser': 'Your browser version can’t render Sabi Bible. Please update it or try a different one.'
-        },
-        handshake: true
+    handshake: true,
+  },
+  sabiBibleContainer: {
+    loadingMessage: 'Opening Sabi Bible…',
+    errorMessage: 'Sabi Bible couldn’t load. Check your internet connection and try again.',
+    errorMessages: {
+      'component-unavailable': 'Sabi Bible is still waking up. Tap retry in a few seconds.',
+      'missing-embed': 'We couldn’t initialise Sabi Bible. Please retry.',
+      'unsupported-browser': 'Your browser version can’t render Sabi Bible. Please update it or try a different one.',
     },
-    youtubeModalContainer: {
-        loadingMessage: 'Loading Omoluabi Paul on YouTube…',
-        errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
-        supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
-        supportLinkLabel: 'Open channel on YouTube'
-    },
-    gamesHubContainer: {
-        loadingMessage: 'Loading Games Hub…',
-        errorMessage: 'The Games Hub couldn’t load. Please retry in a moment.'
-    }
+    handshake: true,
+  },
+  youtubeModalContainer: {
+    loadingMessage: 'Loading Omoluabi Paul on YouTube…',
+    errorMessage: 'YouTube refused to play inside Àríyò AI. Please retry or open the full channel.',
+    supportLink: 'https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV',
+    supportLinkLabel: 'Open channel on YouTube',
+  },
+  gamesHubContainer: {
+    loadingMessage: 'Loading Games Hub…',
+    errorMessage: 'The Games Hub couldn’t load. Please retry in a moment.',
+  },
 };
 
 const panelStates = {};
@@ -444,851 +447,858 @@ const panelLastTrigger = new Map();
 const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 function preparePanelForAccessibility(panel) {
-    if (!panel) return;
-    if (!panel.hasAttribute('tabindex')) {
-        panel.setAttribute('tabindex', '-1');
-    }
-    const displayState = window.getComputedStyle(panel).display;
-    panel.setAttribute('aria-hidden', displayState === 'none' ? 'true' : 'false');
+  if (!panel) return;
+  if (!panel.hasAttribute('tabindex')) {
+    panel.setAttribute('tabindex', '-1');
+  }
+  const displayState = window.getComputedStyle(panel).display;
+  panel.setAttribute('aria-hidden', displayState === 'none' ? 'true' : 'false');
 }
 
 function focusFirstElement(panel) {
-    if (!panel) return;
-    const closeButton = panel.querySelector('.popup-close');
-    if (closeButton) {
-        closeButton.focus();
-        return;
-    }
-    const focusable = panel.querySelector(focusableSelector);
-    if (focusable) {
-        focusable.focus();
-        return;
-    }
-    panel.focus();
+  if (!panel) return;
+  const closeButton = panel.querySelector('.popup-close');
+  if (closeButton) {
+    closeButton.focus();
+    return;
+  }
+  const focusable = panel.querySelector(focusableSelector);
+  if (focusable) {
+    focusable.focus();
+    return;
+  }
+  panel.focus();
 }
 
 function getPanelElement(id) {
-    if (!panelRegistry[id]) {
-        panelRegistry[id] = document.getElementById(id) || null;
-    }
-    return panelRegistry[id];
+  if (!panelRegistry[id]) {
+    panelRegistry[id] = document.getElementById(id) || null;
+  }
+  return panelRegistry[id];
 }
 
 function initializePanelLoadTracking(panelId) {
-    const panel = getPanelElement(panelId);
-    if (!panel) return;
+  const panel = getPanelElement(panelId);
+  if (!panel) return;
 
-    preparePanelForAccessibility(panel);
+  preparePanelForAccessibility(panel);
 
-    const config = PANEL_LOAD_CONFIG[panelId];
-    if (!config) return;
+  const config = PANEL_LOAD_CONFIG[panelId];
+  if (!config) return;
 
-    const iframe = panel.querySelector('iframe');
-    if (!iframe) return;
+  const iframe = panel.querySelector('iframe');
+  if (!iframe) return;
 
-    ensurePanelOverlay(panelId);
+  ensurePanelOverlay(panelId);
 
-    if (config.handshake) {
-        return;
-    }
+  if (config.handshake) {
+    return;
+  }
 
-    if (!iframe.dataset.panelLoadTracked) {
-        iframe.addEventListener('load', () => {
-            handlePanelReady(panelId);
-        });
-        iframe.addEventListener('error', () => {
-            handlePanelError(panelId);
-        });
-        iframe.dataset.panelLoadTracked = 'true';
-    }
+  if (!iframe.dataset.panelLoadTracked) {
+    iframe.addEventListener('load', () => {
+      handlePanelReady(panelId);
+    });
+    iframe.addEventListener('error', () => {
+      handlePanelError(panelId);
+    });
+    iframe.dataset.panelLoadTracked = 'true';
+  }
 }
 
 function ensurePanelOverlay(panelId) {
-    const config = PANEL_LOAD_CONFIG[panelId];
-    if (!config) return null;
+  const config = PANEL_LOAD_CONFIG[panelId];
+  if (!config) return null;
 
-    if (panelOverlays[panelId]) {
-        return panelOverlays[panelId];
-    }
+  if (panelOverlays[panelId]) {
+    return panelOverlays[panelId];
+  }
 
-    const panel = getPanelElement(panelId);
-    if (!panel) return null;
+  const panel = getPanelElement(panelId);
+  if (!panel) return null;
 
-    const overlay = document.createElement('div');
-    overlay.className = 'panel-status-overlay';
-    overlay.setAttribute('role', 'status');
-    overlay.setAttribute('aria-live', 'polite');
+  const overlay = document.createElement('div');
+  overlay.className = 'panel-status-overlay';
+  overlay.setAttribute('role', 'status');
+  overlay.setAttribute('aria-live', 'polite');
 
-    const spinner = document.createElement('div');
-    spinner.className = 'panel-status-spinner';
-    spinner.setAttribute('aria-hidden', 'true');
-    overlay.appendChild(spinner);
+  const spinner = document.createElement('div');
+  spinner.className = 'panel-status-spinner';
+  spinner.setAttribute('aria-hidden', 'true');
+  overlay.appendChild(spinner);
 
-    const message = document.createElement('p');
-    message.className = 'panel-status-message';
-    overlay.appendChild(message);
+  const message = document.createElement('p');
+  message.className = 'panel-status-message';
+  overlay.appendChild(message);
 
-    const actions = document.createElement('div');
-    actions.className = 'panel-status-actions';
+  const actions = document.createElement('div');
+  actions.className = 'panel-status-actions';
 
-    const retryButton = document.createElement('button');
-    retryButton.type = 'button';
-    retryButton.className = 'retry-button panel-status-retry';
-    retryButton.textContent = 'Retry';
-    retryButton.addEventListener('click', () => {
-        reloadPanel(panelId);
-    });
-    actions.appendChild(retryButton);
+  const retryButton = document.createElement('button');
+  retryButton.type = 'button';
+  retryButton.className = 'retry-button panel-status-retry';
+  retryButton.textContent = 'Retry';
+  retryButton.addEventListener('click', () => {
+    reloadPanel(panelId);
+  });
+  actions.appendChild(retryButton);
 
-    if (config.supportLink) {
-        const supportLink = document.createElement('a');
-        supportLink.href = config.supportLink;
-        supportLink.target = '_blank';
-        supportLink.rel = 'noopener noreferrer';
-        supportLink.className = 'panel-status-link';
-        supportLink.textContent = config.supportLinkLabel || 'Open in new tab';
-        actions.appendChild(supportLink);
-    }
+  if (config.supportLink) {
+    const supportLink = document.createElement('a');
+    supportLink.href = config.supportLink;
+    supportLink.target = '_blank';
+    supportLink.rel = 'noopener noreferrer';
+    supportLink.className = 'panel-status-link';
+    supportLink.textContent = config.supportLinkLabel || 'Open in new tab';
+    actions.appendChild(supportLink);
+  }
 
-    overlay.appendChild(actions);
-    panel.appendChild(overlay);
-    panelOverlays[panelId] = overlay;
+  overlay.appendChild(actions);
+  panel.appendChild(overlay);
+  panelOverlays[panelId] = overlay;
 
-    return overlay;
+  return overlay;
 }
 
 function setPanelState(panelId, state, reason = null) {
-    const config = PANEL_LOAD_CONFIG[panelId];
-    if (!config) return;
+  const config = PANEL_LOAD_CONFIG[panelId];
+  if (!config) return;
 
-    const overlay = ensurePanelOverlay(panelId);
-    if (!overlay) return;
+  const overlay = ensurePanelOverlay(panelId);
+  if (!overlay) return;
 
-    panelStates[panelId] = state;
+  panelStates[panelId] = state;
 
-    const message = overlay.querySelector('.panel-status-message');
-    const spinner = overlay.querySelector('.panel-status-spinner');
-    const actions = overlay.querySelector('.panel-status-actions');
+  const message = overlay.querySelector('.panel-status-message');
+  const spinner = overlay.querySelector('.panel-status-spinner');
+  const actions = overlay.querySelector('.panel-status-actions');
 
-    overlay.classList.remove('loading', 'error', 'visible');
+  overlay.classList.remove('loading', 'error', 'visible');
 
-    if (state === 'loading') {
-        spinner.style.display = '';
-        actions.style.display = 'none';
-        message.textContent = config.loadingMessage || 'Loading…';
-        overlay.classList.add('visible', 'loading');
-    } else if (state === 'error') {
-        const errorMessage = (reason && config.errorMessages && config.errorMessages[reason]) || config.errorMessage || 'Something went wrong. Please try again.';
-        message.textContent = errorMessage;
-        spinner.style.display = 'none';
-        actions.style.display = 'flex';
-        overlay.classList.add('visible', 'error');
-    } else {
-        spinner.style.display = 'none';
-        actions.style.display = 'none';
-    }
+  if (state === 'loading') {
+    spinner.style.display = '';
+    actions.style.display = 'none';
+    message.textContent = config.loadingMessage || 'Loading…';
+    overlay.classList.add('visible', 'loading');
+  } else if (state === 'error') {
+    const errorMessage =
+      (reason && config.errorMessages && config.errorMessages[reason]) ||
+      config.errorMessage ||
+      'Something went wrong. Please try again.';
+    message.textContent = errorMessage;
+    spinner.style.display = 'none';
+    actions.style.display = 'flex';
+    overlay.classList.add('visible', 'error');
+  } else {
+    spinner.style.display = 'none';
+    actions.style.display = 'none';
+  }
 
-    if (state !== 'ready') {
-        overlay.classList.add('visible');
-    }
+  if (state !== 'ready') {
+    overlay.classList.add('visible');
+  }
 
-    if (state === 'ready') {
-        overlay.classList.remove('visible');
-    }
+  if (state === 'ready') {
+    overlay.classList.remove('visible');
+  }
 }
 
 function startPanelTimeout(panelId) {
-    const config = PANEL_LOAD_CONFIG[panelId];
-    if (!config) return;
+  const config = PANEL_LOAD_CONFIG[panelId];
+  if (!config) return;
 
-    clearTimeout(panelLoadTimers[panelId]);
-    panelLoadTimers[panelId] = setTimeout(() => {
-        if (panelStates[panelId] !== 'ready') {
-            setPanelState(panelId, 'error', 'component-unavailable');
-        }
-    }, config.timeout || 10000);
+  clearTimeout(panelLoadTimers[panelId]);
+  panelLoadTimers[panelId] = setTimeout(() => {
+    if (panelStates[panelId] !== 'ready') {
+      setPanelState(panelId, 'error', 'component-unavailable');
+    }
+  }, config.timeout || 10000);
 }
 
 function clearPanelTimeout(panelId) {
-    if (panelLoadTimers[panelId]) {
-        clearTimeout(panelLoadTimers[panelId]);
-        delete panelLoadTimers[panelId];
-    }
+  if (panelLoadTimers[panelId]) {
+    clearTimeout(panelLoadTimers[panelId]);
+    delete panelLoadTimers[panelId];
+  }
 }
 
 function reloadPanel(panelId) {
-    const panel = getPanelElement(panelId);
-    if (!panel) return;
+  const panel = getPanelElement(panelId);
+  if (!panel) return;
 
-    const iframe = panel.querySelector('iframe');
-    if (!iframe) return;
+  const iframe = panel.querySelector('iframe');
+  if (!iframe) return;
 
-    try {
-        if (iframe.contentWindow && typeof iframe.contentWindow.location.reload === 'function') {
-            iframe.contentWindow.location.reload();
-        } else {
-            const src = iframe.getAttribute('data-default-src') || iframe.getAttribute('src');
-            if (src) {
-                iframe.setAttribute('src', src);
-            }
-        }
-    } catch (error) {
-        const src = iframe.getAttribute('data-default-src') || iframe.getAttribute('src');
-        if (src) {
-            iframe.setAttribute('src', src);
-        }
+  try {
+    if (iframe.contentWindow && typeof iframe.contentWindow.location.reload === 'function') {
+      iframe.contentWindow.location.reload();
+    } else {
+      const src = iframe.getAttribute('data-default-src') || iframe.getAttribute('src');
+      if (src) {
+        iframe.setAttribute('src', src);
+      }
     }
+  } catch (error) {
+    const src = iframe.getAttribute('data-default-src') || iframe.getAttribute('src');
+    if (src) {
+      iframe.setAttribute('src', src);
+    }
+  }
 
-    setPanelState(panelId, 'loading');
-    startPanelTimeout(panelId);
+  setPanelState(panelId, 'loading');
+  startPanelTimeout(panelId);
 }
 
 function beginPanelLoad(panelId) {
-    const config = PANEL_LOAD_CONFIG[panelId];
-    if (!config) return;
+  const config = PANEL_LOAD_CONFIG[panelId];
+  if (!config) return;
 
-    if (panelStates[panelId] === 'ready') {
-        setPanelState(panelId, 'ready');
-        return;
-    }
+  if (panelStates[panelId] === 'ready') {
+    setPanelState(panelId, 'ready');
+    return;
+  }
 
-    setPanelState(panelId, 'loading');
-    startPanelTimeout(panelId);
+  setPanelState(panelId, 'loading');
+  startPanelTimeout(panelId);
 }
 
 function handlePanelReady(panelId) {
-    if (!PANEL_LOAD_CONFIG[panelId]) return;
-    clearPanelTimeout(panelId);
-    setPanelState(panelId, 'ready');
+  if (!PANEL_LOAD_CONFIG[panelId]) return;
+  clearPanelTimeout(panelId);
+  setPanelState(panelId, 'ready');
 }
 
 function handlePanelError(panelId, reason) {
-    if (!PANEL_LOAD_CONFIG[panelId]) return;
-    clearPanelTimeout(panelId);
-    setPanelState(panelId, 'error', reason);
+  if (!PANEL_LOAD_CONFIG[panelId]) return;
+  clearPanelTimeout(panelId);
+  setPanelState(panelId, 'error', reason);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    prepareDeferredIframes();
-    PANEL_IDS.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            panelRegistry[id] = element;
-            initializePanelLoadTracking(id);
-        }
+  prepareDeferredIframes();
+  PANEL_IDS.forEach((id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      panelRegistry[id] = element;
+      initializePanelLoadTracking(id);
+    }
+  });
+
+  document.querySelectorAll('[data-open-target]').forEach((trigger) => {
+    const targetId = trigger.getAttribute('data-open-target');
+    if (!targetId) return;
+
+    trigger.addEventListener('click', () => openPanel(targetId, trigger));
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openPanel(targetId, trigger);
+      }
     });
+  });
 
-    document.querySelectorAll('[data-open-target]').forEach(trigger => {
-        const targetId = trigger.getAttribute('data-open-target');
-        if (!targetId) return;
+  document.querySelectorAll('[data-close-target]').forEach((trigger) => {
+    const targetId = trigger.getAttribute('data-close-target');
+    if (!targetId) return;
 
-        trigger.addEventListener('click', () => openPanel(targetId, trigger));
-        trigger.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                openPanel(targetId, trigger);
-            }
-        });
+    trigger.addEventListener('click', () => closePanel(targetId));
+  });
+
+  // Allow users to dismiss any open panel by clicking its backdrop or pressing Escape
+  PANEL_IDS.forEach((id) => {
+    const panel = getPanelElement(id);
+    if (!panel) return;
+
+    panel.addEventListener('click', (event) => {
+      if (event.target === panel && panel.style.display === 'block') {
+        closePanel(id);
+      }
     });
+  });
 
-    document.querySelectorAll('[data-close-target]').forEach(trigger => {
-        const targetId = trigger.getAttribute('data-close-target');
-        if (!targetId) return;
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
 
-        trigger.addEventListener('click', () => closePanel(targetId));
+    PANEL_IDS.forEach((id) => {
+      const panel = getPanelElement(id);
+      if (panel && panel.style.display === 'block') {
+        closePanel(id);
+      }
     });
-
-    // Allow users to dismiss any open panel by clicking its backdrop or pressing Escape
-    PANEL_IDS.forEach(id => {
-        const panel = getPanelElement(id);
-        if (!panel) return;
-
-        panel.addEventListener('click', (event) => {
-            if (event.target === panel && panel.style.display === 'block') {
-                closePanel(id);
-            }
-        });
-    });
-
-    document.addEventListener('keydown', (event) => {
-        if (event.key !== 'Escape') return;
-
-        PANEL_IDS.forEach(id => {
-            const panel = getPanelElement(id);
-            if (panel && panel.style.display === 'block') {
-                closePanel(id);
-            }
-        });
-    });
+  });
 });
 
 window.addEventListener('message', (event) => {
-    const sameOrigin = !event.origin || event.origin === 'null' || event.origin === window.location.origin;
-    if (!sameOrigin) return;
+  const sameOrigin = !event.origin || event.origin === 'null' || event.origin === window.location.origin;
+  if (!sameOrigin) return;
 
-    const data = event.data;
-    if (!data || data.source !== 'edge-panel-app' || !data.panelId) return;
+  const data = event.data;
+  if (!data || data.source !== 'edge-panel-app' || !data.panelId) return;
 
-    if (data.status === 'ready') {
-        handlePanelReady(data.panelId);
-    } else if (data.status === 'error') {
-        handlePanelError(data.panelId, data.reason || data.detail || null);
-    }
+  if (data.status === 'ready') {
+    handlePanelReady(data.panelId);
+  } else if (data.status === 'error') {
+    handlePanelError(data.panelId, data.reason || data.detail || null);
+  }
 });
 
 function isAnyPanelOpen() {
-    return PANEL_IDS.some(id => {
-        const panel = getPanelElement(id);
-        return panel && panel.style.display === 'block';
-    });
+  return PANEL_IDS.some((id) => {
+    const panel = getPanelElement(id);
+    return panel && panel.style.display === 'block';
+  });
 }
 
 function resetCloseButtonsPosition() {
-    document.querySelectorAll('.popup-close').forEach(btn => {
-        btn.style.top = 'calc(10px + env(safe-area-inset-top))';
-        btn.style.right = '10px';
-        btn.style.left = 'auto';
-    });
+  document.querySelectorAll('.popup-close').forEach((btn) => {
+    btn.style.top = 'calc(10px + env(safe-area-inset-top))';
+    btn.style.right = '10px';
+    btn.style.left = 'auto';
+  });
 }
 
 // Spoof user as if dem dey America
-window.spoofedLocation = {country:"US",timezone:"America/New_York",language:"en-US"};
-console.log("US Spoof Active:", window.spoofedLocation);
+window.spoofedLocation = { country: 'US', timezone: 'America/New_York', language: 'en-US' };
+console.log('US Spoof Active:', window.spoofedLocation);
 
 function updateEdgePanelBehavior() {
-    resetCloseButtonsPosition();
-    chatbotWindowOpen = isAnyPanelOpen();
-    if (chatbotWindowOpen) {
-        closeEdgePanel();
-    } else {
-        showEdgePanelPeek();
-    }
+  resetCloseButtonsPosition();
+  chatbotWindowOpen = isAnyPanelOpen();
+  if (chatbotWindowOpen) {
+    closeEdgePanel();
+  } else {
+    showEdgePanelPeek();
+  }
 }
 
 function syncPanelSource(panel, trigger) {
-    if (!panel) return;
+  if (!panel) return;
 
-    const iframe = panel.querySelector('iframe');
-    if (!iframe) return;
+  const iframe = panel.querySelector('iframe');
+  if (!iframe) return;
 
-    let desiredSrc = null;
+  let desiredSrc = null;
 
-    if (trigger) {
-        desiredSrc = trigger.getAttribute('data-open-src');
+  if (trigger) {
+    desiredSrc = trigger.getAttribute('data-open-src');
+  }
+
+  if (!desiredSrc) {
+    desiredSrc = iframe.getAttribute('data-default-src');
+  }
+
+  if (!desiredSrc) return;
+
+  if (panel.id === 'youtubeModalContainer') {
+    try {
+      const preparedUrl = new URL(desiredSrc, window.location.origin);
+      if (!preparedUrl.searchParams.has('enablejsapi')) {
+        preparedUrl.searchParams.set('enablejsapi', '1');
+      }
+      if (!preparedUrl.searchParams.has('origin')) {
+        preparedUrl.searchParams.set('origin', window.location.origin);
+      }
+      desiredSrc = preparedUrl.toString();
+    } catch (error) {
+      console.warn('Unable to prepare YouTube embed URL:', error);
     }
+  }
 
-    if (!desiredSrc) {
-        desiredSrc = iframe.getAttribute('data-default-src');
-    }
+  const loadedSrc = iframe.getAttribute('data-loaded-src') || iframe.getAttribute('src') || '';
+  let shouldReload = false;
 
-    if (!desiredSrc) return;
-
-    if (panel.id === 'youtubeModalContainer') {
-        try {
-            const preparedUrl = new URL(desiredSrc, window.location.origin);
-            if (!preparedUrl.searchParams.has('enablejsapi')) {
-                preparedUrl.searchParams.set('enablejsapi', '1');
-            }
-            if (!preparedUrl.searchParams.has('origin')) {
-                preparedUrl.searchParams.set('origin', window.location.origin);
-            }
-            desiredSrc = preparedUrl.toString();
-        } catch (error) {
-            console.warn('Unable to prepare YouTube embed URL:', error);
-        }
-    }
-
-    const loadedSrc = iframe.getAttribute('data-loaded-src') || iframe.getAttribute('src') || '';
-    let shouldReload = false;
-
-    if (loadedSrc === desiredSrc) {
-        try {
-            const doc = iframe.contentDocument;
-            if (doc && doc.readyState && (doc.readyState === 'complete' || doc.readyState === 'interactive')) {
-                const body = doc.body;
-                if (!body) {
-                    shouldReload = true;
-                } else {
-                    const hasChildren = body.childElementCount > 0;
-                    const textContent = body.textContent ? body.textContent.trim() : '';
-                    if (!hasChildren && textContent.length === 0) {
-                        shouldReload = true;
-                    }
-                }
-            }
-        } catch (error) {
-            shouldReload = false;
-        }
-    }
-
-    if (loadedSrc !== desiredSrc || shouldReload) {
-        const applySrc = () => {
-            iframe.setAttribute('src', desiredSrc);
-            iframe.setAttribute('data-loaded-src', desiredSrc);
-        };
-
-        if (shouldReload) {
-            iframe.setAttribute('data-loaded-src', '');
-            iframe.setAttribute('src', 'about:blank');
-            window.setTimeout(applySrc, 50);
+  if (loadedSrc === desiredSrc) {
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.readyState && (doc.readyState === 'complete' || doc.readyState === 'interactive')) {
+        const body = doc.body;
+        if (!body) {
+          shouldReload = true;
         } else {
-            applySrc();
+          const hasChildren = body.childElementCount > 0;
+          const textContent = body.textContent ? body.textContent.trim() : '';
+          if (!hasChildren && textContent.length === 0) {
+            shouldReload = true;
+          }
         }
-    } else if (!iframe.hasAttribute('data-loaded-src') && loadedSrc) {
-        iframe.setAttribute('data-loaded-src', loadedSrc);
+      }
+    } catch (error) {
+      shouldReload = false;
     }
+  }
+
+  if (loadedSrc !== desiredSrc || shouldReload) {
+    const applySrc = () => {
+      iframe.setAttribute('src', desiredSrc);
+      iframe.setAttribute('data-loaded-src', desiredSrc);
+    };
+
+    if (shouldReload) {
+      iframe.setAttribute('data-loaded-src', '');
+      iframe.setAttribute('src', 'about:blank');
+      window.setTimeout(applySrc, 50);
+    } else {
+      applySrc();
+    }
+  } else if (!iframe.hasAttribute('data-loaded-src') && loadedSrc) {
+    iframe.setAttribute('data-loaded-src', loadedSrc);
+  }
 }
 
 function stopYouTubePlayback() {
-    const panel = getPanelElement('youtubeModalContainer');
-    if (!panel) return false;
+  const panel = getPanelElement('youtubeModalContainer');
+  if (!panel) return false;
 
-    const iframe = panel.querySelector('iframe');
-    if (!iframe) return false;
+  const iframe = panel.querySelector('iframe');
+  if (!iframe) return false;
 
-    let commandSent = false;
-    try {
-        if (iframe.contentWindow) {
-            const message = JSON.stringify({ event: 'command', func: 'stopVideo', args: [] });
-            iframe.contentWindow.postMessage(message, '*');
-            commandSent = true;
-        }
-    } catch (error) {
-        console.warn('Failed to send YouTube stop command:', error);
+  let commandSent = false;
+  try {
+    if (iframe.contentWindow) {
+      const message = JSON.stringify({ event: 'command', func: 'stopVideo', args: [] });
+      iframe.contentWindow.postMessage(message, '*');
+      commandSent = true;
     }
+  } catch (error) {
+    console.warn('Failed to send YouTube stop command:', error);
+  }
 
-    if (!commandSent) {
-        const defaultSrc = iframe.getAttribute('data-default-src');
-        if (defaultSrc) {
-            iframe.setAttribute('src', 'about:blank');
-            iframe.removeAttribute('data-loaded-src');
-            setTimeout(() => {
-                iframe.setAttribute('src', defaultSrc);
-                iframe.setAttribute('data-loaded-src', defaultSrc);
-            }, 100);
-        }
+  if (!commandSent) {
+    const defaultSrc = iframe.getAttribute('data-default-src');
+    if (defaultSrc) {
+      iframe.setAttribute('src', 'about:blank');
+      iframe.removeAttribute('data-loaded-src');
+      setTimeout(() => {
+        iframe.setAttribute('src', defaultSrc);
+        iframe.setAttribute('data-loaded-src', defaultSrc);
+      }, 100);
     }
+  }
 
-    return commandSent;
+  return commandSent;
 }
 
 window.stopYouTubePlayback = stopYouTubePlayback;
 
 function openPanel(targetId, trigger = null) {
-    const panel = getPanelElement(targetId);
-    if (!panel) return;
+  const panel = getPanelElement(targetId);
+  if (!panel) return;
 
-    if (targetId === 'aboutModalContainer') {
-        const iframe = panel.querySelector('iframe');
-        if (iframe) {
-            iframe.src = 'about.html';
-        }
+  if (targetId === 'aboutModalContainer') {
+    const iframe = panel.querySelector('iframe');
+    if (iframe) {
+      iframe.src = 'about.html';
     }
+  }
 
-    syncPanelSource(panel, trigger);
-    beginPanelLoad(targetId);
+  syncPanelSource(panel, trigger);
+  beginPanelLoad(targetId);
 
-    panel.style.display = 'block';
-    panel.setAttribute('aria-hidden', 'false');
-    if (window.AriyoScrollLock?.lockScroll) {
-        window.AriyoScrollLock.lockScroll(`panel:${targetId}`);
-    }
-    const opener = trigger || document.activeElement;
-    if (opener) {
-        panelLastTrigger.set(targetId, opener);
-    }
-    requestAnimationFrame(() => focusFirstElement(panel));
-    updateEdgePanelBehavior();
+  panel.style.display = 'block';
+  panel.setAttribute('aria-hidden', 'false');
+  if (window.AriyoScrollLock?.lockScroll) {
+    window.AriyoScrollLock.lockScroll(`panel:${targetId}`);
+  }
+  const opener = trigger || document.activeElement;
+  if (opener) {
+    panelLastTrigger.set(targetId, opener);
+  }
+  requestAnimationFrame(() => focusFirstElement(panel));
+  updateEdgePanelBehavior();
 }
 
 function closePanel(targetId) {
-    const panel = getPanelElement(targetId);
-    if (!panel) return;
+  const panel = getPanelElement(targetId);
+  if (!panel) return;
 
-    if (targetId === 'youtubeModalContainer') {
-        stopYouTubePlayback();
-    }
+  if (targetId === 'youtubeModalContainer') {
+    stopYouTubePlayback();
+  }
 
-    panel.style.display = 'none';
-    panel.setAttribute('aria-hidden', 'true');
-    if (window.AriyoScrollLock?.unlockScroll) {
-        window.AriyoScrollLock.unlockScroll(`panel:${targetId}`);
-    }
-    const iframe = panel.querySelector('iframe');
-    if (targetId !== 'youtubeModalContainer' && iframe && iframe.getAttribute('data-default-src')) {
-        iframe.setAttribute('src', 'about:blank');
-        iframe.setAttribute('data-loaded-src', '');
-    }
-    clearPanelTimeout(targetId);
-    updateEdgePanelBehavior();
+  panel.style.display = 'none';
+  panel.setAttribute('aria-hidden', 'true');
+  if (window.AriyoScrollLock?.unlockScroll) {
+    window.AriyoScrollLock.unlockScroll(`panel:${targetId}`);
+  }
+  const iframe = panel.querySelector('iframe');
+  if (targetId !== 'youtubeModalContainer' && iframe && iframe.getAttribute('data-default-src')) {
+    iframe.setAttribute('src', 'about:blank');
+    iframe.setAttribute('data-loaded-src', '');
+  }
+  clearPanelTimeout(targetId);
+  updateEdgePanelBehavior();
 
-    const lastTrigger = panelLastTrigger.get(targetId);
-    if (lastTrigger && typeof lastTrigger.focus === 'function') {
-        lastTrigger.focus();
-    }
-    panelLastTrigger.delete(targetId);
+  const lastTrigger = panelLastTrigger.get(targetId);
+  if (lastTrigger && typeof lastTrigger.focus === 'function') {
+    lastTrigger.focus();
+  }
+  panelLastTrigger.delete(targetId);
 }
 
 function openAboutModal() {
-    openPanel('aboutModalContainer');
+  openPanel('aboutModalContainer');
 }
 
 function closeAboutModal() {
-    closePanel('aboutModalContainer');
+  closePanel('aboutModalContainer');
 }
 
 function openAriyoChatbot() {
-    openPanel('ariyoChatbotContainer');
+  openPanel('ariyoChatbotContainer');
 }
 
 function closeAriyoChatbot() {
-    closePanel('ariyoChatbotContainer');
+  closePanel('ariyoChatbotContainer');
 }
 
 function openSabiBible() {
-    openPanel('sabiBibleContainer');
+  openPanel('sabiBibleContainer');
 }
 
 function closeSabiBible() {
-    closePanel('sabiBibleContainer');
+  closePanel('sabiBibleContainer');
 }
 
 function openPictureGame() {
-    openPanel('pictureGameContainer');
+  openPanel('pictureGameContainer');
 }
 
 function closePictureGame() {
-    closePanel('pictureGameContainer');
+  closePanel('pictureGameContainer');
 }
 
 function openTetrisGame() {
-    openPanel('tetrisGameContainer');
+  openPanel('tetrisGameContainer');
 }
 
 function closeTetrisGame() {
-    closePanel('tetrisGameContainer');
+  closePanel('tetrisGameContainer');
 }
 
 function openWordSearchGame() {
-    openPanel('wordSearchContainer');
+  openPanel('wordSearchContainer');
 }
 
 function closeWordSearchGame() {
-    closePanel('wordSearchContainer');
+  closePanel('wordSearchContainer');
 }
 
 function openConnectFourGame() {
-    openPanel('connectFourContainer');
+  openPanel('connectFourContainer');
 }
 
 function closeConnectFourGame() {
-    closePanel('connectFourContainer');
+  closePanel('connectFourContainer');
 }
 
 function openCyclePrecision() {
-    openPanel('cyclePrecisionContainer');
+  openPanel('cyclePrecisionContainer');
 }
 
 function closeCyclePrecision() {
-    closePanel('cyclePrecisionContainer');
+  closePanel('cyclePrecisionContainer');
 }
 
+const collapsibleContainerLeft = document.getElementById('collapsibleContainerLeft');
+const collapsibleContainerRight = document.getElementById('collapsibleContainerRight');
 
+function toggleCollapsibleContainer(container) {
+  container.classList.toggle('visible');
+}
 
+let inactivityTimer;
 
-    const collapsibleContainerLeft = document.getElementById('collapsibleContainerLeft');
-    const collapsibleContainerRight = document.getElementById('collapsibleContainerRight');
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    collapsibleContainerLeft.classList.remove('visible');
+    collapsibleContainerRight.classList.remove('visible');
+  }, 45000);
+}
 
-    function toggleCollapsibleContainer(container) {
-        container.classList.toggle('visible');
+const edgePanel = document.getElementById('edgePanel');
+const edgePanelHandle = edgePanel ? edgePanel.querySelector('.edge-panel-handle') : null;
+const focusFirstEdgePanelItem = () => {
+  const firstItem = edgePanel?.querySelector('.edge-panel-item');
+  if (firstItem) {
+    firstItem.focus();
+  }
+};
+const setupEdgePanelListNavigation = () => {
+  const list = document.querySelector('.edge-panel-list');
+  if (!list) return;
+
+  list.addEventListener('keydown', (event) => {
+    const activeElement = document.activeElement;
+    if (!list.contains(activeElement)) return;
+
+    const items = Array.from(list.querySelectorAll('.edge-panel-item'));
+    const currentIndex = items.indexOf(activeElement);
+    if (currentIndex === -1) return;
+
+    let nextIndex = null;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+      nextIndex = Math.min(currentIndex + 1, items.length - 1);
+    } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+      nextIndex = Math.max(currentIndex - 1, 0);
+    } else if (event.key === 'Home') {
+      nextIndex = 0;
+    } else if (event.key === 'End') {
+      nextIndex = items.length - 1;
     }
 
-    let inactivityTimer;
-
-    function resetInactivityTimer() {
-        clearTimeout(inactivityTimer);
-        inactivityTimer = setTimeout(() => {
-            collapsibleContainerLeft.classList.remove('visible');
-            collapsibleContainerRight.classList.remove('visible');
-        }, 45000);
+    if (nextIndex !== null && nextIndex !== currentIndex) {
+      event.preventDefault();
+      items[nextIndex].focus();
     }
+  });
+};
+let isDragging = false;
+let initialX;
+let initialRight;
+let EDGE_PANEL_VISIBLE_X = 16;
+let EDGE_PANEL_COLLAPSED_X = -160;
+let EDGE_PANEL_PEEK_X = -32;
+let edgePanelState = 'collapsed';
+let edgePanelUserCollapsed = false;
+let edgePanelPeekTimeoutId = null;
+const EDGE_PANEL_PEEK_DURATION = 3200;
 
-    const edgePanel = document.getElementById('edgePanel');
-    const edgePanelHandle = edgePanel ? edgePanel.querySelector('.edge-panel-handle') : null;
-    const focusFirstEdgePanelItem = () => {
-        const firstItem = edgePanel?.querySelector('.edge-panel-item');
-        if (firstItem) {
-            firstItem.focus();
-        }
-    };
-    const setupEdgePanelListNavigation = () => {
-        const list = document.querySelector('.edge-panel-list');
-        if (!list) return;
+const computeEdgePanelOffsets = () => {
+  if (!edgePanel || !edgePanelHandle) return;
+  const panelWidth = edgePanel.offsetWidth;
+  const handleWidth = edgePanelHandle.offsetWidth || Math.max(Math.round(panelWidth * 0.08), 16);
 
-        list.addEventListener('keydown', (event) => {
-            const activeElement = document.activeElement;
-            if (!list.contains(activeElement)) return;
+  const rootStyles = window.getComputedStyle(document.documentElement);
+  const configuredGap = parseFloat(rootStyles.getPropertyValue('--edge-panel-visible-gap'));
+  const responsiveGap =
+    window.innerWidth <= 900
+      ? Math.max(Math.round(window.innerWidth * 0.028), 10)
+      : Math.max(Math.round(window.innerWidth * 0.018), 12);
+  EDGE_PANEL_VISIBLE_X = Number.isNaN(configuredGap) ? responsiveGap : Math.max(configuredGap, responsiveGap);
 
-            const items = Array.from(list.querySelectorAll('.edge-panel-item'));
-            const currentIndex = items.indexOf(activeElement);
-            if (currentIndex === -1) return;
+  // Inspired by the Samsung One UI edge panel behaviour — keep only the handle and a slim glow visible.
+  const handleReveal = Math.max(Math.round(handleWidth * 0.55), 14);
+  const tuckedWidth = panelWidth - handleReveal;
+  EDGE_PANEL_COLLAPSED_X = EDGE_PANEL_VISIBLE_X - tuckedWidth;
 
-            let nextIndex = null;
-            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-                nextIndex = Math.min(currentIndex + 1, items.length - 1);
-            } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-                nextIndex = Math.max(currentIndex - 1, 0);
-            } else if (event.key === 'Home') {
-                nextIndex = 0;
-            } else if (event.key === 'End') {
-                nextIndex = items.length - 1;
-            }
+  const peekAccentReveal = Math.min(Math.round(handleWidth * 0.35), 18);
+  const peekExposure = handleReveal + peekAccentReveal;
+  const minimumPeek = EDGE_PANEL_COLLAPSED_X + Math.round(handleWidth * 0.25);
+  const maximumPeek = EDGE_PANEL_VISIBLE_X - Math.round(handleWidth * 0.35);
+  EDGE_PANEL_PEEK_X = Math.min(Math.max(EDGE_PANEL_VISIBLE_X - peekExposure, minimumPeek), maximumPeek);
+};
 
-            if (nextIndex !== null && nextIndex !== currentIndex) {
-                event.preventDefault();
-                items[nextIndex].focus();
-            }
-        });
-    };
-    let isDragging = false;
-    let initialX;
-    let initialRight;
-    let EDGE_PANEL_VISIBLE_X = 16;
-    let EDGE_PANEL_COLLAPSED_X = -160;
-    let EDGE_PANEL_PEEK_X = -32;
-    let edgePanelState = 'collapsed';
-    let edgePanelUserCollapsed = false;
-    let edgePanelPeekTimeoutId = null;
-    const EDGE_PANEL_PEEK_DURATION = 3200;
+const applyEdgePanelPosition = (state, { userInitiated = false } = {}) => {
+  if (!edgePanel) return;
 
-    const computeEdgePanelOffsets = () => {
-        if (!edgePanel || !edgePanelHandle) return;
-        const panelWidth = edgePanel.offsetWidth;
-        const handleWidth = edgePanelHandle.offsetWidth || Math.max(Math.round(panelWidth * 0.08), 16);
+  edgePanelState = state;
 
-        const rootStyles = window.getComputedStyle(document.documentElement);
-        const configuredGap = parseFloat(rootStyles.getPropertyValue('--edge-panel-visible-gap'));
-        const responsiveGap = window.innerWidth <= 900
-            ? Math.max(Math.round(window.innerWidth * 0.028), 10)
-            : Math.max(Math.round(window.innerWidth * 0.018), 12);
-        EDGE_PANEL_VISIBLE_X = Number.isNaN(configuredGap) ? responsiveGap : Math.max(configuredGap, responsiveGap);
+  const isVisible = state === 'visible';
+  const isPeek = state === 'peek';
+  const ariaExpanded = isVisible ? 'true' : 'false';
 
-        // Inspired by the Samsung One UI edge panel behaviour — keep only the handle and a slim glow visible.
-        const handleReveal = Math.max(Math.round(handleWidth * 0.55), 14);
-        const tuckedWidth = panelWidth - handleReveal;
-        EDGE_PANEL_COLLAPSED_X = EDGE_PANEL_VISIBLE_X - tuckedWidth;
+  edgePanel.setAttribute('aria-expanded', ariaExpanded);
+  if (edgePanelHandle) {
+    edgePanelHandle.setAttribute('aria-expanded', ariaExpanded);
+  }
 
-        const peekAccentReveal = Math.min(Math.round(handleWidth * 0.35), 18);
-        const peekExposure = handleReveal + peekAccentReveal;
-        const minimumPeek = EDGE_PANEL_COLLAPSED_X + Math.round(handleWidth * 0.25);
-        const maximumPeek = EDGE_PANEL_VISIBLE_X - Math.round(handleWidth * 0.35);
-        EDGE_PANEL_PEEK_X = Math.min(Math.max(EDGE_PANEL_VISIBLE_X - peekExposure, minimumPeek), maximumPeek);
-    };
+  if (edgePanelPeekTimeoutId) {
+    clearTimeout(edgePanelPeekTimeoutId);
+    edgePanelPeekTimeoutId = null;
+  }
 
-    const applyEdgePanelPosition = (state, { userInitiated = false } = {}) => {
-        if (!edgePanel) return;
+  if (isVisible || isPeek) {
+    edgePanel.classList.add('visible');
+  } else {
+    edgePanel.classList.remove('visible');
+  }
 
-        edgePanelState = state;
+  if (isPeek) {
+    edgePanel.dataset.position = 'peek';
+    edgePanel.style.right = `${EDGE_PANEL_PEEK_X}px`;
+  } else if (isVisible) {
+    delete edgePanel.dataset.position;
+    edgePanel.style.right = `${EDGE_PANEL_VISIBLE_X}px`;
+  } else {
+    edgePanel.dataset.position = 'collapsed';
+    edgePanel.style.right = `${EDGE_PANEL_COLLAPSED_X}px`;
+  }
 
-        const isVisible = state === 'visible';
-        const isPeek = state === 'peek';
-        const ariaExpanded = isVisible ? 'true' : 'false';
-
-        edgePanel.setAttribute('aria-expanded', ariaExpanded);
-        if (edgePanelHandle) {
-            edgePanelHandle.setAttribute('aria-expanded', ariaExpanded);
-        }
-
-        if (edgePanelPeekTimeoutId) {
-            clearTimeout(edgePanelPeekTimeoutId);
-            edgePanelPeekTimeoutId = null;
-        }
-
-        if (isVisible || isPeek) {
-            edgePanel.classList.add('visible');
-        } else {
-            edgePanel.classList.remove('visible');
-        }
-
-        if (isPeek) {
-            edgePanel.dataset.position = 'peek';
-            edgePanel.style.right = `${EDGE_PANEL_PEEK_X}px`;
-        } else if (isVisible) {
-            delete edgePanel.dataset.position;
-            edgePanel.style.right = `${EDGE_PANEL_VISIBLE_X}px`;
-        } else {
-            edgePanel.dataset.position = 'collapsed';
-            edgePanel.style.right = `${EDGE_PANEL_COLLAPSED_X}px`;
-        }
-
-        if (state === 'peek') {
-            edgePanelPeekTimeoutId = window.setTimeout(() => {
-                if (edgePanelState === 'peek') {
-                    applyEdgePanelPosition('collapsed');
-                }
-            }, EDGE_PANEL_PEEK_DURATION);
-        }
-
-        if (userInitiated) {
-            if (state === 'collapsed') {
-                edgePanelUserCollapsed = true;
-            } else if (state === 'visible') {
-                edgePanelUserCollapsed = false;
-            }
-        } else if (state === 'visible') {
-            edgePanelUserCollapsed = false;
-        }
-    };
-
-    if (edgePanel && edgePanelHandle) {
-        computeEdgePanelOffsets();
+  if (state === 'peek') {
+    edgePanelPeekTimeoutId = window.setTimeout(() => {
+      if (edgePanelState === 'peek') {
         applyEdgePanelPosition('collapsed');
-        if (!edgePanelHandle.getAttribute('role')) {
-            edgePanelHandle.setAttribute('role', 'button');
-        }
-        if (!edgePanelHandle.hasAttribute('tabindex')) {
-            edgePanelHandle.setAttribute('tabindex', '0');
-        }
-        if (!edgePanelHandle.getAttribute('aria-label')) {
-            edgePanelHandle.setAttribute('aria-label', 'Toggle Quick Launch hub');
-        }
-        if (!edgePanelHandle.getAttribute('aria-controls')) {
-            edgePanelHandle.setAttribute('aria-controls', 'edgePanel');
-        }
-        if (!edgePanelHandle.hasAttribute('aria-expanded')) {
-            edgePanelHandle.setAttribute('aria-expanded', 'false');
-        }
-        if (!edgePanel.hasAttribute('aria-expanded')) {
-            edgePanel.setAttribute('aria-expanded', 'false');
-        }
-        window.setTimeout(() => {
-            if (!edgePanelUserCollapsed) {
-                showEdgePanelPeek();
-            }
-        }, 600);
-        const toggleEdgePanelVisibility = ({ userInitiated = false, focusLaunchers = false } = {}) => {
-            if (edgePanelState === 'visible') {
-                applyEdgePanelPosition('collapsed', { userInitiated });
-            } else {
-                applyEdgePanelPosition('visible', { userInitiated });
-                if (focusLaunchers) {
-                    focusFirstEdgePanelItem();
-                }
-            }
-        };
+      }
+    }, EDGE_PANEL_PEEK_DURATION);
+  }
 
-        const beginDrag = (clientX) => {
-            isDragging = true;
-            initialX = clientX;
-            initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-            edgePanel.style.transition = 'none';
-        };
-
-        edgePanelHandle.addEventListener('mousedown', (e) => {
-            beginDrag(e.clientX);
-        });
-
-        edgePanelHandle.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            if (!touch) return;
-            beginDrag(touch.clientX);
-        }, { passive: true });
-
-        const clampPanelRight = (value) => {
-            return Math.min(Math.max(value, EDGE_PANEL_COLLAPSED_X), EDGE_PANEL_VISIBLE_X);
-        };
-
-        const endDrag = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
-            const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
-            const collapseThreshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_PEEK_X) / 2;
-            const peekThreshold = (EDGE_PANEL_PEEK_X + EDGE_PANEL_VISIBLE_X) / 2;
-
-            if (finalRight <= collapseThreshold) {
-                applyEdgePanelPosition('collapsed', { userInitiated: true });
-            } else if (finalRight <= peekThreshold) {
-                applyEdgePanelPosition('peek', { userInitiated: true });
-            } else {
-                applyEdgePanelPosition('visible', { userInitiated: true });
-            }
-        };
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const currentX = e.clientX;
-                const dx = currentX - initialX;
-                const nextRight = clampPanelRight(initialRight - dx);
-                edgePanel.style.right = `${nextRight}px`;
-            }
-        });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            const touch = e.touches[0];
-            if (!touch) return;
-            const dx = touch.clientX - initialX;
-            const nextRight = clampPanelRight(initialRight - dx);
-            edgePanel.style.right = `${nextRight}px`;
-        }, { passive: true });
-
-        document.addEventListener('mouseup', endDrag);
-
-        document.addEventListener('touchend', endDrag, { passive: true });
-        document.addEventListener('touchcancel', endDrag, { passive: true });
-
-        edgePanelHandle.addEventListener('click', () => {
-            if (isDragging) return;
-            toggleEdgePanelVisibility({ userInitiated: true });
-        });
-        edgePanelHandle.addEventListener('keydown', (event) => {
-            if (isDragging) return;
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                toggleEdgePanelVisibility({ userInitiated: true, focusLaunchers: true });
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            computeEdgePanelOffsets();
-            if (edgePanelState === 'peek') {
-                applyEdgePanelPosition('peek');
-            } else if (edgePanelState === 'visible') {
-                applyEdgePanelPosition('visible');
-            } else {
-                applyEdgePanelPosition('collapsed');
-            }
-        });
-
-        window.addEventListener('orientationchange', () => {
-            computeEdgePanelOffsets();
-            if (edgePanelState === 'peek') {
-                applyEdgePanelPosition('peek');
-            } else if (edgePanelState === 'visible') {
-                applyEdgePanelPosition('visible');
-            } else {
-                applyEdgePanelPosition('collapsed');
-            }
-        });
+  if (userInitiated) {
+    if (state === 'collapsed') {
+      edgePanelUserCollapsed = true;
+    } else if (state === 'visible') {
+      edgePanelUserCollapsed = false;
     }
+  } else if (state === 'visible') {
+    edgePanelUserCollapsed = false;
+  }
+};
 
-    setupEdgePanelListNavigation();
-
-    function closeEdgePanel() {
-        applyEdgePanelPosition('collapsed');
+if (edgePanel && edgePanelHandle) {
+  computeEdgePanelOffsets();
+  applyEdgePanelPosition('collapsed');
+  if (!edgePanelHandle.getAttribute('role')) {
+    edgePanelHandle.setAttribute('role', 'button');
+  }
+  if (!edgePanelHandle.hasAttribute('tabindex')) {
+    edgePanelHandle.setAttribute('tabindex', '0');
+  }
+  if (!edgePanelHandle.getAttribute('aria-label')) {
+    edgePanelHandle.setAttribute('aria-label', 'Toggle Quick Launch hub');
+  }
+  if (!edgePanelHandle.getAttribute('aria-controls')) {
+    edgePanelHandle.setAttribute('aria-controls', 'edgePanel');
+  }
+  if (!edgePanelHandle.hasAttribute('aria-expanded')) {
+    edgePanelHandle.setAttribute('aria-expanded', 'false');
+  }
+  if (!edgePanel.hasAttribute('aria-expanded')) {
+    edgePanel.setAttribute('aria-expanded', 'false');
+  }
+  window.setTimeout(() => {
+    if (!edgePanelUserCollapsed) {
+      showEdgePanelPeek();
     }
-
-    function showEdgePanelPeek() {
-        if (!edgePanel) return;
-        if (edgePanelUserCollapsed) return;
-        applyEdgePanelPosition('peek');
+  }, 600);
+  const toggleEdgePanelVisibility = ({ userInitiated = false, focusLaunchers = false } = {}) => {
+    if (edgePanelState === 'visible') {
+      applyEdgePanelPosition('collapsed', { userInitiated });
+    } else {
+      applyEdgePanelPosition('visible', { userInitiated });
+      if (focusLaunchers) {
+        focusFirstEdgePanelItem();
+      }
     }
+  };
 
+  const beginDrag = (clientX) => {
+    isDragging = true;
+    initialX = clientX;
+    initialRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+    edgePanel.style.transition = 'none';
+  };
 
+  edgePanelHandle.addEventListener('mousedown', (e) => {
+    beginDrag(e.clientX);
+  });
 
-    /* EDGE PANEL STATE HELPERS */
-    let chatbotWindowOpen = false;
+  edgePanelHandle.addEventListener(
+    'touchstart',
+    (e) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      beginDrag(touch.clientX);
+    },
+    { passive: true },
+  );
+
+  const clampPanelRight = (value) => {
+    return Math.min(Math.max(value, EDGE_PANEL_COLLAPSED_X), EDGE_PANEL_VISIBLE_X);
+  };
+
+  const endDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    edgePanel.style.transition = 'right 0.3s ease-in-out, box-shadow 0.3s ease-in-out';
+    const finalRight = parseInt(window.getComputedStyle(edgePanel).right, 10);
+    const collapseThreshold = (EDGE_PANEL_COLLAPSED_X + EDGE_PANEL_PEEK_X) / 2;
+    const peekThreshold = (EDGE_PANEL_PEEK_X + EDGE_PANEL_VISIBLE_X) / 2;
+
+    if (finalRight <= collapseThreshold) {
+      applyEdgePanelPosition('collapsed', { userInitiated: true });
+    } else if (finalRight <= peekThreshold) {
+      applyEdgePanelPosition('peek', { userInitiated: true });
+    } else {
+      applyEdgePanelPosition('visible', { userInitiated: true });
+    }
+  };
+
+  document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      const currentX = e.clientX;
+      const dx = currentX - initialX;
+      const nextRight = clampPanelRight(initialRight - dx);
+      edgePanel.style.right = `${nextRight}px`;
+    }
+  });
+
+  document.addEventListener(
+    'touchmove',
+    (e) => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const dx = touch.clientX - initialX;
+      const nextRight = clampPanelRight(initialRight - dx);
+      edgePanel.style.right = `${nextRight}px`;
+    },
+    { passive: true },
+  );
+
+  document.addEventListener('mouseup', endDrag);
+
+  document.addEventListener('touchend', endDrag, { passive: true });
+  document.addEventListener('touchcancel', endDrag, { passive: true });
+
+  edgePanelHandle.addEventListener('click', () => {
+    if (isDragging) return;
+    toggleEdgePanelVisibility({ userInitiated: true });
+  });
+  edgePanelHandle.addEventListener('keydown', (event) => {
+    if (isDragging) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggleEdgePanelVisibility({ userInitiated: true, focusLaunchers: true });
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    computeEdgePanelOffsets();
+    if (edgePanelState === 'peek') {
+      applyEdgePanelPosition('peek');
+    } else if (edgePanelState === 'visible') {
+      applyEdgePanelPosition('visible');
+    } else {
+      applyEdgePanelPosition('collapsed');
+    }
+  });
+
+  window.addEventListener('orientationchange', () => {
+    computeEdgePanelOffsets();
+    if (edgePanelState === 'peek') {
+      applyEdgePanelPosition('peek');
+    } else if (edgePanelState === 'visible') {
+      applyEdgePanelPosition('visible');
+    } else {
+      applyEdgePanelPosition('collapsed');
+    }
+  });
+}
+
+setupEdgePanelListNavigation();
+
+function closeEdgePanel() {
+  applyEdgePanelPosition('collapsed');
+}
+
+function showEdgePanelPeek() {
+  if (!edgePanel) return;
+  if (edgePanelUserCollapsed) return;
+  applyEdgePanelPosition('peek');
+}
+
+/* EDGE PANEL STATE HELPERS */
+let chatbotWindowOpen = false;
 
 function showNowPlayingToast(trackTitle) {
   const toast = document.getElementById('nowPlayingToast');
@@ -1310,6 +1320,6 @@ if (typeof window !== 'undefined') {
     openRadioList,
     closeRadioList,
     requestCloseRadioList,
-    showNowPlayingToast
+    showNowPlayingToast,
   });
 }

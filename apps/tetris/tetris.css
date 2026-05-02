@@ -1,165 +1,173 @@
 body {
-    font-family: 'Montserrat', sans-serif;
-    background: radial-gradient(circle at top left, #222, var(--background-color, #000))
-                no-repeat fixed,
-                linear-gradient(135deg, var(--background-color, #000), #111);
-    background-blend-mode: overlay;
-    color: var(--text-color, #fff);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    margin: 0;
-    min-height: var(--app-height, 100vh);
-    padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 2rem);
-    box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
+  background:
+    radial-gradient(circle at top left, #222, var(--background-color, #000)) no-repeat fixed,
+    linear-gradient(135deg, var(--background-color, #000), #111);
+  background-blend-mode: overlay;
+  color: var(--text-color, #fff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+  min-height: var(--app-height, 100vh);
+  padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 2rem);
+  box-sizing: border-box;
 }
 
 #game-title {
-    margin-top: 20px;
-    font-size: 2rem;
-    text-shadow: 0 0 10px var(--theme-color, #00f);
+  margin-top: 20px;
+  font-size: 2rem;
+  text-shadow: 0 0 10px var(--theme-color, #00f);
 }
 
 #tetris {
-    border: 2px solid var(--theme-color, #00f);
-    background: #000;
-    margin-top: 10px;
-    border-radius: 4px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 10px var(--theme-color, #00f);
+  border: 2px solid var(--theme-color, #00f);
+  background: #000;
+  margin-top: 10px;
+  border-radius: 4px;
+  box-shadow:
+    0 0 15px rgba(0, 0, 0, 0.8),
+    0 0 10px var(--theme-color, #00f);
 }
 
 #game-wrapper {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    margin-top: 10px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 10px;
 }
 
 #sidebar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 #next-title {
-    margin: 0;
-    font-size: 1.2rem;
+  margin: 0;
+  font-size: 1.2rem;
 }
 
 #next-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #next {
-    border: 2px solid var(--theme-color, #00f);
-    background: #000;
-    width: 40px;
-    height: 40px;
-    margin-top: 5px;
-    border-radius: 4px;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--theme-color, #00f);
+  background: #000;
+  width: 40px;
+  height: 40px;
+  margin-top: 5px;
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
 }
 
 #score {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
 
 #controls {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
 }
 
 .control-row {
-    display: flex;
-    gap: 5px;
+  display: flex;
+  gap: 5px;
 }
 
 #controls button {
-    width: 40px;
-    height: 40px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(145deg, var(--theme-color, #00f), #0022ff);
-    color: var(--background-color, #000);
-    font-size: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5), inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(145deg, var(--theme-color, #00f), #0022ff);
+  color: var(--background-color, #000);
+  font-size: 1rem;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.5),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
 }
 
 #controls button.wide {
-    width: 100px;
-    border-radius: 20px;
+  width: 100px;
+  border-radius: 20px;
 }
 
 #controls button:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6), 0 0 10px var(--theme-color, #00f);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.6),
+    0 0 10px var(--theme-color, #00f);
 }
 
 #controls button:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 footer {
-    margin-top: auto;
-    padding: 10px;
+  margin-top: auto;
+  padding: 10px;
 }
 
 #game-container {
-    position: relative;
-    margin-top: 40px;
-    padding: 20px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  position: relative;
+  margin-top: 40px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
 }
 
 #controls .action-btn,
 #action-buttons .action-btn {
-    width: 80px;
-    height: 35px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: bold;
+  width: 80px;
+  height: 35px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
 #btn-start {
-    background: linear-gradient(145deg, #28a745, #218838);
-    color: #fff;
+  background: linear-gradient(145deg, #28a745, #218838);
+  color: #fff;
 }
 
 #btn-stop {
-    background: linear-gradient(145deg, #dc3545, #c82333);
-    color: #fff;
+  background: linear-gradient(145deg, #dc3545, #c82333);
+  color: #fff;
 }
 
 #btn-refresh {
-    background: linear-gradient(145deg, #ffc107, #e0a800);
-    color: #000;
+  background: linear-gradient(145deg, #ffc107, #e0a800);
+  color: #000;
 }

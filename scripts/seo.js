@@ -26,12 +26,12 @@
       url,
       byArtist: {
         '@type': 'MusicGroup',
-        name: track.artist || album.artist || 'Omoluabi'
+        name: track.artist || album.artist || 'Omoluabi',
       },
       inAlbum: {
         '@type': 'MusicAlbum',
-        name: album.name || album.title || 'Album'
-      }
+        name: album.name || album.title || 'Album',
+      },
     };
 
     if (typeof track.duration === 'number' && Number.isFinite(track.duration)) {
@@ -48,7 +48,7 @@
       '@type': 'RadioStation',
       name: station.name || 'Live radio',
       url,
-      areaServed: station.location || 'Global'
+      areaServed: station.location || 'Global',
     };
   }
 
@@ -71,14 +71,14 @@
     window.AriyoSeo = {
       buildMusicRecordingSchema,
       buildRadioStationSchema,
-      updateStructuredDataForPlayback
+      updateStructuredDataForPlayback,
     };
   }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       buildMusicRecordingSchema,
-      buildRadioStationSchema
+      buildRadioStationSchema,
     };
   }
 })();

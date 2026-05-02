@@ -1,9 +1,4 @@
-const {
-  lockScroll,
-  unlockScroll,
-  resetScrollLock,
-  getLockCount
-} = require('../scripts/scroll-lock');
+const { lockScroll, unlockScroll, resetScrollLock, getLockCount } = require('../scripts/scroll-lock');
 
 describe('scroll lock manager', () => {
   beforeEach(() => {

@@ -14,7 +14,7 @@
         album: null,
         albumIndex: -1,
         usedFallback: true,
-        reason: 'missing-catalog'
+        reason: 'missing-catalog',
       };
     }
 
@@ -28,7 +28,7 @@
       album,
       albumIndex,
       usedFallback: pending === null && current === null,
-      reason: album ? null : 'missing-album'
+      reason: album ? null : 'missing-album',
     };
   }
 
@@ -47,7 +47,7 @@
 
   const api = {
     resolveModalAlbum,
-    describeTrackAvailability
+    describeTrackAvailability,
   };
 
   global.trackModalUtils = Object.assign({}, global.trackModalUtils, api);
@@ -56,4 +56,3 @@
     module.exports = api;
   }
 })(typeof window !== 'undefined' ? window : globalThis);
-

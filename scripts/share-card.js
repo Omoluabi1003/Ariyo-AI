@@ -17,14 +17,14 @@
 
   function findTrackBySlug(albumSlug, trackSlug, trackId) {
     if (!Array.isArray(window.albums)) return null;
-    const album = window.albums.find(item => slugify(item.name) === albumSlug);
+    const album = window.albums.find((item) => slugify(item.name) === albumSlug);
     if (!album || !Array.isArray(album.tracks)) return null;
     let track = null;
     if (trackId) {
-      track = album.tracks.find(item => String(item.id || '') === String(trackId));
+      track = album.tracks.find((item) => String(item.id || '') === String(trackId));
     }
     if (!track && trackSlug) {
-      track = album.tracks.find(item => slugify(item.title) === trackSlug);
+      track = album.tracks.find((item) => slugify(item.title) === trackSlug);
     }
     if (!track) return null;
     return { album, track };
@@ -32,7 +32,7 @@
 
   function findAlbumBySlug(albumSlug) {
     if (!Array.isArray(window.albums)) return null;
-    return window.albums.find(item => slugify(item.name) === albumSlug) || null;
+    return window.albums.find((item) => slugify(item.name) === albumSlug) || null;
   }
 
   function slugify(str) {
@@ -62,9 +62,7 @@
 
   function ensureHttps(url) {
     if (!url) return '';
-    return url.startsWith('https://')
-      ? url
-      : `https://${url.replace(/^https?:\/\//i, '')}`;
+    return url.startsWith('https://') ? url : `https://${url.replace(/^https?:\/\//i, '')}`;
   }
 
   function buildShareUrl({ albumSlug, trackSlug, trackId }) {
@@ -179,7 +177,7 @@
       ? window.AriyoProverbUtils.resolveProverb({ culturalNote: trackData && trackData.culturalNote })
       : { yo: '', en: '' };
 
-    const title = trackData ? trackData.title : (albumData ? albumData.name : 'Àríyò AI');
+    const title = trackData ? trackData.title : albumData ? albumData.name : 'Àríyò AI';
 
     titleEl.textContent = safeText(title) || 'Àríyò AI';
     proverbYoEl.textContent = note.yo;
@@ -187,12 +185,18 @@
     sourceEl.textContent = trackData
       ? `Shared from Àríyò AI • ${window.location.origin}`
       : `Shared from Àríyò AI • ${window.location.origin}`;
-    const metaInfo = updateLinkAndMeta({ albumSlug, trackSlug, trackData, albumData, trackId: trackData?.id || trackId });
+    const metaInfo = updateLinkAndMeta({
+      albumSlug,
+      trackSlug,
+      trackData,
+      albumData,
+      trackId: trackData?.id || trackId,
+    });
 
     updateMeta({
       title: `Proverb of the Day • ${title}`,
       description: `${note.yo} — ${note.en}`.trim(),
-      image: metaInfo && metaInfo.cover
+      image: metaInfo && metaInfo.cover,
     });
   }
 

@@ -24,7 +24,7 @@
 
   const utils = {
     normalizeText,
-    match
+    match,
   };
 
   if (typeof window !== 'undefined') {

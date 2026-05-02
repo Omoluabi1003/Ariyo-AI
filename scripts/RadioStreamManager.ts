@@ -77,10 +77,7 @@ interface RetryState {
  * Factory function to create an isolated radio stream manager instance.
  * The station list is accepted as a readonly dependency to ensure the original data remains immutable.
  */
-export function createRadioStreamManager(
-  stations: readonly RadioStation[],
-  options: RadioStreamManagerOptions = {}
-) {
+export function createRadioStreamManager(stations: readonly RadioStation[], options: RadioStreamManagerOptions = {}) {
   const audio: HTMLAudioElement = options.audioElement ?? new Audio();
   const listeners = new Set<StatusListener>();
 
@@ -130,7 +127,7 @@ export function createRadioStreamManager(
       metadata: sessionMetadata,
       ...payload,
     };
-    listeners.forEach(cb => cb(status));
+    listeners.forEach((cb) => cb(status));
   };
 
   // Station resolution & cache busting ------------------------------------
@@ -147,7 +144,7 @@ export function createRadioStreamManager(
   };
 
   const findStation = (stationId: string | number): RadioStation | undefined => {
-    return stations.find(station => matchesStationId(station, stationId));
+    return stations.find((station) => matchesStationId(station, stationId));
   };
 
   const withCacheBusting = (url: string) => {
@@ -292,7 +289,7 @@ export function createRadioStreamManager(
       if (audio.paused) {
         const playPromise = audio.play();
         if (playPromise) {
-          playPromise.catch(err => {
+          playPromise.catch((err) => {
             emitStatus('error', { error: err instanceof Error ? err : new Error(String(err)) });
             scheduleRetry('resume-play-rejection');
           });
@@ -317,7 +314,7 @@ export function createRadioStreamManager(
     emitStatus('buffering');
     const playPromise = audio.play();
     if (playPromise) {
-      playPromise.catch(err => {
+      playPromise.catch((err) => {
         emitStatus('error', { error: err instanceof Error ? err : new Error(String(err)) });
         scheduleRetry('play-rejection');
       });
@@ -345,7 +342,12 @@ export function createRadioStreamManager(
     retryState.timerId = window.setTimeout(() => {
       retryState.timerId = null;
       if (!currentStation) return;
-      if (!audio.paused && !audio.ended && audio.currentTime > 0 && audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+      if (
+        !audio.paused &&
+        !audio.ended &&
+        audio.currentTime > 0 &&
+        audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+      ) {
         // Playback recovered on its own; skip the retry without touching the element.
         resetRecoveryState();
         emitStatus('playing');
@@ -361,7 +363,7 @@ export function createRadioStreamManager(
       audio.src = streamUrl;
       const playPromise = audio.play();
       if (playPromise) {
-        playPromise.catch(err => {
+        playPromise.catch((err) => {
           emitStatus('error', { error: err instanceof Error ? err : new Error(String(err)) });
           scheduleRetry('retry-play-rejection');
         });
@@ -399,7 +401,7 @@ export function createRadioStreamManager(
     if (audio.paused) {
       const playPromise = audio.play();
       if (playPromise) {
-        playPromise.catch(err => {
+        playPromise.catch((err) => {
           emitStatus('error', { error: err instanceof Error ? err : new Error(String(err)) });
           scheduleRetry('toggle-play-rejection');
         });
