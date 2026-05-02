@@ -5,14 +5,14 @@ const GAMES = [
     id: 'geofs',
     title: 'GeoFS Flight Simulator',
     description: 'A free, browser-based flight simulator.',
-    url: 'https://www.geo-fs.com/'
+    url: 'https://www.geo-fs.com/',
   },
   {
     id: 'myretrotvs',
     title: 'MyRetroTVs',
     description: 'A nostalgic TV simulator experience.',
-    url: 'https://www.myretrotvs.com/'
-  }
+    url: 'https://www.myretrotvs.com/',
+  },
 ];
 
 const mountGames = () => {

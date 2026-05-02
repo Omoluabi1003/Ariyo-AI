@@ -1,8 +1,8 @@
-(function() {
+(function () {
   const state = {
     dashboardVisible: false,
     activeTab: 'music',
-    favoriteMood: localStorage.getItem('ariyoFavoriteMood') || 'chill'
+    favoriteMood: localStorage.getItem('ariyoFavoriteMood') || 'chill',
   };
 
   const subscribers = [];
@@ -21,7 +21,7 @@
       default:
         break;
     }
-    subscribers.forEach(cb => cb({ ...state }));
+    subscribers.forEach((cb) => cb({ ...state }));
   }
 
   function subscribe(cb) {
@@ -33,18 +33,18 @@
     const tabButtons = dashboard ? dashboard.querySelectorAll('[role="tab"]') : [];
     const panels = dashboard ? dashboard.querySelectorAll('[role="tabpanel"]') : [];
 
-    tabButtons.forEach(btn => {
+    tabButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
         dispatch({ type: 'SET_TAB', tab: btn.dataset.tab });
       });
     });
 
     subscribe(({ activeTab }) => {
-      tabButtons.forEach(btn => {
+      tabButtons.forEach((btn) => {
         const isActive = btn.dataset.tab === activeTab;
         btn.setAttribute('aria-selected', String(isActive));
       });
-      panels.forEach(panel => {
+      panels.forEach((panel) => {
         const isActive = panel.dataset.panel === activeTab;
         panel.hidden = !isActive;
       });
@@ -82,7 +82,7 @@
     const select = document.getElementById('favoriteMood');
     if (!form || !select) return;
     select.value = state.favoriteMood;
-    form.addEventListener('submit', event => {
+    form.addEventListener('submit', (event) => {
       event.preventDefault();
       dispatch({ type: 'SET_MOOD', mood: select.value });
       form.querySelector('button[type="submit"]').textContent = 'Saved';
@@ -95,11 +95,13 @@
       shareButton.addEventListener('click', () => {
         const heading = 'Àríyò AI by Smart Naija AI';
         const shareUrl = window.location.href.replace(/^http:\/\//i, 'https://');
-        navigator.share({
-          title: heading,
-          text: `**${heading}**`,
-          url: shareUrl
-        }).catch(() => {});
+        navigator
+          .share({
+            title: heading,
+            text: `**${heading}**`,
+            url: shareUrl,
+          })
+          .catch(() => {});
       });
     }
   }

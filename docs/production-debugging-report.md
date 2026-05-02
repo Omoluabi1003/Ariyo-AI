@@ -1,6 +1,7 @@
 # Production debugging artifacts (ariyo-ai.vercel.app)
 
 ## Playwright automation snapshot (Chromium + WebKit)
+
 Captured console errors and failed requests during automated load, launch click-through, and Music/Stories/Games navigation.
 
 ```json
@@ -10,9 +11,7 @@ Captured console errors and failed requests during automated load, launch click-
       "[error] Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
       "[error] User tracking failed TypeError: Failed to fetch\n    at initUserTracking (https://ariyo-ai.vercel.app/user-tracking.js:11:24)\n    at https://ariyo-ai.vercel.app/scripts/deferred-init.js:49:51"
     ],
-    "pageErrors": [
-      "gsap is not defined"
-    ],
+    "pageErrors": ["gsap is not defined"],
     "failedRequests": [
       {
         "url": "https://cdn.jsdelivr.net/npm/@motionone/dom/dist/motion.min.js",
@@ -40,9 +39,7 @@ Captured console errors and failed requests during automated load, launch click-
       "[error] Failed to load resource: Error resolving \u201capi.countapi.xyz\u201d: Temporary failure in name resolution",
       "[error] User tracking failed TypeError: Load failed"
     ],
-    "pageErrors": [
-      "Can't find variable: gsap"
-    ],
+    "pageErrors": ["Can't find variable: gsap"],
     "failedRequests": [
       {
         "url": "https://cdn.jsdelivr.net/npm/@motionone/dom/dist/motion.min.js",
@@ -62,6 +59,7 @@ Captured console errors and failed requests during automated load, launch click-
 ```
 
 ## Lighthouse execution notes
+
 Lighthouse could not run because Chromium is missing shared library dependencies in the container.
 
 ```

@@ -1,6 +1,7 @@
 # Suno CDN smart fallback
 
 ## 1) Drop-in client helper (40 lines)
+
 ```html
 <!-- Load once before any player code -->
 <script src="/scripts/suno-audio-fallback.js"></script>
@@ -14,6 +15,7 @@ const finalUrl = await window.resolveSunoAudioSrc(originalSrc);
 ## 2) Server-side proxy endpoints
 
 ### a) Next.js 14+ App Router — `app/api/proxy-audio/route.ts`
+
 ```ts
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -22,7 +24,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 function isAllowed(url: URL) {
-  return ALLOW.some(rule => rule.test(url.hostname));
+  return ALLOW.some((rule) => rule.test(url.hostname));
 }
 
 export async function GET(req: NextRequest) {
@@ -49,6 +51,7 @@ export async function GET(req: NextRequest) {
 ```
 
 ### b) Node.js + Express
+
 ```js
 import express from 'express';
 import { pipeline } from 'stream';
@@ -61,7 +64,7 @@ app.get('/api/proxy-audio', async (req, res) => {
   const target = req.query.url;
   if (!target) return res.status(400).json({ error: 'Missing url' });
   const url = new URL(String(target));
-  if (!ALLOW.some(rule => rule.test(url.hostname))) return res.status(403).json({ error: 'Host not allowed' });
+  if (!ALLOW.some((rule) => rule.test(url.hostname))) return res.status(403).json({ error: 'Host not allowed' });
 
   const range = req.headers.range;
   const controller = new AbortController();
@@ -86,6 +89,7 @@ app.get('/api/proxy-audio', async (req, res) => {
 ```
 
 ### c) Python FastAPI
+
 ```py
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import StreamingResponse
@@ -130,11 +134,12 @@ async def proxy_audio(request: Request, url: str):
 ```
 
 ### d) Cloudflare Worker (streaming, Range-aware)
+
 ```js
 const ALLOW = [/\.suno\.com$/i];
 
 function isAllowed(url) {
-  return ALLOW.some(rule => rule.test(url.hostname));
+  return ALLOW.some((rule) => rule.test(url.hostname));
 }
 
 export default {
@@ -162,17 +167,18 @@ export default {
     } finally {
       clearTimeout(timer);
     }
-  }
+  },
 };
 ```
 
 ## 3) Usage examples
+
 ```html
 <!-- Native audio -->
 <audio controls preload="none" id="demoAudio"></audio>
 <script>
   const original = 'https://cdn.suno.com/your-track.mp3';
-  window.resolveSunoAudioSrc(original).then(url => {
+  window.resolveSunoAudioSrc(original).then((url) => {
     const player = document.getElementById('demoAudio');
     player.src = url;
     player.load();
@@ -193,7 +199,9 @@ sound.play();
 // React-Player
 import ReactPlayer from 'react-player';
 const [url, setUrl] = useState();
-useEffect(() => { window.resolveSunoAudioSrc(original).then(setUrl); }, [original]);
+useEffect(() => {
+  window.resolveSunoAudioSrc(original).then(setUrl);
+}, [original]);
 return <ReactPlayer url={url || original} controls playing />;
 ```
 

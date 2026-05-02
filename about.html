@@ -1,343 +1,403 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
-  <meta name="apple-touch-fullscreen" content="yes" />
-  <link rel="apple-touch-icon" href="icons/Ariyo.png">
-  <meta name="theme-color" content="#8E5BFF" />
-  <title>About - Àríyò AI</title>
-  <meta name="description" content="Learn more about Àríyò AI, a smart Naija AI powered by Omoluabi. Discover our mission, our music, and our team." />
-  <meta name="keywords" content="About Àríyò AI, Omoluabi, Paul A.K. Iyogun, Nigerian AI, AI music" />
-  <meta property="og:title" content="About - Àríyò AI" />
-  <meta property="og:description" content="Learn more about Àríyò AI, a smart Naija AI powered by Omoluabi. Discover our mission, our music, and our team." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg" />
-  <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/about.html" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="About - Àríyò AI" />
-  <meta name="twitter:description" content="Learn more about Àríyò AI, a smart Naija AI powered by Omoluabi. Discover our mission, our music, and our team." />
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "url": "https://omoluabi1003.github.io/Ariyo-AI/",
-    "name": "Omoluabi Productions",
-    "logo": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png",
-    "founder": {
-      "@type": "Person",
-      "name": "Paul A.K. Iyogun",
-      "jobTitle": "Founder/GIS Consultant, ETL GIS Consulting LLC & AI Prompt Engineer"
-    }
-  }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="color-scheme.css">
-  <script src="viewport-height.js" defer></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Montserrat', sans-serif;
-      background-color: #000;
-      color: #fff;
-      line-height: 1.6;
-      min-height: var(--app-height, 100vh);
-      box-sizing: border-box;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
-    }
-    header {
-      background: linear-gradient(135deg, var(--theme-color), #000);
-      padding: calc(env(safe-area-inset-top) + 1rem) 1rem 1rem;
-      text-align: center;
-      position: relative;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-    section.banner {
-      position: relative;
-      background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Banner.png');
-      background-size: cover;
-      background-position: center;
-      padding: 1rem;
-    }
-    .banner::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0,0,0,0.6);
-    }
-    .banner h2 {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      font-size: 2rem;
-      color: #fff;
-    }
-    section.honors {
-      background-color: #0f172a;
-      padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 3rem);
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: clamp(1.5rem, 4vw, 2.5rem);
-      align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .honors-text h3 {
-      margin: 0.2rem 0 0.6rem;
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
-      color: #fff;
-    }
-    .honors-text p {
-      margin: 0.25rem 0;
-      color: #d5def7;
-    }
-    .honors-kicker {
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--theme-color);
-    }
-    .honors-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .honors-badge img {
-      max-width: min(320px, 90vw);
-      width: 100%;
-      height: auto;
-      filter: drop-shadow(0 8px 18px rgba(0,0,0,0.35));
-      border-radius: 12px;
-      background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(255,255,255,0));
-      padding: 0.75rem;
-    }
-    section.about {
-      background-color: #121212;
-      padding: 4rem 2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-      justify-content: center;
-    }
-    .about-text, .about-image {
-      flex: 1 1 400px;
-      max-width: 600px;
-    }
-    .about-text h3 {
-      font-size: 1.8rem;
-      color: var(--theme-color);
-    }
-    .about-text p {
-      margin-top: 1rem;
-      color: #ccc;
-    }
-    .about-image img {
-      width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    }
-    .return-button {
-      position: sticky;
-      top: 10px;
-      background: var(--theme-color);
-      color: #fff;
-      border: none;
-      padding: 0.6rem 1rem;
-      border-radius: 25px;
-      cursor: pointer;
-      z-index: 1000;
-      display: inline-block;
-    }
-    section.album-section, section.social-section {
-      background-color: #1a1a1a;
-      padding: 3rem 2rem;
-      text-align: center;
-    }
-    .album-section h4, .social-section h4 {
-      color: var(--theme-color);
-      font-size: 1.6rem;
-      margin-bottom: 2rem;
-    }
-    .album-covers, .social-icons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-    }
-    .album-covers img, .social-icons a img {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 10px;
-      transition: transform 0.3s ease;
-    }
-    .album-covers img:hover, .social-icons a img:hover {
-      transform: scale(1.1);
-    }
-    footer {
-      background-color: #1c1c1c;
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.9rem;
-      color: #aaa;
-    }
-    @media (max-width: 768px) {
-      .about-text, .about-image {
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <link rel="apple-touch-icon" href="icons/Ariyo.png" />
+    <meta name="theme-color" content="#8E5BFF" />
+    <title>About - Àríyò AI</title>
+    <meta
+      name="description"
+      content="Learn more about Àríyò AI, a smart Naija AI powered by Omoluabi. Discover our mission, our music, and our team."
+    />
+    <meta name="keywords" content="About Àríyò AI, Omoluabi, Paul A.K. Iyogun, Nigerian AI, AI music" />
+    <meta property="og:title" content="About - Àríyò AI" />
+    <meta
+      property="og:description"
+      content="Learn more about Àríyò AI, a smart Naija AI powered by Omoluabi. Discover our mission, our music, and our team."
+    />
+    <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg" />
+    <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/about.html" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="About - Àríyò AI" />
+    <meta
+      name="twitter:description"
+      content="Learn more about Àríyò AI, a smart Naija AI powered by Omoluabi. Discover our mission, our music, and our team."
+    />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI.jpg" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "url": "https://omoluabi1003.github.io/Ariyo-AI/",
+        "name": "Omoluabi Productions",
+        "logo": "https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo_AI.png",
+        "founder": {
+          "@type": "Person",
+          "name": "Paul A.K. Iyogun",
+          "jobTitle": "Founder/GIS Consultant, ETL GIS Consulting LLC & AI Prompt Engineer"
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="color-scheme.css" />
+    <script src="viewport-height.js" defer></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background-color: #000;
+        color: #fff;
+        line-height: 1.6;
+        min-height: var(--app-height, 100vh);
+        box-sizing: border-box;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+      }
+      header {
+        background: linear-gradient(135deg, var(--theme-color), #000);
+        padding: calc(env(safe-area-inset-top) + 1rem) 1rem 1rem;
         text-align: center;
-        padding: 0 1rem;
+        position: relative;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+      }
+      section.banner {
+        position: relative;
+        background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Banner.png');
+        background-size: cover;
+        background-position: center;
+        padding: 1rem;
+      }
+      .banner::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+      }
+      .banner h2 {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        font-size: 2rem;
+        color: #fff;
+      }
+      section.honors {
+        background-color: #0f172a;
+        padding: clamp(2rem, 5vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: clamp(1.5rem, 4vw, 2.5rem);
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .honors-text h3 {
+        margin: 0.2rem 0 0.6rem;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+        color: #fff;
+      }
+      .honors-text p {
+        margin: 0.25rem 0;
+        color: #d5def7;
+      }
+      .honors-kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--theme-color);
+      }
+      .honors-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .honors-badge img {
+        max-width: min(320px, 90vw);
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+        border-radius: 12px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+        padding: 0.75rem;
+      }
+      section.about {
+        background-color: #121212;
+        padding: 4rem 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+      }
+      .about-text,
+      .about-image {
+        flex: 1 1 400px;
+        max-width: 600px;
       }
       .about-text h3 {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+        color: var(--theme-color);
       }
       .about-text p {
-        font-size: 0.95rem;
+        margin-top: 1rem;
+        color: #ccc;
+      }
+      .about-image img {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+      .return-button {
+        position: sticky;
+        top: 10px;
+        background: var(--theme-color);
+        color: #fff;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 25px;
+        cursor: pointer;
+        z-index: 1000;
+        display: inline-block;
+      }
+      section.album-section,
+      section.social-section {
+        background-color: #1a1a1a;
+        padding: 3rem 2rem;
+        text-align: center;
+      }
+      .album-section h4,
+      .social-section h4 {
+        color: var(--theme-color);
+        font-size: 1.6rem;
+        margin-bottom: 2rem;
+      }
+      .album-covers,
+      .social-icons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
       }
       .album-covers img,
       .social-icons a img {
-        width: 100px;
-        height: 100px;
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
       }
-      .about {
-        flex-direction: column;
+      .album-covers img:hover,
+      .social-icons a img:hover {
+        transform: scale(1.1);
       }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Àríyò AI - About Us</h1>
-  </header>
-
-  <button class="return-button" onclick="if (parent && parent.closeAboutModal) { parent.closeAboutModal(); } else { window.location.href='main.html'; }">🎵 Back to Player</button>
-
-  <section class="banner">
-    <h2>Who We Be</h2>
-  </section>
-
-  <section class="honors" aria-labelledby="honorsTitle">
-    <div class="honors-text">
-      <p class="honors-kicker">International recognition</p>
-      <h3 id="honorsTitle">Marquis Who's Who Honored Listee</h3>
-      <p>
-        Àríyò AI’s founder, <strong>Paul A.K. Iyogun</strong>, has been named a
-        <strong>2025 Honored Listee</strong> by <em>Marquis Who's Who</em>—a nod to the
-        culture-forward innovation, community love, and consistency behind this studio.
-      </p>
-      <p>
-        We’re proudly displaying the badge here so every visitor can see the craft, grit,
-        and global respect powering the music, tools, and Naija-first storytelling.
-      </p>
-    </div>
-    <div class="honors-badge">
-      <img src="WisW.jpg" alt="Marquis Who's Who honored listee badge" loading="lazy" decoding="async" />
-    </div>
-  </section>
-
-  <section class="about">
-    <div class="about-text">
-      <h3>Smart Naija AI, Powered by Omoluabi</h3>
-      <p>
-        Àríyò AI no be your regular AI. E dey reason like street-smart Naija padi wey sabi cruise and still get sense.
-        Built with deep love for Nigeria, this assistant dey serve better advice, drop Naija-level gist, and even run you the lowdown on politics, music, tech, and spiritual matters.
-      </p>
-      <p>
-        With features like Ariyo AI access and Naija FM radio streaming, Àríyò dey redefine wetin e mean to talk to AI in Africa. Whether na Android, iPhone, or PWA, Àríyò go follow you waka like trusted padi.
-      </p>
-      <p>
-        All music albums listed here — like <strong>Kindness</strong> and <strong>Street Sense</strong> — were not created by artists, beats or traditional instruments. Instead, dem be 100% crafted through pure programming and AI Prompt Engineering magic. E shock you?
-      </p>
-      <p>
-        Proudly made by <strong>Paul A.K. Iyogun (Founder/GIS Consultant, ETL GIS Consulting LLC & AI Prompt Engineer)</strong> under <strong>Omoluabi Productions</strong>.
-        As we dey always talk, “If AI go work for Naija, e go sabi Naija people.”
-      </p>
-    </div>
-    <div class="about-image">
-      <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI4.png" alt="Ariyo AI Cover">
-    </div>
-  </section>
-
-  <section class="album-section">
-    <h4>Our Music Albums</h4>
-    <div class="album-covers"></div>
-  </section>
-
-  <section class="social-section">
-    <h4>Listen & Follow Us</h4>
-    <div class="social-icons">
-      <a href="http://www.youtube.com/@OmoluabiPaul" target="_blank"><img src="https://img.icons8.com/color/96/youtube-play.png" alt="YouTube"></a>
-      <a href="https://open.spotify.com/album/4C4Bl9SuOnZDCBvhjT4KJN?si=v33T0FNzTg2P9Nthd_NwAA" target="_blank"><img src="https://img.icons8.com/color/96/spotify--v1.png" alt="Spotify"></a>
-      <a href="https://www.tiktok.com/@omoluabi1003?_t=ZT-8xxavulUMUo&_r=1" target="_blank"><img src="https://img.icons8.com/fluency/96/tiktok.png" alt="TikTok"></a>
-      <a href="https://music.apple.com/us/album/kindness/1802683174" target="_blank"><img src="https://img.icons8.com/color/96/itunes.png" alt="iTunes"></a>
-      <a href="https://music.apple.com/us/album/kindness/1802683174" target="_blank"><img src="https://img.icons8.com/color/96/apple-music.png" alt="Apple Music"></a>
-      <a href="https://x.com/paulinspires?s=21&t=kMg7ry5-AFUO3sjJWDuQtQ" target="_blank"><img src="https://img.icons8.com/color/96/twitterx.png" alt="X"></a>
-      <a href="https://www.instagram.com/omoluabi_paul?igsh=cmo5Nm42Y3Zpcndi&utm_source=qr" target="_blank"><img src="https://img.icons8.com/fluency/96/instagram-new.png" alt="Instagram"></a>
-      <a href="https://www.facebook.com/share/1E2htNPSN3/?mibextid=wwXIfr" target="_blank"><img src="https://img.icons8.com/fluency/96/facebook-new.png" alt="Facebook"></a>
-    </div>
-  </section>
-
-  <footer>
-    &copy; <script>document.write(new Date().getFullYear())</script> Omoluabi Productions. All rights reserved.
-  </footer>
-  <script src="scripts/sw-controller.js" defer></script>
-  <script src="scripts/data-lite.js" defer></script>
-  <script src="scripts/data-loader.js" defer></script>
-  <script>
-    const albumCoversDiv = document.querySelector('.album-covers');
-
-    function getAlbumTrackCount(album, albumIndex) {
-      if (!album) return 0;
-      const fallbackTracks = Array.isArray(album.tracks) ? album.tracks : [];
-      const provider = window.AriyoTrackCatalog?.getProvider?.();
-      const albumId = Number.isInteger(albumIndex) ? provider?.albumIdByIndex?.[albumIndex] : null;
-      const catalogTracks = albumId ? provider?.tracksByAlbumId?.[albumId] : null;
-      if (Array.isArray(catalogTracks) && catalogTracks.length) {
-        return catalogTracks.length;
+      footer {
+        background-color: #1c1c1c;
+        text-align: center;
+        padding: 2rem;
+        font-size: 0.9rem;
+        color: #aaa;
       }
-      return fallbackTracks.filter(track => track && (track.title || track.name) && (track.src || track.url)).length;
-    }
+      @media (max-width: 768px) {
+        .about-text,
+        .about-image {
+          text-align: center;
+          padding: 0 1rem;
+        }
+        .about-text h3 {
+          font-size: 1.5rem;
+        }
+        .about-text p {
+          font-size: 0.95rem;
+        }
+        .album-covers img,
+        .social-icons a img {
+          width: 100px;
+          height: 100px;
+        }
+        .about {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Àríyò AI - About Us</h1>
+    </header>
 
-    function renderAlbumCovers() {
-      if (!albumCoversDiv || !Array.isArray(albums)) return;
-      albumCoversDiv.innerHTML = '';
-      albums.forEach((album, index) => {
-        const container = document.createElement('div');
-        container.style.textAlign = 'center';
+    <button
+      class="return-button"
+      onclick="
+        if (parent && parent.closeAboutModal) {
+          parent.closeAboutModal();
+        } else {
+          window.location.href = 'main.html';
+        }
+      "
+    >
+      🎵 Back to Player
+    </button>
 
-        const img = document.createElement('img');
-        img.src = album.cover;
-        img.alt = `${album.name} Album Cover`;
-        img.loading = 'lazy';
-        img.decoding = 'async';
+    <section class="banner">
+      <h2>Who We Be</h2>
+    </section>
 
-        const p = document.createElement('p');
-        const trackCount = getAlbumTrackCount(album, index);
-        p.textContent = `${album.name} (${trackCount} tracks)`;
-        p.style.color = '#fff';
-        p.style.fontSize = '0.8rem';
-        p.style.marginTop = '0.5rem';
+    <section class="honors" aria-labelledby="honorsTitle">
+      <div class="honors-text">
+        <p class="honors-kicker">International recognition</p>
+        <h3 id="honorsTitle">Marquis Who's Who Honored Listee</h3>
+        <p>
+          Àríyò AI’s founder, <strong>Paul A.K. Iyogun</strong>, has been named a
+          <strong>2025 Honored Listee</strong> by <em>Marquis Who's Who</em>—a nod to the culture-forward innovation,
+          community love, and consistency behind this studio.
+        </p>
+        <p>
+          We’re proudly displaying the badge here so every visitor can see the craft, grit, and global respect powering
+          the music, tools, and Naija-first storytelling.
+        </p>
+      </div>
+      <div class="honors-badge">
+        <img src="WisW.jpg" alt="Marquis Who's Who honored listee badge" loading="lazy" decoding="async" />
+      </div>
+    </section>
 
-        container.appendChild(img);
-        container.appendChild(p);
-        albumCoversDiv.appendChild(container);
-      });
-    }
+    <section class="about">
+      <div class="about-text">
+        <h3>Smart Naija AI, Powered by Omoluabi</h3>
+        <p>
+          Àríyò AI no be your regular AI. E dey reason like street-smart Naija padi wey sabi cruise and still get sense.
+          Built with deep love for Nigeria, this assistant dey serve better advice, drop Naija-level gist, and even run
+          you the lowdown on politics, music, tech, and spiritual matters.
+        </p>
+        <p>
+          With features like Ariyo AI access and Naija FM radio streaming, Àríyò dey redefine wetin e mean to talk to AI
+          in Africa. Whether na Android, iPhone, or PWA, Àríyò go follow you waka like trusted padi.
+        </p>
+        <p>
+          All music albums listed here — like <strong>Kindness</strong> and <strong>Street Sense</strong> — were not
+          created by artists, beats or traditional instruments. Instead, dem be 100% crafted through pure programming
+          and AI Prompt Engineering magic. E shock you?
+        </p>
+        <p>
+          Proudly made by
+          <strong>Paul A.K. Iyogun (Founder/GIS Consultant, ETL GIS Consulting LLC & AI Prompt Engineer)</strong> under
+          <strong>Omoluabi Productions</strong>. As we dey always talk, “If AI go work for Naija, e go sabi Naija
+          people.”
+        </p>
+      </div>
+      <div class="about-image">
+        <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Naija%20AI4.png" alt="Ariyo AI Cover" />
+      </div>
+    </section>
 
-    if (typeof albums !== 'undefined') {
-      renderAlbumCovers();
-    }
-    window.addEventListener('ariyo:library-ready', renderAlbumCovers);
-    if (typeof window.loadFullLibraryData === 'function') {
-      window.loadFullLibraryData({ reason: 'about', immediate: true }).then(renderAlbumCovers);
-    }
-  </script>
-  <script src="prevent-zoom.js"></script>
-</body>
+    <section class="album-section">
+      <h4>Our Music Albums</h4>
+      <div class="album-covers"></div>
+    </section>
+
+    <section class="social-section">
+      <h4>Listen & Follow Us</h4>
+      <div class="social-icons">
+        <a href="http://www.youtube.com/@OmoluabiPaul" target="_blank"
+          ><img src="https://img.icons8.com/color/96/youtube-play.png" alt="YouTube"
+        /></a>
+        <a href="https://open.spotify.com/album/4C4Bl9SuOnZDCBvhjT4KJN?si=v33T0FNzTg2P9Nthd_NwAA" target="_blank"
+          ><img src="https://img.icons8.com/color/96/spotify--v1.png" alt="Spotify"
+        /></a>
+        <a href="https://www.tiktok.com/@omoluabi1003?_t=ZT-8xxavulUMUo&_r=1" target="_blank"
+          ><img src="https://img.icons8.com/fluency/96/tiktok.png" alt="TikTok"
+        /></a>
+        <a href="https://music.apple.com/us/album/kindness/1802683174" target="_blank"
+          ><img src="https://img.icons8.com/color/96/itunes.png" alt="iTunes"
+        /></a>
+        <a href="https://music.apple.com/us/album/kindness/1802683174" target="_blank"
+          ><img src="https://img.icons8.com/color/96/apple-music.png" alt="Apple Music"
+        /></a>
+        <a href="https://x.com/paulinspires?s=21&t=kMg7ry5-AFUO3sjJWDuQtQ" target="_blank"
+          ><img src="https://img.icons8.com/color/96/twitterx.png" alt="X"
+        /></a>
+        <a href="https://www.instagram.com/omoluabi_paul?igsh=cmo5Nm42Y3Zpcndi&utm_source=qr" target="_blank"
+          ><img src="https://img.icons8.com/fluency/96/instagram-new.png" alt="Instagram"
+        /></a>
+        <a href="https://www.facebook.com/share/1E2htNPSN3/?mibextid=wwXIfr" target="_blank"
+          ><img src="https://img.icons8.com/fluency/96/facebook-new.png" alt="Facebook"
+        /></a>
+      </div>
+    </section>
+
+    <footer>
+      &copy;
+      <script>
+        document.write(new Date().getFullYear());
+      </script>
+      Omoluabi Productions. All rights reserved.
+    </footer>
+    <script src="scripts/sw-controller.js" defer></script>
+    <script src="scripts/data-lite.js" defer></script>
+    <script src="scripts/data-loader.js" defer></script>
+    <script>
+      const albumCoversDiv = document.querySelector('.album-covers');
+
+      function getAlbumTrackCount(album, albumIndex) {
+        if (!album) return 0;
+        const fallbackTracks = Array.isArray(album.tracks) ? album.tracks : [];
+        const provider = window.AriyoTrackCatalog?.getProvider?.();
+        const albumId = Number.isInteger(albumIndex) ? provider?.albumIdByIndex?.[albumIndex] : null;
+        const catalogTracks = albumId ? provider?.tracksByAlbumId?.[albumId] : null;
+        if (Array.isArray(catalogTracks) && catalogTracks.length) {
+          return catalogTracks.length;
+        }
+        return fallbackTracks.filter((track) => track && (track.title || track.name) && (track.src || track.url))
+          .length;
+      }
+
+      function renderAlbumCovers() {
+        if (!albumCoversDiv || !Array.isArray(albums)) return;
+        albumCoversDiv.innerHTML = '';
+        albums.forEach((album, index) => {
+          const container = document.createElement('div');
+          container.style.textAlign = 'center';
+
+          const img = document.createElement('img');
+          img.src = album.cover;
+          img.alt = `${album.name} Album Cover`;
+          img.loading = 'lazy';
+          img.decoding = 'async';
+
+          const p = document.createElement('p');
+          const trackCount = getAlbumTrackCount(album, index);
+          p.textContent = `${album.name} (${trackCount} tracks)`;
+          p.style.color = '#fff';
+          p.style.fontSize = '0.8rem';
+          p.style.marginTop = '0.5rem';
+
+          container.appendChild(img);
+          container.appendChild(p);
+          albumCoversDiv.appendChild(container);
+        });
+      }
+
+      if (typeof albums !== 'undefined') {
+        renderAlbumCovers();
+      }
+      window.addEventListener('ariyo:library-ready', renderAlbumCovers);
+      if (typeof window.loadFullLibraryData === 'function') {
+        window.loadFullLibraryData({ reason: 'about', immediate: true }).then(renderAlbumCovers);
+      }
+    </script>
+    <script src="prevent-zoom.js"></script>
+  </body>
 </html>

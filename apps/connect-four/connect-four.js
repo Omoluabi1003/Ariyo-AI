@@ -31,7 +31,7 @@ function celebrate() {
 function playTrumpet() {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
   const freqs = [440, 554.37, 659.25];
-  freqs.forEach(freq => {
+  freqs.forEach((freq) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'square';
@@ -99,7 +99,7 @@ function makeMove(col, player) {
         gameActive = false;
         if (player === PLAYER1) celebrate();
         adjustSkill(player === PLAYER1);
-      } else if (board.flat().every(v => v !== 0)) {
+      } else if (board.flat().every((v) => v !== 0)) {
         messageDiv.textContent = "It's a draw!";
         gameActive = false;
         adjustSkill(false);
@@ -119,7 +119,7 @@ function computerMove() {
   }
   if (col === null) {
     if (skillLevel >= 3) {
-      const empties = board.flat().filter(v => v === 0).length;
+      const empties = board.flat().filter((v) => v === 0).length;
       const depth = empties <= 14 ? 6 : 4;
       col = minimaxMove(depth);
     } else {
@@ -204,8 +204,8 @@ function minimax(depth, maximizingPlayer, alpha, beta) {
 function evaluateBoard() {
   let score = 0;
   const center = Math.floor(COLS / 2);
-  const centerArray = board.map(r => r[center]);
-  score += centerArray.filter(v => v === PLAYER2).length * 3;
+  const centerArray = board.map((r) => r[center]);
+  score += centerArray.filter((v) => v === PLAYER2).length * 3;
 
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
@@ -252,9 +252,9 @@ function checkTerminal() {
 
 function evaluateWindow(window) {
   let score = 0;
-  const aiCount = window.filter(v => v === PLAYER2).length;
-  const oppCount = window.filter(v => v === PLAYER1).length;
-  const emptyCount = window.filter(v => v === 0).length;
+  const aiCount = window.filter((v) => v === PLAYER2).length;
+  const oppCount = window.filter((v) => v === PLAYER1).length;
+  const emptyCount = window.filter((v) => v === 0).length;
 
   if (aiCount === 4) score += 100;
   else if (aiCount === 3 && emptyCount === 1) score += 5;
@@ -299,7 +299,7 @@ function adjustSkill(playerWon) {
 function updateMessage() {
   if (!gameActive) return;
   if (isVsAI) {
-    messageDiv.textContent = currentPlayer === PLAYER1 ? "Your turn" : "Omoluabi's turn";
+    messageDiv.textContent = currentPlayer === PLAYER1 ? 'Your turn' : "Omoluabi's turn";
   } else {
     messageDiv.textContent = currentPlayer === PLAYER1 ? "Player 1's turn" : "Player 2's turn";
   }
@@ -323,4 +323,3 @@ modeSelect.addEventListener('change', () => {
 });
 
 createBoard();
-

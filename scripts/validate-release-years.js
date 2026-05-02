@@ -1,10 +1,10 @@
 const { OMOLUABI_TRACKS } = require('./omoluabi-catalogue');
 
-const missing = OMOLUABI_TRACKS.filter(track => !track || !track.releaseYear);
+const missing = OMOLUABI_TRACKS.filter((track) => !track || !track.releaseYear);
 
 if (missing.length) {
   console.warn(`Release year missing for ${missing.length} Omoluabi catalogue track(s):`);
-  missing.forEach(track => {
+  missing.forEach((track) => {
     console.warn(`- ${track.title || track.slug || 'Unknown track'}`);
   });
   if (process.argv.includes('--strict')) {

@@ -1,9 +1,7 @@
-import { useMemo, useState } from "react";
-import VisualizationEngine, {
-  type VisualizationMode,
-} from "./VisualizationEngine";
+import { useMemo, useState } from 'react';
+import VisualizationEngine, { type VisualizationMode } from './VisualizationEngine';
 
-const DEFAULT_MODE: VisualizationMode = "neon-bars";
+const DEFAULT_MODE: VisualizationMode = 'neon-bars';
 
 type MusicPlayerProps = {
   analyser: AnalyserNode | null;
@@ -13,10 +11,7 @@ type MusicPlayerProps = {
 
 const MusicPlayer = ({ analyser, dataArray, bufferLength }: MusicPlayerProps) => {
   const [mode, setMode] = useState<VisualizationMode>(DEFAULT_MODE);
-  const lowQuality = useMemo(
-    () => typeof window !== "undefined" && window.innerWidth < 768,
-    []
-  );
+  const lowQuality = useMemo(() => typeof window !== 'undefined' && window.innerWidth < 768, []);
 
   return (
     <section className="music-player">

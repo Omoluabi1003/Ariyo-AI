@@ -1,25 +1,68 @@
 const categories = {
   Fruits: [
-    'BANANA', 'MANGO', 'ORANGE', 'PAWPAW', 'GUAVA',
-    'PINEAPPLE', 'APPLE', 'GRAPE', 'PEACH', 'PLUM',
-    'APRICOT', 'KIWI'
+    'BANANA',
+    'MANGO',
+    'ORANGE',
+    'PAWPAW',
+    'GUAVA',
+    'PINEAPPLE',
+    'APPLE',
+    'GRAPE',
+    'PEACH',
+    'PLUM',
+    'APRICOT',
+    'KIWI',
   ],
   Animals: [
-    'ZEBRA', 'LION', 'GOAT', 'SNAKE', 'ELEPHANT',
-    'GIRAFFE', 'CHEETAH', 'HIPPO', 'MONKEY', 'PANTHER',
-    'HYENA', 'RABBIT'
+    'ZEBRA',
+    'LION',
+    'GOAT',
+    'SNAKE',
+    'ELEPHANT',
+    'GIRAFFE',
+    'CHEETAH',
+    'HIPPO',
+    'MONKEY',
+    'PANTHER',
+    'HYENA',
+    'RABBIT',
   ],
   Technology: [
-    'PYTHON', 'REACT', 'GRAPHQL', 'JAVASCRIPT', 'TYPESCRIPT',
-    'RUST', 'GO', 'SWIFT', 'JAVA', 'NODEJS',
-    'RUBY', 'PHP'
+    'PYTHON',
+    'REACT',
+    'GRAPHQL',
+    'JAVASCRIPT',
+    'TYPESCRIPT',
+    'RUST',
+    'GO',
+    'SWIFT',
+    'JAVA',
+    'NODEJS',
+    'RUBY',
+    'PHP',
   ],
   'Nigerian States': [
-    'LAGOS', 'KANO', 'ENUGU', 'ABIA', 'BENUE', 'DELTA',
-    'KWARA', 'ONDO', 'OSUN', 'KATSINA', 'BAYELSA',
-    'JIGAWA', 'KOGI', 'EKITI', 'OGUN', 'ANAMBRA',
-    'EDO', 'IMO', 'SOKOTO', 'TARABA'
-  ]
+    'LAGOS',
+    'KANO',
+    'ENUGU',
+    'ABIA',
+    'BENUE',
+    'DELTA',
+    'KWARA',
+    'ONDO',
+    'OSUN',
+    'KATSINA',
+    'BAYELSA',
+    'JIGAWA',
+    'KOGI',
+    'EKITI',
+    'OGUN',
+    'ANAMBRA',
+    'EDO',
+    'IMO',
+    'SOKOTO',
+    'TARABA',
+  ],
 };
 
 const gridSize = 15;
@@ -65,7 +108,6 @@ function setCellSize() {
   const size = Math.max(20, Math.floor(dimension / gridSize));
   document.documentElement.style.setProperty('--cell-size', `${size}px`);
 }
-
 
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -266,4 +308,3 @@ window.addEventListener('resize', () => {
 
 populateCategories();
 startGame();
-

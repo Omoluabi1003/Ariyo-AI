@@ -2,7 +2,7 @@
   function updateVinylSpinState(elements, isSpinning, options = {}) {
     const { spinClass = 'spin', activeClass = 'spinning', setPlayState = true } = options;
     const list = Array.isArray(elements) ? elements : [elements];
-    list.forEach(element => {
+    list.forEach((element) => {
       if (!element) return;
       if (spinClass) {
         element.classList.toggle(spinClass, isSpinning);
@@ -18,13 +18,13 @@
 
   if (typeof window !== 'undefined') {
     window.AriyoVinylSpinController = {
-      updateVinylSpinState
+      updateVinylSpinState,
     };
   }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-      updateVinylSpinState
+      updateVinylSpinState,
     };
   }
 })();

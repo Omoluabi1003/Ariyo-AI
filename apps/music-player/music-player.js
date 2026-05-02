@@ -1,5 +1,5 @@
 (() => {
-  const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async src => src);
+  const resolveSunoAudioSrc = window.resolveSunoAudioSrc || (async (src) => src);
   const audioEngine = window.audioEngine;
 
   const turntableDisc = document.querySelector('.turntable-disc');
@@ -53,7 +53,7 @@
 
   if (!audioEngine) {
     statusMessage.textContent = 'Audio engine failed to initialize.';
-    [playButton, pauseButton, stopButton, prevButton, nextButton].forEach(btn => btn.disabled = true);
+    [playButton, pauseButton, stopButton, prevButton, nextButton].forEach((btn) => (btn.disabled = true));
     return;
   }
 
@@ -74,13 +74,14 @@
     statusMessage.textContent = 'No tracks available. Please refresh the page.';
     shuffleButton.disabled = true;
     refreshButton.disabled = true;
-    [playButton, pauseButton, stopButton, prevButton, nextButton].forEach(btn => btn.disabled = true);
+    [playButton, pauseButton, stopButton, prevButton, nextButton].forEach((btn) => (btn.disabled = true));
     return;
   }
 
   const trackCatalogApi = window.AriyoTrackCatalog || {};
-  const trackCatalogProvider = (trackCatalogApi.getProvider && trackCatalogApi.getProvider())
-    || (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
+  const trackCatalogProvider =
+    (trackCatalogApi.getProvider && trackCatalogApi.getProvider()) ||
+    (trackCatalogApi.createProvider ? trackCatalogApi.createProvider(albums) : null);
   if (trackCatalogProvider && trackCatalogApi.setProvider) {
     trackCatalogApi.setProvider(trackCatalogProvider);
   }
@@ -96,9 +97,9 @@
     return;
   }
 
-  const isLiveStreamTrack = track => Boolean(track && Array.isArray(track.tags) && track.tags.includes('live'));
+  const isLiveStreamTrack = (track) => Boolean(track && Array.isArray(track.tags) && track.tags.includes('live'));
 
-  let playbackOrder = trackCatalog.map(track => track.id);
+  let playbackOrder = trackCatalog.map((track) => track.id);
   const baseOrder = [...playbackOrder];
   let currentOrderIndex = 0;
   let isShuffleEnabled = false;
@@ -119,42 +120,43 @@
   const LOADING_SPIN_GRACE_MS = 300;
   const VISUALIZER_MODES = ['dual', 'turntable', 'spectrum'];
 
-  const updateVisualizerModeStatus = mode => {
+  const updateVisualizerModeStatus = (mode) => {
     if (!visualizerModeStatus) return;
     const label = mode === 'turntable' ? 'Turntable only' : mode === 'spectrum' ? 'Spectrum only' : 'Dual visuals';
     visualizerModeStatus.textContent = `Showing: ${label}`;
     if (!visualizerModeAdvice) return;
-    const advice = mode === 'turntable'
-      ? 'Best for focus: keep the vinyl motion while reducing spectrum activity.'
-      : mode === 'spectrum'
-        ? 'Best for detail: highlight beats and vocals in the spectrum.'
-        : 'Best for most tracks: layered visuals with balanced motion.';
+    const advice =
+      mode === 'turntable'
+        ? 'Best for focus: keep the vinyl motion while reducing spectrum activity.'
+        : mode === 'spectrum'
+          ? 'Best for detail: highlight beats and vocals in the spectrum.'
+          : 'Best for most tracks: layered visuals with balanced motion.';
     visualizerModeAdvice.textContent = advice;
   };
 
-  const setVisualizerMode = mode => {
+  const setVisualizerMode = (mode) => {
     if (!visualizerModeRoot) return;
     const nextMode = VISUALIZER_MODES.includes(mode) ? mode : 'dual';
     visualizerModeRoot.setAttribute('data-visualizer-mode', nextMode);
-    visualizerModeButtons.forEach(button => {
+    visualizerModeButtons.forEach((button) => {
       const isActive = button.getAttribute('data-visualizer-mode') === nextMode;
       button.setAttribute('aria-pressed', String(isActive));
     });
     updateVisualizerModeStatus(nextMode);
   };
 
-  const formatTime = seconds => {
+  const formatTime = (seconds) => {
     if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
     const minutes = Math.floor(seconds / 60);
     const remainder = Math.floor(seconds % 60);
     return `${minutes}:${remainder.toString().padStart(2, '0')}`;
   };
 
-  const setStatus = message => {
+  const setStatus = (message) => {
     statusMessage.textContent = message;
   };
 
-  const scheduleSpinHold = durationMs => {
+  const scheduleSpinHold = (durationMs) => {
     const now = Date.now();
     spinHoldUntil = Math.max(spinHoldUntil, now + durationMs);
     if (spinHoldTimer) {
@@ -167,7 +169,7 @@
     }, remaining);
   };
 
-  const showLoading = message => {
+  const showLoading = (message) => {
     isLoading = true;
     loadingSpinner.style.display = 'inline-block';
     setStatus(message);
@@ -182,35 +184,34 @@
   };
 
   const spinController = window.AriyoVinylSpinController;
-  const applySpinState = spinController && spinController.updateVinylSpinState
-    ? spinController.updateVinylSpinState
-    : (elements, isSpinning, options = {}) => {
-      const { spinClass = 'spin', activeClass = 'spinning' } = options;
-      const list = Array.isArray(elements) ? elements : [elements];
-      list.forEach(element => {
-        if (!element) return;
-        if (spinClass) {
-          element.classList.toggle(spinClass, isSpinning);
-        }
-        if (activeClass) {
-          element.classList.toggle(activeClass, isSpinning);
-        }
-        element.style.animationPlayState = isSpinning ? 'running' : 'paused';
-      });
-    };
+  const applySpinState =
+    spinController && spinController.updateVinylSpinState
+      ? spinController.updateVinylSpinState
+      : (elements, isSpinning, options = {}) => {
+          const { spinClass = 'spin', activeClass = 'spinning' } = options;
+          const list = Array.isArray(elements) ? elements : [elements];
+          list.forEach((element) => {
+            if (!element) return;
+            if (spinClass) {
+              element.classList.toggle(spinClass, isSpinning);
+            }
+            if (activeClass) {
+              element.classList.toggle(activeClass, isSpinning);
+            }
+            element.style.animationPlayState = isSpinning ? 'running' : 'paused';
+          });
+        };
 
   const vinylElements = [turntableDisc, turntableGrooves, turntableSheen, albumGrooveOverlay];
 
-  const updateVinylSpinState = isSpinning => {
+  const updateVinylSpinState = (isSpinning) => {
     applySpinState(vinylElements, isSpinning, { spinClass: 'spin', activeClass: 'spinning' });
   };
 
   const updateSpinState = () => {
     const state = audioEngine.getState();
-    const isSpinning = state === 'playing'
-      || isLoading
-      || (playIntent && state !== 'error')
-      || Date.now() < spinHoldUntil;
+    const isSpinning =
+      state === 'playing' || isLoading || (playIntent && state !== 'error') || Date.now() < spinHoldUntil;
     updateVinylSpinState(isSpinning);
   };
 
@@ -379,13 +380,17 @@
       drawCircularFrame({ dimmed: !isPlaying, useLastFrame: true });
     };
 
-    const handleResize = entries => {
-      entries.forEach(entry => {
+    const handleResize = (entries) => {
+      entries.forEach((entry) => {
         const { width, height } = entry.contentRect;
         if (entry.target === visualizerCanvas.parentElement || entry.target === visualizerCanvas) {
           setCanvasSize(visualizerCanvas, canvasContext, width, height);
         }
-        if (circularCanvas && circularContext && (entry.target === circularCanvas.parentElement || entry.target === circularCanvas)) {
+        if (
+          circularCanvas &&
+          circularContext &&
+          (entry.target === circularCanvas.parentElement || entry.target === circularCanvas)
+        ) {
           setCanvasSize(circularCanvas, circularContext, width, height);
         }
       });
@@ -420,7 +425,7 @@
       visualizerStatus.textContent = isPlaying ? 'Live' : 'Paused';
     };
 
-    const getLowEnergy = data => {
+    const getLowEnergy = (data) => {
       const nyquist = window.Howler.ctx.sampleRate / 2;
       const lowStart = Math.max(0, Math.floor((20 / nyquist) * data.length));
       const lowEnd = Math.min(data.length - 1, Math.floor((250 / nyquist) * data.length));
@@ -433,7 +438,7 @@
       return count ? sum / count / 255 : 0;
     };
 
-    const updateBeatPulse = energy => {
+    const updateBeatPulse = (energy) => {
       lowEnergyHistory.push(energy);
       if (lowEnergyHistory.length > historySize) {
         lowEnergyHistory.shift();
@@ -612,7 +617,7 @@
       updateVisualizerState();
     });
 
-    window.addEventListener('audioengine:state', event => {
+    window.addEventListener('audioengine:state', (event) => {
       const nextState = event.detail && event.detail.state;
       isPlaying = nextState === 'playing';
       if (isPlaying) {
@@ -676,11 +681,11 @@
   const updatePlaylistHighlight = () => {
     const items = playlistElement.querySelectorAll('.album-track');
     if (!currentTrack) {
-      items.forEach(item => item.removeAttribute('aria-current'));
+      items.forEach((item) => item.removeAttribute('aria-current'));
       return;
     }
     let activeItem = null;
-    items.forEach(item => {
+    items.forEach((item) => {
       const orderIndex = Number(item.dataset.orderIndex);
       const isActive = orderIndex === currentOrderIndex;
       if (isActive) {
@@ -700,7 +705,7 @@
     }
   };
 
-  const setPlayerState = state => {
+  const setPlayerState = (state) => {
     if (!visualizerModeRoot || !state) return;
     visualizerModeRoot.setAttribute('data-player-state', state);
   };
@@ -786,7 +791,7 @@
     progressFrame = null;
   };
 
-  const collapseAlbumGroup = group => {
+  const collapseAlbumGroup = (group) => {
     if (!group) return;
     group.classList.remove('is-open');
     const toggle = group.querySelector('.album-toggle');
@@ -800,10 +805,10 @@
     }
   };
 
-  const expandAlbumGroup = group => {
+  const expandAlbumGroup = (group) => {
     if (!group) return;
     const groups = playlistElement.querySelectorAll('.album-group');
-    groups.forEach(other => {
+    groups.forEach((other) => {
       if (other !== group) {
         collapseAlbumGroup(other);
       }
@@ -866,14 +871,15 @@
 
       const meta = document.createElement('span');
       meta.className = 'album-meta';
-      const releaseYear = (typeof album.releaseYear !== 'undefined' && album.releaseYear) ? album.releaseYear : tracks[0].releaseYear;
+      const releaseYear =
+        typeof album.releaseYear !== 'undefined' && album.releaseYear ? album.releaseYear : tracks[0].releaseYear;
       const trackCount = tracks.length;
       const safeYear = releaseYear || 'Unknown';
       meta.textContent = `${safeYear} • ${trackCount} track${trackCount === 1 ? '' : 's'}`;
 
       const durationLabel = document.createElement('span');
       durationLabel.className = 'album-duration';
-      const totalDuration = tracks.every(track => Number.isFinite(track.durationSec))
+      const totalDuration = tracks.every((track) => Number.isFinite(track.durationSec))
         ? tracks.reduce((sum, track) => sum + track.durationSec, 0)
         : 0;
       if (totalDuration > 0) {
@@ -942,7 +948,7 @@
         listItem.addEventListener('click', () => {
           loadTrack(orderIndex, { autoplay: true });
         });
-        listItem.addEventListener('keydown', event => {
+        listItem.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             loadTrack(orderIndex, { autoplay: true });
@@ -964,7 +970,7 @@
         }
       });
 
-      toggle.addEventListener('keydown', event => {
+      toggle.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           if (albumGroup.classList.contains('is-open')) {
@@ -983,7 +989,7 @@
     updatePlaylistHighlight();
   };
 
-  const updatePlaybackOrder = newOrder => {
+  const updatePlaybackOrder = (newOrder) => {
     const currentTrackId = playbackOrder[currentOrderIndex];
     playbackOrder = [...newOrder];
     currentOrderIndex = Math.max(0, playbackOrder.indexOf(currentTrackId));
@@ -1002,26 +1008,27 @@
     updatePlaybackOrder([...playbackOrder]);
   };
 
-  const handleLoadError = message => {
+  const handleLoadError = (message) => {
     hideLoading();
     setStatus(message);
     updateSpinState();
   };
 
-  const resolveWithTimeout = (promise, timeoutMs) => new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      reject(new Error('timeout'));
-    }, timeoutMs);
-    promise
-      .then(value => {
-        window.clearTimeout(timer);
-        resolve(value);
-      })
-      .catch(error => {
-        window.clearTimeout(timer);
-        reject(error);
-      });
-  });
+  const resolveWithTimeout = (promise, timeoutMs) =>
+    new Promise((resolve, reject) => {
+      const timer = window.setTimeout(() => {
+        reject(new Error('timeout'));
+      }, timeoutMs);
+      promise
+        .then((value) => {
+          window.clearTimeout(timer);
+          resolve(value);
+        })
+        .catch((error) => {
+          window.clearTimeout(timer);
+          reject(error);
+        });
+    });
 
   const loadTrack = async (orderIndex, { autoplay = false } = {}) => {
     const trackId = playbackOrder[orderIndex];
@@ -1136,7 +1143,7 @@
     }
   };
 
-  const syncVolume = value => {
+  const syncVolume = (value) => {
     audioEngine.setVolume(value);
   };
 
@@ -1177,7 +1184,7 @@
     const initialMode = visualizerModeRoot.getAttribute('data-visualizer-mode') || 'dual';
     setVisualizerMode(initialMode);
   }
-  visualizerModeButtons.forEach(button => {
+  visualizerModeButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const mode = button.getAttribute('data-visualizer-mode');
       if (mode) {
@@ -1213,12 +1220,12 @@
     shufflePlaybackOrder();
   });
 
-  volumeControl.addEventListener('input', event => {
+  volumeControl.addEventListener('input', (event) => {
     const value = Number(event.target.value);
     syncVolume(Number.isFinite(value) ? value : 1);
   });
 
-  seekBar.addEventListener('input', event => {
+  seekBar.addEventListener('input', (event) => {
     if (audioEngine.isLive()) return;
     userSeeking = true;
     const value = Number(event.target.value) || 0;
@@ -1233,7 +1240,7 @@
     userSeeking = false;
   });
 
-  window.addEventListener('audioengine:state', event => {
+  window.addEventListener('audioengine:state', (event) => {
     const { state } = event.detail;
     if (state === 'loading') {
       if (!isLoading) {
@@ -1281,7 +1288,7 @@
     }
   });
 
-  window.addEventListener('audioengine:loaded', event => {
+  window.addEventListener('audioengine:loaded', (event) => {
     if (audioEngine.isLive()) {
       currentDuration = 0;
       return;

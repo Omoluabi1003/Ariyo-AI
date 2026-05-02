@@ -39,7 +39,7 @@
       storyliner: {
         origin: 'Lagos and Port Harcourt sessions shaped by community storytelling circles.',
         inspiration: 'Street wisdom, family conversations, and everyday resilience.',
-        whyItMatters: 'Keeps community memory alive while spotlighting contemporary Afrobeats truth-telling.'
+        whyItMatters: 'Keeps community memory alive while spotlighting contemporary Afrobeats truth-telling.',
       },
       tracks: [
         { src: `${BASE_URL}A%20Very%20Good%20Bad%20Guy%20v3.mp3`, title: 'A Very Good Bad Guy v3' },
@@ -50,10 +50,10 @@
           title: 'Locked Away',
           culturalNote: {
             yo: "Ọ̀rọ̀ ọdún kì í tán l'ọ́jọ́ kan.",
-            en: "Wisdom isn't learned in a day."
-          }
-        }
-      ]
+            en: "Wisdom isn't learned in a day.",
+          },
+        },
+      ],
     },
     {
       name: 'OfficialPaulInspires Spoken Word Series',
@@ -67,17 +67,20 @@
         { src: 'https://cdn1.suno.ai/e7832282-20ac-454e-a973-ae6bf196945e.mp3', title: 'Disappearing Dad' },
         { src: 'https://cdn1.suno.ai/f027524b-c320-4b7b-96b2-223ccd05d62c.mp3', title: 'Broken Family' },
         { src: 'https://cdn1.suno.ai/7bd022fe-15b9-4d05-afb0-41236b9711e2.mp3', title: 'The Parent That Stayed' },
-        { src: 'https://cdn1.suno.ai/f790a2d3-92e2-4810-8aa2-b3290762a007.mp3', title: 'When Leadership is Branded As Control' },
+        {
+          src: 'https://cdn1.suno.ai/f790a2d3-92e2-4810-8aa2-b3290762a007.mp3',
+          title: 'When Leadership is Branded As Control',
+        },
         { src: 'https://cdn1.suno.ai/51c5f94f-9cee-4114-b7d3-e3c21aee76d0.mp3', title: 'The Bed Is An Altar' },
-        { src: 'https://cdn1.suno.ai/9dc0ee21-2c9b-4808-a021-7bed7e21affe.mp3', title: 'The Weight Chose You' }
-      ]
-    }
+        { src: 'https://cdn1.suno.ai/9dc0ee21-2c9b-4808-a021-7bed7e21affe.mp3', title: 'The Weight Chose You' },
+      ],
+    },
   ];
 
   function loadUserPlaylist() {
     try {
       const stored = JSON.parse(localStorage.getItem(PLAYLIST_STORAGE_KEY)) || [];
-      stored.forEach(track => {
+      stored.forEach((track) => {
         if (!track.lrc) {
           track.lrc = track.src.replace(/\.mp3$/, '.lrc');
         }
@@ -90,16 +93,31 @@
 
   loadUserPlaylist();
 
-  albums.forEach(album => {
-    album.tracks.forEach(track => {
+  albums.forEach((album) => {
+    album.tracks.forEach((track) => {
       track.lrc = track.src.replace(/\.mp3$/, '.lrc');
     });
   });
 
   const radioStations = [
-    { name: 'Naija Hits (Live)', location: 'Nigeria', url: 'https://stream.zeno.fm/thbqnu2wvmzuv', logo: `${BASE_URL}Logo.jpg` },
-    { name: 'Radio Nigeria', location: 'Abuja', url: 'https://stream.radionigeria.gov.ng/live', logo: `${BASE_URL}Logo.jpg` },
-    { name: 'BBC World Service', location: 'London', url: 'https://utulsa.streamguys1.com/KWGSHD3-MP3', logo: `${BASE_URL}Logo.jpg` }
+    {
+      name: 'Naija Hits (Live)',
+      location: 'Nigeria',
+      url: 'https://stream.zeno.fm/thbqnu2wvmzuv',
+      logo: `${BASE_URL}Logo.jpg`,
+    },
+    {
+      name: 'Radio Nigeria',
+      location: 'Abuja',
+      url: 'https://stream.radionigeria.gov.ng/live',
+      logo: `${BASE_URL}Logo.jpg`,
+    },
+    {
+      name: 'BBC World Service',
+      location: 'London',
+      url: 'https://utulsa.streamguys1.com/KWGSHD3-MP3',
+      logo: `${BASE_URL}Logo.jpg`,
+    },
   ];
 
   window.albums = albums;
@@ -110,20 +128,20 @@
       name: 'Hip Hop / American Rap',
       category: 'Hip Hop / American Rap',
       cover: `${BASE_URL}Playlist.jpg`,
-      rssFeed: true
+      rssFeed: true,
     },
     {
       name: 'Afrobeat',
       category: 'Afrobeat',
       cover: `${BASE_URL}Playlist.jpg`,
-      rssFeed: true
+      rssFeed: true,
     },
     {
       name: 'Pop',
       category: 'Pop',
       cover: `${BASE_URL}Playlist.jpg`,
-      rssFeed: true
-    }
+      rssFeed: true,
+    },
   ];
   window.RSS_DEFAULT_COVER = `${BASE_URL}Logo.jpg`;
   window.PLAYLIST_STORAGE_KEY = PLAYLIST_STORAGE_KEY;

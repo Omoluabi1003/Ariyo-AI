@@ -26,7 +26,7 @@
       normalizeText(title),
       normalizeText(artist),
       normalizeText(audioUrl),
-      normalizeText(albumId)
+      normalizeText(albumId),
     ].join('|');
     return `trk_${hashString(signature)}`;
   };
@@ -41,20 +41,21 @@
       trackIndex,
       albumTitle: album?.name || album?.title,
       trackTitle: track?.title,
-      trackSrc: track?.src || track?.url
+      trackSrc: track?.src || track?.url,
     });
   };
 
-  const sortAlbumTracks = (tracks = []) => tracks.slice().sort((a, b) => {
-    const aHasNumber = Number.isFinite(a.trackNumber);
-    const bHasNumber = Number.isFinite(b.trackNumber);
-    if (aHasNumber && bHasNumber) {
-      return a.trackNumber - b.trackNumber;
-    }
-    if (aHasNumber) return -1;
-    if (bHasNumber) return 1;
-    return String(a.title || '').localeCompare(String(b.title || ''), undefined, { sensitivity: 'base' });
-  });
+  const sortAlbumTracks = (tracks = []) =>
+    tracks.slice().sort((a, b) => {
+      const aHasNumber = Number.isFinite(a.trackNumber);
+      const bHasNumber = Number.isFinite(b.trackNumber);
+      if (aHasNumber && bHasNumber) {
+        return a.trackNumber - b.trackNumber;
+      }
+      if (aHasNumber) return -1;
+      if (bHasNumber) return 1;
+      return String(a.title || '').localeCompare(String(b.title || ''), undefined, { sensitivity: 'base' });
+    });
 
   const buildCatalog = (albums = []) => {
     const trackCatalog = [];
@@ -73,7 +74,7 @@
         albumIdByIndex,
         albumIndexById,
         trackLocationById,
-        trackIdByAudioUrl
+        trackIdByAudioUrl,
       };
     }
 
@@ -118,10 +119,11 @@
         const artist = track.artist || albumArtist;
         const trackNumber = Number.isFinite(track.trackNumber)
           ? track.trackNumber
-          : (Number.isFinite(track.index) ? track.index : undefined);
+          : Number.isFinite(track.index)
+            ? track.index
+            : undefined;
         const durationSec = Number.isFinite(track.duration) ? track.duration : undefined;
-        const source = track.source
-          || (track.sourceType === 'stream' || track.isLive ? 'remote' : 'local');
+        const source = track.source || (track.sourceType === 'stream' || track.isLive ? 'remote' : 'local');
         const tags = Array.isArray(track.tags) ? track.tags.slice() : [];
         if (track.isLive || track.sourceType === 'stream') {
           if (!tags.includes('live')) {
@@ -129,12 +131,14 @@
           }
         }
 
-        const id = track.id ? String(track.id) : generateTrackId({
-          title,
-          artist,
-          audioUrl,
-          albumId
-        });
+        const id = track.id
+          ? String(track.id)
+          : generateTrackId({
+              title,
+              artist,
+              audioUrl,
+              albumId,
+            });
 
         if (trackById[id]) {
           return;
@@ -151,7 +155,7 @@
           audioUrl,
           coverUrl: track.cover || albumCover,
           tags: tags.length ? tags : undefined,
-          source
+          source,
         };
 
         trackById[id] = catalogTrack;
@@ -175,7 +179,7 @@
       albumIdByIndex,
       albumIndexById,
       trackLocationById,
-      trackIdByAudioUrl
+      trackIdByAudioUrl,
     };
   };
 
@@ -201,22 +205,21 @@
 
   const createProvider = (albums = []) => {
     const catalog = buildCatalog(albums);
-    const searchIndex = catalog.trackCatalog.map(track => ({
+    const searchIndex = catalog.trackCatalog.map((track) => ({
       id: track.id,
-      searchText: normalizeText([
-        track.title,
-        track.artist,
-        track.albumTitle,
-        Array.isArray(track.tags) ? track.tags.join(' ') : ''
-      ].filter(Boolean).join(' '))
+      searchText: normalizeText(
+        [track.title, track.artist, track.albumTitle, Array.isArray(track.tags) ? track.tags.join(' ') : '']
+          .filter(Boolean)
+          .join(' '),
+      ),
     }));
 
     const searchTracks = (query) => {
       const normalizedQuery = normalizeText(query);
       if (!normalizedQuery) return [];
       return searchIndex
-        .filter(entry => entry.searchText.includes(normalizedQuery))
-        .map(entry => catalog.trackById[entry.id])
+        .filter((entry) => entry.searchText.includes(normalizedQuery))
+        .map((entry) => catalog.trackById[entry.id])
         .filter(Boolean);
     };
 
@@ -232,7 +235,7 @@
         title: track.title || track.name || '',
         artist: track.artist || '',
         audioUrl: audioUrl || '',
-        albumId: resolvedAlbumId
+        albumId: resolvedAlbumId,
       });
     };
 
@@ -244,34 +247,34 @@
         includeStart = false,
         albumId = null,
         filteredTracks = null,
-        playlistTracks = null
+        playlistTracks = null,
       } = options;
 
       const random = typeof rng === 'function' ? rng : createSeededRng(seed);
       let poolIds = [];
 
       if (scope === 'ALL_TRACKS') {
-        poolIds = catalog.trackCatalog.map(track => track.id);
+        poolIds = catalog.trackCatalog.map((track) => track.id);
       } else if (scope === 'ALBUM') {
         const albumTracks = albumId ? catalog.tracksByAlbumId[albumId] : [];
-        poolIds = Array.isArray(albumTracks) ? albumTracks.map(track => track.id) : [];
+        poolIds = Array.isArray(albumTracks) ? albumTracks.map((track) => track.id) : [];
       } else if (scope === 'FILTERED') {
         if (Array.isArray(filteredTracks)) {
-          poolIds = filteredTracks.map(track => (typeof track === 'string' ? track : track.id)).filter(Boolean);
+          poolIds = filteredTracks.map((track) => (typeof track === 'string' ? track : track.id)).filter(Boolean);
         }
       } else if (scope === 'PLAYLIST') {
         if (Array.isArray(playlistTracks)) {
-          poolIds = playlistTracks.map(track => {
-            if (typeof track === 'string') return track;
-            return resolveTrackId(track, { albumId: track.albumId });
-          }).filter(Boolean);
+          poolIds = playlistTracks
+            .map((track) => {
+              if (typeof track === 'string') return track;
+              return resolveTrackId(track, { albumId: track.albumId });
+            })
+            .filter(Boolean);
         }
       }
 
       const uniqueIds = Array.from(new Set(poolIds));
-      const withoutStart = startTrackId
-        ? uniqueIds.filter(id => id !== startTrackId)
-        : uniqueIds;
+      const withoutStart = startTrackId ? uniqueIds.filter((id) => id !== startTrackId) : uniqueIds;
       const shuffled = shuffleArray(withoutStart, random);
       if (startTrackId && includeStart) {
         return [startTrackId, ...shuffled];
@@ -279,13 +282,14 @@
       return shuffled;
     };
 
-    const groupTracksByAlbum = (tracks = []) => tracks.reduce((acc, track) => {
-      if (!track) return acc;
-      const key = track.albumId || 'unknown';
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(track);
-      return acc;
-    }, {});
+    const groupTracksByAlbum = (tracks = []) =>
+      tracks.reduce((acc, track) => {
+        if (!track) return acc;
+        const key = track.albumId || 'unknown';
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(track);
+        return acc;
+      }, {});
 
     return {
       ...catalog,
@@ -295,7 +299,7 @@
       searchTracks,
       buildQueue,
       resolveTrackId,
-      groupTracksByAlbum
+      groupTracksByAlbum,
     };
   };
 
@@ -309,7 +313,7 @@
     setProvider: (provider) => {
       window.AriyoTrackCatalogProvider = provider;
       return provider;
-    }
+    },
   };
 
   if (typeof window !== 'undefined') {

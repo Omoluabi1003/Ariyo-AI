@@ -1,24 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Word Search Game</title>
-  <link rel="stylesheet" href="./word-search.css" />
-  <script src="../../viewport-height.js" defer></script>
-</head>
-<body>
-  <h1>Word Search Game</h1>
-  <div class="controls">
-    <select id="category"></select>
-    <button id="start" type="button">Start</button>
-    <span id="timer" class="timer" aria-live="polite">00:00</span>
-  </div>
-  <p id="instructions">Drag across the letters to highlight words from the list.</p>
-  <div id="game" class="game-container"></div>
-  <script src="../../scripts/sw-controller.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="./word-search-grid.js"></script>
-  <script src="./word-search.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Word Search Game</title>
+    <link rel="stylesheet" href="./word-search.css" />
+    <script src="../../viewport-height.js" defer></script>
+  </head>
+  <body>
+    <h1>Word Search Game</h1>
+    <div class="controls">
+      <select id="category"></select>
+      <button id="start" type="button">Start</button>
+      <span id="timer" class="timer" aria-live="polite">00:00</span>
+    </div>
+    <p id="instructions">Drag across the letters to highlight words from the list.</p>
+    <div id="game" class="game-container"></div>
+    <script src="../../scripts/sw-controller.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="./word-search-grid.js"></script>
+    <script src="./word-search.js"></script>
+  </body>
 </html>

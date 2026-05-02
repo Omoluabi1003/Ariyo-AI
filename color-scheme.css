@@ -1,10 +1,10 @@
 /* Aurora-inspired blend for creative, professional polish */
 :root {
   /* Luminous violet accent for calls to action */
-  --theme-color: #8E5BFF;
-  --gradient-start: #0C1B3C;
+  --theme-color: #8e5bff;
+  --gradient-start: #0c1b3c;
   /* Coral flare to keep the experience energetic */
-  --gradient-end: #FF7FC5;
+  --gradient-end: #ff7fc5;
   --surface-bg: rgba(0, 0, 0, 0.42);
   --surface-contrast: #f3fdf7;
   --surface-border: rgba(142, 91, 255, 0.25);
@@ -15,7 +15,7 @@
   --honor-badge-shadow: rgba(12, 27, 60, 0.35);
 }
 
-:root[data-theme="light"] {
+:root[data-theme='light'] {
   --theme-color: #6f45ff;
   --gradient-start: #d6def1;
   --gradient-end: #ead6e6;
@@ -33,14 +33,33 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-.header { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
-.sidebar button { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); }
-.track-list a:hover, .track-list .track-item:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
-.popup-close { background: var(--theme-color); }
-.retry-button { background: var(--theme-color); }
-.progress-bar div { background: var(--theme-color); }
-.install-btn { background: var(--theme-color); }
-.radio-region-header { color: var(--theme-color); }
+.header {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+.sidebar button {
+  background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+.track-list a:hover,
+.track-list .track-item:hover,
+.album-list a:hover,
+.radio-list a:hover {
+  background-color: var(--theme-color);
+}
+.popup-close {
+  background: var(--theme-color);
+}
+.retry-button {
+  background: var(--theme-color);
+}
+.progress-bar div {
+  background: var(--theme-color);
+}
+.install-btn {
+  background: var(--theme-color);
+}
+.radio-region-header {
+  color: var(--theme-color);
+}
 
 .theme-toggle {
   display: inline-flex;
@@ -53,7 +72,9 @@ body {
   color: var(--surface-contrast);
   cursor: pointer;
   font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .theme-toggle:hover,

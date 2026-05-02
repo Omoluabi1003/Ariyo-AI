@@ -1,847 +1,924 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Àríyò AI">
-  <meta name="apple-touch-fullscreen" content="yes">
-  <meta name="theme-color" content="#8E5BFF" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/Ariyo.png">
-  <meta name="description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
-  <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Naija AI, Nigerian music, AI chatbot, PWA" />
-  <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
-  <meta property="og:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
-  <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Àríyò AI - Smart Naija AI" />
-  <meta name="twitter:description" content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant." />
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
-  <title>Àríyò AI - Smart Naija AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-  <script>
-    (function() {
-      const hideBootSpinner = () => {
-        const spinner = document.getElementById('bootSpinner');
-        if (!spinner) return;
-        spinner.classList.add('hidden');
-        spinner.setAttribute('aria-hidden', 'true');
-        spinner.style.pointerEvents = 'none';
-        setTimeout(() => spinner.remove(), 300);
-      };
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="theme-color" content="#8E5BFF" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/Ariyo.png" />
+    <meta
+      name="description"
+      content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant."
+    />
+    <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Naija AI, Nigerian music, AI chatbot, PWA" />
+    <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
+    <meta
+      property="og:description"
+      content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant."
+    />
+    <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
+    <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Àríyò AI - Smart Naija AI" />
+    <meta
+      name="twitter:description"
+      content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant."
+    />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
+    <title>Àríyò AI - Smart Naija AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <script>
+      (function () {
+        const hideBootSpinner = () => {
+          const spinner = document.getElementById('bootSpinner');
+          if (!spinner) return;
+          spinner.classList.add('hidden');
+          spinner.setAttribute('aria-hidden', 'true');
+          spinner.style.pointerEvents = 'none';
+          setTimeout(() => spinner.remove(), 300);
+        };
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', hideBootSpinner, { once: true });
-      } else {
-        hideBootSpinner();
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', hideBootSpinner, { once: true });
+        } else {
+          hideBootSpinner();
+        }
+
+        window.addEventListener('pageshow', hideBootSpinner, { once: true });
+        setTimeout(hideBootSpinner, 1800);
+      })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": "https://omoluabi1003.github.io/Ariyo-AI/",
+        "name": "Àríyò AI",
+        "description": "Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://omoluabi1003.github.io/Ariyo-AI/?s={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="prefetch"
+      as="audio"
+      href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3"
+      crossorigin
+      fetchpriority="low"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"
+      defer
+      integrity="sha384-3ve3u7etWcm2heCe4TswfZSAYSg2jR/EJxRHuKM5foOiKS8IJL/xRlvmjCaHELBz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Animations & Chat -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+      integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS"
+      crossorigin="anonymous"
+    ></script>
+    <script src="viewport-height.js" defer></script>
+    <script src="scripts/theme-toggle.js" defer></script>
+    <script src="scripts/deferred-init.js" defer></script>
+    <script src="scripts/email-gate.js" defer></script>
+
+    <style>
+      :root {
+        --glass-blur: 0px;
+        --edge-panel-vertical-margin: clamp(48px, 12vh, 96px);
+        --edge-panel-top-offset: var(--edge-panel-vertical-margin);
+        --edge-panel-bottom-guard: var(--edge-panel-vertical-margin);
+        --edge-panel-max-height: calc(var(--app-height, 100vh) - (2 * var(--edge-panel-vertical-margin)));
+        --edge-panel-min-height: clamp(480px, 74vh, 640px);
+        --edge-panel-width: clamp(240px, 32vw, 320px);
+        --edge-panel-handle-width: clamp(18px, 4vw, 26px);
+        --edge-panel-visible-gap: clamp(8px, 2vw, 16px);
+        --watermark-opacity: 0.18;
+        --watermark-color: rgba(255, 255, 255, 0.55);
+        --watermark-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --watermark-stroke: 0.5px rgba(0, 0, 0, 0.35);
+        --watermark-scrim: rgba(0, 0, 0, 0.12);
+      }
+      html,
+      body {
+        height: 100%;
+        overflow-x: hidden;
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--surface-contrast);
+        display: flex;
+        flex-direction: column;
+        min-height: var(--app-height, 100vh);
+        background-image: url('Naija AI1.png');
+        background-size: cover;
+        background-position: center;
+        transition:
+          background-color 0.5s ease-in-out,
+          color 0.5s ease-in-out;
+        box-sizing: border-box;
       }
 
-      window.addEventListener('pageshow', hideBootSpinner, { once: true });
-      setTimeout(hideBootSpinner, 1800);
-    })();
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "url": "https://omoluabi1003.github.io/Ariyo-AI/",
-    "name": "Àríyò AI",
-      "description": "Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant.",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://omoluabi1003.github.io/Ariyo-AI/?s={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
-
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet" />
-  
-  <link rel="prefetch" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin fetchpriority="low">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer integrity="sha384-3ve3u7etWcm2heCe4TswfZSAYSg2jR/EJxRHuKM5foOiKS8IJL/xRlvmjCaHELBz" crossorigin="anonymous"></script>
-
-  <!-- Animations & Chat -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
-  <script src="viewport-height.js" defer></script>
-  <script src="scripts/theme-toggle.js" defer></script>
-  <script src="scripts/deferred-init.js" defer></script>
-  <script src="scripts/email-gate.js" defer></script>
-
-
-  <style>
-    :root {
-      --glass-blur: 0px;
-      --edge-panel-vertical-margin: clamp(48px, 12vh, 96px);
-      --edge-panel-top-offset: var(--edge-panel-vertical-margin);
-      --edge-panel-bottom-guard: var(--edge-panel-vertical-margin);
-      --edge-panel-max-height: calc(var(--app-height, 100vh) - (2 * var(--edge-panel-vertical-margin)));
-      --edge-panel-min-height: clamp(480px, 74vh, 640px);
-      --edge-panel-width: clamp(240px, 32vw, 320px);
-      --edge-panel-handle-width: clamp(18px, 4vw, 26px);
-      --edge-panel-visible-gap: clamp(8px, 2vw, 16px);
-      --watermark-opacity: 0.18;
-      --watermark-color: rgba(255, 255, 255, 0.55);
-      --watermark-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-      --watermark-stroke: 0.5px rgba(0, 0, 0, 0.35);
-      --watermark-scrim: rgba(0, 0, 0, 0.12);
-    }
-    html, body {
-      height: 100%;
-      overflow-x: hidden;
-      background-color: #000;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Montserrat', sans-serif;
-      color: var(--surface-contrast);
-      display: flex;
-      flex-direction: column;
-      min-height: var(--app-height, 100vh);
-      background-image: url('Naija AI1.png');
-      background-size: cover;
-      background-position: center;
-      transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
-      box-sizing: border-box;
-    }
-
-    body[data-theme="light"] {
-      color: #0f172a;
-      background-color: #eef1f6;
-      background-image: none;
-      text-shadow: none;
-      --watermark-opacity: 0.2;
-      --watermark-color: rgba(0, 0, 0, 0.55);
-      --watermark-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
-      --watermark-stroke: 0.5px rgba(255, 255, 255, 0.25);
-      --watermark-scrim: rgba(255, 255, 255, 0.18);
-    }
-    a { text-decoration: none; }
-    .header {
-      padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
-      font-size: clamp(1.6rem, 4vw, 2.1rem);
-      font-weight: 800;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
-      background: linear-gradient(135deg, var(--theme-color), #000);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: clamp(0.75rem, 2vw, 1.5rem);
-      flex-wrap: wrap;
-      color: var(--surface-contrast);
-      -webkit-text-stroke: 0;
-      text-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-    }
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: clamp(0.65rem, 2vw, 1rem);
-      flex: 1;
-      min-width: min(360px, 100%);
-    }
-    .header-logo {
-      height: 64px;
-      width: auto;
-      flex: 0 0 auto;
-    }
-    .header-titles {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      min-width: 0;
-    }
-    .header-title {
-      text-align: left;
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-    }
-    .studio-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 999px;
-      background: var(--honor-badge-bg);
-      color: var(--honor-badge-text);
-      border: 1px solid var(--honor-badge-border);
-      box-shadow: 0 10px 30px var(--honor-badge-shadow);
-      width: fit-content;
-      text-decoration: none;
-    }
-    .studio-badge__icon {
-      width: 38px;
-      height: auto;
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
-    }
-    .studio-badge__text {
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.01em;
-      white-space: nowrap;
-    }
-    @media (max-width: 640px) {
+      body[data-theme='light'] {
+        color: #0f172a;
+        background-color: #eef1f6;
+        background-image: none;
+        text-shadow: none;
+        --watermark-opacity: 0.2;
+        --watermark-color: rgba(0, 0, 0, 0.55);
+        --watermark-shadow: 0 1px 2px rgba(255, 255, 255, 0.25);
+        --watermark-stroke: 0.5px rgba(255, 255, 255, 0.25);
+        --watermark-scrim: rgba(255, 255, 255, 0.18);
+      }
+      a {
+        text-decoration: none;
+      }
       .header {
-        text-align: center;
+        padding: calc(1rem + env(safe-area-inset-top)) 1rem 1rem;
+        font-size: clamp(1.6rem, 4vw, 2.1rem);
+        font-weight: 800;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, var(--theme-color), #000);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: clamp(0.75rem, 2vw, 1.5rem);
+        flex-wrap: wrap;
+        color: var(--surface-contrast);
+        -webkit-text-stroke: 0;
+        text-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
       }
       .header-brand {
-        justify-content: center;
+        display: flex;
+        align-items: center;
+        gap: clamp(0.65rem, 2vw, 1rem);
+        flex: 1;
+        min-width: min(360px, 100%);
+      }
+      .header-logo {
+        height: 64px;
+        width: auto;
+        flex: 0 0 auto;
+      }
+      .header-titles {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: 0;
       }
       .header-title {
-        text-align: center;
+        text-align: left;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
       }
       .studio-badge {
-        align-self: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        background: var(--honor-badge-bg);
+        color: var(--honor-badge-text);
+        border: 1px solid var(--honor-badge-border);
+        box-shadow: 0 10px 30px var(--honor-badge-shadow);
+        width: fit-content;
+        text-decoration: none;
+      }
+      .studio-badge__icon {
+        width: 38px;
+        height: auto;
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+      }
+      .studio-badge__text {
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+      }
+      @media (max-width: 640px) {
+        .header {
+          text-align: center;
+        }
+        .header-brand {
+          justify-content: center;
+        }
+        .header-title {
+          text-align: center;
+        }
+        .studio-badge {
+          align-self: center;
+        }
+        .header-actions {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+      .share-button {
+        background-color: var(--theme-color);
+        color: white;
+        padding: 0.6rem;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #bootSpinner {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+        transition: opacity 0.25s ease;
+      }
+
+      #bootSpinner.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .boot-spinner-dot {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #8e5bff;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 var(--theme-color);
+        }
+        70% {
+          transform: scale(1);
+          box-shadow: 0 0 0 10px var(--theme-color);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 var(--theme-color);
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .share-button:hover {
+        background-color: var(--theme-color);
       }
       .header-actions {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-    .share-button {
-      background-color: var(--theme-color);
-      color: white;
-      padding: 0.6rem;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      animation: pulse 2s infinite;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #bootSpinner {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 9999;
-      transition: opacity 0.25s ease;
-    }
-
-    #bootSpinner.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .boot-spinner-dot {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top-color: #8E5BFF;
-      animation: spin 0.8s linear infinite;
-    }
-
-
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 var(--theme-color);
-      }
-      70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 10px var(--theme-color);
-      }
-      100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 var(--theme-color);
-      }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .share-button:hover { background-color: var(--theme-color); }
-    .header-actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex: 0 0 auto;
-    }
-    .container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 1.25rem;
-      padding: 0 clamp(1rem, 4vw, 2rem);
-      box-sizing: border-box;
-      width: 100%;
-    }
-    .sidebar {
-      width: 100%;
-      max-width: min(1100px, 100%);
-      background: rgba(0, 0, 0, 0.42);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: stretch;
-      padding: 1rem;
-      gap: 0.75rem;
-      border-radius: 18px;
-      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
-      position: relative;
-      top: auto;
-      z-index: 30;
-      align-self: center;
-      backdrop-filter: saturate(140%) blur(var(--glass-blur));
-    }
-    .sidebar .search-panel {
-      flex: 1 1 320px;
-      max-width: min(480px, 100%);
-      margin-bottom: 0.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      position: relative;
-    }
-    .search-field {
-      display: flex;
-      align-items: center;
-      position: relative;
-    }
-    .search-input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(0, 0, 0, 0.35);
-      color: #fff;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    .search-input:focus {
-      border-color: rgba(255, 127, 197, 0.75);
-      box-shadow: 0 0 0 2px rgba(255, 127, 197, 0.3);
-    }
-    .search-results {
-      position: absolute;
-      top: calc(100% + 0.35rem);
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 10, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 0.35rem;
-      max-height: 320px;
-      overflow-y: auto;
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
-      z-index: 40;
-    }
-    .search-results-section {
-      padding: 0.35rem 0.4rem 0.2rem;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(255, 255, 255, 0.6);
-    }
-    .search-result {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      padding: 0.5rem 0.65rem;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .search-result[data-active='true'] {
-      background: rgba(255, 127, 197, 0.2);
-      color: #fff;
-    }
-    .search-result-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-    .search-result-subtitle {
-      font-size: 0.78rem;
-      color: rgba(255, 255, 255, 0.65);
-    }
-    .search-result-badge {
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 0.2rem 0.4rem;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-    .sidebar button {
-      background: linear-gradient(135deg, var(--theme-color), #333);
-      color: white;
-      padding: 0.8rem 1rem;
-      border: none;
-      border-radius: 25px;
-      flex: 1 1 clamp(160px, 24%, 220px);
-      cursor: pointer;
-      font-size: clamp(0.9rem, 2vw, 1rem);
-      transition: all 0.3s ease-in-out;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      min-height: 48px;
-      white-space: nowrap;
-    }
-    .sidebar button:hover {
-      transform: scale(1.08);
-      box-shadow: 0px 4px 10px var(--theme-color);
-    }
-    .notification-card {
-      background: rgba(0, 0, 0, 0.42);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
-    }
-    .notification-card h4 {
-      margin: 0 0 0.25rem;
-      font-size: 1rem;
-    }
-    .notification-card p {
-      margin: 0;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    .notification-actions {
-      margin-left: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      min-width: 220px;
-    }
-    .notification-status {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.85);
-    }
-    .content {
-      flex: 1;
-      width: 100%;
-      max-width: 960px;
-      padding: 1.5rem;
-      overflow-y: auto;
-      opacity: 1;
-      transition: opacity 0.5s ease-in-out;
-      padding-bottom: clamp(3rem, 12vh, 6rem); /* Balanced spacing before the player */
-      background: rgba(0, 0, 0, 0.35);
-      border-radius: 20px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-      backdrop-filter: saturate(130%) blur(var(--glass-blur));
-      align-self: center;
-    }
-    .in-app-guide {
-      background: rgba(0, 0, 0, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      padding: 0.9rem 1.15rem;
-      margin-bottom: 1.25rem;
-      color: #f5f5f5;
-      backdrop-filter: saturate(130%) blur(var(--glass-blur));
-    }
-    .in-app-guide > summary {
-      cursor: pointer;
-      list-style: none;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .in-app-guide[open] > summary::after {
-      content: '▲';
-      font-size: 0.8rem;
-    }
-    .in-app-guide:not([open]) > summary::after {
-      content: '▼';
-      font-size: 0.8rem;
-    }
-    .in-app-guide summary::-webkit-details-marker {
-      display: none;
-    }
-    .in-app-guide-body {
-      margin-top: 0.75rem;
-      display: grid;
-      gap: 0.65rem;
-      font-size: clamp(0.85rem, 2.3vw, 1rem);
-    }
-    .in-app-guide-intro {
-      margin: 0;
-    }
-    .in-app-guide-list {
-      padding-left: 1.25rem;
-      margin: 0;
-      display: grid;
-      gap: 0.45rem;
-    }
-    .edge-panel-hint {
-      background: rgba(142, 91, 255, 0.16);
-      border-left: 3px solid var(--theme-color);
-      padding: 0.65rem 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.1rem;
-      font-size: clamp(0.8rem, 2.2vw, 0.95rem);
-      color: #d9fbe7;
-    }
-    .music-player {
-      background: transparent;
-      padding: clamp(1rem, 3vw, 1.5rem);
-      text-align: center;
-      border-radius: 22px;
-      box-shadow: none;
-      position: relative;
-      bottom: auto;
-      width: min(100%, calc(100vw - clamp(2rem, 8vw, 4rem)));
-      max-width: 820px;
-      overflow: visible;
-      max-height: none;
-      left: auto;
-      transform: none;
-      margin: clamp(2rem, 6vh, 3rem) auto;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: clamp(0.75rem, 2.5vw, 1.1rem);
-      backdrop-filter: none;
-    }
-
-    .player-body {
-      display: flex;
-      width: 100%;
-      align-items: stretch;
-      justify-content: center;
-      gap: clamp(1rem, 3.5vw, 1.8rem);
-    }
-
-    .player-visual {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      flex: 0 0 auto;
-    }
-
-    .player-main {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.55rem;
-      flex: 1 1 auto;
-      width: 100%;
-    }
-
-    .player-meta-grid {
-      display: grid;
-      width: 100%;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.35rem 0.75rem;
-      text-align: left;
-    }
-
-    .player-meta-grid p {
-      margin: 0;
-    }
-
-    .player-utility {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      justify-content: flex-start;
-      width: 100%;
-    }
-
-    .player-utility button {
-      min-width: 48px;
-      min-height: 48px;
-      padding: 0.6rem 0.85rem;
-      touch-action: manipulation;
-    }
-
-    @media (pointer: coarse) {
-      .player-utility button {
-        min-width: 56px;
-        min-height: 56px;
-        padding: 0.75rem 1rem;
-      }
-    }
-
-    .player-utility .retry-button {
-      flex: 1 1 clamp(120px, 32%, 180px);
-    }
-
-    .seek-bar {
-      width: 100%;
-      margin: 0.2rem 0 0.1rem;
-    }
-    @media (max-width: 900px) {
-      :root {
-        --edge-panel-handle-width: clamp(28px, 7vw, 36px);
-        --edge-panel-visible-gap: clamp(0.65rem, 4vw, 1.35rem);
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 0 0 auto;
       }
       .container {
-        padding: 0 1rem 0.5rem;
-        gap: 1.1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         align-items: stretch;
+        gap: 1.25rem;
+        padding: 0 clamp(1rem, 4vw, 2rem);
+        box-sizing: border-box;
+        width: 100%;
       }
       .sidebar {
-        position: static;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        gap: 0.65rem;
-        padding-bottom: 0.85rem;
-        scrollbar-width: thin;
-        max-width: none;
-        align-self: stretch;
-      }
-      .sidebar::-webkit-scrollbar {
-        height: 6px;
-      }
-      .sidebar::-webkit-scrollbar-thumb {
-        background: rgba(255, 127, 197, 0.6);
-        border-radius: 999px;
+        width: 100%;
+        max-width: min(1100px, 100%);
+        background: rgba(0, 0, 0, 0.42);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: stretch;
+        padding: 1rem;
+        gap: 0.75rem;
+        border-radius: 18px;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
+        position: relative;
+        top: auto;
+        z-index: 30;
+        align-self: center;
+        backdrop-filter: saturate(140%) blur(var(--glass-blur));
       }
       .sidebar .search-panel {
-        flex: 0 0 80%;
-        min-width: 260px;
+        flex: 1 1 320px;
+        max-width: min(480px, 100%);
+        margin-bottom: 0.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        position: relative;
+      }
+      .search-field {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font-size: 0.95rem;
+        outline: none;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .search-input:focus {
+        border-color: rgba(255, 127, 197, 0.75);
+        box-shadow: 0 0 0 2px rgba(255, 127, 197, 0.3);
+      }
+      .search-results {
+        position: absolute;
+        top: calc(100% + 0.35rem);
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 0.35rem;
+        max-height: 320px;
+        overflow-y: auto;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+        z-index: 40;
+      }
+      .search-results-section {
+        padding: 0.35rem 0.4rem 0.2rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .search-result {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.5rem 0.65rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+      }
+      .search-result[data-active='true'] {
+        background: rgba(255, 127, 197, 0.2);
+        color: #fff;
+      }
+      .search-result-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .search-result-subtitle {
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.65);
+      }
+      .search-result-badge {
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.2rem 0.4rem;
+        border-radius: 999px;
+        white-space: nowrap;
       }
       .sidebar button {
-        flex: 0 0 auto;
-        min-width: clamp(160px, 65vw, 220px);
+        background: linear-gradient(135deg, var(--theme-color), #333);
+        color: white;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 25px;
+        flex: 1 1 clamp(160px, 24%, 220px);
+        cursor: pointer;
+        font-size: clamp(0.9rem, 2vw, 1rem);
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 48px;
+        white-space: nowrap;
+      }
+      .sidebar button:hover {
+        transform: scale(1.08);
+        box-shadow: 0px 4px 10px var(--theme-color);
+      }
+      .notification-card {
+        background: rgba(0, 0, 0, 0.42);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      .notification-card h4 {
+        margin: 0 0 0.25rem;
+        font-size: 1rem;
+      }
+      .notification-card p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      .notification-actions {
+        margin-left: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: 220px;
+      }
+      .notification-status {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.85);
       }
       .content {
-        padding: 1.25rem;
-        background: rgba(0, 0, 0, 0.45);
+        flex: 1;
+        width: 100%;
+        max-width: 960px;
+        padding: 1.5rem;
+        overflow-y: auto;
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+        padding-bottom: clamp(3rem, 12vh, 6rem); /* Balanced spacing before the player */
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 20px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+        backdrop-filter: saturate(130%) blur(var(--glass-blur));
+        align-self: center;
       }
-      .player-body {
+      .in-app-guide {
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 18px;
+        padding: 0.9rem 1.15rem;
+        margin-bottom: 1.25rem;
+        color: #f5f5f5;
+        backdrop-filter: saturate(130%) blur(var(--glass-blur));
+      }
+      .in-app-guide > summary {
+        cursor: pointer;
+        list-style: none;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .in-app-guide[open] > summary::after {
+        content: '▲';
+        font-size: 0.8rem;
+      }
+      .in-app-guide:not([open]) > summary::after {
+        content: '▼';
+        font-size: 0.8rem;
+      }
+      .in-app-guide summary::-webkit-details-marker {
+        display: none;
+      }
+      .in-app-guide-body {
+        margin-top: 0.75rem;
+        display: grid;
+        gap: 0.65rem;
+        font-size: clamp(0.85rem, 2.3vw, 1rem);
+      }
+      .in-app-guide-intro {
+        margin: 0;
+      }
+      .in-app-guide-list {
+        padding-left: 1.25rem;
+        margin: 0;
+        display: grid;
+        gap: 0.45rem;
+      }
+      .edge-panel-hint {
+        background: rgba(142, 91, 255, 0.16);
+        border-left: 3px solid var(--theme-color);
+        padding: 0.65rem 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.1rem;
+        font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+        color: #d9fbe7;
+      }
+      .music-player {
+        background: transparent;
+        padding: clamp(1rem, 3vw, 1.5rem);
+        text-align: center;
+        border-radius: 22px;
+        box-shadow: none;
+        position: relative;
+        bottom: auto;
+        width: min(100%, calc(100vw - clamp(2rem, 8vw, 4rem)));
+        max-width: 820px;
+        overflow: visible;
+        max-height: none;
+        left: auto;
+        transform: none;
+        margin: clamp(2rem, 6vh, 3rem) auto;
+        z-index: 100;
+        display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
+        gap: clamp(0.75rem, 2.5vw, 1.1rem);
+        backdrop-filter: none;
       }
-      .player-main {
-        align-items: center;
-      }
-      .player-main .track-info {
-        text-align: center;
-      }
-      .player-meta-grid {
-        text-align: center;
-      }
-      .player-utility {
+
+      .player-body {
+        display: flex;
+        width: 100%;
+        align-items: stretch;
         justify-content: center;
+        gap: clamp(1rem, 3.5vw, 1.8rem);
       }
-      .edge-panel {
-        width: min(86vw, var(--edge-panel-width));
-        right: calc(var(--edge-panel-visible-gap) - min(86vw, var(--edge-panel-width)));
-        border-radius: 24px 0 0 24px;
-        top: 50%;
-        bottom: auto;
-        transform: translateY(-50%);
-        min-height: var(--edge-panel-min-height);
+
+      .player-visual {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 0 0 auto;
       }
-      .edge-panel.visible {
-        right: clamp(0.5rem, 5vw, 1.4rem);
-      }
-      .edge-panel[data-position='peek'] .edge-panel-handle {
-        transform: translate(-44%, -50%);
-      }
-      .edge-panel[data-position='collapsed'] .edge-panel-handle {
-        transform: translate(-58%, -50%);
-      }
-      .edge-panel-handle {
-        width: var(--edge-panel-handle-width);
-        height: clamp(110px, 32vh, 188px);
-        gap: 0.16rem;
-      }
-      .edge-panel-content {
+
+      .player-main {
+        display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: clamp(0.5rem, 3vw, 0.85rem);
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding: clamp(0.85rem, 4vw, 1.2rem);
-        opacity: 0;
-        filter: blur(3px);
-        pointer-events: none;
-        transition: opacity 0.28s ease-in-out, filter 0.28s ease-in-out;
+        gap: 0.55rem;
+        flex: 1 1 auto;
+        width: 100%;
       }
-      .edge-panel.visible:not([data-position='peek']) .edge-panel-content {
-        opacity: 1;
-        filter: blur(0);
-        pointer-events: auto;
+
+      .player-meta-grid {
+        display: grid;
+        width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.35rem 0.75rem;
+        text-align: left;
       }
-      .edge-panel[data-position='peek'] .edge-panel-content,
-      .edge-panel[data-position='collapsed'] .edge-panel-content {
-        opacity: 0;
-        filter: blur(3px);
-        pointer-events: none;
+
+      .player-meta-grid p {
+        margin: 0;
       }
-    }
-    .album-cover {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      display: block;
-      box-shadow: 0px 4px 15px rgba(255,255,255,0.3);
-      transition: transform 0.3s ease-in-out;
-    }
-    .turntable-disc,
-    .turntable-grooves,
-    .turntable-sheen,
-    .album-cover,
-    .album-groove-overlay {
-      transform-origin: center center;
-      will-change: transform;
-    }
-    .spin {
-      animation: vinyl-spin 20s linear infinite;
-      animation-play-state: paused;
-    }
-    .is-spinning {
-      animation-play-state: running;
-    }
-    @keyframes vinyl-spin {
-      to { transform: rotate(360deg); }
-    }
-    .loading-spinner {
-      display: none;
-      width: 30px;
-      height: 30px;
-      border: 4px solid #fff;
-      border-top: 4px solid var(--theme-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .spin,
+
+      .player-utility {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-start;
+        width: 100%;
+      }
+
+      .player-utility button {
+        min-width: 48px;
+        min-height: 48px;
+        padding: 0.6rem 0.85rem;
+        touch-action: manipulation;
+      }
+
+      @media (pointer: coarse) {
+        .player-utility button {
+          min-width: 56px;
+          min-height: 56px;
+          padding: 0.75rem 1rem;
+        }
+      }
+
+      .player-utility .retry-button {
+        flex: 1 1 clamp(120px, 32%, 180px);
+      }
+
+      .seek-bar {
+        width: 100%;
+        margin: 0.2rem 0 0.1rem;
+      }
+      @media (max-width: 900px) {
+        :root {
+          --edge-panel-handle-width: clamp(28px, 7vw, 36px);
+          --edge-panel-visible-gap: clamp(0.65rem, 4vw, 1.35rem);
+        }
+        .container {
+          padding: 0 1rem 0.5rem;
+          gap: 1.1rem;
+          align-items: stretch;
+        }
+        .sidebar {
+          position: static;
+          overflow-x: auto;
+          flex-wrap: nowrap;
+          justify-content: flex-start;
+          gap: 0.65rem;
+          padding-bottom: 0.85rem;
+          scrollbar-width: thin;
+          max-width: none;
+          align-self: stretch;
+        }
+        .sidebar::-webkit-scrollbar {
+          height: 6px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+          background: rgba(255, 127, 197, 0.6);
+          border-radius: 999px;
+        }
+        .sidebar .search-panel {
+          flex: 0 0 80%;
+          min-width: 260px;
+        }
+        .sidebar button {
+          flex: 0 0 auto;
+          min-width: clamp(160px, 65vw, 220px);
+        }
+        .content {
+          padding: 1.25rem;
+          background: rgba(0, 0, 0, 0.45);
+        }
+        .player-body {
+          flex-direction: column;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .player-main {
+          align-items: center;
+        }
+        .player-main .track-info {
+          text-align: center;
+        }
+        .player-meta-grid {
+          text-align: center;
+        }
+        .player-utility {
+          justify-content: center;
+        }
+        .edge-panel {
+          width: min(86vw, var(--edge-panel-width));
+          right: calc(var(--edge-panel-visible-gap) - min(86vw, var(--edge-panel-width)));
+          border-radius: 24px 0 0 24px;
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-50%);
+          min-height: var(--edge-panel-min-height);
+        }
+        .edge-panel.visible {
+          right: clamp(0.5rem, 5vw, 1.4rem);
+        }
+        .edge-panel[data-position='peek'] .edge-panel-handle {
+          transform: translate(-44%, -50%);
+        }
+        .edge-panel[data-position='collapsed'] .edge-panel-handle {
+          transform: translate(-58%, -50%);
+        }
+        .edge-panel-handle {
+          width: var(--edge-panel-handle-width);
+          height: clamp(110px, 32vh, 188px);
+          gap: 0.16rem;
+        }
+        .edge-panel-content {
+          flex-direction: column;
+          align-items: stretch;
+          gap: clamp(0.5rem, 3vw, 0.85rem);
+          overflow-x: hidden;
+          overflow-y: auto;
+          padding: clamp(0.85rem, 4vw, 1.2rem);
+          opacity: 0;
+          filter: blur(3px);
+          pointer-events: none;
+          transition:
+            opacity 0.28s ease-in-out,
+            filter 0.28s ease-in-out;
+        }
+        .edge-panel.visible:not([data-position='peek']) .edge-panel-content {
+          opacity: 1;
+          filter: blur(0);
+          pointer-events: auto;
+        }
+        .edge-panel[data-position='peek'] .edge-panel-content,
+        .edge-panel[data-position='collapsed'] .edge-panel-content {
+          opacity: 0;
+          filter: blur(3px);
+          pointer-events: none;
+        }
+      }
+      .album-cover {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        display: block;
+        box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3);
+        transition: transform 0.3s ease-in-out;
+      }
+      .turntable-disc,
+      .turntable-grooves,
+      .turntable-sheen,
+      .album-cover,
+      .album-groove-overlay {
+        transform-origin: center center;
+        will-change: transform;
+      }
+      .spin {
+        animation: vinyl-spin 20s linear infinite;
+        animation-play-state: paused;
+      }
       .is-spinning {
-        animation: none !important;
+        animation-play-state: running;
       }
-    }
-    button:focus-visible,
-    [role="button"]:focus-visible,
-    a:focus-visible,
-    input:focus-visible,
-    select:focus-visible,
-    textarea:focus-visible {
-      outline: 2px solid var(--theme-color);
-      outline-offset: 3px;
-    }
-    /* Music control styling handled in style.css */
-    .track-info { margin: 0; font-size: clamp(0.9rem, 2.5vw, 1.1rem); }
-    .track-duration { font-size: clamp(0.7rem, 1.8vw, 0.85rem); }
-    #lyrics { margin-top: 0.4rem; max-height: 180px; overflow-y: auto; text-align: left; display: none; }
-    #lyrics p { margin: 0.15rem 0; }
-    #lyrics p.active { color: var(--theme-color); font-weight: bold; }
-    .track-details { margin-top: 0.6rem; font-size: clamp(0.7rem, 1.8vw, 0.8rem); }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-      box-sizing: border-box;
-      padding: var(--modal-block-padding) var(--modal-inline-padding);
-      align-items: stretch;
-      justify-content: center;
-    }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 0;
-      padding: 1.5rem;
-      border: 1px solid #888;
-      width: min(100%, 600px);
-      height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
-      max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
-      overflow-y: auto;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
-    }
-    @media (max-width: 768px) {
+      @keyframes vinyl-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .loading-spinner {
+        display: none;
+        width: 30px;
+        height: 30px;
+        border: 4px solid #fff;
+        border-top: 4px solid var(--theme-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .spin,
+        .is-spinning {
+          animation: none !important;
+        }
+      }
+      button:focus-visible,
+      [role='button']:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--theme-color);
+        outline-offset: 3px;
+      }
+      /* Music control styling handled in style.css */
+      .track-info {
+        margin: 0;
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      }
+      .track-duration {
+        font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      }
+      #lyrics {
+        margin-top: 0.4rem;
+        max-height: 180px;
+        overflow-y: auto;
+        text-align: left;
+        display: none;
+      }
+      #lyrics p {
+        margin: 0.15rem 0;
+      }
+      #lyrics p.active {
+        color: var(--theme-color);
+        font-weight: bold;
+      }
+      .track-details {
+        margin-top: 0.6rem;
+        font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+      }
       .modal {
-        padding: var(--modal-block-padding) clamp(0.75rem, 5vw, 1.5rem);
+        display: none;
+        position: fixed;
+        z-index: 999;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+        box-sizing: border-box;
+        padding: var(--modal-block-padding) var(--modal-inline-padding);
+        align-items: stretch;
+        justify-content: center;
       }
       .modal-content {
-        width: 100%;
+        background-color: #fefefe;
+        margin: 0;
+        padding: 1.5rem;
+        border: 1px solid #888;
+        width: min(100%, 600px);
         height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
         max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
+        overflow-y: auto;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
       }
-    }
-    .modal-title {
-      margin-top: 0;
-      text-align: center;
-      color: var(--theme-color);
-    }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-    .close:hover, .close:focus { color: black; text-decoration: none; cursor: pointer; }
-    .track-list a, .album-list a, .radio-list a {
-      display: block;
-      padding: 0.8rem;
-      color: white;
-      text-decoration: none;
-      background-color: #333;
-      margin-bottom: 0.3rem;
-      border-radius: 5px;
-      font-size: clamp(0.9rem, 2vw, 1rem);
-    }
-    .track-list a:hover, .album-list a:hover, .radio-list a:hover { background-color: var(--theme-color); }
-      .chatbot-container, #aboutModalContainer {
-      position: fixed;
-      top: var(--modal-block-padding);
-      bottom: calc(var(--modal-block-padding) + env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(100%, 600px);
-      border-radius: 10px;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-      background: rgba(255, 255, 255, 0.86);
-      overflow-y: auto;
-      display: none;
-      z-index: 10001;
-    }
-    @media (max-width: 768px) {
-      .chatbot-container, #aboutModalContainer {
-        width: 94%;
+      @media (max-width: 768px) {
+        .modal {
+          padding: var(--modal-block-padding) clamp(0.75rem, 5vw, 1.5rem);
+        }
+        .modal-content {
+          width: 100%;
+          height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
+          max-height: calc(var(--app-height, 100vh) - 2 * var(--modal-block-padding));
+        }
       }
-    }
+      .modal-title {
+        margin-top: 0;
+        text-align: center;
+        color: var(--theme-color);
+      }
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 1.8rem;
+        font-weight: bold;
+      }
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .track-list a,
+      .album-list a,
+      .radio-list a {
+        display: block;
+        padding: 0.8rem;
+        color: white;
+        text-decoration: none;
+        background-color: #333;
+        margin-bottom: 0.3rem;
+        border-radius: 5px;
+        font-size: clamp(0.9rem, 2vw, 1rem);
+      }
+      .track-list a:hover,
+      .album-list a:hover,
+      .radio-list a:hover {
+        background-color: var(--theme-color);
+      }
+      .chatbot-container,
+      #aboutModalContainer {
+        position: fixed;
+        top: var(--modal-block-padding);
+        bottom: calc(var(--modal-block-padding) + env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(100%, 600px);
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.86);
+        overflow-y: auto;
+        display: none;
+        z-index: 10001;
+      }
+      @media (max-width: 768px) {
+        .chatbot-container,
+        #aboutModalContainer {
+          width: 94%;
+        }
+      }
       .chatbot-container iframe {
         display: block;
         width: 100%;
@@ -850,20 +927,20 @@
         border-radius: 10px;
       }
 
-    #tetrisGameContainer {
-      height: calc(var(--app-height, 100vh) - (140px + env(safe-area-inset-bottom)));
-      overflow-y: auto;
-      padding-top: 20px;
-      box-sizing: border-box;
-      bottom: calc(40px + env(safe-area-inset-bottom));
-    }
-    #connectFourContainer {
-      height: calc(var(--app-height, 100vh) - (140px + env(safe-area-inset-bottom)));
-      overflow-y: auto;
-      padding-top: 20px;
-      box-sizing: border-box;
-      bottom: calc(40px + env(safe-area-inset-bottom));
-    }
+      #tetrisGameContainer {
+        height: calc(var(--app-height, 100vh) - (140px + env(safe-area-inset-bottom)));
+        overflow-y: auto;
+        padding-top: 20px;
+        box-sizing: border-box;
+        bottom: calc(40px + env(safe-area-inset-bottom));
+      }
+      #connectFourContainer {
+        height: calc(var(--app-height, 100vh) - (140px + env(safe-area-inset-bottom)));
+        overflow-y: auto;
+        padding-top: 20px;
+        box-sizing: border-box;
+        bottom: calc(40px + env(safe-area-inset-bottom));
+      }
       .popup-close {
         position: fixed;
         top: calc(10px + env(safe-area-inset-top));
@@ -881,27 +958,29 @@
         cursor: pointer;
         z-index: 102;
       }
-      .popup-close:hover { background: var(--theme-color); }
-    .collapsible-container {
+      .popup-close:hover {
+        background: var(--theme-color);
+      }
+      .collapsible-container {
         position: fixed;
         bottom: calc(80px + env(safe-area-inset-bottom));
         width: 150px;
         transition: all 0.3s ease-in-out;
         z-index: 1001;
-    }
-    .collapsible-container.left {
+      }
+      .collapsible-container.left {
         left: -100px;
-    }
-    .collapsible-container.right {
+      }
+      .collapsible-container.right {
         right: -100px;
-    }
-    .collapsible-container.visible.left {
+      }
+      .collapsible-container.visible.left {
         left: 1rem;
-    }
-    .collapsible-container.visible.right {
+      }
+      .collapsible-container.visible.right {
         right: 1rem;
-    }
-    .edge-panel {
+      }
+      .edge-panel {
         position: fixed;
         top: 50%;
         right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
@@ -910,7 +989,11 @@
         width: var(--edge-panel-width);
         background: linear-gradient(160deg, rgba(14, 19, 48, 0.9), rgba(9, 12, 30, 0.86));
         border-radius: 24px 0 0 24px;
-        transition: right 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out, transform 0.3s ease-in-out;
+        transition:
+          right 0.3s ease-in-out,
+          box-shadow 0.3s ease-in-out,
+          background 0.3s ease-in-out,
+          transform 0.3s ease-in-out;
         z-index: 10000;
         box-shadow: 0 22px 46px rgba(0, 0, 0, 0.55);
         display: flex;
@@ -920,26 +1003,27 @@
         max-height: min(
           var(--edge-panel-max-height),
           calc(
-            var(--app-height, 100vh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - (2 * var(--edge-panel-vertical-margin))
+            var(--app-height, 100vh) - env(safe-area-inset-top) - env(safe-area-inset-bottom) -
+              (2 * var(--edge-panel-vertical-margin))
           )
         );
         border: 1px solid rgba(255, 255, 255, 0.12);
         backdrop-filter: saturate(150%) blur(var(--glass-blur));
-    }
-    .edge-panel.visible {
+      }
+      .edge-panel.visible {
         box-shadow: 0 26px 52px rgba(0, 0, 0, 0.6);
         right: var(--edge-panel-visible-gap);
-    }
-    .edge-panel[data-position='collapsed'] {
+      }
+      .edge-panel[data-position='collapsed'] {
         opacity: 0.95;
         box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45);
         background: linear-gradient(160deg, rgba(14, 19, 48, 0.92), rgba(9, 12, 30, 0.88));
-    }
-    .edge-panel[data-position='peek'] {
+      }
+      .edge-panel[data-position='peek'] {
         box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
         background: linear-gradient(160deg, rgba(14, 19, 48, 0.94), rgba(9, 12, 30, 0.9));
-    }
-    .edge-panel-handle {
+      }
+      .edge-panel-handle {
         position: absolute;
         top: 50%;
         left: 0;
@@ -962,27 +1046,30 @@
         box-shadow: 0 10px 22px rgba(0, 0, 0, 0.36);
         border: 1px solid rgba(255, 255, 255, 0.32);
         background-clip: padding-box;
-        transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
-    }
-    .edge-panel-handle:focus-visible {
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease,
+          opacity 0.3s ease;
+      }
+      .edge-panel-handle:focus-visible {
         outline: 3px solid rgba(255, 255, 255, 0.9);
         outline-offset: 3px;
-    }
-    .edge-panel-handle:hover {
+      }
+      .edge-panel-handle:hover {
         box-shadow: 0 18px 36px rgba(0, 0, 0, 0.42);
-    }
-    .edge-panel.visible .edge-panel-handle {
+      }
+      .edge-panel.visible .edge-panel-handle {
         transform: translate(-32%, -50%);
         box-shadow: 0 16px 30px rgba(0, 0, 0, 0.42);
-    }
-    .edge-panel[data-position='peek'] .edge-panel-handle {
+      }
+      .edge-panel[data-position='peek'] .edge-panel-handle {
         transform: translate(-45%, -50%);
-    }
-    .edge-panel[data-position='collapsed'] .edge-panel-handle {
+      }
+      .edge-panel[data-position='collapsed'] .edge-panel-handle {
         transform: translate(-64%, -50%);
         opacity: 0.86;
-    }
-    .edge-panel-handle::before {
+      }
+      .edge-panel-handle::before {
         content: '';
         display: block;
         width: 6px;
@@ -990,15 +1077,15 @@
         border-radius: 999px;
         background: linear-gradient(180deg, rgba(18, 21, 45, 0.2), rgba(18, 21, 45, 0.58));
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
-    }
-    .edge-panel-handle::after {
+      }
+      .edge-panel-handle::after {
         content: 'Apps';
         writing-mode: vertical-rl;
         transform: rotate(180deg);
         font-size: 0.5rem;
         letter-spacing: 0.18em;
-    }
-    .edge-panel-content {
+      }
+      .edge-panel-content {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -1015,362 +1102,389 @@
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
-        transition: opacity 0.28s ease-in-out, filter 0.28s ease-in-out;
-    }
-    .edge-panel.visible:not([data-position='peek']) .edge-panel-content {
+        transition:
+          opacity 0.28s ease-in-out,
+          filter 0.28s ease-in-out;
+      }
+      .edge-panel.visible:not([data-position='peek']) .edge-panel-content {
         opacity: 1;
         filter: blur(0);
         pointer-events: auto;
-    }
-    .edge-panel[data-position='peek'] .edge-panel-content,
-    .edge-panel[data-position='collapsed'] .edge-panel-content {
+      }
+      .edge-panel[data-position='peek'] .edge-panel-content,
+      .edge-panel[data-position='collapsed'] .edge-panel-content {
         opacity: 0;
         filter: blur(3px);
         pointer-events: none;
-    }
-    .edge-panel-list {
-      display: grid;
-      grid-auto-rows: minmax(clamp(2.8rem, 5.8vh, 3.6rem), max-content);
-      align-content: stretch;
-      gap: clamp(0.38rem, 1.4vw, 0.6rem);
-      flex: 1;
-      min-height: 0;
-      padding-bottom: clamp(2.1rem, 9vh, 3rem);
-    }
-    .tap-area {
+      }
+      .edge-panel-list {
+        display: grid;
+        grid-auto-rows: minmax(clamp(2.8rem, 5.8vh, 3.6rem), max-content);
+        align-content: stretch;
+        gap: clamp(0.38rem, 1.4vw, 0.6rem);
+        flex: 1;
+        min-height: 0;
+        padding-bottom: clamp(2.1rem, 9vh, 3rem);
+      }
+      .tap-area {
         position: fixed;
         bottom: 0;
         width: 50px;
         height: 100px;
         z-index: 1000;
-    }
-    .tap-area.left {
+      }
+      .tap-area.left {
         left: 0;
-    }
-    .tap-area.right {
+      }
+      .tap-area.right {
         right: 0;
-    }
-      .picture-game-float-icon, .cycle-precision-float-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-      animation: float 3s ease-in-out infinite;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-    }
-    .edge-panel-intro {
-      font-size: clamp(0.68rem, 1.6vw, 0.8rem);
-      color: rgba(255,255,255,0.8);
-      text-align: center;
-      line-height: 1.35;
-      padding: 0 0.15rem;
-    }
-    .edge-panel-item {
-      display: flex;
-      align-items: center;
-      gap: clamp(0.32rem, 1vw, 0.45rem);
-      padding: clamp(0.32rem, 1.1vw, 0.45rem) clamp(0.45rem, 1.4vw, 0.65rem);
-      border-radius: 14px;
-      background: rgba(13, 45, 32, 0.52);
-      border: 1px solid rgba(255,255,255,0.14);
-      color: #fff;
-      height: 100%;
-      width: 100%;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      cursor: pointer;
-      text-align: left;
-      width: 100%;
-      border-width: 1px;
-      border-style: solid;
-      font: inherit;
-      appearance: none;
-      background-clip: padding-box;
-      min-height: clamp(2.9rem, 6vh, 3.6rem);
-    }
-    .edge-panel-item:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(142, 91, 255, 0.5);
-    }
-    .edge-panel-item:hover {
-      transform: translateX(-2px);
-      background: rgba(142, 91, 255, 0.28);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.35);
-    }
-    .edge-panel-item img {
-      width: clamp(22px, 6vw, 26px);
-      height: clamp(22px, 6vw, 26px);
-      flex-shrink: 0;
-      border-radius: 50%;
-      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-    }
-    .edge-panel-label {
-      font-size: clamp(0.62rem, 1.4vw, 0.78rem);
-      line-height: 1.24;
-      display: block;
-      max-width: 100%;
-      white-space: normal;
-      overflow-wrap: anywhere;
-    }
-    .edge-panel-label strong {
-      display: block;
-      font-size: clamp(0.68rem, 1.6vw, 0.84rem);
-      line-height: 1.16;
-    }
-    .edge-panel-privacy {
-      font-size: clamp(0.66rem, 1.5vw, 0.82rem);
-      text-align: center;
-      line-height: 1.4;
-      color: rgba(255,255,255,0.8);
-      margin: clamp(0.6rem, 2.5vw, 1rem) clamp(0.95rem, 2.4vw, 1.2rem) clamp(0.85rem, 3vw, 1.3rem);
-      padding: clamp(0.55rem, 2.6vw, 0.85rem);
-      border-radius: 14px;
-      background: rgba(15, 18, 40, 0.78);
-      border: 1px solid rgba(142, 91, 255, 0.32);
-      box-shadow: 0 16px 32px rgba(0,0,0,0.35);
-      backdrop-filter: saturate(140%) blur(var(--glass-blur));
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.25s ease-in-out;
-    }
-    .edge-panel.visible .edge-panel-privacy {
-      opacity: 1;
-    }
-    .edge-panel[data-position='peek'] .edge-panel-privacy,
-    .edge-panel[data-position='collapsed'] .edge-panel-privacy {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .edge-panel-privacy a {
-      color: var(--theme-color);
-      text-decoration: underline;
-    }
-    .app-footer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.35rem;
-      text-align: center;
-      padding: 1rem clamp(1rem, 4vw, 2rem);
-      font-size: clamp(0.75rem, 2vw, 0.9rem);
-      color: rgba(255,255,255,0.78);
-      backdrop-filter: saturate(130%) blur(var(--glass-blur));
-      background: rgba(0, 0, 0, 0.55);
-      margin: 0;
-    }
-    .app-footer a {
-      color: var(--theme-color);
-      text-decoration: underline;
-    }
-    .app-footer .last-updated {
-      font-weight: 600;
-      color: rgba(142, 91, 255, 0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
-    }
-    @media (max-width: 600px) {
-      :root {
-        --edge-panel-vertical-margin: clamp(34px, 12vh, 64px);
-        --edge-panel-width: min(92vw, 320px);
-        --edge-panel-handle-width: clamp(24px, 8vw, 32px);
-        --edge-panel-visible-gap: clamp(0.75rem, 6vw, 1.35rem);
       }
-      .edge-panel {
-        right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
-        top: 50%;
-        bottom: auto;
-        transform: translateY(-50%);
+      .picture-game-float-icon,
+      .cycle-precision-float-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        animation: float 3s ease-in-out infinite;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        cursor: pointer;
       }
-      .edge-panel.visible {
-        right: var(--edge-panel-visible-gap);
+      .edge-panel-intro {
+        font-size: clamp(0.68rem, 1.6vw, 0.8rem);
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        line-height: 1.35;
+        padding: 0 0.15rem;
       }
-      .edge-panel-handle {
-        height: clamp(118px, 40vh, 198px);
+      .edge-panel-item {
+        display: flex;
+        align-items: center;
+        gap: clamp(0.32rem, 1vw, 0.45rem);
+        padding: clamp(0.32rem, 1.1vw, 0.45rem) clamp(0.45rem, 1.4vw, 0.65rem);
+        border-radius: 14px;
+        background: rgba(13, 45, 32, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        color: #fff;
+        height: 100%;
+        width: 100%;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+        border-width: 1px;
+        border-style: solid;
+        font: inherit;
+        appearance: none;
+        background-clip: padding-box;
+        min-height: clamp(2.9rem, 6vh, 3.6rem);
       }
-      .edge-panel-content {
-        padding: clamp(0.85rem, 5vw, 1.25rem);
-        padding-bottom: clamp(1.2rem, 5.5vw, 1.65rem);
+      .edge-panel-item:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(142, 91, 255, 0.5);
       }
-      .edge-panel-list {
-        padding-bottom: clamp(2.4rem, 12vh, 3.4rem);
+      .edge-panel-item:hover {
+        transform: translateX(-2px);
+        background: rgba(142, 91, 255, 0.28);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
       }
-    }
-    .youtube-embed-wrapper {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #000;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    }
-    .youtube-frame {
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .youtube-modal-note {
-      margin: 1rem auto 0.5rem;
-      max-width: 520px;
-      text-align: center;
-      color: #333;
-      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-      line-height: 1.5;
-    }
-    .modal-tagline {
-      margin: 0.5rem auto 0.75rem;
-      max-width: 560px;
-      text-align: center;
-      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-      color: rgba(18, 22, 44, 0.82);
-      line-height: 1.5;
-    }
-    .quick-start-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1rem;
-      display: grid;
-      gap: 0.5rem;
-    }
-    .quick-start-list li {
-      background: rgba(142, 91, 255, 0.16);
-      border-radius: 12px;
-      padding: 0.6rem 0.8rem;
-      font-size: clamp(0.8rem, 2vw, 0.95rem);
-      color: rgba(18, 22, 44, 0.85);
-      border: 1px solid rgba(142, 91, 255, 0.24);
-    }
-    .youtube-modal-actions {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0 1.5rem 1.5rem;
-    }
-    .youtube-modal-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      padding: 0.65rem 1.4rem;
-      background: var(--theme-color);
-      color: #fff;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .youtube-modal-link:hover,
-    .youtube-modal-link:focus {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
-    .email-gate-status {
-      margin: 0 auto 0.75rem;
-      padding: 0 1rem;
-      text-align: center;
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.75);
-    }
-    .email-gate {
-      position: fixed;
-      inset: 0;
-      background: rgba(7, 7, 14, 0.72);
-      display: grid;
-      place-items: center;
-      padding: 1.5rem;
-      z-index: 12000;
-    }
-    .email-gate[hidden] {
-      display: none;
-    }
-    .email-gate__card {
-      width: min(520px, 100%);
-      background: rgba(20, 17, 36, 0.98);
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.45);
-      padding: 2rem;
-      display: grid;
-      gap: 1.25rem;
-      position: relative;
-      color: #fff;
-    }
-    .email-gate__close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1.6rem;
-      cursor: pointer;
-    }
-    .email-gate__eyebrow {
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.55);
-    }
-    .email-gate__copy,
-    .email-gate__note {
-      color: rgba(255,255,255,0.78);
-      line-height: 1.5;
-    }
-    .email-gate__form {
-      display: grid;
-      gap: 0.75rem;
-    }
-    .email-gate__form input {
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      font-size: 1rem;
-    }
-    .email-gate__form input::placeholder {
-      color: rgba(255,255,255,0.5);
-    }
-    body[data-theme="light"] .email-gate {
-      background: rgba(241, 242, 249, 0.85);
-    }
-    body[data-theme="light"] .email-gate__card {
-      background: #fff;
-      color: #1b1b1b;
-      box-shadow: 0 30px 80px rgba(37, 40, 89, 0.18);
-    }
-    body[data-theme="light"] .email-gate__close,
-    body[data-theme="light"] .email-gate__copy,
-    body[data-theme="light"] .email-gate__note,
-    body[data-theme="light"] .email-gate__eyebrow,
-    body[data-theme="light"] .email-gate-status {
-      color: rgba(26, 28, 38, 0.75);
-    }
-    body[data-theme="light"] .email-gate__form input {
-      color: #1b1b1b;
-      background: rgba(142, 91, 255, 0.08);
-      border-color: rgba(142, 91, 255, 0.2);
-    }
-    @keyframes float {
-      0%   { transform: translateY(0px); }
-      50%  { transform: translateY(-10px); }
-      100% { transform: translateY(0px); }
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    .blinking-cursor {
+      .edge-panel-item img {
+        width: clamp(22px, 6vw, 26px);
+        height: clamp(22px, 6vw, 26px);
+        flex-shrink: 0;
+        border-radius: 50%;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+      }
+      .edge-panel-label {
+        font-size: clamp(0.62rem, 1.4vw, 0.78rem);
+        line-height: 1.24;
+        display: block;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .edge-panel-label strong {
+        display: block;
+        font-size: clamp(0.68rem, 1.6vw, 0.84rem);
+        line-height: 1.16;
+      }
+      .edge-panel-privacy {
+        font-size: clamp(0.66rem, 1.5vw, 0.82rem);
+        text-align: center;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.8);
+        margin: clamp(0.6rem, 2.5vw, 1rem) clamp(0.95rem, 2.4vw, 1.2rem) clamp(0.85rem, 3vw, 1.3rem);
+        padding: clamp(0.55rem, 2.6vw, 0.85rem);
+        border-radius: 14px;
+        background: rgba(15, 18, 40, 0.78);
+        border: 1px solid rgba(142, 91, 255, 0.32);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.35);
+        backdrop-filter: saturate(140%) blur(var(--glass-blur));
+        flex-shrink: 0;
+        opacity: 0;
+        transition: opacity 0.25s ease-in-out;
+      }
+      .edge-panel.visible .edge-panel-privacy {
+        opacity: 1;
+      }
+      .edge-panel[data-position='peek'] .edge-panel-privacy,
+      .edge-panel[data-position='collapsed'] .edge-panel-privacy {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .edge-panel-privacy a {
+        color: var(--theme-color);
+        text-decoration: underline;
+      }
+      .app-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        text-align: center;
+        padding: 1rem clamp(1rem, 4vw, 2rem);
+        font-size: clamp(0.75rem, 2vw, 0.9rem);
+        color: rgba(255, 255, 255, 0.78);
+        backdrop-filter: saturate(130%) blur(var(--glass-blur));
+        background: rgba(0, 0, 0, 0.55);
+        margin: 0;
+      }
+      .app-footer a {
+        color: var(--theme-color);
+        text-decoration: underline;
+      }
+      .app-footer .last-updated {
+        font-weight: 600;
+        color: rgba(142, 91, 255, 0.9);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      }
+      @media (max-width: 600px) {
+        :root {
+          --edge-panel-vertical-margin: clamp(34px, 12vh, 64px);
+          --edge-panel-width: min(92vw, 320px);
+          --edge-panel-handle-width: clamp(24px, 8vw, 32px);
+          --edge-panel-visible-gap: clamp(0.75rem, 6vw, 1.35rem);
+        }
+        .edge-panel {
+          right: calc(var(--edge-panel-visible-gap) - var(--edge-panel-width));
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-50%);
+        }
+        .edge-panel.visible {
+          right: var(--edge-panel-visible-gap);
+        }
+        .edge-panel-handle {
+          height: clamp(118px, 40vh, 198px);
+        }
+        .edge-panel-content {
+          padding: clamp(0.85rem, 5vw, 1.25rem);
+          padding-bottom: clamp(1.2rem, 5.5vw, 1.65rem);
+        }
+        .edge-panel-list {
+          padding-bottom: clamp(2.4rem, 12vh, 3.4rem);
+        }
+      }
+      .youtube-embed-wrapper {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #000;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      }
+      .youtube-frame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      .youtube-modal-note {
+        margin: 1rem auto 0.5rem;
+        max-width: 520px;
+        text-align: center;
+        color: #333;
+        font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+        line-height: 1.5;
+      }
+      .modal-tagline {
+        margin: 0.5rem auto 0.75rem;
+        max-width: 560px;
+        text-align: center;
+        font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+        color: rgba(18, 22, 44, 0.82);
+        line-height: 1.5;
+      }
+      .quick-start-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1rem;
+        display: grid;
+        gap: 0.5rem;
+      }
+      .quick-start-list li {
+        background: rgba(142, 91, 255, 0.16);
+        border-radius: 12px;
+        padding: 0.6rem 0.8rem;
+        font-size: clamp(0.8rem, 2vw, 0.95rem);
+        color: rgba(18, 22, 44, 0.85);
+        border: 1px solid rgba(142, 91, 255, 0.24);
+      }
+      .youtube-modal-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0 1.5rem 1.5rem;
+      }
+      .youtube-modal-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        padding: 0.65rem 1.4rem;
+        background: var(--theme-color);
+        color: #fff;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .youtube-modal-link:hover,
+      .youtube-modal-link:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      }
+      .email-gate-status {
+        margin: 0 auto 0.75rem;
+        padding: 0 1rem;
+        text-align: center;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .email-gate {
+        position: fixed;
+        inset: 0;
+        background: rgba(7, 7, 14, 0.72);
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        z-index: 12000;
+      }
+      .email-gate[hidden] {
+        display: none;
+      }
+      .email-gate__card {
+        width: min(520px, 100%);
+        background: rgba(20, 17, 36, 0.98);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+        padding: 2rem;
+        display: grid;
+        gap: 1.25rem;
+        position: relative;
+        color: #fff;
+      }
+      .email-gate__close {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 1.6rem;
+        cursor: pointer;
+      }
+      .email-gate__eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .email-gate__copy,
+      .email-gate__note {
+        color: rgba(255, 255, 255, 0.78);
+        line-height: 1.5;
+      }
+      .email-gate__form {
+        display: grid;
+        gap: 0.75rem;
+      }
+      .email-gate__form input {
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        font-size: 1rem;
+      }
+      .email-gate__form input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      body[data-theme='light'] .email-gate {
+        background: rgba(241, 242, 249, 0.85);
+      }
+      body[data-theme='light'] .email-gate__card {
+        background: #fff;
+        color: #1b1b1b;
+        box-shadow: 0 30px 80px rgba(37, 40, 89, 0.18);
+      }
+      body[data-theme='light'] .email-gate__close,
+      body[data-theme='light'] .email-gate__copy,
+      body[data-theme='light'] .email-gate__note,
+      body[data-theme='light'] .email-gate__eyebrow,
+      body[data-theme='light'] .email-gate-status {
+        color: rgba(26, 28, 38, 0.75);
+      }
+      body[data-theme='light'] .email-gate__form input {
+        color: #1b1b1b;
+        background: rgba(142, 91, 255, 0.08);
+        border-color: rgba(142, 91, 255, 0.2);
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .blinking-cursor {
         animation: blink 1s infinite;
-    }
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
-    }
-    .chatbot-speech-bubble {
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+      .chatbot-speech-bubble {
         position: absolute;
         bottom: 100%;
         left: 50%;
@@ -1389,726 +1503,1275 @@
         z-index: 1;
         max-width: 120px;
         text-align: center;
-    }
-    .chatbot-speech-bubble::after {
-      content: "";
-      position: absolute;
-      bottom: -20px;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border: 10px solid transparent;
-      border-top: 10px solid #ffffff;
-      box-shadow: -1px -1px 0 1px #000000;
-      transform: translateX(-50%);
-    }
-    .floating-watermarks {
-      pointer-events: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: 900;
-    }
-    /* Visual QA: verify home watermarks in light/dark on hero, image, and video sections. */
-    .watermark {
-      position: absolute;
-      display: inline-block;
-      font-family: 'Montserrat', sans-serif;
-      font-size: clamp(0.85rem, 3.2vw, 1.5rem);
-      font-weight: 400;
-      letter-spacing: 0.03em;
-      color: var(--watermark-color);
-      opacity: var(--watermark-opacity);
-      text-shadow: var(--watermark-shadow);
-      -webkit-text-stroke: var(--watermark-stroke);
-      white-space: nowrap;
-      z-index: 0;
-    }
-    .watermark--adaptive {
-      isolation: isolate;
-    }
-    .watermark--adaptive::before {
-      content: '';
-      position: absolute;
-      inset: -0.2em -0.45em;
-      background: var(--watermark-scrim);
-      border-radius: 999px;
-      opacity: 0.7;
-      filter: blur(4px);
-      z-index: -1;
-    }
-    @supports (mix-blend-mode: soft-light) {
-      .watermark--adaptive {
-        mix-blend-mode: soft-light;
       }
-    }
-    .exploding-watermark span {
+      .chatbot-speech-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border: 10px solid transparent;
+        border-top: 10px solid #ffffff;
+        box-shadow: -1px -1px 0 1px #000000;
+        transform: translateX(-50%);
+      }
+      .floating-watermarks {
+        pointer-events: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 900;
+      }
+      /* Visual QA: verify home watermarks in light/dark on hero, image, and video sections. */
+      .watermark {
+        position: absolute;
+        display: inline-block;
+        font-family: 'Montserrat', sans-serif;
+        font-size: clamp(0.85rem, 3.2vw, 1.5rem);
+        font-weight: 400;
+        letter-spacing: 0.03em;
+        color: var(--watermark-color);
+        opacity: var(--watermark-opacity);
+        text-shadow: var(--watermark-shadow);
+        -webkit-text-stroke: var(--watermark-stroke);
+        white-space: nowrap;
+        z-index: 0;
+      }
+      .watermark--adaptive {
+        isolation: isolate;
+      }
+      .watermark--adaptive::before {
+        content: '';
+        position: absolute;
+        inset: -0.2em -0.45em;
+        background: var(--watermark-scrim);
+        border-radius: 999px;
+        opacity: 0.7;
+        filter: blur(4px);
+        z-index: -1;
+      }
+      @supports (mix-blend-mode: soft-light) {
+        .watermark--adaptive {
+          mix-blend-mode: soft-light;
+        }
+      }
+      .exploding-watermark span {
         display: inline-block;
         animation: letter-explode 2s ease-in-out infinite;
         animation-delay: calc(0.1s * var(--i));
-    }
+      }
 
-    @keyframes letter-explode {
+      @keyframes letter-explode {
         0% {
-            transform: translate(0, 0) rotate(0);
-            opacity: 1;
+          transform: translate(0, 0) rotate(0);
+          opacity: 1;
         }
         100% {
-            transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5))) rotate(calc(360deg * var(--r)));
-            opacity: 0;
+          transform: translate(calc(100px * (var(--x) - 0.5)), calc(100px * (var(--y) - 0.5)))
+            rotate(calc(360deg * var(--r)));
+          opacity: 0;
         }
-    }
-    .retry-button {
-      background: var(--theme-color);
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      display: none;
-    }
-    .retry-button:hover { background: var(--theme-color); }
-    .progress-bar {
-      width: 90%;
-      height: 5px;
-      background: #555;
-      margin: 0.5rem auto;
-      border-radius: 5px;
-      overflow: hidden;
-      display: none;
-    }
-    .progress-bar div {
-      height: 100%;
-      background: var(--theme-color);
-      width: 0%;
-      transition: width 0.2s ease;
-    }
-    @media (min-width: 1024px) {
-      .container {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: clamp(1.5rem, 3vw, 2.5rem);
       }
-      .sidebar {
-        flex: 0 0 clamp(240px, 20vw, 300px);
-        max-width: clamp(240px, 20vw, 300px);
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-        border-radius: 20px;
-        padding: 1.1rem 1rem;
-        position: sticky;
-        top: calc(env(safe-area-inset-top) + 88px);
-        max-height: calc(var(--app-height, 100vh) - env(safe-area-inset-top) - 96px);
-        overflow-y: auto;
-        scrollbar-width: thin;
+      .retry-button {
+        background: var(--theme-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        display: none;
       }
-      .sidebar .search-panel {
-        flex: 0 0 auto;
-        width: 100%;
-        max-width: none;
+      .retry-button:hover {
+        background: var(--theme-color);
       }
-      .sidebar button {
-        flex: 0 0 auto;
-        width: 100%;
-        min-width: unset;
-        min-height: 44px;
-        padding: 0.6rem 0.85rem;
+      .progress-bar {
+        width: 90%;
+        height: 5px;
+        background: #555;
+        margin: 0.5rem auto;
+        border-radius: 5px;
+        overflow: hidden;
+        display: none;
+      }
+      .progress-bar div {
+        height: 100%;
+        background: var(--theme-color);
+        width: 0%;
+        transition: width 0.2s ease;
+      }
+      @media (min-width: 1024px) {
+        .container {
+          flex-direction: row;
+          align-items: flex-start;
+          gap: clamp(1.5rem, 3vw, 2.5rem);
+        }
+        .sidebar {
+          flex: 0 0 clamp(240px, 20vw, 300px);
+          max-width: clamp(240px, 20vw, 300px);
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0.6rem;
+          border-radius: 20px;
+          padding: 1.1rem 1rem;
+          position: sticky;
+          top: calc(env(safe-area-inset-top) + 88px);
+          max-height: calc(var(--app-height, 100vh) - env(safe-area-inset-top) - 96px);
+          overflow-y: auto;
+          scrollbar-width: thin;
+        }
+        .sidebar .search-panel {
+          flex: 0 0 auto;
+          width: 100%;
+          max-width: none;
+        }
+        .sidebar button {
+          flex: 0 0 auto;
+          width: 100%;
+          min-width: unset;
+          min-height: 44px;
+          padding: 0.6rem 0.85rem;
+          font-size: 0.95rem;
+          border-radius: 16px;
+        }
+        .sidebar button .icon {
+          font-size: 1rem;
+        }
+        .content {
+          flex: 1 1 auto;
+          max-width: none;
+          padding-bottom: 12rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .sidebar {
+          width: 100%;
+          padding: 0.5rem;
+        }
+        .sidebar button {
+          padding: 0.55rem 0.4rem;
+          font-size: 0.8rem;
+        }
+        .music-player {
+          margin: clamp(1.5rem, 6vh, 2.25rem) auto;
+          padding: clamp(0.75rem, 4vw, 1.1rem);
+          border-radius: 18px;
+          max-width: min(100%, calc(100vw - 1.25rem));
+        }
+        /* Music control layout handled in style.css */
+      }
+
+      #nowPlayingToast {
+        position: fixed;
+        bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
         font-size: 0.95rem;
-        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9999;
+        transition: opacity 0.4s ease;
       }
-      .sidebar button .icon {
-        font-size: 1rem;
-      }
-      .content {
-        flex: 1 1 auto;
-        max-width: none;
-        padding-bottom: 12rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .sidebar {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      .sidebar button {
-        padding: 0.55rem 0.4rem;
-        font-size: 0.8rem;
-      }
-      .music-player {
-        margin: clamp(1.5rem, 6vh, 2.25rem) auto;
-        padding: clamp(0.75rem, 4vw, 1.1rem);
-        border-radius: 18px;
-        max-width: min(100%, calc(100vw - 1.25rem));
-      }
-      /* Music control layout handled in style.css */
-    }
 
-    #nowPlayingToast {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.85);
-      color: white;
-      padding: 0.8rem 1.5rem;
-      border-radius: 25px;
-      font-size: 0.95rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 9999;
-      transition: opacity 0.4s ease;
-    }
+      #nowPlayingToast.show {
+        opacity: 1;
+      }
 
-    #nowPlayingToast.show {
-      opacity: 1;
-    }
+      .share-options-modal .share-options-actions {
+        display: grid;
+        gap: 0.8rem;
+      }
+    </style>
+    <link rel="stylesheet" href="color-scheme.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-    .share-options-modal .share-options-actions {
-      display: grid;
-      gap: 0.8rem;
-    }
-  </style>
-  <link rel="stylesheet" href="color-scheme.css">
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body data-page="main">
-  <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading">
-    <div class="boot-spinner-dot"></div>
-  </div>
-  <div class="header">
-    <div class="header-brand">
-      <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" width="64" height="64" />
-      <div class="header-titles">
-        <span class="header-title">Àríyò AI Studio</span>
+  <body data-page="main">
+    <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading">
+      <div class="boot-spinner-dot"></div>
+    </div>
+    <div class="header">
+      <div class="header-brand">
+        <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" width="64" height="64" />
+        <div class="header-titles">
+          <span class="header-title">Àríyò AI Studio</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="share-button" aria-label="Share this page" onclick="openShareMenu()">
+          <i class="fas fa-share-alt" aria-hidden="true"></i>
+        </button>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+          <span class="theme-toggle-label">Light mode</span>
+        </button>
       </div>
     </div>
-    <div class="header-actions">
-      <button class="share-button" aria-label="Share this page" onclick="openShareMenu()">
-        <i class="fas fa-share-alt" aria-hidden="true"></i>
-      </button>
-      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
-        <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
-        <span class="theme-toggle-label">Light mode</span>
-      </button>
-    </div>
-  </div>
-  <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
+    <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
 
-  <div class="container">
-    <div class="sidebar" id="sidebarNavigation">
-      <div class="search-panel" id="searchPanel">
-        <div class="search-field">
-          <input type="search" id="searchInput" class="search-input" placeholder="Search tracks or stations..." aria-label="Search tracks or radio stations" role="combobox" aria-expanded="false" aria-controls="searchResults" aria-autocomplete="list">
+    <div class="container">
+      <div class="sidebar" id="sidebarNavigation">
+        <div class="search-panel" id="searchPanel">
+          <div class="search-field">
+            <input
+              type="search"
+              id="searchInput"
+              class="search-input"
+              placeholder="Search tracks or stations..."
+              aria-label="Search tracks or radio stations"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="searchResults"
+              aria-autocomplete="list"
+            />
+          </div>
+          <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
         </div>
-        <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
+        <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">
+          <i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album
+        </button>
+        <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave">
+          <i class="fas fa-music" aria-hidden="true"></i> Choose A Track
+        </button>
+        <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave">
+          <i class="fas fa-list" aria-hidden="true"></i> My Playlist
+        </button>
+        <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">
+          <i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations
+        </button>
+        <button
+          type="button"
+          aria-label="Games and simulations"
+          class="ripple shockwave"
+          aria-controls="gamesHubContainer"
+          data-open-target="gamesHubContainer"
+          data-open-src="games.html"
+        >
+          <i class="fas fa-gamepad" aria-hidden="true"></i> Games &amp; Simulations
+        </button>
+        <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">
+          <i class="fas fa-info-circle" aria-hidden="true"></i> About Us
+        </button>
       </div>
-      <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave"><i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album</button>
-      <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave"><i class="fas fa-music" aria-hidden="true"></i> Choose A Track</button>
-      <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave"><i class="fas fa-list" aria-hidden="true"></i> My Playlist</button>
-      <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave"><i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations</button>
-      <button type="button" aria-label="Games and simulations" class="ripple shockwave" aria-controls="gamesHubContainer" data-open-target="gamesHubContainer" data-open-src="games.html"><i class="fas fa-gamepad" aria-hidden="true"></i> Games &amp; Simulations</button>
-      <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave"><i class="fas fa-info-circle" aria-hidden="true"></i> About Us</button>
-    </div>
-    <div class="content" id="main-content">
-      <section class="badge-spotlight" aria-label="Marquis Who's Who honor">
-        <img src="WisW.jpg" alt="Marquis Who's Who honored listee badge" class="badge-spotlight__image" />
-        <div class="badge-spotlight__copy">
-          <p class="badge-spotlight__eyebrow">Honor Spotlight</p>
-          <p class="badge-spotlight__title">Marquis Who's Who Honored Listee</p>
-          <p class="badge-spotlight__description">Recognizing excellence that fuels Àríyò AI—celebrating a Marquis Who's Who honoree at the heart of every experience.</p>
-        </div>
-      </section>
-      <details class="in-app-guide">
-        <summary>Need a quick tour?</summary>
-        <div class="in-app-guide-body">
-          <p class="in-app-guide-intro">Open whenever you need a refresher—Àríyò AI keeps the entertainment front and center.</p>
-          <ul class="in-app-guide-list">
-            <li><strong>Music &amp; radio:</strong> spin Omoluabi catalog cuts or hop into Naija stations from the player below.</li>
-            <li><strong>Àríyò chat:</strong> ask cultural questions or request playlists inside the Quick Launch hub.</li>
-            <li><strong>Faith &amp; fun:</strong> explore Sabi Bible or fire up puzzles like Tetris and Word Search from the same hub.</li>
-            <li><strong>Creator corner:</strong> catch Omoluabi Paul on YouTube or learn more via the About button above.</li>
-          </ul>
-        </div>
-      </details>
+      <div class="content" id="main-content">
+        <section class="badge-spotlight" aria-label="Marquis Who's Who honor">
+          <img src="WisW.jpg" alt="Marquis Who's Who honored listee badge" class="badge-spotlight__image" />
+          <div class="badge-spotlight__copy">
+            <p class="badge-spotlight__eyebrow">Honor Spotlight</p>
+            <p class="badge-spotlight__title">Marquis Who's Who Honored Listee</p>
+            <p class="badge-spotlight__description">
+              Recognizing excellence that fuels Àríyò AI—celebrating a Marquis Who's Who honoree at the heart of every
+              experience.
+            </p>
+          </div>
+        </section>
+        <details class="in-app-guide">
+          <summary>Need a quick tour?</summary>
+          <div class="in-app-guide-body">
+            <p class="in-app-guide-intro">
+              Open whenever you need a refresher—Àríyò AI keeps the entertainment front and center.
+            </p>
+            <ul class="in-app-guide-list">
+              <li>
+                <strong>Music &amp; radio:</strong> spin Omoluabi catalog cuts or hop into Naija stations from the
+                player below.
+              </li>
+              <li>
+                <strong>Àríyò chat:</strong> ask cultural questions or request playlists inside the Quick Launch hub.
+              </li>
+              <li>
+                <strong>Faith &amp; fun:</strong> explore Sabi Bible or fire up puzzles like Tetris and Word Search from
+                the same hub.
+              </li>
+              <li>
+                <strong>Creator corner:</strong> catch Omoluabi Paul on YouTube or learn more via the About button
+                above.
+              </li>
+            </ul>
+          </div>
+        </details>
         <div class="notification-card">
           <div>
             <h4>Stay in the loop</h4>
-          <p>We will invite you to enable music alerts after you play or follow creators—no spammy popups.</p>
+            <p>We will invite you to enable music alerts after you play or follow creators—no spammy popups.</p>
           </div>
           <div class="notification-actions">
             <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
           </div>
         </div>
-      <div class="edge-panel-hint" role="note">Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into chat, Bible study, video, or puzzle modes.</div>
-      <!-- Music Player -->
-      <div class="music-player" data-visualizer-mode="neon-bars">
-        <h3>Music Player</h3>
+        <div class="edge-panel-hint" role="note">
+          Look for the floating “Quick hub” tab near the player—swipe it open or tap the buttons above to jump into
+          chat, Bible study, video, or puzzle modes.
+        </div>
+        <!-- Music Player -->
+        <div class="music-player" data-visualizer-mode="neon-bars">
+          <h3>Music Player</h3>
           <div class="player-body">
-          <div class="player-visual">
-            <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
-              <canvas class="waveform-canvas" aria-hidden="true"></canvas>
-            </div>
-            <div class="visualizer-selector" role="tablist" aria-label="Visualizer styles">
-              <button type="button" class="visualizer-selector__button visualizer-selector__button--active" data-main-visualizer-mode="orb" aria-pressed="true">
-                🧊 Orb
-              </button>
-              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="neon-bars" aria-pressed="false">
-                📊 Neon Bars
-              </button>
-              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="particle-field" aria-pressed="false">
-                ✨ Particle Field
-              </button>
-              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="wireframe-lattice" aria-pressed="false">
-                🕸️ Lattice
-              </button>
-              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="waveform-tunnel" aria-pressed="false">
-                🚇 Wave Tunnel
-              </button>
-              <button type="button" class="visualizer-selector__button" data-main-visualizer-mode="holographic-rings" aria-pressed="false">
-                🪩 Rings
-              </button>
-            </div>
-            <p id="visualizerModeStatus" class="visualizer-status visualizer-mode-status" aria-live="polite"></p>
-            <div class="visualizer-actions" role="group" aria-label="Visualizer motion controls">
-              <label class="visualizer-toggle" for="visualizerMotionToggle">
-                <span class="visualizer-toggle__label">Visualizer motion</span>
-                <span class="visualizer-toggle__control">
-                  <input
-                    type="checkbox"
-                    id="visualizerMotionToggle"
-                    class="visualizer-toggle__input"
-                    aria-describedby="visualizerMotionStatus"
-                  />
-                  <span class="visualizer-toggle__track" aria-hidden="true">
-                    <span class="visualizer-toggle__thumb"></span>
+            <div class="player-visual">
+              <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
+                <canvas class="waveform-canvas" aria-hidden="true"></canvas>
+              </div>
+              <div class="visualizer-selector" role="tablist" aria-label="Visualizer styles">
+                <button
+                  type="button"
+                  class="visualizer-selector__button visualizer-selector__button--active"
+                  data-main-visualizer-mode="orb"
+                  aria-pressed="true"
+                >
+                  🧊 Orb
+                </button>
+                <button
+                  type="button"
+                  class="visualizer-selector__button"
+                  data-main-visualizer-mode="neon-bars"
+                  aria-pressed="false"
+                >
+                  📊 Neon Bars
+                </button>
+                <button
+                  type="button"
+                  class="visualizer-selector__button"
+                  data-main-visualizer-mode="particle-field"
+                  aria-pressed="false"
+                >
+                  ✨ Particle Field
+                </button>
+                <button
+                  type="button"
+                  class="visualizer-selector__button"
+                  data-main-visualizer-mode="wireframe-lattice"
+                  aria-pressed="false"
+                >
+                  🕸️ Lattice
+                </button>
+                <button
+                  type="button"
+                  class="visualizer-selector__button"
+                  data-main-visualizer-mode="waveform-tunnel"
+                  aria-pressed="false"
+                >
+                  🚇 Wave Tunnel
+                </button>
+                <button
+                  type="button"
+                  class="visualizer-selector__button"
+                  data-main-visualizer-mode="holographic-rings"
+                  aria-pressed="false"
+                >
+                  🪩 Rings
+                </button>
+              </div>
+              <p id="visualizerModeStatus" class="visualizer-status visualizer-mode-status" aria-live="polite"></p>
+              <div class="visualizer-actions" role="group" aria-label="Visualizer motion controls">
+                <label class="visualizer-toggle" for="visualizerMotionToggle">
+                  <span class="visualizer-toggle__label">Visualizer motion</span>
+                  <span class="visualizer-toggle__control">
+                    <input
+                      type="checkbox"
+                      id="visualizerMotionToggle"
+                      class="visualizer-toggle__input"
+                      aria-describedby="visualizerMotionStatus"
+                    />
+                    <span class="visualizer-toggle__track" aria-hidden="true">
+                      <span class="visualizer-toggle__thumb"></span>
+                    </span>
                   </span>
-                </span>
-              </label>
-              <p id="visualizerMotionStatus" class="visualizer-status" aria-live="polite"></p>
-            </div>
-            <div id="bufferingOverlay" class="buffering-overlay" aria-live="polite" aria-atomic="true">
-              <div class="buffering-ripple" aria-hidden="true"></div>
-              <div class="buffering-ripple delayed" aria-hidden="true"></div>
-              <div class="buffering-content">
-                <div
-                  id="loadingSpinner"
-                  class="loading-spinner"
-                  role="status"
-                  aria-label="Loading audio"
-                ></div>
-                <p id="bufferingMessage" class="buffering-message">Starting playback...</p>
+                </label>
+                <p id="visualizerMotionStatus" class="visualizer-status" aria-live="polite"></p>
+              </div>
+              <div id="bufferingOverlay" class="buffering-overlay" aria-live="polite" aria-atomic="true">
+                <div class="buffering-ripple" aria-hidden="true"></div>
+                <div class="buffering-ripple delayed" aria-hidden="true"></div>
+                <div class="buffering-content">
+                  <div id="loadingSpinner" class="loading-spinner" role="status" aria-label="Loading audio"></div>
+                  <p id="bufferingMessage" class="buffering-message">Starting playback...</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="player-main">
-            <div id="progressBar" class="progress-bar">
-              <div id="progressBarFill"></div>
-            </div>
-            <div class="now-playing" aria-live="polite">
-              <div class="now-playing-thumb">
-                <img
-                  id="trackThumbnail"
-                  src="Logo.jpg"
-                  alt="Album art placeholder"
-                  width="56"
-                  height="56"
-                  loading="lazy"
-                />
+            <div class="player-main">
+              <div id="progressBar" class="progress-bar">
+                <div id="progressBarFill"></div>
               </div>
-              <div class="now-playing-text">
-                <p class="track-info" id="trackInfo">Choose a track to start playback.</p>
-                <p class="track-artist-inline" id="trackArtistInline"></p>
+              <div class="now-playing" aria-live="polite">
+                <div class="now-playing-thumb">
+                  <img
+                    id="trackThumbnail"
+                    src="Logo.jpg"
+                    alt="Album art placeholder"
+                    width="56"
+                    height="56"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="now-playing-text">
+                  <p class="track-info" id="trackInfo">Choose a track to start playback.</p>
+                  <p class="track-artist-inline" id="trackArtistInline"></p>
+                </div>
               </div>
+              <div class="track-provenance" aria-live="polite"></div>
+              <div class="player-meta-grid">
+                <p class="track-details" id="trackArtist">Artist:</p>
+                <p class="track-details" id="trackYear">Release Year: Unknown</p>
+                <p class="track-details" id="trackAlbum"></p>
+                <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
+                <p id="shuffleStatusInfo" class="track-details" style="font-style: italic"></p>
+                <p id="nextTrackInfo" class="track-details" style="font-style: italic"></p>
+              </div>
+              <div
+                id="playbackStatusBanner"
+                class="playback-status-banner"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                hidden
+              >
+                <span id="playbackStatusMessage"></span>
+                <button
+                  id="playbackRetryButton"
+                  type="button"
+                  class="status-retry-button"
+                  aria-label="Retry playback"
+                  hidden
+                >
+                  Retry
+                </button>
+              </div>
+              <input
+                type="range"
+                id="seekBar"
+                value="0"
+                min="0"
+                max="100"
+                step="1"
+                class="seek-bar"
+                aria-label="Seek bar for audio playback"
+                aria-controls="audioPlayer"
+              />
+              <div class="player-utility">
+                <button id="retryButton" type="button" class="retry-button" aria-label="Retry loading track">
+                  Retry
+                </button>
+                <button
+                  id="addToPlaylistButton"
+                  type="button"
+                  class="retry-button"
+                  aria-label="Add current track to playlist"
+                >
+                  Add to Playlist
+                </button>
+                <button id="lyricsToggle" type="button" class="retry-button" aria-label="Toggle lyrics">Lyrics</button>
+              </div>
+              <div id="lyrics"></div>
+              <div class="music-controls icons-only">
+                <button
+                  id="prevButton"
+                  type="button"
+                  aria-label="Previous track"
+                  title="Previous track"
+                  aria-controls="audioPlayer"
+                  class="ripple shockwave"
+                >
+                  ⏮
+                </button>
+                <button
+                  type="button"
+                  aria-label="Play"
+                  title="Play"
+                  aria-controls="audioPlayer"
+                  class="ripple shockwave play-button"
+                  id="playButton"
+                >
+                  <span class="play-spinner" aria-hidden="true"></span>
+                </button>
+                <button
+                  id="pauseButton"
+                  type="button"
+                  aria-label="Pause"
+                  title="Pause"
+                  aria-controls="audioPlayer"
+                  class="ripple shockwave"
+                >
+                  ⏸
+                </button>
+                <button
+                  id="stopButton"
+                  type="button"
+                  aria-label="Stop"
+                  title="Stop"
+                  aria-controls="audioPlayer"
+                  class="ripple shockwave"
+                >
+                  ⏹
+                </button>
+                <button
+                  id="nextButton"
+                  type="button"
+                  aria-label="Next track"
+                  title="Next track"
+                  aria-controls="audioPlayer"
+                  class="ripple shockwave"
+                >
+                  ⏭
+                </button>
+                <button
+                  id="shuffleButton"
+                  type="button"
+                  aria-label="Toggle shuffle"
+                  title="Toggle shuffle"
+                  aria-pressed="false"
+                  class="ripple shockwave shuffle-button"
+                >
+                  🔀
+                </button>
+              </div>
+              <audio
+                id="audioPlayer"
+                preload="metadata"
+                playsinline
+                webkit-playsinline
+                hidden
+                aria-hidden="true"
+              ></audio>
             </div>
-            <div class="track-provenance" aria-live="polite"></div>
-            <div class="player-meta-grid">
-              <p class="track-details" id="trackArtist">Artist:</p>
-              <p class="track-details" id="trackYear">Release Year: Unknown</p>
-              <p class="track-details" id="trackAlbum"></p>
-              <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
-              <p id="shuffleStatusInfo" class="track-details" style="font-style: italic;"></p>
-              <p id="nextTrackInfo" class="track-details" style="font-style: italic;"></p>
-            </div>
-            <div id="playbackStatusBanner" class="playback-status-banner" role="status" aria-live="polite" aria-atomic="true" hidden>
-              <span id="playbackStatusMessage"></span>
-              <button id="playbackRetryButton" type="button" class="status-retry-button" aria-label="Retry playback" hidden>Retry</button>
-            </div>
-            <input
-              type="range"
-              id="seekBar"
-              value="0"
-              min="0"
-              max="100"
-              step="1"
-              class="seek-bar"
-              aria-label="Seek bar for audio playback"
-              aria-controls="audioPlayer"
-            />
-            <div class="player-utility">
-              <button id="retryButton" type="button" class="retry-button" aria-label="Retry loading track">Retry</button>
-              <button id="addToPlaylistButton" type="button" class="retry-button" aria-label="Add current track to playlist">Add to Playlist</button>
-              <button id="lyricsToggle" type="button" class="retry-button" aria-label="Toggle lyrics">Lyrics</button>
-            </div>
-            <div id="lyrics"></div>
-            <div class="music-controls icons-only">
-              <button id="prevButton" type="button" aria-label="Previous track" title="Previous track" aria-controls="audioPlayer" class="ripple shockwave">⏮</button>
-              <button type="button" aria-label="Play" title="Play" aria-controls="audioPlayer" class="ripple shockwave play-button" id="playButton">
-                <span class="play-spinner" aria-hidden="true"></span>
-              </button>
-              <button id="pauseButton" type="button" aria-label="Pause" title="Pause" aria-controls="audioPlayer" class="ripple shockwave">⏸</button>
-              <button id="stopButton" type="button" aria-label="Stop" title="Stop" aria-controls="audioPlayer" class="ripple shockwave">⏹</button>
-              <button id="nextButton" type="button" aria-label="Next track" title="Next track" aria-controls="audioPlayer" class="ripple shockwave">⏭</button>
-              <button id="shuffleButton" type="button" aria-label="Toggle shuffle" title="Toggle shuffle" aria-pressed="false" class="ripple shockwave shuffle-button">🔀</button>
-            </div>
-            <audio id="audioPlayer" preload="metadata" playsinline webkit-playsinline hidden aria-hidden="true"></audio>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modal for Album List -->
-  <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
-    <div class="modal-content">
-      <button class="close ripple shockwave" role="button" aria-label="Close album list" onclick="closeAlbumList()">×</button>
-      <h3 id="albumModalTitle">Choose An Album</h3>
-      <div class="album-list">
-        <!-- Dynamically populated -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal for Track List -->
-  <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
-    <div class="modal-content">
-      <button class="close ripple shockwave" role="button" aria-label="Close track list" onclick="closeTrackList()">×</button>
-      <h3 id="trackModalTitle">Choose A Track</h3>
-      <div class="track-modal-meta" id="trackModalMeta"></div>
-      <div id="latestTracksBanner" class="latest-tracks-banner" role="status" aria-live="polite" hidden>
-        <div class="latest-tracks-header">
-          <span class="latest-tracks-badge" aria-hidden="true">FRESH DROP</span>
-          <div class="latest-tracks-text">
-            <p class="latest-tracks-title">Fresh drop alert</p>
-            <p class="latest-tracks-copy" id="latestTracksCopy"></p>
-          </div>
+    <!-- Modal for Album List -->
+    <div id="albumModal" class="modal" role="dialog" aria-labelledby="albumModalTitle">
+      <div class="modal-content">
+        <button class="close ripple shockwave" role="button" aria-label="Close album list" onclick="closeAlbumList()">
+          ×
+        </button>
+        <h3 id="albumModalTitle">Choose An Album</h3>
+        <div class="album-list">
+          <!-- Dynamically populated -->
         </div>
-        <div class="latest-tracks-actions" id="latestTracksActions"></div>
-      </div>
-      <div class="track-list">
-        <!-- Dynamically populated -->
       </div>
     </div>
-  </div>
 
-<!-- Modal for Radio Stations -->
-  <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
-  <div class="modal-content">
-    <button class="close ripple shockwave" role="button" aria-label="Close radio list" onclick="requestCloseRadioList('close-button')">×</button>
-    <div class="modal-title-row">
-      <h3 id="radioModalTitle" class="modal-title">Choose A Radio Station</h3>
-      <span class="provenance-chip">Live radio</span>
+    <!-- Modal for Track List -->
+    <div id="trackModal" class="modal" role="dialog" aria-labelledby="trackModalTitle">
+      <div class="modal-content">
+        <button class="close ripple shockwave" role="button" aria-label="Close track list" onclick="closeTrackList()">
+          ×
+        </button>
+        <h3 id="trackModalTitle">Choose A Track</h3>
+        <div class="track-modal-meta" id="trackModalMeta"></div>
+        <div id="latestTracksBanner" class="latest-tracks-banner" role="status" aria-live="polite" hidden>
+          <div class="latest-tracks-header">
+            <span class="latest-tracks-badge" aria-hidden="true">FRESH DROP</span>
+            <div class="latest-tracks-text">
+              <p class="latest-tracks-title">Fresh drop alert</p>
+              <p class="latest-tracks-copy" id="latestTracksCopy"></p>
+            </div>
+          </div>
+          <div class="latest-tracks-actions" id="latestTracksActions"></div>
+        </div>
+        <div class="track-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
     </div>
-    <!-- Group: Nigeria -->
-    <h4 class="radio-region-header">Nigeria</h4>
-    <div id="nigeria-stations" class="radio-list"></div>
-    <button onclick="loadMoreStations('nigeria')" style="margin: 1rem 0;">Load More Nigerian Stations</button>
 
-    <!-- Group: West Africa -->
-    <h4 class="radio-region-header">West Africa</h4>
-    <div id="westAfrica-stations" class="radio-list"></div>
-    <button onclick="loadMoreStations('westAfrica')" style="margin: 1rem 0;">Load More West African Stations</button>
+    <!-- Modal for Radio Stations -->
+    <div id="radioModal" class="modal" role="dialog" aria-labelledby="radioModalTitle">
+      <div class="modal-content">
+        <button
+          class="close ripple shockwave"
+          role="button"
+          aria-label="Close radio list"
+          onclick="requestCloseRadioList('close-button')"
+        >
+          ×
+        </button>
+        <div class="modal-title-row">
+          <h3 id="radioModalTitle" class="modal-title">Choose A Radio Station</h3>
+          <span class="provenance-chip">Live radio</span>
+        </div>
+        <!-- Group: Nigeria -->
+        <h4 class="radio-region-header">Nigeria</h4>
+        <div id="nigeria-stations" class="radio-list"></div>
+        <button onclick="loadMoreStations('nigeria')" style="margin: 1rem 0">Load More Nigerian Stations</button>
 
-    <!-- Group: International -->
-    <h4 class="radio-region-header">International</h4>
-    <div id="international-stations" class="radio-list"></div>
-    <button onclick="loadMoreStations('international')" style="margin: 1rem 0;">Load More International Stations</button>
-  </div>
-</div>
+        <!-- Group: West Africa -->
+        <h4 class="radio-region-header">West Africa</h4>
+        <div id="westAfrica-stations" class="radio-list"></div>
+        <button onclick="loadMoreStations('westAfrica')" style="margin: 1rem 0">Load More West African Stations</button>
 
-<div class="edge-panel" id="edgePanel" aria-expanded="false">
-    <div class="edge-panel-handle" role="button" tabindex="0" aria-label="Toggle Quick Launch hub" aria-expanded="false" aria-controls="edgePanel"></div>
-    <div class="edge-panel-content">
+        <!-- Group: International -->
+        <h4 class="radio-region-header">International</h4>
+        <div id="international-stations" class="radio-list"></div>
+        <button onclick="loadMoreStations('international')" style="margin: 1rem 0">
+          Load More International Stations
+        </button>
+      </div>
+    </div>
+
+    <div class="edge-panel" id="edgePanel" aria-expanded="false">
+      <div
+        class="edge-panel-handle"
+        role="button"
+        tabindex="0"
+        aria-label="Toggle Quick Launch hub"
+        aria-expanded="false"
+        aria-controls="edgePanel"
+      ></div>
+      <div class="edge-panel-content">
         <p class="edge-panel-intro">Quick launch hub</p>
         <div class="edge-panel-list" role="list">
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="ariyoChatbotContainer" data-open-target="ariyoChatbotContainer" data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" aria-describedby="edgeLabelAriyo" role="listitem">
-                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png" alt="Ariyo AI icon" />
-                <span class="edge-panel-label" id="edgeLabelAriyo"><strong>Àríyò Chat</strong>Culture, music &amp; Naija guidance</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="sabiBibleContainer" data-open-target="sabiBibleContainer" data-open-src="apps/sabi-bible/sabi-bible.html" aria-describedby="edgeLabelBible" role="listitem">
-                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png" alt="Sabi Bible icon" />
-                <span class="edge-panel-label" id="edgeLabelBible"><strong>Sabi Bible</strong>Yorùbá-English scripture explorer</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="youtubeModalContainer" data-open-target="youtubeModalContainer" data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1" aria-describedby="edgeLabelYouTube" role="listitem">
-                <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube icon" />
-                <span class="edge-panel-label" id="edgeLabelYouTube"><strong>Watch Omoluabi Paul</strong>Latest videos &amp; performances</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="gamesHubContainer" data-open-target="gamesHubContainer" data-open-src="games.html" aria-describedby="edgeLabelGames" role="listitem">
-                <img src="icons/Ariyo.png" alt="Games hub icon" />
-                <span class="edge-panel-label" id="edgeLabelGames"><strong>Games Hub</strong>GeoFS, MyRetroTVs, and more</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="pictureGameContainer" data-open-target="pictureGameContainer" data-open-src="apps/picture-game/picture-game.html" aria-describedby="edgeLabelPicture" role="listitem">
-                <img src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png" alt="Picture Game icon" />
-                <span class="edge-panel-label" id="edgeLabelPicture"><strong>Picture Game</strong>Guess-the-scene memory challenge</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="tetrisGameContainer" data-open-target="tetrisGameContainer" data-open-src="apps/tetris/tetris.html" aria-describedby="edgeLabelTetris" role="listitem">
-                <img src="icons/tetris.svg" alt="Omoluabi Tetris icon" />
-                <span class="edge-panel-label" id="edgeLabelTetris"><strong>Omoluabi Tetris</strong>Classic stacker with Naija flair</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="wordSearchContainer" data-open-target="wordSearchContainer" data-open-src="apps/word-search/word-search.html" aria-describedby="edgeLabelWordSearch" role="listitem">
-                <img src="icons/word-search.svg" alt="Omoluabi Word Search icon" />
-                <span class="edge-panel-label" id="edgeLabelWordSearch"><strong>Word Search</strong>Find Naija people &amp; places fast</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="connectFourContainer" data-open-target="connectFourContainer" data-open-src="apps/connect-four/connect-four.html" aria-describedby="edgeLabelConnectFour" role="listitem">
-                <img src="icons/connect-four.svg" alt="Ara Connect-4 icon" />
-                <span class="edge-panel-label" id="edgeLabelConnectFour"><strong>Ara Connect-4</strong>Battle for four-in-a-row bragging rights</span>
-            </button>
-            <button class="edge-panel-item edge-panel-launcher" type="button" aria-controls="cyclePrecisionContainer" data-open-target="cyclePrecisionContainer" data-open-src="apps/cycle-precision/cycle-precision.html" aria-describedby="edgeLabelCycle" role="listitem">
-                <img src="icons/blood.svg" alt="Cycle Precision icon" />
-                <span class="edge-panel-label" id="edgeLabelCycle"><strong>Cycle Precision</strong>Track &amp; learn with calm visuals</span>
-            </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="ariyoChatbotContainer"
+            data-open-target="ariyoChatbotContainer"
+            data-open-src="apps/ariyo-ai-chat/ariyo-ai-chat.html"
+            aria-describedby="edgeLabelAriyo"
+            role="listitem"
+          >
+            <img
+              src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ariyo%20AI%20icon.png"
+              alt="Ariyo AI icon"
+            />
+            <span class="edge-panel-label" id="edgeLabelAriyo"
+              ><strong>Àríyò Chat</strong>Culture, music &amp; Naija guidance</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="sabiBibleContainer"
+            data-open-target="sabiBibleContainer"
+            data-open-src="apps/sabi-bible/sabi-bible.html"
+            aria-describedby="edgeLabelBible"
+            role="listitem"
+          >
+            <img
+              src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Sabi%20Bible%20icon.png"
+              alt="Sabi Bible icon"
+            />
+            <span class="edge-panel-label" id="edgeLabelBible"
+              ><strong>Sabi Bible</strong>Yorùbá-English scripture explorer</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="youtubeModalContainer"
+            data-open-target="youtubeModalContainer"
+            data-open-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1"
+            aria-describedby="edgeLabelYouTube"
+            role="listitem"
+          >
+            <img src="icons/youtube.svg" alt="Omoluabi Paul YouTube icon" />
+            <span class="edge-panel-label" id="edgeLabelYouTube"
+              ><strong>Watch Omoluabi Paul</strong>Latest videos &amp; performances</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="gamesHubContainer"
+            data-open-target="gamesHubContainer"
+            data-open-src="games.html"
+            aria-describedby="edgeLabelGames"
+            role="listitem"
+          >
+            <img src="icons/Ariyo.png" alt="Games hub icon" />
+            <span class="edge-panel-label" id="edgeLabelGames"
+              ><strong>Games Hub</strong>GeoFS, MyRetroTVs, and more</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="pictureGameContainer"
+            data-open-target="pictureGameContainer"
+            data-open-src="apps/picture-game/picture-game.html"
+            aria-describedby="edgeLabelPicture"
+            role="listitem"
+          >
+            <img
+              src="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Ara%20icon.png"
+              alt="Picture Game icon"
+            />
+            <span class="edge-panel-label" id="edgeLabelPicture"
+              ><strong>Picture Game</strong>Guess-the-scene memory challenge</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="tetrisGameContainer"
+            data-open-target="tetrisGameContainer"
+            data-open-src="apps/tetris/tetris.html"
+            aria-describedby="edgeLabelTetris"
+            role="listitem"
+          >
+            <img src="icons/tetris.svg" alt="Omoluabi Tetris icon" />
+            <span class="edge-panel-label" id="edgeLabelTetris"
+              ><strong>Omoluabi Tetris</strong>Classic stacker with Naija flair</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="wordSearchContainer"
+            data-open-target="wordSearchContainer"
+            data-open-src="apps/word-search/word-search.html"
+            aria-describedby="edgeLabelWordSearch"
+            role="listitem"
+          >
+            <img src="icons/word-search.svg" alt="Omoluabi Word Search icon" />
+            <span class="edge-panel-label" id="edgeLabelWordSearch"
+              ><strong>Word Search</strong>Find Naija people &amp; places fast</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="connectFourContainer"
+            data-open-target="connectFourContainer"
+            data-open-src="apps/connect-four/connect-four.html"
+            aria-describedby="edgeLabelConnectFour"
+            role="listitem"
+          >
+            <img src="icons/connect-four.svg" alt="Ara Connect-4 icon" />
+            <span class="edge-panel-label" id="edgeLabelConnectFour"
+              ><strong>Ara Connect-4</strong>Battle for four-in-a-row bragging rights</span
+            >
+          </button>
+          <button
+            class="edge-panel-item edge-panel-launcher"
+            type="button"
+            aria-controls="cyclePrecisionContainer"
+            data-open-target="cyclePrecisionContainer"
+            data-open-src="apps/cycle-precision/cycle-precision.html"
+            aria-describedby="edgeLabelCycle"
+            role="listitem"
+          >
+            <img src="icons/blood.svg" alt="Cycle Precision icon" />
+            <span class="edge-panel-label" id="edgeLabelCycle"
+              ><strong>Cycle Precision</strong>Track &amp; learn with calm visuals</span
+            >
+          </button>
         </div>
+      </div>
+      <p class="edge-panel-privacy">
+        Zapier-hosted chatbots may store prompts.
+        <a href="privacy.html" target="_blank" rel="noopener noreferrer">Read how Àríyò AI handles data</a>.
+      </p>
     </div>
-    <p class="edge-panel-privacy">Zapier-hosted chatbots may store prompts. <a href="privacy.html" target="_blank" rel="noopener noreferrer">Read how Àríyò AI handles data</a>.</p>
-</div>
 
-<section id="news-section" class="chatbot-container news-panel" role="dialog" aria-modal="true" aria-labelledby="newsTitle" aria-describedby="newsCopy" aria-hidden="true">
-    <button class="popup-close ripple shockwave" data-close-target="news-section" aria-label="Close Naija Vibes News">×</button>
-    <div class="news-layout">
+    <section
+      id="news-section"
+      class="chatbot-container news-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="newsTitle"
+      aria-describedby="newsCopy"
+      aria-hidden="true"
+    >
+      <button class="popup-close ripple shockwave" data-close-target="news-section" aria-label="Close Naija Vibes News">
+        ×
+      </button>
+      <div class="news-layout">
         <header>
-            <p id="newsCopy" class="modal-tagline">Ariyò AI Media Studio now curates Naija Vibe News—trusted headlines from home and the diaspora, refreshed automatically and cached for offline peace of mind.</p>
-            <h3 id="newsTitle" class="modal-title">Naija Vibes News</h3>
+          <p id="newsCopy" class="modal-tagline">
+            Ariyò AI Media Studio now curates Naija Vibe News—trusted headlines from home and the diaspora, refreshed
+            automatically and cached for offline peace of mind.
+          </p>
+          <h3 id="newsTitle" class="modal-title">Naija Vibes News</h3>
         </header>
         <div class="news-hero" id="news-hero"></div>
         <div class="news-grid" id="news-feed" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Games Hub Container -->
+    <div
+      id="gamesHubContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gamesHubTitle"
+      aria-describedby="gamesHubTagline"
+    >
+      <button class="popup-close ripple shockwave" data-close-target="gamesHubContainer" aria-label="Close Games Hub">
+        ×
+      </button>
+      <h3 id="gamesHubTitle" class="modal-title">Games &amp; Simulations</h3>
+      <p id="gamesHubTagline" class="modal-tagline">
+        Jump into GeoFS, MyRetroTVs, and more without leaving the studio.
+      </p>
+      <iframe
+        src="games.html"
+        data-default-src="games.html"
+        title="Games &amp; simulations hub"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
     </div>
-</section>
 
-<!-- Games Hub Container -->
-<div id="gamesHubContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="gamesHubTitle" aria-describedby="gamesHubTagline">
-    <button class="popup-close ripple shockwave" data-close-target="gamesHubContainer" aria-label="Close Games Hub">×</button>
-    <h3 id="gamesHubTitle" class="modal-title">Games &amp; Simulations</h3>
-    <p id="gamesHubTagline" class="modal-tagline">Jump into GeoFS, MyRetroTVs, and more without leaving the studio.</p>
-    <iframe src="games.html" data-default-src="games.html" title="Games &amp; simulations hub" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
-
-<!-- Omoluabi Paul YouTube Container -->
-<div id="youtubeModalContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="youtubeModalTitle" aria-describedby="youtubeModalNote">
-    <button class="popup-close ripple shockwave" data-close-target="youtubeModalContainer" aria-label="Close Omoluabi Paul's YouTube">×</button>
-    <h3 id="youtubeModalTitle" class="modal-title">Omoluabi Paul on YouTube</h3>
-    <p class="modal-tagline">Stream performance snippets, social commentary, and behind-the-scenes clips without leaving the studio.</p>
-    <div class="youtube-embed-wrapper">
+    <!-- Omoluabi Paul YouTube Container -->
+    <div
+      id="youtubeModalContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="youtubeModalTitle"
+      aria-describedby="youtubeModalNote"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="youtubeModalContainer"
+        aria-label="Close Omoluabi Paul's YouTube"
+      >
+        ×
+      </button>
+      <h3 id="youtubeModalTitle" class="modal-title">Omoluabi Paul on YouTube</h3>
+      <p class="modal-tagline">
+        Stream performance snippets, social commentary, and behind-the-scenes clips without leaving the studio.
+      </p>
+      <div class="youtube-embed-wrapper">
         <iframe
-            class="youtube-frame"
-            src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1"
-            data-default-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1"
-            title="Omoluabi Paul YouTube uploads"
-            loading="lazy"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
+          class="youtube-frame"
+          src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1"
+          data-default-src="https://www.youtube.com/embed/videoseries?list=UUzkQQysk1Afxsc-bRh1mYpg&amp;enablejsapi=1"
+          title="Omoluabi Paul YouTube uploads"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        >
         </iframe>
-    </div>
-    <p class="youtube-modal-note" id="youtubeModalNote">Stream Omoluabi Paul's latest videos without leaving Àríyò AI. If the preview doesn't load, you can jump straight to YouTube instead.</p>
-    <div class="youtube-modal-actions">
-        <a class="youtube-modal-link" href="https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV" target="_blank" rel="noopener noreferrer">
-            Open full channel on YouTube
+      </div>
+      <p class="youtube-modal-note" id="youtubeModalNote">
+        Stream Omoluabi Paul's latest videos without leaving Àríyò AI. If the preview doesn't load, you can jump
+        straight to YouTube instead.
+      </p>
+      <div class="youtube-modal-actions">
+        <a
+          class="youtube-modal-link"
+          href="https://youtube.com/@omoluabipaul?si=9zduvJQvN8_ZXMuV"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open full channel on YouTube
         </a>
+      </div>
     </div>
-</div>
 
-<!-- Ariyo AI Chatbot Container -->
-<div id="ariyoChatbotContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="ariyoChatbotTitle" aria-describedby="ariyoChatbotTagline">
-    <button class="popup-close ripple shockwave" data-close-target="ariyoChatbotContainer" aria-label="Close Ariyo AI">×</button>
-    <h3 id="ariyoChatbotTitle" class="modal-title">Àríyò AI</h3>
-    <p id="ariyoChatbotTagline" class="modal-tagline">“Ẹ káàbọ́!” Swap greetings, decode Naija slang, or get music tips from Àríyò without guessing what to ask first.</p>
-    <ul class="quick-start-list">
+    <!-- Ariyo AI Chatbot Container -->
+    <div
+      id="ariyoChatbotContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ariyoChatbotTitle"
+      aria-describedby="ariyoChatbotTagline"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="ariyoChatbotContainer"
+        aria-label="Close Ariyo AI"
+      >
+        ×
+      </button>
+      <h3 id="ariyoChatbotTitle" class="modal-title">Àríyò AI</h3>
+      <p id="ariyoChatbotTagline" class="modal-tagline">
+        “Ẹ káàbọ́!” Swap greetings, decode Naija slang, or get music tips from Àríyò without guessing what to ask first.
+      </p>
+      <ul class="quick-start-list">
         <li>Ask: “Explain the proverb ‘No condition is permanent’ in Yoruba and English.”</li>
         <li>Ask: “Recommend a Fuji playlist for a Sunday afternoon hangout.”</li>
         <li>Ask: “How do I greet elders respectfully in Benin City?”</li>
-    </ul>
-    <iframe src="apps/ariyo-ai-chat/ariyo-ai-chat.html" data-default-src="apps/ariyo-ai-chat/ariyo-ai-chat.html" title="Àríyò AI cultural chatbot" style="border: none; width: 100%; height: 100%;"></iframe>
-</div>
+      </ul>
+      <iframe
+        src="apps/ariyo-ai-chat/ariyo-ai-chat.html"
+        data-default-src="apps/ariyo-ai-chat/ariyo-ai-chat.html"
+        title="Àríyò AI cultural chatbot"
+        style="border: none; width: 100%; height: 100%"
+      ></iframe>
+    </div>
 
-<!-- Sabi Bible Chatbot Container -->
-<div id="sabiBibleContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="sabiBibleTitle" aria-describedby="sabiBibleTagline">
-    <button class="popup-close ripple shockwave" data-close-target="sabiBibleContainer" aria-label="Close Sabi Bible">×</button>
-    <h3 id="sabiBibleTitle" class="modal-title">Sabi Bible</h3>
-    <p id="sabiBibleTagline" class="modal-tagline">AI-assisted verse exploration for Naija believers—switch between Yoruba and English explanations without flipping concordances.</p>
-    <ul class="quick-start-list">
+    <!-- Sabi Bible Chatbot Container -->
+    <div
+      id="sabiBibleContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sabiBibleTitle"
+      aria-describedby="sabiBibleTagline"
+    >
+      <button class="popup-close ripple shockwave" data-close-target="sabiBibleContainer" aria-label="Close Sabi Bible">
+        ×
+      </button>
+      <h3 id="sabiBibleTitle" class="modal-title">Sabi Bible</h3>
+      <p id="sabiBibleTagline" class="modal-tagline">
+        AI-assisted verse exploration for Naija believers—switch between Yoruba and English explanations without
+        flipping concordances.
+      </p>
+      <ul class="quick-start-list">
         <li>Prompt: “Show Psalm 91 in Yoruba and explain verse 2 in English.”</li>
         <li>Prompt: “Where does the Bible talk about justice for the oppressed? Give Naija context.”</li>
         <li>Prompt: “Give me prayers for travelling mercies in Yoruba.”</li>
-    </ul>
-    <iframe src="apps/sabi-bible/sabi-bible.html" data-default-src="apps/sabi-bible/sabi-bible.html" title="Sabi Bible Yoruba-English assistant" style="border: none; width: 100%; height: 100%;"></iframe>
-</div>
+      </ul>
+      <iframe
+        src="apps/sabi-bible/sabi-bible.html"
+        data-default-src="apps/sabi-bible/sabi-bible.html"
+        title="Sabi Bible Yoruba-English assistant"
+        style="border: none; width: 100%; height: 100%"
+      ></iframe>
+    </div>
 
-<!-- Picture Game Container -->
-<div id="pictureGameContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="pictureGameTitle" aria-describedby="pictureGameTagline">
-    <button class="popup-close ripple shockwave" data-close-target="pictureGameContainer" aria-label="Close Picture Game">×</button>
-    <h3 id="pictureGameTitle" class="modal-title">Picture Game</h3>
-    <p id="pictureGameTagline" class="modal-tagline">Spot Lagos landmarks and Naija icons before the reveal timer runs out.</p>
-    <iframe src="apps/picture-game/picture-game.html" data-default-src="apps/picture-game/picture-game.html" title="Picture Game photo challenge" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+    <!-- Picture Game Container -->
+    <div
+      id="pictureGameContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pictureGameTitle"
+      aria-describedby="pictureGameTagline"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="pictureGameContainer"
+        aria-label="Close Picture Game"
+      >
+        ×
+      </button>
+      <h3 id="pictureGameTitle" class="modal-title">Picture Game</h3>
+      <p id="pictureGameTagline" class="modal-tagline">
+        Spot Lagos landmarks and Naija icons before the reveal timer runs out.
+      </p>
+      <iframe
+        src="apps/picture-game/picture-game.html"
+        data-default-src="apps/picture-game/picture-game.html"
+        title="Picture Game photo challenge"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
+    </div>
 
-<!-- Omoluabi Tetris Container -->
-<div id="tetrisGameContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="tetrisGameTitle" aria-describedby="tetrisGameTagline">
-    <button class="popup-close ripple shockwave" data-close-target="tetrisGameContainer" aria-label="Close Omoluabi Tetris">×</button>
-    <h3 id="tetrisGameTitle" class="modal-title">Omoluabi Tetris</h3>
-    <p id="tetrisGameTagline" class="modal-tagline">Stack falling shapes to Omoluabi rhythms—line clears trigger fresh beats.</p>
-    <iframe src="apps/tetris/tetris.html" data-default-src="apps/tetris/tetris.html" title="Omoluabi Tetris game" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+    <!-- Omoluabi Tetris Container -->
+    <div
+      id="tetrisGameContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tetrisGameTitle"
+      aria-describedby="tetrisGameTagline"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="tetrisGameContainer"
+        aria-label="Close Omoluabi Tetris"
+      >
+        ×
+      </button>
+      <h3 id="tetrisGameTitle" class="modal-title">Omoluabi Tetris</h3>
+      <p id="tetrisGameTagline" class="modal-tagline">
+        Stack falling shapes to Omoluabi rhythms—line clears trigger fresh beats.
+      </p>
+      <iframe
+        src="apps/tetris/tetris.html"
+        data-default-src="apps/tetris/tetris.html"
+        title="Omoluabi Tetris game"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
+    </div>
 
-<!-- Omoluabi Word Search Container -->
-<div id="wordSearchContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="wordSearchTitle" aria-describedby="wordSearchTagline">
-    <button class="popup-close ripple shockwave" data-close-target="wordSearchContainer" aria-label="Close Omoluabi Word Search">×</button>
-    <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
-    <p id="wordSearchTagline" class="modal-tagline">Hunt Yoruba names, Nigerian cities, and cultural gems hidden in the grid.</p>
-    <iframe src="apps/word-search/word-search.html" data-default-src="apps/word-search/word-search.html" title="Omoluabi word search puzzle" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+    <!-- Omoluabi Word Search Container -->
+    <div
+      id="wordSearchContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="wordSearchTitle"
+      aria-describedby="wordSearchTagline"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="wordSearchContainer"
+        aria-label="Close Omoluabi Word Search"
+      >
+        ×
+      </button>
+      <h3 id="wordSearchTitle" class="modal-title">Omoluabi Word Search</h3>
+      <p id="wordSearchTagline" class="modal-tagline">
+        Hunt Yoruba names, Nigerian cities, and cultural gems hidden in the grid.
+      </p>
+      <iframe
+        src="apps/word-search/word-search.html"
+        data-default-src="apps/word-search/word-search.html"
+        title="Omoluabi word search puzzle"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
+    </div>
 
-<!-- Ara Connect-4 Container -->
-<div id="connectFourContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="connectFourTitle" aria-describedby="connectFourTagline">
-    <button class="popup-close ripple shockwave" data-close-target="connectFourContainer" aria-label="Close Ara Connect-4">×</button>
-    <h3 id="connectFourTitle" class="modal-title">Ara Connect-4</h3>
-    <p id="connectFourTagline" class="modal-tagline">Challenge friends or family to four-in-a-row bragging rights—pidgin taunts welcome.</p>
-    <iframe src="apps/connect-four/connect-four.html" data-default-src="apps/connect-four/connect-four.html" title="Ara Connect-4 game" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+    <!-- Ara Connect-4 Container -->
+    <div
+      id="connectFourContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="connectFourTitle"
+      aria-describedby="connectFourTagline"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="connectFourContainer"
+        aria-label="Close Ara Connect-4"
+      >
+        ×
+      </button>
+      <h3 id="connectFourTitle" class="modal-title">Ara Connect-4</h3>
+      <p id="connectFourTagline" class="modal-tagline">
+        Challenge friends or family to four-in-a-row bragging rights—pidgin taunts welcome.
+      </p>
+      <iframe
+        src="apps/connect-four/connect-four.html"
+        data-default-src="apps/connect-four/connect-four.html"
+        title="Ara Connect-4 game"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
+    </div>
 
-<!-- Cycle Precision Container -->
-<div id="cyclePrecisionContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="cyclePrecisionTitle" aria-describedby="cyclePrecisionTagline">
-    <button class="popup-close ripple shockwave" data-close-target="cyclePrecisionContainer" aria-label="Close Cycle Precision">×</button>
-    <h3 id="cyclePrecisionTitle" class="modal-title">Cycle Precision</h3>
-    <p id="cyclePrecisionTagline" class="modal-tagline">Track personal rhythms with calming visuals, reminders, and supportive language.</p>
-    <iframe src="apps/cycle-precision/cycle-precision.html" data-default-src="apps/cycle-precision/cycle-precision.html" title="Cycle Precision wellness tracker" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
+    <!-- Cycle Precision Container -->
+    <div
+      id="cyclePrecisionContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cyclePrecisionTitle"
+      aria-describedby="cyclePrecisionTagline"
+    >
+      <button
+        class="popup-close ripple shockwave"
+        data-close-target="cyclePrecisionContainer"
+        aria-label="Close Cycle Precision"
+      >
+        ×
+      </button>
+      <h3 id="cyclePrecisionTitle" class="modal-title">Cycle Precision</h3>
+      <p id="cyclePrecisionTagline" class="modal-tagline">
+        Track personal rhythms with calming visuals, reminders, and supportive language.
+      </p>
+      <iframe
+        src="apps/cycle-precision/cycle-precision.html"
+        data-default-src="apps/cycle-precision/cycle-precision.html"
+        title="Cycle Precision wellness tracker"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
+    </div>
 
+    <!-- About Us Container -->
+    <div
+      id="aboutModalContainer"
+      class="chatbot-container"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="aboutModalTitle"
+    >
+      <button class="popup-close ripple shockwave" data-close-target="aboutModalContainer" aria-label="Close About Us">
+        ×
+      </button>
+      <h3 id="aboutModalTitle" class="modal-title">About Us</h3>
+      <p class="modal-tagline">
+        Dive into Omoluabi Productions, the mission behind Àríyò AI, and the creative collaborators powering each
+        feature.
+      </p>
+      <iframe
+        src="about.html"
+        data-default-src="about.html"
+        title="About Omoluabi Productions"
+        style="width: 100%; height: 100%; border: none"
+      ></iframe>
+    </div>
 
-<!-- About Us Container -->
-<div id="aboutModalContainer" class="chatbot-container" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
-    <button class="popup-close ripple shockwave" data-close-target="aboutModalContainer" aria-label="Close About Us">×</button>
-    <h3 id="aboutModalTitle" class="modal-title">About Us</h3>
-    <p class="modal-tagline">Dive into Omoluabi Productions, the mission behind Àríyò AI, and the creative collaborators powering each feature.</p>
-    <iframe src="about.html" data-default-src="about.html" title="About Omoluabi Productions" style="width: 100%; height: 100%; border: none;"></iframe>
-</div>
-
-<!-- Share QR Code Modal -->
-  <template id="shareOptionsTemplate">
-    <div id="shareOptionsModal" class="share-options-modal" role="dialog" aria-modal="true" aria-labelledby="shareOptionsTitle">
-      <div class="share-options-content">
-        <button class="popup-close ripple shockwave" aria-label="Close share options" onclick="closeShareMenu()">×</button>
-        <h3 id="shareOptionsTitle" class="modal-title">Share this vibe</h3>
-        <p class="modal-tagline">Pick your share format:</p>
-        <div class="share-options-actions">
-          <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: false })">
-            <span class="badge-button__icon" aria-hidden="true">🔗</span>
-            <span class="badge-button__label">Standard share</span>
+    <!-- Share QR Code Modal -->
+    <template id="shareOptionsTemplate">
+      <div
+        id="shareOptionsModal"
+        class="share-options-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shareOptionsTitle"
+      >
+        <div class="share-options-content">
+          <button class="popup-close ripple shockwave" aria-label="Close share options" onclick="closeShareMenu()">
+            ×
           </button>
-          <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: true })">
-            <span class="badge-button__icon" aria-hidden="true">🪄</span>
-            <span class="badge-button__label">Share with Proverb card</span>
-          </button>
+          <h3 id="shareOptionsTitle" class="modal-title">Share this vibe</h3>
+          <p class="modal-tagline">Pick your share format:</p>
+          <div class="share-options-actions">
+            <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: false })">
+              <span class="badge-button__icon" aria-hidden="true">🔗</span>
+              <span class="badge-button__label">Standard share</span>
+            </button>
+            <button type="button" class="badge-button" onclick="shareContent({ includeProverbCard: true })">
+              <span class="badge-button__icon" aria-hidden="true">🪄</span>
+              <span class="badge-button__label">Share with Proverb card</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </template>
+    </template>
 
-<!-- 🎧 Now Playing Toast -->
-  <div id="nowPlayingToast" role="status" aria-live="polite"></div>
+    <!-- 🎧 Now Playing Toast -->
+    <div id="nowPlayingToast" role="status" aria-live="polite"></div>
 
-  <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
-    <div class="notification-toast__content">
-      <p class="notification-toast__eyebrow">Stay close to the music</p>
-      <p class="notification-toast__title" id="notificationToastTitle">Get instant alerts when your favorite artists release new music.</p>
-      <p class="notification-toast__copy" id="notificationToastCopy">We only ping for the releases you follow—no spam, no noise.</p>
-      <div class="notification-toast__actions">
-        <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
-          <span class="badge-button__icon" aria-hidden="true">🔔</span>
-          <span class="badge-button__label">Enable notifications</span>
-        </button>
-        <button class="notification-toast__secondary" id="notificationLater" type="button">Maybe later</button>
+    <aside
+      class="notification-toast"
+      id="notificationToast"
+      role="dialog"
+      aria-live="polite"
+      aria-modal="false"
+      aria-label="Notifications"
+      hidden
+    >
+      <div class="notification-toast__content">
+        <p class="notification-toast__eyebrow">Stay close to the music</p>
+        <p class="notification-toast__title" id="notificationToastTitle">
+          Get instant alerts when your favorite artists release new music.
+        </p>
+        <p class="notification-toast__copy" id="notificationToastCopy">
+          We only ping for the releases you follow—no spam, no noise.
+        </p>
+        <div class="notification-toast__actions">
+          <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
+            <span class="badge-button__icon" aria-hidden="true">🔔</span>
+            <span class="badge-button__label">Enable notifications</span>
+          </button>
+          <button class="notification-toast__secondary" id="notificationLater" type="button">Maybe later</button>
+        </div>
       </div>
-    </div>
-    <button class="notification-toast__close" id="notificationClose" type="button" aria-label="Dismiss notification prompt">×</button>
-  </aside>
-  <aside class="app-update-banner" id="appUpdateBanner" role="status" aria-live="polite" hidden>
-    <p class="app-update-banner__copy" id="appUpdateCopy">Update available. Refresh now.</p>
-    <div class="app-update-banner__actions">
-      <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
-      <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
-    </div>
-  </aside>
-  <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
-    <div class="email-gate__card">
-      <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
-      <div class="email-gate__header">
-        <p class="email-gate__eyebrow">Sign in</p>
-        <h3 id="emailGateTitle">Continue with email</h3>
-        <p class="email-gate__copy">Enter your email to unlock Àríyò AI. No password required.</p>
+      <button
+        class="notification-toast__close"
+        id="notificationClose"
+        type="button"
+        aria-label="Dismiss notification prompt"
+      >
+        ×
+      </button>
+    </aside>
+    <aside class="app-update-banner" id="appUpdateBanner" role="status" aria-live="polite" hidden>
+      <p class="app-update-banner__copy" id="appUpdateCopy">Update available. Refresh now.</p>
+      <div class="app-update-banner__actions">
+        <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
+        <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
       </div>
-      <form id="emailGateForm" class="email-gate__form">
-        <label for="emailGateInput">Email address</label>
-        <input type="email" id="emailGateInput" name="email" autocomplete="email" required placeholder="you@company.com">
-        <button type="submit" class="badge-button">Continue</button>
-      </form>
-      <p class="email-gate__note">We only use this to personalize your experience and keep it professional—no spam.</p>
-    </div>
-  </aside>
+    </aside>
+    <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
+      <div class="email-gate__card">
+        <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
+        <div class="email-gate__header">
+          <p class="email-gate__eyebrow">Sign in</p>
+          <h3 id="emailGateTitle">Continue with email</h3>
+          <p class="email-gate__copy">Enter your email to unlock Àríyò AI. No password required.</p>
+        </div>
+        <form id="emailGateForm" class="email-gate__form">
+          <label for="emailGateInput">Email address</label>
+          <input
+            type="email"
+            id="emailGateInput"
+            name="email"
+            autocomplete="email"
+            required
+            placeholder="you@company.com"
+          />
+          <button type="submit" class="badge-button">Continue</button>
+        </form>
+        <p class="email-gate__note">
+          We only use this to personalize your experience and keep it professional—no spam.
+        </p>
+      </div>
+    </aside>
 
-  <script src="scripts/sw-controller.js" defer></script>
-  <script src="scripts/push-notifications.js" defer></script>
-  <script src="scripts/data-lite.js" defer></script>
-  <script src="scripts/data-loader.js" defer></script>
-  <script src="scripts/radioStations.js" defer></script>
-  <script src="scripts/suno-audio-fallback.js" defer></script>
-  <script src="scripts/idle-utils.js" defer></script>
-  <script src="scripts/proverb-utils.js" defer></script>
-  <script src="scripts/seo.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js" defer></script>
-  <script src="scripts/audio-recovery-utils.js" defer></script>
-  <script src="scripts/track-modal-utils.js" defer></script>
-  <script src="scripts/vinyl-state-utils.js" defer></script>
-  <script src="scripts/scroll-lock.js" defer></script>
-  <script src="scripts/scroll-lock-auditor.js" defer></script>
-  <script src="scripts/player.js" defer></script>
-  <script src="scripts/ui.js" defer></script>
-  <script src="scripts/rss-ingestion.js" defer></script>
-  <script src="scripts/news.js" defer></script>
-  <script src="scripts/track-catalog.js" defer></script>
-  <script src="scripts/search-utils.js" defer></script>
-  <script src="scripts/main.js" defer></script>
-  <script src="user-tracking.js" defer></script>
-  <script src="prevent-zoom.js" defer></script>
+    <script src="scripts/sw-controller.js" defer></script>
+    <script src="scripts/push-notifications.js" defer></script>
+    <script src="scripts/data-lite.js" defer></script>
+    <script src="scripts/data-loader.js" defer></script>
+    <script src="scripts/radioStations.js" defer></script>
+    <script src="scripts/suno-audio-fallback.js" defer></script>
+    <script src="scripts/idle-utils.js" defer></script>
+    <script src="scripts/proverb-utils.js" defer></script>
+    <script src="scripts/seo.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/lyric-parser@1.0.1/dist/lyric.min.js" defer></script>
+    <script src="scripts/audio-recovery-utils.js" defer></script>
+    <script src="scripts/track-modal-utils.js" defer></script>
+    <script src="scripts/vinyl-state-utils.js" defer></script>
+    <script src="scripts/scroll-lock.js" defer></script>
+    <script src="scripts/scroll-lock-auditor.js" defer></script>
+    <script src="scripts/player.js" defer></script>
+    <script src="scripts/ui.js" defer></script>
+    <script src="scripts/rss-ingestion.js" defer></script>
+    <script src="scripts/news.js" defer></script>
+    <script src="scripts/track-catalog.js" defer></script>
+    <script src="scripts/search-utils.js" defer></script>
+    <script src="scripts/main.js" defer></script>
+    <script src="user-tracking.js" defer></script>
+    <script src="prevent-zoom.js" defer></script>
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-    <div class="watermark watermark--adaptive exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
-  </div>
-  <script>
-    document.querySelectorAll('.exploding-watermark').forEach(watermark => {
-        watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 10%; left: 5%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 25%; left: 20%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 40%; left: 10%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 55%; left: 30%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 70%; left: 15%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 85%; left: 25%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 20%; left: 50%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 65%; left: 60%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 30%; left: 70%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 50%; left: 80%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 15%; left: 85%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 75%; left: 5%">
+        Omoluabi Productions
+      </div>
+    </div>
+    <script>
+      document.querySelectorAll('.exploding-watermark').forEach((watermark) => {
+        watermark.innerHTML = watermark.textContent
+          .split('')
+          .map((letter, i) => {
             const x = Math.random();
             const y = Math.random();
             const r = Math.random();
             return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
-        }).join('');
-    });
-  </script>
-</body>
+          })
+          .join('');
+      });
+    </script>
+  </body>
 </html>

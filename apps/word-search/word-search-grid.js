@@ -2,12 +2,12 @@ const directions = [
   { dr: 0, dc: 1 },
   { dr: 0, dc: -1 },
   { dr: 1, dc: 0 },
-  { dr: -1, dc: 0 }
+  { dr: -1, dc: 0 },
 ];
 
 function generateGrid(words, gridSize = 12) {
   const upperWords = words.map((w) => w.toUpperCase());
-  const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill("") );
+  const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(''));
 
   for (const word of upperWords) {
     let placed = false;
@@ -22,10 +22,10 @@ function generateGrid(words, gridSize = 12) {
     }
   }
 
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   for (let r = 0; r < gridSize; r++) {
     for (let c = 0; c < gridSize; c++) {
-      if (grid[r][c] === "") {
+      if (grid[r][c] === '') {
         grid[r][c] = letters[Math.floor(Math.random() * letters.length)];
       }
     }
@@ -42,7 +42,7 @@ function canPlace(grid, word, row, col, dir, size) {
     const r = row + dr * i;
     const c = col + dc * i;
     const letter = grid[r][c];
-    if (letter !== "" && letter !== word[i]) return false;
+    if (letter !== '' && letter !== word[i]) return false;
   }
   return true;
 }

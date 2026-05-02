@@ -1,17 +1,7 @@
 (function () {
-  const DEFAULT_READY_STATE = typeof HTMLMediaElement !== 'undefined'
-    ? HTMLMediaElement.HAVE_CURRENT_DATA
-    : 2;
+  const DEFAULT_READY_STATE = typeof HTMLMediaElement !== 'undefined' ? HTMLMediaElement.HAVE_CURRENT_DATA : 2;
 
-  function shouldVinylSpin({
-    paused,
-    ended,
-    waiting,
-    readyState,
-    reducedMotion,
-    isPlaying,
-    playIntent
-  } = {}) {
+  function shouldVinylSpin({ paused, ended, waiting, readyState, reducedMotion, isPlaying, playIntent } = {}) {
     if (reducedMotion) return false;
     if (ended) return false;
     const hasPlayIntent = Boolean(playIntent || isPlaying);
@@ -23,12 +13,7 @@
 
   function deriveVinylSpinState(audioElement, options = {}) {
     if (!audioElement) return false;
-    const {
-      waiting = false,
-      reducedMotion = false,
-      isPlaying = false,
-      playIntent = false
-    } = options;
+    const { waiting = false, reducedMotion = false, isPlaying = false, playIntent = false } = options;
     return shouldVinylSpin({
       paused: audioElement.paused,
       ended: audioElement.ended,
@@ -36,14 +21,14 @@
       readyState: audioElement.readyState,
       reducedMotion,
       isPlaying,
-      playIntent
+      playIntent,
     });
   }
 
   function applyVinylSpinState(elements, isSpinning, className = 'is-spinning') {
     if (!elements) return;
     const list = Array.from(elements);
-    list.forEach(element => {
+    list.forEach((element) => {
       if (!element) return;
       element.classList.toggle(className, isSpinning);
       element.style.animationPlayState = isSpinning ? 'running' : 'paused';
@@ -54,7 +39,7 @@
     window.AriyoVinylStateUtils = {
       shouldVinylSpin,
       deriveVinylSpinState,
-      applyVinylSpinState
+      applyVinylSpinState,
     };
   }
 
@@ -62,7 +47,7 @@
     module.exports = {
       shouldVinylSpin,
       deriveVinylSpinState,
-      applyVinylSpinState
+      applyVinylSpinState,
     };
   }
 })();

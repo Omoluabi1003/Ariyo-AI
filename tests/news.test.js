@@ -1,7 +1,7 @@
 const { unwrapGoogleNewsUrl, findImage, DEFAULT_IMAGE, buildKeywordImage } = require('../api/news');
 
 const buildEntryWithMedia = (media = []) => ({
-  media
+  media,
 });
 
 describe('Google News link handling', () => {
@@ -33,7 +33,7 @@ describe('image selection', () => {
     const entry = buildEntryWithMedia([
       { url: 'http://cdn.example.com/small.jpg', width: 400, height: 200 },
       { url: 'http://cdn.example.com/large.jpg', width: 1200, height: 800 },
-      { url: 'http://cdn.example.com/medium.jpg', width: 800, height: 600 }
+      { url: 'http://cdn.example.com/medium.jpg', width: 800, height: 600 },
     ]);
 
     expect(findImage(entry)).toBe('https://cdn.example.com/large.jpg');
@@ -50,7 +50,7 @@ describe('keyword-based fallbacks', () => {
     const item = {
       title: 'Kpop idols headline global entertainment festival in Tokyo',
       summary: 'Fans celebrate cross-border performances and new albums.',
-      tag: 'Foreign Entertainment'
+      tag: 'Foreign Entertainment',
     };
 
     const keywordUrl = buildKeywordImage(item);

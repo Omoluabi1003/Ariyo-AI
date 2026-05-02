@@ -28,13 +28,15 @@
     const hasTrackId = typeof state.trackId === 'string' && state.trackId.trim().length > 0;
     const hasTitle = typeof state.title === 'string' && state.title.trim().length > 0;
     const hasPosition = Number.isFinite(state.position) && state.position > 0;
-    const hasAlbumIndex = Number.isInteger(state.albumIndex) && state.albumIndex >= 0 && state.albumIndex < albums.length;
+    const hasAlbumIndex =
+      Number.isInteger(state.albumIndex) && state.albumIndex >= 0 && state.albumIndex < albums.length;
     const album = hasAlbumIndex ? albums[state.albumIndex] : null;
-    const hasTrackIndex = Number.isInteger(state.trackIndex)
-      && state.trackIndex >= 0
-      && album
-      && Array.isArray(album.tracks)
-      && state.trackIndex < album.tracks.length;
+    const hasTrackIndex =
+      Number.isInteger(state.trackIndex) &&
+      state.trackIndex >= 0 &&
+      album &&
+      Array.isArray(album.tracks) &&
+      state.trackIndex < album.tracks.length;
 
     return Boolean(hasTrackId && hasTitle && hasPosition && hasAlbumIndex && hasTrackIndex);
   }
@@ -45,28 +47,38 @@
    * @param {(value: string) => string} slugify
    * @returns {ResumeState | null}
    */
-  function normalizeResumeState(raw, albums = [], slugify = value => value) {
+  function normalizeResumeState(raw, albums = [], slugify = (value) => value) {
     if (!raw || typeof raw !== 'object') return null;
     const albumIndex = Number.isInteger(raw.albumIndex) ? raw.albumIndex : -1;
     const trackIndex = Number.isInteger(raw.trackIndex) ? raw.trackIndex : -1;
     const album = albums[albumIndex];
     const track = album && Array.isArray(album.tracks) ? album.tracks[trackIndex] : null;
-    const title = typeof raw.title === 'string' && raw.title.trim()
-      ? raw.title.trim()
-      : (track && track.title ? String(track.title) : '');
-    const trackId = typeof raw.trackId === 'string' && raw.trackId.trim()
-      ? raw.trackId.trim()
-      : (track && track.id ? String(track.id) : (track && track.title ? slugify(String(track.title)) : ''));
+    const title =
+      typeof raw.title === 'string' && raw.title.trim()
+        ? raw.title.trim()
+        : track && track.title
+          ? String(track.title)
+          : '';
+    const trackId =
+      typeof raw.trackId === 'string' && raw.trackId.trim()
+        ? raw.trackId.trim()
+        : track && track.id
+          ? String(track.id)
+          : track && track.title
+            ? slugify(String(track.title))
+            : '';
     const position = Number.isFinite(raw.position)
       ? raw.position
-      : (Number.isFinite(raw.playbackPosition) ? raw.playbackPosition : NaN);
+      : Number.isFinite(raw.playbackPosition)
+        ? raw.playbackPosition
+        : NaN;
 
     const normalized = {
       albumIndex,
       trackIndex,
       position,
       trackId,
-      title
+      title,
     };
 
     return isValidResumeState(normalized, albums) ? normalized : null;
@@ -98,7 +110,9 @@
     const stationId = typeof raw.stationId === 'string' ? raw.stationId.trim() : '';
     const positionSeconds = Number.isFinite(raw.positionSeconds)
       ? raw.positionSeconds
-      : (Number.isFinite(raw.position) ? raw.position : 0);
+      : Number.isFinite(raw.position)
+        ? raw.position
+        : 0;
     const timestamp = Number.isFinite(raw.timestamp) ? raw.timestamp : NaN;
     const normalized = {
       mode,
@@ -106,7 +120,7 @@
       trackId: trackId || undefined,
       stationId: stationId || undefined,
       positionSeconds: positionSeconds >= 0 ? positionSeconds : 0,
-      timestamp
+      timestamp,
     };
     return isValidLastPlayedState(normalized) ? normalized : null;
   }
@@ -116,7 +130,7 @@
       isValidResumeState,
       normalizeResumeState,
       isValidLastPlayedState,
-      normalizeLastPlayedState
+      normalizeLastPlayedState,
     };
   }
 
@@ -125,7 +139,7 @@
       isValidResumeState,
       normalizeResumeState,
       isValidLastPlayedState,
-      normalizeLastPlayedState
+      normalizeLastPlayedState,
     };
   }
 })();

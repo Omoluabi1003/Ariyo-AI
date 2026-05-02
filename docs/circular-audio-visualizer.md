@@ -5,14 +5,11 @@ This component is built to drop into a Next.js/React player UI and uses the Web 
 ## Usage
 
 ```jsx
-import CircularAudioVisualizer from "../components/CircularAudioVisualizer";
+import CircularAudioVisualizer from '../components/CircularAudioVisualizer';
 
 export default function NowPlaying({ audioRef, isPlaying }) {
   return (
-    <div
-      className="visualizer-container"
-      style={{ width: "300px", height: "300px", margin: "auto" }}
-    >
+    <div className="visualizer-container" style={{ width: '300px', height: '300px', margin: 'auto' }}>
       <CircularAudioVisualizer audioRef={audioRef} isPlaying={isPlaying} />
     </div>
   );

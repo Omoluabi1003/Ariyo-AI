@@ -1,28 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
-  <meta name="apple-touch-fullscreen" content="yes" />
-  <meta name="theme-color" content="#8E5BFF" />
-  <meta name="description" content="Àríyò AI by Paul A.K. Iyogun (Omoluabi) is a smart Nigerian music assistant featuring Ariyo AI." />
-  <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Nigerian music, Naija AI, AI chatbot, PWA" />
-  <meta property="og:title" content="Àríyò AI - Smart Naija AI by Paul Iyogun" />
-  <meta property="og:description" content="Discover Nigerian music with Àríyò AI created by Paul A.K. Iyogun, also known as Omoluabi." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
-  <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Àríyò AI - Smart Naija AI by Paul Iyogun" />
-  <meta name="twitter:description" content="Discover Nigerian music and culture through Àríyò AI by Paul A.K. Iyogun (Omoluabi)." />
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <meta name="theme-color" content="#8E5BFF" />
+    <meta
+      name="description"
+      content="Àríyò AI by Paul A.K. Iyogun (Omoluabi) is a smart Nigerian music assistant featuring Ariyo AI."
+    />
+    <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Nigerian music, Naija AI, AI chatbot, PWA" />
+    <meta property="og:title" content="Àríyò AI - Smart Naija AI by Paul Iyogun" />
+    <meta
+      property="og:description"
+      content="Discover Nigerian music with Àríyò AI created by Paul A.K. Iyogun, also known as Omoluabi."
+    />
+    <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
+    <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Àríyò AI - Smart Naija AI by Paul Iyogun" />
+    <meta
+      name="twitter:description"
+      content="Discover Nigerian music and culture through Àríyò AI by Paul A.K. Iyogun (Omoluabi)."
+    />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
     <title>Welcome to Àríyò AI</title>
     <script>
       // Early, synchronous iOS detection to optimize initial load & audio unlocking
-      window.__IS_IOS__ = /iP(ad|hone|od)/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      window.__IS_IOS__ =
+        /iP(ad|hone|od)/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       if (window.__IS_IOS__) {
         document.documentElement.classList.add('ios');
       }
@@ -48,7 +59,7 @@
       window.addEventListener('click', __ariyoUnlock, { passive: true, once: true });
     </script>
     <script>
-      (function() {
+      (function () {
         const hideBootSpinner = () => {
           const spinner = document.getElementById('bootSpinner');
           if (!spinner) return;
@@ -68,18 +79,32 @@
         setTimeout(hideBootSpinner, 1800);
       })();
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+      defer
+      integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS"
+      crossorigin="anonymous"
+    ></script>
     <script src="viewport-height.js" defer></script>
     <script src="scripts/theme-toggle.js" defer></script>
     <script src="scripts/deferred-init.js" defer></script>
-    <link rel="prefetch" as="audio" href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3" crossorigin fetchpriority="low">
-    <link rel="prefetch" as="audio" href="Omoluabi.mp3" fetchpriority="low">
-    <link rel="prefetch" as="audio" href="offline-audio.mp3" fetchpriority="low">
-    <link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="color-scheme.css">
-    <link rel="stylesheet" href="index.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/Ariyo.png">
+    <link
+      rel="prefetch"
+      as="audio"
+      href="https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3"
+      crossorigin
+      fetchpriority="low"
+    />
+    <link rel="prefetch" as="audio" href="Omoluabi.mp3" fetchpriority="low" />
+    <link rel="prefetch" as="audio" href="offline-audio.mp3" fetchpriority="low" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&family=Manrope:wght@500;700&family=Montserrat:wght@400;700&family=Roboto:wght@400;700&family=Roboto+Slab:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="color-scheme.css" />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icons/Ariyo.png" />
     <script src="https://cdn.jsdelivr.net/npm/@motionone/dom@10.18.0/dist/motion-umd.dev.js" defer></script>
     <style>
       #bootSpinner {
@@ -88,757 +113,901 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         z-index: 9999;
         transition: opacity 0.25s ease;
       }
-      #bootSpinner.hidden { opacity: 0; pointer-events: none; }
-      .boot-spinner-dot { width: 48px; height: 48px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.2); border-top-color: #8E5BFF; animation: spin 0.8s linear infinite; }
-      @keyframes spin { to { transform: rotate(360deg); } }
+      #bootSpinner.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .boot-spinner-dot {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: #8e5bff;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
     </style>
-</head>
-<body data-page="landing">
+  </head>
+  <body data-page="landing">
     <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading">
       <div class="boot-spinner-dot"></div>
     </div>
     <div id="timer-bar"><div id="timer-progress"></div></div>
     <div id="background-container">
-        <div id="bg1" class="bg-image"></div>
-        <div id="bg2" class="bg-image"></div>
+      <div id="bg1" class="bg-image"></div>
+      <div id="bg2" class="bg-image"></div>
     </div>
     <div class="overlay">
-        <div class="page-actions">
-            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
-                <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
-                <span class="theme-toggle-label">Light mode</span>
-            </button>
-        </div>
-        <div class="hero-layout">
-            <div class="hero-banner hero-animate">
-                <div class="logo-lockup">
-                    <span class="logo-mark" aria-label="Àríyò">Àríyò</span>
-                    <p class="logo-subtitle">Yoruba-inspired intelligence tuned for music, conversation, and play.</p>
-                </div>
-                <span class="banner-pill" aria-label="Omoluabi Productions">Omoluabi Productions</span>
-            </div>
-            <div class="hero-body">
-                <div class="hero-header hero-animate">
-                    <h1>Welcome to Àríyò AI</h1>
-                    <p class="hero-subtitle">Your pocket-sized Naija vibe curator: Music that moves, stories that stick, games that spark.</p>
-                    <p class="social-proof">Join 500+ Naija explorers already vibing with Ariyò.</p>
-                </div>
-                <div class="announcement-banner hero-animate" role="status" aria-live="polite">
-                    <div class="announcement-pill" aria-hidden="true">New</div>
-                    <div class="announcement-text">
-                        <p class="announcement-headline">Naija Vibe News now streams inside Àríyò AI Media Studio.</p>
-                        <p class="announcement-copy">Stay in rhythm with curated headlines that sit right beside your playlists—polished, verified, and ready whenever you launch.</p>
-                    </div>
-                </div>
-                <div class="cta-row hero-animate">
-                    <div class="cta-copy">
-                        <p class="cta-text">Step into a curated universe of sound, stories, and games crafted for every screen.</p>
-                    </div>
-                    <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
-                        <img src="Enter.png" alt="Enter Àríyò AI" class="enter-icon">
-                        <span class="enter-label">Launch experience</span>
-                    </button>
-                </div>
-                <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
-            </div>
-            <div class="feature-grid">
-                <article class="feature-card tour-step hero-animate" id="step1">
-                    <span class="feature-icon" aria-hidden="true">🎶</span>
-                    <h2 class="feature-title">Music journeys</h2>
-                    <p class="feature-copy">Dive into handcrafted Nigerian playlists and albums that set the tone for every mood.</p>
-                </article>
-                <article class="feature-card tour-step hero-animate" id="step2">
-                    <span class="feature-icon" aria-hidden="true">🤝</span>
-                    <h2 class="feature-title">Chat with Àríyò</h2>
-                    <p class="feature-copy">Swap stories, discover cultural insights, and get personalized guidance from our AI host.</p>
-                </article>
-                <article class="feature-card tour-step hero-animate" id="step3">
-                    <span class="feature-icon" aria-hidden="true">🎮</span>
-                    <h2 class="feature-title">Games &amp; puzzles</h2>
-                    <p class="feature-copy">Jump into Omoluabi Tetris, Word Search, Ara Connect-4, Cycle Precision, and more.</p>
-                </article>
-            </div>
-        </div>
-        <section class="experience-upgrades">
-            <div class="experience-header">
-                <div>
-                    <p class="eyebrow">Launch Experience</p>
-                    <h2>Unlock the dashboard</h2>
-                    <p>Tap launch to reveal the Music, Stories, and Games hub managed by our lightweight Redux-style state store.</p>
-                </div>
-                <div class="cta-stack">
-                    <button class="enter-button ghost" id="launchExperience" type="button">Launch experience</button>
-                    <button class="badge-button" id="installPwa" type="button">Install PWA</button>
-                    <p class="cta-hint" id="notificationStatus" aria-live="polite"></p>
-                </div>
-                <p class="cta-hint" id="experienceStatus" aria-live="polite"></p>
-            </div>
-            <div class="onboarding">
-                <video controls muted playsinline preload="metadata" poster="Naija AI4.png" class="intro-video">
-                    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm">
-                    <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <div class="carousel" aria-label="AI host highlights">
-                    <div class="carousel-slide">Meet Àríyò—your cultural guide to Naija soundscapes.</div>
-                    <div class="carousel-slide">Follow mood-based playlists from Afrobeats to alté, no stereotypes.</div>
-                    <div class="carousel-slide">Challenge friends with Naija-flavored games on the go.</div>
-                </div>
-            </div>
-        </section>
-
-        <aside class="notification-toast" id="notificationToast" role="dialog" aria-live="polite" aria-modal="false" aria-label="Notifications" hidden>
-            <div class="notification-toast__content">
-                <p class="notification-toast__eyebrow">Stay close to the music</p>
-                <p class="notification-toast__title" id="notificationToastTitle">Get instant alerts when your favorite artists release new music.</p>
-                <p class="notification-toast__copy" id="notificationToastCopy">We only ping for the releases you follow—no spam, no noise.</p>
-                <div class="notification-toast__actions">
-                    <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
-                        <span class="badge-button__icon" aria-hidden="true">🔔</span>
-                        <span class="badge-button__label">Enable notifications</span>
-                    </button>
-                    <button class="notification-toast__secondary" id="notificationLater" type="button">Maybe later</button>
-                </div>
-            </div>
-            <button class="notification-toast__close" id="notificationClose" type="button" aria-label="Dismiss notification prompt">×</button>
-        </aside>
-        <aside class="app-update-banner" id="appUpdateBanner" role="status" aria-live="polite" hidden>
-            <p class="app-update-banner__copy" id="appUpdateCopy">Update available. Refresh now.</p>
-            <div class="app-update-banner__actions">
-                <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
-                <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
-            </div>
-        </aside>
-        <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
-            <div class="email-gate__card">
-                <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
-                <div class="email-gate__header">
-                    <p class="email-gate__eyebrow">Sign in</p>
-                    <h3 id="emailGateTitle">Continue with email</h3>
-                    <p class="email-gate__copy">Enter your email to unlock Àríyò AI. No password required.</p>
-                </div>
-                <form id="emailGateForm" class="email-gate__form">
-                    <label for="emailGateInput">Email address</label>
-                    <input type="email" id="emailGateInput" name="email" autocomplete="email" required placeholder="you@company.com">
-                    <button type="submit" class="enter-button inline">Continue</button>
-                </form>
-                <p class="email-gate__note">We only use this to personalize your experience and keep it professional—no spam.</p>
-            </div>
-        </aside>
-
-        <section class="profile-gate">
-            <div class="profile-card">
-                <p class="eyebrow">Personalize</p>
-                <h3>Tell us your vibe</h3>
-                <p>Pick your favorite mood so we can prioritize the right playlists at launch.</p>
-                <form id="profileForm">
-                    <label for="favoriteMood">Favorite mood?</label>
-                    <select id="favoriteMood" name="favoriteMood" required>
-                        <option value="chill">Chill</option>
-                        <option value="party">Party</option>
-                        <option value="focus">Focus</option>
-                        <option value="worship">Worship</option>
-                    </select>
-                    <button type="submit" class="enter-button inline">Save my vibe</button>
-                </form>
-            </div>
-        </section>
-
-        <section class="pillar-dashboard" hidden>
-            <div class="tablist" role="tablist" aria-label="Experience pillars">
-                <button role="tab" aria-selected="true" data-tab="music">Music</button>
-                <button role="tab" aria-selected="false" data-tab="stories">Stories</button>
-                <button role="tab" aria-selected="false" data-tab="games">Games</button>
-            </div>
-            <div class="tabpanels">
-                <div role="tabpanel" data-panel="music">
-                    <p>Afrobeats for Chill with Burna Boy, Tems, and more. Hit play to start the embedded mix.</p>
-                    <div id="activePlayer"></div>
-                </div>
-                <div role="tabpanel" data-panel="stories" hidden>
-                    <article class="story-snippet" data-lang-key="stories">
-                        <h3>The Evolution of Afrobeats</h3>
-                        <p>From Highlife roots to global charts, Naija creators shape the groove—share your take below.</p>
-                        <form class="story-form">
-                            <label for="storySubmission">Share your vibe</label>
-                            <textarea id="storySubmission" rows="3" placeholder="Tell us your story..."></textarea>
-                            <button type="submit" class="badge-button">Submit</button>
-                        </form>
-                    </article>
-                </div>
-                <div role="tabpanel" data-panel="games" hidden>
-                    <p>Play &amp; challenge: quick prototypes to keep your reflex sharp.</p>
-                    <div class="game-embeds">
-                        <iframe title="Omoluabi Tetris" loading="lazy" src="apps/tetris/tetris.html"></iframe>
-                        <iframe title="Word Search" loading="lazy" src="apps/word-search/word-search.html"></iframe>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="cta-footer">
-            <div class="cta-column">
-                <p class="eyebrow">Cultural sensitivity</p>
-                <p>Partnering with Naija creators for authentic playlists and stories; multilingual support keeps everyone in the circle.</p>
-            </div>
-            <div class="cta-column">
-                <button class="badge-button" id="shareVibe" type="button">Share your vibe</button>
-                <div class="social-buttons">
-                    <a href="https://twitter.com/intent/tweet?text=Vibing%20with%20Ariy%C3%B2%20AI" target="_blank" rel="noopener">Twitter/X</a>
-                    <a href="https://api.whatsapp.com/send?text=Come%20vibe%20with%20Ariy%C3%B2%20AI" target="_blank" rel="noopener">WhatsApp</a>
-                </div>
-                <form class="newsletter" action="https://gmail.us21.list-manage.com/subscribe/post" method="post" target="_blank" rel="noopener">
-                    <label for="newsletterEmail">Join the newsletter</label>
-                    <input type="email" id="newsletterEmail" name="EMAIL" required placeholder="you@example.com">
-                    <button type="submit" class="enter-button inline">Sign up</button>
-                </form>
-            </div>
-        </section>
-        <div class="experience-hints">
-            <div class="hint-text">Use the speaker icon to toggle sound</div>
-            <p class="hint-subtext">Edge panel offers quick access to Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and Cycle Precision.</p>
-        </div>
-        <button id="speaker-container" type="button" class="speaker-toggle ripple shockwave" aria-label="Toggle welcome audio" aria-pressed="false">
-            <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" /></svg>
+      <div class="page-actions">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
+          <span class="theme-toggle-label">Light mode</span>
         </button>
-        <footer class="footer-note">
-            <p>&copy; <span id="footerYear"></span> <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank">A Paul Iyogun (A.K.A. Omoluabi)</a> Project. All Rights Reserved. <a href="privacy.html">Privacy &amp; data use</a></p>
-            <p class="footer-updated" aria-live="polite">Last updated: —</p>
-        </footer>
+      </div>
+      <div class="hero-layout">
+        <div class="hero-banner hero-animate">
+          <div class="logo-lockup">
+            <span class="logo-mark" aria-label="Àríyò">Àríyò</span>
+            <p class="logo-subtitle">Yoruba-inspired intelligence tuned for music, conversation, and play.</p>
+          </div>
+          <span class="banner-pill" aria-label="Omoluabi Productions">Omoluabi Productions</span>
+        </div>
+        <div class="hero-body">
+          <div class="hero-header hero-animate">
+            <h1>Welcome to Àríyò AI</h1>
+            <p class="hero-subtitle">
+              Your pocket-sized Naija vibe curator: Music that moves, stories that stick, games that spark.
+            </p>
+            <p class="social-proof">Join 500+ Naija explorers already vibing with Ariyò.</p>
+          </div>
+          <div class="announcement-banner hero-animate" role="status" aria-live="polite">
+            <div class="announcement-pill" aria-hidden="true">New</div>
+            <div class="announcement-text">
+              <p class="announcement-headline">Naija Vibe News now streams inside Àríyò AI Media Studio.</p>
+              <p class="announcement-copy">
+                Stay in rhythm with curated headlines that sit right beside your playlists—polished, verified, and ready
+                whenever you launch.
+              </p>
+            </div>
+          </div>
+          <div class="cta-row hero-animate">
+            <div class="cta-copy">
+              <p class="cta-text">
+                Step into a curated universe of sound, stories, and games crafted for every screen.
+              </p>
+            </div>
+            <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
+              <img src="Enter.png" alt="Enter Àríyò AI" class="enter-icon" />
+              <span class="enter-label">Launch experience</span>
+            </button>
+          </div>
+          <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card tour-step hero-animate" id="step1">
+            <span class="feature-icon" aria-hidden="true">🎶</span>
+            <h2 class="feature-title">Music journeys</h2>
+            <p class="feature-copy">
+              Dive into handcrafted Nigerian playlists and albums that set the tone for every mood.
+            </p>
+          </article>
+          <article class="feature-card tour-step hero-animate" id="step2">
+            <span class="feature-icon" aria-hidden="true">🤝</span>
+            <h2 class="feature-title">Chat with Àríyò</h2>
+            <p class="feature-copy">
+              Swap stories, discover cultural insights, and get personalized guidance from our AI host.
+            </p>
+          </article>
+          <article class="feature-card tour-step hero-animate" id="step3">
+            <span class="feature-icon" aria-hidden="true">🎮</span>
+            <h2 class="feature-title">Games &amp; puzzles</h2>
+            <p class="feature-copy">
+              Jump into Omoluabi Tetris, Word Search, Ara Connect-4, Cycle Precision, and more.
+            </p>
+          </article>
+        </div>
+      </div>
+      <section class="experience-upgrades">
+        <div class="experience-header">
+          <div>
+            <p class="eyebrow">Launch Experience</p>
+            <h2>Unlock the dashboard</h2>
+            <p>
+              Tap launch to reveal the Music, Stories, and Games hub managed by our lightweight Redux-style state store.
+            </p>
+          </div>
+          <div class="cta-stack">
+            <button class="enter-button ghost" id="launchExperience" type="button">Launch experience</button>
+            <button class="badge-button" id="installPwa" type="button">Install PWA</button>
+            <p class="cta-hint" id="notificationStatus" aria-live="polite"></p>
+          </div>
+          <p class="cta-hint" id="experienceStatus" aria-live="polite"></p>
+        </div>
+        <div class="onboarding">
+          <video controls muted playsinline preload="metadata" poster="Naija AI4.png" class="intro-video">
+            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm" />
+            <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <div class="carousel" aria-label="AI host highlights">
+            <div class="carousel-slide">Meet Àríyò—your cultural guide to Naija soundscapes.</div>
+            <div class="carousel-slide">Follow mood-based playlists from Afrobeats to alté, no stereotypes.</div>
+            <div class="carousel-slide">Challenge friends with Naija-flavored games on the go.</div>
+          </div>
+        </div>
+      </section>
+
+      <aside
+        class="notification-toast"
+        id="notificationToast"
+        role="dialog"
+        aria-live="polite"
+        aria-modal="false"
+        aria-label="Notifications"
+        hidden
+      >
+        <div class="notification-toast__content">
+          <p class="notification-toast__eyebrow">Stay close to the music</p>
+          <p class="notification-toast__title" id="notificationToastTitle">
+            Get instant alerts when your favorite artists release new music.
+          </p>
+          <p class="notification-toast__copy" id="notificationToastCopy">
+            We only ping for the releases you follow—no spam, no noise.
+          </p>
+          <div class="notification-toast__actions">
+            <button class="badge-button notification-toast__primary" id="notificationApprove" type="button">
+              <span class="badge-button__icon" aria-hidden="true">🔔</span>
+              <span class="badge-button__label">Enable notifications</span>
+            </button>
+            <button class="notification-toast__secondary" id="notificationLater" type="button">Maybe later</button>
+          </div>
+        </div>
+        <button
+          class="notification-toast__close"
+          id="notificationClose"
+          type="button"
+          aria-label="Dismiss notification prompt"
+        >
+          ×
+        </button>
+      </aside>
+      <aside class="app-update-banner" id="appUpdateBanner" role="status" aria-live="polite" hidden>
+        <p class="app-update-banner__copy" id="appUpdateCopy">Update available. Refresh now.</p>
+        <div class="app-update-banner__actions">
+          <button class="badge-button" id="appUpdateRefresh" type="button">Refresh now</button>
+          <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
+        </div>
+      </aside>
+      <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
+        <div class="email-gate__card">
+          <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
+          <div class="email-gate__header">
+            <p class="email-gate__eyebrow">Sign in</p>
+            <h3 id="emailGateTitle">Continue with email</h3>
+            <p class="email-gate__copy">Enter your email to unlock Àríyò AI. No password required.</p>
+          </div>
+          <form id="emailGateForm" class="email-gate__form">
+            <label for="emailGateInput">Email address</label>
+            <input
+              type="email"
+              id="emailGateInput"
+              name="email"
+              autocomplete="email"
+              required
+              placeholder="you@company.com"
+            />
+            <button type="submit" class="enter-button inline">Continue</button>
+          </form>
+          <p class="email-gate__note">
+            We only use this to personalize your experience and keep it professional—no spam.
+          </p>
+        </div>
+      </aside>
+
+      <section class="profile-gate">
+        <div class="profile-card">
+          <p class="eyebrow">Personalize</p>
+          <h3>Tell us your vibe</h3>
+          <p>Pick your favorite mood so we can prioritize the right playlists at launch.</p>
+          <form id="profileForm">
+            <label for="favoriteMood">Favorite mood?</label>
+            <select id="favoriteMood" name="favoriteMood" required>
+              <option value="chill">Chill</option>
+              <option value="party">Party</option>
+              <option value="focus">Focus</option>
+              <option value="worship">Worship</option>
+            </select>
+            <button type="submit" class="enter-button inline">Save my vibe</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="pillar-dashboard" hidden>
+        <div class="tablist" role="tablist" aria-label="Experience pillars">
+          <button role="tab" aria-selected="true" data-tab="music">Music</button>
+          <button role="tab" aria-selected="false" data-tab="stories">Stories</button>
+          <button role="tab" aria-selected="false" data-tab="games">Games</button>
+        </div>
+        <div class="tabpanels">
+          <div role="tabpanel" data-panel="music">
+            <p>Afrobeats for Chill with Burna Boy, Tems, and more. Hit play to start the embedded mix.</p>
+            <div id="activePlayer"></div>
+          </div>
+          <div role="tabpanel" data-panel="stories" hidden>
+            <article class="story-snippet" data-lang-key="stories">
+              <h3>The Evolution of Afrobeats</h3>
+              <p>From Highlife roots to global charts, Naija creators shape the groove—share your take below.</p>
+              <form class="story-form">
+                <label for="storySubmission">Share your vibe</label>
+                <textarea id="storySubmission" rows="3" placeholder="Tell us your story..."></textarea>
+                <button type="submit" class="badge-button">Submit</button>
+              </form>
+            </article>
+          </div>
+          <div role="tabpanel" data-panel="games" hidden>
+            <p>Play &amp; challenge: quick prototypes to keep your reflex sharp.</p>
+            <div class="game-embeds">
+              <iframe title="Omoluabi Tetris" loading="lazy" src="apps/tetris/tetris.html"></iframe>
+              <iframe title="Word Search" loading="lazy" src="apps/word-search/word-search.html"></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-footer">
+        <div class="cta-column">
+          <p class="eyebrow">Cultural sensitivity</p>
+          <p>
+            Partnering with Naija creators for authentic playlists and stories; multilingual support keeps everyone in
+            the circle.
+          </p>
+        </div>
+        <div class="cta-column">
+          <button class="badge-button" id="shareVibe" type="button">Share your vibe</button>
+          <div class="social-buttons">
+            <a
+              href="https://twitter.com/intent/tweet?text=Vibing%20with%20Ariy%C3%B2%20AI"
+              target="_blank"
+              rel="noopener"
+              >Twitter/X</a
+            >
+            <a
+              href="https://api.whatsapp.com/send?text=Come%20vibe%20with%20Ariy%C3%B2%20AI"
+              target="_blank"
+              rel="noopener"
+              >WhatsApp</a
+            >
+          </div>
+          <form
+            class="newsletter"
+            action="https://gmail.us21.list-manage.com/subscribe/post"
+            method="post"
+            target="_blank"
+            rel="noopener"
+          >
+            <label for="newsletterEmail">Join the newsletter</label>
+            <input type="email" id="newsletterEmail" name="EMAIL" required placeholder="you@example.com" />
+            <button type="submit" class="enter-button inline">Sign up</button>
+          </form>
+        </div>
+      </section>
+      <div class="experience-hints">
+        <div class="hint-text">Use the speaker icon to toggle sound</div>
+        <p class="hint-subtext">
+          Edge panel offers quick access to Picture Game, Omoluabi Tetris, Omoluabi Word Search, Ara Connect-4, and
+          Cycle Precision.
+        </p>
+      </div>
+      <button
+        id="speaker-container"
+        type="button"
+        class="speaker-toggle ripple shockwave"
+        aria-label="Toggle welcome audio"
+        aria-pressed="false"
+      >
+        <svg
+          id="speaker-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="icon icon-tabler icons-tabler-outline icon-tabler-volume-off"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M15 8a5 5 0 0 1 0 8" />
+          <path d="M17.7 5a9 9 0 0 1 0 14" />
+          <path
+            d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"
+          />
+          <path d="M12 12l0 .01" />
+        </svg>
+      </button>
+      <footer class="footer-note">
+        <p>
+          &copy; <span id="footerYear"></span>
+          <a href="https://linkedin.com/in/paul-iyogun-7591a571" target="_blank">A Paul Iyogun (A.K.A. Omoluabi)</a>
+          Project. All Rights Reserved. <a href="privacy.html">Privacy &amp; data use</a>
+        </p>
+        <p class="footer-updated" aria-live="polite">Last updated: —</p>
+      </footer>
     </div>
 
-     <audio id="welcomeAudio" loop preload="metadata" playsinline controlsList="nodownload noplaybackrate"></audio>
+    <audio id="welcomeAudio" loop preload="metadata" playsinline controlsList="nodownload noplaybackrate"></audio>
 
     <!-- Floating Watermarks -->
     <div class="floating-watermarks">
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 10%; left: 5%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 25%; left: 20%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 40%; left: 10%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 55%; left: 30%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 70%; left: 15%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 85%; left: 25%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 20%; left: 50%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 65%; left: 60%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 30%; left: 70%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 50%; left: 80%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 15%; left: 85%;">Omoluabi Productions</div>
-      <div class="watermark watermark--adaptive exploding-watermark" style="top: 75%; left: 5%;">Omoluabi Productions</div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 10%; left: 5%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 25%; left: 20%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 40%; left: 10%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 55%; left: 30%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 70%; left: 15%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 85%; left: 25%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 20%; left: 50%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 65%; left: 60%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 30%; left: 70%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 50%; left: 80%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 15%; left: 85%">
+        Omoluabi Productions
+      </div>
+      <div class="watermark watermark--adaptive exploding-watermark" style="top: 75%; left: 5%">
+        Omoluabi Productions
+      </div>
     </div>
 
     <script src="scripts/email-gate.js" defer></script>
     <script src="scripts/experience.js" defer></script>
     <script>
-        document.querySelectorAll('.exploding-watermark').forEach(watermark => {
-            watermark.innerHTML = watermark.textContent.split('').map((letter, i) => {
-                const x = Math.random();
-                const y = Math.random();
-                const r = Math.random();
-                return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
-            }).join('');
-        });
+      document.querySelectorAll('.exploding-watermark').forEach((watermark) => {
+        watermark.innerHTML = watermark.textContent
+          .split('')
+          .map((letter, i) => {
+            const x = Math.random();
+            const y = Math.random();
+            const r = Math.random();
+            return `<span style="--i: ${i}; --x: ${x}; --y: ${y}; --r: ${r};">${letter}</span>`;
+          })
+          .join('');
+      });
 
-        let autoEnterTimeout;
+      let autoEnterTimeout;
 
-        function enterApp() {
-            clearTimeout(autoEnterTimeout);
-            const proceed = () => {
-                const enterIcon = document.querySelector('.enter-icon');
-                const enterButton = document.querySelector('.enter-button');
-                if (enterButton) {
-                    enterButton.classList.add('clicked');
-                }
-                if (enterIcon) {
-                    enterIcon.classList.add('clicked');
-                }
-                const audio = document.getElementById('welcomeAudio');
-                audio.pause();
-                setTimeout(() => {
-                    window.location.href = 'main.html';
-                }, 300);
-            };
+      function enterApp() {
+        clearTimeout(autoEnterTimeout);
+        const proceed = () => {
+          const enterIcon = document.querySelector('.enter-icon');
+          const enterButton = document.querySelector('.enter-button');
+          if (enterButton) {
+            enterButton.classList.add('clicked');
+          }
+          if (enterIcon) {
+            enterIcon.classList.add('clicked');
+          }
+          const audio = document.getElementById('welcomeAudio');
+          audio.pause();
+          setTimeout(() => {
+            window.location.href = 'main.html';
+          }, 300);
+        };
 
-            if (typeof window.requireEmailAccess === 'function') {
-                window.requireEmailAccess(proceed);
-            } else {
-                proceed();
+        if (typeof window.requireEmailAccess === 'function') {
+          window.requireEmailAccess(proceed);
+        } else {
+          proceed();
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const enterIcon = document.querySelector('.enter-icon');
+        const enterButton = document.querySelector('.enter-button');
+        const footerYear = document.getElementById('footerYear');
+        if (footerYear) {
+          footerYear.textContent = String(new Date().getFullYear());
+        }
+        if (enterButton) {
+          enterButton.addEventListener('click', enterApp);
+          enterButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              enterApp();
             }
+          });
+        } else if (enterIcon) {
+          enterIcon.addEventListener('click', enterApp);
         }
 
-          document.addEventListener('DOMContentLoaded', () => {
-              const enterIcon = document.querySelector('.enter-icon');
-              const enterButton = document.querySelector('.enter-button');
-              const footerYear = document.getElementById('footerYear');
-              if (footerYear) {
-                  footerYear.textContent = String(new Date().getFullYear());
+        const audio = document.getElementById('welcomeAudio');
+        const speakerContainer = document.getElementById('speaker-container');
+        const speakerIcon = document.getElementById('speaker-icon');
+        const updatedLabel = document.querySelector('.footer-updated');
+
+        const dedupeSelectors = ['.hero-header', '.footer-note'];
+        dedupeSelectors.forEach((selector) => {
+          const nodes = Array.from(document.querySelectorAll(selector));
+          if (nodes.length > 1) {
+            nodes.slice(1).forEach((node) => node.remove());
+          }
+        });
+
+        const parseDate = (value) => {
+          if (!value) return null;
+          const parsed = new Date(value);
+          return Number.isNaN(parsed.getTime()) ? null : parsed;
+        };
+
+        const fallbackDate = () => parseDate(document.lastModified) || new Date();
+
+        const formatDate = (date) =>
+          date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+
+        const setUpdatedLabel = (date, version) => {
+          if (!updatedLabel || !date) return;
+          const formatted = formatDate(date);
+          updatedLabel.textContent = version
+            ? `Last updated: ${formatted} • v${version}`
+            : `Last updated: ${formatted}`;
+          if (version) {
+            updatedLabel.dataset.version = version;
+          }
+        };
+
+        if (updatedLabel) {
+          const initialDate = fallbackDate();
+          setUpdatedLabel(initialDate);
+
+          const controller = typeof AbortController === 'function' ? new AbortController() : null;
+          const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+
+          fetch('version.json', {
+            cache: 'no-store',
+            signal: controller ? controller.signal : undefined,
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`Version request failed with status ${response.status}`);
               }
-              if (enterButton) {
-                  enterButton.addEventListener('click', enterApp);
-                  enterButton.addEventListener('keydown', (event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault();
-                          enterApp();
-                      }
-                  });
-              } else if (enterIcon) {
-                  enterIcon.addEventListener('click', enterApp);
-              }
-
-              const audio = document.getElementById('welcomeAudio');
-              const speakerContainer = document.getElementById('speaker-container');
-              const speakerIcon = document.getElementById('speaker-icon');
-              const updatedLabel = document.querySelector('.footer-updated');
-
-              const dedupeSelectors = ['.hero-header', '.footer-note'];
-              dedupeSelectors.forEach(selector => {
-                  const nodes = Array.from(document.querySelectorAll(selector));
-                  if (nodes.length > 1) {
-                      nodes.slice(1).forEach(node => node.remove());
-                  }
-              });
-
-              const parseDate = (value) => {
-                  if (!value) return null;
-                  const parsed = new Date(value);
-                  return Number.isNaN(parsed.getTime()) ? null : parsed;
-              };
-
-              const fallbackDate = () => parseDate(document.lastModified) || new Date();
-
-              const formatDate = (date) =>
-                  date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-
-              const setUpdatedLabel = (date, version) => {
-                  if (!updatedLabel || !date) return;
-                  const formatted = formatDate(date);
-                  updatedLabel.textContent = version
-                      ? `Last updated: ${formatted} • v${version}`
-                      : `Last updated: ${formatted}`;
-                  if (version) {
-                      updatedLabel.dataset.version = version;
-                  }
-              };
-
-              if (updatedLabel) {
-                  const initialDate = fallbackDate();
-                  setUpdatedLabel(initialDate);
-
-                  const controller = typeof AbortController === 'function' ? new AbortController() : null;
-                  const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
-
-                  fetch('version.json', {
-                      cache: 'no-store',
-                      signal: controller ? controller.signal : undefined
-                  })
-                      .then(response => {
-                          if (!response.ok) {
-                              throw new Error(`Version request failed with status ${response.status}`);
-                          }
-                          const headerDate = response.headers.get('last-modified');
-                          return response.json().then(data => ({ data, headerDate }));
-                      })
-                      .then(({ data, headerDate }) => {
-                          const version = data && typeof data.version === 'string' ? data.version : null;
-                          const resolvedDate = parseDate(headerDate) || initialDate;
-                          setUpdatedLabel(resolvedDate, version);
-                      })
-                      .catch(() => {
-                          setUpdatedLabel(initialDate);
-                      })
-                      .finally(() => {
-                          if (timeoutId) {
-                              clearTimeout(timeoutId);
-                          }
-                      });
-              }
-
-              let isPlaying = false;
-              let userPaused = false;
-
-              const tracks = [
-                  { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
-                  { src: 'https://cdn1.suno.ai/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
-                  { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
-                  { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
-                  { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
-                  { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" }
-              ];
-
-              const fallbackTrack = { src: 'offline-audio.mp3', title: 'Offline Vibes' };
-              let currentTrackIndex = Math.floor(Math.random() * tracks.length);
-              let usingFallback = false;
-              let reconnectInterval = null;
-              let hasLoadedPrimaryTrack = false;
-              const slowLoadTimeoutMs = 4500;
-              let slowLoadTimer = null;
-              const mediaSessionSupported = 'mediaSession' in navigator;
-              let wakeLock = null;
-
-              const updateSpeakerIcon = (playing) => {
-                  speakerContainer.setAttribute('aria-pressed', playing ? 'true' : 'false');
-                  const statusLabel = playing ? 'Welcome audio playing' : 'Welcome audio muted';
-                  speakerIcon.setAttribute('aria-label', statusLabel);
-                  speakerIcon.setAttribute('role', 'img');
-                  speakerIcon.setAttribute('focusable', 'false');
-                  if (playing) {
-                      speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
-                  } else {
-                      speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
-                  }
-              };
-
-              const updateMediaSession = (track) => {
-                  if (!mediaSessionSupported || !track) return;
-                  navigator.mediaSession.metadata = new MediaMetadata({
-                      title: track.title,
-                      artist: 'Omoluabi Productions',
-                      album: 'Àríyò AI',
-                      artwork: [
-                          { src: 'icons/Ariyo.png', sizes: '96x96', type: 'image/png' },
-                          { src: 'icons/Ariyo.png', sizes: '192x192', type: 'image/png' },
-                          { src: 'icons/Ariyo.png', sizes: '512x512', type: 'image/png' }
-                      ]
-                  });
-                  navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-              };
-
-              const requestWakeLock = async () => {
-                  if (!('wakeLock' in navigator)) return;
-                  if (wakeLock) return;
-                  try {
-                      wakeLock = await navigator.wakeLock.request('screen');
-                      wakeLock.addEventListener('release', () => {
-                          wakeLock = null;
-                      });
-                  } catch (error) {
-                      console.log('Wake lock unavailable:', error);
-                  }
-              };
-
-              const releaseWakeLock = () => {
-                  if (!wakeLock) return;
-                  wakeLock.release().catch(() => {});
-                  wakeLock = null;
-              };
-
-              const registerMediaSessionHandlers = () => {
-                  if (!mediaSessionSupported) return;
-                  const safeHandler = (action, handler) => {
-                      try {
-                          navigator.mediaSession.setActionHandler(action, handler);
-                      } catch (error) {
-                          console.log(`MediaSession handler failed (${action}):`, error);
-                      }
-                  };
-                  safeHandler('play', () => playAudio(true));
-                  safeHandler('pause', () => pauseAudio(true));
-                  safeHandler('previoustrack', () => changeTrack(-1));
-                  safeHandler('nexttrack', () => changeTrack(1));
-              };
-
-              const ensureBackgroundPlayback = (reason) => {
-                  if (userPaused || !isPlaying) {
-                      return;
-                  }
-                  if (audio.paused || audio.ended) {
-                      audio.play().then(() => {
-                          if (mediaSessionSupported) {
-                              navigator.mediaSession.playbackState = 'playing';
-                          }
-                      }).catch(error => {
-                          console.log(`Background playback prevented (${reason}):`, error);
-                      });
-                  } else if (mediaSessionSupported) {
-                      navigator.mediaSession.playbackState = 'playing';
-                  }
-              };
-
-              const clearReconnectInterval = () => {
-                  if (reconnectInterval) {
-                      clearInterval(reconnectInterval);
-                      reconnectInterval = null;
-                  }
-              };
-
-              const clearSlowLoadGuard = () => {
-                  if (slowLoadTimer) {
-                      clearTimeout(slowLoadTimer);
-                      slowLoadTimer = null;
-                  }
-              };
-
-              const startSlowLoadGuard = () => {
-                  clearSlowLoadGuard();
-                  slowLoadTimer = setTimeout(() => {
-                      slowLoadTimer = null;
-
-                      if (userPaused || usingFallback) {
-                          return;
-                      }
-
-                      const hasProgress = audio.currentTime > 0 || audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
-                      if (hasProgress) {
-                          return;
-                      }
-
-                      console.warn('Slow network detected, switching to offline welcome track.');
-                      playFallback(true);
-                      scheduleReconnect();
-                  }, slowLoadTimeoutMs);
-              };
-
-              const playAudio = (force = false) => {
-                  if (userPaused && !force) {
-                      return;
-                  }
-                  audio.play().then(() => {
-                      isPlaying = true;
-                      userPaused = false;
-                      updateSpeakerIcon(true);
-                      updateMediaSession(tracks[currentTrackIndex] || fallbackTrack);
-                      requestWakeLock();
-                  }).catch(error => {
-                      console.log("Audio playback failed:", error);
-                  });
-              };
-
-              const pauseAudio = (manual = false) => {
-                  audio.pause();
-                  if (manual) {
-                      userPaused = true;
-                  }
-                  isPlaying = false;
-                  updateSpeakerIcon(false);
-                  releaseWakeLock();
-              };
-
-              const loadTrack = (index, force = false) => {
-                  usingFallback = false;
-                  currentTrackIndex = index;
-                  audio.src = tracks[currentTrackIndex].src;
-                  audio.load();
-                  hasLoadedPrimaryTrack = true;
-                  startSlowLoadGuard();
-                  updateMediaSession(tracks[currentTrackIndex]);
-                  playAudio(force);
-              };
-
-              const changeTrack = (direction) => {
-                  if (!tracks.length) return;
-                  const total = tracks.length;
-                  currentTrackIndex = (currentTrackIndex + direction + total) % total;
-                  loadTrack(currentTrackIndex, true);
-              };
-
-              const playFallback = (force = false) => {
-                  usingFallback = true;
-                  audio.src = fallbackTrack.src;
-                  audio.load();
-                  hasLoadedPrimaryTrack = false;
-                  clearSlowLoadGuard();
-                  updateMediaSession(fallbackTrack);
-                  playAudio(force);
-              };
-
-              const attemptReconnect = (force = false) => {
-                  if (!navigator.onLine) {
-                      return;
-                  }
-                  clearReconnectInterval();
-                  if (usingFallback || audio.src !== tracks[currentTrackIndex].src) {
-                      loadTrack(currentTrackIndex, force);
-                  } else {
-                      playAudio(force);
-                  }
-              };
-
-              const scheduleReconnect = () => {
-                  if (reconnectInterval) {
-                      return;
-                  }
-                  reconnectInterval = setInterval(() => {
-                      if (navigator.onLine && !userPaused) {
-                          attemptReconnect(true);
-                      }
-                  }, 5000);
-              };
-
-              const handlePlaybackError = () => {
-                  if (userPaused) {
-                      return;
-                  }
-                  if (!navigator.onLine) {
-                      scheduleReconnect();
-                      if (!usingFallback) {
-                          playFallback();
-                      }
-                  } else {
-                      setTimeout(() => loadTrack(currentTrackIndex, true), 3000);
-                  }
-              };
-
-              speakerContainer.addEventListener('click', () => {
-                  const hasSource = Boolean(audio.currentSrc || audio.getAttribute('src'));
-                  if (!hasSource) {
-                      loadTrack(currentTrackIndex, true);
-                      return;
-                  }
-
-                  if (isPlaying) {
-                      pauseAudio(true);
-                  } else if (usingFallback && navigator.onLine && hasLoadedPrimaryTrack) {
-                      attemptReconnect(true);
-                  } else if (usingFallback) {
-                      playFallback(true);
-                  } else {
-                      playAudio(true);
-                  }
-              });
-
-              registerMediaSessionHandlers();
-
-
-              window.addEventListener('offline', () => {
-                  scheduleReconnect();
-                  if (!usingFallback) {
-                      playFallback();
-                  }
-              });
-
-              window.addEventListener('online', () => {
-                  if (userPaused) {
-                      usingFallback = false;
-                      clearReconnectInterval();
-                      audio.src = tracks[currentTrackIndex].src;
-                      audio.load();
-                      return;
-                  }
-                  attemptReconnect(true);
-              });
-
-              audio.addEventListener('error', handlePlaybackError);
-              audio.addEventListener('stalled', handlePlaybackError);
-              ['playing', 'canplay', 'canplaythrough', 'loadeddata'].forEach(eventName => {
-                  audio.addEventListener(eventName, clearSlowLoadGuard);
-              });
-              audio.addEventListener('timeupdate', () => {
-                  if (audio.currentTime > 0) {
-                      clearSlowLoadGuard();
-                  }
-              });
-
-              const timerProgress = document.getElementById('timer-progress');
-              const autoEnterDelay = 105000; // milliseconds
-              timerProgress.style.transition = `width ${autoEnterDelay}ms linear`;
-              setTimeout(() => {
-                  timerProgress.style.width = '0%';
-              }, 100);
-
-              autoEnterTimeout = setTimeout(enterApp, autoEnterDelay);
-
-              // Attempt to keep audio playing even when the page is hidden
-              document.addEventListener('visibilitychange', () => {
-                  if (document.visibilityState === 'hidden') {
-                      ensureBackgroundPlayback('visibilitychange');
-                  } else if (mediaSessionSupported) {
-                      navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
-                      if (isPlaying) {
-                          requestWakeLock();
-                      }
-                  }
-              });
-
-              ['pagehide', 'freeze'].forEach(eventName => {
-                  window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
-              });
-
-              audio.addEventListener('pause', () => {
-                  if (userPaused) {
-                      return;
-                  }
-                  if (document.visibilityState === 'hidden') {
-                      ensureBackgroundPlayback('hidden-pause');
-                      return;
-                  }
-                  setTimeout(() => {
-                      if (!userPaused && audio.paused) {
-                          ensureBackgroundPlayback('idle-pause');
-                      }
-                  }, 300);
-              });
-
-              const { animate, stagger } = window.motion || {};
-              if (animate) {
-                  animate('.hero-animate', {
-                      opacity: [0, 1],
-                      y: [12, 0]
-                  }, {
-                      duration: 0.8,
-                      delay: stagger(0.08),
-                      easing: 'ease-out'
-                  });
-
-                  const launchButton = document.querySelector('.enter-button');
-                  if (launchButton) {
-                      animate(launchButton, {
-                          scale: [1, 1.05, 1],
-                          boxShadow: [
-                              '0 0 0 rgba(142, 91, 255, 0.0)',
-                              '0 0 0 20px rgba(142, 91, 255, 0.08)',
-                              '0 0 0 rgba(142, 91, 255, 0.0)'
-                          ]
-                      }, {
-                          duration: 2.4,
-                          repeat: Infinity,
-                          easing: 'ease-in-out'
-                      });
-                  }
-              }
-          });
-
-        document.querySelectorAll('.shockwave').forEach(button => {
-            button.addEventListener('click', () => {
-                button.classList.add('shockwave-animation');
-                setTimeout(() => {
-                    button.classList.remove('shockwave-animation');
-                }, 1000);
+              const headerDate = response.headers.get('last-modified');
+              return response.json().then((data) => ({ data, headerDate }));
             })
-        })
-
-
-        const steps = ["#step1", "#step2", "#step3"];
-        let currentStep = 0;
-
-        function highlightStep(index) {
-            steps.forEach((selector, stepIndex) => {
-                const element = document.querySelector(selector);
-                if (!element) {
-                    return;
-                }
-                const isActive = stepIndex === index;
-                element.classList.toggle('feature-active', isActive);
-                if (window.gsap) {
-                    gsap.to(element, {
-                        opacity: isActive ? 1 : 0.6,
-                        scale: isActive ? 1.02 : 1,
-                        duration: 0.6,
-                        ease: 'power2.out'
-                    });
-                } else {
-                    element.style.opacity = isActive ? '1' : '0.6';
-                    element.style.transform = isActive ? 'scale(1.02)' : 'scale(1)';
-                }
+            .then(({ data, headerDate }) => {
+              const version = data && typeof data.version === 'string' ? data.version : null;
+              const resolvedDate = parseDate(headerDate) || initialDate;
+              setUpdatedLabel(resolvedDate, version);
+            })
+            .catch(() => {
+              setUpdatedLabel(initialDate);
+            })
+            .finally(() => {
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+              }
             });
         }
 
+        let isPlaying = false;
+        let userPaused = false;
+
+        const tracks = [
+          { src: 'https://cdn1.suno.ai/7578528b-34c1-492c-9e97-df93216f0cc2.mp3', title: 'Covenant Of Isolation' },
+          { src: 'https://cdn1.suno.ai/891af5b2-b1fe-4db2-9c99-e1b1a15697a2.mp3', title: 'Moore’s Law' },
+          { src: 'https://cdn1.suno.ai/017e178e-3478-485f-b844-aa72b327e2a6.mp3', title: 'Tears Of Love' },
+          { src: 'https://cdn1.suno.ai/b35932ed-2188-4780-a919-f5327317915b.mp3', title: "Her Daughter's Father" },
+          { src: 'https://cdn1.suno.ai/471dc968-d463-435c-8c3d-85f0d4556d8f.mp3', title: 'Pass The Baton' },
+          { src: 'https://cdn1.suno.ai/4f81332a-d833-4dc9-9763-7db0dfde3610.mp3', title: "Wonder's Breeze" },
+        ];
+
+        const fallbackTrack = { src: 'offline-audio.mp3', title: 'Offline Vibes' };
+        let currentTrackIndex = Math.floor(Math.random() * tracks.length);
+        let usingFallback = false;
+        let reconnectInterval = null;
+        let hasLoadedPrimaryTrack = false;
+        const slowLoadTimeoutMs = 4500;
+        let slowLoadTimer = null;
+        const mediaSessionSupported = 'mediaSession' in navigator;
+        let wakeLock = null;
+
+        const updateSpeakerIcon = (playing) => {
+          speakerContainer.setAttribute('aria-pressed', playing ? 'true' : 'false');
+          const statusLabel = playing ? 'Welcome audio playing' : 'Welcome audio muted';
+          speakerIcon.setAttribute('aria-label', statusLabel);
+          speakerIcon.setAttribute('role', 'img');
+          speakerIcon.setAttribute('focusable', 'false');
+          if (playing) {
+            speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" />`;
+          } else {
+            speakerIcon.innerHTML = `<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /><path d="M12 12l0 .01" />`;
+          }
+        };
+
+        const updateMediaSession = (track) => {
+          if (!mediaSessionSupported || !track) return;
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.title,
+            artist: 'Omoluabi Productions',
+            album: 'Àríyò AI',
+            artwork: [
+              { src: 'icons/Ariyo.png', sizes: '96x96', type: 'image/png' },
+              { src: 'icons/Ariyo.png', sizes: '192x192', type: 'image/png' },
+              { src: 'icons/Ariyo.png', sizes: '512x512', type: 'image/png' },
+            ],
+          });
+          navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+        };
+
+        const requestWakeLock = async () => {
+          if (!('wakeLock' in navigator)) return;
+          if (wakeLock) return;
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+              wakeLock = null;
+            });
+          } catch (error) {
+            console.log('Wake lock unavailable:', error);
+          }
+        };
+
+        const releaseWakeLock = () => {
+          if (!wakeLock) return;
+          wakeLock.release().catch(() => {});
+          wakeLock = null;
+        };
+
+        const registerMediaSessionHandlers = () => {
+          if (!mediaSessionSupported) return;
+          const safeHandler = (action, handler) => {
+            try {
+              navigator.mediaSession.setActionHandler(action, handler);
+            } catch (error) {
+              console.log(`MediaSession handler failed (${action}):`, error);
+            }
+          };
+          safeHandler('play', () => playAudio(true));
+          safeHandler('pause', () => pauseAudio(true));
+          safeHandler('previoustrack', () => changeTrack(-1));
+          safeHandler('nexttrack', () => changeTrack(1));
+        };
+
+        const ensureBackgroundPlayback = (reason) => {
+          if (userPaused || !isPlaying) {
+            return;
+          }
+          if (audio.paused || audio.ended) {
+            audio
+              .play()
+              .then(() => {
+                if (mediaSessionSupported) {
+                  navigator.mediaSession.playbackState = 'playing';
+                }
+              })
+              .catch((error) => {
+                console.log(`Background playback prevented (${reason}):`, error);
+              });
+          } else if (mediaSessionSupported) {
+            navigator.mediaSession.playbackState = 'playing';
+          }
+        };
+
+        const clearReconnectInterval = () => {
+          if (reconnectInterval) {
+            clearInterval(reconnectInterval);
+            reconnectInterval = null;
+          }
+        };
+
+        const clearSlowLoadGuard = () => {
+          if (slowLoadTimer) {
+            clearTimeout(slowLoadTimer);
+            slowLoadTimer = null;
+          }
+        };
+
+        const startSlowLoadGuard = () => {
+          clearSlowLoadGuard();
+          slowLoadTimer = setTimeout(() => {
+            slowLoadTimer = null;
+
+            if (userPaused || usingFallback) {
+              return;
+            }
+
+            const hasProgress = audio.currentTime > 0 || audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+            if (hasProgress) {
+              return;
+            }
+
+            console.warn('Slow network detected, switching to offline welcome track.');
+            playFallback(true);
+            scheduleReconnect();
+          }, slowLoadTimeoutMs);
+        };
+
+        const playAudio = (force = false) => {
+          if (userPaused && !force) {
+            return;
+          }
+          audio
+            .play()
+            .then(() => {
+              isPlaying = true;
+              userPaused = false;
+              updateSpeakerIcon(true);
+              updateMediaSession(tracks[currentTrackIndex] || fallbackTrack);
+              requestWakeLock();
+            })
+            .catch((error) => {
+              console.log('Audio playback failed:', error);
+            });
+        };
+
+        const pauseAudio = (manual = false) => {
+          audio.pause();
+          if (manual) {
+            userPaused = true;
+          }
+          isPlaying = false;
+          updateSpeakerIcon(false);
+          releaseWakeLock();
+        };
+
+        const loadTrack = (index, force = false) => {
+          usingFallback = false;
+          currentTrackIndex = index;
+          audio.src = tracks[currentTrackIndex].src;
+          audio.load();
+          hasLoadedPrimaryTrack = true;
+          startSlowLoadGuard();
+          updateMediaSession(tracks[currentTrackIndex]);
+          playAudio(force);
+        };
+
+        const changeTrack = (direction) => {
+          if (!tracks.length) return;
+          const total = tracks.length;
+          currentTrackIndex = (currentTrackIndex + direction + total) % total;
+          loadTrack(currentTrackIndex, true);
+        };
+
+        const playFallback = (force = false) => {
+          usingFallback = true;
+          audio.src = fallbackTrack.src;
+          audio.load();
+          hasLoadedPrimaryTrack = false;
+          clearSlowLoadGuard();
+          updateMediaSession(fallbackTrack);
+          playAudio(force);
+        };
+
+        const attemptReconnect = (force = false) => {
+          if (!navigator.onLine) {
+            return;
+          }
+          clearReconnectInterval();
+          if (usingFallback || audio.src !== tracks[currentTrackIndex].src) {
+            loadTrack(currentTrackIndex, force);
+          } else {
+            playAudio(force);
+          }
+        };
+
+        const scheduleReconnect = () => {
+          if (reconnectInterval) {
+            return;
+          }
+          reconnectInterval = setInterval(() => {
+            if (navigator.onLine && !userPaused) {
+              attemptReconnect(true);
+            }
+          }, 5000);
+        };
+
+        const handlePlaybackError = () => {
+          if (userPaused) {
+            return;
+          }
+          if (!navigator.onLine) {
+            scheduleReconnect();
+            if (!usingFallback) {
+              playFallback();
+            }
+          } else {
+            setTimeout(() => loadTrack(currentTrackIndex, true), 3000);
+          }
+        };
+
+        speakerContainer.addEventListener('click', () => {
+          const hasSource = Boolean(audio.currentSrc || audio.getAttribute('src'));
+          if (!hasSource) {
+            loadTrack(currentTrackIndex, true);
+            return;
+          }
+
+          if (isPlaying) {
+            pauseAudio(true);
+          } else if (usingFallback && navigator.onLine && hasLoadedPrimaryTrack) {
+            attemptReconnect(true);
+          } else if (usingFallback) {
+            playFallback(true);
+          } else {
+            playAudio(true);
+          }
+        });
+
+        registerMediaSessionHandlers();
+
+        window.addEventListener('offline', () => {
+          scheduleReconnect();
+          if (!usingFallback) {
+            playFallback();
+          }
+        });
+
+        window.addEventListener('online', () => {
+          if (userPaused) {
+            usingFallback = false;
+            clearReconnectInterval();
+            audio.src = tracks[currentTrackIndex].src;
+            audio.load();
+            return;
+          }
+          attemptReconnect(true);
+        });
+
+        audio.addEventListener('error', handlePlaybackError);
+        audio.addEventListener('stalled', handlePlaybackError);
+        ['playing', 'canplay', 'canplaythrough', 'loadeddata'].forEach((eventName) => {
+          audio.addEventListener(eventName, clearSlowLoadGuard);
+        });
+        audio.addEventListener('timeupdate', () => {
+          if (audio.currentTime > 0) {
+            clearSlowLoadGuard();
+          }
+        });
+
+        const timerProgress = document.getElementById('timer-progress');
+        const autoEnterDelay = 105000; // milliseconds
+        timerProgress.style.transition = `width ${autoEnterDelay}ms linear`;
+        setTimeout(() => {
+          timerProgress.style.width = '0%';
+        }, 100);
+
+        autoEnterTimeout = setTimeout(enterApp, autoEnterDelay);
+
+        // Attempt to keep audio playing even when the page is hidden
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden') {
+            ensureBackgroundPlayback('visibilitychange');
+          } else if (mediaSessionSupported) {
+            navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+            if (isPlaying) {
+              requestWakeLock();
+            }
+          }
+        });
+
+        ['pagehide', 'freeze'].forEach((eventName) => {
+          window.addEventListener(eventName, () => ensureBackgroundPlayback(eventName));
+        });
+
+        audio.addEventListener('pause', () => {
+          if (userPaused) {
+            return;
+          }
+          if (document.visibilityState === 'hidden') {
+            ensureBackgroundPlayback('hidden-pause');
+            return;
+          }
+          setTimeout(() => {
+            if (!userPaused && audio.paused) {
+              ensureBackgroundPlayback('idle-pause');
+            }
+          }, 300);
+        });
+
+        const { animate, stagger } = window.motion || {};
+        if (animate) {
+          animate(
+            '.hero-animate',
+            {
+              opacity: [0, 1],
+              y: [12, 0],
+            },
+            {
+              duration: 0.8,
+              delay: stagger(0.08),
+              easing: 'ease-out',
+            },
+          );
+
+          const launchButton = document.querySelector('.enter-button');
+          if (launchButton) {
+            animate(
+              launchButton,
+              {
+                scale: [1, 1.05, 1],
+                boxShadow: [
+                  '0 0 0 rgba(142, 91, 255, 0.0)',
+                  '0 0 0 20px rgba(142, 91, 255, 0.08)',
+                  '0 0 0 rgba(142, 91, 255, 0.0)',
+                ],
+              },
+              {
+                duration: 2.4,
+                repeat: Infinity,
+                easing: 'ease-in-out',
+              },
+            );
+          }
+        }
+      });
+
+      document.querySelectorAll('.shockwave').forEach((button) => {
+        button.addEventListener('click', () => {
+          button.classList.add('shockwave-animation');
+          setTimeout(() => {
+            button.classList.remove('shockwave-animation');
+          }, 1000);
+        });
+      });
+
+      const steps = ['#step1', '#step2', '#step3'];
+      let currentStep = 0;
+
+      function highlightStep(index) {
+        steps.forEach((selector, stepIndex) => {
+          const element = document.querySelector(selector);
+          if (!element) {
+            return;
+          }
+          const isActive = stepIndex === index;
+          element.classList.toggle('feature-active', isActive);
+          if (window.gsap) {
+            gsap.to(element, {
+              opacity: isActive ? 1 : 0.6,
+              scale: isActive ? 1.02 : 1,
+              duration: 0.6,
+              ease: 'power2.out',
+            });
+          } else {
+            element.style.opacity = isActive ? '1' : '0.6';
+            element.style.transform = isActive ? 'scale(1.02)' : 'scale(1)';
+          }
+        });
+      }
+
+      highlightStep(currentStep);
+      setInterval(() => {
+        currentStep = (currentStep + 1) % steps.length;
         highlightStep(currentStep);
-        setInterval(() => {
-            currentStep = (currentStep + 1) % steps.length;
-            highlightStep(currentStep);
-        }, 3000);
+      }, 3000);
     </script>
     <script src="scripts/vinyl-state-utils.js" defer></script>
     <script src="scripts/push-notifications.js" defer></script>
@@ -846,5 +1015,5 @@
     <script src="background-rotator.js"></script>
     <script src="user-tracking.js"></script>
     <script src="prevent-zoom.js"></script>
-</body>
+  </body>
 </html>

@@ -1,8 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
@@ -15,44 +18,44 @@
     <link rel="stylesheet" href="./tetris-color-scheme.css" />
     <link rel="stylesheet" href="./tetris.css" />
     <script src="../../viewport-height.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="game-container">
-        <h1 id="game-title">Omoluabi Tetris</h1>
-        <div id="game-wrapper">
-            <canvas id="tetris" width="200" height="400" aria-label="Omoluabi Tetris play field"></canvas>
-            <div id="sidebar">
-                <div id="controls">
-                    <div class="control-row">
-                        <button id="btn-rotate" aria-label="Rotate piece">⟳</button>
-                    </div>
-                    <div class="control-row">
-                        <button id="btn-left" aria-label="Move left">◀</button>
-                        <button id="btn-down" aria-label="Soft drop">▼</button>
-                        <button id="btn-right" aria-label="Move right">▶</button>
-                    </div>
-                    <div class="control-row">
-                        <button id="btn-drop" class="wide" aria-label="Hard drop">⤓</button>
-                    </div>
-                </div>
-                <div id="next-wrapper">
-                    <h2 id="next-title">Next</h2>
-                    <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
-                </div>
-                <div id="score" aria-live="polite" role="status">Score: 0</div>
+      <h1 id="game-title">Omoluabi Tetris</h1>
+      <div id="game-wrapper">
+        <canvas id="tetris" width="200" height="400" aria-label="Omoluabi Tetris play field"></canvas>
+        <div id="sidebar">
+          <div id="controls">
+            <div class="control-row">
+              <button id="btn-rotate" aria-label="Rotate piece">⟳</button>
             </div>
+            <div class="control-row">
+              <button id="btn-left" aria-label="Move left">◀</button>
+              <button id="btn-down" aria-label="Soft drop">▼</button>
+              <button id="btn-right" aria-label="Move right">▶</button>
+            </div>
+            <div class="control-row">
+              <button id="btn-drop" class="wide" aria-label="Hard drop">⤓</button>
+            </div>
+          </div>
+          <div id="next-wrapper">
+            <h2 id="next-title">Next</h2>
+            <canvas id="next" width="80" height="80" aria-label="Next piece preview"></canvas>
+          </div>
+          <div id="score" aria-live="polite" role="status">Score: 0</div>
         </div>
-        <div id="action-buttons">
-            <button id="btn-start" class="action-btn" aria-label="Start game">Start</button>
-            <button id="btn-stop" class="action-btn" aria-label="Stop game">Stop</button>
-            <button id="btn-refresh" class="action-btn" aria-label="Refresh game">Refresh</button>
-        </div>
+      </div>
+      <div id="action-buttons">
+        <button id="btn-start" class="action-btn" aria-label="Start game">Start</button>
+        <button id="btn-stop" class="action-btn" aria-label="Stop game">Stop</button>
+        <button id="btn-refresh" class="action-btn" aria-label="Refresh game">Refresh</button>
+      </div>
     </div>
     <script src="../../scripts/sw-controller.js" defer></script>
     <script src="./tetris.js"></script>
     <script src="../../prevent-zoom.js"></script>
     <footer>
-        <p>&copy; 2024 Omoluabi</p>
+      <p>&copy; 2024 Omoluabi</p>
     </footer>
-</body>
+  </body>
 </html>

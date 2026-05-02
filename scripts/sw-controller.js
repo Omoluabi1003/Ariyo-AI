@@ -25,7 +25,7 @@
     lastInteraction = Date.now();
   };
 
-  ['pointerdown', 'keydown', 'touchstart', 'mousemove'].forEach(eventName => {
+  ['pointerdown', 'keydown', 'touchstart', 'mousemove'].forEach((eventName) => {
     window.addEventListener(eventName, markInteraction, { passive: true });
   });
   window.addEventListener('focus', markInteraction);
@@ -190,7 +190,7 @@
     }
 
     if (registration.waiting) {
-      fetchAppVersion().then(version => {
+      fetchAppVersion().then((version) => {
         if (version) {
           pendingVersion = version;
         }
@@ -300,9 +300,13 @@
     registerServiceWorker();
     monitorVersionDrift();
   } else {
-    window.addEventListener('load', () => {
-      registerServiceWorker();
-      monitorVersionDrift();
-    }, { once: true });
+    window.addEventListener(
+      'load',
+      () => {
+        registerServiceWorker();
+        monitorVersionDrift();
+      },
+      { once: true },
+    );
   }
 })();

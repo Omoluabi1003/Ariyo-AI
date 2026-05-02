@@ -1,130 +1,130 @@
 /* Font and button styling */
 body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: var(--app-height, 100vh);
-    padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 1rem);
-    box-sizing: border-box;
-    background: #f0f0f0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: var(--app-height, 100vh);
+  padding: calc(env(safe-area-inset-top) + 1rem) clamp(1rem, 4vw, 2rem) calc(env(safe-area-inset-bottom) + 1rem);
+  box-sizing: border-box;
+  background: #f0f0f0;
 }
 
 #game-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 3rem;
-    color: var(--theme-color);
-    margin-bottom: 20px;
-    text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 3rem;
+  color: var(--theme-color);
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-
 #game-title::before {
-    content: '';
-    display: inline-block;
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
-    background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Logo.jpg');
-    background-size: contain;
-    background-repeat: no-repeat;
+  content: '';
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  background-image: url('https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/Logo.jpg');
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 #game-container {
-    width: 100%;
-    min-height: var(--app-height, 100vh);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: #f0f0f0;
-    background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc), linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
-    background-size: 60px 60px;
-    background-position: 0 0, 30px 30px;
-    padding: calc(var(--app-height, 100vh) * 0.05) 0;
+  width: 100%;
+  min-height: var(--app-height, 100vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #f0f0f0;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
+  background-size: 60px 60px;
+  background-position:
+    0 0,
+    30px 30px;
+  padding: calc(var(--app-height, 100vh) * 0.05) 0;
 }
 
 #puzzle-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #puzzle-grid {
-    display: grid;
-    border: 2px solid #333;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    width: min(90vmin, 400px);
-    aspect-ratio: 4 / 3;
-    box-sizing: border-box;
-    gap: 1px;
+  display: grid;
+  border: 2px solid #333;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: min(90vmin, 400px);
+  aspect-ratio: 4 / 3;
+  box-sizing: border-box;
+  gap: 1px;
 }
 
 .puzzle-tile {
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    background-size: 400px 300px;
-    cursor: pointer;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: transform 0.1s ease-in-out;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background-size: 400px 300px;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease-in-out;
 }
 
 .puzzle-tile:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .empty-tile {
-    background: repeating-linear-gradient(
-        45deg,
-        #f0f0f0,
-        #f0f0f0 10px,
-        #e0e0e0 10px,
-        #e0e0e0 20px
-    );
+  background: repeating-linear-gradient(45deg, #f0f0f0, #f0f0f0 10px, #e0e0e0 10px, #e0e0e0 20px);
 }
 
 #puzzle-controls {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-#difficulty, #puzzle-name {
-    padding: 5px;
-    border-radius: 5px;
+#difficulty,
+#puzzle-name {
+  padding: 5px;
+  border-radius: 5px;
 }
 
-#start-button, #stop-button {
-    padding: 5px 10px;
-    border-radius: 5px;
-    background-color: var(--theme-color);
-    color: white;
-    border: none;
-    cursor: pointer;
+#start-button,
+#stop-button {
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: var(--theme-color);
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
-#score, #timer {
-    font-weight: bold;
+#score,
+#timer {
+  font-weight: bold;
 }
 
 #instructions {
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: #333;
-    text-align: center;
-    font-weight: bold;
-    max-width: 400px;
-    padding: 0 20px;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #333;
+  text-align: center;
+  font-weight: bold;
+  max-width: 400px;
+  padding: 0 20px;
 }
 
 @media screen and (max-width: 600px) {
-    #game-container {
-        text-align: center;
-    }
+  #game-container {
+    text-align: center;
+  }
 }

@@ -2,7 +2,7 @@ const {
   PROVERB_LIBRARY,
   isValidCulturalNote,
   selectDailyProverb,
-  resolveProverb
+  resolveProverb,
 } = require('../scripts/proverb-utils');
 
 describe('proverb utilities', () => {
@@ -20,7 +20,7 @@ describe('proverb utilities', () => {
   });
 
   test('prefers cultural notes when available', () => {
-    const culturalNote = { yo: 'Ìwà l\'ẹwà.', en: 'Character is beauty.' };
+    const culturalNote = { yo: "Ìwà l'ẹwà.", en: 'Character is beauty.' };
     const result = resolveProverb({ culturalNote, date: new Date(2025, 0, 1) });
     expect(result).toEqual(culturalNote);
   });

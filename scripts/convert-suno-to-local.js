@@ -15,7 +15,7 @@ function parseArgs() {
     output: DEFAULT_OUTPUT_DIR,
     batchSize: DEFAULT_BATCH_SIZE,
     batchDelay: DEFAULT_BATCH_DELAY_MS,
-    manifest: DEFAULT_MANIFEST
+    manifest: DEFAULT_MANIFEST,
   };
 
   for (let i = 0; i < args.length; i += 1) {
@@ -158,12 +158,13 @@ async function main() {
   }
 
   ensureDir(options.output);
-  const manifest = fs.existsSync(options.manifest)
-    ? JSON.parse(fs.readFileSync(options.manifest, 'utf8'))
-    : {};
-  const existingNames = new Set(fs.readdirSync(options.output, { withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name));
+  const manifest = fs.existsSync(options.manifest) ? JSON.parse(fs.readFileSync(options.manifest, 'utf8')) : {};
+  const existingNames = new Set(
+    fs
+      .readdirSync(options.output, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name),
+  );
 
   console.log(`Processing ${links.length} link(s) in batches of ${options.batchSize}.`);
 

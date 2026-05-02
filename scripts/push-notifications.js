@@ -14,12 +14,12 @@
   const copyVariants = [
     {
       title: 'Get instant alerts when your favorite artists release new music.',
-      copy: 'We only ping for the releases you follow—no spam, no noise.'
+      copy: 'We only ping for the releases you follow—no spam, no noise.',
     },
     {
       title: 'Never miss a midnight premiere again.',
-      copy: 'Turn on music alerts to hear about new tracks, remixes, and playlists as soon as they go live.'
-    }
+      copy: 'Turn on music alerts to hear about new tracks, remixes, and playlists as soon as they go live.',
+    },
   ];
 
   let playbackTimer;
@@ -59,9 +59,9 @@
     const response = await fetch('/api/push/subscribe', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription)
+      body: JSON.stringify(subscription),
     });
 
     if (!response.ok) {
@@ -122,7 +122,7 @@
     const publicKey = await fetchPublicKey();
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey)
+      applicationServerKey: urlBase64ToUint8Array(publicKey),
     });
     await sendSubscriptionToServer(subscription);
     setStatus('Notifications enabled. We will ping you for new music.', 'success');
@@ -299,18 +299,21 @@
     });
     closeBtn?.addEventListener('click', () => closeToast('dismissed'));
 
-    navigator.permissions?.query({ name: 'notifications' }).then((permissionStatus) => {
-      permissionStatus.onchange = () => {
-        if (permissionStatus.state === 'granted') {
-          ensureSubscribed().catch((error) => console.error('Auto-subscribe failed', error));
-          writePromptMeta('granted', 'system');
-        }
-        if (permissionStatus.state === 'denied') {
-          writePromptMeta('denied', 'system');
-          closeToast('denied');
-        }
-      };
-    }).catch(() => {});
+    navigator.permissions
+      ?.query({ name: 'notifications' })
+      .then((permissionStatus) => {
+        permissionStatus.onchange = () => {
+          if (permissionStatus.state === 'granted') {
+            ensureSubscribed().catch((error) => console.error('Auto-subscribe failed', error));
+            writePromptMeta('granted', 'system');
+          }
+          if (permissionStatus.state === 'denied') {
+            writePromptMeta('denied', 'system');
+            closeToast('denied');
+          }
+        };
+      })
+      .catch(() => {});
 
     startAudioEngagementTracking();
     wireAdditionalEngagementSignals();

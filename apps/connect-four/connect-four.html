@@ -1,8 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
@@ -14,24 +17,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./connect-four.css" />
     <script src="../../viewport-height.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="game-container">
-        <h1 id="game-title">Ara Connect-4</h1>
-        <p id="rules">First to connect four in a row (horizontal, vertical, or diagonal) wins.</p>
-        <div id="controls">
-            <label for="mode">Play mode:</label>
-            <select id="mode">
-                <option value="ai">Vs Omoluabi</option>
-                <option value="2p">Two Players</option>
-            </select>
-        </div>
-        <div id="board" aria-label="Ara Connect-4 board"></div>
-        <div id="message" aria-live="polite"></div>
-        <button id="reset">Reset</button>
+      <h1 id="game-title">Ara Connect-4</h1>
+      <p id="rules">First to connect four in a row (horizontal, vertical, or diagonal) wins.</p>
+      <div id="controls">
+        <label for="mode">Play mode:</label>
+        <select id="mode">
+          <option value="ai">Vs Omoluabi</option>
+          <option value="2p">Two Players</option>
+        </select>
+      </div>
+      <div id="board" aria-label="Ara Connect-4 board"></div>
+      <div id="message" aria-live="polite"></div>
+      <button id="reset">Reset</button>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="./connect-four.js"></script>
     <script src="../../scripts/sw-controller.js" defer></script>
-</body>
+  </body>
 </html>

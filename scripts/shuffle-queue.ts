@@ -85,7 +85,7 @@ let getCurrentTrackId: () => string | null = () => null;
 export function configureShuffleContext({
   trackProvider,
   currentTrackProvider,
-  options
+  options,
 }: {
   trackProvider: (mode: ShuffleMode) => Track[];
   currentTrackProvider: () => string | null;
@@ -101,13 +101,9 @@ export function generateFullShuffle(tracks: Track[], startWithTrackId?: string):
   const ids = tracks.map((track) => track.id);
   const startIndex = startWithTrackId ? ids.indexOf(startWithTrackId) : -1;
 
-  const remaining = startIndex >= 0
-    ? ids.filter((id) => id !== startWithTrackId)
-    : [...ids];
+  const remaining = startIndex >= 0 ? ids.filter((id) => id !== startWithTrackId) : [...ids];
   const shuffledRemaining = fisherYatesShuffle(remaining);
-  const fullQueue = startIndex >= 0 && startWithTrackId
-    ? [startWithTrackId, ...shuffledRemaining]
-    : shuffledRemaining;
+  const fullQueue = startIndex >= 0 && startWithTrackId ? [startWithTrackId, ...shuffledRemaining] : shuffledRemaining;
 
   if (!perceivedRandomness) return fullQueue;
   const trackMap = new Map(tracks.map((track) => [track.id, track]));
@@ -166,6 +162,6 @@ export function getShuffleState(): {
     shuffleQueue: [...shuffleQueue],
     currentIndex,
     isShuffleEnabled,
-    shuffleMode
+    shuffleMode,
   };
 }

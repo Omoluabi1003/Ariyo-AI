@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 const DEFAULT_SIZE = 300;
 const BAR_COUNT = 72;
@@ -16,9 +16,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
   const rotationRef = useRef(0);
   const lastFrameRef = useRef(0);
 
-  const supportsAudio =
-    typeof window !== "undefined" &&
-    (window.AudioContext || window.webkitAudioContext);
+  const supportsAudio = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
 
   useEffect(() => {
     // Only spin up the audio graph after the first user-initiated play.
@@ -26,14 +24,13 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       return;
     }
 
-    const AudioContextConstructor =
-      window.AudioContext || window.webkitAudioContext;
+    const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
 
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContextConstructor();
     }
 
-    if (audioContextRef.current.state === "suspended") {
+    if (audioContextRef.current.state === 'suspended') {
       audioContextRef.current.resume();
     }
 
@@ -45,30 +42,24 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
     }
 
     const currentAudioElement = audioRef.current;
-    if (
-      !sourceRef.current ||
-      (audioElementRef.current && audioElementRef.current !== currentAudioElement)
-    ) {
+    if (!sourceRef.current || (audioElementRef.current && audioElementRef.current !== currentAudioElement)) {
       if (sourceRef.current) {
         sourceRef.current.disconnect();
       }
 
-      sourceRef.current =
-        audioContextRef.current.createMediaElementSource(currentAudioElement);
+      sourceRef.current = audioContextRef.current.createMediaElementSource(currentAudioElement);
       sourceRef.current.connect(analyserRef.current);
       analyserRef.current.connect(audioContextRef.current.destination);
       audioElementRef.current = currentAudioElement;
     }
 
     if (!dataArrayRef.current && analyserRef.current) {
-      dataArrayRef.current = new Uint8Array(
-        analyserRef.current.frequencyBinCount
-      );
+      dataArrayRef.current = new Uint8Array(analyserRef.current.frequencyBinCount);
     }
   }, [audioRef, isPlaying, supportsAudio]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return undefined;
     }
 
@@ -77,7 +68,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       return undefined;
     }
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
       return undefined;
     }
@@ -99,18 +90,18 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
     handleResize();
 
     let resizeObserver;
-    if (typeof ResizeObserver !== "undefined") {
+    if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(handleResize);
       resizeObserver.observe(canvas.parentElement || canvas);
     } else {
-      window.addEventListener("resize", handleResize);
+      window.addEventListener('resize', handleResize);
     }
 
     return () => {
       if (resizeObserver) {
         resizeObserver.disconnect();
       } else {
-        window.removeEventListener("resize", handleResize);
+        window.removeEventListener('resize', handleResize);
       }
     };
   }, [size]);
@@ -121,7 +112,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       return undefined;
     }
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
       return undefined;
     }
@@ -158,17 +149,10 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
         : 0.15 + 0.1 * Math.sin(timestamp / 500);
 
       const glowIntensity = 0.25 + basePulse * 0.9;
-      const ringGradient = ctx.createRadialGradient(
-        0,
-        0,
-        innerRadius * 0.6,
-        0,
-        0,
-        innerRadius + maxBarLength
-      );
+      const ringGradient = ctx.createRadialGradient(0, 0, innerRadius * 0.6, 0, 0, innerRadius + maxBarLength);
       ringGradient.addColorStop(0, `rgba(255, 184, 108, ${glowIntensity})`);
       ringGradient.addColorStop(0.6, `rgba(180, 120, 255, ${glowIntensity})`);
-      ringGradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ringGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
       ctx.beginPath();
       ctx.strokeStyle = ringGradient;
@@ -183,7 +167,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       const rotationSpeed = hasAudioData ? 0.002 : 0.0006;
       rotationRef.current += rotationSpeed * (delta / 16.6);
 
-      ctx.lineCap = "round";
+      ctx.lineCap = 'round';
       ctx.lineWidth = Math.max(1.5, radius * 0.012);
 
       for (let i = 0; i < BAR_COUNT; i += 1) {
@@ -191,8 +175,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
         const intensity = hasAudioData
           ? getFrequencySliceAverage(dataArray, barIndex, BAR_COUNT) / 255
           : 0.15 + 0.08 * Math.sin(timestamp / 700 + i);
-        const easedLevel =
-          barLevelsRef.current[i] + (intensity - barLevelsRef.current[i]) * 0.25;
+        const easedLevel = barLevelsRef.current[i] + (intensity - barLevelsRef.current[i]) * 0.25;
         barLevelsRef.current[i] = easedLevel;
 
         const barLength = maxBarLength * (0.3 + easedLevel * 1.2);
@@ -234,20 +217,20 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
   }, [isPlaying, size]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === 'undefined') {
       return;
     }
 
     const targets = document.querySelectorAll(
-      ".turntable-disc, .album-cover, .album-groove-overlay, .circular-visualizer"
+      '.turntable-disc, .album-cover, .album-groove-overlay, .circular-visualizer',
     );
 
     targets.forEach((target) => {
-      target.style.webkitAnimation = "none";
-      target.style.animation = "none";
+      target.style.webkitAnimation = 'none';
+      target.style.animation = 'none';
       void target.offsetHeight;
-      target.style.webkitAnimation = "";
-      target.style.animation = "";
+      target.style.webkitAnimation = '';
+      target.style.animation = '';
     });
   }, []);
 
@@ -276,17 +259,16 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
     return (
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: "50%",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.06), rgba(0,0,0,0.2))",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "rgba(255,255,255,0.6)",
-          fontSize: "0.75rem",
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.06), rgba(0,0,0,0.2))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'rgba(255,255,255,0.6)',
+          fontSize: '0.75rem',
         }}
       >
         Audio visualizer unavailable
@@ -299,7 +281,7 @@ const CircularAudioVisualizer = ({ audioRef, isPlaying, size = DEFAULT_SIZE }) =
       ref={canvasRef}
       aria-hidden="true"
       className="circular-visualizer"
-      style={{ width: "100%", height: "100%", display: "block" }}
+      style={{ width: '100%', height: '100%', display: 'block' }}
     />
   );
 };

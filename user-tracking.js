@@ -18,12 +18,12 @@ async function initUserTracking() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         body: JSON.stringify({
           subject: 'New Ariyo AI visitor',
-          message: `User ${userId} visited. Total visits: ${visits}`
-        })
+          message: `User ${userId} visited. Total visits: ${visits}`,
+        }),
       });
     }
   } catch (err) {

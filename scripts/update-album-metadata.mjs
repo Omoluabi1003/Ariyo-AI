@@ -99,23 +99,23 @@ const albumInputs = [
         title: 'A Very Good Bad Guy v3',
         description: 'Opening reflections on resilience and streetwise grit.',
         durationSeconds: null,
-        filePath: 'A Very Good Bad Guy v3.mp3'
+        filePath: 'A Very Good Bad Guy v3.mp3',
       },
       {
         id: 'dem-wan-shut-me-up',
         title: 'Dem Wan Shut Me Up',
         description: 'A pulsing anthem about speaking truth in public spaces.',
         durationSeconds: null,
-        filePath: 'Dem Wan Shut Me Up.mp3'
+        filePath: 'Dem Wan Shut Me Up.mp3',
       },
       {
         id: 'efcc',
         title: 'EFCC',
         description: 'Noir-styled commentary on the hustle and accountability.',
         durationSeconds: null,
-        filePath: 'EFCC.mp3'
-      }
-    ]
+        filePath: 'EFCC.mp3',
+      },
+    ],
   },
   {
     id: 'street-sense',
@@ -130,16 +130,16 @@ const albumInputs = [
         title: 'Na We Dey',
         description: 'Collective pride anthem with Lagos traffic energy.',
         durationSeconds: null,
-        filePath: 'Na We Dey.mp3'
+        filePath: 'Na We Dey.mp3',
       },
       {
         id: 'street-sense',
         title: 'Street Sense',
         description: 'Signature track capturing the album vibe.',
         durationSeconds: null,
-        filePath: 'Street Sense.mp3'
-      }
-    ]
+        filePath: 'Street Sense.mp3',
+      },
+    ],
   },
   {
     id: 'spoken-word-series',
@@ -154,24 +154,24 @@ const albumInputs = [
         title: 'Parking Lot Therapy',
         description: 'A quiet conversation turned reflection on growth.',
         durationSeconds: null,
-        filePath: 'https://cdn1.suno.ai/c366aac4-5bf4-4137-a021-65de1812af6e.mp3'
+        filePath: 'https://cdn1.suno.ai/c366aac4-5bf4-4137-a021-65de1812af6e.mp3',
       },
       {
         id: 'when-a-good-man-walks-away',
         title: 'When A Good Man Walks Away',
         description: 'Stories of responsibility and the cost of absence.',
         durationSeconds: null,
-        filePath: 'https://cdn1.suno.ai/350fdbb1-c55d-4ee4-a7f6-5a3848fa3efd.mp3'
+        filePath: 'https://cdn1.suno.ai/350fdbb1-c55d-4ee4-a7f6-5a3848fa3efd.mp3',
       },
       {
         id: 'disrupted-career',
         title: 'Disrupted Career',
         description: 'A spoken narrative on pivots and resilience.',
         durationSeconds: null,
-        filePath: 'https://cdn1.suno.ai/ab730851-6c85-49e8-9816-bb26177e289d.mp3'
-      }
-    ]
-  }
+        filePath: 'https://cdn1.suno.ai/ab730851-6c85-49e8-9816-bb26177e289d.mp3',
+      },
+    ],
+  },
 ];
 
 function buildAlbumMetadata(album) {
@@ -181,7 +181,7 @@ function buildAlbumMetadata(album) {
     ? SPOKEN_WORD_RELEASE_YEAR
     : getYearFromDate(albumAddedDate) || new Date().getUTCFullYear();
 
-  const tracks = album.tracks.map(track => {
+  const tracks = album.tracks.map((track) => {
     const addedDate = resolveAddedDate({ filePath: track.filePath, isSpokenWord });
     return {
       id: track.id,
@@ -189,7 +189,7 @@ function buildAlbumMetadata(album) {
       description: track.description,
       durationSeconds: track.durationSeconds,
       addedDate,
-      filePath: track.filePath
+      filePath: track.filePath,
     };
   });
 
@@ -201,7 +201,7 @@ function buildAlbumMetadata(album) {
     curator: album.curator,
     releaseYear,
     addedDate: albumAddedDate,
-    tracks
+    tracks,
   };
 }
 
@@ -226,7 +226,7 @@ function main() {
 
   const payload = {
     generatedAt: new Date().toISOString(),
-    albums: albumInputs.map(buildAlbumMetadata)
+    albums: albumInputs.map(buildAlbumMetadata),
   };
 
   writeOutput(payload);

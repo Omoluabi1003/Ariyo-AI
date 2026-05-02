@@ -1,10 +1,11 @@
-(function() {
+(function () {
   const NEWS_URL = '/api/news';
   const LAST_SEEN_KEY = 'ariyoNewsLastSeen';
   const NEWS_CACHE_KEY = 'ariyoNewsCache';
   const NEWS_PANEL_ID = 'news-section';
   const LOCAL_FALLBACK_IMAGE = '/img/news-fallback.svg';
-  const REMOTE_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
+  const REMOTE_FALLBACK_IMAGE =
+    'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
   const KEYWORD_IMAGE_BASE = 'https://source.unsplash.com/featured/900x600?';
 
   const createIconDot = () => {
@@ -118,7 +119,7 @@
   function isEntertainment(item) {
     const haystack = `${item.tag || ''} ${item.title || ''} ${item.summary || ''}`.toLowerCase();
     const keywords = ['entertainment', 'music', 'afrobeats', 'celebrity', 'vibe', 'artist'];
-    return keywords.some(term => haystack.includes(term));
+    return keywords.some((term) => haystack.includes(term));
   }
 
   function makeCardInteractive(card, url) {
@@ -195,18 +196,18 @@
 
     const sorted = [...items].sort((a, b) => parseDate(b) - parseDate(a));
     const entertainmentItems = sorted.filter(isEntertainment);
-    const nonEntertainment = sorted.filter(item => !isEntertainment(item));
+    const nonEntertainment = sorted.filter((item) => !isEntertainment(item));
     const prioritized = [...entertainmentItems, ...nonEntertainment];
     if (!prioritized.length) return;
-    const pinnedItems = prioritized.filter(item => item.pinned);
+    const pinnedItems = prioritized.filter((item) => item.pinned);
     const heroItem = pinnedItems.find(isEntertainment) || pinnedItems[0] || prioritized[0];
-    const remaining = prioritized.filter(item => item !== heroItem);
+    const remaining = prioritized.filter((item) => item !== heroItem);
 
     if (heroItem) {
       heroTarget.appendChild(buildCard(heroItem, true));
     }
 
-    remaining.forEach(item => feedTarget.appendChild(buildCard(item)));
+    remaining.forEach((item) => feedTarget.appendChild(buildCard(item)));
   }
 
   function saveCache(items) {
@@ -247,7 +248,7 @@
   }
 
   function toggleNotificationDot(show) {
-    document.querySelectorAll('.nav-notification-dot').forEach(dot => {
+    document.querySelectorAll('.nav-notification-dot').forEach((dot) => {
       dot.classList.toggle('visible', show);
     });
   }
@@ -259,7 +260,7 @@
 
   function closeOtherPanels() {
     if (!Array.isArray(window.PANEL_IDS)) return;
-    window.PANEL_IDS.forEach(id => {
+    window.PANEL_IDS.forEach((id) => {
       if (id === NEWS_PANEL_ID) return;
       const panel = document.getElementById(id);
       if (panel && panel.style.display === 'block' && typeof window.closePanel === 'function') {
@@ -285,12 +286,16 @@
     const closeBtn = document.querySelector('[data-close-target="news-section"]');
     const section = document.getElementById(NEWS_PANEL_ID);
     if (closeBtn && section) {
-      closeBtn.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        section.classList.remove('news-visible');
-        setTimeout(() => window.closePanel && window.closePanel(NEWS_PANEL_ID), 180);
-      }, { capture: true });
+      closeBtn.addEventListener(
+        'click',
+        (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          section.classList.remove('news-visible');
+          setTimeout(() => window.closePanel && window.closePanel(NEWS_PANEL_ID), 180);
+        },
+        { capture: true },
+      );
     }
   }
 
@@ -304,7 +309,7 @@
     toggleNotificationDot(hasFreshNews);
 
     const openers = [sidebarBtn, edgeBtn].filter(Boolean);
-    openers.forEach(btn => {
+    openers.forEach((btn) => {
       btn.addEventListener('click', (event) => {
         event.preventDefault();
         markSeen(latestTimestamp);

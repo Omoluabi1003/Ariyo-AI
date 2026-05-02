@@ -1,13 +1,13 @@
 :root {
-    --background-color: #000;
-    --text-color: #fff;
-    --theme-color: #4169E1;
+  --background-color: #000;
+  --text-color: #fff;
+  --theme-color: #4169e1;
 }
 
 @media (prefers-color-scheme: light) {
-    :root {
-        --background-color: #fff;
-        --text-color: #000;
-        --theme-color: #87CEFA;
-    }
+  :root {
+    --background-color: #fff;
+    --text-color: #000;
+    --theme-color: #87cefa;
+  }
 }
