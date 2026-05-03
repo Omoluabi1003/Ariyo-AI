@@ -111,6 +111,7 @@
     <script src="viewport-height.js" defer></script>
     <script src="scripts/theme-toggle.js" defer></script>
     <script src="scripts/deferred-init.js" defer></script>
+    <script src="scripts/i18n.js" defer></script>
     <script src="scripts/email-gate.js" defer></script>
 
     <style>
@@ -1706,13 +1707,13 @@
           <span class="header-title">Àríyò AI Studio</span>
         </div>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" data-language-switcher-host>
         <button class="share-button" aria-label="Share this page" onclick="openShareMenu()">
           <i class="fas fa-share-alt" aria-hidden="true"></i>
         </button>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
           <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
-          <span class="theme-toggle-label">Light mode</span>
+          <span class="theme-toggle-label" data-i18n="ui.lightMode">Light mode</span>
         </button>
       </div>
     </div>

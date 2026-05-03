@@ -140,3 +140,38 @@ This project is licensed under the MIT License.
 ---
 
 **SEO Keywords:** Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Nigerian music, Naija AI, AI chatbot, PWA
+
+## Localization (i18n)
+
+Ariyò AI includes a lightweight browser-based i18n utility in `scripts/i18n.js`.
+
+### How language is chosen
+- Default fallback language is English (`en`).
+- On first visit, language is detected from `navigator.languages` and `navigator.language`.
+- If a supported non-English language is detected, the UI switches automatically.
+- User choice from the language selector is saved in `localStorage` under `ariyo.language`.
+
+### Supported languages
+- English (`en`)
+- French (`fr`)
+- Spanish (`es`)
+- Portuguese (`pt`)
+- Yoruba (`yo`)
+- Hausa (`ha`)
+- Igbo (`ig`)
+
+### Adding a new translation
+1. Open `scripts/i18n.js`.
+2. Add the new language code to `SUPPORTED_LANGUAGES`.
+3. Add a matching top-level translation object under `translations`.
+4. Add an `<option>` for the language in the selector list in `injectLanguageSelector`.
+5. Tag UI text in HTML using:
+   - `data-i18n="path.to.key"` for normal text
+   - `data-i18n-placeholder="path.to.key"` for placeholder text
+   - `data-i18n-aria-label="path.to.key"` for accessibility labels
+6. Verify missing keys fall back to English (automatic behavior of `lookup`).
+
+### Notes
+- The implementation does **not** rely on IP geolocation.
+- Missing translations gracefully fall back to English.
+- Keep translation keys grouped semantically (for example: `ui.*`, `chatbot.*`, `errors.*`) to scale cleanly.

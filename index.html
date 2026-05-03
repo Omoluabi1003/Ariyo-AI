@@ -88,6 +88,7 @@
     <script src="viewport-height.js" defer></script>
     <script src="scripts/theme-toggle.js" defer></script>
     <script src="scripts/deferred-init.js" defer></script>
+    <script src="scripts/i18n.js" defer></script>
     <link
       rel="prefetch"
       as="audio"
@@ -137,7 +138,7 @@
     </style>
   </head>
   <body data-page="landing">
-    <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading">
+    <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading" data-i18n-aria-label="ui.loading">
       <div class="boot-spinner-dot"></div>
     </div>
     <div id="timer-bar"><div id="timer-progress"></div></div>
@@ -146,10 +147,10 @@
       <div id="bg2" class="bg-image"></div>
     </div>
     <div class="overlay">
-      <div class="page-actions">
+      <div class="page-actions" data-language-switcher-host>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
           <span class="theme-toggle-icon" aria-hidden="true">🌞</span>
-          <span class="theme-toggle-label">Light mode</span>
+          <span class="theme-toggle-label" data-i18n="ui.lightMode">Light mode</span>
         </button>
       </div>
       <div class="hero-layout">
@@ -186,7 +187,7 @@
             </div>
             <button class="enter-button shockwave" type="button" aria-label="Enter the Àríyò AI experience">
               <img src="Enter.png" alt="Enter Àríyò AI" class="enter-icon" />
-              <span class="enter-label">Launch experience</span>
+              <span class="enter-label" data-i18n="ui.launchExperience">Launch experience</span>
             </button>
           </div>
           <p class="email-gate-status" id="emailGateStatus" aria-live="polite"></p>
@@ -225,8 +226,8 @@
             </p>
           </div>
           <div class="cta-stack">
-            <button class="enter-button ghost" id="launchExperience" type="button">Launch experience</button>
-            <button class="badge-button" id="installPwa" type="button">Install PWA</button>
+            <button class="enter-button ghost" id="launchExperience" type="button" data-i18n="ui.launchExperience">Launch experience</button>
+            <button class="badge-button" id="installPwa" type="button" data-i18n="ui.installPwa">Install PWA</button>
             <p class="cta-hint" id="notificationStatus" aria-live="polite"></p>
           </div>
           <p class="cta-hint" id="experienceStatus" aria-live="polite"></p>
