@@ -3,6 +3,8 @@
   const DEFAULT_LANG = 'en';
   const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'pt', 'yo', 'ha', 'ig'];
 
+  // Centralized dictionary-based translations.
+  // Add UI text here, then reference keys in markup via data-i18n* attributes.
   const translations = {
     en: {
       ui: {
@@ -12,6 +14,15 @@
         lightMode: 'Light mode',
         darkMode: 'Dark mode',
         loading: 'Loading',
+        navChooseAlbum: 'Choose An Album',
+        navChooseTrack: 'Choose A Track',
+        navMyPlaylist: 'My Playlist',
+        navRadioStations: 'Radio Stations',
+        navGames: 'Games & Simulations',
+        navAboutUs: 'About Us',
+        searchPlaceholder: 'Search tracks or stations...',
+        searchAria: 'Search tracks or radio stations',
+        sharePage: 'Share this page',
       },
     },
     fr: {
@@ -22,6 +33,15 @@
         lightMode: 'Mode clair',
         darkMode: 'Mode sombre',
         loading: 'Chargement',
+        navChooseAlbum: 'Choisir un album',
+        navChooseTrack: 'Choisir une piste',
+        navMyPlaylist: 'Ma playlist',
+        navRadioStations: 'Stations radio',
+        navGames: 'Jeux et simulations',
+        navAboutUs: 'À propos',
+        searchPlaceholder: 'Rechercher des pistes ou stations...',
+        searchAria: 'Rechercher des pistes ou stations radio',
+        sharePage: 'Partager cette page',
       },
     },
     es: {
@@ -32,6 +52,15 @@
         lightMode: 'Modo claro',
         darkMode: 'Modo oscuro',
         loading: 'Cargando',
+        navChooseAlbum: 'Elegir un álbum',
+        navChooseTrack: 'Elegir una pista',
+        navMyPlaylist: 'Mi lista',
+        navRadioStations: 'Emisoras de radio',
+        navGames: 'Juegos y simulaciones',
+        navAboutUs: 'Sobre nosotros',
+        searchPlaceholder: 'Buscar pistas o estaciones...',
+        searchAria: 'Buscar pistas o estaciones de radio',
+        sharePage: 'Compartir esta página',
       },
     },
     pt: {
@@ -42,6 +71,15 @@
         lightMode: 'Modo claro',
         darkMode: 'Modo escuro',
         loading: 'Carregando',
+        navChooseAlbum: 'Escolher um álbum',
+        navChooseTrack: 'Escolher uma faixa',
+        navMyPlaylist: 'Minha playlist',
+        navRadioStations: 'Estações de rádio',
+        navGames: 'Jogos e simulações',
+        navAboutUs: 'Sobre nós',
+        searchPlaceholder: 'Buscar faixas ou estações...',
+        searchAria: 'Buscar faixas ou estações de rádio',
+        sharePage: 'Compartilhar esta página',
       },
     },
     yo: {
@@ -52,6 +90,15 @@
         lightMode: 'Móòdù ìmọ́lẹ̀',
         darkMode: 'Móòdù òkùnkùn',
         loading: 'Ń gbé wọlé',
+        navChooseAlbum: 'Yan àlùbùmù',
+        navChooseTrack: 'Yan orin kan',
+        navMyPlaylist: 'Àkójọ orin mi',
+        navRadioStations: 'Àwọn ilé iṣẹ́ redio',
+        navGames: 'Eré àti àfọwọ̀ṣe',
+        navAboutUs: 'Nípa wa',
+        searchPlaceholder: 'Wá orin tàbí redio...',
+        searchAria: 'Wá orin tàbí ibùdó redio',
+        sharePage: 'Pín ojúewé yìí',
       },
     },
     ha: {
@@ -62,6 +109,15 @@
         lightMode: 'Yanayin haske',
         darkMode: 'Yanayin duhu',
         loading: 'Ana lodawa',
+        navChooseAlbum: 'Zaɓi kundi',
+        navChooseTrack: 'Zaɓi waƙa',
+        navMyPlaylist: 'Jerin waƙoƙi na',
+        navRadioStations: 'Tashoshin rediyo',
+        navGames: 'Wasanni da kwaikwayo',
+        navAboutUs: 'Game da mu',
+        searchPlaceholder: 'Nemo waƙoƙi ko tashoshi...',
+        searchAria: 'Nemo waƙoƙi ko tashoshin rediyo',
+        sharePage: 'Raba wannan shafi',
       },
     },
     ig: {
@@ -72,6 +128,15 @@
         lightMode: 'Ọnọdụ ọkụ',
         darkMode: 'Ọnọdụ ọchịchịrị',
         loading: 'Na-ebudata',
+        navChooseAlbum: 'Họrọ album',
+        navChooseTrack: 'Họrọ egwu',
+        navMyPlaylist: 'Ndepụta egwu m',
+        navRadioStations: 'Ụlọọrụ redio',
+        navGames: 'Egwuregwu na simulation',
+        navAboutUs: 'Banyere anyị',
+        searchPlaceholder: 'Chọọ egwu ma ọ bụ ụlọọrụ...',
+        searchAria: 'Chọọ egwu ma ọ bụ ụlọọrụ redio',
+        sharePage: 'Kekọrịta ibe a',
       },
     },
   };
@@ -113,6 +178,9 @@
     document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => {
       el.setAttribute('aria-label', lookup(lang, el.dataset.i18nAriaLabel));
     });
+    document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+      el.setAttribute('title', lookup(lang, el.dataset.i18nTitle));
+    });
   }
 
   function setLanguage(lang) {
@@ -125,7 +193,7 @@
   function getInitialLanguage() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return normalizeLanguage(saved);
-    return detectBrowserLanguage();
+    return DEFAULT_LANG;
   }
 
   function injectLanguageSelector(currentLanguage) {
