@@ -1697,7 +1697,7 @@
   </head>
 
   <body data-page="main">
-    <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading">
+    <div id="bootSpinner" role="status" aria-live="polite" aria-label="Loading" data-i18n-aria-label="ui.loading">
       <div class="boot-spinner-dot"></div>
     </div>
     <div class="header">
@@ -1708,7 +1708,7 @@
         </div>
       </div>
       <div class="header-actions" data-language-switcher-host>
-        <button class="share-button" aria-label="Share this page" onclick="openShareMenu()">
+        <button class="share-button" aria-label="Share this page" data-i18n-aria-label="ui.sharePage" onclick="openShareMenu()">
           <i class="fas fa-share-alt" aria-hidden="true"></i>
         </button>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
@@ -1728,7 +1728,9 @@
               id="searchInput"
               class="search-input"
               placeholder="Search tracks or stations..."
+              data-i18n-placeholder="ui.searchPlaceholder"
               aria-label="Search tracks or radio stations"
+              data-i18n-aria-label="ui.searchAria"
               role="combobox"
               aria-expanded="false"
               aria-controls="searchResults"
@@ -1738,16 +1740,16 @@
           <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
         </div>
         <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">
-          <i class="fas fa-headphones" aria-hidden="true"></i> Choose An Album
+          <i class="fas fa-headphones" aria-hidden="true"></i> <span data-i18n="ui.navChooseAlbum">Choose An Album</span>
         </button>
         <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave">
-          <i class="fas fa-music" aria-hidden="true"></i> Choose A Track
+          <i class="fas fa-music" aria-hidden="true"></i> <span data-i18n="ui.navChooseTrack">Choose A Track</span>
         </button>
         <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave">
-          <i class="fas fa-list" aria-hidden="true"></i> My Playlist
+          <i class="fas fa-list" aria-hidden="true"></i> <span data-i18n="ui.navMyPlaylist">My Playlist</span>
         </button>
         <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">
-          <i class="fas fa-broadcast-tower" aria-hidden="true"></i> Radio Stations
+          <i class="fas fa-broadcast-tower" aria-hidden="true"></i> <span data-i18n="ui.navRadioStations">Radio Stations</span>
         </button>
         <button
           type="button"
@@ -1757,10 +1759,10 @@
           data-open-target="gamesHubContainer"
           data-open-src="games.html"
         >
-          <i class="fas fa-gamepad" aria-hidden="true"></i> Games &amp; Simulations
+          <i class="fas fa-gamepad" aria-hidden="true"></i> <span data-i18n="ui.navGames">Games &amp; Simulations</span>
         </button>
         <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">
-          <i class="fas fa-info-circle" aria-hidden="true"></i> About Us
+          <i class="fas fa-info-circle" aria-hidden="true"></i> <span data-i18n="ui.navAboutUs">About Us</span>
         </button>
       </div>
       <div class="content" id="main-content">
