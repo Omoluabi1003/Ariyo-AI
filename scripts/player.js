@@ -7,6 +7,68 @@ if (!window.__ariyoAudioElement) {
   window.__ariyoAudioElement = audioPlayer;
 }
 const DEBUG_AUDIO = new URLSearchParams(window.location.search).get('debug') === '1';
+
+const AUDIO_PERSISTENCE_STORAGE_KEY = 'ariyoAudioPersistenceState';
+const createAudioPersistenceController = () => {
+  const storage = typeof window !== 'undefined' ? window.localStorage : null;
+  const safeRead = () => {
+    try {
+      const raw = storage?.getItem(AUDIO_PERSISTENCE_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (error) {
+      return {};
+    }
+  };
+  const safeWrite = (payload) => {
+    try {
+      storage?.setItem(AUDIO_PERSISTENCE_STORAGE_KEY, JSON.stringify(payload));
+    } catch (error) {
+      // Ignore storage failures.
+    }
+  };
+
+  const state = {
+    ...safeRead(),
+  };
+
+  return {
+    state,
+    restoreTo(audio) {
+      if (!audio) return;
+      if (Number.isFinite(state.volume)) audio.volume = Math.min(1, Math.max(0, state.volume));
+      if (typeof state.muted === 'boolean') audio.muted = state.muted;
+      if (typeof state.playIntent === 'boolean') audio.dataset.playIntent = state.playIntent ? 'true' : 'false';
+      if (
+        Number.isFinite(state.currentTime) &&
+        state.currentTime > 0 &&
+        Number.isFinite(audio.duration) &&
+        audio.duration > 0
+      ) {
+        audio.currentTime = Math.min(state.currentTime, audio.duration);
+      }
+    },
+    captureFrom(audio, extras = {}) {
+      if (!audio) return;
+      const next = {
+        ...state,
+        volume: Number.isFinite(audio.volume) ? audio.volume : state.volume,
+        muted: Boolean(audio.muted),
+        currentTime: Number.isFinite(audio.currentTime) ? audio.currentTime : state.currentTime,
+        src: audio.currentSrc || audio.src || state.src || '',
+        paused: Boolean(audio.paused),
+        timestamp: Date.now(),
+        ...extras,
+      };
+      Object.assign(state, next);
+      safeWrite(next);
+    },
+  };
+};
+
+const audioPersistence = window.__ariyoAudioPersistence || createAudioPersistenceController();
+if (!window.__ariyoAudioPersistence) {
+  window.__ariyoAudioPersistence = audioPersistence;
+}
 const INSTANT_PLAYBACK = true;
 const IS_APPLE_WEBKIT = (() => {
   if (typeof navigator === 'undefined') return false;
@@ -466,8 +528,11 @@ const connection = navigator.connection || navigator.mozConnection || navigator.
 const isSlowConnection = Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
 const resolvePreloadMode = () => (INSTANT_PLAYBACK ? 'auto' : isSlowConnection ? 'metadata' : 'auto');
 audioPlayer.preload = resolvePreloadMode();
-audioPlayer.volume = 1;
-audioPlayer.muted = false;
+if (!sharedAudioElement) {
+  audioPlayer.volume = 1;
+  audioPlayer.muted = false;
+}
+audioPersistence.restoreTo(audioPlayer);
 audioPlayer.setAttribute('playsinline', '');
 audioPlayer.setAttribute('webkit-playsinline', '');
 audioPlayer.setAttribute('controlsList', 'nodownload');
@@ -6294,3 +6359,37 @@ if (typeof window !== 'undefined') {
     reportLibraryIssue,
   });
 }
+
+const persistAudioSnapshot = (reason = 'event') => {
+  audioPersistence.captureFrom(audioPlayer, {
+    reason,
+    playIntent,
+    stationIndex: currentRadioIndex,
+    trackIndex: currentTrackIndex,
+    albumIndex: currentAlbumIndex,
+  });
+};
+
+['play', 'pause', 'volumechange', 'timeupdate', 'ended'].forEach((eventName) => {
+  audioPlayer.addEventListener(eventName, () => {
+    if (eventName === 'timeupdate' && Math.floor(audioPlayer.currentTime || 0) % 5 !== 0) return;
+    persistAudioSnapshot(eventName);
+    if (DEBUG_AUDIO) {
+      console.debug('[audio-persistence]', eventName, {
+        paused: audioPlayer.paused,
+        src: audioPlayer.currentSrc || audioPlayer.src,
+        currentTime: audioPlayer.currentTime,
+      });
+    }
+  });
+});
+
+document.addEventListener('visibilitychange', () => {
+  // Background playback is intentionally not auto-paused here. Browsers/OS may still suspend audio.
+  persistAudioSnapshot(`visibility:${document.visibilityState}`);
+  if (DEBUG_AUDIO) {
+    console.debug('[audio-persistence] visibility', document.visibilityState);
+  }
+});
+window.addEventListener('pagehide', () => persistAudioSnapshot('pagehide'));
+window.addEventListener('beforeunload', () => persistAudioSnapshot('beforeunload'));
