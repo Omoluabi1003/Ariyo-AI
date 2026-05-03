@@ -1739,21 +1739,42 @@
           </div>
           <div id="searchResults" class="search-results" role="listbox" aria-label="Search results" hidden></div>
         </div>
-        <button onclick="openAlbumList()" aria-label="Choose an album" class="ripple shockwave">
+        <button
+          onclick="openAlbumList()"
+          aria-label="Choose an album"
+          data-i18n-aria-label="ui.navChooseAlbumAria"
+          class="ripple shockwave"
+        >
           <i class="fas fa-headphones" aria-hidden="true"></i> <span data-i18n="ui.navChooseAlbum">Choose An Album</span>
         </button>
-        <button onclick="openTrackList()" aria-label="Choose a track" class="ripple shockwave">
+        <button
+          onclick="openTrackList()"
+          aria-label="Choose a track"
+          data-i18n-aria-label="ui.navChooseTrackAria"
+          class="ripple shockwave"
+        >
           <i class="fas fa-music" aria-hidden="true"></i> <span data-i18n="ui.navChooseTrack">Choose A Track</span>
         </button>
-        <button onclick="openPlaylist()" aria-label="My playlist" class="ripple shockwave">
+        <button
+          onclick="openPlaylist()"
+          aria-label="My playlist"
+          data-i18n-aria-label="ui.navMyPlaylistAria"
+          class="ripple shockwave"
+        >
           <i class="fas fa-list" aria-hidden="true"></i> <span data-i18n="ui.navMyPlaylist">My Playlist</span>
         </button>
-        <button onclick="openRadioList()" aria-label="Radio stations" class="ripple shockwave">
+        <button
+          onclick="openRadioList()"
+          aria-label="Radio stations"
+          data-i18n-aria-label="ui.navRadioStationsAria"
+          class="ripple shockwave"
+        >
           <i class="fas fa-broadcast-tower" aria-hidden="true"></i> <span data-i18n="ui.navRadioStations">Radio Stations</span>
         </button>
         <button
           type="button"
           aria-label="Games and simulations"
+          data-i18n-aria-label="ui.navGamesAria"
           class="ripple shockwave"
           aria-controls="gamesHubContainer"
           data-open-target="gamesHubContainer"
@@ -1761,7 +1782,12 @@
         >
           <i class="fas fa-gamepad" aria-hidden="true"></i> <span data-i18n="ui.navGames">Games &amp; Simulations</span>
         </button>
-        <button onclick="navigateToAbout()" aria-label="About us" class="ripple shockwave">
+        <button
+          onclick="navigateToAbout()"
+          aria-label="About us"
+          data-i18n-aria-label="ui.navAboutUsAria"
+          class="ripple shockwave"
+        >
           <i class="fas fa-info-circle" aria-hidden="true"></i> <span data-i18n="ui.navAboutUs">About Us</span>
         </button>
       </div>
@@ -1980,6 +2006,7 @@
                   type="button"
                   aria-label="Previous track"
                   title="Previous track"
+                  data-i18n-title="ui.titlePreviousTrack"
                   aria-controls="audioPlayer"
                   class="ripple shockwave"
                 >
@@ -1989,6 +2016,7 @@
                   type="button"
                   aria-label="Play"
                   title="Play"
+                  data-i18n-title="ui.titlePlay"
                   aria-controls="audioPlayer"
                   class="ripple shockwave play-button"
                   id="playButton"
@@ -2000,6 +2028,7 @@
                   type="button"
                   aria-label="Pause"
                   title="Pause"
+                  data-i18n-title="ui.titlePause"
                   aria-controls="audioPlayer"
                   class="ripple shockwave"
                 >
@@ -2010,6 +2039,7 @@
                   type="button"
                   aria-label="Stop"
                   title="Stop"
+                  data-i18n-title="ui.titleStop"
                   aria-controls="audioPlayer"
                   class="ripple shockwave"
                 >
@@ -2020,6 +2050,7 @@
                   type="button"
                   aria-label="Next track"
                   title="Next track"
+                  data-i18n-title="ui.titleNextTrack"
                   aria-controls="audioPlayer"
                   class="ripple shockwave"
                 >
@@ -2030,6 +2061,7 @@
                   type="button"
                   aria-label="Toggle shuffle"
                   title="Toggle shuffle"
+                  data-i18n-title="ui.titleShuffle"
                   aria-pressed="false"
                   class="ripple shockwave shuffle-button"
                 >
