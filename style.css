@@ -288,6 +288,18 @@ body[data-theme='light'] .edge-panel-hint {
   line-height: 1.5;
   opacity: 0.9;
 }
+.badge-spotlight__supporting,
+.badge-spotlight__footnote {
+  margin: 0.15rem 0 0;
+  font-size: 0.86rem;
+  opacity: 0.82;
+}
+.badge-spotlight__footnote {
+  font-size: 0.8rem;
+}
+.org-emphasis {
+  font-weight: 600;
+}
 
 body[data-theme='light'] .badge-spotlight {
   background: linear-gradient(135deg, rgba(142, 91, 255, 0.08), rgba(142, 91, 255, 0.03));

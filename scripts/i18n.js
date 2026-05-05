@@ -7,6 +7,20 @@
   // Add UI text here, then reference keys in markup via data-i18n* attributes.
   const translations = {
     en: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Global Leadership Recognition',
+          badge: '2026 Tällberg-SNF-Eliasson Global Leadership Prize Nominee',
+          primaryCopy:
+            'Paul A.K. Iyogun, Founder of ETL GIS Consulting LLC and creator of Àríyò AI under Omoluabi Productions, was nominated for the 2026 Tällberg-SNF-Eliasson Global Leadership Prize, awarded by the Tällberg Foundation in partnership with the Stavros Niarchos Foundation.',
+          supportingLine: 'A global initiative recognizing leaders advancing ethical, innovative, and impactful change.',
+          footerNote: 'Nomination notice dated April 30, 2026.',
+          organizations: {
+            tallbergFoundation: 'Tällberg Foundation',
+            stavrosNiarchosFoundation: 'Stavros Niarchos Foundation',
+          },
+        },
+      },
       ui: {
         language: 'Language',
         launchExperience: 'Launch experience',
@@ -38,6 +52,18 @@
       },
     },
     fr: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Reconnaissance du leadership mondial',
+          badge: 'Nominé au Prix mondial de leadership Tällberg-SNF-Eliasson 2026',
+          primaryCopy:
+            "Paul A.K. Iyogun, fondateur d’ETL GIS Consulting LLC et créateur d’Àríyò AI sous Omoluabi Productions, a été nommé pour le Prix mondial de leadership Tällberg-SNF-Eliasson 2026, décerné par la Tällberg Foundation en partenariat avec la Stavros Niarchos Foundation.",
+          supportingLine:
+            'Une initiative mondiale qui reconnaît les leaders faisant avancer un changement éthique, innovant et à fort impact.',
+          footerNote: 'Avis de nomination daté du 30 avril 2026.',
+          organizations: { tallbergFoundation: 'Tällberg Foundation', stavrosNiarchosFoundation: 'Stavros Niarchos Foundation' },
+        },
+      },
       ui: {
         language: 'Langue',
         launchExperience: "Lancer l'expérience",
@@ -69,6 +95,18 @@
       },
     },
     es: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Reconocimiento de liderazgo global',
+          badge: 'Nominado al Premio Global de Liderazgo Tällberg-SNF-Eliasson 2026',
+          primaryCopy:
+            'Paul A.K. Iyogun, fundador de ETL GIS Consulting LLC y creador de Àríyò AI bajo Omoluabi Productions, fue nominado para el Premio Global de Liderazgo Tällberg-SNF-Eliasson 2026, otorgado por la Tällberg Foundation en alianza con la Stavros Niarchos Foundation.',
+          supportingLine:
+            'Una iniciativa global que reconoce a líderes que impulsan un cambio ético, innovador y de alto impacto.',
+          footerNote: 'Notificación de nominación con fecha del 30 de abril de 2026.',
+          organizations: { tallbergFoundation: 'Tällberg Foundation', stavrosNiarchosFoundation: 'Stavros Niarchos Foundation' },
+        },
+      },
       ui: {
         language: 'Idioma',
         launchExperience: 'Iniciar experiencia',
@@ -100,6 +138,17 @@
       },
     },
     pt: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Reconhecimento de liderança global',
+          badge: 'Indicado ao Prêmio Global de Liderança Tällberg-SNF-Eliasson 2026',
+          primaryCopy:
+            'Paul A.K. Iyogun, fundador da ETL GIS Consulting LLC e criador do Àríyò AI sob a Omoluabi Productions, foi indicado ao Prêmio Global de Liderança Tällberg-SNF-Eliasson 2026, concedido pela Tällberg Foundation em parceria com a Stavros Niarchos Foundation.',
+          supportingLine: 'Uma iniciativa global que reconhece líderes que promovem mudanças éticas, inovadoras e impactantes.',
+          footerNote: 'Comunicado de indicação datado de 30 de abril de 2026.',
+          organizations: { tallbergFoundation: 'Tällberg Foundation', stavrosNiarchosFoundation: 'Stavros Niarchos Foundation' },
+        },
+      },
       ui: {
         language: 'Idioma',
         launchExperience: 'Iniciar experiência',
@@ -131,6 +180,18 @@
       },
     },
     yo: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Ìmọ̀ràn Aṣáájú Agbaye',
+          badge: 'A yàn sí 2026 Tällberg-SNF-Eliasson Global Leadership Prize',
+          primaryCopy:
+            'Paul A.K. Iyogun, olùdásílẹ̀ ETL GIS Consulting LLC àti olùdá Àríyò AI lábẹ́ Omoluabi Productions, ni a yàn fún 2026 Tällberg-SNF-Eliasson Global Leadership Prize, tí Tällberg Foundation fúnni pẹ̀lú ìfọwọ́sowọ́pọ̀ Stavros Niarchos Foundation.',
+          supportingLine:
+            'Ìlànà agbáyé tó ń mọ̀ọ́kàn àwọn aṣáájú tó ń gbé ìyípadà ìwà rere, ìmòtuntun àti ipa gidi lọ síwájú.',
+          footerNote: 'Ìkìlọ̀ ìyàn orúkọ tó jẹ́ ọjọ́ April 30, 2026.',
+          organizations: { tallbergFoundation: 'Tällberg Foundation', stavrosNiarchosFoundation: 'Stavros Niarchos Foundation' },
+        },
+      },
       ui: {
         language: 'Èdè',
         launchExperience: 'Bẹ̀rẹ̀ ìrírí',
@@ -162,6 +223,17 @@
       },
     },
     ha: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Girmamawar jagoranci ta duniya',
+          badge: 'An yi masa takarar 2026 Tällberg-SNF-Eliasson Global Leadership Prize',
+          primaryCopy:
+            'Paul A.K. Iyogun, wanda ya kafa ETL GIS Consulting LLC kuma mahaliccin Àríyò AI a ƙarƙashin Omoluabi Productions, an yi masa takara a 2026 Tällberg-SNF-Eliasson Global Leadership Prize, wanda Tällberg Foundation ke bayarwa tare da haɗin gwiwar Stavros Niarchos Foundation.',
+          supportingLine: 'Wata ƙudurin duniya da ke girmama shugabanni masu haɓaka sauyi mai ɗa’a, ƙirƙira, da tasiri.',
+          footerNote: 'Sanarwar takara mai kwanan wata 30 Afrilu, 2026.',
+          organizations: { tallbergFoundation: 'Tällberg Foundation', stavrosNiarchosFoundation: 'Stavros Niarchos Foundation' },
+        },
+      },
       ui: {
         language: 'Harshe',
         launchExperience: 'Fara kwarewa',
@@ -193,6 +265,18 @@
       },
     },
     ig: {
+      trustLayer: {
+        globalRecognition: {
+          title: 'Nkwanye ugwu nduzi zuru ụwa ọnụ',
+          badge: 'Onye ahọpụtara maka 2026 Tällberg-SNF-Eliasson Global Leadership Prize',
+          primaryCopy:
+            'Paul A.K. Iyogun, onye guzobere ETL GIS Consulting LLC na onye mepụtara Àríyò AI n’okpuru Omoluabi Productions, a họpụtara ya maka 2026 Tällberg-SNF-Eliasson Global Leadership Prize, nke Tällberg Foundation na-enye na mmekorita ya na Stavros Niarchos Foundation.',
+          supportingLine:
+            'Atụmatụ zuru ụwa ọnụ na-amata ndị ndu na-akwalite mgbanwe nwere ezi omume, mmepe ọhụrụ, na mmetụta.',
+          footerNote: 'Ọkwa ịhọpụta nke ụbọchị April 30, 2026.',
+          organizations: { tallbergFoundation: 'Tällberg Foundation', stavrosNiarchosFoundation: 'Stavros Niarchos Foundation' },
+        },
+      },
       ui: {
         language: 'Asụsụ',
         launchExperience: 'Bido ahụmịhe',
@@ -256,6 +340,16 @@
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       el.textContent = lookup(lang, el.dataset.i18n);
     });
+    const trustPrimary = document.querySelector('[data-i18n="trustLayer.globalRecognition.primaryCopy"]');
+    if (trustPrimary) {
+      const copy = lookup(lang, 'trustLayer.globalRecognition.primaryCopy');
+      const tallberg = lookup(lang, 'trustLayer.globalRecognition.organizations.tallbergFoundation');
+      const snf = lookup(lang, 'trustLayer.globalRecognition.organizations.stavrosNiarchosFoundation');
+      const emphasizedCopy = copy
+        .replace(tallberg, `<span class="org-emphasis">${tallberg}</span>`)
+        .replace(snf, `<span class="org-emphasis">${snf}</span>`);
+      trustPrimary.innerHTML = emphasizedCopy;
+    }
     document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
       el.setAttribute('placeholder', lookup(lang, el.dataset.i18nPlaceholder));
     });
