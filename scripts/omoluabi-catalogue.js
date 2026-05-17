@@ -3,6 +3,11 @@
 
   const OMOLUABI_TRACKS = [
     {
+      slug: 'conseils-damour',
+      title: 'Conseils d’Amour',
+      src: 'https://cdn1.suno.ai/95d5798e-ac71-4740-a4d8-0070e0d33c7d.mp3',
+    },
+    {
       slug: 'is-love-conditional',
       title: 'Is Love Conditional',
       src: 'https://cdn1.suno.ai/6c43cb2f-907e-488a-bc6d-cb8e582a189a.mp3',
@@ -330,6 +335,12 @@
   ];
 
   const LATEST_ANNOUNCEMENTS = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      slug: 'conseils-damour',
+      addedOn: '2026-05-16T19:58:18.667Z',
+      isFreshDrop: true,
+    },
     {
       albumName: 'Omoluabi Production Catalogue',
       slug: 'is-love-conditional',

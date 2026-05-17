@@ -4,6 +4,7 @@
 
 ## Latest additions (now live in the catalogue player)
 
+- [Conseils d’Amour](https://suno.com/s/2NUmQdiR8vhNgshz)
 - [Atmosphere Status](https://suno.com/s/ywZSBxvG8uShMofM)
 - [Ling Zing](https://suno.com/s/FLqKSUuzOE2369fa)
 - [Alafia](https://suno.com/s/jgatsjo6lHfzV6wj)
@@ -20,6 +21,7 @@
 
 ## Full catalogue (includes the additions above)
 
+- [Conseils d’Amour](https://suno.com/s/2NUmQdiR8vhNgshz)
 - [Atmosphere Status](https://suno.com/s/ywZSBxvG8uShMofM)
 - [Ling Zing](https://suno.com/s/FLqKSUuzOE2369fa)
 - [Alafia](https://suno.com/s/jgatsjo6lHfzV6wj)

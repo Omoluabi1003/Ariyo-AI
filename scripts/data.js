@@ -306,6 +306,7 @@
       name: 'Omoluabi Production Catalogue',
       cover: `${BASE_URL}Logo.jpg`,
       tracks: [
+        { src: 'https://cdn1.suno.ai/95d5798e-ac71-4740-a4d8-0070e0d33c7d.mp3', title: 'Conseils d’Amour' },
         { src: 'https://cdn1.suno.ai/6c43cb2f-907e-488a-bc6d-cb8e582a189a.mp3', title: 'Is Love Conditional' },
         { src: 'https://cdn1.suno.ai/6447e1d2-2133-450a-aff8-536263dab07f.mp3', title: 'Ostrich Effect' },
         { src: 'https://cdn1.suno.ai/d9360744-21e6-4de3-a2ec-a2558d09abfe.mp3', title: 'Priapism' },
@@ -660,6 +661,13 @@
   const LATEST_TRACK_LIMIT = 2;
 
   const latestTrackAnnouncements = [
+    {
+      albumName: 'Omoluabi Production Catalogue',
+      title: 'Conseils d’Amour',
+      src: 'https://cdn1.suno.ai/95d5798e-ac71-4740-a4d8-0070e0d33c7d.mp3',
+      addedOn: '2026-05-16T19:58:18.667Z',
+      isFreshDrop: true,
+    },
     {
       albumName: 'OfficialPaulInspires Spoken Word Series',
       title: 'Me After You',
