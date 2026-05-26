@@ -474,7 +474,7 @@ const AriyoAudioPlayer: React.FC<AriyoAudioPlayerProps> = ({
           </div>
         </div>
       </div>
-      <audio ref={audioRef} src={src} preload="metadata" />
+      <audio ref={audioRef} src={src} preload="auto" />
     </div>
   );
 };
