@@ -691,11 +691,11 @@ if (searchInput && searchResults && searchPanel) {
         const badge = document.createElement('span');
         badge.className = 'search-result-badge';
         if (item.type === 'track') {
-          badge.textContent = 'Track';
+          badge.textContent = i18nText('ui.searchBadgeTrack', 'Track');
         } else if (item.type === 'radio') {
-          badge.textContent = 'Station';
+          badge.textContent = i18nText('ui.searchBadgeStation', 'Station');
         } else {
-          badge.textContent = 'Podcast';
+          badge.textContent = i18nText('ui.searchBadgePodcast', 'Podcast');
         }
 
         option.appendChild(textWrapper);
@@ -710,14 +710,14 @@ if (searchInput && searchResults && searchPanel) {
       });
     };
 
-    appendSection('Tracks', trackResults);
-    appendSection('Stations', stationResults);
-    appendSection('Podcasts', feedResults);
+    appendSection(i18nText('ui.searchSectionTracks', 'Tracks'), trackResults);
+    appendSection(i18nText('ui.searchSectionStations', 'Stations'), stationResults);
+    appendSection(i18nText('ui.searchSectionPodcasts', 'Podcasts'), feedResults);
 
     if (!optionIndex) {
       const empty = document.createElement('div');
       empty.className = 'search-result';
-      empty.textContent = 'No results found.';
+      empty.textContent = i18nText('ui.searchNoResults', 'No results found.');
       empty.setAttribute('role', 'option');
       empty.dataset.index = '-1';
       fragment.appendChild(empty);
@@ -746,6 +746,12 @@ if (searchInput && searchResults && searchPanel) {
     searchInput.value = value;
     updateSearchResults();
   };
+
+  window.addEventListener('ariyo:languageChanged', () => {
+    if (searchState.normalizedQuery) {
+      renderSearchResults();
+    }
+  });
 
   const closeSearchResults = ({ clearQuery = false } = {}) => {
     if (clearQuery) {
