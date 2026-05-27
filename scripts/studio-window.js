@@ -1,3 +1,12 @@
+const i18nText = (key, fallback) => {
+  try {
+    const value = window.AriyoI18n?.t?.(key);
+    return value && value !== key ? value : fallback;
+  } catch (_) {
+    return fallback;
+  }
+};
+
 const titleEl = document.getElementById('studioGameTitle');
 const descriptionEl = document.getElementById('studioGameDescription');
 const statusEl = document.getElementById('studioGameStatus');
@@ -21,13 +30,13 @@ if (gameDescription) {
 if (gameUrl) {
   frameEl.src = gameUrl;
   directLinkEl.href = gameUrl;
-  directLinkEl.textContent = 'Open game in a new tab';
+  directLinkEl.textContent = i18nText('ui.studioOpenInNewTab', 'Open game in a new tab');
   directLinkEl.target = '_blank';
   directLinkEl.rel = 'noopener noreferrer';
-  statusEl.textContent = 'Enjoy the full experience in a Studio-branded window.';
+  statusEl.textContent = i18nText('ui.studioEnjoyWindow', 'Enjoy the full experience in a Studio-branded window.');
 } else {
   frameEl.remove();
   directLinkEl.href = 'games.html';
-  directLinkEl.textContent = 'Back to Games';
-  statusEl.textContent = 'Launch parameters are missing. Return to Games and try again.';
+  directLinkEl.textContent = i18nText('ui.studioBackToGames', 'Back to Games');
+  statusEl.textContent = i18nText('ui.studioLaunchMissing', 'Launch parameters are missing. Return to Games and try again.');
 }

@@ -1333,3 +1333,11 @@ if (typeof window !== 'undefined') {
     showNowPlayingToast,
   });
 }
+
+
+window.addEventListener('ariyo:languageChanged', () => {
+  const albumModal = document.getElementById('albumModal');
+  if (albumModal && albumModal.style.display === 'flex') {
+    populateAlbumList();
+  }
+});

@@ -8,6 +8,15 @@
     'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80';
   const KEYWORD_IMAGE_BASE = 'https://source.unsplash.com/featured/900x600?';
 
+  const i18nText = (key, fallback) => {
+    try {
+      const value = window.AriyoI18n?.t?.(key);
+      return value && value !== key ? value : fallback;
+    } catch (_) {
+      return fallback;
+    }
+  };
+
   const createIconDot = () => {
     const dot = document.createElement('span');
     dot.className = 'nav-notification-dot';
@@ -23,8 +32,8 @@
     button.type = 'button';
     button.className = 'ripple shockwave news-nav-button';
     button.setAttribute('data-open-target', NEWS_PANEL_ID);
-    button.setAttribute('aria-label', 'Open Naija Vibes News');
-    button.innerHTML = '<i class="fas fa-newspaper" aria-hidden="true"></i> Naija Vibes News';
+    button.setAttribute('aria-label', i18nText('ui.newsOpen', 'Open Naija Vibes News'));
+    button.innerHTML = `<i class="fas fa-newspaper" aria-hidden="true"></i> ${i18nText('ui.newsName', 'Naija Vibes News')}`;
     button.appendChild(createIconDot());
 
     const aboutButton = sidebar.querySelector('button[onclick*="navigateToAbout"]');
@@ -50,12 +59,12 @@
 
     const image = document.createElement('img');
     image.src = 'icons/naija-vibes.svg';
-    image.alt = 'Naija Vibes News icon';
+    image.alt = i18nText('ui.newsIconAlt', 'Naija Vibes News icon');
 
     const label = document.createElement('span');
     label.className = 'edge-panel-label';
     label.id = 'edgeLabelNews';
-    label.innerHTML = '<strong>Naija Vibes News</strong>Fresh releases, milestones, and challenges';
+    label.innerHTML = `<strong>${i18nText('ui.newsName', 'Naija Vibes News')}</strong>${i18nText('ui.newsSubtitle', 'Fresh releases, milestones, and challenges')}`;
 
     button.append(image, label, createIconDot());
 
@@ -81,7 +90,7 @@
   function buildBadge(tag) {
     const badge = document.createElement('span');
     badge.className = 'news-tag';
-    badge.textContent = tag || 'Update';
+    badge.textContent = tag || i18nText('ui.newsTagUpdate', 'Update');
     return badge;
   }
 
