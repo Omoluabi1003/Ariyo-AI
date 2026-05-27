@@ -1,3 +1,13 @@
+function i18nText(key, fallback) {
+  try {
+    if (window.AriyoI18n && typeof window.AriyoI18n.t === 'function') {
+      const value = window.AriyoI18n.t(key);
+      return value && value !== key ? value : fallback;
+    }
+  } catch (_) {}
+  return fallback;
+}
+
 function calculateAlbumDuration(album) {
   const promises = album.tracks.map((track) => {
     if (track.isLive || track.sourceType === 'stream') return Promise.resolve(track.duration || 0);
@@ -95,7 +105,7 @@ function populateAlbumList() {
       ? window.libraryState.local
       : [];
   if (!albumCatalog.length) {
-    reportLibraryIssue('Albums are unavailable. Please refresh the page.');
+    reportLibraryIssue(i18nText('ui.albumsUnavailable', 'Albums are unavailable. Please refresh the page.'));
     if (typeof window.loadFullLibraryData === 'function') {
       window.loadFullLibraryData({ reason: 'album-list-empty', immediate: true }).then(() => populateAlbumList());
     }
@@ -115,24 +125,24 @@ function populateAlbumList() {
     const img = document.createElement('img');
     const coverSrc = album.cover || album.coverImage || '../../Logo.jpg';
     img.src = coverSrc;
-    img.alt = `${album.name} Album Cover`;
+    img.alt = `${album.name} ${i18nText('ui.albumCoverSuffix', 'Album Cover')}`;
     img.loading = 'lazy';
     img.decoding = 'async';
 
     const name = document.createElement('p');
-    name.textContent = `Album ${index + 1}: ${album.name}`;
+    name.textContent = `${i18nText('ui.albumLabel', 'Album')} ${index + 1}: ${album.name}`;
     if (typeof latestTracks !== 'undefined' && latestTracks.some((track) => track.albumName === album.name)) {
       const badge = document.createElement('span');
       badge.className = 'album-new-badge';
-      badge.textContent = 'NEW';
-      badge.title = 'Contains freshly added tracks';
+      badge.textContent = i18nText('ui.newBadge', 'NEW');
+      badge.title = i18nText('ui.newBadgeTitle', 'Contains freshly added tracks');
       name.appendChild(badge);
     }
 
     const durationEl = document.createElement('p');
     durationEl.className = 'album-duration';
     const trackCount = getAlbumTrackCount(album, index);
-    durationEl.textContent = `Tracks: ${trackCount}`;
+    durationEl.textContent = `${i18nText('ui.tracksCountLabel', 'Tracks')}: ${trackCount}`;
 
     const info = document.createElement('div');
     info.className = 'album-info';
