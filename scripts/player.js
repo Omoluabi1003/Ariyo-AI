@@ -145,11 +145,15 @@ function prefersReducedMotion() {
 }
 
 function readVisualizerMotionOptIn() {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return !prefersReducedMotion();
   try {
-    return window.localStorage?.getItem(VISUALIZER_MOTION_STORAGE_KEY) === 'true';
+    const stored = window.localStorage?.getItem(VISUALIZER_MOTION_STORAGE_KEY);
+    if (stored == null) {
+      return !prefersReducedMotion();
+    }
+    return stored === 'true';
   } catch (error) {
-    return false;
+    return !prefersReducedMotion();
   }
 }
 
@@ -203,25 +207,25 @@ function setVisualizerMode(mode) {
 }
 
 function isVisualizerMotionAllowed() {
-  return !prefersReducedMotion() || visualizerMotionOptIn;
+  return visualizerMotionOptIn;
 }
 
 function updateVisualizerMotionUI() {
   const reducedMotion = prefersReducedMotion();
 
   if (visualizerMotionToggle) {
-    if (reducedMotion) {
-      visualizerMotionToggle.disabled = false;
-      visualizerMotionToggle.checked = visualizerMotionOptIn;
-    } else {
-      visualizerMotionToggle.disabled = true;
-      visualizerMotionToggle.checked = true;
-    }
+    visualizerMotionToggle.disabled = false;
+    visualizerMotionToggle.checked = visualizerMotionOptIn;
+    visualizerMotionToggle.setAttribute('aria-checked', String(visualizerMotionOptIn));
   }
 
   if (visualizerMotionStatus) {
-    if (reducedMotion && !visualizerMotionOptIn) {
-      visualizerMotionStatus.textContent = 'Visualizer static to respect Reduce Motion. Toggle to enable motion.';
+    if (!visualizerMotionOptIn && reducedMotion) {
+      visualizerMotionStatus.textContent =
+        'Visualizer motion is off to respect Reduce Motion. Toggle to enable motion.';
+      visualizerMotionStatus.classList.add('is-static');
+    } else if (!visualizerMotionOptIn) {
+      visualizerMotionStatus.textContent = 'Visualizer motion is off. Toggle to enable motion.';
       visualizerMotionStatus.classList.add('is-static');
     } else {
       visualizerMotionStatus.textContent = '';
@@ -5669,7 +5673,7 @@ function shouldSpinVinyl({ reducedMotionOverride } = {}) {
 }
 
 function shouldAnimateVisualizer() {
-  const reducedMotionValue = prefersReducedMotion() && !visualizerMotionOptIn;
+  const reducedMotionValue = !visualizerMotionOptIn;
   return shouldSpinVinyl({ reducedMotionOverride: reducedMotionValue });
 }
 
