@@ -19,6 +19,10 @@
         --card-accent: #8e5bff;
         --card-text: #f9fafb;
         --card-muted: rgba(255, 255, 255, 0.68);
+        --shadow-sm: 0 10px 22px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 36px 90px rgba(0, 0, 0, 0.55);
+        --hover-transform: perspective(1200px) rotateX(3deg) rotateY(-2deg) translateY(-8px);
+        --transition-timing: 280ms cubic-bezier(0.22, 1, 0.36, 1);
       }
       * {
         box-sizing: border-box;
@@ -33,17 +37,22 @@
         background: radial-gradient(circle at top, #1d1d33, #030306 70%);
         color: var(--card-text);
         padding: 1.5rem;
+        perspective: 1200px;
       }
       .share-card {
         width: min(720px, 96vw);
         background: var(--card-bg);
         border-radius: 28px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+        box-shadow: var(--shadow-lg);
         padding: clamp(1.5rem, 4vw, 2.5rem);
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        transition: transform var(--transition-timing), box-shadow var(--transition-timing);
+      }
+      .share-card:hover {
+        transform: var(--hover-transform);
       }
       .share-card__title {
         font-size: clamp(1.7rem, 3.6vw, 2.4rem);

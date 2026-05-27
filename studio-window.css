@@ -14,6 +14,7 @@ body {
   background: radial-gradient(circle at top, rgba(22, 35, 71, 0.95), rgba(3, 6, 18, 0.98));
   display: flex;
   flex-direction: column;
+  perspective: 1200px;
 }
 
 body[data-theme='light'] {
@@ -35,6 +36,8 @@ body[data-theme='light'] {
   flex-wrap: wrap;
   color: var(--surface-contrast);
   text-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  box-shadow: var(--shadow-lg);
 }
 
 .header-brand {
@@ -97,8 +100,15 @@ body[data-theme='light'] {
   background: var(--card-bg);
   border-radius: 24px;
   border: 1px solid var(--surface-border);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-xl);
   padding: clamp(1.5rem, 4vw, 2.5rem);
+  transform-style: preserve-3d;
+  transition: transform var(--transition-timing), box-shadow var(--transition-timing);
+}
+
+.studio-window:hover,
+.studio-window:focus-within {
+  transform: var(--hover-transform);
 }
 
 .studio-window__meta h1 {
@@ -161,8 +171,8 @@ body[data-theme='light'] {
 
 .embed-button:hover,
 .embed-button:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  transform: var(--depth-layer-3);
+  box-shadow: var(--shadow-lg);
 }
 
 .embed-button.secondary {

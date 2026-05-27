@@ -12,6 +12,7 @@ body {
   font-family: 'Montserrat', sans-serif;
   background: radial-gradient(circle at top, rgba(22, 35, 71, 0.95), rgba(3, 6, 18, 0.98));
   color: var(--surface-contrast);
+  perspective: 1200px;
 }
 
 body[data-theme='light'] {
@@ -28,6 +29,8 @@ body[data-theme='light'] {
   padding: clamp(1.5rem, 4vw, 2.75rem);
   border-bottom: 1px solid var(--surface-border);
   background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 }
 
 .games-header__intro h1 {
@@ -72,10 +75,18 @@ body[data-theme='light'] {
   border-radius: 24px;
   padding: clamp(1.25rem, 3vw, 1.75rem);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  transform-style: preserve-3d;
+  transition: transform var(--transition-timing), box-shadow var(--transition-timing);
+}
+
+.game-card:hover,
+.game-card:focus-within {
+  transform: var(--hover-transform);
+  box-shadow: var(--shadow-xl), 0 0 0 1px var(--border-glow);
 }
 
 .game-card h2 {

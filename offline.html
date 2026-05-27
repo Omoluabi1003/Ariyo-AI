@@ -18,10 +18,12 @@
       }
       .offline-card {
         max-width: 520px;
-        background: rgba(0, 0, 0, 0.6);
+        background: var(--card-bg);
         padding: 2rem;
         border-radius: 16px;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid color-mix(in srgb, var(--surface-border) 65%, var(--border-glow) 35%);
+        backdrop-filter: blur(var(--glass-blur)) saturate(140%);
       }
       .offline-card h1 {
         margin-bottom: 0.75rem;

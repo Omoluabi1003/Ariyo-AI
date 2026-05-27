@@ -60,12 +60,16 @@
         min-height: var(--app-height, 100vh);
         box-sizing: border-box;
         padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+        background-image: var(--bg-lighting);
+        background-attachment: fixed;
       }
       header {
         background: linear-gradient(135deg, var(--theme-color), #000);
         padding: calc(env(safe-area-inset-top) + 1rem) 1rem 1rem;
         text-align: center;
         position: relative;
+        backdrop-filter: blur(var(--glass-blur)) saturate(145%);
+        box-shadow: var(--shadow-lg);
       }
       header h1 {
         margin: 0;
@@ -103,6 +107,7 @@
         align-items: center;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         border-top: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: var(--shadow-md);
       }
       .honors-text h3 {
         margin: 0.2rem 0 0.6rem;
@@ -141,6 +146,7 @@
         flex-wrap: wrap;
         gap: 2rem;
         justify-content: center;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), var(--shadow-md);
       }
       .about-text,
       .about-image {
@@ -158,7 +164,7 @@
       .about-image img {
         width: 100%;
         border-radius: 12px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--shadow-lg);
       }
       .return-button {
         position: sticky;
@@ -171,6 +177,13 @@
         cursor: pointer;
         z-index: 1000;
         display: inline-block;
+        box-shadow: var(--shadow-sm);
+        transition: transform var(--transition-timing), box-shadow var(--transition-timing);
+      }
+      .return-button:hover,
+      .return-button:focus-visible {
+        transform: var(--depth-layer-3);
+        box-shadow: var(--shadow-lg);
       }
       section.album-section,
       section.social-section {
@@ -197,11 +210,13 @@
         height: 120px;
         object-fit: cover;
         border-radius: 10px;
-        transition: transform 0.3s ease;
+        transition: transform var(--transition-timing), box-shadow var(--transition-timing);
+        box-shadow: var(--shadow-sm);
       }
       .album-covers img:hover,
       .social-icons a img:hover {
-        transform: scale(1.1);
+        transform: var(--hover-transform);
+        box-shadow: var(--shadow-lg);
       }
       footer {
         background-color: #1c1c1c;
@@ -209,6 +224,7 @@
         padding: 2rem;
         font-size: 0.9rem;
         color: #aaa;
+        box-shadow: var(--shadow-md);
       }
       @media (max-width: 768px) {
         .about-text,
