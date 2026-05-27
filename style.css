@@ -229,6 +229,99 @@ body[data-theme='light'] .edge-panel-hint {
   min-width: min(360px, 100%);
 }
 
+/* Premium 3D visual enhancement layer (progressive, content-safe) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(142, 91, 255, 0.32), transparent 42%),
+    radial-gradient(circle at 84% 12%, rgba(56, 189, 248, 0.2), transparent 38%),
+    radial-gradient(circle at 50% 88%, rgba(236, 72, 153, 0.16), transparent 44%);
+  transform: translateZ(0);
+}
+
+.header,
+.sidebar,
+.content,
+.music-player,
+.badge-spotlight,
+.chatbot-container,
+.modal-content,
+.edge-panel {
+  backdrop-filter: saturate(140%) blur(calc(var(--glass-blur) + 6px));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 16px 35px rgba(2, 6, 23, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.music-player,
+.chatbot-container,
+.badge-spotlight,
+.sidebar button,
+.player-controls button,
+.player-utility button,
+.quick-toggle-chip {
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    background 0.28s ease;
+}
+
+.music-player:hover,
+.badge-spotlight:hover,
+.chatbot-container:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 40px rgba(2, 6, 23, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.sidebar button:hover,
+.player-controls button:hover,
+.player-utility button:hover,
+.quick-toggle-chip:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.34);
+}
+
+.music-player {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.music-player::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), transparent 28%, rgba(255, 255, 255, 0.05));
+  mix-blend-mode: screen;
+}
+
+.player-visual,
+.chatbot-container iframe,
+.news-hero {
+  transform: perspective(1200px) translateZ(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music-player,
+  .chatbot-container,
+  .badge-spotlight,
+  .sidebar button,
+  .player-controls button,
+  .player-utility button,
+  .quick-toggle-chip {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
 /* Container and Sidebar */
 .container {
   display: flex;
