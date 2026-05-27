@@ -13,6 +13,22 @@
   --honor-badge-border: rgba(255, 255, 255, 0.28);
   --honor-badge-text: #f3fdf7;
   --honor-badge-shadow: rgba(12, 27, 60, 0.35);
+  --shadow-sm: 0 8px 20px rgba(2, 6, 23, 0.2);
+  --shadow-md: 0 16px 35px rgba(2, 6, 23, 0.3);
+  --shadow-lg: 0 24px 54px rgba(2, 6, 23, 0.42);
+  --shadow-xl: 0 34px 80px rgba(2, 6, 23, 0.52);
+  --depth-layer-1: translate3d(0, 0, 0);
+  --depth-layer-2: translate3d(0, -3px, 0);
+  --depth-layer-3: translate3d(0, -8px, 0);
+  --border-glow: rgba(142, 91, 255, 0.48);
+  --glass-blur: 14px;
+  --card-elevation: var(--shadow-lg);
+  --hover-transform: perspective(1100px) rotateX(4deg) rotateY(-3deg) translateY(-8px) scale(1.01);
+  --bg-lighting:
+    radial-gradient(100% 100% at 12% 12%, rgba(142, 91, 255, 0.22), transparent 56%),
+    radial-gradient(100% 100% at 84% 18%, rgba(255, 127, 197, 0.18), transparent 52%),
+    radial-gradient(115% 105% at 50% 92%, rgba(56, 189, 248, 0.15), transparent 57%);
+  --transition-timing: 280ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root[data-theme='light'] {
@@ -27,10 +43,37 @@
   --honor-badge-border: rgba(15, 23, 42, 0.18);
   --honor-badge-text: #0b1224;
   --honor-badge-shadow: rgba(111, 69, 255, 0.22);
+  --shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.12);
+  --shadow-md: 0 16px 35px rgba(15, 23, 42, 0.16);
+  --shadow-lg: 0 24px 54px rgba(15, 23, 42, 0.2);
+  --shadow-xl: 0 34px 80px rgba(15, 23, 42, 0.22);
+  --border-glow: rgba(111, 69, 255, 0.34);
+  --bg-lighting:
+    radial-gradient(100% 100% at 12% 12%, rgba(111, 69, 255, 0.18), transparent 56%),
+    radial-gradient(100% 100% at 84% 18%, rgba(255, 127, 197, 0.16), transparent 52%),
+    radial-gradient(115% 105% at 50% 92%, rgba(56, 189, 248, 0.13), transparent 57%);
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
+  position: relative;
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: -12%;
+  pointer-events: none;
+  z-index: -2;
+  background: var(--bg-lighting);
+  filter: blur(8px);
+  animation: ariyoGlowPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes ariyoGlowPulse {
+  0% { transform: scale(1) translate3d(0, 0, 0); opacity: 0.82; }
+  100% { transform: scale(1.05) translate3d(0, -10px, 0); opacity: 1; }
 }
 
 .header {
@@ -72,15 +115,15 @@ body {
   color: var(--surface-contrast);
   cursor: pointer;
   font-weight: 600;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: transform var(--transition-timing), box-shadow var(--transition-timing), filter var(--transition-timing);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 }
 
 .theme-toggle:hover,
 .theme-toggle:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  transform: var(--depth-layer-2);
+  box-shadow: var(--shadow-md);
   outline: none;
 }
 
@@ -90,4 +133,22 @@ body {
 
 .theme-toggle-icon {
   font-size: 1.1rem;
+}
+
+:is(header, nav, main, section, article, aside, footer, .content, .sidebar, .card, .panel, .modal-content, .music-player, .game-card, .studio-window, .overlay, .offline-card) {
+  border-color: color-mix(in srgb, var(--surface-border) 65%, var(--border-glow) 35%);
+  box-shadow: var(--card-elevation);
+}
+
+:is(button, [role='button'], .embed-button, .return-button, .install-btn, .popup-close, .retry-button) {
+  transform: var(--depth-layer-1);
+  transition: transform var(--transition-timing), box-shadow var(--transition-timing), filter var(--transition-timing);
+  box-shadow: var(--shadow-sm);
+}
+
+:is(button, [role='button'], .embed-button, .return-button, .install-btn, .popup-close, .retry-button):hover,
+:is(button, [role='button'], .embed-button, .return-button, .install-btn, .popup-close, .retry-button):focus-visible {
+  transform: var(--depth-layer-3);
+  box-shadow: var(--shadow-lg);
+  filter: brightness(1.06);
 }
