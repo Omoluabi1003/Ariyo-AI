@@ -1819,7 +1819,7 @@
           </div>
         </section>
         <details class="in-app-guide">
-          <summary>Need a quick tour?</summary>
+          <summary data-i18n="ui.quickTourSummary">Need a quick tour?</summary>
           <div class="in-app-guide-body">
             <p class="in-app-guide-intro">
               Open whenever you need a refresher—Àríyò AI keeps the entertainment front and center.
@@ -1845,8 +1845,8 @@
         </details>
         <div class="notification-card">
           <div>
-            <h4>Stay in the loop</h4>
-            <p>We will invite you to enable music alerts after you play or follow creators—no spammy popups.</p>
+            <h4 data-i18n="ui.stayInLoopTitle">Stay in the loop</h4>
+            <p data-i18n="ui.stayInLoopDesc">We will invite you to enable music alerts after you play or follow creators—no spammy popups.</p>
           </div>
           <div class="notification-actions">
             <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
@@ -1858,7 +1858,7 @@
         </div>
         <!-- Music Player -->
         <div class="music-player" data-visualizer-mode="neon-bars">
-          <h3>Music Player</h3>
+          <h3 data-i18n="ui.musicPlayerTitle">Music Player</h3>
           <div class="player-body">
             <div class="player-visual">
               <div class="waveform-visual" role="img" aria-label="Circular audio visualizer">
@@ -1937,7 +1937,7 @@
                 <div class="buffering-ripple delayed" aria-hidden="true"></div>
                 <div class="buffering-content">
                   <div id="loadingSpinner" class="loading-spinner" role="status" aria-label="Loading audio"></div>
-                  <p id="bufferingMessage" class="buffering-message">Starting playback...</p>
+                  <p id="bufferingMessage" class="buffering-message" data-i18n="ui.startingPlayback">Starting playback...</p>
                 </div>
               </div>
             </div>
@@ -1957,14 +1957,14 @@
                   />
                 </div>
                 <div class="now-playing-text">
-                  <p class="track-info" id="trackInfo">Choose a track to start playback.</p>
+                  <p class="track-info" id="trackInfo" data-i18n="ui.chooseTrackToStart">Choose a track to start playback.</p>
                   <p class="track-artist-inline" id="trackArtistInline"></p>
                 </div>
               </div>
               <div class="track-provenance" aria-live="polite"></div>
               <div class="player-meta-grid">
-                <p class="track-details" id="trackArtist">Artist:</p>
-                <p class="track-details" id="trackYear">Release Year: Unknown</p>
+                <p class="track-details" id="trackArtist" data-i18n="ui.artistLabel">Artist:</p>
+                <p class="track-details" id="trackYear" data-i18n="ui.releaseYearUnknown">Release Year: Unknown</p>
                 <p class="track-details" id="trackAlbum"></p>
                 <p class="track-duration" id="trackDuration">0:00 / 0:00</p>
                 <p id="shuffleStatusInfo" class="track-details" style="font-style: italic"></p>
@@ -1983,10 +1983,10 @@
                   id="playbackRetryButton"
                   type="button"
                   class="status-retry-button"
-                  aria-label="Retry playback"
+                  aria-label="Retry playback" data-i18n-aria-label="ui.retryPlayback"
                   hidden
                 >
-                  Retry
+                  <span data-i18n="ui.retry">Retry</span>
                 </button>
               </div>
               <input
@@ -2001,18 +2001,18 @@
                 aria-controls="audioPlayer"
               />
               <div class="player-utility">
-                <button id="retryButton" type="button" class="retry-button" aria-label="Retry loading track">
-                  Retry
+                <button id="retryButton" type="button" class="retry-button" aria-label="Retry loading track" data-i18n-aria-label="ui.retryLoadingTrack">
+                  <span data-i18n="ui.retry">Retry</span>
                 </button>
                 <button
                   id="addToPlaylistButton"
                   type="button"
                   class="retry-button"
-                  aria-label="Add current track to playlist"
+                  aria-label="Add current track to playlist" data-i18n-aria-label="ui.addToPlaylist"
                 >
-                  Add to Playlist
+                  <span data-i18n="ui.addToPlaylist">Add to Playlist</span>
                 </button>
-                <button id="lyricsToggle" type="button" class="retry-button" aria-label="Toggle lyrics">Lyrics</button>
+                <button id="lyricsToggle" type="button" class="retry-button" aria-label="Toggle lyrics" data-i18n-aria-label="ui.toggleLyrics"><span data-i18n="ui.lyrics">Lyrics</span></button>
               </div>
               <div id="lyrics"></div>
               <div class="music-controls icons-only">
