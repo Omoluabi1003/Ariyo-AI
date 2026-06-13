@@ -1,38 +1,81 @@
 (function () {
   'use strict';
 
-  const engine = window.AriyoMediaIntelligence;
-  if (!engine) return;
-
-  const { STORAGE_KEYS } = engine;
-  const state = {
-    country: engine.safeRead(STORAGE_KEYS.preferredRegion, 'All Africa'),
-    mood: 'All moods',
-    language: engine.safeRead(STORAGE_KEYS.preferredLanguage, 'English'),
-    contentType: 'All content',
+  const STORAGE = {
+    favorites: 'ariyo.favoriteStations',
+    recent: 'ariyo.recentTracks',
+    regions: 'ariyo.preferredRegions',
+    visits: 'ariyo.companionVisits',
+    personality: 'ariyo.mediaPersonality',
   };
+
+  const state = { country: 'All Africa', mood: 'Happy' };
   const countries = ['All Africa', 'Nigeria', 'Congo', 'Ghana', 'Kenya', 'South Africa', 'Cameroon', 'Global Africa'];
   const moods = [
-    'All moods',
-    'Focus',
-    'Worship',
-    'Reflection',
-    'Motivation',
-    'Celebration',
-    'Study',
-    'Evening Wind Down',
+    ['Happy', '☀', '#d66a43', 'Bright & joyful'],
+    ['Worship', '✦', '#73634a', 'Faith & gratitude'],
+    ['Focus', '◎', '#2c5c55', 'Deep work'],
+    ['Motivation', '↑', '#8a4b33', 'Move forward'],
+    ['Relaxation', '≈', '#315b70', 'Slow your mind'],
+    ['Celebration', '✺', '#8a3f5c', 'Big energy'],
+    ['Deep Thinking', '◌', '#443f65', 'Reflect & reset'],
   ];
-  const fallbackBriefing = {
-    headline: 'African audiences are moving fluidly between news, live radio, and culturally grounded sound.',
-    summary:
-      'Ariyọ’s local media graph shows the opportunity in connecting information with relevant music, regional radio, language support, and cultural context rather than treating each format as a separate destination.',
-  };
+  const personalities = [
+    ['Afrobeat Scholar', 'You hear the history inside every drum and always have a deeper cut ready.'],
+    ['Lagos Night Rider', 'Your soundtrack starts after sunset: bold rhythms, bright streets, zero dull moments.'],
+    ['Gospel Warrior', 'You carry hope loudly and choose sound that lifts the whole room.'],
+    ['Congo Rumba Soul', 'You move with elegance, guitar lines, and the warm patience of a timeless groove.'],
+    ['Story Keeper', 'You collect wisdom, proverbs, and voices so important memories keep travelling.'],
+    ['Radio Explorer', 'You cross borders through sound and always know which frequency carries home.'],
+  ];
 
-  function escapeHtml(value) {
-    return String(value || '').replace(
-      /[&<>'"]/g,
-      (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character],
-    );
+  function read(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key));
+      return value == null ? fallback : value;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function write(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (_) {}
+  }
+
+  function getAlbums() {
+    return Array.isArray(window.albums)
+      ? window.albums
+      : Array.isArray(window.libraryState?.local)
+        ? window.libraryState.local
+        : [];
+  }
+
+  function getStations() {
+    const playerStations = Array.isArray(window.radioStations) ? window.radioStations : [];
+    const merged = Array.isArray(window.mergedRadioStations) ? window.mergedRadioStations : [];
+    return playerStations.length >= merged.length ? playerStations : merged;
+  }
+
+  function stationCountry(station) {
+    const text = `${station?.location || ''} ${station?.country || ''} ${station?.name || ''}`.toLowerCase();
+    if (/congo|kinshasa|lubumbashi|rdc/.test(text)) return 'Congo';
+    if (/ghana|accra|kumasi/.test(text)) return 'Ghana';
+    if (/kenya|nairobi|mombasa/.test(text)) return 'Kenya';
+    if (/south africa|johannesburg|cape town|durban/.test(text)) return 'South Africa';
+    if (/cameroon|douala|yaound/.test(text)) return 'Cameroon';
+    if (/nigeria|lagos|abuja|ibadan|port harcourt|enugu|kano|kaduna|ondo|benin/.test(text)) return 'Nigeria';
+    return 'Global Africa';
+  }
+
+  function stationMeta(station) {
+    const text = `${station?.name || ''} ${station?.genre || ''} ${station?.tags || ''}`.toLowerCase();
+    if (/gospel|worship|christian/.test(text)) return 'Gospel · Worship';
+    if (/news|talk|info/.test(text)) return 'News · Talk';
+    if (/rumba|congo/.test(text)) return 'Rumba · Lingala';
+    if (/afro|hits|music/.test(text)) return 'Afrobeats · Music';
+    return 'Music · Culture';
   }
 
   function findLauncher(target) {
@@ -40,142 +83,115 @@
   }
 
   function openPanel(target) {
-    findLauncher(target)?.click();
+    const launcher = findLauncher(target);
+    if (launcher) launcher.click();
   }
 
   function performAction(action) {
-    if (action === 'music')
-      typeof window.openTrackList === 'function'
-        ? window.openTrackList()
-        : document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' });
-    else if (action === 'radio')
-      typeof window.openRadioList === 'function'
-        ? window.openRadioList()
-        : document.getElementById('radio')?.scrollIntoView({ behavior: 'smooth' });
-    else if (action === 'news') openPanel('news-section');
+    if (action === 'music') {
+      if (typeof window.openTrackList === 'function') window.openTrackList();
+      else document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (action === 'radio') {
+      if (typeof window.openRadioList === 'function') window.openRadioList();
+      else document.getElementById('radio')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (action === 'news') openPanel('news-section');
     else if (action === 'stories') {
-      const story = engine.getTracks().find((track) => /spoken|story|word/i.test(track.album?.name || track.title));
-      if (story && typeof window.selectTrack === 'function') playTrack(story);
+      const albums = getAlbums();
+      const storyIndex = albums.findIndex((album) => /spoken|story|word/i.test(album.name || ''));
+      if (storyIndex >= 0 && typeof window.selectAlbum === 'function') window.selectAlbum(storyIndex);
       else openPanel('ariyoChatbotContainer');
-    } else if (action === 'creator') document.getElementById('create')?.scrollIntoView({ behavior: 'smooth' });
-    else if (action === 'games') openPanel('gamesHubContainer');
-    else if (typeof window.openAriyoEdgePanel === 'function')
-      window.openAriyoEdgePanel({ trigger: document.activeElement, focusLaunchers: true });
-    else openPanel('ariyoChatbotContainer');
+    } else if (action === 'ai') openPanel('ariyoChatbotContainer');
   }
 
   function routeCommand(command) {
     const text = command.trim();
-    if (!text) return;
     const query = text.toLowerCase();
-    let route = 'AI / GENERAL';
-    let response = 'Opening Ariyọ Chat with your query and the current media context.';
-    if (/game|puzzle|simulation/.test(query)) {
-      route = 'GAMES / INTERACTIVE';
-      response = 'Routing to the existing games and simulations hub.';
-      performAction('games');
-    } else if (/congo|lingala|rumba/.test(query) && /radio|station|stream|tuning/.test(query)) {
+    let action = 'ai';
+    let response = `I’m opening the Ariyọ conversation so we can explore “${text}” together.`;
+    if (/congo|rumba|lingala/.test(query) && /radio|play|stream/.test(query)) {
+      action = 'radio';
       state.country = 'Congo';
-      engine.safeWrite(STORAGE_KEYS.preferredRegion, state.country);
       renderCountryFilters();
       renderStations();
-      route = 'RADIO / CONGO / LINGALA';
-      response = 'Radio intelligence filtered to Congo. Stations are ranked with Lingala and rumba context first.';
-      document.getElementById('radio')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/radio|station|stream|broadcast/.test(query)) {
-      route = 'RADIO / DISCOVERY';
-      response = 'Opening live radio intelligence with country, language, content, and use-case metadata.';
-      document.getElementById('radio')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/music|song|track|focus|worship|celebration|study/.test(query)) {
-      const matchedMood = moods.find((mood) => query.includes(mood.toLowerCase()));
-      if (matchedMood) state.mood = matchedMood;
-      renderMoods();
-      renderRecommendations();
-      route = `MUSIC / ${state.mood.toUpperCase()}`;
-      response = `Music intelligence is prioritizing ${state.mood.toLowerCase()} recommendations from the existing catalogue.`;
-      document.getElementById('music')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/news|brief|headline|trend|summar|simple english/.test(query)) {
-      route = 'NEWS / SYNTHESIS';
-      response =
-        'Opening the African Media Briefing with executive, simple English, Pidgin, and French interpretation paths.';
-      document.getElementById('news')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/story|culture|proverb|spoken/.test(query)) {
-      route = 'CULTURE / KNOWLEDGE';
-      response =
-        'Opening the cultural knowledge layer with paths into spoken word, regional radio, and reflective music.';
-      document.getElementById('stories')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/translate|french|pidgin|yoruba|igbo|hausa|lingala|language/.test(query)) {
-      route = 'LANGUAGE / TRANSFORMATION';
-      response = 'Opening language intelligence. Your preferred language will be stored only on this device.';
-      document.getElementById('language')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/creator|metadata|title|description|cover|release/.test(query)) {
-      route = 'CREATOR / FOUNDATION';
-      response =
-        'Opening Creator Studio Foundation. Backend-dependent generation tools are clearly marked Coming Soon.';
-      document.getElementById('create')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (/africa|trending|listeners|media/.test(query)) {
-      route = 'ASK AFRICA / GRAPH QUERY';
-      askAfrica(text);
-      response = 'The local media graph has synthesized a structured Ask Africa response.';
-      document.getElementById('ask-africa')?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.setTimeout(() => performAction('ai'), 550);
+      response = 'I found the Congo frequency for you—start with rumba and Lingala voices.';
+    } else if (/radio|station|stream/.test(query)) {
+      action = 'radio';
+      response = 'Opening intelligent radio. Search by country, language, genre, or mood.';
+    } else if (/music|song|track|playlist|afrobeat|worship|focus/.test(query)) {
+      action = 'music';
+      response = 'Opening your music library with mood-based discovery.';
+    } else if (/news|brief|headline|summar/.test(query)) {
+      action = 'news';
+      response = 'Here is today’s Africa briefing. You can simplify or translate every summary.';
+    } else if (/story|proverb|spoken/.test(query)) {
+      action = 'stories';
+      response = 'Opening African stories and spoken word from the existing library.';
+    } else if (/game|play a game|puzzle/.test(query)) {
+      openPanel('gamesHubContainer');
+      response = 'Opening the games hub—pick your challenge.';
+    } else if (/translate|pidgin|french|yoruba|igbo|hausa|lingala/.test(query)) {
+      action = 'ai';
+      response = 'Opening Ariyọ AI for language help. Your preferred language is remembered on this device.';
     }
-    const outputs = [document.getElementById('aiCommandResponse'), document.getElementById('assistantPanelResponse')];
-    outputs.forEach((output) => {
-      if (!output) return;
-      output.innerHTML = `<span>${escapeHtml(route)}</span><p>${escapeHtml(response)}</p>`;
+    const output = document.getElementById('aiCommandResponse');
+    if (output) {
+      output.textContent = response;
       output.hidden = false;
-    });
-    const log = document.getElementById('routingLog');
-    if (log) log.textContent = `${route}: ${text}`;
+    }
+    window.setTimeout(() => performAction(action), 300);
   }
 
-  function playTrack(track) {
-    if (!track || typeof window.selectTrack !== 'function') return;
-    engine.remember(
-      STORAGE_KEYS.recentTracks,
-      { title: track.title, src: track.src, album: track.album?.name, metadata: track.metadata },
-      (item) => item.src || item.title,
+  function trackLabels(track, album, index) {
+    const title = `${track?.title || ''} ${album?.name || ''}`.toLowerCase();
+    const genre = /spoken|story|life|father|truth/.test(title)
+      ? 'Spoken word'
+      : /holy|lord|oluwa|worship/.test(title)
+        ? 'Gospel'
+        : 'Afro-fusion';
+    const language = / pidgin| no be| dey | wahala| na /.test(` ${title} `)
+      ? 'Pidgin'
+      : /yoruba|omoluabi|boda/.test(title)
+        ? 'Yorùbá'
+        : 'English';
+    const mood = moods[index % moods.length][0];
+    return `${genre} · ${language} · ${mood}`;
+  }
+
+  function flattenTracks() {
+    return getAlbums().flatMap((album, albumIndex) =>
+      (album.tracks || []).map((track, trackIndex) => ({ album, albumIndex, track, trackIndex })),
     );
-    window.selectTrack(track.src, track.title, track.trackIndex, true, null, track.albumIndex);
+  }
+
+  function rememberTrack(item) {
+    const recent = read(STORAGE.recent, []).filter((entry) => entry.src !== item.track.src);
+    recent.unshift({
+      title: item.track.title,
+      src: item.track.src,
+      album: item.album.name,
+      albumIndex: item.albumIndex,
+      trackIndex: item.trackIndex,
+      at: Date.now(),
+    });
+    write(STORAGE.recent, recent.slice(0, 8));
     renderRecent();
-    updateTrackRecommendation(track);
+  }
+
+  function playTrackItem(item) {
+    if (!item?.track || typeof window.selectTrack !== 'function') return;
+    rememberTrack(item);
+    window.selectTrack(item.track.src, item.track.title, item.trackIndex, true, null, item.albumIndex);
   }
 
   function playStation(station) {
-    if (!station?.url) {
-      performAction('radio');
-      const log = document.getElementById('routingLog');
-      if (log)
-        log.textContent = `${station?.name || 'Station'} is a directory preview; opening available live stations.`;
-      return;
+    const stations = getStations();
+    const index = stations.indexOf(station);
+    const playerIndex = (window.radioStations || []).findIndex((item) => item.url === station.url);
+    const useIndex = playerIndex >= 0 ? playerIndex : index;
+    if (useIndex >= 0 && typeof window.selectRadio === 'function') {
+      window.selectRadio(station.url, station.name, useIndex, station.logo);
+      write(STORAGE.regions, [stationCountry(station)]);
     }
-    const stations = engine.getStations();
-    const index = (Array.isArray(window.radioStations) ? window.radioStations : []).findIndex(
-      (item) => item.url === station.url,
-    );
-    engine.remember(
-      STORAGE_KEYS.recentStations,
-      {
-        name: station.name,
-        url: station.url,
-        location: station.location,
-        logo: station.logo,
-        metadata: station.metadata,
-      },
-      (item) => item.url || item.name,
-    );
-    if (typeof window.selectRadio === 'function')
-      window.selectRadio(
-        station.url,
-        station.name,
-        Math.max(index, 0),
-        station.logo || station.thumbnail || 'Logo.jpg',
-      );
-    else if (stations.length) performAction('radio');
-    renderStations();
-    updateStationRecommendation(station);
   }
 
   function renderCountryFilters() {
@@ -189,359 +205,270 @@
       button.classList.toggle('active', state.country === country);
       button.addEventListener('click', () => {
         state.country = country;
-        engine.safeWrite(STORAGE_KEYS.preferredRegion, country);
+        write(STORAGE.regions, [country]);
         renderCountryFilters();
         renderStations();
-        updateProfile();
       });
       host.appendChild(button);
     });
   }
 
-  function stationMatches(station) {
-    const metadata = station.metadata;
-    const countryMatch = state.country === 'All Africa' || metadata.country === state.country;
-    const languageMatch =
-      state.language === 'English' ||
-      document.getElementById('radioLanguageFilter')?.value === 'All languages' ||
-      metadata.language === document.getElementById('radioLanguageFilter')?.value;
-    const type = document.getElementById('radioTypeFilter')?.value || 'All content';
-    const typeMatch = type === 'All content' || metadata.category === type;
-    return countryMatch && languageMatch && typeMatch;
-  }
-
   function renderStations() {
     const host = document.getElementById('radioDiscoveryGrid');
     if (!host) return;
-    const favorites = engine.safeRead(STORAGE_KEYS.favoriteStations, []);
-    const favoriteIds = new Set(favorites.map((item) => item.url || item.name));
-    let stations = engine.buildGraph().stations.filter(stationMatches);
-    if (!stations.length)
-      stations = engine
-        .buildGraph()
-        .stations.filter((station) => state.country === 'All Africa' || station.metadata.country === state.country);
+    const favorites = read(STORAGE.favorites, []);
+    let stations = getStations();
+    const selected = state.country;
+    if (selected !== 'All Africa') stations = stations.filter((station) => stationCountry(station) === selected);
+    if (!stations.length) stations = getStations();
     host.innerHTML = '';
-    stations.slice(0, 8).forEach((station, position) => {
+    stations.slice(0, 4).forEach((station, index) => {
       const card = document.createElement('article');
+      const country = stationCountry(station);
       card.className = 'station-card';
-      const id = station.url || station.name;
-      card.innerHTML = `<div class="station-card__top"><span class="station-index">${String(position + 1).padStart(2, '0')}</span><span class="station-card__live"><i></i>${station.metadata.streamStatus}</span><button class="station-card__favorite" type="button" aria-label="${favoriteIds.has(id) ? 'Remove from' : 'Add to'} station favorites" aria-pressed="${favoriteIds.has(id)}">${favoriteIds.has(id) ? 'SAVED' : 'SAVE'}</button></div><h3>${escapeHtml(station.name)}</h3><p>${escapeHtml(station.metadata.country)} · ${escapeHtml(station.metadata.language)}</p><dl><div><dt>Format</dt><dd>${escapeHtml(station.metadata.category)}</dd></div><div><dt>Genre</dt><dd>${escapeHtml(station.metadata.genre)}</dd></div><div><dt>Best for</dt><dd>${escapeHtml(station.metadata.useCase)}</dd></div></dl><button class="station-play" type="button">Open live signal <span>→</span></button>`;
-      card.querySelector('.station-play').addEventListener('click', () => playStation(station));
+      card.style.setProperty('--station-color', ['#254d38', '#553d28', '#3b315c', '#214c55'][index % 4]);
+      card.innerHTML = `<div class="station-card__top"><span class="station-card__live">● Live</span><button class="station-card__favorite" type="button" aria-label="Favorite ${station.name}">${favorites.includes(station.url) ? '♥' : '♡'}</button></div><div class="station-card__mark">◉</div><h3>${station.name}</h3><p>${country} · ${stationMeta(station)}</p>`;
+      card.addEventListener('click', (event) => {
+        if (!event.target.closest('.station-card__favorite')) playStation(station);
+      });
       card.querySelector('.station-card__favorite').addEventListener('click', () => {
-        engine.toggleFavorite(
-          STORAGE_KEYS.favoriteStations,
-          { name: station.name, url: station.url, location: station.location, metadata: station.metadata },
-          (item) => item.url || item.name,
-        );
+        const next = read(STORAGE.favorites, []);
+        const exists = next.includes(station.url);
+        write(STORAGE.favorites, exists ? next.filter((url) => url !== station.url) : [...next, station.url]);
         renderStations();
       });
       host.appendChild(card);
     });
-    if (!host.children.length)
-      host.innerHTML =
-        '<div class="empty-state">No exact station match is available. Change a filter to expand the intelligence view.</div>';
-    updateMetrics();
   }
 
   function renderMoods() {
     const host = document.getElementById('moodGrid');
     if (!host) return;
     host.innerHTML = '';
-    moods.forEach((mood) => {
+    moods.forEach(([name, icon, color, copy]) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = mood;
-      button.classList.toggle('active', state.mood === mood);
+      button.className = 'mood-card';
+      button.style.setProperty('--mood-bg', color);
+      button.innerHTML = `<span>${icon}</span><b>${name}</b><small>${copy}</small>`;
       button.addEventListener('click', () => {
-        state.mood = mood;
-        renderMoods();
+        state.mood = name;
         renderRecommendations();
-        updateProfile();
+        document.getElementById('recommendedTracks')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       host.appendChild(button);
     });
   }
 
-  function renderTrackCards(host, tracks, emptyMessage) {
-    if (!host) return;
-    const favorites = engine.safeRead(STORAGE_KEYS.favoriteTracks, []);
-    const favoriteIds = new Set(favorites.map((item) => item.src || item.title));
-    host.innerHTML = '';
-    tracks.forEach((track) => {
-      const id = track.src || track.title;
-      const card = document.createElement('article');
-      card.className = 'track-card';
-      card.innerHTML = `<div class="track-card__art"><span>${escapeHtml((track.metadata?.mood || 'AI').slice(0, 2).toUpperCase())}</span><button type="button" aria-label="${favoriteIds.has(id) ? 'Remove from' : 'Add to'} track favorites" aria-pressed="${favoriteIds.has(id)}">${favoriteIds.has(id) ? 'SAVED' : 'SAVE'}</button></div><div><b>${escapeHtml(track.title)}</b><small>${escapeHtml(track.metadata?.genre || 'African media')} · ${escapeHtml(track.metadata?.language || 'English')}</small><p>${escapeHtml(track.metadata?.useCase || 'Daily listening')}</p></div><button class="track-play" type="button" aria-label="Play ${escapeHtml(track.title)}">PLAY</button>`;
-      card.querySelector('.track-play').addEventListener('click', () => playTrack(track));
-      card.querySelector('.track-card__art button').addEventListener('click', () => {
-        engine.toggleFavorite(
-          STORAGE_KEYS.favoriteTracks,
-          { title: track.title, src: track.src, album: track.album?.name, metadata: track.metadata },
-          (item) => item.src || item.title,
-        );
-        renderRecommendations();
-      });
-      host.appendChild(card);
-    });
-    if (!tracks.length) host.innerHTML = `<div class="empty-state">${escapeHtml(emptyMessage)}</div>`;
-  }
-
-  function hydrateStoredTrack(stored) {
-    return (
-      engine.getTracks().find((track) => track.src === stored.src || track.title === stored.title) || {
-        ...stored,
-        trackIndex: 0,
-        albumIndex: 0,
-        album: { name: stored.album || 'Ariyọ Catalogue' },
-        metadata: stored.metadata || engine.trackMetadata(stored),
-      }
-    );
+  function trackCard(item, index) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'track-card';
+    button.innerHTML = `<span class="track-card__art" style="--track-color:${['#446b51', '#6c4b36', '#384f6c'][index % 3]}">♫</span><span><b>${item.track.title}</b><small>${trackLabels(item.track, item.album, index)}</small></span><span>▶</span>`;
+    button.addEventListener('click', () => playTrackItem(item));
+    return button;
   }
 
   function renderRecommendations() {
-    let tracks = engine.getTracks();
-    if (state.mood !== 'All moods') {
-      const matches = tracks.filter((track) => track.metadata.mood === state.mood);
-      tracks = matches.length ? matches : tracks;
-    }
-    const recent = engine.safeRead(STORAGE_KEYS.recentTracks, []);
-    if (recent.length) {
-      const source = hydrateStoredTrack(recent[0]);
-      tracks = engine.recommendRelated(source, 'track', 8);
-    }
-    renderTrackCards(
-      document.getElementById('recommendedTracks'),
-      tracks.slice(0, 8),
-      'The music catalogue is still loading. Existing tracks will appear here automatically.',
-    );
+    const host = document.getElementById('recommendedTracks');
+    if (!host) return;
+    const tracks = flattenTracks();
+    host.innerHTML = '';
+    const offset = moods.findIndex((mood) => mood[0] === state.mood);
+    tracks
+      .slice(Math.max(0, offset), Math.max(0, offset) + 3)
+      .forEach((item, index) => host.appendChild(trackCard(item, index)));
   }
 
   function renderRecent() {
-    const recent = engine.safeRead(STORAGE_KEYS.recentTracks, []).map(hydrateStoredTrack);
     const section = document.getElementById('recentlyPlayedSection');
-    if (!section) return;
-    section.hidden = !recent.length;
-    renderTrackCards(
-      document.getElementById('recentlyPlayed'),
-      recent.slice(0, 6),
-      'Play a track to begin your private listening memory.',
-    );
-  }
-
-  function updateTrackRecommendation(track) {
-    const related = engine.recommendRelated(track, 'station', 2);
-    const host = document.getElementById('radioRecommendation');
-    if (!host || !related.length) return;
-    host.innerHTML = `<span class="recommendation-code">GRAPH MATCH</span><div><strong>Because you played ${escapeHtml(track.title)}</strong><p>Try ${related.map((station) => station.name).join(' or ')}—matched through region, language, genre, and mood.</p></div>`;
-  }
-
-  function updateStationRecommendation(station) {
-    const related = engine.recommendRelated(station, 'track', 3);
-    const host = document.getElementById('radioRecommendation');
-    if (!host || !related.length) return;
-    host.innerHTML = `<span class="recommendation-code">NEXT PATH</span><div><strong>Continue beyond ${escapeHtml(station.name)}</strong><p>Related tracks: ${related.map((track) => track.title).join(', ')}.</p></div>`;
+    const host = document.getElementById('recentlyPlayed');
+    if (!section || !host) return;
+    const albums = getAlbums();
+    const items = read(STORAGE.recent, [])
+      .map((entry) => ({
+        ...entry,
+        album: albums[entry.albumIndex],
+        track: albums[entry.albumIndex]?.tracks?.[entry.trackIndex],
+      }))
+      .filter((item) => item.album && item.track);
+    section.hidden = !items.length;
+    host.innerHTML = '';
+    items.slice(0, 3).forEach((item, index) => host.appendChild(trackCard(item, index)));
   }
 
   function renderBriefing() {
-    const headline = document.getElementById('briefingHeadline');
-    const summary = document.getElementById('briefingSummary');
-    if (headline && !headline.dataset.live) headline.textContent = fallbackBriefing.headline;
-    if (summary && !summary.dataset.live) summary.textContent = fallbackBriefing.summary;
-    const track = engine.getTracks()[0];
-    const station = engine.buildGraph().stations[0];
-    if (track) document.getElementById('dailyTrackTitle').textContent = track.title;
-    if (station) document.getElementById('dailyStationTitle').textContent = station.name;
-    document.getElementById('playDailyTrack')?.addEventListener('click', () => playTrack(track), { once: true });
-    document.getElementById('playDailyStation')?.addEventListener('click', () => playStation(station), { once: true });
+    fetch('data/news.json')
+      .then((response) => (response.ok ? response.json() : []))
+      .then((items) => {
+        const item = Array.isArray(items) ? items[0] : null;
+        if (!item) return;
+        const title = document.getElementById('briefingHeadline');
+        const summary = document.getElementById('briefingSummary');
+        if (title) title.textContent = item.title;
+        if (summary) summary.textContent = item.summary;
+      })
+      .catch(() => {});
+    const tracks = flattenTracks();
+    const stations = getStations();
+    if (tracks[0]) document.getElementById('dailyTrackTitle').textContent = tracks[0].track.title;
+    if (stations[0]) document.getElementById('dailyStationTitle').textContent = stations[0].name;
+    document.getElementById('playDailyTrack')?.addEventListener('click', () => playTrackItem(flattenTracks()[0]));
+    document.getElementById('playDailyStation')?.addEventListener('click', () => playStation(getStations()[0]));
+  }
+
+  function initSmartRadioSearch() {
+    const input = document.getElementById('smartRadioSearch');
+    const host = document.getElementById('smartRadioResults');
+    if (!input || !host) return;
+    const search = (query) => {
+      const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+      const matches = getStations()
+        .filter((station) => {
+          const haystack =
+            `${station.name} ${station.location || ''} ${station.country || ''} ${station.genre || ''} ${stationMeta(station)} ${stationCountry(station)}`.toLowerCase();
+          return words.every(
+            (word) =>
+              haystack.includes(word) ||
+              (word === 'nigerian' && haystack.includes('nigeria')) ||
+              (word === 'congolese' && haystack.includes('congo')) ||
+              (word === 'focus' && /music|classic|jazz/.test(haystack)),
+          );
+        })
+        .slice(0, 8);
+      host.innerHTML = '';
+      matches.forEach((station) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'smart-radio-result';
+        button.innerHTML = `<span>${station.name}<br><small>${stationCountry(station)} · ${stationMeta(station)}</small></span><b>▶</b>`;
+        button.addEventListener('click', () => playStation(station));
+        host.appendChild(button);
+      });
+      if (query && !matches.length)
+        host.innerHTML = '<p>No exact match yet. Try a country, “news,” “gospel,” or “music.”</p>';
+    };
+    input.addEventListener('input', () => search(input.value));
+    document.querySelectorAll('[data-radio-query]').forEach((button) =>
+      button.addEventListener('click', () => {
+        input.value = button.dataset.radioQuery;
+        search(input.value);
+      }),
+    );
   }
 
   function simplify(mode) {
     const summary = document.getElementById('briefingSummary');
     if (!summary) return;
     const versions = {
-      executive:
-        'Executive view: Ariyọ’s opportunity is the intelligence layer between fragmented African media formats—using language, region, and behavior to move audiences from information to relevant sound and culture.',
-      simple:
-        'Main point: African media works better when news, radio, music, language, and stories help people discover each other in one place.',
-      pidgin:
-        'Main gist be say African news, radio, music, language and stories go useful pass when one smart system connect all of dem for the listener.',
-      fr: 'Point essentiel : les médias africains deviennent plus utiles lorsqu’une intelligence commune relie actualités, radio, musique, langues et récits culturels.',
+      simple: 'Here is the main point: a new African culture and music update is available now. Open it to learn more.',
+      pidgin: 'See the main gist: new African culture and music update don land. Open am make you see everything.',
+      fr: 'Voici l’essentiel : une nouvelle actualité sur la culture et la musique africaines est disponible. Ouvrez-la pour en savoir plus.',
     };
-    summary.textContent = versions[mode] || fallbackBriefing.summary;
-    document.getElementById('news')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    summary.textContent = versions[mode] || summary.textContent;
   }
 
-  function askAfrica(question) {
-    const query = question.toLowerCase();
-    const graph = engine.buildGraph();
-    let result = {
-      category: 'Cross-media',
-      region: 'Africa',
-      language: state.language,
-      path: 'Query → Graph → Recommendation',
-      answer: `The current local graph contains ${graph.tracks.length} tracks and ${graph.stations.length} stations. Ariyọ can connect these signals by region, language, genre, and mood while live trend APIs are integrated.`,
-    };
-    if (/nigerian gospel/.test(query))
-      result = {
-        category: 'Gospel / Radio / Music',
-        region: 'Nigeria',
-        language: 'English',
-        path: 'Nigeria → Gospel → Radio + Tracks',
-        answer:
-          'The available local signal points to faith-led listening as a strong cross-format path. Start with Nigerian gospel or worship stations, then continue into worship-tagged tracks from the existing catalogue. This is curated local intelligence, not a claim of live market ranking.',
-      };
-    else if (/congo|congolese/.test(query))
-      result = {
-        category: 'Radio / Rumba / Culture',
-        region: 'Congo',
-        language: 'Lingala',
-        path: 'Congo → Lingala → Rumba → Stories',
-        answer:
-          'Congolese discovery is best served through Lingala and rumba radio signals, followed by culturally adjacent evening listening and storytelling. Ariyọ will rank available Congo-tagged stations first.',
-      };
-    else if (/story|news|media story/.test(query))
-      result = {
-        category: 'News / Interpretation',
-        region: 'Pan-African',
-        language: state.language,
-        path: 'News → Summary → Translation → Audio',
-        answer:
-          'The key media story is not only the headline; it is how audiences interpret and continue from it. Ariyọ provides an executive summary, simple English, Pidgin, French, and a related radio or music path.',
-      };
-    document.getElementById('askAfricaQuestion').textContent = question;
-    document.getElementById('askAfricaAnswer').textContent = result.answer;
-    document.getElementById('answerCategory').textContent = result.category;
-    document.getElementById('answerRegion').textContent = result.region;
-    document.getElementById('answerLanguage').textContent = result.language;
-    document.getElementById('answerPath').textContent = result.path;
+  function setPersonality(forceRandom) {
+    const saved = read(STORAGE.personality, null);
+    const activity = read(STORAGE.recent, []).length + read(STORAGE.favorites, []).length;
+    const index = forceRandom
+      ? Math.floor(Math.random() * personalities.length)
+      : (saved?.index ?? activity % personalities.length);
+    const [name, copy] = personalities[index];
+    write(STORAGE.personality, { index, name });
+    document.getElementById('personalityName').textContent = name;
+    document.getElementById('personalityCopy').textContent = copy;
   }
 
-  function updateMetrics() {
-    const graph = engine.buildGraph();
-    const entities = document.getElementById('metricEntities');
-    const stations = document.getElementById('metricStations');
-    if (entities) entities.textContent = String(graph.nodes.length).padStart(2, '0');
-    if (stations)
-      stations.textContent = String(graph.stations.filter((station) => station.url).length).padStart(2, '0');
-  }
-
-  function renderGraphPreview() {
-    const host = document.getElementById('graphNodes');
-    if (!host) return;
-    host.innerHTML = engine.ENTITY_TYPES.map(
-      (type, index) => `<span style="--node-index:${index}">${escapeHtml(type)}</span>`,
-    ).join('');
-  }
-
-  function updateProfile() {
-    const recent = engine.safeRead(STORAGE_KEYS.recentTracks, []);
-    document.getElementById('profileMood').textContent =
-      state.mood === 'All moods' ? recent[0]?.metadata?.mood || 'Focus' : state.mood;
-    document.getElementById('profileRegion').textContent = state.country;
-    document.getElementById('profileSignal').textContent = recent.length
-      ? 'Signal established'
-      : 'Building your signal';
-  }
-
-  function initLanguage() {
-    const select = document.getElementById('intelligenceLanguage');
-    if (!select) return;
-    select.value = state.language;
-    select.addEventListener('change', () => {
-      state.language = select.value;
-      engine.safeWrite(STORAGE_KEYS.preferredLanguage, state.language);
-      document.getElementById('answerLanguage').textContent = state.language;
-      renderStations();
+  function initPersonality() {
+    setPersonality(false);
+    document.getElementById('generatePersonality')?.addEventListener('click', () => setPersonality(true));
+    document.getElementById('sharePersonality')?.addEventListener('click', async () => {
+      const name = document.getElementById('personalityName')?.textContent || 'Radio Explorer';
+      const text = `My African Media Personality is “${name}” on Ariyọ AI — Africa's AI Media Companion. What’s yours?`;
+      try {
+        await navigator.clipboard.writeText(text);
+        document.getElementById('personalityStatus').textContent = 'Copied—share your cultural frequency.';
+      } catch (_) {
+        window.prompt('Copy your result:', text);
+      }
     });
+  }
+
+  function initReturningUser() {
+    const visits = Number(read(STORAGE.visits, 0));
+    write(STORAGE.visits, visits + 1);
+    const host = document.getElementById('returningMessage');
+    if (!host || visits < 1) return;
+    const favorites = read(STORAGE.favorites, []);
+    const station = getStations().find((item) => favorites.includes(item.url));
+    host.textContent = station
+      ? `Welcome back—${station.name}, your favorite station, is ready.`
+      : 'Welcome back—your daily African soundtrack is ready.';
+    host.hidden = false;
+  }
+
+  function initLanguageMemory() {
     window.addEventListener('ariyo:languageChanged', (event) => {
-      const map = {
-        en: 'English',
-        'en-NG': 'Nigerian Pidgin',
-        fr: 'French',
-        yo: 'Yoruba',
-        ig: 'Igbo',
-        ha: 'Hausa',
-        ln: 'Lingala',
-      };
-      state.language = map[event.detail?.language] || event.detail?.language || state.language;
-      engine.safeWrite(STORAGE_KEYS.preferredLanguage, state.language);
+      try {
+        localStorage.setItem('ariyo.preferredLanguage', event.detail.language);
+      } catch (_) {}
     });
   }
 
   function bind() {
     document.getElementById('aiCommandForm')?.addEventListener('submit', (event) => {
       event.preventDefault();
-      performAction('ai');
-      routeCommand(document.getElementById('aiCommandInput')?.value || '');
-    });
-    document.getElementById('assistantPanelForm')?.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const input = document.getElementById('assistantPanelInput');
-      routeCommand(input?.value || '');
+      const input = document.getElementById('aiCommandInput');
+      if (input?.value.trim()) routeCommand(input.value);
     });
     document.querySelectorAll('[data-ai-prompt]').forEach((button) =>
       button.addEventListener('click', () => {
-        document.getElementById('aiCommandInput').value = button.dataset.aiPrompt;
-        performAction('ai');
+        const input = document.getElementById('aiCommandInput');
+        input.value = button.dataset.aiPrompt;
         routeCommand(button.dataset.aiPrompt);
-      }),
-    );
-    document.querySelectorAll('[data-panel-prompt]').forEach((button) =>
-      button.addEventListener('click', () => {
-        const input = document.getElementById('assistantPanelInput');
-        if (input) input.value = button.dataset.panelPrompt;
-        routeCommand(button.dataset.panelPrompt);
       }),
     );
     document
       .querySelectorAll('[data-companion-action]')
       .forEach((button) => button.addEventListener('click', () => performAction(button.dataset.companionAction)));
     document
-      .querySelectorAll('[data-scroll-target]')
-      .forEach((button) =>
-        button.addEventListener('click', () =>
-          document.getElementById(button.dataset.scrollTarget)?.scrollIntoView({ behavior: 'smooth' }),
-        ),
-      );
-    document
       .querySelectorAll('[data-simplify]')
       .forEach((button) => button.addEventListener('click', () => simplify(button.dataset.simplify)));
-    document
-      .querySelectorAll('[data-ask-africa]')
-      .forEach((button) => button.addEventListener('click', () => askAfrica(button.dataset.askAfrica)));
-    document.getElementById('radioLanguageFilter')?.addEventListener('change', renderStations);
-    document.getElementById('radioTypeFilter')?.addEventListener('change', renderStations);
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.search-result[role="option"]')) return;
+      window.setTimeout(() => document.querySelector('.music-player')?.scrollIntoView({ block: 'center' }), 50);
+    });
+    document.querySelectorAll('[data-creator-tool]').forEach((button) =>
+      button.addEventListener('click', () => {
+        const output = document.getElementById('aiCommandResponse');
+        output.textContent = `${button.textContent} is queued for Creator Studio. AI publishing tools are coming soon.`;
+        output.hidden = false;
+        document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
+      }),
+    );
   }
 
-  function refresh() {
+  function refreshLibraryUi() {
     renderStations();
     renderRecommendations();
     renderRecent();
     renderBriefing();
-    updateMetrics();
-    updateProfile();
   }
-
   function init() {
     bind();
-    initLanguage();
     renderCountryFilters();
     renderMoods();
-    renderGraphPreview();
-    refresh();
-    const visits = Number(engine.safeRead('ariyo_intelligence_visits', 0));
-    engine.safeWrite('ariyo_intelligence_visits', visits + 1);
-    if (visits > 0) {
-      const message = document.getElementById('returningMessage');
-      message.textContent =
-        'Personalization cache restored. Your language, region, favorites, and listening history remain on this device.';
-      message.hidden = false;
-    }
+    refreshLibraryUi();
+    initSmartRadioSearch();
+    initPersonality();
+    initReturningUser();
+    initLanguageMemory();
   }
 
-  window.AriyoCompanion = { routeCommand, askAfrica, playTrack, playStation, refresh };
+  window.AriyoCompanion = { routeCommand, stationCountry, stationMeta, read, write };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
-  window.addEventListener('ariyo:library-ready', refresh);
-  window.addEventListener('ariyo:library-updated', refresh);
+  window.addEventListener('ariyo:library-ready', refreshLibraryUi);
+  window.addEventListener('ariyo:library-updated', refreshLibraryUi);
 })();
