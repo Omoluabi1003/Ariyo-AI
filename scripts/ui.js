@@ -1028,6 +1028,10 @@ function resetInactivityTimer() {
 
 const edgePanel = document.getElementById('edgePanel');
 const edgePanelHandle = edgePanel ? edgePanel.querySelector('.edge-panel-handle') : null;
+const edgePanelBackdrop = document.getElementById('edgePanelBackdrop');
+const edgePanelClose = document.getElementById('edgePanelClose');
+let edgePanelReturnFocus = null;
+const isMobileEdgePanel = () => window.matchMedia('(max-width: 767px)').matches;
 const focusFirstEdgePanelItem = () => {
   const firstItem = edgePanel?.querySelector('.edge-panel-item');
   if (firstItem) {
@@ -1102,29 +1106,35 @@ const computeEdgePanelOffsets = () => {
 const applyEdgePanelPosition = (state, { userInitiated = false } = {}) => {
   if (!edgePanel) return;
 
-  edgePanelState = state;
+  const mobile = isMobileEdgePanel();
+  const normalizedState = mobile && state === 'peek' ? 'collapsed' : state;
+  edgePanelState = normalizedState;
 
-  const isVisible = state === 'visible';
-  const isPeek = state === 'peek';
+  const isVisible = normalizedState === 'visible';
+  const isPeek = normalizedState === 'peek';
   const ariaExpanded = isVisible ? 'true' : 'false';
 
   edgePanel.setAttribute('aria-expanded', ariaExpanded);
-  if (edgePanelHandle) {
-    edgePanelHandle.setAttribute('aria-expanded', ariaExpanded);
+  edgePanel.setAttribute('aria-hidden', isVisible || !mobile ? 'false' : 'true');
+  edgePanel.setAttribute('aria-modal', mobile && isVisible ? 'true' : 'false');
+  if (edgePanelHandle) edgePanelHandle.setAttribute('aria-expanded', ariaExpanded);
+  if (edgePanelBackdrop) {
+    edgePanelBackdrop.classList.toggle('visible', isVisible);
+    edgePanelBackdrop.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
   }
+  document.body.classList.toggle('edge-panel-open', isVisible);
 
   if (edgePanelPeekTimeoutId) {
     clearTimeout(edgePanelPeekTimeoutId);
     edgePanelPeekTimeoutId = null;
   }
 
-  if (isVisible || isPeek) {
-    edgePanel.classList.add('visible');
-  } else {
-    edgePanel.classList.remove('visible');
-  }
+  edgePanel.classList.toggle('visible', isVisible || isPeek);
 
-  if (isPeek) {
+  if (mobile) {
+    edgePanel.style.removeProperty('right');
+    edgePanel.dataset.position = isVisible ? 'open' : 'collapsed';
+  } else if (isPeek) {
     edgePanel.dataset.position = 'peek';
     edgePanel.style.right = `${EDGE_PANEL_PEEK_X}px`;
   } else if (isVisible) {
@@ -1135,22 +1145,21 @@ const applyEdgePanelPosition = (state, { userInitiated = false } = {}) => {
     edgePanel.style.right = `${EDGE_PANEL_COLLAPSED_X}px`;
   }
 
-  if (state === 'peek') {
+  if (isPeek) {
     edgePanelPeekTimeoutId = window.setTimeout(() => {
-      if (edgePanelState === 'peek') {
-        applyEdgePanelPosition('collapsed');
-      }
+      if (edgePanelState === 'peek') applyEdgePanelPosition('collapsed');
     }, EDGE_PANEL_PEEK_DURATION);
   }
 
   if (userInitiated) {
-    if (state === 'collapsed') {
-      edgePanelUserCollapsed = true;
-    } else if (state === 'visible') {
-      edgePanelUserCollapsed = false;
-    }
-  } else if (state === 'visible') {
+    edgePanelUserCollapsed = normalizedState === 'collapsed';
+  } else if (isVisible) {
     edgePanelUserCollapsed = false;
+  }
+
+  if (!isVisible && edgePanelReturnFocus instanceof HTMLElement) {
+    edgePanelReturnFocus.focus({ preventScroll: true });
+    edgePanelReturnFocus = null;
   }
 };
 
@@ -1176,18 +1185,30 @@ if (edgePanel && edgePanelHandle) {
     edgePanel.setAttribute('aria-expanded', 'false');
   }
   window.setTimeout(() => {
-    if (!edgePanelUserCollapsed) {
-      showEdgePanelPeek();
-    }
+    if (!isMobileEdgePanel() && !edgePanelUserCollapsed) showEdgePanelPeek();
   }, 600);
+
+  const openEdgePanel = ({ trigger = document.activeElement, focusLaunchers = false } = {}) => {
+    if (trigger instanceof HTMLElement) edgePanelReturnFocus = trigger;
+    applyEdgePanelPosition('visible', { userInitiated: true });
+    if (focusLaunchers) window.requestAnimationFrame(focusFirstEdgePanelItem);
+  };
+
+  window.openAriyoEdgePanel = openEdgePanel;
+  edgePanelBackdrop?.addEventListener('click', () => applyEdgePanelPosition('collapsed', { userInitiated: true }));
+  edgePanelClose?.addEventListener('click', () => applyEdgePanelPosition('collapsed', { userInitiated: true }));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && edgePanelState === 'visible') {
+      event.preventDefault();
+      applyEdgePanelPosition('collapsed', { userInitiated: true });
+    }
+  });
+
   const toggleEdgePanelVisibility = ({ userInitiated = false, focusLaunchers = false } = {}) => {
     if (edgePanelState === 'visible') {
       applyEdgePanelPosition('collapsed', { userInitiated });
     } else {
-      applyEdgePanelPosition('visible', { userInitiated });
-      if (focusLaunchers) {
-        focusFirstEdgePanelItem();
-      }
+      openEdgePanel({ focusLaunchers });
     }
   };
 
@@ -1274,6 +1295,7 @@ if (edgePanel && edgePanelHandle) {
 
   window.addEventListener('resize', () => {
     computeEdgePanelOffsets();
+    if (isMobileEdgePanel() && edgePanelState === 'peek') edgePanelState = 'collapsed';
     if (edgePanelState === 'peek') {
       applyEdgePanelPosition('peek');
     } else if (edgePanelState === 'visible') {

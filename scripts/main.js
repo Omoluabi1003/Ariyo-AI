@@ -1563,6 +1563,19 @@ const EDGE_PANEL_MIN_HEIGHT = 480;
 const updateEdgePanelHeight = () => {
   if (!mainEdgePanel || !mainEdgePanelContent) return;
 
+  if (window.matchMedia('(max-width: 767px)').matches) {
+    mainEdgePanel.style.removeProperty('height');
+    mainEdgePanel.style.removeProperty('top');
+    mainEdgePanel.style.removeProperty('right');
+    mainEdgePanel.style.removeProperty('bottom');
+    mainEdgePanel.style.removeProperty('transform');
+    mainEdgePanelContent.style.removeProperty('max-height');
+    mainEdgePanelContent.style.removeProperty('padding-bottom');
+    mainEdgePanelContent.style.removeProperty('scroll-padding-bottom');
+    mainEdgePanelContent.style.overflowY = 'auto';
+    return;
+  }
+
   const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   const computedRoot = getComputedStyle(rootElement);
   const topOffset = parseFloat(computedRoot.getPropertyValue('--edge-panel-top-offset')) || 24;
