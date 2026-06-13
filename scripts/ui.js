@@ -1195,6 +1195,7 @@ if (edgePanel && edgePanelHandle) {
   };
 
   window.openAriyoEdgePanel = openEdgePanel;
+  edgePanel.addEventListener('click', (event) => event.stopPropagation());
   edgePanelBackdrop?.addEventListener('click', () => applyEdgePanelPosition('collapsed', { userInitiated: true }));
   edgePanelClose?.addEventListener('click', () => applyEdgePanelPosition('collapsed', { userInitiated: true }));
   document.addEventListener('keydown', (event) => {

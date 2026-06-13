@@ -121,11 +121,12 @@
     } else {
       window.setTimeout(() => performAction('ai'), 550);
     }
-    const output = document.getElementById('aiCommandResponse');
-    if (output) {
+    const outputs = [document.getElementById('aiCommandResponse'), document.getElementById('assistantPanelResponse')];
+    outputs.forEach((output) => {
+      if (!output) return;
       output.innerHTML = `<span>${escapeHtml(route)}</span><p>${escapeHtml(response)}</p>`;
       output.hidden = false;
-    }
+    });
     const log = document.getElementById('routingLog');
     if (log) log.textContent = `${route}: ${text}`;
   }
@@ -470,12 +471,26 @@
   function bind() {
     document.getElementById('aiCommandForm')?.addEventListener('submit', (event) => {
       event.preventDefault();
+      performAction('ai');
       routeCommand(document.getElementById('aiCommandInput')?.value || '');
+    });
+    document.getElementById('assistantPanelForm')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = document.getElementById('assistantPanelInput');
+      routeCommand(input?.value || '');
     });
     document.querySelectorAll('[data-ai-prompt]').forEach((button) =>
       button.addEventListener('click', () => {
         document.getElementById('aiCommandInput').value = button.dataset.aiPrompt;
+        performAction('ai');
         routeCommand(button.dataset.aiPrompt);
+      }),
+    );
+    document.querySelectorAll('[data-panel-prompt]').forEach((button) =>
+      button.addEventListener('click', () => {
+        const input = document.getElementById('assistantPanelInput');
+        if (input) input.value = button.dataset.panelPrompt;
+        routeCommand(button.dataset.panelPrompt);
       }),
     );
     document

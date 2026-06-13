@@ -2686,7 +2686,18 @@
       </div>
     </div>
 
-    <div class="edge-panel-backdrop" id="edgePanelBackdrop" aria-hidden="true"></div>
+    <button
+      class="floating-assistant-button"
+      id="floatingAssistantButton"
+      type="button"
+      data-companion-action="ai"
+      aria-controls="edgePanel"
+      aria-label="Open Ask Ariyọ assistant"
+    >
+      <span aria-hidden="true">✦</span>
+      <span>Ask Ariyọ</span>
+    </button>
+    <div class="edge-panel-backdrop assistant-backdrop" id="edgePanelBackdrop" aria-hidden="true"></div>
     <div
       class="edge-panel"
       id="edgePanel"
@@ -2714,7 +2725,41 @@
         </button>
       </div>
       <div class="edge-panel-content">
-        <p class="edge-panel-intro">Choose an intelligence tool</p>
+        <section class="assistant-panel-body" aria-labelledby="assistantGreeting">
+          <p class="assistant-status"><span aria-hidden="true"></span> Intelligence network ready</p>
+          <h3 id="assistantGreeting">Good to see you. What would you like to discover?</h3>
+          <p class="assistant-greeting">
+            I can help you move across African music, live radio, news, stories, language, and cultural knowledge.
+          </p>
+          <div class="assistant-prompt-chips" aria-label="Suggested questions">
+            <button type="button" data-panel-prompt="Recommend focus music">Focus music</button>
+            <button type="button" data-panel-prompt="Find live African radio">Live radio</button>
+            <button type="button" data-panel-prompt="Summarize African news">News briefing</button>
+            <button type="button" data-panel-prompt="Explore African cultural stories">Cultural stories</button>
+          </div>
+          <div class="assistant-response" id="assistantPanelResponse" role="status" aria-live="polite">
+            <span>ARIYỌ / READY</span>
+            <p>Choose a prompt or type a command. I’ll route you to the right intelligence experience.</p>
+          </div>
+          <form class="assistant-command" id="assistantPanelForm">
+            <label class="sr-only" for="assistantPanelInput">Ask Ariyọ AI</label>
+            <input
+              id="assistantPanelInput"
+              type="text"
+              autocomplete="off"
+              placeholder="Ask about African media, culture, or language…"
+            />
+            <button type="submit" aria-label="Send command"><span aria-hidden="true">→</span></button>
+          </form>
+          <div class="assistant-quick-actions" aria-label="Assistant destinations">
+            <button type="button" data-companion-action="radio">Radio</button>
+            <button type="button" data-companion-action="music">Music</button>
+            <button type="button" data-companion-action="news">News</button>
+            <button type="button" data-scroll-target="language">Language</button>
+            <button type="button" data-scroll-target="ask-africa">Ask Africa</button>
+          </div>
+        </section>
+        <p class="edge-panel-intro">More Ariyọ tools</p>
         <div class="edge-panel-list" role="list">
           <button
             class="edge-panel-item edge-panel-launcher"
