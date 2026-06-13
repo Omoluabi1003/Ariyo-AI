@@ -38,5 +38,8 @@ if (gameUrl) {
   frameEl.remove();
   directLinkEl.href = 'games.html';
   directLinkEl.textContent = i18nText('ui.studioBackToGames', 'Back to Games');
-  statusEl.textContent = i18nText('ui.studioLaunchMissing', 'Launch parameters are missing. Return to Games and try again.');
+  statusEl.textContent = i18nText(
+    'ui.studioLaunchMissing',
+    'Launch parameters are missing. Return to Games and try again.',
+  );
 }
