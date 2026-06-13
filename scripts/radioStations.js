@@ -343,17 +343,17 @@ async function validateRadioStations(stations) {
   return results;
 }
 
-function refreshMergedRadioStations() {
+function computeMergedRadioStations() {
   const globalStations = (typeof window !== 'undefined' && window.radioStations) || [];
   return mergeRadioStations(globalStations, radioStationsNew);
 }
 
-const mergedRadioStations = refreshMergedRadioStations();
+const mergedRadioStations = computeMergedRadioStations();
 
 if (typeof window !== 'undefined') {
   window.mergedRadioStations = mergedRadioStations;
   window.refreshMergedRadioStations = () => {
-    const nextMerged = refreshMergedRadioStations();
+    const nextMerged = computeMergedRadioStations();
     window.mergedRadioStations = nextMerged;
     return nextMerged;
   };

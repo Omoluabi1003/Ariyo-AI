@@ -13,30 +13,33 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Àríyò AI" />
     <meta name="apple-touch-fullscreen" content="yes" />
-    <meta name="theme-color" content="#8E5BFF" />
+    <meta name="theme-color" content="#07111F" />
     <link rel="manifest" href="manifest.json" />
     <link rel="apple-touch-icon" href="icons/Ariyo.png" />
     <meta
       name="description"
-      content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant."
+      content="Africa's AI Media Intelligence Engine for intelligent discovery across music, live radio, news, stories, culture, and language."
     />
-    <meta name="keywords" content="Paul Iyogun, Omoluabi, Àríyò AI, Ariyo, Naija AI, Nigerian music, AI chatbot, PWA" />
-    <meta property="og:title" content="Àríyò AI - Smart Naija AI" />
+    <meta
+      name="keywords"
+      content="Àríyò AI, African media intelligence, African radio, African music, multilingual AI, African news, cultural knowledge"
+    />
+    <meta property="og:title" content="Àríyò AI — Africa's AI Media Intelligence Engine" />
     <meta
       property="og:description"
-      content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant."
+      content="Africa's AI Media Intelligence Engine for intelligent discovery across music, live radio, news, stories, culture, and language."
     />
     <meta property="og:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
     <meta property="og:url" content="https://omoluabi1003.github.io/Ariyo-AI/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Àríyò AI - Smart Naija AI" />
+    <meta name="twitter:title" content="Àríyò AI — Africa's AI Media Intelligence Engine" />
     <meta
       name="twitter:description"
-      content="Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant."
+      content="Africa's AI Media Intelligence Engine for intelligent discovery across music, live radio, news, stories, culture, and language."
     />
     <meta name="twitter:image" content="https://raw.githubusercontent.com/Omoluabi1003/Ariyo-AI/main/icons/Ariyo.png" />
-    <title>Àríyò AI - Smart Naija AI</title>
+    <title>Àríyò AI — Africa's AI Media Intelligence Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
@@ -73,7 +76,7 @@
         "@type": "WebSite",
         "url": "https://omoluabi1003.github.io/Ariyo-AI/",
         "name": "Àríyò AI",
-        "description": "Àríyò AI is a web-based music player that provides a unique and culturally-rich experience for users. It features a curated selection of Nigerian music and the Ariyo AI assistant.",
+        "description": "Africa's AI Media Intelligence Engine for intelligent discovery across music, live radio, news, stories, culture, and language.",
         "potentialAction": {
           "@type": "SearchAction",
           "target": "https://omoluabi1003.github.io/Ariyo-AI/?s={search_term_string}",
@@ -1705,11 +1708,16 @@
       <div class="header-brand">
         <img src="Logo.jpg" alt="Ariyo AI Logo" class="header-logo" width="64" height="64" />
         <div class="header-titles">
-          <span class="header-title">Àríyò AI Studio</span>
+          <span class="header-title">Àríyò AI Intelligence</span>
         </div>
       </div>
       <div class="header-actions" data-language-switcher-host>
-        <button class="share-button" aria-label="Share this page" data-i18n-aria-label="ui.sharePage" onclick="openShareMenu()">
+        <button
+          class="share-button"
+          aria-label="Share this page"
+          data-i18n-aria-label="ui.sharePage"
+          onclick="openShareMenu()"
+        >
           <i class="fas fa-share-alt" aria-hidden="true"></i>
         </button>
         <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
@@ -1746,7 +1754,8 @@
           data-i18n-aria-label="ui.navChooseAlbumAria"
           class="ripple shockwave"
         >
-          <i class="fas fa-headphones" aria-hidden="true"></i> <span data-i18n="ui.navChooseAlbum">Choose An Album</span>
+          <i class="fas fa-headphones" aria-hidden="true"></i>
+          <span data-i18n="ui.navChooseAlbum">Choose An Album</span>
         </button>
         <button
           onclick="openTrackList()"
@@ -1770,7 +1779,8 @@
           data-i18n-aria-label="ui.navRadioStationsAria"
           class="ripple shockwave"
         >
-          <i class="fas fa-broadcast-tower" aria-hidden="true"></i> <span data-i18n="ui.navRadioStations">Radio Stations</span>
+          <i class="fas fa-broadcast-tower" aria-hidden="true"></i>
+          <span data-i18n="ui.navRadioStations">Radio Stations</span>
         </button>
         <button
           type="button"
@@ -1794,85 +1804,474 @@
       </div>
       <div class="content" id="main-content">
         <main class="companion-shell" id="home" aria-label="Ariyọ AI media companion">
-          <section class="companion-hero" aria-labelledby="companionTitle">
-            <div class="companion-hero__glow" aria-hidden="true"></div>
-            <div class="companion-hero__topline">
-              <span class="live-pill"><span></span> Africa is live</span>
-              <span class="companion-kicker">Your culture. Your sound. Your AI.</span>
+          <section class="intelligence-hero" aria-labelledby="companionTitle">
+            <div class="hero-grid" aria-hidden="true"></div>
+            <div class="hero-status-row">
+              <span class="system-status"><i></i> Intelligence network operational</span>
+              <label class="language-control" for="intelligenceLanguage"
+                ><span>Interface language</span
+                ><select id="intelligenceLanguage">
+                  <option>English</option>
+                  <option>Nigerian Pidgin</option>
+                  <option>French</option>
+                  <option>Yoruba</option>
+                  <option>Igbo</option>
+                  <option>Hausa</option>
+                  <option>Lingala</option>
+                </select></label
+              >
             </div>
-            <div class="companion-hero__copy">
-              <p class="eyebrow">Africa's AI Media Companion</p>
-              <h1 id="companionTitle">What do you want to <em>feel</em> today?</h1>
-              <p>Chat, play music, cross borders by radio, understand the news, and rediscover African stories—all from one intelligent companion.</p>
-            </div>
-            <form class="ai-command" id="aiCommandForm">
-              <span class="ai-command__mark" aria-hidden="true">✦</span>
-              <label class="sr-only" for="aiCommandInput">Ask Ariyọ AI</label>
-              <input id="aiCommandInput" type="text" autocomplete="off" placeholder="Ask Ariyọ to play, explain, translate, or discover…" />
-              <button type="submit" aria-label="Send command"><span>Ask Ariyọ</span><b aria-hidden="true">↗</b></button>
-            </form>
-            <div class="prompt-rail" aria-label="Suggested prompts">
-              <button type="button" data-ai-prompt="Play music">♫ Play music</button>
-              <button type="button" data-ai-prompt="Stream radio">◉ Stream radio</button>
-              <button type="button" data-ai-prompt="Summarize African news">◫ Summarize news</button>
-              <button type="button" data-ai-prompt="Tell me a story">✦ Tell me a story</button>
-              <button type="button" data-ai-prompt="Translate this">文 Translate this</button>
-              <button type="button" data-ai-prompt="Teach me Pidgin">Wá Teach me Pidgin</button>
-              <button type="button" data-ai-prompt="Play Congo radio">● Congo radio</button>
-            </div>
-            <div class="ai-response" id="aiCommandResponse" role="status" aria-live="polite" hidden></div>
-            <div class="returning-message" id="returningMessage" hidden></div>
-          </section>
-
-          <section class="quick-actions" aria-label="Explore Ariyọ">
-            <button type="button" data-companion-action="music"><span>♫</span><b>Music</b><small>Find your rhythm</small></button>
-            <button type="button" data-companion-action="radio"><span>◉</span><b>Radio</b><small>Cross every border</small></button>
-            <button type="button" data-companion-action="stories"><span>❧</span><b>Stories</b><small>Hear our memory</small></button>
-            <button type="button" data-companion-action="news"><span>◫</span><b>News</b><small>Know what matters</small></button>
-          </section>
-
-          <section class="companion-section daily-briefing" id="news" aria-labelledby="briefingTitle">
-            <div class="section-heading">
-              <div><p class="eyebrow">Curated for you · Today</p><h2 id="briefingTitle">Africa Daily Briefing</h2></div>
-              <button class="text-button" type="button" data-companion-action="news">Open all news <span>→</span></button>
-            </div>
-            <div class="briefing-grid">
-              <article class="briefing-lead">
-                <div class="briefing-lead__art" aria-hidden="true"><span>AFRICA<br />NOW</span></div>
-                <div><span class="content-label">The 3-minute brief</span><h3 id="briefingHeadline">Culture, sound, and ideas moving Africa forward</h3><p id="briefingSummary">A quick, calm view of the stories shaping the continent—paired with the sounds and voices worth hearing today.</p>
-                  <div class="briefing-actions"><button type="button" data-simplify="simple">Make it simple</button><button type="button" data-simplify="pidgin">Explain in Pidgin</button><button type="button" data-simplify="fr">Translate to French</button></div>
+            <div class="hero-layout">
+              <div class="hero-primary">
+                <p class="eyebrow">Media Intelligence Command Center</p>
+                <h1 id="companionTitle">Africa's AI Media <span>Intelligence Engine.</span></h1>
+                <p class="hero-deck">
+                  Intelligent African media discovery across music, radio, news, stories, and language—unified in one
+                  culturally aware system.
+                </p>
+                <form class="ai-command" id="aiCommandForm">
+                  <span class="command-prefix" aria-hidden="true">AI</span>
+                  <label class="sr-only" for="aiCommandInput">Ask Ariyọ AI</label>
+                  <input
+                    id="aiCommandInput"
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Ask Ariyọ to analyze, find, summarize, recommend, or translate…"
+                  />
+                  <button type="submit">Ask Ariyọ <span aria-hidden="true">→</span></button>
+                </form>
+                <div class="command-categories" aria-label="Command categories">
+                  <span>Route intent:</span
+                  ><button type="button" data-ai-prompt="Find Congolese gospel radio">Radio</button
+                  ><button type="button" data-ai-prompt="Recommend focus music">Music</button
+                  ><button type="button" data-ai-prompt="Summarize African news">News</button
+                  ><button type="button" data-ai-prompt="Translate to French">Language</button
+                  ><button type="button" data-ai-prompt="Explore African cultural stories">Culture</button
+                  ><button type="button" data-ai-prompt="Open creator tools">Creator</button>
                 </div>
-              </article>
-              <article class="briefing-pick briefing-pick--music"><span class="content-label">Track of the day</span><div class="pick-icon">♫</div><h3 id="dailyTrackTitle">A Very Good Bad Guy</h3><p>Afro-conscious · Nigeria</p><button type="button" id="playDailyTrack">Play track <span>▶</span></button></article>
-              <article class="briefing-pick briefing-pick--radio"><span class="content-label">Station to know</span><div class="station-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><h3 id="dailyStationTitle">Naija Hits Live</h3><p>Live from Nigeria</p><button type="button" id="playDailyStation">Tune in <span>◉</span></button></article>
+                <div class="prompt-rail" aria-label="Suggested prompts">
+                  <button type="button" data-ai-prompt="Analyze today's African media trends">
+                    Analyze today's African media trends</button
+                  ><button type="button" data-ai-prompt="Find Congolese gospel radio">
+                    Find Congolese gospel radio</button
+                  ><button type="button" data-ai-prompt="Recommend focus music">Recommend focus music</button
+                  ><button type="button" data-ai-prompt="Explain in simple English">Explain in simple English</button>
+                </div>
+                <div class="hero-actions">
+                  <button class="primary-action" type="button" data-companion-action="ai">Ask Ariyọ</button
+                  ><button class="secondary-action" type="button" data-scroll-target="radio">
+                    Explore Radio Intelligence
+                  </button>
+                </div>
+                <div class="ai-response" id="aiCommandResponse" role="status" aria-live="polite" hidden></div>
+                <div class="returning-message" id="returningMessage" hidden></div>
+              </div>
+              <aside class="metrics-panel" aria-label="Live intelligence metrics">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Live intelligence</p>
+                    <h2>Network overview</h2>
+                  </div>
+                  <span class="demo-label">LOCAL DEMO</span>
+                </div>
+                <div class="metric-grid">
+                  <article>
+                    <span>Media entities</span><strong id="metricEntities">—</strong><small>Indexed locally</small>
+                  </article>
+                  <article>
+                    <span>Live stations</span><strong id="metricStations">—</strong><small>Available streams</small>
+                  </article>
+                  <article><span>Languages</span><strong>07</strong><small>Discovery layer</small></article>
+                  <article><span>System modules</span><strong>07</strong><small>Operational map</small></article>
+                </div>
+                <div class="signal-monitor">
+                  <div class="signal-heading"><span>Cross-media signal</span><b>ACTIVE</b></div>
+                  <div class="signal-bars" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  <div class="signal-legend">
+                    <span>Nigeria</span><span>Congo</span><span>Ghana</span><span>Kenya</span>
+                  </div>
+                </div>
+                <div class="routing-log">
+                  <span>Latest routing decision</span>
+                  <p id="routingLog">Awaiting an intelligence query.</p>
+                </div>
+              </aside>
             </div>
           </section>
 
           <section class="companion-section" id="radio" aria-labelledby="radioDiscoveryTitle">
-            <div class="section-heading"><div><p class="eyebrow">Radio Map of Africa</p><h2 id="radioDiscoveryTitle">One continent. Thousands of voices.</h2></div><button class="text-button" type="button" data-companion-action="radio">Browse every station <span>→</span></button></div>
-            <div class="filter-row" id="countryFilters" aria-label="Filter stations by country"></div>
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">01 / Broadcast layer</p>
+                <h2 id="radioDiscoveryTitle">Live African Radio Intelligence</h2>
+                <p>
+                  Discover active African frequencies by region, language, format, mood, and intended listening context.
+                </p>
+              </div>
+              <button class="text-button" type="button" data-companion-action="radio">
+                Open complete station directory <span>→</span>
+              </button>
+            </div>
+            <div class="filter-console">
+              <div class="filter-group">
+                <span>Country</span>
+                <div class="filter-row" id="countryFilters"></div>
+              </div>
+              <div class="filter-group">
+                <label for="radioLanguageFilter">Language</label
+                ><select id="radioLanguageFilter">
+                  <option>All languages</option>
+                  <option>English</option>
+                  <option>French</option>
+                  <option>Lingala</option>
+                  <option>Yoruba</option>
+                  <option>Hausa</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="radioTypeFilter">Content</label
+                ><select id="radioTypeFilter">
+                  <option>All content</option>
+                  <option>Music</option>
+                  <option>News</option>
+                  <option>Gospel</option>
+                  <option>Talk</option>
+                </select>
+              </div>
+            </div>
             <div class="radio-discovery-grid" id="radioDiscoveryGrid"></div>
+            <div class="recommendation-strip" id="radioRecommendation">
+              <span class="recommendation-code">GRAPH MATCH</span>
+              <div>
+                <strong>Cross-media recommendation</strong>
+                <p>Select a station to surface related tracks and cultural stories.</p>
+              </div>
+            </div>
           </section>
 
           <section class="companion-section" id="music" aria-labelledby="musicDiscoveryTitle">
-            <div class="section-heading"><div><p class="eyebrow">Made for your moment</p><h2 id="musicDiscoveryTitle">Music that understands the mood.</h2></div><button class="text-button" type="button" data-companion-action="music">Open full library <span>→</span></button></div>
-            <div class="mood-grid" id="moodGrid"></div>
-            <div class="personalized-shelf">
-              <div><p class="eyebrow">Because you listened</p><h3>Keep the feeling going</h3></div>
-              <div class="track-card-row" id="recommendedTracks"></div>
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">02 / Metadata engine</p>
+                <h2 id="musicDiscoveryTitle">Music Intelligence Layer</h2>
+                <p>Existing Ariyọ tracks, enriched with mood, region, language, genre, and use-case intelligence.</p>
+              </div>
+              <button class="text-button" type="button" data-companion-action="music">
+                Open complete music library <span>→</span>
+              </button>
             </div>
-            <div class="recently-played" id="recentlyPlayedSection" hidden><div><p class="eyebrow">Your listening memory</p><h3>Recently played</h3></div><div class="track-card-row" id="recentlyPlayed"></div></div>
+            <div class="filter-row mood-filters" id="moodGrid" aria-label="Filter music by mood"></div>
+            <div class="music-intelligence-layout">
+              <div class="personalized-shelf">
+                <div class="shelf-heading">
+                  <div>
+                    <p class="eyebrow">Listening profile</p>
+                    <h3>Recommended from your listening profile</h3>
+                  </div>
+                  <span>LOCAL PERSONALIZATION</span>
+                </div>
+                <div class="track-card-row" id="recommendedTracks"></div>
+              </div>
+              <aside class="profile-model">
+                <p class="eyebrow">Preference model</p>
+                <h3 id="profileSignal">Building your signal</h3>
+                <p>
+                  Every track and station interaction improves regional, language, mood, and format matching on this
+                  device.
+                </p>
+                <dl>
+                  <div>
+                    <dt>Primary mood</dt>
+                    <dd id="profileMood">Focus</dd>
+                  </div>
+                  <div>
+                    <dt>Region bias</dt>
+                    <dd id="profileRegion">All Africa</dd>
+                  </div>
+                  <div>
+                    <dt>Cache mode</dt>
+                    <dd>Private / local</dd>
+                  </div>
+                </dl>
+              </aside>
+            </div>
+            <div class="recently-played" id="recentlyPlayedSection" hidden>
+              <div class="shelf-heading">
+                <div>
+                  <p class="eyebrow">Listening memory</p>
+                  <h3>Recently played</h3>
+                </div>
+              </div>
+              <div class="track-card-row" id="recentlyPlayed"></div>
+            </div>
           </section>
 
-          <section class="companion-section culture-grid" id="stories">
-            <article class="story-feature"><span class="content-label">Story keeper</span><div><p class="eyebrow">Tonight's story</p><h2>The wisdom that travels home</h2><p>Spoken word, proverbs, and modern African stories for the road ahead.</p><button type="button" data-companion-action="stories">Open stories <span>→</span></button></div></article>
-            <article class="personality-card" id="profile"><p class="eyebrow">Your African Media Personality</p><div class="personality-symbol" aria-hidden="true">✺</div><h2 id="personalityName">Radio Explorer</h2><p id="personalityCopy">You cross borders through sound and always know which frequency carries home.</p><div class="personality-actions"><button type="button" id="generatePersonality">Reveal mine</button><button type="button" id="sharePersonality">Copy &amp; share</button></div><p class="share-status" id="personalityStatus" aria-live="polite"></p></article>
+          <section class="companion-section daily-briefing" id="news" aria-labelledby="briefingTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">03 / Intelligence brief</p>
+                <h2 id="briefingTitle">African Media Briefing</h2>
+                <p>A decision-ready view of stories, sound, and signals shaping African attention.</p>
+              </div>
+              <span class="briefing-date" id="briefingDate">CURATED FALLBACK BRIEF</span>
+            </div>
+            <div class="briefing-grid">
+              <article class="briefing-lead">
+                <div class="brief-index"><span>INTELLIGENCE NOTE</span><b>01</b></div>
+                <div>
+                  <span class="content-label">Continental media signal</span>
+                  <h3 id="briefingHeadline">Culture, sound, and ideas moving Africa forward</h3>
+                  <p id="briefingSummary">
+                    A concise view of the stories shaping the continent, paired with the sounds and voices worth hearing
+                    today.
+                  </p>
+                  <div class="briefing-actions">
+                    <button type="button" data-simplify="executive">Executive Summary</button
+                    ><button type="button" data-simplify="simple">Simple English</button
+                    ><button type="button" data-simplify="pidgin">Pidgin Summary</button
+                    ><button type="button" data-simplify="fr">French Translation</button>
+                  </div>
+                </div>
+              </article>
+              <article class="briefing-pick">
+                <span class="content-label">Featured track</span><span class="briefing-code">MUSIC / NG</span>
+                <h3 id="dailyTrackTitle">A Very Good Bad Guy</h3>
+                <p>Selected from the local catalogue</p>
+                <button type="button" id="playDailyTrack">Play intelligence pick <span>→</span></button>
+              </article>
+              <article class="briefing-pick">
+                <span class="content-label">Recommended radio</span><span class="briefing-code">RADIO / LIVE</span>
+                <h3 id="dailyStationTitle">Naija Hits Live</h3>
+                <p>Matched to today's media profile</p>
+                <button type="button" id="playDailyStation">Open live signal <span>→</span></button>
+              </article>
+            </div>
+          </section>
+
+          <section class="companion-section ask-africa" id="ask-africa" aria-labelledby="askAfricaTitle">
+            <div class="ask-africa-copy">
+              <p class="eyebrow">04 / Flagship intelligence</p>
+              <h2 id="askAfricaTitle">Ask Africa.</h2>
+              <p>
+                Query the relationships between African music, live radio, news, language, and culture—not just isolated
+                content.
+              </p>
+              <div class="ask-examples">
+                <button type="button" data-ask-africa="What is trending in Nigerian gospel today?">
+                  What is trending in Nigerian gospel today?</button
+                ><button type="button" data-ask-africa="What are Congolese listeners tuning into?">
+                  What are Congolese listeners tuning into?</button
+                ><button type="button" data-ask-africa="Explain today's top African media story.">
+                  Explain today's top African media story.
+                </button>
+              </div>
+            </div>
+            <div class="intelligence-answer">
+              <div class="answer-header"><span>ARIYỌ SYNTHESIS</span><b>LOCAL KNOWLEDGE GRAPH</b></div>
+              <h3 id="askAfricaQuestion">Select a question to interrogate the media graph.</h3>
+              <p id="askAfricaAnswer">
+                Ariyọ will return structured placeholder intelligence from the available music, radio, story, region,
+                and language data until live intelligence APIs are connected.
+              </p>
+              <div class="answer-citations">
+                <span><b>Category</b><i id="answerCategory">Cross-media</i></span
+                ><span><b>Region</b><i id="answerRegion">Africa</i></span
+                ><span><b>Language</b><i id="answerLanguage">English</i></span
+                ><span><b>Path</b><i id="answerPath">Query → Graph → Recommendation</i></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="companion-section language-intelligence" id="language" aria-labelledby="languageTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">05 / Language processing</p>
+                <h2 id="languageTitle">Language Intelligence</h2>
+                <p>Move African media across language and comprehension levels without losing cultural context.</p>
+              </div>
+              <span class="status-chip active">Preference persisted locally</span>
+            </div>
+            <div class="language-grid">
+              <article>
+                <span>01</span>
+                <h3>Discover in your language</h3>
+                <p>Prioritize matching stations, tracks, stories, and summaries across seven language modes.</p>
+              </article>
+              <article>
+                <span>02</span>
+                <h3>Simplify complexity</h3>
+                <p>Turn dense briefing language into direct, accessible explanations.</p>
+              </article>
+              <article>
+                <span>03</span>
+                <h3>Preserve context</h3>
+                <p>Keep regional, cultural, and media metadata attached to every recommendation.</p>
+              </article>
+            </div>
+            <div class="language-actions">
+              <button type="button" data-simplify="simple">Make it simple</button
+              ><button type="button" data-simplify="pidgin">Explain in Pidgin</button
+              ><button type="button" data-simplify="fr">Translate to French</button>
+            </div>
+          </section>
+
+          <section class="companion-section culture-knowledge" id="stories" aria-labelledby="storiesTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">06 / Cultural memory</p>
+                <h2 id="storiesTitle">Stories &amp; Cultural Knowledge</h2>
+                <p>Connect spoken word, proverbs, music, and regional context into a living African knowledge layer.</p>
+              </div>
+              <button class="text-button" type="button" data-companion-action="stories">
+                Explore story library <span>→</span>
+              </button>
+            </div>
+            <div class="culture-grid">
+              <article class="story-feature">
+                <span class="content-label">Featured cultural path</span>
+                <div>
+                  <p class="eyebrow">Story → Language → Sound</p>
+                  <h3>The wisdom that travels home</h3>
+                  <p>
+                    Explore spoken word and cultural storytelling, then continue into related regional radio and
+                    reflective music.
+                  </p>
+                  <button type="button" data-companion-action="stories">Open cultural knowledge <span>→</span></button>
+                </div>
+              </article>
+              <article class="graph-preview">
+                <div class="graph-head"><span>MEDIA INTELLIGENCE GRAPH</span><b>10 ENTITY TYPES</b></div>
+                <div class="graph-nodes" id="graphNodes"></div>
+                <p>
+                  Reusable entity mappings connect artist, track, station, country, language, genre, mood, story, news
+                  topic, and user preference.
+                </p>
+              </article>
+            </div>
           </section>
 
           <section class="companion-section creator-studio" id="create" aria-labelledby="creatorTitle">
-            <div><span class="coming-soon">Creator Studio · Coming Soon</span><p class="eyebrow">Built for Africa's next voices</p><h2 id="creatorTitle">Create once. Travel everywhere.</h2><p>Prepare music, podcasts, spoken word, and stories with an AI co-creator—then publish when creator uploads launch.</p></div>
-            <div class="creator-tools"><button type="button" disabled><span>↑</span> Upload music</button><button type="button" disabled><span>◌</span> Upload podcast</button><button type="button" disabled><span>✦</span> Spoken word</button><button type="button" disabled><span>❧</span> Add a story</button></div>
-            <div class="ai-tool-row"><span>AI creator tools</span><button type="button" data-creator-tool="title">Generate title</button><button type="button" data-creator-tool="description">Write description</button><button type="button" data-creator-tool="cover">Imagine cover</button><button type="button" data-creator-tool="caption">Social caption</button></div>
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">07 / Creator infrastructure</p>
+                <h2 id="creatorTitle">Creator Studio Foundation</h2>
+                <p>
+                  Future publishing infrastructure for African creators, built on the same metadata and language
+                  intelligence layer.
+                </p>
+              </div>
+              <span class="status-chip">FOUNDATION READY</span>
+            </div>
+            <div class="creator-tools">
+              <article>
+                <span>01</span>
+                <h3>Metadata tagging</h3>
+                <p>Structure region, language, genre, mood, and use case.</p>
+                <b>Prototype</b>
+              </article>
+              <article>
+                <span>02</span>
+                <h3>AI title generation</h3>
+                <p>Generate culturally aware working titles.</p>
+                <b>Coming Soon</b>
+              </article>
+              <article>
+                <span>03</span>
+                <h3>AI description</h3>
+                <p>Prepare platform-ready release narratives.</p>
+                <b>Coming Soon</b>
+              </article>
+              <article>
+                <span>04</span>
+                <h3>Cover concept</h3>
+                <p>Develop executive creative direction.</p>
+                <b>Coming Soon</b>
+              </article>
+              <article>
+                <span>05</span>
+                <h3>Release summary</h3>
+                <p>Build concise media and partner briefs.</p>
+                <b>Coming Soon</b>
+              </article>
+            </div>
+          </section>
+
+          <section
+            class="companion-section architecture-showcase"
+            id="architecture"
+            aria-labelledby="architectureTitle"
+          >
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">08 / Platform architecture</p>
+                <h2 id="architectureTitle">Technical Architecture Showcase</h2>
+                <p>
+                  A modular foundation designed to graduate from local intelligence to production APIs without replacing
+                  the user experience.
+                </p>
+              </div>
+              <span class="demo-label">OPERATIONAL MODEL</span>
+            </div>
+            <div class="architecture-grid">
+              <article>
+                <span>01</span>
+                <div>
+                  <h3>AI Routing Engine</h3>
+                  <p>Intent classification across seven media actions.</p>
+                </div>
+                <b class="status-active">Active</b>
+              </article>
+              <article>
+                <span>02</span>
+                <div>
+                  <h3>Radio Intelligence Layer</h3>
+                  <p>Station metadata, filters, favorites, and recency.</p>
+                </div>
+                <b class="status-active">Active</b>
+              </article>
+              <article>
+                <span>03</span>
+                <div>
+                  <h3>Music Metadata Engine</h3>
+                  <p>Mood, region, language, and use-case enrichment.</p>
+                </div>
+                <b>Prototype</b>
+              </article>
+              <article>
+                <span>04</span>
+                <div>
+                  <h3>Media Knowledge Graph</h3>
+                  <p>Cross-entity mapping and recommendation paths.</p>
+                </div>
+                <b class="status-active">Active</b>
+              </article>
+              <article>
+                <span>05</span>
+                <div>
+                  <h3>Language Processing Layer</h3>
+                  <p>Preference routing and transformation actions.</p>
+                </div>
+                <b>Ready for API Integration</b>
+              </article>
+              <article>
+                <span>06</span>
+                <div>
+                  <h3>Local Personalization Cache</h3>
+                  <p>Private favorites, recents, language, and region state.</p>
+                </div>
+                <b class="status-active">Local Cache</b>
+              </article>
+              <article>
+                <span>07</span>
+                <div>
+                  <h3>Recommendation Engine</h3>
+                  <p>Cross-media ranking from local graph signals.</p>
+                </div>
+                <b>Prototype</b>
+              </article>
+            </div>
           </section>
         </main>
 
@@ -1888,11 +2287,13 @@
             <p class="badge-spotlight__eyebrow" data-i18n="trustLayer.globalRecognition.badge">
               2026 Tällberg-SNF-Eliasson Global Leadership Prize Nominee
             </p>
-            <p class="badge-spotlight__title" data-i18n="trustLayer.globalRecognition.title">Global Leadership Recognition</p>
+            <p class="badge-spotlight__title" data-i18n="trustLayer.globalRecognition.title">
+              Global Leadership Recognition
+            </p>
             <p class="badge-spotlight__description" data-i18n="trustLayer.globalRecognition.primaryCopy">
-              Paul A.K. Iyogun, Founder of ETL GIS Consulting LLC and creator of Àríyò AI under Omoluabi Productions, was
-              nominated for the 2026 Tällberg-SNF-Eliasson Global Leadership Prize, awarded by the Tällberg Foundation in
-              partnership with the Stavros Niarchos Foundation.
+              Paul A.K. Iyogun, Founder of ETL GIS Consulting LLC and creator of Àríyò AI under Omoluabi Productions,
+              was nominated for the 2026 Tällberg-SNF-Eliasson Global Leadership Prize, awarded by the Tällberg
+              Foundation in partnership with the Stavros Niarchos Foundation.
             </p>
             <p class="badge-spotlight__supporting" data-i18n="trustLayer.globalRecognition.supportingLine">
               A global initiative recognizing leaders advancing ethical, innovative, and impactful change.
@@ -1930,7 +2331,9 @@
         <div class="notification-card">
           <div>
             <h4 data-i18n="ui.stayInLoopTitle">Stay in the loop</h4>
-            <p data-i18n="ui.stayInLoopDesc">We will invite you to enable music alerts after you play or follow creators—no spammy popups.</p>
+            <p data-i18n="ui.stayInLoopDesc">
+              We will invite you to enable music alerts after you play or follow creators—no spammy popups.
+            </p>
           </div>
           <div class="notification-actions">
             <p class="notification-status" id="notificationStatus" aria-live="polite"></p>
@@ -2021,7 +2424,9 @@
                 <div class="buffering-ripple delayed" aria-hidden="true"></div>
                 <div class="buffering-content">
                   <div id="loadingSpinner" class="loading-spinner" role="status" aria-label="Loading audio"></div>
-                  <p id="bufferingMessage" class="buffering-message" data-i18n="ui.startingPlayback">Starting playback...</p>
+                  <p id="bufferingMessage" class="buffering-message" data-i18n="ui.startingPlayback">
+                    Starting playback...
+                  </p>
                 </div>
               </div>
             </div>
@@ -2041,7 +2446,9 @@
                   />
                 </div>
                 <div class="now-playing-text">
-                  <p class="track-info" id="trackInfo" data-i18n="ui.chooseTrackToStart">Choose a track to start playback.</p>
+                  <p class="track-info" id="trackInfo" data-i18n="ui.chooseTrackToStart">
+                    Choose a track to start playback.
+                  </p>
                   <p class="track-artist-inline" id="trackArtistInline"></p>
                 </div>
               </div>
@@ -2067,7 +2474,8 @@
                   id="playbackRetryButton"
                   type="button"
                   class="status-retry-button"
-                  aria-label="Retry playback" data-i18n-aria-label="ui.retryPlayback"
+                  aria-label="Retry playback"
+                  data-i18n-aria-label="ui.retryPlayback"
                   hidden
                 >
                   <span data-i18n="ui.retry">Retry</span>
@@ -2085,18 +2493,33 @@
                 aria-controls="audioPlayer"
               />
               <div class="player-utility">
-                <button id="retryButton" type="button" class="retry-button" aria-label="Retry loading track" data-i18n-aria-label="ui.retryLoadingTrack">
+                <button
+                  id="retryButton"
+                  type="button"
+                  class="retry-button"
+                  aria-label="Retry loading track"
+                  data-i18n-aria-label="ui.retryLoadingTrack"
+                >
                   <span data-i18n="ui.retry">Retry</span>
                 </button>
                 <button
                   id="addToPlaylistButton"
                   type="button"
                   class="retry-button"
-                  aria-label="Add current track to playlist" data-i18n-aria-label="ui.addToPlaylist"
+                  aria-label="Add current track to playlist"
+                  data-i18n-aria-label="ui.addToPlaylist"
                 >
                   <span data-i18n="ui.addToPlaylist">Add to Playlist</span>
                 </button>
-                <button id="lyricsToggle" type="button" class="retry-button" aria-label="Toggle lyrics" data-i18n-aria-label="ui.toggleLyrics"><span data-i18n="ui.lyrics">Lyrics</span></button>
+                <button
+                  id="lyricsToggle"
+                  type="button"
+                  class="retry-button"
+                  aria-label="Toggle lyrics"
+                  data-i18n-aria-label="ui.toggleLyrics"
+                >
+                  <span data-i18n="ui.lyrics">Lyrics</span>
+                </button>
               </div>
               <div id="lyrics"></div>
               <div class="music-controls icons-only">
@@ -2167,14 +2590,7 @@
                   🔀
                 </button>
               </div>
-              <audio
-                id="audioPlayer"
-                preload="auto"
-                playsinline
-                webkit-playsinline
-                hidden
-                aria-hidden="true"
-              ></audio>
+              <audio id="audioPlayer" preload="auto" playsinline webkit-playsinline hidden aria-hidden="true"></audio>
             </div>
           </div>
         </div>
@@ -2235,9 +2651,18 @@
         </div>
         <div class="smart-radio-tools">
           <label for="smartRadioSearch">Find your frequency</label>
-          <div class="smart-radio-search"><span aria-hidden="true">⌕</span><input id="smartRadioSearch" type="search" placeholder="Search country, language, genre, or mood" /></div>
+          <div class="smart-radio-search">
+            <span aria-hidden="true">⌕</span
+            ><input id="smartRadioSearch" type="search" placeholder="Search country, language, genre, or mood" />
+          </div>
           <div class="smart-radio-suggestions" aria-label="AI radio recommendations">
-            <button type="button" data-radio-query="Nigerian Gospel">Nigerian Gospel</button><button type="button" data-radio-query="Congolese Rumba">Congolese Rumba</button><button type="button" data-radio-query="Afrobeat">Afrobeat</button><button type="button" data-radio-query="Worship">Worship</button><button type="button" data-radio-query="News">News</button><button type="button" data-radio-query="Talk">Talk Radio</button><button type="button" data-radio-query="Focus">Coding Focus</button>
+            <button type="button" data-radio-query="Nigerian Gospel">Nigerian Gospel</button
+            ><button type="button" data-radio-query="Congolese Rumba">Congolese Rumba</button
+            ><button type="button" data-radio-query="Afrobeat">Afrobeat</button
+            ><button type="button" data-radio-query="Worship">Worship</button
+            ><button type="button" data-radio-query="News">News</button
+            ><button type="button" data-radio-query="Talk">Talk Radio</button
+            ><button type="button" data-radio-query="Focus">Coding Focus</button>
           </div>
           <div id="smartRadioResults" class="smart-radio-results"></div>
         </div>
@@ -2815,7 +3240,12 @@
       </div>
     </aside>
     <nav class="mobile-companion-nav" aria-label="Primary navigation">
-      <a href="#home" class="active"><span>⌂</span>Home</a><a href="#radio"><span>◉</span>Radio</a><a href="#music"><span>♫</span>Music</a><button type="button" data-companion-action="stories"><span>❧</span>Stories</button><button type="button" data-companion-action="news"><span>◫</span>News</button><button type="button" data-companion-action="ai"><span>✦</span>AI</button><a href="#create"><span>＋</span>Create</a><a href="#profile"><span>◎</span>Profile</a>
+      <a href="#home" class="active"><span>⌂</span>Home</a><a href="#radio"><span>◉</span>Radio</a
+      ><a href="#music"><span>♫</span>Music</a
+      ><button type="button" data-companion-action="stories"><span>❧</span>Stories</button
+      ><button type="button" data-companion-action="news"><span>◫</span>News</button
+      ><button type="button" data-companion-action="ai"><span>✦</span>AI</button
+      ><a href="#create"><span>＋</span>Create</a><a href="#profile"><span>◎</span>Profile</a>
     </nav>
 
     <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
@@ -2866,6 +3296,7 @@
     <script src="scripts/track-catalog.js" defer></script>
     <script src="scripts/search-utils.js" defer></script>
     <script src="scripts/main.js" defer></script>
+    <script src="scripts/media-intelligence.js" defer></script>
     <script src="scripts/companion.js" defer></script>
     <script src="user-tracking.js" defer></script>
     <script src="prevent-zoom.js" defer></script>
