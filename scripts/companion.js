@@ -59,6 +59,8 @@
       else openPanel('ariyoChatbotContainer');
     } else if (action === 'creator') document.getElementById('create')?.scrollIntoView({ behavior: 'smooth' });
     else if (action === 'games') openPanel('gamesHubContainer');
+    else if (typeof window.openAriyoEdgePanel === 'function')
+      window.openAriyoEdgePanel({ trigger: document.activeElement, focusLaunchers: true });
     else openPanel('ariyoChatbotContainer');
   }
 

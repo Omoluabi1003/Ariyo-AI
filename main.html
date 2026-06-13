@@ -2686,7 +2686,16 @@
       </div>
     </div>
 
-    <div class="edge-panel" id="edgePanel" aria-expanded="false">
+    <div class="edge-panel-backdrop" id="edgePanelBackdrop" aria-hidden="true"></div>
+    <div
+      class="edge-panel"
+      id="edgePanel"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="edgePanelTitle"
+      aria-expanded="false"
+      aria-hidden="true"
+    >
       <div
         class="edge-panel-handle"
         role="button"
@@ -2695,8 +2704,17 @@
         aria-expanded="false"
         aria-controls="edgePanel"
       ></div>
+      <div class="edge-panel-header">
+        <div>
+          <p class="edge-panel-kicker">Ariyọ intelligence</p>
+          <h2 id="edgePanelTitle">Ask Ariyọ</h2>
+        </div>
+        <button class="edge-panel-close" id="edgePanelClose" type="button" aria-label="Close Ask Ariyọ panel">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
       <div class="edge-panel-content">
-        <p class="edge-panel-intro">Quick launch hub</p>
+        <p class="edge-panel-intro">Choose an intelligence tool</p>
         <div class="edge-panel-list" role="list">
           <button
             class="edge-panel-item edge-panel-launcher"
