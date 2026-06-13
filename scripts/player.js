@@ -3105,6 +3105,30 @@ function persistLastPlayed(payload) {
   writeStorageItem(localStorage, LAST_PLAYED_STORAGE_KEY, JSON.stringify(payload));
 }
 
+function loadPlayerState() {
+  try {
+    const rawState = readStorageItem(localStorage, PLAYER_STATE_STORAGE_KEY);
+    if (!rawState) return null;
+    const state = JSON.parse(rawState);
+    if (!state || typeof state !== 'object') return null;
+    return {
+      albumIndex: Number.isInteger(state.albumIndex) ? state.albumIndex : 0,
+      trackIndex: Number.isInteger(state.trackIndex) ? state.trackIndex : 0,
+      radioIndex: Number.isInteger(state.radioIndex) ? state.radioIndex : -1,
+      playbackPosition: Number.isFinite(state.playbackPosition) ? state.playbackPosition : 0,
+      position: Number.isFinite(state.position) ? state.position : 0,
+      title: typeof state.title === 'string' ? state.title : '',
+      trackId: typeof state.trackId === 'string' ? state.trackId : '',
+      shuffleState: state.shuffleState,
+      radioShuffleMode: Boolean(state.radioShuffleMode),
+      timestamp: Number.isFinite(state.timestamp) ? state.timestamp : 0,
+    };
+  } catch (error) {
+    debugConsole('Unable to restore player state:', error);
+    return null;
+  }
+}
+
 function savePlayerState() {
   const trackInfo = getActiveTrackInfo();
   const track = trackInfo?.track || null;
