@@ -1,7 +1,7 @@
 (function () {
   const STORAGE_KEY = 'ariyo.language';
   const DEFAULT_LANG = 'en';
-  const SUPPORTED_LANGUAGES = ['en', 'fr', 'es', 'pt', 'yo', 'ha', 'ig'];
+  const SUPPORTED_LANGUAGES = ['en', 'pcm', 'fr', 'yo', 'ig', 'ha', 'ln', 'es', 'pt'];
 
   // Centralized dictionary-based translations.
   // Add UI text here, then reference keys in markup via data-i18n* attributes.
@@ -89,7 +89,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
 
         searchSectionTracks: 'Tracks',
         searchSectionStations: 'Stations',
@@ -192,7 +191,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
       },
     },
     es: {
@@ -278,7 +276,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
       },
     },
     pt: {
@@ -364,7 +361,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
       },
     },
     yo: {
@@ -450,7 +446,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
       },
     },
     ha: {
@@ -536,7 +531,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
       },
     },
     ig: {
@@ -622,7 +616,6 @@
         studioEnjoyWindow: 'Enjoy the full experience in a Studio-branded window.',
         studioBackToGames: 'Back to Games',
         studioLaunchMissing: 'Launch parameters are missing. Return to Games and try again.',
-
       },
     },
   };
@@ -700,12 +693,14 @@
       <label for="languageSelector" data-i18n="ui.language">${lookup(currentLanguage, 'ui.language')}</label>
       <select id="languageSelector" aria-label="Language selector">
         <option value="en">English</option>
+        <option value="pcm">Nigerian Pidgin</option>
         <option value="fr">Français</option>
         <option value="es">Español</option>
         <option value="pt">Português</option>
         <option value="yo">Yorùbá</option>
         <option value="ha">Hausa</option>
         <option value="ig">Igbo</option>
+        <option value="ln">Lingála</option>
       </select>
     `;
     const select = wrapper.querySelector('#languageSelector');
@@ -732,7 +727,8 @@
   window.AriyoI18n = {
     setLanguage,
     getLanguage: () => normalizeLanguage(localStorage.getItem(STORAGE_KEY) || detectBrowserLanguage()),
-    t: (key, lang = normalizeLanguage(localStorage.getItem(STORAGE_KEY) || detectBrowserLanguage())) => lookup(lang, key),
+    t: (key, lang = normalizeLanguage(localStorage.getItem(STORAGE_KEY) || detectBrowserLanguage())) =>
+      lookup(lang, key),
     supportedLanguages: SUPPORTED_LANGUAGES,
   };
   if (document.readyState === 'loading') {

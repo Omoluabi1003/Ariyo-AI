@@ -1694,6 +1694,7 @@
     </style>
     <link rel="stylesheet" href="color-scheme.css" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="companion.css" />
   </head>
 
   <body data-page="main">
@@ -1792,6 +1793,89 @@
         </button>
       </div>
       <div class="content" id="main-content">
+        <main class="companion-shell" id="home" aria-label="Ariyọ AI media companion">
+          <section class="companion-hero" aria-labelledby="companionTitle">
+            <div class="companion-hero__glow" aria-hidden="true"></div>
+            <div class="companion-hero__topline">
+              <span class="live-pill"><span></span> Africa is live</span>
+              <span class="companion-kicker">Your culture. Your sound. Your AI.</span>
+            </div>
+            <div class="companion-hero__copy">
+              <p class="eyebrow">Africa's AI Media Companion</p>
+              <h1 id="companionTitle">What do you want to <em>feel</em> today?</h1>
+              <p>Chat, play music, cross borders by radio, understand the news, and rediscover African stories—all from one intelligent companion.</p>
+            </div>
+            <form class="ai-command" id="aiCommandForm">
+              <span class="ai-command__mark" aria-hidden="true">✦</span>
+              <label class="sr-only" for="aiCommandInput">Ask Ariyọ AI</label>
+              <input id="aiCommandInput" type="text" autocomplete="off" placeholder="Ask Ariyọ to play, explain, translate, or discover…" />
+              <button type="submit" aria-label="Send command"><span>Ask Ariyọ</span><b aria-hidden="true">↗</b></button>
+            </form>
+            <div class="prompt-rail" aria-label="Suggested prompts">
+              <button type="button" data-ai-prompt="Play music">♫ Play music</button>
+              <button type="button" data-ai-prompt="Stream radio">◉ Stream radio</button>
+              <button type="button" data-ai-prompt="Summarize African news">◫ Summarize news</button>
+              <button type="button" data-ai-prompt="Tell me a story">✦ Tell me a story</button>
+              <button type="button" data-ai-prompt="Translate this">文 Translate this</button>
+              <button type="button" data-ai-prompt="Teach me Pidgin">Wá Teach me Pidgin</button>
+              <button type="button" data-ai-prompt="Play Congo radio">● Congo radio</button>
+            </div>
+            <div class="ai-response" id="aiCommandResponse" role="status" aria-live="polite" hidden></div>
+            <div class="returning-message" id="returningMessage" hidden></div>
+          </section>
+
+          <section class="quick-actions" aria-label="Explore Ariyọ">
+            <button type="button" data-companion-action="music"><span>♫</span><b>Music</b><small>Find your rhythm</small></button>
+            <button type="button" data-companion-action="radio"><span>◉</span><b>Radio</b><small>Cross every border</small></button>
+            <button type="button" data-companion-action="stories"><span>❧</span><b>Stories</b><small>Hear our memory</small></button>
+            <button type="button" data-companion-action="news"><span>◫</span><b>News</b><small>Know what matters</small></button>
+          </section>
+
+          <section class="companion-section daily-briefing" id="news" aria-labelledby="briefingTitle">
+            <div class="section-heading">
+              <div><p class="eyebrow">Curated for you · Today</p><h2 id="briefingTitle">Africa Daily Briefing</h2></div>
+              <button class="text-button" type="button" data-companion-action="news">Open all news <span>→</span></button>
+            </div>
+            <div class="briefing-grid">
+              <article class="briefing-lead">
+                <div class="briefing-lead__art" aria-hidden="true"><span>AFRICA<br />NOW</span></div>
+                <div><span class="content-label">The 3-minute brief</span><h3 id="briefingHeadline">Culture, sound, and ideas moving Africa forward</h3><p id="briefingSummary">A quick, calm view of the stories shaping the continent—paired with the sounds and voices worth hearing today.</p>
+                  <div class="briefing-actions"><button type="button" data-simplify="simple">Make it simple</button><button type="button" data-simplify="pidgin">Explain in Pidgin</button><button type="button" data-simplify="fr">Translate to French</button></div>
+                </div>
+              </article>
+              <article class="briefing-pick briefing-pick--music"><span class="content-label">Track of the day</span><div class="pick-icon">♫</div><h3 id="dailyTrackTitle">A Very Good Bad Guy</h3><p>Afro-conscious · Nigeria</p><button type="button" id="playDailyTrack">Play track <span>▶</span></button></article>
+              <article class="briefing-pick briefing-pick--radio"><span class="content-label">Station to know</span><div class="station-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><h3 id="dailyStationTitle">Naija Hits Live</h3><p>Live from Nigeria</p><button type="button" id="playDailyStation">Tune in <span>◉</span></button></article>
+            </div>
+          </section>
+
+          <section class="companion-section" id="radio" aria-labelledby="radioDiscoveryTitle">
+            <div class="section-heading"><div><p class="eyebrow">Radio Map of Africa</p><h2 id="radioDiscoveryTitle">One continent. Thousands of voices.</h2></div><button class="text-button" type="button" data-companion-action="radio">Browse every station <span>→</span></button></div>
+            <div class="filter-row" id="countryFilters" aria-label="Filter stations by country"></div>
+            <div class="radio-discovery-grid" id="radioDiscoveryGrid"></div>
+          </section>
+
+          <section class="companion-section" id="music" aria-labelledby="musicDiscoveryTitle">
+            <div class="section-heading"><div><p class="eyebrow">Made for your moment</p><h2 id="musicDiscoveryTitle">Music that understands the mood.</h2></div><button class="text-button" type="button" data-companion-action="music">Open full library <span>→</span></button></div>
+            <div class="mood-grid" id="moodGrid"></div>
+            <div class="personalized-shelf">
+              <div><p class="eyebrow">Because you listened</p><h3>Keep the feeling going</h3></div>
+              <div class="track-card-row" id="recommendedTracks"></div>
+            </div>
+            <div class="recently-played" id="recentlyPlayedSection" hidden><div><p class="eyebrow">Your listening memory</p><h3>Recently played</h3></div><div class="track-card-row" id="recentlyPlayed"></div></div>
+          </section>
+
+          <section class="companion-section culture-grid" id="stories">
+            <article class="story-feature"><span class="content-label">Story keeper</span><div><p class="eyebrow">Tonight's story</p><h2>The wisdom that travels home</h2><p>Spoken word, proverbs, and modern African stories for the road ahead.</p><button type="button" data-companion-action="stories">Open stories <span>→</span></button></div></article>
+            <article class="personality-card" id="profile"><p class="eyebrow">Your African Media Personality</p><div class="personality-symbol" aria-hidden="true">✺</div><h2 id="personalityName">Radio Explorer</h2><p id="personalityCopy">You cross borders through sound and always know which frequency carries home.</p><div class="personality-actions"><button type="button" id="generatePersonality">Reveal mine</button><button type="button" id="sharePersonality">Copy &amp; share</button></div><p class="share-status" id="personalityStatus" aria-live="polite"></p></article>
+          </section>
+
+          <section class="companion-section creator-studio" id="create" aria-labelledby="creatorTitle">
+            <div><span class="coming-soon">Creator Studio · Coming Soon</span><p class="eyebrow">Built for Africa's next voices</p><h2 id="creatorTitle">Create once. Travel everywhere.</h2><p>Prepare music, podcasts, spoken word, and stories with an AI co-creator—then publish when creator uploads launch.</p></div>
+            <div class="creator-tools"><button type="button" disabled><span>↑</span> Upload music</button><button type="button" disabled><span>◌</span> Upload podcast</button><button type="button" disabled><span>✦</span> Spoken word</button><button type="button" disabled><span>❧</span> Add a story</button></div>
+            <div class="ai-tool-row"><span>AI creator tools</span><button type="button" data-creator-tool="title">Generate title</button><button type="button" data-creator-tool="description">Write description</button><button type="button" data-creator-tool="cover">Imagine cover</button><button type="button" data-creator-tool="caption">Social caption</button></div>
+          </section>
+        </main>
+
         <section class="badge-spotlight trust-layer" aria-label="Global leadership nomination">
           <img
             src="img/news-fallback.svg"
@@ -2149,6 +2233,15 @@
           <h3 id="radioModalTitle" class="modal-title">Choose A Radio Station</h3>
           <span class="provenance-chip">Live radio</span>
         </div>
+        <div class="smart-radio-tools">
+          <label for="smartRadioSearch">Find your frequency</label>
+          <div class="smart-radio-search"><span aria-hidden="true">⌕</span><input id="smartRadioSearch" type="search" placeholder="Search country, language, genre, or mood" /></div>
+          <div class="smart-radio-suggestions" aria-label="AI radio recommendations">
+            <button type="button" data-radio-query="Nigerian Gospel">Nigerian Gospel</button><button type="button" data-radio-query="Congolese Rumba">Congolese Rumba</button><button type="button" data-radio-query="Afrobeat">Afrobeat</button><button type="button" data-radio-query="Worship">Worship</button><button type="button" data-radio-query="News">News</button><button type="button" data-radio-query="Talk">Talk Radio</button><button type="button" data-radio-query="Focus">Coding Focus</button>
+          </div>
+          <div id="smartRadioResults" class="smart-radio-results"></div>
+        </div>
+
         <!-- Group: Nigeria -->
         <h4 class="radio-region-header">Nigeria</h4>
         <div id="nigeria-stations" class="radio-list"></div>
@@ -2721,6 +2814,10 @@
         <button class="app-update-banner__dismiss" id="appUpdateDismiss" type="button">Later</button>
       </div>
     </aside>
+    <nav class="mobile-companion-nav" aria-label="Primary navigation">
+      <a href="#home" class="active"><span>⌂</span>Home</a><a href="#radio"><span>◉</span>Radio</a><a href="#music"><span>♫</span>Music</a><button type="button" data-companion-action="stories"><span>❧</span>Stories</button><button type="button" data-companion-action="news"><span>◫</span>News</button><button type="button" data-companion-action="ai"><span>✦</span>AI</button><a href="#create"><span>＋</span>Create</a><a href="#profile"><span>◎</span>Profile</a>
+    </nav>
+
     <aside class="email-gate" id="emailGate" role="dialog" aria-modal="true" aria-labelledby="emailGateTitle" hidden>
       <div class="email-gate__card">
         <button class="email-gate__close" type="button" aria-label="Close email sign-in">×</button>
@@ -2769,6 +2866,7 @@
     <script src="scripts/track-catalog.js" defer></script>
     <script src="scripts/search-utils.js" defer></script>
     <script src="scripts/main.js" defer></script>
+    <script src="scripts/companion.js" defer></script>
     <script src="user-tracking.js" defer></script>
     <script src="prevent-zoom.js" defer></script>
     <!-- Floating Watermarks -->
