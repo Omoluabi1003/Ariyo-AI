@@ -196,10 +196,10 @@
       }
     }
 
-    // The media companion is open by default; email remains an optional personalization path.
-    // This keeps no-login experiences such as radio discovery and personality cards accessible.
     if (document.body?.dataset.page === 'main' && !storedEmail) {
-      updateStatus('');
+      const returnUrl = safeReturnUrl(window.location.pathname + window.location.search + window.location.hash);
+      setReturnUrl(returnUrl);
+      window.location.replace(`index.html${ACCESS_HASH}`);
     }
   });
 })();

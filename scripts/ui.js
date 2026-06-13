@@ -1334,6 +1334,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
+
 window.addEventListener('ariyo:languageChanged', () => {
   const albumModal = document.getElementById('albumModal');
   if (albumModal && albumModal.style.display === 'flex') {
