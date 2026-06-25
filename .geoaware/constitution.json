@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "extends": {
+    "name": "GeoAware OS",
+    "version": "1.0.0",
+    "source": "https://github.com/Omoluabi1003/GeoAware-OS",
+    "inherits": ["GDL", "GEC", "GPC", "GAIC", "GDS"]
+  },
+  "founder": {
+    "name": "Paul Iyogun",
+    "title": "Founder and Chief Architect",
+    "organization": "ETL GIS Consulting LLC"
+  },
+  "localProductMission": "Àríyò AI delivers a calm, culturally rich Nigerian music and assistant experience that guides discovery through accessible playback, curated storytelling, and lightweight PWA interactions.",
+  "governanceMode": "documentation-only",
+  "applicationBehavior": {
+    "sourceCodeChangesRequired": false,
+    "dependenciesRequired": false,
+    "uiBehaviorChangesRequired": false
+  },
+  "designPrinciples": [
+    {
+      "name": "Geography-first context",
+      "description": "Design decisions should respect place, culture, and local meaning before adding technical complexity."
+    },
+    {
+      "name": "Calm guidance",
+      "description": "Technology should quietly guide discovery without overwhelming the user or competing with the content."
+    },
+    {
+      "name": "Cultural continuity",
+      "description": "Product experiences should preserve founder attribution, community memory, and culturally grounded storytelling."
+    },
+    {
+      "name": "Restraint by default",
+      "description": "Prefer focused, coherent interactions over unnecessary features, motion, or visual noise."
+    },
+    {
+      "name": "Accessible discovery",
+      "description": "Core journeys should remain inclusive, understandable, and navigable across devices and abilities."
+    }
+  ],
+  "qualityGate": {
+    "requires": [
+      "performance",
+      "accessibility",
+      "restraint",
+      "product coherence"
+    ],
+    "description": "Changes should preserve application performance, accessibility, restrained interaction design, and coherence with the Àríyò AI product mission."
+  }
+}

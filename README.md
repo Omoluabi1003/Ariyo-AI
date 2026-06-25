@@ -87,6 +87,10 @@
   - Extend structured data with `MusicRecording` and `RadioStation` schema for SEO.
   - Maintain offline support while keeping audio network-first to prevent large cache bloat.
 
+## GeoAware OS Governance
+
+This repository follows GeoAware OS v1.0.0, a design and engineering philosophy founded by Paul Iyogun for calm, geography-first digital experiences where technology quietly guides discovery. Governance metadata is maintained in `.geoaware/constitution.json` and extends the GeoAware OS source at <https://github.com/Omoluabi1003/GeoAware-OS>.
+
 ## Technologies Used
 
 - HTML
