@@ -2,127 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-    />
-    <title>Ariyo AI Chatbot</title>
-    <script
-      async
-      type="module"
-      src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"
-    ></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>Ariyọ̀ AI Chat</title>
+    <script async type="module" src="https://interfaces.zapier.com/assets/web-components/zapier-interfaces/zapier-interfaces.esm.js"></script>
     <script src="../../viewport-height.js" defer></script>
+    <script src="../../scripts/omoluabi-voice-engine.js" defer></script>
     <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-      }
-      body {
-        display: flex;
-        min-height: var(--app-height, 100vh);
-      }
-      zapier-interfaces-chatbot-embed {
-        flex: 1;
-        height: var(--app-height, 100vh);
-        width: 100%;
-      }
+      html,body{height:100%;margin:0} body{display:flex;min-height:var(--app-height,100vh);background:#07110c;color:#fff;font-family:system-ui,-apple-system,sans-serif} zapier-interfaces-chatbot-embed{flex:1;height:var(--app-height,100vh);width:100%}
+      .voice-dock{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:9999;display:flex;align-items:center;gap:8px;padding:8px;border:1px solid rgba(255,255,255,.15);border-radius:999px;background:rgba(7,17,12,.9);box-shadow:0 12px 38px rgba(0,0,0,.35);backdrop-filter:blur(16px)}
+      .voice-button{width:48px;height:48px;border:0;border-radius:50%;background:#23d18b;color:#06110c;font-size:22px;font-weight:800;cursor:pointer}.voice-button[aria-pressed=true]{box-shadow:0 0 0 5px rgba(35,209,139,.2);animation:pulse 1.3s infinite}.voice-status{max-width:180px;padding:0 8px;font-size:12px;line-height:1.25;color:#d7e8df}.voice-status b{display:block;color:#23d18b;margin-bottom:2px}@keyframes pulse{50%{transform:scale(.96)}}
     </style>
   </head>
   <body>
-    <zapier-interfaces-chatbot-embed
-      is-popup="false"
-      chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"
-    ></zapier-interfaces-chatbot-embed>
+    <zapier-interfaces-chatbot-embed is-popup="false" chatbot-id="cm7s2oyu2000b3vmuwcwkj9kn"></zapier-interfaces-chatbot-embed>
+    <div class="voice-dock" role="group" aria-label="Ariyọ̀ voice controls">
+      <button id="ariyoVoiceButton" class="voice-button" type="button" aria-label="Speak to Ariyọ̀" aria-pressed="false">🎙</button>
+      <div class="voice-status" aria-live="polite"><b id="ariyoVoiceTitle">Voice ready</b><span id="ariyoVoiceStatus">Tap and speak. Local Voice Engine is preferred when available.</span></div>
+    </div>
     <script>
       (function () {
-        const PANEL_ID = 'ariyoChatbotContainer';
-        const SOURCE = 'edge-panel-app';
+        const PANEL_ID='ariyoChatbotContainer', SOURCE='edge-panel-app';
+        function valid(origin){return origin&&origin!=='null'&&origin!=='about:blank'&&!origin.startsWith('file:')}
+        function target(){try{if(document.referrer){const o=new URL(document.referrer,location.href).origin;if(valid(o))return o}}catch(_){} try{if(valid(location.origin))return location.origin}catch(_){} return '*'}
+        function post(status,reason){if(!parent||parent===window)return;const p={source:SOURCE,panelId:PANEL_ID,status};if(reason)p.reason=reason;parent.postMessage(p,target())}
+        function monitor(){if(!customElements||typeof customElements.whenDefined!=='function'){post('error','unsupported-browser');return}let t=setTimeout(()=>{if(!customElements.get('zapier-interfaces-chatbot-embed'))post('error','component-unavailable')},10000);customElements.whenDefined('zapier-interfaces-chatbot-embed').then(()=>{clearTimeout(t);post(document.querySelector('zapier-interfaces-chatbot-embed')?'ready':'error')}).catch(()=>post('error','component-unavailable'))}
+        if(document.readyState==='complete')monitor();else addEventListener('load',monitor,{once:true});
 
-        function isValidOrigin(origin) {
-          if (!origin) return false;
-          if (origin === 'null' || origin === 'about:blank') return false;
-          return !origin.startsWith('file:');
-        }
-
-        function resolveTargetOrigin() {
-          try {
-            if (document.referrer) {
-              const referrerOrigin = new URL(document.referrer, window.location.href).origin;
-              if (isValidOrigin(referrerOrigin)) {
-                return referrerOrigin;
-              }
-            }
-          } catch (error) {
-            /* ignore invalid referrer */
-          }
-
-          if (window.location) {
-            try {
-              const currentOrigin = window.location.origin;
-              if (isValidOrigin(currentOrigin)) {
-                return currentOrigin;
-              }
-            } catch (error) {
-              /* ignore invalid current origin */
-            }
-
-            if (window.location.ancestorOrigins && window.location.ancestorOrigins.length) {
-              const ancestorOrigin = window.location.ancestorOrigins[0];
-              if (isValidOrigin(ancestorOrigin)) {
-                return ancestorOrigin;
-              }
-            }
-          }
-
-          return '*';
-        }
-
-        const targetOrigin = resolveTargetOrigin();
-
-        function postStatus(status, reason) {
-          if (!window.parent || window.parent === window) return;
-          const payload = { source: SOURCE, panelId: PANEL_ID, status };
-          if (reason) {
-            payload.reason = reason;
-          }
-          window.parent.postMessage(payload, targetOrigin);
-        }
-
-        function monitorEmbed() {
-          if (!window.customElements || typeof window.customElements.whenDefined !== 'function') {
-            postStatus('error', 'unsupported-browser');
-            return;
-          }
-
-          let readyTimeout = setTimeout(() => {
-            if (!window.customElements.get('zapier-interfaces-chatbot-embed')) {
-              postStatus('error', 'component-unavailable');
-            }
-          }, 10000);
-
-          window.customElements
-            .whenDefined('zapier-interfaces-chatbot-embed')
-            .then(() => {
-              clearTimeout(readyTimeout);
-              const embed = document.querySelector('zapier-interfaces-chatbot-embed');
-              if (embed) {
-                postStatus('ready');
-              } else {
-                postStatus('error', 'missing-embed');
-              }
-            })
-            .catch(() => {
-              postStatus('error', 'component-unavailable');
-            });
-        }
-
-        if (document.readyState === 'complete') {
-          monitorEmbed();
-        } else {
-          window.addEventListener('load', monitorEmbed, { once: true });
-        }
+        addEventListener('DOMContentLoaded', async () => {
+          const button=document.getElementById('ariyoVoiceButton'), title=document.getElementById('ariyoVoiceTitle'), status=document.getElementById('ariyoVoiceStatus');
+          let recognition=null;
+          const setStatus=(heading,message,active=false)=>{title.textContent=heading;status.textContent=message;button.setAttribute('aria-pressed',String(active))};
+          if(window.OmoluabiVoiceEngine){const local=await window.OmoluabiVoiceEngine.detect(); if(local.available)setStatus('Local voice connected','Voice processing service detected on this device.'); else if(!window.OmoluabiVoiceEngine.browserSpeechAvailable())setStatus('Voice engine needed','Start the local Voice Engine on this device to use private voice input.');}
+          button.addEventListener('click',()=>{
+            if(recognition){recognition.stop();return}
+            if(!window.OmoluabiVoiceEngine)return setStatus('Voice unavailable','Voice module did not load.');
+            recognition=window.OmoluabiVoiceEngine.createBrowserDictation({language:'en-NG'});
+            if(!recognition)return setStatus('Local voice required','Browser dictation is unavailable. Start the local Voice Engine to keep voice processing on-device.');
+            let finalText=''; recognition.onstart=()=>setStatus('Listening…','Speak naturally to Ariyọ̀.',true); recognition.onresult=(event)=>{let interim='';for(let i=event.resultIndex;i<event.results.length;i++){const text=event.results[i][0].transcript;if(event.results[i].isFinal)finalText+=text;else interim+=text}setStatus('Listening…',finalText||interim||'Speak naturally to Ariyọ̀.',true)};
+            recognition.onerror=(e)=>{setStatus('Voice unavailable',e.error==='not-allowed'?'Microphone permission is required.':'Voice input could not start.');recognition=null};
+            recognition.onend=()=>{button.setAttribute('aria-pressed','false');if(finalText.trim()){setStatus('I heard you',finalText.trim());window.parent.postMessage({source:'ariyo-voice',type:'transcript',text:finalText.trim()},target())}else setStatus('Voice ready','Tap and speak. Local Voice Engine is preferred when available.');recognition=null}; recognition.start();
+          });
+        });
       })();
     </script>
     <script src="../../scripts/sw-controller.js" defer></script>
