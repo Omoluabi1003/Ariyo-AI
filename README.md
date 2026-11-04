@@ -1,5 +1,19 @@
 # Àríyò AI
 
+## Project at a glance
+
+**Category:** Culturally focused music, radio and interactive entertainment  
+**What it does:** Web music playback, radio discovery, companion AI and browser mini-games  
+**Audience:** Users, technical contributors, project evaluators and potential partners  
+**Repository:** https://github.com/Omoluabi1003/Ariyo-AI
+
+**Current implementation boundary:** Offline availability, assistant functionality and streaming depend on the applicable client and data sources.
+
+This README documents the product direction and its implementation details. Planned or experimental features should not be interpreted as production-ready without verification in the code and deployment.
+
+---
+
+
 Àríyò AI is a web-based music player created by **Paul A.K. Iyogun** (also known as **Omoluabi**). It provides a unique and culturally-rich experience for users. The app features a curated selection of Nigerian music and the Ariyo AI assistant. It is designed as a Progressive Web App (PWA), allowing users to install it on their devices for a native-like experience.
 
 ## Features
